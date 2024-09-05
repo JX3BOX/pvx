@@ -141,7 +141,11 @@ export default {
             column = column > 2 ? 2 : column;
             let list = this.list || [];
             const arr = this.isPhone ? [] : new Array(column * 4 - 2 - list.length).fill({});
-            list = list.sort((a, b) => this.convertTime(a.fromTime) - this.convertTime(b.fromTime));
+            list = list.sort((a, b) => a.fromTime - b.fromTime).map(item => {
+                item.fromTime = item.fromTime.format("HH:mm");
+                item.toTime = item.toTime.format("HH:mm");
+                return item;
+            });
             return list.concat(arr) || [];
         },
         isPhone() {
@@ -349,9 +353,11 @@ export default {
         },
         getGameReporter() {
             const params = this.params;
+            const threeMainHorseSites = ["黑戈壁", "阴山大草原", "鲲鹏岛"];
             getGameReporter(params).then((res) => {
                 const data = res?.data?.data;
                 const list = data?.list || [];
+
                 // 三大马场只各取一条
                 const myMap = new Map();
                 const threeList = list.filter(
@@ -380,7 +386,6 @@ export default {
                         );
                     })
                     .slice(0, 1);
-
                 const newThreeList = [];
                 threeList.forEach((item) => {
                     // 三大马场拆分成四条
@@ -406,32 +411,28 @@ export default {
                     });
                 });
                 const newList = newThreeList.concat(chitulList, diluList, bList);
-                this.list = newList.map((item) => {
+                const normalizedBroadcastList = newList.map((item) => {
                     let fromTime = "";
                     let toTime = "";
                     if (!!("minute" in item)) {
                         if (!this.isAsia) {
                             fromTime = dayjs
-                                .tz(new Date(item.created_at).valueOf() + (item.minute + 5) * 60 * 1000)
-                                .format("HH:mm");
+                                .tz(new Date(item.created_at).valueOf() + (item.minute + 5) * 60 * 1000);
                             toTime = dayjs
-                                .tz(new Date(item.created_at).valueOf() + (item.minute + 10) * 60 * 1000)
-                                .format("HH:mm");
+                                .tz(new Date(item.created_at).valueOf() + (item.minute + 10) * 60 * 1000);
                         } else {
                             fromTime = dayjs(
                                 new Date(item.created_at).valueOf() + (item.minute + 5) * 60 * 1000
-                            ).format("HH:mm");
-                            toTime = dayjs(new Date(item.created_at).valueOf() + (item.minute + 10) * 60 * 1000).format(
-                                "HH:mm"
                             );
+                            toTime = dayjs(new Date(item.created_at).valueOf() + (item.minute + 10) * 60 * 1000);
                         }
                     } else {
                         if (!this.isAsia) {
-                            fromTime = dayjs.tz(new Date(item.created_at).valueOf() + 5 * 60 * 1000).format("HH:mm");
-                            toTime = dayjs.tz(new Date(item.created_at).valueOf() + 10 * 60 * 1000).format("HH:mm");
+                            fromTime = dayjs.tz(new Date(item.created_at).valueOf() + 5 * 60 * 1000);
+                            toTime = dayjs.tz(new Date(item.created_at).valueOf() + 10 * 60 * 1000);
                         } else {
-                            fromTime = dayjs(new Date(item.created_at).valueOf() + 5 * 60 * 1000).format("HH:mm");
-                            toTime = dayjs(new Date(item.created_at).valueOf() + 10 * 60 * 1000).format("HH:mm");
+                            fromTime = dayjs(new Date(item.created_at).valueOf() + 5 * 60 * 1000);
+                            toTime = dayjs(new Date(item.created_at).valueOf() + 10 * 60 * 1000);
                         }
                     }
                     return {
@@ -440,6 +441,16 @@ export default {
                         fromTime: fromTime,
                         toTime: toTime,
                     };
+                });
+                // 马场播报去重。系统播报和npc预测时间会重复，需要去重。
+                // 没有异常情况下，系统播报的马驹必定在npc预测的马场中出现，
+                // 且npc预测信息更多，故仅保留npc预测信息。
+                this.list = normalizedBroadcastList.filter((item) => {
+                    // 如果content为`江湖快马飞报开头`且包含三大马场，则过滤。
+                    if (item.content.match("江湖.*" + threeMainHorseSites.join("|"))) {
+                        return false;
+                    }
+                    return true
                 });
             });
         },
