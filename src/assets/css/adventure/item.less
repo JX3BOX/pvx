@@ -1,0 +1,84 @@
+.m-adventure-item {
+    .pr;
+    .size(auto,224px);
+    .r(10px);
+    display: block;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border: 6px solid #fff;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-out;
+    .u-default {
+        .full;
+    }
+    .u-title {
+        .pa;
+        .z(1);
+        .lb(0,20px);
+        width: 50%;
+        margin-left: 25%;
+    }
+    .u-img {
+        .full;
+        .pa;
+        .lt(0,0);
+        background-size: cover;
+    }
+    .u-icon {
+        .pa;
+        .z(2);
+        background-image: url("@{pvx_img}icon.png");
+        background-size: cover;
+        .size(41px,73px);
+        .lt(20px,14px);
+    }
+
+    .u-camp-switch,
+    .u-school-switch {
+        .size(24px);
+        .pa;
+        top: 10px;
+        right: 10px;
+        opacity: 0.5;
+        transition: all 0.2s ease-in-out;
+
+        .u-camp-icon,
+        .u-school-icon {
+            display: block;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &:hover {
+        cursor: pointer;
+        background: rgba(232, 111, 0, 0.1);
+        border: 1px solid rgba(232, 111, 0, 1);
+        box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
+    }
+}
+.m-school-choose {
+    .u-school-list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .u-school-item {
+        padding: 4px;
+        .size(36px);
+        .pointer;
+        .r(4px);
+        transition: all 0.2s ease-in-out;
+        &:hover {
+            background-color: #0002;
+        }
+    }
+}
+.m-adventure-item:last-child {
+    .mr(0);
+}

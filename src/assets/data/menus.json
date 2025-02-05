@@ -1,0 +1,127 @@
+[
+    {
+        "key": "share",
+        "label": "玩家创作类栏目",
+        "menuTitle": "创意",
+        "index": "1",
+        "submenus": [
+            {
+                "path": "/face",
+                "label": "捏脸数据",
+                "icon": "el-icon-download",
+                "key": "face",
+                "status": true
+            },
+            {
+                "path": "/body",
+                "label": "体型数据",
+                "icon": "el-icon-download",
+                "key": "body",
+                "status": true,
+                "isStd": true
+            },
+            {
+                "path": "/homeland",
+                "label": "家园蓝图",
+                "icon": "el-icon-download",
+                "key": "blueprint",
+                "status": true,
+                "isStd": true
+            }
+        ]
+    },
+    {
+        "key": "rare",
+        "label": "图鉴百科类栏目",
+        "menuTitle": "图鉴",
+        "index": "2",
+        "submenus": [
+            {
+                "path": "/exterior",
+                "label": "外观大全",
+                "icon": "el-icon-download",
+                "key": "exterior",
+                "status": true
+            },
+            {
+                "path": "/adventure",
+                "label": "奇遇大全",
+                "icon": "el-icon-files",
+                "key": "adventure",
+                "status": true
+            },
+            {
+                "path": "/pet",
+                "label": "宠物大全",
+                "icon": "el-icon-files",
+                "key": "pet",
+                "status": true
+            },
+            {
+                "path": "/horse",
+                "label": "坐骑大全",
+                "icon": "el-icon-files",
+                "key": "horse",
+                "status": true
+            },
+            {
+                "path": "/furniture",
+                "label": "家具大全",
+                "icon": "el-icon-files",
+                "key": "furniture",
+                "status": true,
+                "isStd": true
+            },
+            {
+                "path": "/reputation",
+                "label": "声望大全",
+                "icon": "el-icon-sugar",
+                "key": "reputation",
+                "status": true
+            },
+            {
+                "path": "/book",
+                "label": "书籍大全",
+                "icon": "el-icon-files",
+                "key": "book",
+                "status": true
+            },
+            {
+                "path": "/exam",
+                "label": "考试大全",
+                "icon": "el-icon-files",
+                "key": "exam",
+                "status": true
+            }
+        ]
+    },
+    {
+        "key": "merchants",
+        "label": "信息查询类栏目",
+        "menuTitle": "信息",
+        "index": "3",
+        "submenus": [
+            {
+                "path": "/pvg/manufacture",
+                "label": "技艺助手",
+                "icon": "el-icon-sugar",
+                "key": "manufacture",
+                "status": true
+            },
+            {
+                "path": "/pvg/price",
+                "label": "价格走势",
+                "icon": "el-icon-sugar",
+                "key": "price",
+                "status": true
+            },
+            {
+                "path": "/pvg/gonggao",
+                "label": "活动告示",
+                "icon": "el-icon-sugar",
+                "key": "gonggao",
+                "status": true
+            }
+        ]
+    }
+]

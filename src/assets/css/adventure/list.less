@@ -1,0 +1,100 @@
+@themeColor: #d16400;
+
+.p-adventure-List {
+    .u-type {
+        .flex;
+        .mb(20px);
+        justify-content: space-between;
+        align-items: flex-end;
+        .u-all {
+            cursor: pointer;
+            color: #a5a5a5;
+            .fz(16px,21px);
+        }
+    }
+    .u-title {
+        .fz(28px,42px);
+        .bold(700);
+        color: #24292e;
+    }
+}
+
+.m-adventure-list {
+    .mt(40px);
+    .u-shade-btn {
+        .pointer;
+        .pa;
+        z-index: 12;
+        .flex;
+        .flex(x);
+        align-items: center;
+        .size(60px,200px);
+        .fz(26px);
+        visibility: hidden;
+        background-color: rgba(0, 0, 0, 0.7);
+        i {
+            color: #fff;
+        }
+        &:hover {
+            background-color: @themeColor;
+            i,
+            svg {
+                color: #fff;
+            }
+        }
+    }
+    .u-shade-btn-left {
+        border-radius: 10px 0 0 10px;
+    }
+    .u-shade-btn-right {
+        border-radius: 0 10px 10px 0;
+        right: 0;
+    }
+    .u-disabled {
+        cursor: not-allowed;
+        background-color: rgba(163, 152, 152, 0.7);
+        &:hover {
+            background-color: rgba(163, 152, 152, 0.7);
+        }
+    }
+}
+
+//分类型list
+.u-all-type {
+    margin-top: 20px !important;
+}
+//全部list
+.m-face-list--all {
+    .mb(40px);
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.m-archive-more {
+    width: 100%;
+    .mb(40px);
+}
+@media screen and (max-width: @ipad) {
+    .m-adventure {
+        .u-type {
+            .mt(20px);
+        }
+        .u-title {
+            .fz(24px);
+        }
+
+        .u-all-type {
+            margin-top: 0 !important;
+        }
+    }
+
+    .m-common-list { 
+        overflow-x: auto;
+        .scrollbar(2px);
+    }
+}
+// @media screen and (max-width: @phone) {
+//     .p-adventure-List .u-type.u-all-type {
+//         .pt(64px);
+//     }
+// }

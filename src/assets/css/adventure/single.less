@@ -1,0 +1,198 @@
+.m-adventure-navigation {
+    .pr;
+    .mt(20px);
+    padding: 20px 0;
+    display: flex;
+    position: sticky;
+    top: @header-height;
+    background-color: #fff;
+    .z(10);
+    .u-goback {
+        .pointer;
+        .r(30px);
+        .fz(16px,40px);
+        .size(100px,40px);
+        .x;
+        .mr(10px);
+        .color(#fff);
+        border: none;
+        background: #24292e;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+        &:hover {
+            background: #d16400;
+        }
+    }
+    .u-input {
+        .ml(20px);
+        // .w(360px);
+        flex: 1;
+    }
+}
+
+.m-adventure-header {
+    .pr;
+    .mt(20px);
+    .mb(20px);
+}
+.m-adventure-title {
+    .fz(28px,42px);
+    .bold;
+    color: #24292e;
+}
+.p-adventure-single .m-adventure-title {
+    height: auto;
+}
+.m-adventure-content {
+    .r(10px);
+    .clip;
+    .mb(20px);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.4);
+}
+.m-adventure-task {
+    // background: url("../../../img/adventure_bg.png") repeat 0 0;
+    background: #324148;
+    .h(350px);
+    .flex;
+    .pr;
+    .u-content {
+        user-select: none;
+        flex-grow: 1;
+        border: 14px solid #324148;
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+            linear-gradient(180deg, #ece9d6 0%, #ffffff 100%);
+        .flex;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 20px;
+        .pr(20px);
+        .u-item {
+            .flex;
+            .h(250px);
+            gap: 20px;
+            flex-shrink: 0;
+            &.u-task-name {
+                .ml(20px);
+                align-items: center;
+                .u-title {
+                    .x;
+                }
+            }
+
+            img {
+                .size(250px);
+            }
+            .u-info-box {
+                .w(250px);
+                box-sizing: border-box;
+                .u-title {
+                    .db;
+                    .fz(28px,48px);
+                    .bold;
+                }
+                &.u-desc-box {
+                    .w(500px);
+                    .u-title {
+                        // .db;
+                        padding: 40px 0 20px 0;
+                        .fz(16px, 24px);
+                        .bold;
+                    }
+                    .u-desc {
+                        .fz(14px);
+                    }
+                }
+            }
+        }
+    }
+    .u-btn {
+        user-select: none;
+        .size(140px,20px);
+        .pa;
+        .rb(34px,24px);
+        box-sizing: border-box;
+        text-align: right;
+        span {
+            cursor: pointer;
+            background: #324148;
+            box-shadow: 0px 0px 10px rgba(50, 65, 72, 0.4);
+            .fz(12px,16px);
+            color: #fff;
+            padding: 1px 10px;
+            .mr(10px);
+        }
+        .u-disabled {
+            // display: none;
+            cursor: not-allowed;
+        }
+    }
+
+    padding: 0 20px;
+    .u-prefix {
+        .pa;
+        .lt(0);
+        .db;
+        .size(20px,100%);
+    }
+    .u-suffix {
+        .pa;
+        .rt(0);
+        .db;
+        .size(20px,100%);
+        transform: rotate(180deg);
+    }
+}
+
+.m-trigger-links {
+    .pa;
+    .rb(0);
+    // .x;
+    .u-link {
+        .fz(14px);
+        i {
+            .mr(2px);
+            .y;
+        }
+        .underline(@color-link);
+    }
+    em {
+        margin: 0 5px;
+    }
+}
+
+.m-pvx-comment {
+    .r(5px);
+    padding: 0 10px;
+    background-color: #fff;
+}
+@media screen and (max-width: @ipad) {
+    .m-adventure-task {
+        .u-content {
+            overflow-x: auto;
+        }
+        .u-btn {
+            display: none;
+        }
+    }
+}
+@media screen and (max-width: @phone) {
+    .m-adventure-navigation {
+        padding: 10px 0;
+    }
+
+    .m-serendipity {
+        width: 100%;
+        overflow-x: auto;
+        .u-title {
+            .u-label,
+            .u-more {
+                flex: none;
+            }
+        }
+        .scrollbar(2px);
+        .u-list li span {
+            flex: none;
+        }
+    }
+}
