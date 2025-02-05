@@ -64,7 +64,7 @@ module.exports = {
                 },
             },
             "/api/team": {
-                target: "https://team.api.jx3box.com",
+                target: "https://team.jx3box.com",
                 onProxyReq: function (request) {
                     request.setHeader("origin", "");
                 },
@@ -72,6 +72,36 @@ module.exports = {
             "/api/search": {
                 target: "https://gs.jx3box.com",
                 changeOrigin: true,
+            },
+            "/pay/web": {
+                target: "https://ipay.jx3box.com",
+                onProxyReq: function (request) {
+                    request.setHeader("origin", "");
+                },
+            },
+            "/pay": {
+                target: "https://pay.jx3box.com",
+                onProxyReq: function (request) {
+                    request.setHeader("origin", "");
+                },
+            },
+            "/api/summary-any": {
+                target: "https://next2.jx3box.com",
+                onProxyReq: function (request) {
+                    request.setHeader("origin", "");
+                },
+            },
+            "/api/letter": {
+                target: "https://dev.next2.jx3box.com",
+                onProxyReq: function (request) {
+                    request.setHeader("origin", "");
+                },
+            },
+            "/api/next2": {
+                target: "https://dev.next2.jx3box.com",
+                onProxyReq: function (request) {
+                    request.setHeader("origin", "");
+                },
             },
             "/api": {
                 target: "https://dev.next2.jx3box.com",
