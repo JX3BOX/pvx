@@ -4,6 +4,8 @@ const { JX3BOX, SEO } = require("@jx3box/jx3box-common");
 const Setting = require("./setting.json");
 
 module.exports = {
+    // map
+    productionSourceMap: false,
     //❤️ Multiple pages ~
     pages: {
         adventure: {
