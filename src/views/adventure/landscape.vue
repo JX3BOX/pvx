@@ -62,12 +62,12 @@
                     }"
                     v-if="userAchievement"
                 >
-                    <img class="u-content__bg" src="../../assets/img/treasure/content_bg.png" />
+                    <img class="u-content__bg" :src="getCdnImgUrl('content_bg.png')" />
                     <div class="m-left" :class="reelAddClass">
-                        <img class="u-left__img" src="../../assets/img/treasure/landscape/left.png" />
+                        <img class="u-left__img" :src="getCdnImgUrl('landscape/left.png')" />
                     </div>
                     <div class="m-right" :class="reelAddClass">
-                        <img class="u-right__img" src="../../assets/img/treasure/landscape/right.png" />
+                        <img class="u-right__img" :src="getCdnImgUrl('landscape/right.png')" />
                     </div>
                     <div class="m-qy-box">
                         <!-- 普通奇遇 -->
@@ -83,31 +83,31 @@
                                             <img
                                                 v-show="currentCamp == 'hq'"
                                                 class="u-qy__img"
-                                                :src="require(`../../assets/img/treasure/pt/${item.dwID}_hq.png`)"
+                                                :src="getCdnImgUrl(`pt/${item.dwID}_hq.png`)"
                                             />
                                             <img
                                                 v-show="currentCamp == 'er'"
                                                 class="u-qy__img"
-                                                :src="require(`../../assets/img/treasure/pt/${item.dwID}_er.png`)"
+                                                :src="getCdnImgUrl(`pt/${item.dwID}_er.png`)"
                                             />
                                         </template>
                                         <img
                                             v-else
                                             class="u-qy__img"
-                                            :src="require(`../../assets/img/treasure/pt/${item.dwID}.png`)"
+                                            :src="getCdnImgUrl(`pt/${item.dwID}.png`)"
                                         />
                                         <div class="m-qy__text">
-                                            <img class="u-qy__bg" src="../../assets/img/treasure/pt/text_bg.png" />
+                                            <img class="u-qy__bg" :src="getCdnImgUrl('pt/text_bg.png')" />
                                             <span class="u-qy__text">{{ item.szName }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="u-no-qy" v-else>
-                                <img src="../../assets/img/treasure/landscape/no_qy.png" />
+                                <img :src="getCdnImgUrl('landscape/no_qy.png')" />
                             </div>
                             <div class="m-qy-count">
-                                <img class="u-count__img" src="../../assets/img/treasure/landscape/pt_qy_bg.png" />
+                                <img class="u-count__img" :src="getCdnImgUrl('landscape/pt_qy_bg.png')" />
                                 <div class="m-count-info">
                                     <div>{{ userAchievement.normalNowNum }}</div>
                                     <div>/</div>
@@ -121,15 +121,15 @@
                                 <div class="m-qy__row" v-for="(ele, eleIndex) in userAchievement.pet" :key="eleIndex">
                                     <div class="m-qy__item" v-for="(item, index) in ele" :key="index">
                                         <img class="u-qy__img" :src="getImgUrl(item)" />
-                                        <img class="u-qy__border" src="../../assets/img/treasure/pet_img_border.png" />
+                                        <img class="u-qy__border" :src="getCdnImgUrl('pet_img_border.png')" />
                                     </div>
                                 </div>
                             </div>
                             <div class="u-no-qy" v-else>
-                                <img src="../../assets/img/treasure/landscape/no_qy.png" />
+                                <img :src="getCdnImgUrl('landscape/no_qy.png')" />
                             </div>
                             <div class="m-qy-count">
-                                <img class="u-count__img" src="../../assets/img/treasure/landscape/pet_qy_bg.png" />
+                                <img class="u-count__img" :src="getCdnImgUrl('landscape/pet_qy_bg.png')" />
                                 <div class="m-count-info">
                                     <div>{{ userAchievement.petNowNum }}</div>
                                     <div>/</div>
@@ -140,9 +140,9 @@
                     </div>
                     <!-- 绝世奇遇 -->
                     <div class="m-world">
-                        <img class="u-world__bg" src="../../assets/img/treasure/world/world_bg.svg" />
+                        <img class="u-world__bg" :src="getCdnImgUrl('world/world_bg.svg')" />
                         <div class="m-world-count">
-                            <img class="u-count__img" src="../../assets/img/treasure/landscape/world_qy_bg.png" />
+                            <img class="u-count__img" :src="getCdnImgUrl('landscape/world_qy_bg.png')" />
                             <div class="m-count-info">
                                 <div>{{ userAchievement.perfectNowNum }}</div>
                                 <div>/</div>
@@ -161,7 +161,7 @@
                             <img
                                 class="u-item__img"
                                 :src="
-                                    require(`../../assets/img/treasure/world/${item.dwID}${
+                                    getCdnImgUrl(`world/${item.dwID}${
                                         item.isAct ? '_act' : ''
                                     }.png`)
                                 "
@@ -170,7 +170,7 @@
                                 <img
                                     class="u-item__bg"
                                     :src="
-                                        require(`../../assets/img/treasure/world/text_bg${
+                                        getCdnImgUrl(`world/text_bg${
                                             item.isAct ? '_act' : ''
                                         }.png`)
                                     "
@@ -181,9 +181,9 @@
                     </div>
                     <!-- 右侧内容 -->
                     <div class="m-title">
-                        <img class="u-logo" src="../../assets/img/treasure/landscape/title_icon.png" />
+                        <img class="u-logo" :src="getCdnImgUrl('landscape/title_icon.png')" />
                         <div class="m-title-info">
-                            <img class="m-tip" src="../../assets/img/treasure/poetry_lan.png" />
+                            <img class="m-tip" :src="getCdnImgUrl('poetry_lan.png')" />
                             <div class="m-user">
                                 <img class="u-icon" :src="showSchoolIcon(roleInfo.mount)" />
                                 <span class="u-name">{{ roleInfo.name }}</span>
@@ -191,7 +191,7 @@
                         </div>
                     </div>
                     <div class="m-producer">
-                        <img class="u-producer" src="../../assets/img/treasure/producer.png" />
+                        <img class="u-producer" :src="getCdnImgUrl('producer.png')" />
                         <div class="u-producer__text">*剑网3魔盒提供技术支持，茗伊插件提供数据支持。</div>
                     </div>
                     <div class="m-qy-progress">
@@ -216,7 +216,7 @@ import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import treasureCommon from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
-import { __Links } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Links, __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
 export default {
     name: "landscape",
     inject: ["__imgRoot", "__imgPath"],
@@ -376,6 +376,9 @@ export default {
             return chunks;
         },
         showSchoolIcon,
+        getCdnImgUrl(img) {
+            return `${__cdn}design/treasure/${img}`;
+        }
     },
 };
 </script>

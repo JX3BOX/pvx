@@ -70,7 +70,6 @@ let getData = (userJx3Id) => {
                     res?.data?.list?.forEach((item) => {
                         if (type == "perfect") {
                             try {
-                                let imagePath = require(`../img/treasure/world/${item.dwID}.png`);
                                 item.isAct = false;
                                 if (list.includes(item.dwID)) {
                                     item.isAct = true;
