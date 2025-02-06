@@ -36,7 +36,7 @@
 
 <script>
 import { getLink } from "@jx3box/jx3box-common/js/utils";
-import { getAdventure, getSerendipityAchievementId } from "@/service/adventure";
+import { getAdventure, getSerendipityAchievementId } from "@/service/adventure/adventure";
 import PvxUser from "@/components/PvxUser.vue";
 import task from "@/components/adventure/task.vue";
 import Serendipity from "@/components/common/serendipity.vue";

@@ -72,7 +72,7 @@
 import CardBannerList from "@/components/common/card_banner_list.vue";
 import AdventureTabs from "@/components/adventure/tabs.vue";
 import AdventureItem from "@/components/adventure/item.vue";
-import { getAdventures } from "@/service/adventure";
+import { getAdventures } from "@/service/adventure/adventure";
 import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
 import dayjs from "@/utils/day";

@@ -1,4 +1,4 @@
-import { getRoleGameAchievements, getAdventures, getAchievements } from "@/service/treasure.js";
+import { getRoleGameAchievements, getAdventures, getAchievements } from "@/service/adventure/treasure.js";
 
 const perfectAchievement = {
     111: { hasClass: "zhg", zIndex: 9 },

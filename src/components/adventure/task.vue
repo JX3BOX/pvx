@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { getAdventureTask } from "@/service/adventure";
+import { getAdventureTask } from "@/service/adventure/adventure";
 import { extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import { isPhone } from "@/utils/index";
 import dayjs from "@/utils/day";

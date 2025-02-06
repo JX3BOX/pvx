@@ -211,7 +211,7 @@
 </template>
 
 <script>
-import { getUserRoles } from "@/service/treasure.js";
+import { getUserRoles } from "@/service/adventure/treasure.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import treasureCommon from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
