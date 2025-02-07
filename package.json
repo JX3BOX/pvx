@@ -13,10 +13,10 @@
     },
     "dependencies": {
         "@jx3box/jx3box-comment-ui": "^2.0.2",
-        "@jx3box/jx3box-common": "^8.6.2",
+        "@jx3box/jx3box-common": "^8.6.3",
         "@jx3box/jx3box-common-ui": "^9.1.4",
         "@jx3box/jx3box-data": "^3.7.7",
-        "@jx3box/jx3box-editor": "^2.2.23",
+        "@jx3box/jx3box-editor": "^2.2.24",
         "@jx3box/jx3box-emotion": "^1.2.8",
         "@jx3box/jx3box-facedat": "^2.6.2",
         "@jx3box/jx3box-map": "^0.2.0",
