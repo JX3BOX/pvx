@@ -9,7 +9,7 @@
         "preview": "env BUILD_MODE=preview vue-cli-service build",
         "lint": "vue-cli-service lint",
         "inspect": "vue inspect > output.js",
-        "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common-ui@latest @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-emotion@latest @jx3box/jx3box-comment-ui@latest @jx3box/jx3box-editor@latest"
+        "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common-ui@latest @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-emotion@latest @jx3box/jx3box-comment-ui@latest @jx3box/jx3box-editor@latest @jx3box/jx3box-map@latest"
     },
     "dependencies": {
         "@jx3box/jx3box-comment-ui": "^2.0.2",
@@ -18,6 +18,9 @@
         "@jx3box/jx3box-data": "^3.7.7",
         "@jx3box/jx3box-editor": "^2.2.23",
         "@jx3box/jx3box-emotion": "^1.2.8",
+        "@jx3box/jx3box-facedat": "^2.6.2",
+        "@jx3box/jx3box-map": "^0.2.0",
+        "animate.css": "^4.1.1",
         "axios": "^0.21.1",
         "core-js": "^3.16.2",
         "dayjs": "^1.10.6",

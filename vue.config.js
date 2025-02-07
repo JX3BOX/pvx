@@ -19,7 +19,25 @@ module.exports = {
             entry: "src/pages/pvg/index.js",
             template: "public/index.html",
             filename: "pvg/index.html",
-        }
+        },
+        reputation: {
+            title: "声望大全 - JX3BOX",
+            entry: "src/pages/reputation/index.js",
+            template: "public/index.html",
+            filename: "reputation/index.html",
+        },
+        book: {
+            title: "书籍大全 - JX3BOX",
+            entry: "src/pages/book/index.js",
+            template: "public/index.html",
+            filename: "book/index.html",
+        },
+        exam: {
+            title: "剑三考试 - JX3BOX",
+            entry: "src/pages/exam/index.js",
+            template: "public/index.html",
+            filename: "exam/index.html",
+        },
     },
 
     //❤️ Proxy ~
