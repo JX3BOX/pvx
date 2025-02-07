@@ -1,0 +1,181 @@
+.p-exam {
+    position: relative;
+    .pt(40px);
+    .m-exam-search {
+        .search-group {
+            .search-item {
+                &.type-list {
+                    .type-item {
+                        &:last-child {
+                            margin: 0;
+                        }
+                        &:hover,
+                        &.is-active {
+                            background-color: @examColor;
+                            .el-radio-button__inner {
+                                background-color: @examColor;
+                                color: #fff;
+                            }
+                        }
+                    }
+                }
+                &.filter-wrap {
+                    margin: 0;
+                    .filter-img {
+                        &.active {
+                            svg {
+                                background-color: @examColor;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .u-analysis {
+            background-color: #e54059;
+            border-color: #e54059;
+        }
+    }
+
+    .u-search-btn {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 100px;
+        height: 40px;
+        border-radius: 5px;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 40px;
+        text-align: center;
+        color: #ffffff;
+        .el-icon-warning {
+            margin-right: 5px;
+            color: #fff;
+        }
+        &.u-publish {
+            background: #0366d6;
+        }
+        &.u-publish__1 {
+            background: #e54059;
+        }
+    }
+    @media screen and (max-width: @ipad) {
+        .u-search-btn {
+            .none;
+        }
+    }
+    .m-exam-search__extra {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        max-width: calc(100% - @openedWidth);
+        .u-extra-title {
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 21px;
+            color: #afafaf;
+            .el-icon-caret-top {
+                font-size: 20px;
+            }
+        }
+        .m-filter-tags {
+            .flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            .u-tag {
+                margin-right: 20px;
+                margin-bottom: 10px;
+                width: 80px;
+                height: 30px;
+                background: #ffffff;
+                border-radius: 5px;
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 30px;
+                color: #949494;
+                text-align: center;
+                cursor: pointer;
+                box-sizing: border-box;
+                border: 1px solid transparent;
+                &:hover,
+                &.is-active {
+                    border-color: @examColor;
+                    color: @examColor;
+                }
+            }
+        }
+    }
+    .m-exam-content {
+        .pt(20px);
+        .el-empty {
+            .flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .i-client-origin {
+            border: 1px solid #0eb7ce;
+            color: #0eb7ce;
+        }
+        .i-client-std {
+            border: 1px solid #f0b400;
+            color: #f0b400;
+        }
+    }
+}
+.p-exam .m-exam-search .search-group .search-item.type-list .type-item:last-child {
+    .ml(20px);
+}
+.filter-content {
+    .filter-item {
+        .check-box-wrapper {
+            .el-radio-group {
+                .el-radio-button {
+                    &.is-active,
+                    &:hover {
+                        .el-radio-button__inner {
+                            background-color: @examColor;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-exam .m-exam-search .search-group .search-item.type-list .type-item:last-child {
+        .ml(0px);
+    }
+    .p-exam {
+        .m-exam-content {
+            .pt(64px);
+        }
+        .m-exam-search {
+            box-sizing: border-box;
+            max-width: 100%;
+            .el-radio-group {
+                .flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .search-group {
+                flex-direction: row;
+                flex-wrap: wrap;
+                .type-list {
+                    .w(100%);
+                    box-sizing: border-box;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    .el-radio-group {
+                        gap: 0;
+                    }
+                    .type-item {
+                        width: calc(33%);
+                        margin: 0;
+                    }
+                }
+            }
+        }
+    }
+}

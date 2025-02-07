@@ -1,0 +1,365 @@
+@import "~@/assets/css/common/back.less";
+
+.book-single-wrapper {
+    .book-single-content {
+        .pt(40px);
+        .book-header {
+            margin-bottom: 20px;
+            h2,
+            p {
+                margin: 0;
+                color: #24292e;
+            }
+            .book-title {
+                font-size: 28px;
+                font-weight: 700;
+            }
+            .book-desc {
+                .fz(12px,1.5);
+            }
+        }
+        .book-detail-wrapper {
+            .flex;
+            .mb(40px);
+            gap: 20px;
+            flex-shrink: 1;
+            .book-content-wrapper {
+                .pr;
+                .pr(34px);
+                .h(316px);
+                .w(100%);
+                overflow: auto;
+                padding: 14px 36px 14px 14px;
+                box-sizing: border-box;
+                color: #000000;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+                background: url("../../img/book/line.png") no-repeat top right #324148;
+                background-size: contain;
+                .book-content {
+                    .pr;
+                    .size(100%,288px);
+                    .fz(14px);
+                    .scrollbar(2px);
+                    box-sizing: border-box;
+                    padding: 20px;
+                    background: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)),
+                        linear-gradient(180deg, #ece9d6 0%, #ffffff 100%);
+
+                    &.img-content {
+                        .x;
+                        img {
+                            max-width: 100%;
+                            max-height: 100%;
+                        }
+                    }
+                    .title {
+                        font-size: 16px;
+                        font-weight: 700;
+                    }
+                    .content {
+                        line-height: 30px;
+                    }
+                    &.vertical {
+                        writing-mode: tb-rl;
+                        text-align: left;
+                        overflow-x: auto;
+                        letter-spacing: 5px;
+                        .title {
+                            margin-left: 40px;
+                        }
+                    }
+                    &.row {
+                        padding-right: 80px;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                        .title {
+                            margin-bottom: 40px;
+                        }
+                    }
+                }
+                .buttons {
+                    position: absolute;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    & > .disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+                    & > div {
+                        width: 20px;
+                        height: 20px;
+                        font-weight: 700;
+                        font-size: 12px;
+                        color: #fff;
+                        background-color: #324148;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+                        box-shadow: 0px 0px 10px rgba(50, 65, 72, 0.4);
+                        i {
+                            display: inline-block;
+                            width: 20px;
+                            height: 20px;
+                            line-height: 20px;
+                            text-align: center;
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
+                        span {
+                            &::selection {
+                                background-color: #324148;
+                            }
+                        }
+                    }
+                    &.vertical {
+                        bottom: 24px;
+                        left: 0;
+                        width: 100%;
+                        i {
+                            margin-top: 0;
+                        }
+                        & > div {
+                            &.left {
+                                margin-left: 24px;
+                                span {
+                                    margin-right: 5px;
+                                }
+                            }
+                            &.right {
+                                margin-right: 44px;
+                                span {
+                                    margin-left: 5px;
+                                }
+                            }
+                        }
+                    }
+                    &.row {
+                        top: 0;
+                        right: 44px;
+                        height: 100%;
+                        flex-direction: column-reverse;
+                        & > div {
+                            &.left {
+                                margin-bottom: 24px;
+                                span {
+                                    margin-left: 5px;
+                                }
+                            }
+                            &.right {
+                                display: flex;
+                                flex-direction: row-reverse;
+                                margin-top: 24px;
+                                span {
+                                    margin-left: 5px;
+                                }
+                            }
+                        }
+                    }
+                }
+                .switch {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 34px;
+                    height: 20px;
+                    line-height: 20px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    text-align: center;
+                    color: #fff;
+                    cursor: pointer;
+                    background-color: #000;
+                    opacity: 0;
+                    transition: all 0.5s;
+                }
+                &:hover {
+                    .switch {
+                        opacity: 1;
+                        z-index: 1;
+                    }
+                }
+                &.book-content-wrapper-9 {
+                    // 佛学
+                    background-color: #947d2e;
+                    .buttons {
+                        & > div {
+                            background-color: #947d2e;
+                            span {
+                                &::selection {
+                                    background-color: #947d2e;
+                                }
+                            }
+                        }
+                    }
+                }
+                &.book-content-wrapper-10 {
+                    // 道学
+                    background-color: #194372;
+                    .buttons {
+                        & > div {
+                            background-color: #194372;
+                            span {
+                                &::selection {
+                                    background-color: #194372;
+                                }
+                            }
+                        }
+                    }
+                }
+                &.book-content-wrapper-11 {
+                    // 杂集
+                    background-color: #324148;
+                }
+            }
+            .book-info {
+                .pr;
+                .r(10px);
+                .w(380px);
+                flex-shrink: 0;
+                padding: 20px;
+                background-color: #fff;
+                font-size: 14px;
+                font-weight: 400;
+                color: #000000;
+                box-sizing: border-box;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                p {
+                    margin: 0;
+                }
+                .u-subtitle {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    margin-bottom: 10px;
+                    font-weight: 700;
+                    font-size: 18px;
+                    line-height: 24px;
+                    svg {
+                        width: 22px;
+                    }
+                    span {
+                        margin-left: 4px;
+                    }
+                    &:last-of-type {
+                        margin-top: 20px;
+                    }
+                }
+                .u-info-item {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    margin-bottom: 5px;
+                    font-weight: 400;
+                    font-size: 14px;
+                    line-height: 18px;
+                    gap: 2px;
+                    .look-site {
+                        margin-left: 5px;
+                        font-size: 14px;
+                        text-decoration: underline;
+                    }
+                    &:last-child {
+                        margin: 0;
+                    }
+                }
+            }
+        }
+        .m-book-list {
+            position: relative;
+            margin-bottom: 40px;
+            .u-title {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                .title {
+                    display: inline-block;
+                    font-weight: 700;
+                    font-size: 28px;
+                    line-height: 42px;
+                    color: #24292e;
+                }
+                .book-achievement {
+                    margin-left: 10px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: #24292e;
+                    color: #fff;
+                    margin-top: 2px;
+                    padding: 4px 10px 6px 8px;
+                    border-radius: 50px;
+                    span {
+                        margin-left: 4px;
+                        color: #fff;
+                        font-size: 12px;
+                        font-weight: 400;
+                    }
+                    &:hover {
+                        opacity: 0.9;
+                    }
+                }
+            }
+            .book-list-content {
+                .ml(-10px);
+                .flex;
+                padding: 20px 10px;
+                gap: 20px;
+                overflow: auto;
+                .m-book-card {
+                    flex-shrink: 0;
+                }
+            }
+        }
+        .m-book-map {
+            overflow: hidden;
+        }
+    }
+
+    .m-thx {
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
+}
+.u-detail-item {
+    margin: 5px 0;
+}
+.book-fb {
+    color: #f18b8b;
+}
+.book-shop,
+.book-achievement {
+    color: #007eff;
+}
+.book-achievement:hover {
+    color: #d60036;
+}
+.book-quest {
+    a {
+        color: #8b4dff;
+        &:hover {
+            color: #fba524;
+        }
+    }
+}
+.book-special {
+    color: #fba524;
+}
+
+@media screen and (max-width: @phone) {
+    .book-single-wrapper .book-single-content {
+        .book-detail-wrapper {
+            flex-direction: column-reverse;
+            .book-info {
+                .w(100%);
+            }
+        }
+        .m-book-list .u-title {
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
+}

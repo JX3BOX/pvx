@@ -1,0 +1,133 @@
+.m-exam-tab {
+    .mt(20px);
+
+    .u-item {
+        b {
+            font-weight: normal;
+        }
+        color: @color;
+    }
+    .is-active {
+        color: @color-link;
+    }
+}
+
+.m-publish-exam-index {
+    padding-top: 120px;
+    .x;
+    .u-item {
+        .db;
+        .size(100%);
+        padding: 40px;
+        box-sizing: border-box;
+    }
+    .box-card,
+    .el-card__body {
+        padding: 0 !important;
+    }
+    .box-card {
+        .dbi;
+        .w(400px);
+        padding: 20px;
+        margin: 20px;
+
+        .x;
+        .pointer;
+        &:hover {
+            background-color: @bg-light;
+            span {
+                color: @color;
+            }
+        }
+        b,
+        i {
+            color: @primary;
+            .fz(24px);
+        }
+        i {
+            .mr(5px);
+        }
+        b {
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+        span {
+            .db;
+            color: #666;
+            .mt(10px);
+        }
+    }
+}
+@media screen and (max-width: @ipad) {
+    .m-publish-exam-index {
+        .box-card {
+            .mr(0) !important;
+            .mb(20px);
+        }
+    }
+}
+@media screen and (max-width: @phone) {
+    .m-publish-exam-index {
+        padding-top: 20px;
+        .box-card {
+            .w(100%);
+            box-sizing: border-box;
+            b,
+            i {
+                .fz(20px);
+            }
+            span {
+                .fz(14px);
+            }
+            margin: 20px 0 !important;
+        }
+    }
+}
+
+.m-publish-exam {
+    padding-top: 60px;
+}
+.m-publish-exam-header {
+    font-weight: 300;
+    margin: 20px 0 0 0;
+}
+.m-publish-exam-options {
+    .el-input {
+        .mb(10px);
+        &:last-child {
+            .mb(0);
+        }
+    }
+}
+.m-publish-exam-answer,
+.m-publish-exam-level {
+    .mb(10px);
+}
+.m-publish-exam-level {
+    .el-rate {
+        margin: 10px 0;
+    }
+    .el-rate__text {
+        .ml(5px);
+    }
+}
+.m-publish-exam-tags {
+    .el-tag {
+        .mr(10px);
+    }
+}
+
+.m-publish-box {
+    .u-editor-upload {
+        .mt(10px);
+        .fr;
+    }
+    .u-tutorial {
+        padding: 0 10px;
+        .lh(32px);
+    }
+    .u-publish {
+        .fl;
+        .mt(10px);
+    }
+}

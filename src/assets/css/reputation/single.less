@@ -1,0 +1,360 @@
+@import "~@/assets/css/common/back.less";
+
+.m-reputation-wrapper {
+    .reputation-reward-wrapper {
+        margin-top: 40px;
+        margin-bottom: 40px;
+        .title {
+            font-size: 28px;
+            color: #24292e;
+            font-weight: 700;
+            height: 42px;
+            line-height: 42px;
+        }
+        .reward-content {
+            display: flex;
+            width: 100%;
+            min-height: 400px;
+            margin-top: 20px;
+            .reward-desc-list {
+                flex: 1;
+                min-height: 400px;
+                margin-right: 20px;
+                .item {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    padding: 18px 20px;
+                    margin-bottom: 20px;
+                    width: 100%;
+                    box-sizing: border-box;
+                    color: #000;
+                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                    border-radius: 10px;
+                    border: 1px #fff solid;
+                    transition: 0.3s ease-out;
+                    cursor: pointer;
+                    .from-to {
+                        .fz(16px);
+                        margin-right: 20px;
+                        font-weight: 700;
+                        flex-shrink: 0;
+                    }
+                    .desc {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: flex-start;
+                        width: inherit;
+                        .desc-title {
+                            .fz(16px);
+                            margin-right: 10px;
+                            font-weight: 700;
+                            width: 90px;
+                        }
+                        .desc-content {
+                            width: inherit;
+                            .fz(14px,24px);
+                            font-weight: 300;
+                        }
+                    }
+                    &.active,
+                    &:hover {
+                        background: #e86f0019;
+                        color: #d16400;
+                        border: 1px #e86f00 solid;
+                        box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
+                    }
+                }
+            }
+            .stage-reward-list {
+                padding: 20px;
+                width: 414px;
+                height: 380px;
+                box-sizing: border-box;
+                border-radius: 10px;
+                overflow: hidden;
+                overflow-y: auto;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                border: 1px #fff solid;
+                transition: 0.3s ease-out;
+                cursor: pointer;
+                .stage-title {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    span {
+                        font-size: 16px;
+                        font-weight: 700;
+                        color: #000;
+                    }
+                    .page-list {
+                        display: flex;
+                        justify-content: flex-end;
+                        align-items: center;
+                        gap: 10px;
+                        .page-item {
+                            width: 20px;
+                            height: 20px;
+                            line-height: 18px;
+                            font-size: 12px;
+                            font-weight: 700;
+                            text-align: center;
+                            color: #fff;
+                            background-color: #d16400;
+                            border: 2px solid #d16400;
+                            box-sizing: border-box;
+                            .pointer;
+                            &.active,
+                            &:hover {
+                                background-color: #fff;
+                                color: #d16400;
+                            }
+                        }
+                    }
+                }
+                .list {
+                    padding: 20px 0;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                }
+                .no-data {
+                    margin-top: 20px;
+                    width: 36px;
+                    height: 36px;
+                    line-height: 36px;
+                    text-align: center;
+                    background-color: #d16400;
+                    color: #fff;
+                    font-weight: 700;
+                    border-radius: 5px;
+                }
+                &.active {
+                    background: #e86f0019;
+                    color: #d16400;
+                    border: 1px #e86f00 solid;
+                    box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
+                    .stage-title {
+                        span {
+                            color: #d16400;
+                        }
+                    }
+                    .no-data {
+                        background-color: #d16400;
+                        color: #fff;
+                    }
+                }
+            }
+        }
+    }
+
+    .m-wiki-post-panel,
+    .m-wiki-post-empty {
+        .mt(20px);
+    }
+
+    .m-search,
+    .m-wiki-post-panel,
+    .m-wiki-post-empty {
+        grid-column: span 3;
+    }
+}
+// 内容
+.m-reputation-content {
+    .pr;
+    .flex;
+    .size(100%,auto);
+    .pt(20px);
+    min-height: 375px;
+    gap: 20px;
+    color: #9f6000;
+
+    .title {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-end;
+        font-size: 28px;
+        color: #24292e;
+        font-weight: 700;
+        height: 42px;
+        line-height: 42px;
+        gap: 10px;
+        span {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.3;
+        }
+    }
+
+    .info-wrapper {
+        .flex;
+        .r(10px);
+        flex: 1;
+        padding: 20px;
+        gap: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        .m-content {
+            .flex;
+            .fz(14px, 24px);
+            .pt(70px);
+            gap: 20px;
+            &.m-content-info {
+                .pt(0);
+                gap: 0px;
+                flex-direction: column;
+                .w(500px);
+                flex-shrink: 0;
+            }
+            .sub-title {
+                .flex;
+                .bold;
+                margin: 20px 0 10px 0;
+                gap: 5px;
+                align-items: center;
+                color: #000;
+                &.sub-name {
+                    .fz(20px);
+                }
+            }
+            .detail-wrap {
+                .flex;
+                flex-direction: column;
+                img {
+                    .w(100%);
+                }
+            }
+            .img-wrap {
+                .w(150px);
+                flex-shrink: 0;
+            }
+        }
+    }
+    .map-wrapper {
+        .r(10px);
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+        .map-content {
+            .clip;
+            margin-top: 20px;
+            width: 468px;
+            height: 260px;
+            overflow: hidden;
+            .m-reputation-map {
+                & > div {
+                    height: 275px;
+                }
+            }
+        }
+    }
+}
+
+.u-msg-yellow {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border: 1px solid #faebcc;
+    padding: 8px 14px 8px 14px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+}
+
+.m-wiki-post-empty {
+    .u-msg-yellow;
+    .x;
+
+    .s-link {
+        .underline(@color-link);
+    }
+
+    letter-spacing: 2px;
+    .fz(14px);
+}
+
+.m-wiki-compatible {
+    .u-msg-yellow;
+    margin: 10px auto;
+    padding: 5px 10px;
+
+    a {
+        .underline(@color-link);
+    }
+}
+
+.m-wiki-signature {
+    .x(right);
+    color: #999;
+    .fz(12px, 2);
+    border-top: 1px dashed #ddd;
+    padding: 5px 0;
+}
+
+.m-thx {
+    .mt(20px);
+    .mb(20px);
+
+    .w-boxcoin-records-list {
+        background-color: #fff;
+    }
+}
+@media screen and (max-width: @ipad) {
+    .m-reputation-content {
+        flex-direction: column;
+        .title {
+            .fz(20px,28px);
+            flex-direction: column;
+            height: auto;
+            align-items: flex-start;
+        }
+        .info-wrapper {
+            padding: 0;
+            box-shadow: 0 0 0 0;
+            flex-direction: column;
+            .m-content {
+                .r(10px);
+                flex-direction: column;
+                padding: 20px !important;
+                box-sizing: border-box;
+                .pt(0);
+                &.m-content-info {
+                    .w(100%);
+                }
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                .img-wrap {
+                    order: 1;
+                    .auto(x);
+                }
+            }
+        }
+        .map-wrapper .map-content {
+            .w(100%);
+        }
+    }
+    .m-reputation-wrapper .reputation-reward-wrapper .reward-content {
+        flex-direction: column;
+        .reward-desc-list {
+            margin: 0;
+            .item {
+                padding: 10px;
+                gap: 10px;
+                flex-direction: column;
+                height: auto;
+                align-items: flex-start;
+
+                .desc {
+                    align-items: flex-start;
+                    font-weight: normal;
+                    .desc-title {
+                        flex-shrink: 0;
+                    }
+                }
+            }
+        }
+        .stage-reward-list {
+            .w(100%);
+            padding: 10px;
+            height: auto;
+        }
+    }
+}

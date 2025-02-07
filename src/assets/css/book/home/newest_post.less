@@ -1,0 +1,68 @@
+.m-newest-post {
+    margin: -10px 0;
+    list-style: none;
+    overflow: hidden;
+
+    .u-post {
+        padding: 15px 10px;
+        border-bottom: 1px solid #cccccc;
+        font-size: 12px;
+        overflow: hidden;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+    .u-icon {
+        .dbi;
+        .w(20px);
+        border-radius: 3px;
+        vertical-align: middle;
+        .mr(8px);
+    }
+    .u-quest-name {
+        .u-name;
+        .ml(0);
+    }
+    .u-name {
+        .dbi;
+        .mr(16px);
+        vertical-align: middle;
+        flex-shrink: 0;
+
+        &:not([href]) {
+            color: #3d454d;
+            &:hover {
+                box-shadow: none;
+            }
+        }
+    }
+    .u-post-head {
+        .u-quest,
+        .u-post-user {
+            .flex;
+            flex-direction: row;
+            flex-flow: wrap;
+            align-items: center;
+            .mt(8px);
+            a {
+                .underline(@color-link);
+            }
+        }
+
+        .u-quest-level {
+            flex-shrink: 0;
+        }
+
+        .u-post-remark,
+        .u-quest-level,
+        .u-updated {
+            .mr(16px);
+            .color(grey);
+        }
+    }
+    .u-post-body {
+        .mt(8px);
+        .color(grey);
+    }
+}

@@ -1,0 +1,256 @@
+.pvx-search-wrapper {
+    .flex;
+    .z(12);
+    .r(10px);
+    height: 60px;
+    box-sizing: border-box;
+    padding: 10px 15px;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    .search-group {
+        position: relative;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: nowrap;
+        width: 100%;
+        gap: 20px;
+        .search-item {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: nowrap;
+            flex: none;
+            &.type-list {
+                input[type="radio"] {
+                    margin: 0;
+                }
+                .el-radio-group {
+                    width: 100%;
+                }
+                .el-radio-button__inner {
+                    background-color: transparent;
+                    border: none;
+                    color: #949494;
+                    box-shadow: none;
+                    padding: 0;
+                    border-radius: 30px;
+                    transition: none;
+                    font-weight: normal;
+                    font-size: 16px;
+                }
+                .type-item {
+                    margin-right: 20px;
+                    width: 100px;
+                    height: 40px;
+                    line-height: 40px;
+                    border-radius: 30px;
+                    color: #949494;
+                    background-color: #fff;
+                    font-weight: bold;
+                    // font-size: 16px;
+                    text-align: center;
+                    cursor: pointer;
+                    &.is-active {
+                        background-color: @active-color;
+                        .el-radio-button__inner {
+                            background-color: @active-color;
+                            color: #fff;
+                        }
+                    }
+                    &:hover {
+                        background-color: @active-color;
+                        .el-radio-button__inner {
+                            background-color: @active-color;
+                            color: #fff;
+                        }
+                    }
+                }
+                a.type-item {
+                    flex: none;
+                    font-weight: normal;
+                    &:hover {
+                        color: #fff;
+                    }
+                }
+            }
+            &.filter-wrap {
+                margin-right: 20px;
+                .filter-img {
+                    cursor: pointer;
+                    height: 40px;
+                    svg {
+                        background-color: #fff;
+                        border-radius: 50%;
+                    }
+                    &.active {
+                        svg {
+                            fill: #fff;
+                            background-color: @active-color;
+                        }
+                    }
+                }
+            }
+            &.input-wrap {
+                flex: 1;
+                input {
+                    border: none;
+                    background-color: #f3f4f5;
+                    padding: 0 40px 0 20px;
+                    border-radius: 30px;
+                    font-size: 16px;
+                    color: #000;
+                    height: 40px;
+                    line-height: 40px;
+                    width: 100%;
+                    &::placeholder {
+                        font-size: 14px;
+                        color: #b0b0b0;
+                    }
+                }
+                .el-input__suffix {
+                    right: 15px;
+                }
+                .el-input__icon {
+                    .bold;
+                    color: #24292e;
+                }
+            }
+            &.select-wrap {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                background: #f3f4f5;
+                border-radius: 20px;
+                width: 227px;
+                height: 40px;
+                label {
+                    padding-left: 20px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #949494;
+                }
+                input {
+                    font-size: 14px;
+                    font-weight: 700;
+                    border: none;
+                    color: #24292e;
+                    width: 170px;
+                    border-radius: 30px;
+                    background: #f3f4f5;
+                    &::placeholder {
+                        font-weight: normal;
+                    }
+                }
+            }
+        }
+    }
+    &.selected-wrapper {
+        // .select-active-wrap {
+        //     background-color: @active-color !important;
+        //     label {
+        //         color: #ffffff80 !important;
+        //     }
+        //     input {
+        //         background-color: @active-color !important;
+        //         color: #fff !important;
+        //     }
+        // }
+    }
+}
+.filter-content {
+    padding: 10px 10px 0 10px;
+    .filter-item {
+        margin-bottom: 10px;
+        input {
+            border: none;
+            background-color: #f3f5f6;
+            padding: 0 40px 0 20px;
+            border-radius: 30px;
+            font-size: 16px;
+            color: #000;
+            height: 40px;
+            line-height: 40px;
+            width: 100%;
+            &::placeholder {
+                font-size: 14px;
+                color: #b0b0b0;
+            }
+        }
+        .check-box-wrapper {
+            & > .name {
+                margin-bottom: 10px;
+                margin-left: 5px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #000;
+            }
+            .el-checkbox-group,
+            .el-radio-group {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                flex-wrap: wrap;
+                max-height: 120px;
+                overflow-x: hidden;
+                overflow-y: auto;
+                .el-checkbox-button,
+                .el-radio-button {
+                    margin-right: 10px;
+                    margin-bottom: 10px;
+                    input {
+                        height: 30px;
+                    }
+                    .el-checkbox-button__inner,
+                    .el-radio-button__inner {
+                        border: none;
+                        background-color: #e1dfdf;
+                        color: #949494;
+                        padding: 0;
+                        width: 88px;
+                        height: 30px;
+                        line-height: 30px;
+                        text-align: center;
+                        border-radius: 30px;
+                        font-size: 12px;
+                    }
+                    &:hover {
+                        .el-checkbox-button__inner,
+                        .el-radio-button__inner {
+                            background-color: @active-color;
+                            color: #fff;
+                        }
+                    }
+                    &.is-checked {
+                        .el-checkbox-button__inner {
+                            box-shadow: none;
+                            background-color: @active-color;
+                            color: #fff;
+                        }
+                    }
+                    &.is-active {
+                        .el-radio-button__inner {
+                            box-shadow: none;
+                            background-color: @active-color;
+                            color: #fff;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .pvx-search-wrapper {
+        height: auto;
+        .search-group {
+            flex-direction: column;
+            .search-item {
+                position: relative;
+                margin: 0;
+            }
+        }
+    }
+}

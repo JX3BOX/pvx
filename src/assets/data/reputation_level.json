@@ -1,0 +1,86 @@
+[
+  {
+    "level": -1,
+    "name": "全部等级",
+    "icon": "",
+    "color": 196
+  },
+  {
+    "level": 0,
+    "name": "仇恨",
+    "icon": "",
+    "color": 196
+  },
+  {
+    "level": 1,
+    "name": "敌视",
+    "icon": "",
+    "color": 196
+  },
+  {
+    "level": 2,
+    "name": "疏远",
+    "icon": "",
+    "color": 162
+  },
+  {
+    "level": 3,
+    "name": "中立",
+    "icon": "",
+    "color": 162
+  },
+  {
+    "level": 4,
+    "name": "友好",
+    "icon": "",
+    "color": 165
+  },
+  {
+    "level": 5,
+    "name": "亲密",
+    "icon": "",
+    "color": 165
+  },
+  {
+    "level": 6,
+    "name": "敬重",
+    "icon": "",
+    "color": 165
+  },
+  {
+    "level": 7,
+    "name": "尊敬",
+    "icon": "",
+    "color": 165
+  },
+  {
+    "level": 8,
+    "name": "钦佩",
+    "icon": "",
+    "color": 165
+  },
+  {
+    "level": 9,
+    "name": "显赫",
+    "icon": "",
+    "color": 165
+  },
+  {
+    "level": 10,
+    "name": "崇敬",
+    "icon": "",
+    "color": 163
+  },
+  {
+    "level": 11,
+    "name": "崇拜",
+    "icon": "",
+    "color": 163
+  },
+  {
+    "level": 12,
+    "name": "传说",
+    "icon": "",
+    "color": 163
+  }
+]

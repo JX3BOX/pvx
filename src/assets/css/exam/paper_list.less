@@ -1,0 +1,173 @@
+.m-paper-list {
+    .mt(24px);
+    .u-list {
+        .flex;
+        flex-wrap: wrap;
+        .u-item {
+            .w(25%);
+            box-sizing: border-box;
+            padding: 0 15px 30px 15px;
+            a.router-link-active,
+            a:hover {
+                transform: scale(1.03);
+            }
+            .u-link {
+                .pr;
+                background-color:#fff;
+                .u-client {
+                    .pa;
+                    .rt(8px,8px);
+                    .fz(12px);
+                    .r(3px);
+                    padding: 0 8px;
+                }
+            }
+        }
+    }
+    .u-link {
+        .db;
+        .w(100%);
+        .r(5px);
+        .color(#303133);
+        .pointer;
+        padding: 30px 0 12px 0;
+        border: 1px solid @border-hr;
+        box-sizing: border-box;
+        transition: 0.2s ease-in-out;
+        box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.05);
+
+        .u-title,
+        .u-tags,
+        .u-info {
+            margin: 0 30px;
+        }
+
+        .u-title {
+            .fz(18px);
+            .flex;
+            flex-direction: column;
+            span {
+                .nobreak;
+                font-weight: 600;
+                .tm(0.8);
+            }
+            .u-line {
+                .mt(7px);
+                .size(100%,4px);
+                &.default {
+                    background: linear-gradient(to right, @default 25%, @tm 100%);
+                }
+                &.green {
+                    background: linear-gradient(to right, @green 25%, @tm 100%);
+                }
+                &.orange {
+                    background: linear-gradient(to right, @orange 25%, @tm 100%);
+                }
+                &.red {
+                    background: linear-gradient(to right, @red 25%, @tm 100%);
+                }
+                &.purple {
+                    background: linear-gradient(to right, @purple 25%, @tm 100%);
+                }
+            }
+        }
+
+        .u-tags {
+            .h(24px);
+            padding: 12px 0;
+
+            .u-tag {
+                .mr(5px);
+            }
+        }
+
+        .u-desc {
+            padding: 10px 20px;
+            height: 48px;
+            overflow: hidden;
+
+            .u-icon {
+                .h(48px);
+                .w(60px);
+                fill: white;
+                .fl;
+            }
+
+            .u-text {
+                color: white;
+                .fz(12px, 24px);
+                .break(2);
+            }
+
+            &.default {
+                background: linear-gradient(90deg, @default 0, @tm 135%);
+            }
+
+            &.green {
+                background: linear-gradient(90deg, @green 0, @tm 135%);
+            }
+
+            &.orange {
+                background: linear-gradient(90deg, @orange 0, @tm 135%);
+            }
+
+            &.red {
+                background: linear-gradient(90deg, @red 0, @tm 135%);
+            }
+            &.purple {
+                background: linear-gradient(90deg, @purple 0, @tm 135%);
+            }
+        }
+
+        .u-info {
+            .fz(12px);
+            display: flex;
+            justify-content: space-between;
+            .lh(60px);
+        }
+        .u-user {
+            .nobreak;
+            max-width: 160px;
+        }
+        .u-star {
+            display: flex;
+            align-items: center;
+            .el-rate__icon {
+                .mr(0);
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1680px) {
+    .m-paper-list .u-list .u-item {
+        .w(33.33%);
+        .u-info {
+            .pt(10px);
+            .flex;
+            .lh(28px);
+            flex-direction: column;
+        }
+    }
+}
+
+@media screen and (max-width: @ipad-y) {
+    .m-paper-list .u-list .u-item {
+        .w(50%);
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-paper-list .u-list .u-item {
+        .w(100%);
+        padding: 0 0 30px 0;
+    }
+    .m-paper-list .u-link .u-info {
+        display: block;
+        line-height: 40px;
+        margin-top: 10px;
+    }
+    .m-exam-pagination {
+        overflow-x: auto;
+    }
+}
