@@ -1,0 +1,180 @@
+.m-manufacture {
+    .pt(40px);
+}
+.m-manufacture-title {
+    .u-del {
+        .fz(16px);
+        background: #fff;
+        letter-spacing: 1px;
+        border: 1px solid #fff;
+        &:hover {
+            background: #07ad36;
+            border: 1px solid #07ad36;
+        }
+    }
+}
+.m-manufacture-title__myList {
+    .flex;
+    .pr(20px);
+    align-items: center;
+    justify-content: space-between;
+}
+.m-cart-body {
+    .flex;
+    .w(420px);
+    .r(10px);
+    gap: 20px;
+    justify-content: space-between;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-height: 700px;
+    .m-cart-scroll {
+        .pr(10px);
+        width: calc(100% - 10px);
+        overflow: auto;
+        min-height: 530px;
+        max-height: calc(100vh - 415px);
+    }
+
+    .m-cart-list {
+        .r(10px);
+        background-color: #fff;
+        min-height: 530px;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .m-title {
+        .flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px double #eee;
+        .u-label {
+            .bold;
+            .fz(20px,2.5);
+            i {
+                .mr(5px);
+            }
+        }
+    }
+    .m-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #dcdfe6;
+        &:last-child {
+            border-bottom: 0;
+        }
+        .u-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 2px 5px 2px;
+            .u-header-inner {
+                .flex;
+            }
+            .u-img {
+                .mr(10px);
+                .size(24px);
+            }
+            .u-title {
+                .fz(14px,24px);
+                .bold;
+            }
+            .u-del {
+                background: #fff;
+                letter-spacing: 1px;
+                &:hover {
+                    background: #07ad36;
+                    border: 1px solid #07ad36;
+                }
+            }
+        }
+        .u-info {
+            .el-divider {
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+            .el-divider__text {
+                color: #999;
+                .fz(12px);
+                .pl(10px);
+                .pr(10px);
+            }
+            .u-children {
+                .ml(1em);
+                .pt(10px);
+            }
+            .u-child {
+                .flex;
+                align-items: center;
+                justify-content: space-between;
+                .mb(5px);
+                &:hover {
+                    background-color: @bg-gray;
+                }
+                .u-img {
+                    .flex;
+                    align-items: center;
+                    img {
+                        .size(24px);
+                    }
+                    span {
+                        .fz(12px);
+                        .ml(5px);
+                        opacity: 0.8;
+                    }
+                }
+                .c-game-price {
+                    .fz(12px);
+                }
+            }
+            .u-item-num {
+                .flex;
+                .fz(13px);
+                .pt(10px);
+                justify-content: flex-end;
+                align-items: center;
+            }
+        }
+    }
+
+    .m-null {
+        .fz(15px);
+        .r(10px);
+        .x;
+        .flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 530px;
+        line-height: calc(100vh - 415px);
+        color: #999;
+        background-color: #fff;
+    }
+    .m-all {
+        display: flex;
+        padding: 10px 0;
+        justify-content: space-between;
+
+        .u-label {
+            .bold;
+        }
+        .u-value {
+            .fz(13px,2);
+            b,
+            .u-price-num span {
+                color: #c00;
+                .bold;
+            }
+        }
+        .u-num {
+            .flex;
+            justify-content: flex-end;
+        }
+    }
+}
+.m-stat {
+    .size(calc(100% - 10px),144px);
+    .r(10px);
+    box-sizing: border-box;
+    background-color: #fff;
+    right: 0;
+    bottom: 0;
+    padding: 20px;
+}

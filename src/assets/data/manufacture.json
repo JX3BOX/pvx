@@ -1,0 +1,17 @@
+{
+    "craft_types": {
+        "std": [
+            { "key": "tailoring", "name": "缝纫", "ProfessionID": "5" },
+            { "key": "cooking", "name": "烹饪", "ProfessionID": "4" },
+            { "key": "medicine", "name": "制药", "ProfessionID": "7" },
+            { "key": "founding", "name": "锻造", "ProfessionID": "6" },
+            { "key": "furniture", "name": "梓匠", "ProfessionID": "15" }
+        ],
+        "origin": [
+            { "key": "tailoring", "name": "缝纫", "ProfessionID": "5" },
+            { "key": "cooking", "name": "烹饪", "ProfessionID": "4" },
+            { "key": "medicine", "name": "制药", "ProfessionID": "7" },
+            { "key": "founding", "name": "锻造", "ProfessionID": "6" }
+        ]
+    }
+}

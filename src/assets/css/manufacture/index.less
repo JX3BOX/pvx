@@ -1,0 +1,157 @@
+.m-manufacture-container {
+    padding: 20px 0;
+}
+
+.m-manufacture-header {
+    // padding: 20px 0;
+    // .x;
+    display: flex;
+    align-items: flex-end;
+
+    .u-title {
+        margin: 0;
+        font-weight: 300;
+    }
+
+    .u-settings {
+        .ml(10px);
+    }
+
+    .u-servers {
+        .el-input__prefix {
+            left: 1px;
+            top: 1px;
+            .r(5px);
+        }
+        .el-input--prefix .el-input__inner {
+            padding-left: 150px;
+            width: 280px;
+        }
+
+        .u-prefix {
+            .db;
+            .h(30px);
+            .lh(30px);
+
+            background-color: #f5f7fa;
+            color: #909399;
+
+            border-right: 1px solid #dcdfe6;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+
+            padding: 0 10px;
+            white-space: nowrap;
+        }
+    }
+
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.m-manufacture-sidebar {
+    border-right: 1px solid @border-hr;
+
+    .u-tabs {
+        .mb(10px);
+        .r(4px);
+        user-select: none;
+        background-color: @bg-light;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 1px;
+        border: 1px solid #eee;
+        box-sizing: border-box;
+        width: 100%;
+
+        .u-tab {
+            .w(45px);
+            .x;
+            .fz(15px);
+            .bold;
+            .pointer;
+            filter: grayscale(100%);
+            background-repeat: no-repeat;
+            background-size: 42px;
+            background-position: top center;
+            margin: 0 17px;
+            .pt(39px);
+            color: @color;
+            &:hover {
+                filter: grayscale(0);
+            }
+        }
+        .active {
+            color: @color-link;
+            filter: grayscale(0);
+        }
+        .u-tab-tailoring {
+            background-image: url("@{img_path}image/cooking/newcraft1-37.png");
+            &:hover {
+                background-image: url("@{img_path}image/cooking/newcraft1-38.png");
+            }
+        }
+        .u-tab-cooking {
+            background-image: url("@{img_path}image/cooking/newcraft1-45.png");
+            &:hover {
+                background-image: url("@{img_path}image/cooking/newcraft1-46.png");
+            }
+        }
+        .u-tab-medicine {
+            background-image: url("@{img_path}image/cooking/newcraft1-65.png");
+            &:hover {
+                background-image: url("@{img_path}image/cooking/newcraft1-67.png");
+            }
+        }
+        .u-tab-founding {
+            background-image: url("@{img_path}image/cooking/newcraft1-69.png");
+            &:hover {
+                background-image: url("@{img_path}image/cooking/newcraft1-70.png");
+            }
+        }
+        .u-tab-furniture {
+            background-image: url("@{img_path}image/cooking/newcraft1-91.png");
+            &:hover {
+                background-image: url("@{img_path}image/cooking/newcraft1-92.png");
+            }
+        }
+    }
+
+    .m-list .u-list {
+        height: 75vh;
+        overflow-y: auto;
+    }
+}
+
+.m-manufacture-main {
+    .flex;
+    .mt(10px);
+    .r(5px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.m-manufacture-sidebar {
+    flex-shrink: 0;
+    flex-basis: 400px;
+    padding-right: 20px;
+}
+
+.m-manufacture-content {
+    display: flex;
+    padding: 0 20px;
+    gap: 20px;
+    flex-grow: 1;
+
+    .u-middle {
+        flex: 1 1 520px;
+        background-color: @bg-light;
+        .r(4px);
+        padding: 40px 80px;
+        border: 1px solid #eee;
+    }
+    .u-right {
+        flex: 1 0 350px;
+    }
+}

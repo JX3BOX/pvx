@@ -14,6 +14,12 @@ module.exports = {
             template: "public/index.html",
             filename: "adventure/index.html",
         },
+        pvg: {
+            title: "商贾奇才 - JX3BOX",
+            entry: "src/pages/pvg/index.js",
+            template: "public/index.html",
+            filename: "pvg/index.html",
+        }
     },
 
     //❤️ Proxy ~

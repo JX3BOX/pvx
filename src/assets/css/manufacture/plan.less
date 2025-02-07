@@ -1,0 +1,154 @@
+.m-plan-dialog {
+    .w(100%);
+    max-width: 800px;
+    .el-dialog__body {
+        .pt(0);
+    }
+    .m-dialog-content {
+        .flex;
+        flex-direction: column;
+        gap: 20px;
+        min-height: 300px;
+    }
+
+    .m-plan-description {
+        .flex;
+        gap: 10px;
+        flex-direction: column;
+        color: #3d454d;
+        .u-time {
+            .fz(12px);
+            .color(#999);
+        }
+        .u-title b {
+            .bold;
+            .fz(16px);
+        }
+        .u-del {
+            .ml(20px);
+            .color(#007eff);
+            .pointer;
+            &:hover {
+                filter: brightness(110%);
+            }
+        }
+    }
+
+    .m-plan-item {
+        .flex;
+        flex-direction: column;
+        gap: 20px;
+        .m-border {
+            .flex;
+            .r(10px);
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px 20px;
+            border: 1px solid #eee;
+            background-color: #f9f9f9;
+            .m-content {
+                .flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .u-title {
+                .fz(16px,2);
+                .bold;
+                .x;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .u-item {
+                .flex;
+                margin: 0 20px 10px 0;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+
+                .u-name {
+                    .fz(12px);
+                }
+            }
+            .u-img {
+                .pr;
+                .u-count {
+                    .pa;
+                    .rb(0,0);
+                    .fz(12px);
+                    .z(3);
+                    color: #fff;
+                    text-align: right;
+                    padding: 0 3px 0 5px;
+                    background-color: rgba(0, 0, 0, 0.6);
+                    border-radius: 3px 0 0 3px;
+                    &::before {
+                        content: "×";
+                    }
+                }
+            }
+        }
+    }
+    // 装备
+    .m-plan-equips {
+        padding: 30px 0 0 0;
+        .m-content {
+            .flex;
+            .pt(40px);
+            flex-direction: row;
+            gap: 10px;
+        }
+        .m-item-icon {
+            .fz(12px);
+        }
+        .u-list {
+            width: 25%;
+            .u-item {
+                .r(5px);
+                .mb(10px);
+                border: 1px solid #eee;
+                padding: 10px;
+                .u-title {
+                    .db;
+                }
+            }
+            .u-equip,
+            .u-equip-null {
+                .db;
+                .mt(10px);
+            }
+            .u-equip {
+                .pr;
+                .r(5px);
+                background-color: @color;
+                &:first-child:before {
+                    content: "主";
+                    .pa;
+                    .r(4px);
+                    .bold;
+                    .x;
+                    .lh(24px);
+                    .lt(-26px,2px);
+                    width: 24px;
+                    color: #fff;
+                    background-color: #0366d6;
+                    border: 1px solid #0366d6;
+                }
+            }
+        }
+    }
+    .quality-1 {
+        color: #888;
+    }
+    .quality-2 {
+        color: #00d24b;
+    }
+    .quality-3 {
+        color: #007eff;
+    }
+    .quality-4 {
+        color: #ff2dff;
+    }
+    .quality-5 {
+        color: #ffa500;
+    }
+}

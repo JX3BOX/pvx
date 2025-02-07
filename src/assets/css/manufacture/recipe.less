@@ -1,0 +1,119 @@
+.m-recipe-detail {
+    .flex;
+    .w(100%);
+    gap: 20px;
+    flex-direction: column;
+    padding: 20px 15px;
+    .m-item {
+        .flex;
+        .fz(14px);
+        gap: 10px;
+        color: #000;
+        align-items: center;
+        .u-name {
+            .fz(20px,32px);
+            .bold;
+        }
+        .m-text {
+            .flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .u-info span {
+            .mr(10px); 
+        }
+    }
+
+    .u-img {
+        .pr;
+        .size(58px);
+        .r(5px);
+        .clip;
+        flex-shrink: 0;
+        img {
+            .full;
+        }
+        .u-border {
+            .pa;
+            .lt(0,0);
+            .size(100%);
+            box-sizing: border-box;
+            background-size: contain;
+            .z(2);
+        }
+        .u-amount {
+            .pa;
+            .rb(2px,2px);
+            .fz(14px);
+            .color(white);
+            .z(3);
+            text-shadow: black 0 0 4px;
+            font-weight: bolder;
+        }
+    }
+
+    .u-price {
+        .fz(12px);
+        .mt(10px);
+        opacity: 0.9;
+        .u-price-num,
+        .u-null {
+            .bold;
+            color: #c00;
+        }
+        .u-null {
+            .ml(10px);
+            color: #d00;
+        }
+    }
+    .u-desc {
+        .fz(13px,1.5);
+        opacity: 0.8;
+    }
+    .u-children {
+        .flex;
+        .w(100%);
+        flex-direction: column;
+        .el-divider__text {
+            background-color: #fafafa;
+            padding: 0 10px;
+        }
+    }
+    .u-child {
+        .flex;
+        padding: 10px 0;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+        .u-img {
+            .mr(20px);
+            .size(48px);
+        }
+        .u-info {
+            .flex;
+            flex-direction: column;
+            .u-name {
+                .flex;
+                .fz(16px,1.2);
+                .bold;
+                align-items: baseline;
+                .u-num {
+                    .fz(12px);
+                    .pl(20px);
+                    font-weight: normal;
+                }
+            }
+        }
+    }
+    .m-add {
+        .flex;
+        .pt(20px);
+        justify-content: center;
+        .el-input-number {
+            .mr(20px);
+        }
+    }
+}
+
+.u-icon-popper {
+    padding: 0;
+}

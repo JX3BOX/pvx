@@ -1,0 +1,181 @@
+.m-plan-equip {
+    .size(520px, 720px);
+    background-color: @bg-black;
+    border: 6px solid #444;
+    .r(6px);
+    .auto(x);
+
+    .u-info {
+        .mt(120px);
+        .w(280px);
+        .auto(x);
+        .x;
+    }
+    .u-title {
+        .nobreak;
+        .fz(1rem, 2);
+        .bold;
+        color: #fff;
+    }
+
+    .u-author {
+        img {
+            .r(2px);
+            .size(20px);
+            .y;
+        }
+        img {
+            .mr(5px);
+        }
+        span {
+            .fz(13px, 2.5);
+            color: #ccc;
+        }
+    }
+
+    .u-time {
+        color: #999;
+        .fz(12px);
+    }
+
+    .u-qrcodebox {
+        .mt(60px);
+        .w(140px);
+        .auto(x);
+
+        .w-qrcode-static {
+            .u-txt {
+                .mt(10px);
+                color: #999;
+                .fz(12px, 16px);
+            }
+            svg {
+                fill: #999;
+                .size(16px);
+                .y(-4px);
+            }
+            .u-pic {
+                .r(2px);
+                padding: 10px 8px 8px 8px;
+            }
+        }
+    }
+
+    .pr;
+    .u-plan-equip {
+        .pa;
+        .flex;
+        flex-direction: column;
+        .u-name {
+            .w(150px);
+            margin: 5px 0 0 0;
+            .x;
+        }
+        .quality-1 {
+            color: #fff;
+        }
+        .quality-2 {
+            color: #00d24b;
+        }
+        .quality-3 {
+            color: #007eff;
+        }
+        .quality-4 {
+            color: #ff2dff;
+        }
+        .quality-5 {
+            color: #ffa500;
+        }
+    }
+
+    .u-equip-melee_weapon {
+        .lt(120px, 600px);
+    }
+    .u-equip-range_weapon {
+        .lt(240px, 600px);
+    }
+
+    .u-equip-helm {
+        .lt(-10px, 70px);
+    }
+
+    .u-equip-chest {
+        .lt(-10px, 250px);
+    }
+
+    .u-equip-waist {
+        .lt(-10px, 430px);
+    }
+
+    .u-equip-bangle {
+        .lt(380px, 70px);
+    }
+
+    .u-equip-pants {
+        .lt(380px, 160px);
+    }
+
+    .u-equip-boots {
+        .lt(380px, 250px);
+    }
+
+    .u-equip-amulet {
+        .lt(380px, 340px);
+    }
+
+    .u-equip-pendant {
+        .lt(380px, 430px);
+    }
+
+    .u-equip-ring_1 {
+        .lt(380px, 520px);
+    }
+
+    .u-equip-ring_2 {
+        .lt(380px, 610px);
+    }
+
+    .u-misc {
+        .pa;
+        .lt(30px, 600px);
+    }
+
+    .u-logo {
+        .db;
+        svg,
+        span {
+            transition: 0.2s ease-in-out;
+        }
+        svg {
+            .size(56px);
+            fill: #fff;
+        }
+        span {
+            .db;
+            color: #fff;
+            font-family: Consolas;
+            .fz(12px);
+            // .bold;
+        }
+        &:hover {
+            span {
+                color: #0cf;
+            }
+            svg {
+                fill: #0cf;
+            }
+        }
+    }
+
+    .u-meta {
+        .fz(12px);
+        .db;
+        color: #fff;
+    }
+}
+.u-plan-equip {
+    .m-item-icon {
+        flex-direction: column;
+        align-items: center;
+    }
+}
