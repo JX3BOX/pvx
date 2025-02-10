@@ -31,4 +31,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/reputation/reputation.less";
+@import "~@/assets/css/reputation/reputation_miniprogram.less";
 </style>
