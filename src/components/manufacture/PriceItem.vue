@@ -1,22 +1,44 @@
 <template>
     <el-popover popper-class="m-add-price" placement="bottom-end" trigger="click" v-model="visible">
-        <el-divider content-position="left"
-            >修改 [ <b>{{ data.Name }}</b> ] 单价</el-divider
+        <el-divider content-position="left" v-if="type == 'cart'"
+            >修改 [ <b>{{ name }}</b> ] 账单金额</el-divider
+        >
+        <el-divider content-position="left" v-else
+            >修改 [ <b>{{ name }}</b> ] 单价</el-divider
         >
         <div class="u-add">
-            <el-input class="u-input" type="number" size="mini" v-model="my_Price.jin"></el-input>
+            <el-input class="u-input" type="number" size="mini" v-model="newPrice.jin"></el-input>
             <img :src="`${img}/jin.png`" alt="金" />
-            <el-input class="u-input" type="number" size="mini" v-model="my_Price.yin"></el-input>
+            <el-input class="u-input" type="number" size="mini" v-model="newPrice.yin"></el-input>
             <img :src="`${img}/yin.png`" alt="银" />
-            <el-input class="u-input" type="number" size="mini" v-model="my_Price.tong"></el-input>
+            <el-input class="u-input" type="number" size="mini" v-model="newPrice.tong"></el-input>
             <img :src="`${img}/tong.png`" alt="铜" />
-            <el-button class="u-button" size="mini" @click="inputPrice">确定</el-button>
+            <el-button class="u-button" size="mini" @click="onUpdateCustomPrice">确定</el-button>
         </div>
         <template slot="reference">
             <div class="m-price-item">
-                <GamePrice v-if="data.Price" class="u-price-num" :price="data.Price" />
-                <span class="u-null" v-else>暂无价格</span>
-                <i class="u-edit el-icon-edit" title="修改价格"></i>
+                <template v-if="type == 'cart'">
+                    <GamePrice v-if="price" class="u-price-num" :price="price" />
+                    <span class="u-null" v-else>暂无价格</span>
+                    <i class="u-edit el-icon-edit" title="修改价格"></i>
+                    <i
+                        class="u-edit el-icon-close"
+                        title="取消自定义价格"
+                        v-if="price != origin_price"
+                        @click.stop="onRemoveCustomPrice"
+                    ></i>
+                </template>
+                <template v-else>
+                    <GamePrice v-if="price.price" class="u-price-num" :price="price.price" />
+                    <span class="u-null" v-else>暂无价格</span>
+                    <i class="u-edit el-icon-edit" title="修改价格"></i>
+                    <i
+                        class="u-edit el-icon-close"
+                        title="取消自定义价格"
+                        v-if="price.from == 'custom'"
+                        @click.stop="onRemoveCustomPrice"
+                    ></i>
+                </template>
             </div>
         </template>
     </el-popover>
@@ -24,15 +46,16 @@
 <script>
 import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
-import Bus from "@/store/bus.js";
+
 export default {
     name: "PriceItem",
-    props: ["data"],
+    props: ["price", "server", "name", "item_id", "type", "origin_price"],
     components: { GamePrice },
     data: function () {
         return {
             visible: false,
-            my_Price: {
+
+            newPrice: {
                 jin: "",
                 yin: "",
                 tong: "",
@@ -45,16 +68,31 @@ export default {
         },
     },
     methods: {
-        inputPrice() {
-            let { jin, yin, tong } = this.my_Price;
-            jin = jin * 10000;
-            yin = yin * 100;
-            tong = tong * 1;
-            const Price = jin + yin + tong;
-            Bus.$emit("changePrice", { Price, id: this.data.id });
+        onRemoveCustomPrice() {
+            if (this.type == "cart") {
+                this.$emit("update_price", this.origin_price);
+            } else {
+                this.$store.commit("remove_custom_prices", [`${this.server}_${this.item_id}`]);
+            }
+        },
+        onUpdateCustomPrice() {
+            const { jin, yin, tong } = this.newPrice;
+            const price = Number(jin * 10000 + yin * 100 + tong);
+            if (price) {
+                if (this.type == "cart") {
+                    this.$emit("update_price", price);
+                } else {
+                    this.$store.commit("update_custom_prices", {
+                        [`${this.server}_${this.item_id}`]: {
+                            from: "custom",
+                            price,
+                        },
+                    });
+                }
+            }
 
             this.visible = false;
-            this.my_Price = {
+            this.newPrice = {
                 jin: "",
                 yin: "",
                 tong: "",
