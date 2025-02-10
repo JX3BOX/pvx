@@ -246,8 +246,28 @@ export default {
         .mr(10px);
     }
 }
-.m-cart-body .m-item .u-header {
+.m-cart-list .m-item:first-of-type .u-header {
+    padding-top: 0;
+}
+.m-cart-body .m-item {
+    .u-item-num.no-profit {
+        .bold;
+        color: #f56c6c;
+    }
+    .u-item-num.no-padding {
+        padding-top: 0;
+    }
+    .u-header-inner {
+        display: flex;
+        align-items: center;
+    }
+    .u-header {
+        display: flex;
     align-items: center;
+        gap: 10px;
+        .u-header-title {
+            flex-grow: 1;
+        }
     .u-del {
         color: #999;
         &:hover {
@@ -255,6 +275,7 @@ export default {
             border: 0;
             .pointer;
             color: #000;
+            }
         }
     }
 }
