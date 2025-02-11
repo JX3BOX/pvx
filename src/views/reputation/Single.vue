@@ -40,8 +40,70 @@
                             </div>
                         </template>
                     </div>
+                    <!-- 小程序 -->
+                    <div class="m-detail-wrap__miniprogram">
+                        <div class="u-item">
+                            <div class="u-label">介绍</div>
+                            <div class="u-val" v-html="reputation.szDesc"></div>
+                        </div>
+                        <div class="u-item u-user" v-if="reputation.servant" @click="servantVisible = true">
+                            <div class="u-label">声望知交</div>
+                            <div class="u-val">
+                                {{ reputation.servant?.szNpcName || "-" }}
+                                <img class="u-icon" src="@/assets/img/reputation/user.svg" svg-inline width="14" />
+                            </div>
+                        </div>
+                        <el-row>
+                            <el-col :span="12">
+                                <div class="u-item u-map" @click="mapVisible = true">
+                                    <div class="u-label">声望地图</div>
+                                    <div
+                                        class="u-val"
+                                        :class="{
+                                            'no-map': !(
+                                                reputation.szMapNames &&
+                                                reputation.szMapNames.length &&
+                                                reputation.Guides &&
+                                                reputation.Guides.length &&
+                                                !reputation.hiddenMap
+                                            ),
+                                        }"
+                                    >
+                                        {{ reputation?.szMapNames?.[0] || "-" }}
+                                        <img
+                                            v-if="
+                                                reputation.szMapNames &&
+                                                reputation.szMapNames.length &&
+                                                reputation.Guides &&
+                                                reputation.Guides.length &&
+                                                !reputation.hiddenMap
+                                            "
+                                            class="u-icon"
+                                            src="@/assets/img/reputation/map.svg"
+                                            svg-inline
+                                            width="14"
+                                        />
+                                    </div>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div class="u-item">
+                                    <div class="u-label">势力类型</div>
+                                    <div class="u-val">
+                                        {{ reputation.GroupName || "-" }}
+                                    </div>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <div class="u-item">
+                            <div class="u-label">遗失的尊敬</div>
+                            <div class="u-val">
+                                {{ getPath(reputation.szName) || "无法使用遗失的尊敬来提高该声望等级进度" }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="m-content">
+                <div class="m-content m-servant">
                     <div class="img-wrap">
                         <img
                             v-if="reputation.servant && reputation.servant.szImagePath"
@@ -147,6 +209,44 @@
         </div>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
         <pvx-user :id="achievement_id" name="声望" type="achievement"></pvx-user>
+
+        <!-- 小程序知交 -->
+        <el-drawer
+            :title="`${reputation.servant && reputation.servant.szNpcName} - 声望知交`"
+            :visible.sync="servantVisible"
+            direction="btt"
+            append-to-body
+            :show-close="false"
+        >
+            <div class="m-servant-drawer" v-if="reputation.servant">
+                <img
+                    v-if="reputation.servant && reputation.servant.szImagePath"
+                    :src="getIcon(reputation.servant.szImagePath, 'partner')"
+                />
+                <img v-else src="@/assets/img/reputation/sw-null.jpg" />
+                <div class="m-buff">
+                    <div>知交祝福</div>
+                    <div class="u-desc">
+                        <span>{{ reputation.servant.szBuffName }}</span>
+                        {{ reputation.servant.szBuffDesc }}
+                    </div>
+                </div>
+                <div class="u-desc" v-html="reputation.servant.szDescPersonality.replace(/\\n/g, '<br>')"></div>
+            </div>
+        </el-drawer>
+
+        <!-- 小程序地图 -->
+        <el-drawer
+            :title="`${reputation.szMapNames[0]} - ${reputation.Guides[0].npcName} - 声望商人位置`"
+            :visible.sync="mapVisible"
+            direction="btt"
+            append-to-body
+            :show-close="false"
+        >
+            <div class="m-map-drawer">
+                <reputation-map ref="map" :name="reputation.szMapNames[0]" :list="reputation.points" />
+            </div>
+        </el-drawer>
     </div>
 </template>
 
@@ -185,6 +285,9 @@ export default {
                 szDesc: "",
             },
             loading: false,
+
+            servantVisible: false,
+            mapVisible: false,
         };
     },
     computed: {
