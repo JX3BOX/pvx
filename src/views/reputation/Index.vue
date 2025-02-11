@@ -16,7 +16,7 @@
                 </div>
             </template>
         </CommonToolbar>
-        <div class="m-miniprogram-tabs__wrapper">
+        <el-scrollbar class="m-miniprogram-tabs__wrapper">
             <div class="m-miniprogram-tabs">
                 <div class="u-tab" :class="{ active: isAll }" @click="toAll">全部</div>
                 <div
@@ -29,7 +29,7 @@
                     {{ item.label.replace(/\([^)]*\)/g, "") }}
                 </div>
             </div>
-        </div>
+        </el-scrollbar>
 
         <div v-if="isAll && !this.keyword" class="reputation-list-wrapper">
             <div class="reputation-title">资料片新增</div>
