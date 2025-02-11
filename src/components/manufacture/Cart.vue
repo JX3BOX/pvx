@@ -9,7 +9,7 @@
                 type="info"
                 size="mini"
                 icon="el-icon-delete"
-                @click="clearAllCart"
+                @click="onRemove()"
             >
             </el-button>
         </div>
@@ -19,60 +19,75 @@
                     <div class="m-item" v-for="(item, index) in cartList" :key="index">
                         <div class="u-header">
                             <el-popover
+                                class="u-header-title"
                                 popper-class="u-icon-popper"
                                 placement="right"
                                 :visible-arrow="false"
                                 trigger="hover"
                             >
-                                <Item :item_id="item.itemKey" />
+                                <Item :item_id="item.item_id" />
                                 <div class="u-header-inner" slot="reference">
                                     <div
                                         class="u-border"
                                         :style="{
-                                            backgroundImage: item_border(item.Quality),
-                                            opacity: item.Quality == 5 ? 0.9 : 1,
+                                            backgroundImage: item_border(item.item.item_info.Quality),
+                                            opacity: item.item.Quality == 5 ? 0.9 : 1,
                                         }"
                                     ></div>
-                                    <img class="u-img" :src="iconLink(item.IconID)" :alt="item.Name" />
-                                    <span class="u-title" :class="`u-quality--${item.Quality}`">{{ item.Name }}</span>
+                                    <img
+                                        class="u-img"
+                                        :src="iconLink(item.item.item_info.IconID)"
+                                        :alt="item.item.item_info.Name"
+                                    />
+                                    <span class="u-title" :class="`u-quality--${item.item.item_info.Quality}`">{{
+                                        item.item.item_info.Name
+                                    }}</span>
+                                    <span v-if="item.fold"> x {{ item.count }} </span>
                                 </div>
                             </el-popover>
-                            <i class="el-icon-delete u-del" @click="clearCart(item.ID)"></i>
+                            <i
+                                class="u-del"
+                                :class="item.fold ? 'el-icon-s-unfold' : 'el-icon-s-fold'"
+                                @click="$set(item, 'fold', !item.fold)"
+                            ></i>
+                            <i class="el-icon-delete u-del" @click="onRemove(item)"></i>
                         </div>
 
                         <div class="u-info">
-                            <el-divider content-position="left">
-                                [ {{ server }} ] - <i class="el-icon-box"></i> 材料成本统计
+                            <el-divider content-position="left" v-if="!item.fold">
+                                [ {{ item.server }} ] - <i class="el-icon-box"></i> 材料成本统计
                             </el-divider>
-                            <div class="u-children" v-if="item.children.length">
-                                <div class="u-child" v-for="(child, k) in item.children" :key="k">
+                            <div class="u-children" v-if="item.materials.length && !item.fold">
+                                <div class="u-child" v-for="(material, k) in item.materials" :key="k">
                                     <el-popover
                                         popper-class="u-icon-popper"
                                         placement="right"
                                         :visible-arrow="false"
                                         trigger="hover"
                                     >
-                                        <Item :item_id="child.price_id" />
+                                        <Item :item_id="material.item_id" />
                                         <div class="u-img" slot="reference">
-                                            <img :src="iconLink(child.IconID)" :alt="child.Name" />
+                                            <img
+                                                :src="iconLink(material.item.item_info.IconID)"
+                                                :alt="material.item.item_info.Name"
+                                            />
                                             <span>
-                                                {{ child.Name }}x <b>{{ child.count * item.count }}</b>
+                                                {{ material.item.item_info.Name }}x
+                                                <b>{{ material.count * item.count }}</b>
                                             </span>
                                         </div>
                                     </el-popover>
                                     <PriceItem
                                         class="u-price-num"
-                                        :data="{
-                                            Price:
-                                                prices[child.ID] * child.count * item.count ||
-                                                prices[child.priceID] * child.count * item.count,
-                                            Name: child.Name,
-                                            id: child.ID,
-                                        }"
+                                        :price="material.price"
+                                        :origin_price="material.origin_price || 0"
+                                        :name="material.item.item_info.Name"
+                                        type="cart"
+                                        @update_price="material.price = $event"
                                     />
                                 </div>
                             </div>
-                            <div class="u-item-num">
+                            <div class="u-item-num" v-if="!item.fold">
                                 <span>制作次数：</span>
                                 <el-input-number
                                     v-model="item.count"
@@ -82,14 +97,39 @@
                                     @click.stop.native
                                 ></el-input-number>
                             </div>
-                            <div class="u-item-num">
+                            <div class="u-item-num" v-if="!item.fold">
                                 <span><i class="el-icon-sunny"></i> 消耗精力值：</span>
-                                <b>{{ (item.CostVigor || item.CostStamina) * item.count }}</b>
+                                <b>{{ item.cost_vigor * item.count }}</b>
                             </div>
-                            <div class="u-item-num">
-                                <span><i class="el-icon-coin"></i> 小计金额：</span>
+                            <div class="u-item-num" :class="{ 'no-padding': item.fold }">
+                                <span><i class="el-icon-coin"></i> 项目售价：</span>
                                 <span class="u-price">
-                                    <GamePrice class="u-price-num" :price="item.allPrices * item.count" />
+                                    <PriceItem
+                                        class="u-price-num"
+                                        :price="item.price || 0"
+                                        :origin_price="item.origin_price || 0"
+                                        :name="item.recipe.Name"
+                                        type="cart"
+                                        @update_price="item.price = $event"
+                                    />
+                                </span>
+                            </div>
+                            <div class="u-item-num" :class="{ 'no-padding': item.fold }">
+                                <span><i class="el-icon-coin"></i> 项目成本：</span>
+                                <span class="u-price">
+                                    <GamePrice class="u-price-num" :price="calcCartItemCostPrice(item)" />
+                                </span>
+                            </div>
+                            <div
+                                class="u-item-num"
+                                :class="{
+                                    'no-padding': item.fold,
+                                    'no-profit': item.price - calcCartItemCostPrice(item) < 0,
+                                }"
+                            >
+                                <span><i class="el-icon-coin"></i> 预计收益：</span>
+                                <span class="u-price">
+                                    <GamePrice class="u-price-num" :price="item.price - calcCartItemCostPrice(item)" />
                                 </span>
                             </div>
                         </div>
@@ -107,13 +147,21 @@
                             <b>{{ allExp }}</b>
                         </div>
                         <div class="u-num u-price">
-                            <span><i class="el-icon-coin"></i> 消耗金钱：</span>
+                            <span><i class="el-icon-coin"></i> 总计售价：</span>
                             <GamePrice v-if="allPrice" class="u-price-num" :price="allPrice" />
+                        </div>
+                        <div class="u-num u-price">
+                            <span><i class="el-icon-coin"></i> 消耗金钱：</span>
+                            <GamePrice class="u-price-num" :price="allCostPrice" />
+                        </div>
+                        <div class="u-num u-price">
+                            <span><i class="el-icon-coin"></i> 预期收益：</span>
+                            <GamePrice class="u-price-num" :price="allPrice - allCostPrice" />
                         </div>
                     </div>
                 </div>
 
-                <CreatePlan :list="cartList" @clear="clearAllCart" />
+                <CreatePlan :list="cartList" @clear="onRemove()" />
             </div>
         </div>
     </div>
@@ -129,31 +177,31 @@ import Bus from "@/store/bus.js";
 import { cloneDeep } from "lodash";
 export default {
     name: "cart",
-    props: ["data", "server"],
     components: { GamePrice, Item, CreatePlan, PriceItem },
     data: function () {
         return {
-            counts: {},
             cartList: [],
-            prices: {},
         };
     },
     computed: {
         allExp() {
             if (!this.cartList.length) return 0;
-            let _num = 0;
-            let _list = this.cartList.map((el) => {
-                return { exp: el.CostVigor || el.CostStamina, count: el.count };
-            });
-            _list.forEach((item) => {
-                _num += item.count * item.exp;
-            });
-            return _num;
+            return this.cartList
+                .map((item) => item.cost_vigor * item.count)
+                .reduce((acc, cur) => {
+                    return acc + cur;
+                }, 0);
         },
         allPrice() {
             if (!this.cartList.length) return 0;
+            return this.cartList.reduce((acc, cur) => {
+                return acc + (cur.price || 0);
+            }, 0);
+        },
+        allCostPrice() {
+            if (!this.cartList.length) return 0;
             return this.cartList
-                .map((item) => item.allPrices * item.count)
+                .map((item) => this.calcCartItemCostPrice(item))
                 .reduce((acc, cur) => {
                     return acc + cur;
                 }, 0);
@@ -163,12 +211,9 @@ export default {
     methods: {
         iconLink,
         // 移除
-        clearCart(id) {
-            this.cartList = id ? this.cartList.filter((item) => item.ID !== id) : [];
-        },
-        // 全部清空
-        clearAllCart() {
-            this.cartList = [];
+        onRemove(item) {
+            if (!item) this.cartList = [];
+            this.cartList = this.cartList.filter((i) => i !== item);
         },
         // 材料价格
         itemPrices(children) {
@@ -203,36 +248,20 @@ export default {
             number = number.replace(".", "");
             this.cartList[index].count = ~~number;
         },
-    },
-    watch: {
-        data: {
-            deep: true,
-            handler: function (item) {
-                item = cloneDeep(item);
-                const hasItem = this.cartList.some((cart) => cart.ID == item.ID);
-                item.allPrices = this.itemPrices(item.children) || 0;
-
-                hasItem
-                    ? this.cartList.forEach((cart) => {
-                          if (item.ID == cart.ID) cart.count += item.count;
-                      })
-                    : this.cartList.push(item);
-            },
+        add(recipe) {
+            this.cartList.push(recipe);
         },
-        prices: {
-            deep: true,
-            handler: function () {
-                this.cartList = this.cartList.map((item) => {
-                    item.allPrices = this.itemPrices(item.children) || 0;
-                    return item;
-                });
-            },
+        calcCartItemCostPrice(item) {
+            return (
+                item.materials
+                    .map((material) => {
+                        return material.price;
+                    })
+                    .reduce((acc, cur) => {
+                        return acc + cur;
+                    }, 0) * item.count
+            );
         },
-    },
-    mounted() {
-        Bus.$on("itemPrice", (data) => {
-            this.prices = data;
-        });
     },
 };
 </script>
@@ -263,18 +292,18 @@ export default {
     }
     .u-header {
         display: flex;
-    align-items: center;
+        align-items: center;
         gap: 10px;
         .u-header-title {
             flex-grow: 1;
         }
-    .u-del {
-        color: #999;
-        &:hover {
-            background: none;
-            border: 0;
-            .pointer;
-            color: #000;
+        .u-del {
+            color: #999;
+            &:hover {
+                background: none;
+                border: 0;
+                .pointer;
+                color: #000;
             }
         }
     }

@@ -14,13 +14,13 @@
                 </div>
                 <Recipe
                     :list="search ? searchList : showList"
-                    :craftKey="craftKey"
+                    :craft-key="craftKey"
                     :server="server"
-                    @addCartItem="addCartItem"
+                    @addCartItem="onAddCartItem"
                 />
             </div>
             <!-- 成本计算器 -->
-            <Cart :data="cartItem" :server="server" />
+            <Cart :data="cartItem" :server="server" ref="cart" />
 
             <!-- 我的清单 -->
             <MyList />
@@ -128,8 +128,8 @@ export default {
             this.index = this.craftList.findIndex((item) => item.value == i);
         },
         // 选择新添配方
-        addCartItem(item) {
-            this.cartItem = item;
+        onAddCartItem(recipe) {
+            this.$refs.cart.add(recipe);
         },
         updateToolbar(data) {
             const { type, search } = data;
