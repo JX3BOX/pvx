@@ -11,6 +11,7 @@
 .v-miniprogram {
     @brand2: #24292e;
     @brand3: #fedaa3;
+    @brand4: #282828;
 
     // 注意：背景色只改变量在小程序上不生效
     @color-light: #1c1c1c;
@@ -35,7 +36,7 @@
     .m-reputation-tabs {
         .none;
     }
-    .m-reputation-tabs__wrapper {
+    .m-reputation-tabs__miniprogram {
         .db;
         width: 100%;
         margin-top: 15px;
@@ -124,6 +125,12 @@
     }
     .reputation-item {
         gap: 12px;
+        background-color: @color-dark;
+        border-color: @color-dark;
+        @media (prefers-color-scheme: dark) {
+            background-color: @brand4;
+            border-color: @brand4;
+        }
     }
     .reputation-item .reputation-name-wrap {
         margin-left: 0;
