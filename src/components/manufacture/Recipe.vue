@@ -31,22 +31,17 @@
                 </span>
             </span>
         </div>
-        <RecipeDetail
-            v-loading="loading"
-            :showItem="showItem"
-            :prices="prices"
-            :children="children"
-            :server="server"
-            v-on="$listeners"
-        />
+        <RecipeDetail v-loading="loading" :recipe="showItem" :server="server" v-on="$listeners" />
     </div>
 </template>
 <script>
-import { getManufactureItem, getAuctionPrice, getOther, getItemsPrice } from "@/service/manufacture/manufacture";
+import { keyBy } from "lodash";
+import { getManufactureItem, getOther } from "@/service/manufacture/manufacture";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import RecipeDetail from "@/components/manufacture/RecipeDetail.vue";
 import Bus from "@/store/bus.js";
+
 export default {
     name: "Recipe",
     props: ["list", "craftKey", "server"],
@@ -72,100 +67,49 @@ export default {
             this.loading = true;
             getManufactureItem(this.craftKey, id, this.client)
                 .then(async (res) => {
-                    let _data = {},
-                        _child = [],
-                        _type = [],
-                        _count = [];
+                    const recipe = res.data;
 
-                    // 处理数据：删除空数据 合并itemKey 提取材料id 和数量
-                    Object.keys(res.data).forEach((key) => {
-                        if (res.data[key]) {
-                            _data[key] = res.data[key];
-                            if (_data.CreateItemType1)
-                                _data["itemKey"] = _data.CreateItemType1 + "_" + _data.CreateItemIndex1;
-                            if (key.startsWith("RequireItemIndex")) _child.push(_data[key]);
-                            if (key.startsWith("RequireItemType")) _type.push(_data[key]);
-                            if (key.startsWith("RequireItemCount")) _count.push(_data[key]);
+                    const materials = [];
+                    // 获取材料列表
+                    recipe.item_id = recipe.CreateItemType1 + "_" + recipe.CreateItemIndex1;
+                    for (let i = 1; i <= 8; i++) {
+                        if (recipe[`RequireItemIndex${i}`]) {
+                            materials.push({
+                                item_id: recipe[`RequireItemType${i}`] + "_" + recipe[`RequireItemIndex${i}`],
+                                count: recipe[`RequireItemCount${i}`],
+                            });
+                        } else {
+                            break;
+                        }
+                    }
+                    // 获取材料列表，并且把材料信息写到 materials
+                    const other_ids = [
+                        ...materials.map((item) => item.item_id.split("_").pop()),
+                        recipe.item_id.split("_").pop(),
+                    ].join(",");
+                    await getOther({ client: this.client, ids: other_ids, per: materials.length + 1 }).then((res) => {
+                        const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
+                        materials.forEach((material) => {
+                            const other = others[material.item_id];
+                            material.item = other;
+                        });
+                        if (others[recipe.item_id]) {
+                            recipe.item = others[recipe.item_id];
                         }
                     });
-
-                    // 材料id和数量处理
-                    _child = _child.map((id, i) => {
-                        return { id: id, count: _count[i], priceID: _type[i] + "_" + id };
+                    // 让store拿价格
+                    this.$store.dispatch("fetch_prices", {
+                        server: this.server,
+                        ids: [...materials.map((item) => item.item_id), recipe.item_id],
                     });
 
-                    // 获取配方材料价格
-                    const itemPrice = await this.getItemPrice(_child);
-                    const tradePrice = await this.getTradePrice(_child, _data.itemKey);
-                    const _prices = Object.assign(itemPrice, tradePrice);
-                    Object.keys(_prices).forEach((id) => {
-                        this.prices[id] = _prices[id];
-                    });
-                    // 将价格传给购物车
-                    Bus.$emit("itemPrice", this.prices);
-
-                    // 获取材料详情
-                    this.getItemDetail(_child).then((res) => {
-                        this.children = _child.map((item) => {
-                            if (res[item.id]) item = Object.assign(item, res[item.id]);
-                            return item;
-                        });
-                    });
-
-                    // 添加配方 数量
-                    _data.count = 1;
-                    this.showItem = _data;
+                    recipe.materials = materials;
+                    recipe.count = 1;
+                    this.showItem = recipe;
                 })
                 .finally(() => {
                     this.loading = false;
                 });
-        },
-        // 获取物品数据
-        async getItemDetail(arr) {
-            const ids = arr.map((item) => item.id).join();
-            try {
-                return await getOther({ client: this.client, ids, per: ids.length }).then((res) => {
-                    let itemData = {};
-                    res.data.list.forEach((item) => {
-                        let _obj = {};
-                        Object.keys(item).forEach((el) => {
-                            if (item[el]) _obj[el] = item[el];
-                        });
-                        itemData[item.ID] = { ..._obj, ..._obj.item_info };
-                        // 可删可不删
-                        delete itemData[item.ID].Price;
-                        delete itemData[item.ID].item_info;
-                    });
-                    return itemData;
-                });
-            } catch (e) {
-                console.log("获取物品数据错误", e);
-            }
-        },
-        // NPC出售价格
-        async getItemPrice(arr) {
-            const ids = arr.map((item) => item.id).join();
-            return getItemsPrice({ ids, client: this.client }).then((res) => {
-                let priceData = {};
-                res.data.forEach((item) => {
-                    priceData[item.ItemIndex] = item.Price;
-                });
-                return priceData;
-            });
-        },
-        // 交易行价格
-        async getTradePrice(arr, key) {
-            const itemIds = arr
-                .map((item) => item.priceID)
-                .concat(key)
-                .join();
-            return getAuctionPrice({ itemIds, server: this.server }).then((res) => {
-                let priceData = {};
-                Object.keys(res.data.data).forEach((item) => {
-                    priceData[item] = res.data.data[item].AvgPrice;
-                });
-                return priceData;
-            });
         },
         // 切换分类
         changeIndex(i) {
@@ -222,11 +166,10 @@ export default {
         .flex;
         .pr(10px);
         .mr(20px);
-        min-height: 700px;
-        max-height: calc(100vh - 250px);
         overflow: auto;
         flex-direction: column;
         gap: 20px;
+        height: calc(100vh - 284px);
     }
     .m-recipe-group {
         .flex;

@@ -1,32 +1,38 @@
 <template>
-    <div class="m-recipe-detail" v-if="item">
+    <div class="m-recipe-detail" v-if="recipe">
         <!-- 配方信息展示 -->
         <div class="m-item">
             <el-popover popper-class="u-icon-popper" placement="right" :visible-arrow="false" trigger="hover">
-                <Item :item_id="item.itemKey" />
+                <Item :item_id="recipe.item_id" />
                 <div class="u-img" slot="reference">
-                    <span class="u-amount" v-if="item.CreateItemMin1 != item.CreateItemMax1">
-                        {{ item.CreateItemMin1 }}~{{ item.CreateItemMax1 }}
+                    <span class="u-amount" v-if="recipe.CreateItemMin1 != recipe.CreateItemMax1">
+                        {{ recipe.CreateItemMin1 }}~{{ recipe.CreateItemMax1 }}
+                    </span>
+                    <span class="u-amount" v-else-if="recipe.CreateItemMin1 != 1">
+                        {{ recipe.CreateItemMin1 }}
                     </span>
                     <div
                         class="u-border"
-                        :style="{ backgroundImage: item_border(item.Quality), opacity: item.Quality == 5 ? 0.9 : 1 }"
+                        :style="{
+                            backgroundImage: item_border(recipe.Quality),
+                            opacity: recipe.Quality == 5 ? 0.9 : 1,
+                        }"
                     ></div>
-                    <img :src="iconLink(item.IconID)" :alt="item.Name" />
+                    <img :src="iconLink(recipe.IconID)" :alt="recipe.Name" />
                 </div>
             </el-popover>
 
             <div class="m-text">
-                <span class="u-name" :class="`u-quality--${item.Quality}`">{{ item.Name }}</span>
+                <span class="u-name" :class="`u-quality--${recipe.Quality}`">{{ recipe.Name }}</span>
                 <div class="u-info">
                     <span>
-                        需求等级: <b>{{ item.nLevel || "未知" }}</b>
+                        需求等级: <b>{{ recipe.nLevel || "未知" }}</b>
                     </span>
                     <span>
-                        消耗精力: <b>{{ item.CostVigor || item.CostStamina }}</b>
+                        消耗精力: <b>{{ recipe.CostVigor || recipe.CostStamina }}</b>
                     </span>
                     <span>
-                        经验值: <b>{{ item.Exp }}</b>
+                        经验值: <b>{{ recipe.Exp }}</b>
                     </span>
                 </div>
             </div>
@@ -34,16 +40,20 @@
 
         <div class="u-price" v-if="client == 'std'">
             [{{ server }}] 昨日平均价格:
-            <GamePrice v-if="prices[item.itemKey]" class="u-price-num" :price="prices[item.itemKey]" />
-            <span class="u-null" v-else> 暂无数据 </span>
+            <PriceItem
+                :server="server"
+                :name="recipe.Name"
+                :item_id="recipe.item_id"
+                :price="get_price(server, recipe.item_id)"
+            />
         </div>
 
-        <template v-if="item.szTip">
-            <span class="u-desc" v-for="text in textFilter(item.szTip)" :key="text">{{ text }}</span>
+        <template v-if="recipe.szTip">
+            <span class="u-desc" v-for="text in textFilter(recipe.szTip)" :key="text">{{ text }}</span>
         </template>
-        <div class="u-children" v-if="childrenList && childrenList.length">
+        <div class="u-children" v-if="recipe.materials && recipe.materials.length">
             <el-divider content-position="left">合成所需材料</el-divider>
-            <div class="u-child" v-for="(el, index) in childrenList" :key="index">
+            <div class="u-child" v-for="(material, index) in recipe.materials" :key="index">
                 <el-popover
                     popper-class="u-icon-popper"
                     placement="right"
@@ -51,62 +61,61 @@
                     width="auto"
                     trigger="hover"
                 >
-                    <Item :item_id="el.priceID" />
+                    <Item :item_id="material.item_id" />
                     <div class="u-img" slot="reference">
                         <div
                             class="u-border"
-                            :style="{ backgroundImage: item_border(el.Quality), opacity: el.Quality == 5 ? 0.9 : 1 }"
+                            :style="{
+                                backgroundImage: item_border(material.item.Quality),
+                                opacity: material.item.Quality == 5 ? 0.9 : 1,
+                            }"
                         ></div>
-                        <img :src="iconLink(el.IconID)" :alt="item.Name" />
+                        <img :src="iconLink(material.item.item_info.IconID)" :alt="material.item.item_info.Name" />
                     </div>
                 </el-popover>
 
                 <div class="u-info">
                     <div class="u-name">
-                        <span :class="`u-quality--${el.Quality}`"> {{ el.Name }}</span>
-                        <span class="u-num"> 数量： {{ el.count || 1 }} </span>
+                        <span :class="`u-quality--${material.item.Quality}`"> {{ material.item.item_info.Name }}</span>
+                        <span class="u-num"> 数量： {{ material.count || 1 }} </span>
                     </div>
-                    <div class="u-price" v-if="client == 'std'">
-                        {{ prices[el.ID] ? "[NPC出售] 单价：" : `[${server}] 昨日平均单价：` }}
+                    <div class="u-price">
+                        {{ getPriceType(get_price(server, material.item_id)) }}
                         <PriceItem
-                            :data="{
-                                Price: prices[el.ID] || prices[el.priceID],
-                                Name: el.Name,
-                                id: el.ID,
-                            }"
+                            :server="server"
+                            :name="material.item.item_info.Name"
+                            :item_id="material.item_id"
+                            :price="get_price(server, material.item_id)"
                         />
-                    </div>
-                    <div class="u-price" v-else>
-                        [NPC出售] 单价：
-                        <PriceItem :data="{ Price: prices[el.ID], Name: el.Name, id: el.ID }" />
                     </div>
                 </div>
             </div>
         </div>
         <div class="m-add">
-            <el-input-number v-model="item.count" :min="1" @click.stop.native></el-input-number>
-            <el-button icon="el-icon-shopping-cart-2" type="success" @click="addCartItem"> </el-button>
+            <el-input-number v-model="recipe.count" :min="1" @click.stop.native></el-input-number>
+            <el-button icon="el-icon-shopping-cart-2" type="success" @click="onAddCartItem"> </el-button>
         </div>
     </div>
 </template>
 <script>
+import { mapGetters } from "vuex";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { pick } from "lodash";
 
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
 export default {
     name: "RecipeDetail",
-    props: ["showItem", "children", "prices", "server"],
-    components: { Item, PriceItem, GamePrice },
+    props: ["recipe", "server"],
+    components: { Item, PriceItem },
     data: function () {
         return {
-            item: {},
             childrenList: [],
         };
     },
     computed: {
+        ...mapGetters(["get_price"]),
         client() {
             return this.$store.state.client;
         },
@@ -114,9 +123,37 @@ export default {
     methods: {
         iconLink,
         // 添加购物车
-        addCartItem() {
-            const data = { ...this.item, children: this.childrenList };
-            this.$emit("addCartItem", data);
+        onAddCartItem() {
+            const materials = this.recipe.materials.map((item) => {
+                return {
+                    ...item,
+                    price: this.get_price(this.server, item.item_id).price * item.count,
+                    origin_price: this.get_price(this.server, item.item_id).price * item.count,
+                };
+            });
+            const price_unit = this.get_price(this.server, this.recipe.item_id).price;
+            const payload = {
+                recipe: this.recipe,
+                server: this.server,
+                materials: materials,
+                ...pick(this.recipe, ["item_id", "item", "count"]),
+                yield_count: this.recipe.CreateItemMin1,
+                price_unit,
+                cost_vigor: this.recipe.CostVigor || this.recipe.CostStamina,
+                price: price_unit * this.recipe.count * this.recipe.CreateItemMin1,
+                origin_price: price_unit * this.recipe.count * this.recipe.CreateItemMin1,
+            };
+            this.$emit("addCartItem", payload);
+        },
+
+        getPriceType(price) {
+            if (price.from == "custom") {
+                return "[自定义价格] 单价:";
+            } else if (price.from == "npc") {
+                return "[NPC出售] 单价:";
+            } else {
+                return `[${this.server}] 昨日平均单价:`;
+            }
         },
 
         // 描述过滤
@@ -150,21 +187,6 @@ export default {
                 default:
                     return "";
             }
-        },
-    },
-    watch: {
-        showItem: {
-            deep: true,
-            immediate: true,
-            handler: function (data) {
-                this.item = data;
-            },
-        },
-        children: {
-            deep: true,
-            handler: function (list) {
-                this.childrenList = list;
-            },
         },
     },
 };
