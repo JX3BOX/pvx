@@ -16,6 +16,20 @@
                 </div>
             </template>
         </CommonToolbar>
+        <div class="m-miniprogram-tabs__wrapper">
+            <div class="m-miniprogram-tabs">
+                <div class="u-tab" :class="{ active: isAll }" @click="toAll">全部</div>
+                <div
+                    class="u-tab"
+                    v-for="item in versions"
+                    :class="{ active: dlc === item.value }"
+                    :key="item.value"
+                    @click="dlc = item.value"
+                >
+                    {{ item.label.replace(/\([^)]*\)/g, "") }}
+                </div>
+            </div>
+        </div>
 
         <div v-if="isAll && !this.keyword" class="reputation-list-wrapper">
             <div class="reputation-title">资料片新增</div>
@@ -25,7 +39,7 @@
         </div>
         <template v-if="showList.length">
             <div class="reputation-list-wrapper" v-for="item in showList" :key="item.value">
-                <div class="reputation-title">{{ item.label }}</div>
+                <div class="reputation-title" :class="!isAll ? 'is-not-all-title' : ''">{{ item.label }}</div>
                 <div class="reputation-list">
                     <reputation-item :item="item" v-for="item in item.list" :key="item.dwForceID"></reputation-item>
                 </div>
@@ -154,4 +168,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/reputation/home.less";
+@import "~@/assets/css/reputation/reputation_miniprogram.less";
 </style>

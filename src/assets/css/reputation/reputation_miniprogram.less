@@ -1,7 +1,54 @@
 .v-miniprogram {
+    @--black-100: #1c1c1c;
     @media (prefers-color-scheme: dark) {
-        .reputation-container {
-            background-color: #1c1c1c;
+        @--black-100: #ffffff;
+    }
+    .m-miniprogram-tabs__wrapper {
+        width: 100%;
+        padding: 15px 0 10px;
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+    .m-miniprogram-tabs {
+        .flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 18px;
+        .u-tab {
+            flex: none;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 28px;
+            color: @--black-100;
+            &.active {
+                position: relative;
+                &::after {
+                    position: absolute;
+                    .db;
+                    content: "";
+                    @w: 20px;
+                    width: @w;
+                    height: 2px;
+                    left: calc((100% - @w) / 2);
+                    bottom: 0;
+                    background-color: @--black-100;
+                }
+            }
         }
+    }
+    .is-not-all-title {
+        .none;
+    }
+    .reputation-container .reputation-list-wrapper .reputation-title {
+        font-size: 18px;
+        margin-top: 6px;
+        margin-bottom: 12px;
+    }
+    .reputation-container .reputation-list {
+        margin-top: 0;
+        gap: 12px;
+    }
+    .reputation-container .reputation-list-wrapper {
+        padding-top: 12px;
     }
 }
