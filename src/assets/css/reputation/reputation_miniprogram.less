@@ -3,8 +3,13 @@
 }
 .v-miniprogram {
     @--black-100: #1c1c1c;
+    @bg: #f9f9f9;
     @media (prefers-color-scheme: dark) {
         @--black-100: #ffffff;
+        @bg: #060606;
+    }
+    .m-main {
+        background-color: @bg;
     }
     .m-reputation-tabs {
         .none;
