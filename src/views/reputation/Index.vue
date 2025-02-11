@@ -16,8 +16,8 @@
                 </div>
             </template>
         </CommonToolbar>
-        <el-scrollbar class="m-miniprogram-tabs__wrapper">
-            <div class="m-miniprogram-tabs">
+        <el-scrollbar class="m-reputation-tabs__miniprogram">
+            <div class="m-reputation-tabs__content">
                 <div class="u-tab" :class="{ active: isAll }" @click="toAll">全部</div>
                 <div
                     class="u-tab"

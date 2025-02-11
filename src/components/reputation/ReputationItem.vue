@@ -4,11 +4,15 @@
             <img v-if="getIcon(item.szIconPath)" :src="getIcon(item.szIconPath)" />
             <div v-else class="no-img"></div>
         </div>
+        <div class="m-reputation-icon__miniprogram">
+            {{ item.szName.slice(0, 1) }}
+        </div>
         <div class="reputation-name-wrap">
             <div class="reputation-name">{{ item.szName }}</div>
             <div class="progress-wrap">
                 <div class="progress-value"></div>
             </div>
+            <div class="m-reputation-desc__miniprogram" v-html="item.szDesc.replace(/\\n/g, '')"></div>
         </div>
     </div>
 </template>
@@ -46,4 +50,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/reputation/reputation_item.less";
+@import "~@/assets/css/reputation/reputation_miniprogram.less";
 </style>

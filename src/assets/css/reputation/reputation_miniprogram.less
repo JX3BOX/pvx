@@ -1,7 +1,17 @@
-.m-miniprogram-tabs__wrapper {
+// 小程序相关的隐藏
+.m-reputation-tabs__miniprogram {
+    .none;
+}
+.m-reputation-icon__miniprogram {
+    .none;
+}
+.m-reputation-desc__miniprogram {
     .none;
 }
 .v-miniprogram {
+    @brand2: #24292e;
+    @brand3: #fedaa3;
+
     // 注意：背景色只改变量在小程序上不生效
     @color-light: #1c1c1c;
     @bg-light: #f9f9f9;
@@ -9,7 +19,7 @@
     @color-dark: #ffffff;
     @bg-dark: #060606;
 
-    background-color: @bg-light;
+    // background-color: @bg-light;
     .m-main {
         background-color: @bg-light;
     }
@@ -25,12 +35,12 @@
     .m-reputation-tabs {
         .none;
     }
-    .m-miniprogram-tabs__wrapper {
+    .m-reputation-tabs__wrapper {
         .db;
         width: 100%;
         margin-top: 15px;
     }
-    .m-miniprogram-tabs {
+    .m-reputation-tabs__content {
         .flex;
         flex-wrap: nowrap;
         align-items: center;
@@ -73,8 +83,11 @@
     }
     .reputation-container .reputation-list-wrapper .reputation-title {
         font-size: 18px;
-        margin-top: 6px;
+        margin-top: 0;
         margin-bottom: 12px;
+        @media (prefers-color-scheme: dark) {
+            color: @color-dark;
+        }
     }
     .reputation-container .reputation-list {
         margin-top: 0;
@@ -82,5 +95,73 @@
     }
     .reputation-container .reputation-list-wrapper {
         padding-top: 12px;
+    }
+
+    .reputation-icon {
+        .none;
+    }
+    .m-reputation-icon__miniprogram {
+        .db;
+        display: flex;
+        padding: 6px 10px;
+        .size(30px);
+        box-sizing: border-box;
+        justify-content: center;
+        align-items: center;
+        .r(30px);
+        background-color: @brand2;
+        color: @brand3;
+        font-family: "Microsoft YaHei UI";
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 24px;
+
+        @media (prefers-color-scheme: dark) {
+            color: @brand2;
+            background-color: @brand3;
+        }
+    }
+    .reputation-item {
+        gap: 12px;
+    }
+    .reputation-item .reputation-name-wrap {
+        margin-left: 0;
+    }
+    .reputation-item .reputation-name-wrap .reputation-name {
+        color: @color-light;
+        font-family: "Microsoft YaHei UI";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 20px;
+        margin: 0;
+
+        @media (prefers-color-scheme: dark) {
+            color: @color-dark;
+        }
+    }
+    .progress-wrap {
+        .none;
+    }
+    .m-reputation-desc__miniprogram {
+        .db;
+        color: var(@color-light, rgba(28, 28, 28, 0.8));
+
+        font-family: "Microsoft YaHei";
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 15px;
+
+        display: -webkit-box; /* 使用旧版弹性盒子布局 */
+        -webkit-box-orient: vertical; /* 设置垂直方向 */
+        -webkit-line-clamp: 2; /* 限制为两行 */
+        overflow: hidden; /* 超出部分隐藏 */
+        text-overflow: ellipsis; /* 超出部分显示省略号 */
+
+        @media (prefers-color-scheme: dark) {
+            color: var(@color-dark, rgba(28, 28, 28, 0.8));
+        }
     }
 }
