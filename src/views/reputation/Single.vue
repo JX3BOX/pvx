@@ -154,6 +154,32 @@
                 </div>
             </div>
         </div>
+        <!-- 小程序声望奖励 -->
+        <div class="m-reputation-reward__miniprogram" v-if="reputation.gainList">
+            <el-scrollbar>
+                <div class="m-reward-tabs">
+                    <div
+                        class="u-reward-tab"
+                        :class="{ active: stage === index }"
+                        v-for="(item, index) in rewardList"
+                        :key="index"
+                        @click="stage = index"
+                    >
+                        {{ item.label }}
+                    </div>
+                </div>
+                <div class="m-reward-content">
+                    <div class="u-item">
+                        <div class="u-label">提升方式</div>
+                        <div class="u-value">{{ rewardList[stage]?.desc }}</div>
+                    </div>
+                    <div class="u-item">
+                        <div class="u-label">阶段奖励（{{ rewardList[stage]?.label }}）</div>
+                        <div class="u-value reward-content"></div>
+                    </div>
+                </div>
+            </el-scrollbar>
+        </div>
         <div v-if="showPath" class="reputation-reward-wrapper">
             <div class="title">声望奖励</div>
             <div class="reward-content">
@@ -256,6 +282,7 @@ import reputationMap from "@/components/reputation/ReputationMap.vue";
 import ItemIcon from "@/components/common/item_icon.vue";
 import paths from "@/assets/data/reputation_exchange_path.json";
 import levelList from "@/assets/data/reputation_level.json";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 
@@ -288,9 +315,31 @@ export default {
 
             servantVisible: false,
             mapVisible: false,
+
+            rewardMap: {
+                3: "中立",
+                4: "友好",
+                5: "亲密",
+                6: "敬重",
+                7: "尊敬",
+                8: "钦佩",
+            },
         };
     },
     computed: {
+        rewardList() {
+            return Object.entries(this.rewardMap)
+                .map(([key, val]) => {
+                    const desc = this.reputation?.GainDesc?.find((item) => item.to == key)?.desc;
+                    return {
+                        label: val,
+                        value: key,
+                        desc,
+                        list: this.showReward[key],
+                    };
+                })
+                .filter((item) => item.desc);
+        },
         id_str: function () {
             return String(this.id);
         },
@@ -420,6 +469,11 @@ export default {
                 }
             },
         },
+    },
+    mounted() {
+        if (isMiniProgram()) {
+            this.stage = 0;
+        }
     },
 };
 </script>
