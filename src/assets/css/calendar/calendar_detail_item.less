@@ -1,0 +1,71 @@
+.m-calendar-detail-item {
+    padding: 15px;
+    .pointer;
+
+    .u-primary {
+        display: flex;
+    }
+
+    .u-author {
+        .mr(4px);
+    }
+
+    .u-count{
+        font-style: normal;
+    }
+
+    .u-avatar,
+    .u-icon {
+        .size(24px);
+        .db;
+        .pr;
+        top: 1px;
+        .r(2px);
+    }
+
+    .u-icon {
+        .mr(5px);
+    }
+
+    .u-desc {
+        cursor: pointer;
+        .fz(12px,2);
+        flex: 1;
+        .break(3);
+        color: @color;
+    }
+
+    .u-actions {
+        // display: none;
+        // .x(right);
+        .fz(12px);
+        .mt(5px);
+        margin-left: 28px;
+        i {
+            .fz(16px);
+            .mr(3px);
+            .y(-2px);
+        }
+    }
+
+    .u-action {
+        .mr(15px);
+        color: @purple;
+        .pointer;
+    }
+
+    &:hover {
+        background-color: @bg-gray;
+    }
+
+    .u-client{
+        // .i-client;
+        .mr(3px);
+        .ml(1px);
+    }
+
+    .u-star{
+        font-style: normal;
+        .mr(3px);
+    }
+}

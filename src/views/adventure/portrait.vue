@@ -3,14 +3,18 @@
         <template v-if="!isLogin">
             <div class="u-bind_role">
                 <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="u-btn el-button el-button--primary" :href="login_url">前往登录 <i class="el-icon-arrow-right"></i></a>
+                    <a class="u-btn el-button el-button--primary" :href="login_url"
+                        >前往登录 <i class="el-icon-arrow-right"></i
+                    ></a>
                 </el-empty>
             </div>
         </template>
         <template v-else-if="noRole">
             <div class="u-bind_role">
                 <el-empty description="当前暂未绑定角色" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="u-btn el-button el-button--primary" href="/team/role/bind">前往绑定 <i class="el-icon-arrow-right"></i></a>
+                    <a class="u-btn el-button el-button--primary" href="/team/role/bind"
+                        >前往绑定 <i class="el-icon-arrow-right"></i
+                    ></a>
                 </el-empty>
             </div>
         </template>
@@ -108,20 +112,12 @@
                             >
                                 <img
                                     class="u-item__img"
-                                    :src="
-                                        getCdnImgUrl(`world/${item.dwID}${
-                                            item.isAct ? '_act' : ''
-                                        }.png`)
-                                    "
+                                    :src="getCdnImgUrl(`world/${item.dwID}${item.isAct ? '_act' : ''}.png`)"
                                 />
                                 <div class="m-item__text">
                                     <img
                                         class="u-item__bg"
-                                        :src="
-                                            getCdnImgUrl(`world/text_bg${
-                                                item.isAct ? '_act' : ''
-                                            }.png`)
-                                        "
+                                        :src="getCdnImgUrl(`world/text_bg${item.isAct ? '_act' : ''}.png`)"
                                     />
                                     <span class="u-item__text">{{ item.szName }}</span>
                                 </div>
@@ -154,11 +150,15 @@
                                                 :src="getCdnImgUrl(`pt/${item.dwID}_er.png`)"
                                             />
                                         </template>
-                                        <img
-                                            v-else
-                                            class="u-qy__img"
-                                            :src="getCdnImgUrl(`pt/${item.dwID}.png`)"
-                                        />
+                                        <el-image v-else class="u-qy__img" :src="getCdnImgUrl(`pt/${item.dwID}.png`)">
+                                            <!-- TODO -->
+                                            <el-image
+                                                slot="error"
+                                                class="u-qy__img"
+                                                :src="getCdnImgUrl(`pt/default.png`)"
+                                            >
+                                            </el-image>
+                                        </el-image>
                                         <div class="m-qy__text">
                                             <img class="u-qy__bg" :src="getCdnImgUrl('pt/text_bg.png')" />
                                             <span class="u-qy__text">{{ item.szName }}</span>
@@ -214,7 +214,7 @@ import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import getData from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
-import { __Links,__cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Links, __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
 export default {
     name: "portrait",
     inject: ["__imgRoot", "__imgPath"],
@@ -361,7 +361,7 @@ export default {
         showSchoolIcon,
         getCdnImgUrl(img) {
             return `${__cdn}design/treasure/${img}`;
-        }
+        },
     },
 };
 </script>

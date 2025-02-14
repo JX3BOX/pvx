@@ -91,11 +91,14 @@
                                                 :src="getCdnImgUrl(`pt/${item.dwID}_er.png`)"
                                             />
                                         </template>
-                                        <img
-                                            v-else
-                                            class="u-qy__img"
-                                            :src="getCdnImgUrl(`pt/${item.dwID}.png`)"
-                                        />
+                                        <el-image v-else class="u-qy__img" :src="getCdnImgUrl(`pt/${item.dwID}.png`)">
+                                            <el-image
+                                                slot="error"
+                                                class="u-qy__img"
+                                                :src="getCdnImgUrl(`pt/default.png`)"
+                                            >
+                                            </el-image>
+                                        </el-image>
                                         <div class="m-qy__text">
                                             <img class="u-qy__bg" :src="getCdnImgUrl('pt/text_bg.png')" />
                                             <span class="u-qy__text">{{ item.szName }}</span>
@@ -160,20 +163,12 @@
                         >
                             <img
                                 class="u-item__img"
-                                :src="
-                                    getCdnImgUrl(`world/${item.dwID}${
-                                        item.isAct ? '_act' : ''
-                                    }.png`)
-                                "
+                                :src="getCdnImgUrl(`world/${item.dwID}${item.isAct ? '_act' : ''}.png`)"
                             />
                             <div class="m-item__text">
                                 <img
                                     class="u-item__bg"
-                                    :src="
-                                        getCdnImgUrl(`world/text_bg${
-                                            item.isAct ? '_act' : ''
-                                        }.png`)
-                                    "
+                                    :src="getCdnImgUrl(`world/text_bg${item.isAct ? '_act' : ''}.png`)"
                                 />
                                 <span class="u-item__text">{{ item.szName }}</span>
                             </div>
@@ -378,7 +373,7 @@ export default {
         showSchoolIcon,
         getCdnImgUrl(img) {
             return `${__cdn}design/treasure/${img}`;
-        }
+        },
     },
 };
 </script>

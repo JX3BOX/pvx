@@ -16,7 +16,7 @@ reporter.install(Vue);
 
 // 数据与路由
 import router from "./router";
-import store from "./store";
+import store from "@/store/pvg";
 
 import App from "@/views/pvg/Index.vue";
 new Vue({

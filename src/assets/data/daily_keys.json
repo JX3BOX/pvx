@@ -1,0 +1,42 @@
+[
+    {
+        "name": "大战",
+        "key": "dz",
+        "type": 1
+    },
+    {
+        "name": "战场",
+        "key": "zc",
+        "type": 1
+    },
+    {
+        "name": "声望日常",
+        "key": "swrc",
+        "type": 1
+    },
+    {
+        "name": "武林通鉴·秘境",
+        "key": "wltj5",
+        "type": 2
+    },
+    {
+        "name": "武林通鉴·团队秘境",
+        "key": "wltj10",
+        "type": 2
+    },
+    {
+        "name": "世界首领",
+        "key": "sjsl",
+        "type": 3
+    },
+    {
+        "name": "节日活动",
+        "key": "jrhd",
+        "type": 3
+    },
+    {
+        "name": "特殊活动",
+        "key": "tshd",
+        "type": 3
+    }
+]
