@@ -102,7 +102,7 @@ export default {
         gap: 20px;
         overflow: auto;
         min-height: 700px;
-        max-height: calc(100vh - 250px);
+        max-height: calc(100vh - 260px);
 
         .m-item {
             .pointer;

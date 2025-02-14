@@ -40,7 +40,6 @@ import { getManufactureItem, getOther } from "@/service/manufacture/manufacture"
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import RecipeDetail from "@/components/manufacture/RecipeDetail.vue";
-import Bus from "@/store/bus.js";
 
 export default {
     name: "Recipe",
@@ -139,21 +138,12 @@ export default {
                 if (_list.length && _list[0].list.length) this.changeItem(_list[0].list[0].ID);
             },
         },
-        prices(data) {
-            Bus.$emit("itemPrice", data);
-        },
         server() {
             this.loadItem(this.itemId);
         },
         craftKey() {
             this.showIndex = 0;
         },
-    },
-    mounted() {
-        Bus.$on("changePrice", ({ id, Price }) => {
-            if (this.prices[id]) delete this.prices[id];
-            this.$set(this.prices, [id], Price);
-        });
     },
 };
 </script>
@@ -169,7 +159,7 @@ export default {
         overflow: auto;
         flex-direction: column;
         gap: 20px;
-        height: calc(100vh - 284px);
+        height: calc(100vh - 294px);
     }
     .m-recipe-group {
         .flex;

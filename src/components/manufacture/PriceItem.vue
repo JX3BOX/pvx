@@ -18,8 +18,6 @@
         <template slot="reference">
             <div class="m-price-item">
                 <template v-if="type == 'cart'">
-                    <GamePrice v-if="price" class="u-price-num" :price="price" />
-                    <span class="u-null" v-else>暂无价格</span>
                     <i class="u-edit el-icon-edit" title="修改价格"></i>
                     <i
                         class="u-edit el-icon-close"
@@ -27,10 +25,10 @@
                         v-if="price != origin_price"
                         @click.stop="onRemoveCustomPrice"
                     ></i>
+                    <GamePrice v-if="price" class="u-price-num" :price="price" :align="align" />
+                    <span class="u-null" v-else>暂无价格</span>
                 </template>
                 <template v-else>
-                    <GamePrice v-if="price.price" class="u-price-num" :price="price.price" />
-                    <span class="u-null" v-else>暂无价格</span>
                     <i class="u-edit el-icon-edit" title="修改价格"></i>
                     <i
                         class="u-edit el-icon-close"
@@ -38,6 +36,8 @@
                         v-if="price.from == 'custom'"
                         @click.stop="onRemoveCustomPrice"
                     ></i>
+                    <GamePrice v-if="price.price" class="u-price-num" :price="price.price" :align="align" />
+                    <span class="u-null" v-else>暂无价格</span>
                 </template>
             </div>
         </template>
@@ -49,7 +49,7 @@ import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 
 export default {
     name: "PriceItem",
-    props: ["price", "server", "name", "item_id", "type", "origin_price"],
+    props: ["price", "server", "name", "item_id", "type", "origin_price", "align"],
     components: { GamePrice },
     data: function () {
         return {
@@ -113,6 +113,7 @@ export default {
     .u-edit {
         .ml(5px);
         color: #08cfd9;
+        .pr(6px);
     }
 }
 .m-add-price {

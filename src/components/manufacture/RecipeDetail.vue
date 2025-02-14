@@ -142,6 +142,7 @@ export default {
                 cost_vigor: this.recipe.CostVigor || this.recipe.CostStamina,
                 price: price_unit * this.recipe.count * this.recipe.CreateItemMin1,
                 origin_price: price_unit * this.recipe.count * this.recipe.CreateItemMin1,
+                calc_tax: true
             };
             this.$emit("addCartItem", payload);
         },

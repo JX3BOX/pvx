@@ -171,8 +171,9 @@ export default {
     .flex;
     .pb(20px);
     overflow-x: auto;
+    overflow-y: hidden;
     gap: 20px;
-    height: calc(100vh - 244px);
+    height: calc(100vh - 254px);
 }
 @media screen and (max-width: @phone) {
     .m-manufacture-tabs {
