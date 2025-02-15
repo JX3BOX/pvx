@@ -1,0 +1,68 @@
+.p-price-overview {
+    .pt(20px);
+    .pr;
+    .m-price-overview-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        .u-title {
+            margin: 20px 0 20px 0;
+            color: #24292e;
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 42px;
+        }
+        .u-servers {
+            position: relative;
+            width: 200px;
+            background-color: #fff;
+            border-radius: 40px;
+            .el-input__prefix {
+                display: flex;
+                align-items: center;
+                padding-left: 15px;
+                color: #949494;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 40px;
+            }
+
+            .el-input__inner {
+                height: 40px;
+                padding-left: 100px;
+                color: #24292e;
+                font-size: 16px;
+                font-weight: bold;
+                line-height: 40px;
+                border: none;
+                border-radius: 40px;
+            }
+        }
+    }
+    .m-price-overview-gold-charts {
+        .pb(20px);
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-price-overview {
+        .m-price-overview-header {
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            .u-title {
+                margin: 0;
+            }
+        }
+        .u-title {
+            font-size: 24px !important;
+        }
+    }
+    .p-price-goods .m-mygoods .m-mygoods-plan .m-mygoods-plan-label {
+        font-size: 20px;
+    }
+}
+@media screen and (max-width: @phone) {
+    .p-price-overview {
+        .pt(64px);
+    }
+}

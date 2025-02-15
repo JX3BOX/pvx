@@ -19,9 +19,17 @@ const routes = [
         },
     },
     {
+        name: "price",
+        path: "/price",
+        component: ()=> import("@/views/pvg/price/index.vue"),
+        meta: {
+            name: "价格走势",
+        },
+    },
+    {
         name: "gonggao",
         path: "/gonggao",
-        component: () => import("@/views/pvg/Gonggao.vue"),
+        component: () => import("@/views/pvg/gonggao/Gonggao.vue"),
         redirect: {
             name: "daily",
         },
@@ -32,7 +40,7 @@ const routes = [
             {
                 name: "daily",
                 path: "daily",
-                component: () => import("@/components/gonggao/Daily.vue"),
+                component: () => import("@/components/pvg/gonggao/Daily.vue"),
                 meta: {
                     name: "速览",
                 },
@@ -40,7 +48,7 @@ const routes = [
             {
                 name: "calendar",
                 path: "calendar/:year(\\d+)/:month(\\d+)/:date(\\d+)?",
-                component: () => import("@/components/gonggao/Calendar.vue"),
+                component: () => import("@/components/pvg/gonggao/Calendar.vue"),
                 meta: {
                     name: "日历",
                 },
@@ -48,7 +56,7 @@ const routes = [
             {
                 name: "server",
                 path: "server",
-                component: () => import("@/components/gonggao/Server.vue"),
+                component: () => import("@/components/pvg/gonggao/Server.vue"),
                 meta: {
                     name: "开服状态",
                 },
@@ -56,7 +64,7 @@ const routes = [
             {
                 name: "calendarSingle",
                 path: "single/:id",
-                component: () => import("@/components/gonggao/calendar/Single.vue"),
+                component: () => import("@/components/pvg/gonggao/calendar/Single.vue"),
                 meta: {
                     sidebar: true,
                 },
