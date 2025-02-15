@@ -18,69 +18,79 @@
                 <div class="m-cart-list" v-if="cartList.length">
                     <div class="m-item" v-for="(item, index) in cartList" :key="index">
                         <div class="u-header">
-                            <el-popover
-                                class="u-header-title"
-                                popper-class="u-icon-popper"
-                                placement="right"
-                                :visible-arrow="false"
-                                trigger="hover"
-                            >
-                                <Item :item_id="item.item_id" />
-                                <div class="u-header-inner" slot="reference">
-                                    <div
-                                        class="u-border"
-                                        :style="{
-                                            backgroundImage: item_border(item.item.Quality),
-                                            opacity: item.item.Quality == 5 ? 0.9 : 1,
-                                        }"
-                                    ></div>
-                                    <img
-                                        class="u-img"
-                                        :src="iconLink(item.item.item_info.IconID)"
-                                        :alt="item.item.item_info.Name"
-                                    />
-                                    <span class="u-title" :class="`u-quality--${item.item.Quality}`">{{
-                                        item.item.item_info.Name
-                                    }}</span>
-                                    <span v-if="item.fold"> x {{ item.count }} </span>
-                                </div>
-                            </el-popover>
+                            <div class="u-header-inner">
+                                <div
+                                    class="u-border"
+                                    :style="{
+                                        backgroundImage: item_border(item.item.Quality),
+                                        opacity: item.item.Quality == 5 ? 0.9 : 1,
+                                    }"
+                                ></div>
+                                <img
+                                    class="u-img"
+                                    :src="iconLink(item.item.item_info.IconID)"
+                                    :alt="item.item.item_info.Name"
+                                />
+                                <span class="u-title" :class="`u-quality--${item.item.Quality}`">{{
+                                    item.item.item_info.Name
+                                }}</span>
+                                <span v-if="item.fold"> x {{ item.count }} </span>
+                            </div>
                             <i
                                 class="u-del"
                                 :class="item.fold ? 'el-icon-s-unfold' : 'el-icon-s-fold'"
                                 @click="$set(item, 'fold', !item.fold)"
                             ></i>
-                            <i class="el-icon-delete u-del" @click="onRemove(item)"></i>
+                            <i v-if="!item.is_material" class="el-icon-delete u-del" @click="onRemove(item)"></i>
                         </div>
 
                         <div class="u-info">
                             <el-divider content-position="left" v-if="!item.fold">
                                 [ {{ item.server }} ] - <i class="el-icon-box"></i> 材料成本统计
                             </el-divider>
+                            <!-- 材料列表 -->
                             <div class="u-children" v-if="item.materials.length && !item.fold">
                                 <div class="u-child" v-for="(material, k) in item.materials" :key="k">
-                                    <el-popover
-                                        popper-class="u-icon-popper"
-                                        placement="right"
-                                        :visible-arrow="false"
-                                        trigger="hover"
-                                    >
-                                        <Item :item_id="material.item_id" />
-                                        <div class="u-img" slot="reference">
+                                    <div class="u-img">
+                                        <el-popover
+                                            popper-class="u-icon-popper"
+                                            placement="right"
+                                            :visible-arrow="false"
+                                            trigger="hover"
+                                        >
+                                            <Item :item_id="material.item_id" />
                                             <img
+                                                slot="reference"
                                                 :src="iconLink(material.item.item_info.IconID)"
                                                 :alt="material.item.item_info.Name"
                                             />
-                                            <span>
-                                                <span :class="`u-quality--${item.item.Quality}`">{{
-                                                    material.item.item_info.Name
-                                                }}</span>
-                                                x
-                                                <b>{{ material.count * item.count }}</b>
-                                            </span>
-                                        </div>
-                                    </el-popover>
+                                        </el-popover>
+
+                                        <span>
+                                            <span :class="`u-quality--${material.item.Quality}`">{{
+                                                material.item.item_info.Name
+                                            }}</span>
+                                            x
+                                            <b>{{ material.count * item.count }}</b>
+                                        </span>
+                                    </div>
+
+                                    <!-- 手搓/购买 模式切换 -->
+                                    <template v-if="canMake(material)">
+                                        <el-tooltip
+                                            effect="dark"
+                                            :content="material.make ? '改为购买' : '改为手搓'"
+                                            placement="bottom"
+                                        >
+                                            <i
+                                                class="u-button el-icon-scissors"
+                                                :class="{ 'is-active': material.make }"
+                                                @click="onSwitchMaterialSource(item, material)"
+                                            ></i>
+                                        </el-tooltip>
+                                    </template>
                                     <PriceItem
+                                        v-if="!material.make"
                                         class="u-price-num"
                                         :price="material.price"
                                         :origin_price="material.origin_price || 0"
@@ -88,8 +98,16 @@
                                         type="cart"
                                         @update_price="material.price = $event"
                                     />
+
+                                    <GamePrice
+                                        v-else
+                                        class="u-price-num"
+                                        :class="{ 'is-make': material.make }"
+                                        :price="material.price"
+                                    ></GamePrice>
                                 </div>
                             </div>
+                            <!-- 底部 -->
                             <div class="u-item-num" v-if="!item.fold">
                                 <span>制作次数：</span>
                                 <el-input-number
@@ -104,87 +122,26 @@
                                 <span><i class="el-icon-sunny"></i> 消耗精力值：</span>
                                 <b>{{ item.cost_vigor * item.count }}</b>
                             </div>
-
-                            <el-popover placement="top" trigger="hover" popper-class="m-price-popper" width="320">
-                                <div class="u-price-detail">
-                                    <div class="u-item-num">
-                                        <span><i class="el-icon-coin"></i> 预计售价：</span>
-                                        <span class="u-price">
-                                            <PriceItem
-                                                class="u-price-num"
-                                                :price="item.price * item.count || 0"
-                                                :origin_price="item.origin_price * item.count || 0"
-                                                :name="item.recipe.Name"
-                                                type="cart"
-                                                @update_price="item.price = $event"
-                                                :align="true"
-                                            />
-                                        </span>
-                                    </div>
-                                    <div class="u-item-num">
-                                        <span><i class="el-icon-coin"></i> 项目成本：</span>
-                                        <span class="u-price">
-                                            <GamePrice
-                                                class="u-price-num"
-                                                :price="-calcCartItemCostPrice(item)"
-                                                :align="true"
-                                            />
-                                        </span>
-                                    </div>
-                                    <div
-                                        class="u-item-num"
-                                        :class="{ 'no-padding': item.fold, 'is-cancel': !item.calc_tax }"
-                                    >
-                                        <span class="u-label"><i class="el-icon-coin"></i> 交易行税：</span>
-                                        <span class="u-price">
-                                            <i
-                                                class="u-edit"
-                                                :class="item.calc_tax ? 'el-icon-close' : 'el-icon-refresh-left'"
-                                                title="取消税收"
-                                                @click.stop="item.calc_tax = !item.calc_tax"
-                                            ></i>
-                                            <GamePrice
-                                                class="u-price-num"
-                                                :price="-calcCartItemTax(item)"
-                                                :align="true"
-                                            />
-                                        </span>
-                                    </div>
-                                    <div
-                                        class="u-item-num"
-                                        :class="{
-                                            'no-profit': calcCartItemProfit(item) < 0,
-                                        }"
-                                    >
-                                        <span><i class="el-icon-coin"></i> 预计收益：</span>
-                                        <span class="u-price">
-                                            <GamePrice
-                                                class="u-price-num"
-                                                :price="calcCartItemProfit(item)"
-                                                :align="true"
-                                            />
-                                        </span>
-                                    </div>
-                                </div>
-                                <template #reference>
-                                    <div
-                                        class="u-item-num"
-                                        :class="{
-                                            'no-padding': item.fold,
-                                            'no-profit': calcCartItemProfit(item) < 0,
-                                        }"
-                                    >
-                                        <span><i class="el-icon-coin"></i> 预计收益：</span>
-                                        <span class="u-price">
-                                            <GamePrice
-                                                class="u-price-num"
-                                                :price="calcCartItemProfit(item)"
-                                                :align="true"
-                                            />
-                                        </span>
-                                    </div>
-                                </template>
-                            </el-popover>
+                            <div v-if="item.is_material" class="u-item-num">
+                                <span><i class="el-icon-coin"></i> 预计花费：</span>
+                                <span class="u-price">
+                                    <GamePrice class="u-price-num" :price="calcCartItemCostPrice(item)" :align="true" />
+                                </span>
+                            </div>
+                            <price-detail
+                                v-else
+                                :price="item.price * item.count"
+                                :origin_price="item.origin_price * item.count"
+                                :price_name="item.recipe.Name"
+                                :cost="-calcCartItemCostPrice(item)"
+                                :tax="-calcCartItemTax(item)"
+                                :profit="calcCartItemProfit(item)"
+                                :tax_mutable="true"
+                                :price_mutable="true"
+                                :calc_tax="item.calc_tax"
+                                @update_price="item.price = $event"
+                                @update_tax="item.calc_tax = $event"
+                            ></price-detail>
                         </div>
                     </div>
                 </div>
@@ -199,45 +156,12 @@
                             <span><i class="el-icon-sunny"></i> 消耗精力值：</span>
                             <b>{{ allExp }}</b>
                         </div>
-                        <el-popover placement="top" trigger="hover" popper-class="m-price-popper" width="320">
-                            <div class="u-price-detail">
-                                <div class="u-item-num">
-                                    <span><i class="el-icon-coin"></i> 预计售价：</span>
-                                    <span class="u-price">
-                                        <GamePrice class="u-price-num" :price="allPrice" :align="true" />
-                                    </span>
-                                </div>
-                                <div class="u-item-num">
-                                    <span><i class="el-icon-coin"></i> 材料成本：</span>
-                                    <span class="u-price">
-                                        <GamePrice class="u-price-num" :price="-allCostPrice" :align="true" />
-                                    </span>
-                                </div>
-                                <div class="u-item-num">
-                                    <span><i class="el-icon-coin"></i> 交易行税：</span>
-                                    <span class="u-price">
-                                        <GamePrice class="u-price-num" :price="-allTax" :align="true" />
-                                    </span>
-                                </div>
-                                <div class="u-item-num">
-                                    <span><i class="el-icon-coin"></i> 预期收益：</span>
-                                    <span class="u-price">
-                                        <GamePrice class="u-price-num" :price="allProfit" :align="true" />
-                                    </span>
-                                </div>
-                            </div>
-                            <template #reference>
-                                <div
-                                    class="u-num u-price"
-                                    :class="{
-                                        'no-profit': allProfit < 0,
-                                    }"
-                                >
-                                    <span><i class="el-icon-coin"></i> 预期收益：</span>
-                                    <GamePrice class="u-price-num" :price="allProfit" :align="true" />
-                                </div>
-                            </template>
-                        </el-popover>
+                        <price-detail
+                            :price="allPrice"
+                            :cost="-allCostPrice"
+                            :tax="allTax"
+                            :profit="allProfit"
+                        ></price-detail>
                     </div>
                 </div>
 
@@ -248,15 +172,17 @@
 </template>
 <script>
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
 import CreatePlan from "@/components/manufacture/CreatePlan.vue";
+import PriceDetail from "@/components/manufacture/PriceDetail.vue";
+import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
 
 export default {
     name: "cart",
-    components: { GamePrice, Item, CreatePlan, PriceItem },
+    components: { Item, GamePrice, CreatePlan, PriceItem, PriceDetail },
+    props: ["craftList"],
     data: function () {
         return {
             cartList: [],
@@ -274,6 +200,7 @@ export default {
         allPrice() {
             if (!this.cartList.length) return 0;
             return this.cartList.reduce((acc, cur) => {
+                if (cur.is_material) return acc;
                 return acc + (cur.price || 0);
             }, 0);
         },
@@ -288,7 +215,7 @@ export default {
         allTax() {
             if (!this.cartList.length) return 0;
             return this.cartList
-                .map((item) => this.calcCartItemTax(item))
+                .map((item) => (item.is_material ? 0 : this.calcCartItemTax(item)))
                 .reduce((acc, cur) => {
                     return acc + cur;
                 }, 0);
@@ -296,10 +223,18 @@ export default {
         allProfit() {
             if (!this.cartList.length) return 0;
             return this.cartList
-                .map((item) => this.calcCartItemProfit(item))
+                .map((item) => (item.is_material ? 0 : this.calcCartItemProfit(item)))
                 .reduce((acc, cur) => {
                     return acc + cur;
                 }, 0);
+        },
+
+        crafts() {
+            return this.craftList
+                .map((item) => item.list)
+                .reduce((acc, cur) => {
+                    return acc.concat(cur);
+                }, []);
         },
     },
 
@@ -308,7 +243,8 @@ export default {
         // 移除
         onRemove(item) {
             if (!item) this.cartList = [];
-            this.cartList = this.cartList.filter((i) => i !== item);
+            const materials = this.cartList.filter((i) => i.parent === item.id);
+            this.cartList = this.cartList.filter((i) => i !== item && !materials.includes(i));
         },
         // 材料价格
         itemPrices(children) {
@@ -350,7 +286,7 @@ export default {
             return (
                 item.materials
                     .map((material) => {
-                        return material.price;
+                        return material.make ? 0 : material.price;
                     })
                     .reduce((acc, cur) => {
                         return acc + cur;
@@ -364,6 +300,26 @@ export default {
             const profit = item.price * item.count - this.calcCartItemCostPrice(item);
             if (item.calc_tax) return profit - this.calcCartItemTax(item);
             return profit;
+        },
+        canMake(material) {
+            return this.crafts.some((item) => {
+                return item.item_id == material.item_id;
+            });
+        },
+        onSwitchMaterialSource(item, material) {
+            // 如果当前是购买的
+            if (!material.make) {
+                const recipe = this.crafts.find((i) => i.item_id == material.item_id);
+                // 切换为手搓
+                material.make = true;
+                // 获取材料的工艺以及相关物品价格，添加为新的cartItem
+                this.$emit("material-make", { item, material, recipe, require_count: material.count * item.count });
+            } else {
+                // 切换为购买
+                material.make = false;
+                // 移除清单中的材料
+                this.cartList = this.cartList.filter((i) => i.parent !== item.id);
+            }
         },
     },
 };
@@ -385,35 +341,6 @@ export default {
 .m-cart-list .m-item:first-of-type .u-header {
     padding-top: 0;
 }
-.m-price-popper {
-    .u-item-num {
-        .flex;
-        .fz(13px);
-        .pt(10px);
-        align-items: center;
-        word-break: keep-all;
-
-        &:last-of-type {
-            padding-top: 30px;
-        }
-
-        &.is-cancel .u-label {
-            text-decoration: line-through;
-            color: #999;
-        }
-
-        .u-edit {
-            .pointer;
-            color: #08cfd9;
-        }
-
-        .u-price {
-            flex-grow: 1;
-            width: 0;
-            text-align: right;
-        }
-    }
-}
 .m-cart-body .m-item {
     .u-item-num.no-padding {
         padding-top: 0;
@@ -422,6 +349,8 @@ export default {
     .u-header-inner {
         display: flex;
         align-items: center;
+        flex-grow: 1;
+        gap: 8px;
     }
     .u-header {
         display: flex;
