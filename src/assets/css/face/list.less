@@ -1,0 +1,202 @@
+@import "~@/assets/css/face/animation.less";
+
+.p-face-list {
+    .pr;
+    .pt(40px);
+    .u-type {
+        .flex;
+        .mb(20px);
+        justify-content: space-between;
+        align-items: flex-end;
+        .u-all {
+            cursor: pointer;
+            color: #a5a5a5;
+            .fz(16px,21px);
+        }
+    }
+    .u-title {
+        .fz(24px,1);
+        .bold(700);
+        color: #24292e;
+    }
+    .u-recommend-title {
+        margin: 20px 0 20px 0;
+    }
+    .c-public-notice {
+        .mt(40px);
+    }
+}
+.m-recommend-list {
+    .flex;
+    .clip;
+    .r(10px);
+    .w(100%);
+    .scrollbar(2px);
+}
+@media screen and (max-width: @ipad) {
+    // 编辑推荐
+    .m-recommend-list {
+        overflow-x: auto;
+        .mt(20px);
+    }
+}
+
+.m-face-title {
+    margin-top: 20px !important;
+}
+
+.m-recommend-box,
+.m-face-box {
+    .mt(40px);
+    .u-shade-btn {
+        .pointer;
+        .pa;
+        // top: 50%;
+        z-index: 12;
+        .flex;
+        .flex(x);
+        align-items: center;
+        .size(60px,200px);
+        .fz(26px);
+        visibility: hidden;
+        background-color: rgba(0, 0, 0, 0.7);
+        i {
+            color: #fff;
+        }
+        &:hover {
+            background-color: @faceColor;
+            i,
+            svg {
+                color: #fff;
+            }
+        }
+    }
+    .u-shade-btn-left {
+        border-radius: 10px 0 0 10px;
+    }
+    .u-shade-btn-right {
+        border-radius: 0 10px 10px 0;
+        right: 0;
+    }
+    .u-disabled {
+        // display: none
+        cursor: not-allowed;
+        background-color: rgba(163, 152, 152, 0.7);
+        &:hover {
+            background-color: rgba(163, 152, 152, 0.7);
+        }
+    }
+}
+@media screen and (max-width: @phone) {
+    .m-recommend-box {
+        padding-top: 64px;
+    }
+    .m-face-tabs {
+        .pr;
+        width: unset;
+    }
+    .m-face-box {
+        &:nth-child(2) {
+            .mt(40px);
+        }
+    }
+    .m-face-box {
+        .u-shade-btn {
+            .h(264px);
+        }
+        .u-shade {
+            .h(224px);
+        }
+    }
+}
+
+//单个体型全部list
+.m-face-list--all {
+    .flex;
+    .mb(20px);
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.m-face-item:last-child,
+.m-recommend-item:last-child {
+    .mr(0);
+}
+
+.m-archive-null {
+    .mt(20px);
+}
+.m-archive-more {
+    .mt(40px);
+    .w(100%);
+    background-color: #6b52ff;
+    &:hover,
+    &:focus {
+        background-color: #6b52ff;
+        border-color: #6b52ff;
+    }
+}
+.m-archive-pages {
+    overflow: auto;
+    .active {
+        background-color: #6b52ff !important;
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-face-list {
+        // padding-top: 184px;
+        .u-type {
+            .mt(20px);
+        }
+        .u-title {
+            .fz(24px);
+        }
+        .u-recommend-title,
+        .u-all-type {
+            margin-top: 0 !important;
+        }
+    }
+    //单个体型全部list
+    .m-face-list--all {
+        width: 100%;
+        .flex;
+        justify-content: space-between;
+        .m-face-item {
+            .pr;
+            .mb(30px);
+            overflow: hidden;
+            .h(auto);
+            .w(100%);
+            .mr(10px);
+            .u-img {
+                .size(auto);
+            }
+            .u-op {
+                .u-face-title {
+                    .fz(14px);
+                    .bold(600);
+                }
+            }
+        }
+    }
+    .m-common-list {
+        .scrollbar(2px);
+        overflow-x: auto;
+
+        .m-face-item {
+            .u-img {
+                .u-star-mark {
+                    .fz(12px);
+                    .lt(6px);
+                    padding: 2px;
+                }
+            }
+        }
+        .u-op {
+            .u-face-title {
+                .fz(14px);
+                .bold(600);
+            }
+        }
+    }
+}
