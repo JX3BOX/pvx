@@ -38,12 +38,6 @@ module.exports = {
             template: "public/index.html",
             filename: "exam/index.html",
         },
-        bbs: {
-            title: "剑三茶馆 - JX3BOX",
-            entry: "src/pages/bbs/index.js",
-            template: "public/index.html",
-            filename: "bbs/index.html",
-        },
         face: {
             title: "捏脸分享 - JX3BOX",
             entry: "src/pages/face/index.js",
