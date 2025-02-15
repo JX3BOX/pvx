@@ -16,7 +16,7 @@
                     <div class="m-border" :key="index" v-if="item.data && item.data.length">
                         <div class="u-title" v-if="item.title">{{ item.title }}</div>
                         <div class="m-content">
-                            <router-link
+                            <div
                                 class="u-item"
                                 v-for="(el, key) in item.data"
                                 :key="key"
@@ -27,7 +27,7 @@
                                     <span class="u-count">{{ el.count }}</span>
                                 </span>
                                 <span class="u-name" :class="`quality-${el.Quality}`"> {{ el.Name }}</span>
-                            </router-link>
+                            </div>
                         </div>
                     </div>
                 </template>

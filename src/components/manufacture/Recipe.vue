@@ -20,7 +20,7 @@
                     >
                     <div class="m-add" v-if="itemId == _list.ID">
                         <el-input-number
-                            v-model.number="showItem.count"
+                            v-model.number="recipe.count"
                             size="small"
                             :min="1"
                             @input="onlyInteger"
@@ -31,7 +31,7 @@
                 </span>
             </span>
         </div>
-        <RecipeDetail v-loading="loading" :recipe="showItem" :server="server" v-on="$listeners" />
+        <RecipeDetail ref="recipe-detail" v-loading="loading" :recipe="recipe" :server="server" v-on="$listeners" />
     </div>
 </template>
 <script>
@@ -47,7 +47,7 @@ export default {
     data: function () {
         return {
             showIndex: 0,
-            showItem: {},
+            recipe: {},
             loading: false,
             children: [],
             prices: {},
@@ -64,51 +64,54 @@ export default {
         iconLink,
         loadItem(id) {
             this.loading = true;
-            getManufactureItem(this.craftKey, id, this.client)
-                .then(async (res) => {
-                    const recipe = res.data;
-
-                    const materials = [];
-                    // 获取材料列表
-                    recipe.item_id = recipe.CreateItemType1 + "_" + recipe.CreateItemIndex1;
-                    for (let i = 1; i <= 8; i++) {
-                        if (recipe[`RequireItemIndex${i}`]) {
-                            materials.push({
-                                item_id: recipe[`RequireItemType${i}`] + "_" + recipe[`RequireItemIndex${i}`],
-                                count: recipe[`RequireItemCount${i}`],
-                            });
-                        } else {
-                            break;
-                        }
-                    }
-                    // 获取材料列表，并且把材料信息写到 materials
-                    const other_ids = [
-                        ...materials.map((item) => item.item_id.split("_").pop()),
-                        recipe.item_id.split("_").pop(),
-                    ].join(",");
-                    await getOther({ client: this.client, ids: other_ids, per: materials.length + 1 }).then((res) => {
-                        const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
-                        materials.forEach((material) => {
-                            const other = others[material.item_id];
-                            material.item = other;
-                        });
-                        if (others[recipe.item_id]) {
-                            recipe.item = others[recipe.item_id];
-                        }
-                    });
-                    // 让store拿价格
-                    this.$store.dispatch("fetch_prices", {
-                        server: this.server,
-                        ids: [...materials.map((item) => item.item_id), recipe.item_id],
-                    });
-
-                    recipe.materials = materials;
-                    recipe.count = 1;
-                    this.showItem = recipe;
+            this.getRecipe(this.craftKey, id, this.client)
+                .then((recipe) => {
+                    this.recipe = recipe;
                 })
                 .finally(() => {
                     this.loading = false;
                 });
+        },
+        async getRecipe(craftType, id, client) {
+            const resp = await getManufactureItem(craftType, id, client);
+            const recipe = resp.data;
+            const materials = [];
+            // 获取材料列表
+            recipe.item_id = recipe.CreateItemType1 + "_" + recipe.CreateItemIndex1;
+            for (let i = 1; i <= 8; i++) {
+                if (recipe[`RequireItemIndex${i}`]) {
+                    materials.push({
+                        item_id: recipe[`RequireItemType${i}`] + "_" + recipe[`RequireItemIndex${i}`],
+                        count: recipe[`RequireItemCount${i}`],
+                    });
+                } else {
+                    break;
+                }
+            }
+            // 获取材料列表，并且把材料信息写到 materials
+            const other_ids = [
+                ...materials.map((item) => item.item_id.split("_").pop()),
+                recipe.item_id.split("_").pop(),
+            ].join(",");
+            await getOther({ client: this.client, ids: other_ids, per: materials.length + 1 }).then((res) => {
+                const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
+                materials.forEach((material) => {
+                    const other = others[material.item_id];
+                    material.item = other;
+                });
+                if (others[recipe.item_id]) {
+                    recipe.item = others[recipe.item_id];
+                }
+            });
+            // 让store拿价格
+            await this.$store.dispatch("fetch_prices", {
+                server: this.server,
+                ids: [...materials.map((item) => item.item_id), recipe.item_id],
+            });
+
+            recipe.materials = materials;
+            recipe.count = 1;
+            return recipe;
         },
         // 切换分类
         changeIndex(i) {
@@ -121,14 +124,22 @@ export default {
             this.loadItem(id);
         },
         addCartItem() {
-            const data = { ...this.showItem, children: this.children };
+            const data = { ...this.recipe, children: this.children };
             this.$emit("addCartItem", data);
         },
         onlyInteger() {
-            let number = this.showItem.count + "";
-            number = number.replace(/[^\.\d]/g, "");
-            number = number.replace(".", "");
-            this.showItem.count = ~~number;
+            const number = String(this.recipe.count)
+                .replace(/[^\.\d]/g, "")
+                .replace(".", "");
+            this.recipe.count = ~~number;
+        },
+        async addCartItemAsMaterial({ item, recipe: _recipe, require_count }) {
+            const recipe = await this.getRecipe(this.craftKey, _recipe.ID, this.client);
+            const count = Math.ceil(require_count / recipe.CreateItemMin1);
+            this.$refs["recipe-detail"].onAddCartItem(recipe, {
+                parent: item.id,
+                count,
+            });
         },
     },
     watch: {
