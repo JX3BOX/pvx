@@ -129,22 +129,30 @@ export default {
             const materials = recipe.materials.map((item) => {
                 return {
                     ...item,
-                    price: this.get_price(this.server, item.item_id).price * item.count,
-                    origin_price: this.get_price(this.server, item.item_id).price * item.count,
+                    price: this.get_price(this.server, item.item_id).price * item.count || 0,
+                    origin_price: this.get_price(this.server, item.item_id).price * item.count || 0,
                     make: false,
                 };
             });
             const price_unit = this.get_price(this.server, recipe.item_id).price;
             const payload = {
-                recipe: recipe,
+                recipe: pick(recipe, [
+                    "Name",
+                    "CreateItemMin1",
+                    "CreateItemMax1",
+                    "Quality",
+                    "IconID",
+                    "nLevel",
+                    "Exp",
+                ]),
                 server: this.server,
                 materials: materials,
                 ...pick(recipe, ["item_id", "item", "count"]),
                 yield_count: recipe.CreateItemMin1,
                 price_unit,
                 cost_vigor: recipe.CostVigor || recipe.CostStamina,
-                price: price_unit * recipe.count * recipe.CreateItemMin1,
-                origin_price: price_unit * recipe.count * recipe.CreateItemMin1,
+                price: price_unit * recipe.count * recipe.CreateItemMin1 || 0,
+                origin_price: price_unit * recipe.count * recipe.CreateItemMin1 || 0,
                 calc_tax: true,
                 id: nanoid(),
             };
