@@ -1,7 +1,10 @@
 <template>
     <div class="m-manufacture-cart">
         <div class="m-manufacture-title">
-            <span class="u-title">成本计算器</span>
+            <el-tooltip placement="top" v-if="plan.title" :content="plan.title">
+                <span class="u-title" :title="plan.title">{{ plan.title }}</span>
+            </el-tooltip>
+            <span v-else class="u-title" :title="plan.title">成本计算器</span>
             <el-button
                 v-if="cartList.length"
                 class="u-del"
@@ -164,28 +167,65 @@
                         ></price-detail>
                     </div>
                 </div>
-
-                <CreatePlan :list="cartList" @clear="onRemove()" />
+                <div class="m-actions">
+                    <el-button
+                        class="u-delete"
+                        type="info"
+                        icon="el-icon-delete"
+                        size="small"
+                        @click="onDeletePlan()"
+                        v-if="this.plan.id"
+                        :loading="loading"
+                    >
+                        删除账单
+                    </el-button>
+                    <el-button
+                        type="success"
+                        icon="el-icon-document-checked"
+                        size="small"
+                        @click="onSavePlan()"
+                        v-if="this.plan.id"
+                        :loading="loading"
+                    >
+                        另存为
+                    </el-button>
+                    <el-button
+                        type="success"
+                        icon="el-icon-document-checked"
+                        size="small"
+                        @click="onSavePlan(plan)"
+                        :loading="loading"
+                    >
+                        保存
+                    </el-button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
+import { addMyPlan, updatePlan, deletePlan } from "@/service/manufacture/plan";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { showTime } from "@/utils/moment";
+
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
-import CreatePlan from "@/components/manufacture/CreatePlan.vue";
 import PriceDetail from "@/components/manufacture/PriceDetail.vue";
 import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import User from "@jx3box/jx3box-common/js/user";
 
 export default {
     name: "cart",
-    components: { Item, GamePrice, CreatePlan, PriceItem, PriceDetail },
+    components: { Item, GamePrice, PriceItem, PriceDetail },
     props: ["craftList"],
     data: function () {
         return {
+            plan: "",
             cartList: [],
+
+            loading: false,
+            isLogin: User.isLogin(),
         };
     },
     computed: {
@@ -242,7 +282,10 @@ export default {
         iconLink,
         // 移除
         onRemove(item) {
-            if (!item) this.cartList = [];
+            if (!item) {
+                this.plan = "";
+                this.cartList = [];
+            }
             const materials = this.cartList.filter((i) => i.parent === item.id);
             this.cartList = this.cartList.filter((i) => i !== item && !materials.includes(i));
         },
@@ -321,6 +364,118 @@ export default {
                 this.cartList = this.cartList.filter((i) => i.parent !== item.id);
             }
         },
+        onSavePlan(_payload) {
+            if (!this.cartList.length) {
+                this.$message.error("当前成本计算器内没有项目");
+                return;
+            }
+            const isNew = !_payload?.id;
+            if (!isNew) {
+                const payload = {
+                    relation: this.cartList,
+                };
+                updatePlan(_payload.id, payload)
+                    .then((res) => {
+                        this.$notify({
+                            title: "保存成功",
+                            type: "success",
+                        });
+                        this.$emit("update-plan");
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            } else {
+                this.$prompt(`请输入账单名称`, `保存新账单`, {
+                    inputValue: `账单 ${showTime(new Date())}`,
+                })
+                    .catch((e) => {
+                        console.error(e);
+                        return {};
+                    })
+                    .then(({ value }) => {
+                        if (!value) return;
+                        const payload = {
+                            title: value,
+                            relation: this.cartList,
+                            type: 3,
+                            public: 1,
+                        };
+                        return addMyPlan(payload);
+                    })
+                    .then((res) => {
+                        if (!res) return;
+                        this.$notify({
+                            title: "保存成功",
+                            type: "success",
+                        });
+                        this.plan = res.data.data;
+                        this.$emit("update-plan");
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            }
+        },
+        onDeletePlan() {
+            this.$confirm("确认删除账单？", "删除账单", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            })
+                .then(() => {
+                    this.loading = true;
+                    deletePlan(this.plan.id)
+                        .then(() => {
+                            this.$notify({
+                                title: "删除成功",
+                                type: "success",
+                            });
+                            this.$emit("update-plan");
+                            this.plan = "";
+                            this.cartList = [];
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
+        mergePlan(relation) {
+            this.cartList = [...this.cartList, ...relation];
+        },
+        loadPlan(plan) {
+            if (this.cartList?.length) {
+                let tip = "当前计算器内有项目没有清空，请选择当前操作。<br />";
+                if (this.plan) tip += "当前正在查看账单，如果选择合并会将新账单内容合并进旧账单。<br />";
+                tip += "放弃查看账单请直接关闭弹窗。";
+                this.$confirm(tip, "确认", {
+                    distinguishCancelAndClose: true,
+                    confirmButtonText: "合并",
+                    cancelButtonText: "覆盖",
+                    dangerouslyUseHTMLString: true,
+                })
+                    .then(() => {
+                        if (!this.plan) {
+                            this.plan = plan;
+                        }
+                        this.cartList = [...this.cartList, ...plan.relation];
+                    })
+                    .catch((action) => {
+                        if (action == "cancel") {
+                            this.plan = plan;
+                            this.cartList = plan.relation;
+                        } else if (action == "close") {
+                            return;
+                        }
+                    });
+            } else {
+                this.plan = plan;
+                this.cartList = this.cartList.concat(plan.relation);
+            }
+        },
     },
 };
 </script>
@@ -336,6 +491,14 @@ export default {
     justify-content: space-between;
     .u-del {
         .mr(10px);
+    }
+    .u-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        flex-grow: 1;
+        width: 0;
     }
 }
 .m-cart-list .m-item:first-of-type .u-header {
@@ -368,6 +531,12 @@ export default {
                 color: #000;
             }
         }
+    }
+}
+.m-actions {
+    .x(right);
+    .u-delete {
+        .fl;
     }
 }
 </style>

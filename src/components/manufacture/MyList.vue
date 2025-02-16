@@ -1,11 +1,7 @@
 <template>
     <div class="m-myList">
-        <div class="m-manufacture-title m-manufacture-title__myList">
-            <span class="u-title">我的清单</span>
-            <a class="fr el-button el-button--success el-button--mini" @click="onAddPlan" v-if="isLogin">
-                <i class="el-icon-document-add"></i>
-                <span>创建</span>
-            </a>
+        <div class="m-manufacture-title m-manufacture-title-plans">
+            <span class="u-title">我的账单</span>
         </div>
         <div class="m-box">
             <template v-if="isLogin">
@@ -43,11 +39,15 @@ export default {
             });
         },
         change(id) {
-            this.planId = id;
-            this.visible = true;
-        },
-        close() {
-            this.visible = false;
+            if (this.loading) return;
+            this.loading = true;
+            getPlan(id)
+                .then((res) => {
+                    this.$emit("view-plan", res);
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
         },
         onAddPlan() {
             this.$prompt("请输入清单名称", "创建空白清单", {

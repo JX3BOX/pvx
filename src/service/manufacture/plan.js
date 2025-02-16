@@ -1,16 +1,7 @@
 import { $cms, $node } from "@jx3box/jx3box-common/js/https";
 
-
-// 获取列表
-function getItemPlans(params) {
-    return $cms()
-        .get(`/api/cms/app/item-plan`, { params })
-        .then((res) => {
-            return res.data.data;
-        });
-}
 // 单个清单搜索
-function getItemPlanID(id) {
+export function getPlan(id) {
     return $cms()
         .get(`/api/cms/app/item-plan/${id}`)
         .then((res) => {
@@ -18,34 +9,36 @@ function getItemPlanID(id) {
         });
 }
 // 删除清单
-function delItemPlan(id) {
+export function deletePlan(id) {
     return $cms().delete(`/api/cms/app/item-plan/${id}`);
 }
 
-// 多个清单搜索
-function searchItemsID(params) {
-    return $node()
-        .get(`/item/list`, { params })
-        .then((res) => {
-            return res.data.data;
-        });
-}
 // 获取我的清单
-function getMyPlans() {
+export function getPlans() {
     return $cms()
-        .get(`/api/cms/app/item-plan/mine`, { params: { no_page: 1, _no_cache: 1 } })
+        .get(`/api/cms/app/item-plan/mine`, { params: { no_page: 1, _no_cache: 1, type: 3 } })
         .then((res) => {
             return res.data.data;
         });
 }
 
-function updatePlan(id, data) {
+export function updatePlan(id, data) {
     return $cms().put(`/api/cms/app/item-plan/${id}`, data);
 }
 
 // 新增清单
-function addMyPlan(data) {
+export function addMyPlan(data) {
     return $cms().post(`/api/cms/app/item-plan`, data);
 }
 
-export { getItemPlans, getItemPlanID, delItemPlan, searchItemsID, getMyPlans, updatePlan, addMyPlan };
+export function batchDeletePlan(ids) {
+    return $cms().delete(`/api/cms/app/item-plan/batch/${ids}`);
+}
+
+export function getPlansByIds(ids) {
+    return $cms()
+        .get(`/api/cms/app/item-plan/mine`, { params: { ids, _no_cache: 1, type: 3 } })
+        .then((res) => {
+            return res.data.data;
+        });
+}
