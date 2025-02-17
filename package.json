@@ -3,6 +3,7 @@
     "private": true,
     "scripts": {
         "dev": "env DEV_SERVER=true vue-cli-service serve --mode development",
+        "dev_win": "cross-env NODE_ENV=development vue-cli-service serve --mode development",
         "serve": "vue-cli-service serve --mode production",
         "debug": "env DEV_SERVER=true vue-cli-service serve --mode staging",
         "build": "vue-cli-service build",
