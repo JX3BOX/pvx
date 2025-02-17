@@ -75,7 +75,7 @@
             :client="client"
         />
         <!-- 百科评论 -->
-        <WikiComments v-if="!isMiniProgram" :type="type" :source-id="String(id)" />
+        <WikiComments v-if="!isFromSeasun" :type="type" :source-id="String(id)" />
     </div>
 </template>
 
@@ -132,6 +132,7 @@ export default {
         id: {
             immediate: true,
             handler() {
+                console.log(this.$route.fullPath);
                 if (this.post_id) {
                     this.loadRevision();
                 } else {
@@ -205,6 +206,10 @@ export default {
         },
         isMiniProgram() {
             return isMiniProgram();
+        },
+        // 西山居的页面不展示评论
+        isFromSeasun() {
+            return this.isMiniProgram && this.$route.fullPath?.indexOf("_from=seasun") > -1;
         },
     },
     methods: {
