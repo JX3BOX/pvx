@@ -65,7 +65,7 @@ export default {
     computed: {
         img() {
             return __imgPath + "image/price/";
-        },
+        }
     },
     methods: {
         onRemoveCustomPrice() {
@@ -78,17 +78,15 @@ export default {
         onUpdateCustomPrice() {
             const { jin, yin, tong } = this.newPrice;
             const price = Number(jin * 10000 + yin * 100 + tong);
-            if (price) {
-                if (this.type == "cart") {
-                    this.$emit("update_price", price);
-                } else {
-                    this.$store.commit("update_custom_prices", {
-                        [`${this.server}_${this.item_id}`]: {
-                            from: "custom",
-                            price,
-                        },
-                    });
-                }
+            if (this.type == "cart") {
+                this.$emit("update_price", price);
+            } else {
+                this.$store.commit("update_custom_prices", {
+                    [`${this.server}_${this.item_id}`]: {
+                        from: "custom",
+                        price,
+                    },
+                });
             }
 
             this.visible = false;

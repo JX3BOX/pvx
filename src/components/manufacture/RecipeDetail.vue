@@ -93,7 +93,7 @@
         </div>
         <div class="m-add">
             <el-input-number v-model="recipe.count" :min="1" @click.stop.native></el-input-number>
-            <el-button icon="el-icon-shopping-cart-2" type="success" @click="onAddCartItem"> </el-button>
+            <el-button icon="el-icon-shopping-cart-2" type="success" @click="onAddCartItem()"> </el-button>
         </div>
     </div>
 </template>
@@ -102,6 +102,7 @@ import { mapGetters } from "vuex";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import { pick } from "lodash";
+import { nanoid } from "nanoid";
 
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
@@ -123,27 +124,43 @@ export default {
     methods: {
         iconLink,
         // 添加购物车
-        onAddCartItem() {
-            const materials = this.recipe.materials.map((item) => {
+        onAddCartItem(recipe, { parent, count } = {}) {
+            recipe = recipe || this.recipe;
+            const materials = recipe.materials.map((item) => {
                 return {
                     ...item,
-                    price: this.get_price(this.server, item.item_id).price * item.count,
-                    origin_price: this.get_price(this.server, item.item_id).price * item.count,
+                    price: this.get_price(this.server, item.item_id).price * item.count || 0,
+                    origin_price: this.get_price(this.server, item.item_id).price * item.count || 0,
+                    make: false,
                 };
             });
-            const price_unit = this.get_price(this.server, this.recipe.item_id).price;
+            const price_unit = this.get_price(this.server, recipe.item_id).price;
             const payload = {
-                recipe: this.recipe,
+                recipe: pick(recipe, [
+                    "Name",
+                    "CreateItemMin1",
+                    "CreateItemMax1",
+                    "Quality",
+                    "IconID",
+                    "nLevel",
+                    "Exp",
+                ]),
                 server: this.server,
                 materials: materials,
-                ...pick(this.recipe, ["item_id", "item", "count"]),
-                yield_count: this.recipe.CreateItemMin1,
+                ...pick(recipe, ["item_id", "item", "count"]),
+                yield_count: recipe.CreateItemMin1,
                 price_unit,
-                cost_vigor: this.recipe.CostVigor || this.recipe.CostStamina,
-                price: price_unit * this.recipe.count * this.recipe.CreateItemMin1,
-                origin_price: price_unit * this.recipe.count * this.recipe.CreateItemMin1,
-                calc_tax: true
+                cost_vigor: recipe.CostVigor || recipe.CostStamina,
+                price: price_unit * recipe.count * recipe.CreateItemMin1 || 0,
+                origin_price: price_unit * recipe.count * recipe.CreateItemMin1 || 0,
+                calc_tax: true,
+                id: nanoid(),
             };
+            if (parent) {
+                payload.parent = parent;
+                payload.is_material = true;
+            }
+            if (count) payload.count = count;
             this.$emit("addCartItem", payload);
         },
 

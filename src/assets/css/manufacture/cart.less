@@ -7,17 +7,25 @@
         background: #fff;
         letter-spacing: 1px;
         border: 1px solid #fff;
+        line-height: 24px;
         &:hover {
             background: #07ad36;
             border: 1px solid #07ad36;
         }
     }
 }
-.m-manufacture-title__myList {
+.m-manufacture-title-plans {
     .flex;
-    .pr(20px);
+    .pr(10px);
+    gap: 6px;
     align-items: center;
-    justify-content: space-between;
+    .el-checkbox {
+        background: #fff;
+        border: 1px solid #fff;
+    }
+    .u-title {
+        flex-grow: 1;
+    }
 }
 .m-cart-body {
     .flex;
@@ -104,11 +112,19 @@
             }
             .u-child {
                 .flex;
+                gap: 10px;
                 align-items: center;
-                justify-content: space-between;
                 .mb(5px);
                 &:hover {
                     background-color: @bg-gray;
+                }
+                .el-icon-scissors {
+                    .pointer;
+
+                    &.is-active {
+                        color: #5b9cf8;
+                        .bold;
+                    }
                 }
                 .u-img {
                     .flex;
@@ -119,7 +135,14 @@
                     span {
                         .fz(12px);
                         .ml(5px);
-                        opacity: 0.8;
+                    }
+                }
+                .u-price-num {
+                    flex-grow: 1;
+                    text-align: right;
+                    &.is-make {
+                        text-decoration: line-through;
+                        color: #999;
                     }
                 }
                 .c-game-price {

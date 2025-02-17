@@ -17,13 +17,21 @@
                     :craft-key="craftKey"
                     :server="server"
                     @addCartItem="onAddCartItem"
+                    ref="recipe"
                 />
             </div>
             <!-- 成本计算器 -->
-            <Cart :data="cartItem" :server="server" ref="cart" />
+            <Cart
+                :data="cartItem"
+                :server="server"
+                ref="cart"
+                :craft-list="showList"
+                @material-make="onMaterialMake"
+                @update-plan="onPlanUpdate"
+            />
 
             <!-- 我的清单 -->
-            <MyList />
+            <MyList ref="plan-list" @view-plan="onViewPlan" @merge-plan="onMergePlan" />
         </div>
     </div>
 </template>
@@ -92,8 +100,10 @@ export default {
             getManufactures({ client: this.client, type, mode: "simple" }).then((res) => {
                 // 配方分类
                 const list = this.craftList[index].list;
+
                 // 配方数据进行分组
                 const data = res.data.reduce((acc, cur) => {
+                    cur.item_id = cur.CreateItemType1 + "_" + cur.CreateItemIndex1;
                     acc[cur.Belong] ? acc[cur.Belong].push(cur) : (acc[cur.Belong] = [cur]);
                     return acc;
                 }, {});
@@ -136,6 +146,18 @@ export default {
             this.search = search;
             this.changeCraft(type);
         },
+        onMaterialMake({ item, material, recipe, require_count }) {
+            this.$refs.recipe.addCartItemAsMaterial({ item, material, recipe, require_count });
+        },
+        onPlanUpdate() {
+            this.$refs['plan-list'].load();
+        },
+        onViewPlan(payload) {
+            this.$refs.cart.loadPlan(payload);
+        },
+        onMergePlan(items) {
+            this.$refs.cart.mergePlan(items);
+        }
     },
 
     watch: {
