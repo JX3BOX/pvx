@@ -276,6 +276,7 @@
                 direction="btt"
                 append-to-body
                 :show-close="false"
+                custom-class="bottom-drawer"
             >
                 <div class="m-servant-drawer" v-if="reputation.servant">
                     <img
@@ -300,6 +301,7 @@
                 direction="btt"
                 append-to-body
                 :show-close="false"
+                custom-class="bottom-drawer"
             >
                 <div class="m-map-drawer">
                     <reputation-map ref="map" :name="reputation.szMapNames?.[0]" :list="reputation.points" />

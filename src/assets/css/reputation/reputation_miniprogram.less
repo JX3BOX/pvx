@@ -305,6 +305,12 @@
             color: rgba(@color-dark, 0.8);
         }
     }
+    /* 修复抽屉自身定位 */
+    .bottom-drawer {
+        position: fixed !important;
+        bottom: 0 !important;
+    }
+
     .m-buff {
         margin-top: 8px;
         @media (prefers-color-scheme: dark) {
@@ -373,7 +379,13 @@
             }
             .u-value,
             .no-data {
+                font-size: 14px;
                 margin-top: 2px;
+                font-family: "Microsoft YaHei UI";
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 20px; /* 142.857% */
                 color: @brand2;
             }
             .list {

@@ -41,8 +41,10 @@
                 direction="btt"
                 append-to-body
                 :show-close="false"
+                custom-class="bottom-drawer"
+                modal-class="full-modal"
             >
-                <div class="m-version-drawer">
+                <div class="m-version-container">
                     <div class="u-version" v-for="(item, i) in versions" :key="i">
                         <div class="u-title-wrap">
                             <div class="u-title">{{ item.version }}</div>
@@ -258,6 +260,7 @@ export default {
     @bg-dark: #060606;
 
     .m-version-drawer {
+        position: fixed !important;
         .el-drawer__header {
             .none;
         }
@@ -265,7 +268,7 @@ export default {
             padding: 20px;
             box-sizing: border-box;
         }
-        .m-version-drawer {
+        .m-version-container {
             .u-title-wrap {
                 .flex;
                 justify-content: space-between;
@@ -337,6 +340,12 @@ export default {
                 }
             }
         }
+    }
+
+    /* 修复抽屉自身定位 */
+    .bottom-drawer {
+        position: fixed;
+        bottom: 0 !important;
     }
 
     .w-pvx-user__miniprogram {
