@@ -2,25 +2,49 @@
     <div class="m-myList">
         <div class="m-manufacture-title m-manufacture-title-plans">
             <span class="u-title">我的账单</span>
+            <el-checkbox v-model="selectMode" label="选择模式" border></el-checkbox>
+            <el-dropdown trigger="click" @command="handleCommand">
+                <el-button class="u-del" plain type="info" size="mini" icon="el-icon-setting"> </el-button>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="cancel-select">取消选中</el-dropdown-item>
+                    <el-dropdown-item command="select-all">全部选中</el-dropdown-item>
+                    <el-dropdown-item command="select-yesterday">选中昨日及以前所有账单</el-dropdown-item>
+                    <el-dropdown-item command="delete-select">删除选中账单</el-dropdown-item>
+                    <el-dropdown-item command="merge-select">合并选中账单</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </div>
         <div class="m-box">
             <template v-if="isLogin">
                 <div class="m-item" v-for="(item, i) in list" :key="i" @click="change(item.id)">
-                    <span> <i :class="item.public ? 'el-icon-caret-right' : 'el-icon-lock'"></i> {{ item.title }}</span>
+                    <div class="u-title">
+                        <span>{{ item.title }}</span>
+                        <div
+                            class="u-meta"
+                            @click.stop="item.time_type = item.time_type == 'created' ? 'updated' : 'created'"
+                        >
+                            <template v-if="item.time_type == 'created'">
+                                创建于 {{ showTime(new Date(item.created * 1000)) }}
+                            </template>
+                            <template v-else> 编辑于 {{ showTime(new Date(item.updated * 1000)) }} </template>
+                        </div>
+                    </div>
+                    <template v-if="selectMode">
+                        <el-checkbox :value="selected.includes(item.id)" @change="change(item.id)"></el-checkbox>
+                    </template>
                 </div>
             </template>
             <span class="m-null" v-else>- 请登录后查看 -</span>
         </div>
-        <Plan :planId="planId" :visible="visible" @close="close" />
     </div>
 </template>
 
 <script>
-import { getMyPlans, addMyPlan } from "@/service/manufacture/plan";
+import { getPlan, getPlans, batchDeletePlan, getPlansByIds } from "@/service/manufacture/plan";
 import { __Root } from "@jx3box/jx3box-common/data/jx3box.json";
 import User from "@jx3box/jx3box-common/js/user";
-import Bus from "@/store/bus.js";
-import Plan from "@/components/manufacture/Plan.vue";
+import { showTime } from "@/utils/moment";
+
 export default {
     name: "MyList",
     data: function () {
@@ -29,16 +53,34 @@ export default {
             isLogin: User.isLogin(),
             planId: "",
             visible: false,
+
+            loading: false,
+            selectMode: false,
+            selected: [],
         };
     },
-    components: { Plan },
     methods: {
+        showTime,
         load() {
-            getMyPlans({ no_page: 1 }).then((res) => {
-                this.list = res.reverse() || [];
+            if (!this.isLogin) return;
+            getPlans({ no_page: 1 }).then((res) => {
+                this.list =
+                    res.reverse().map((item) => ({
+                        ...item,
+                        time_type: "created",
+                    })) || [];
             });
         },
         change(id) {
+            if (this.selectMode) {
+                if (this.selected.includes(id)) {
+                    this.selected = this.selected.filter((item) => item != id);
+                } else {
+                    this.selected.push(id);
+                }
+
+                return;
+            }
             if (this.loading) return;
             this.loading = true;
             getPlan(id)
@@ -49,42 +91,52 @@ export default {
                     this.loading = false;
                 });
         },
-        onAddPlan() {
-            this.$prompt("请输入清单名称", "创建空白清单", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                inputPlaceholder: "请输入清单名称",
-                inputValidator: (value) => {
-                    if (!value) {
-                        return "请输入清单名称";
-                    }
-                },
-                callback: (action, instance) => {
-                    if (action === "confirm") {
-                        const data = {
-                            title: instance.inputValue,
-                            type: 1, // 1: 物品清单
-                            public: 1,
-                            relation: [],
-                            description: "",
-                        };
-                        addMyPlan(data).then((res) => {
-                            this.$message({
-                                message: "创建成功",
+        handleCommand(command) {
+            if (command == "cancel-select") {
+                this.selected = [];
+            } else if (command == "select-all") {
+                this.selected = this.list.map((item) => item.id);
+            } else if (command == "select-yesterday") {
+                this.selected = [
+                    ...this.selected,
+                    ...this.list
+                        .filter((item) => new Date(item.created * 1000).getTime() < new Date().setHours(0, 0, 0, 0))
+                        .map((item) => item.id),
+                ];
+            } else if (command == "delete-select") {
+                this.$confirm(`确定要删除选中的 ${this.selected.length} 条账单记录？删除后不可恢复！`, "确认", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning",
+                })
+                    .then(() => {
+                        batchDeletePlan(this.selected.join(",")).then(() => {
+                            this.load();
+                        });
+                    })
+                    .catch(() => {});
+            } else if (command == "merge-select") {
+                this.$confirm(`确定要将选中的 ${this.selected.length} 条账单记录合并为一条新账单？`, "确认", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning",
+                })
+                    .then(() => {
+                        getPlansByIds(this.selected.join(",")).then((list) => {
+                            const relation = list.map((item) => item.relation).flat();
+                            this.$emit("merge-plan", relation);
+                            this.$notify({
+                                title: "选中的账单内容已加入当前成本计算器，若有需要请手动删除选中的账单。",
                                 type: "success",
                             });
-                            this.list.unshift(res.data.data);
                         });
-                    }
-                },
-            });
+                    })
+                    .catch(() => {});
+            }
         },
     },
     mounted() {
-        this.isLogin && this.load();
-        Bus.$on("update", () => {
-            this.load();
-        });
+        this.load();
     },
 };
 </script>
@@ -105,17 +157,31 @@ export default {
         max-height: calc(100vh - 260px);
 
         .m-item {
+            .flex;
+            align-items: center;
             .pointer;
-            .db;
             .color( #24292e,#07ad36);
             .lh(30px);
             .r(10px);
-            background: #fff;
             padding: 0 20px;
+            background: #fff;
 
-            span {
+            .u-title {
                 .db;
                 .nobreak;
+                flex-grow: 1;
+                .mr(10px);
+                display: flex;
+                flex-direction: column;
+
+                .u-meta {
+                    display: inline;
+                    .fz(10px, 10px);
+                    .mb(6px);
+                    .color(#999);
+                    .pointer;
+                    width: fit-content;
+                }
             }
         }
         .m-null {

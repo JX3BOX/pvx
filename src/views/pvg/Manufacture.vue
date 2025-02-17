@@ -21,10 +21,17 @@
                 />
             </div>
             <!-- 成本计算器 -->
-            <Cart :data="cartItem" :server="server" ref="cart" :craft-list="showList" @material-make="onMaterialMake" />
+            <Cart
+                :data="cartItem"
+                :server="server"
+                ref="cart"
+                :craft-list="showList"
+                @material-make="onMaterialMake"
+                @update-plan="onPlanUpdate"
+            />
 
             <!-- 我的清单 -->
-            <MyList />
+            <MyList ref="plan-list" @view-plan="onViewPlan" @merge-plan="onMergePlan" />
         </div>
     </div>
 </template>
@@ -142,6 +149,15 @@ export default {
         onMaterialMake({ item, material, recipe, require_count }) {
             this.$refs.recipe.addCartItemAsMaterial({ item, material, recipe, require_count });
         },
+        onPlanUpdate() {
+            this.$refs['plan-list'].load();
+        },
+        onViewPlan(payload) {
+            this.$refs.cart.loadPlan(payload);
+        },
+        onMergePlan(items) {
+            this.$refs.cart.mergePlan(items);
+        }
     },
 
     watch: {
