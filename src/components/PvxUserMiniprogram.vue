@@ -73,7 +73,7 @@
             :client="client"
         />
         <!-- 百科评论 -->
-        <WikiComments :type="type" :source-id="String(id)" />
+        <WikiComments v-if="!isMiniProgram" :type="type" :source-id="String(id)" />
     </div>
 </template>
 
@@ -87,6 +87,7 @@ import WikiPanel from "@jx3box/jx3box-common-ui/src/wiki/WikiPanel";
 import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
 
 import { publishLink, ts2str, getLink } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 
 export default {
     name: "PvxUser",
@@ -199,6 +200,9 @@ export default {
                 );
             }
             return [];
+        },
+        isMiniProgram() {
+            return isMiniProgram();
         },
     },
     methods: {
