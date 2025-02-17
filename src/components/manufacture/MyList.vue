@@ -104,6 +104,9 @@ export default {
                         .map((item) => item.id),
                 ];
             } else if (command == "delete-select") {
+                if (!this.selected.length) {
+                    return this.$message.error("请先选择要删除的账单");
+                }
                 this.$confirm(`确定要删除选中的 ${this.selected.length} 条账单记录？删除后不可恢复！`, "确认", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
@@ -116,6 +119,9 @@ export default {
                     })
                     .catch(() => {});
             } else if (command == "merge-select") {
+                if (!this.selected.length) {
+                    return this.$message.error("请先选择要合并的账单");
+                }
                 this.$confirm(`确定要将选中的 ${this.selected.length} 条账单记录合并为一条新账单？`, "确认", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
