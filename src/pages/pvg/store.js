@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { getAuctionPrice, getItemsPrice, getOther, getUserInfo } from "@/service/manufacture/manufacture.js";
+import { getUserSchool } from "@/service/adventure/adventure.js";
 import { map, reduce } from "lodash";
 import { cloneDeep } from "lodash";
 import User from "@jx3box/jx3box-common/js/user";
@@ -10,6 +11,9 @@ Vue.use(Vuex);
 let store = {
     state: {
         client: location.href.includes("origin") ? "origin" : "std",
+
+        // 角色信息
+        roles: [],
 
         // 使用 `服务器_id` 作为key存储价格
         prices: {},
@@ -162,7 +166,13 @@ let store = {
                 }, {})
             );
         },
-
+        // 获取角色信息
+        async getRoles({ state }) {
+            return getUserSchool().then((res) => {
+                const roles = res.data.data.list;
+                state.roles = roles;
+            });
+        },
         // gonggao
         asyncChildrenList(ctx, arr) {
             const state = ctx.state;
