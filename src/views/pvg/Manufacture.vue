@@ -146,18 +146,18 @@ export default {
             this.search = search;
             this.changeCraft(type);
         },
-        onMaterialMake({ item, material, recipe, require_count }) {
-            this.$refs.recipe.addCartItemAsMaterial({ item, material, recipe, require_count });
+        onMaterialMake(params) {
+            this.$refs.recipe.addCartItemAsMaterial(params);
         },
         onPlanUpdate() {
-            this.$refs['plan-list'].load();
+            this.$refs["plan-list"].load();
         },
         onViewPlan(payload) {
             this.$refs.cart.loadPlan(payload);
         },
         onMergePlan(items) {
             this.$refs.cart.mergePlan(items);
-        }
+        },
     },
 
     watch: {
@@ -178,6 +178,18 @@ export default {
     },
     mounted() {
         this.load();
+        this.$store.dispatch("getRoles").then(() => {
+            const roles = this.$store.state.roles;
+            if (roles?.length) {
+                const role = roles.reduce((acc, cur) => {
+                    if (cur.priority > acc.priority) return cur;
+                    return acc;
+                });
+                this.server = role.server;
+            } else {
+                this.server = this.$store.state.server;
+            }
+        });
     },
 };
 </script>

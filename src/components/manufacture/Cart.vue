@@ -59,13 +59,14 @@
                                             popper-class="u-icon-popper"
                                             placement="right"
                                             :visible-arrow="false"
-                                            trigger="hover"
+                                            trigger="click"
                                         >
                                             <Item :item_id="material.item_id" />
                                             <img
                                                 slot="reference"
                                                 :src="iconLink(material.item.item_info.IconID)"
                                                 :alt="material.item.item_info.Name"
+                                                style="cursor: pointer"
                                             />
                                         </el-popover>
 
@@ -95,30 +96,43 @@
                                     <PriceItem
                                         v-if="!material.make"
                                         class="u-price-num"
-                                        :price="material.price"
-                                        :origin_price="material.origin_price || 0"
+                                        :count="material.count * item.count"
+                                        :price="material.price_unit"
+                                        :origin_price="material.price_unit_origin"
                                         :name="material.item.item_info.Name"
                                         type="cart"
-                                        @update_price="material.price = $event"
+                                        @update_price="material.price_unit = $event"
                                     />
 
                                     <GamePrice
                                         v-else
                                         class="u-price-num"
                                         :class="{ 'is-make': material.make }"
-                                        :price="material.price"
+                                        :price="material.price_unit * material.count * item.count"
                                     ></GamePrice>
                                 </div>
                             </div>
                             <!-- 底部 -->
                             <div class="u-item-num" v-if="!item.fold">
+                                <span>制作产量：</span>
+                                <el-input-number
+                                    :disabled="item.is_material"
+                                    v-model="item.yield_count"
+                                    size="mini"
+                                    :step="1"
+                                    :min="1"
+                                    step-strictly
+                                ></el-input-number>
+                            </div>
+                            <div class="u-item-num" v-if="!item.fold">
                                 <span>制作次数：</span>
                                 <el-input-number
                                     v-model="item.count"
                                     size="mini"
+                                    :step="1"
                                     :min="1"
-                                    @input="onlyInteger(index, item.count)"
-                                    @click.stop.native
+                                    @change="onChangeItemCount(item)"
+                                    step-strictly
                                 ></el-input-number>
                             </div>
                             <div class="u-item-num" v-if="!item.fold">
@@ -133,8 +147,9 @@
                             </div>
                             <price-detail
                                 v-else
-                                :price="item.price * item.count"
-                                :origin_price="item.origin_price * item.count"
+                                :price_count="item.yield_count"
+                                :price="item.price_unit"
+                                :origin_price="item.price_unit_origin"
                                 :price_name="item.recipe.Name"
                                 :cost="-calcCartItemCostPrice(item)"
                                 :tax="-calcCartItemTax(item)"
@@ -142,7 +157,7 @@
                                 :tax_mutable="true"
                                 :price_mutable="true"
                                 :calc_tax="item.calc_tax"
-                                @update_price="item.price = $event"
+                                @update_price="item.price_unit = $event"
                                 @update_tax="item.calc_tax = $event"
                             ></price-detail>
                         </div>
@@ -162,7 +177,7 @@
                         <price-detail
                             :price="allPrice"
                             :cost="-allCostPrice"
-                            :tax="allTax"
+                            :tax="-allTax"
                             :profit="allProfit"
                         ></price-detail>
                     </div>
@@ -241,7 +256,7 @@ export default {
             if (!this.cartList.length) return 0;
             return this.cartList.reduce((acc, cur) => {
                 if (cur.is_material) return acc;
-                return acc + (cur.price || 0);
+                return acc + (cur.price_unit * cur.yield_count || 0);
             }, 0);
         },
         allCostPrice() {
@@ -262,11 +277,7 @@ export default {
         },
         allProfit() {
             if (!this.cartList.length) return 0;
-            return this.cartList
-                .map((item) => (item.is_material ? 0 : this.calcCartItemProfit(item)))
-                .reduce((acc, cur) => {
-                    return acc + cur;
-                }, 0);
+            return this.allPrice - this.allCostPrice - this.allTax;
         },
 
         crafts() {
@@ -329,7 +340,7 @@ export default {
             return (
                 item.materials
                     .map((material) => {
-                        return material.make ? 0 : material.price;
+                        return material.make ? 0 : material.price_unit * material.count;
                     })
                     .reduce((acc, cur) => {
                         return acc + cur;
@@ -337,10 +348,10 @@ export default {
             );
         },
         calcCartItemTax(item) {
-            return item.price * item.count * 0.05;
+            return item.price_unit * item.yield_count * item.count * 0.05;
         },
         calcCartItemProfit(item) {
-            const profit = item.price * item.count - this.calcCartItemCostPrice(item);
+            const profit = item.price_unit * item.yield_count * item.count - this.calcCartItemCostPrice(item);
             if (item.calc_tax) return profit - this.calcCartItemTax(item);
             return profit;
         },
@@ -356,13 +367,30 @@ export default {
                 // 切换为手搓
                 material.make = true;
                 // 获取材料的工艺以及相关物品价格，添加为新的cartItem
-                this.$emit("material-make", { item, material, recipe, require_count: material.count * item.count });
+                this.$emit("material-make", {
+                    item,
+                    material,
+                    recipe,
+                    require_count: material.count * item.count,
+                    require_count_unit: material.count,
+                });
             } else {
                 // 切换为购买
                 material.make = false;
                 // 移除清单中的材料
                 this.cartList = this.cartList.filter((i) => i.parent !== item.id);
             }
+        },
+        onChangeItemCount(item) {
+            // 如果没有材料手搓，不需要更新
+            const min_yield = item.yield_count_unit * item.count;
+            if (!item.is_material && item.yield_count < min_yield) {
+                item.yield_count = min_yield;
+            }
+            if (!item.materials.some((i) => i.make)) return;
+            const material = this.cartList.find((i) => i.parent === item.id);
+            material.yield_count = material.require_count_unit * item.count;
+            material.count = Math.max(material.count, Math.ceil(material.yield_count / material.yield_count_unit));
         },
         onSavePlan(_payload) {
             if (!this.cartList.length) {
@@ -388,6 +416,7 @@ export default {
             } else {
                 this.$prompt(`请输入账单名称`, `保存新账单`, {
                     inputValue: `账单 ${showTime(new Date())}`,
+                    closeOnClickModal: false
                 })
                     .catch((e) => {
                         console.error(e);
@@ -484,7 +513,6 @@ export default {
 </style>
 <style lang="less" scoped>
 .no-profit {
-    .bold;
     color: #f56c6c;
 }
 .m-manufacture-title {

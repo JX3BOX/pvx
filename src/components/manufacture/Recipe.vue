@@ -97,10 +97,10 @@ export default {
                 const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
                 materials.forEach((material) => {
                     const other = others[material.item_id];
-                    material.item = other;
+                    material.item = other || { item_info: { Name: "未知" } };
                 });
                 if (others[recipe.item_id]) {
-                    recipe.item = others[recipe.item_id];
+                    recipe.item = others[recipe.item_id] || { item_info: { Name: "未知" } };
                 }
             });
             // 让store拿价格
@@ -133,12 +133,13 @@ export default {
                 .replace(".", "");
             this.recipe.count = ~~number;
         },
-        async addCartItemAsMaterial({ item, recipe: _recipe, require_count }) {
+        async addCartItemAsMaterial({ item, recipe: _recipe, require_count, require_count_unit }) {
             const recipe = await this.getRecipe(this.craftKey, _recipe.ID, this.client);
             const count = Math.ceil(require_count / recipe.CreateItemMin1);
+            recipe.count = count;
             this.$refs["recipe-detail"].onAddCartItem(recipe, {
                 parent: item.id,
-                count,
+                require_count_unit
             });
         },
     },

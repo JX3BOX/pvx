@@ -1,67 +1,71 @@
 <template>
-    <el-popover placement="top" trigger="hover" popper-class="m-price-popper" width="320">
-        <div class="u-price-detail">
-            <div class="u-item-num">
-                <span><i class="el-icon-coin"></i> 预计售价：</span>
-                <span class="u-price">
-                    <PriceItem
-                        v-if="price_mutable"
-                        class="u-price-num"
-                        :price="price"
-                        :origin_price="origin_price"
-                        :name="price_name"
-                        type="cart"
-                        @update_price="$emit('update_price', $event)"
-                        :align="true"
-                    />
-                    <GamePrice v-else class="u-price-num" :price="price" :align="true" />
-                </span>
-            </div>
-            <div class="u-item-num">
-                <span><i class="el-icon-coin"></i> 项目成本：</span>
-                <span class="u-price">
-                    <GamePrice class="u-price-num" :price="cost" :align="true" />
-                </span>
-            </div>
-            <div class="u-item-num" :class="{ 'is-cancel': !calc_tax }">
-                <span class="u-label"><i class="el-icon-coin"></i> 交易行税：</span>
-                <span class="u-price">
-                    <i
-                        v-if="tax_mutable"
-                        class="u-edit"
-                        :class="calc_tax ? 'el-icon-close' : 'el-icon-refresh-left'"
-                        title="取消税收"
-                        @click.stop="$emit('update_tax', !calc_tax)"
-                    ></i>
-                    <GamePrice class="u-price-num" :price="tax" :align="true" />
-                </span>
-            </div>
-            <div
-                class="u-item-num"
-                :class="{
-                    'no-profit': profit < 0,
-                }"
-            >
-                <span><i class="el-icon-coin"></i> 预计收益：</span>
-                <span class="u-price">
-                    <GamePrice class="u-price-num" :price="profit" :align="true" />
-                </span>
-            </div>
-        </div>
-        <template #reference>
-            <div
-                class="u-item-num"
-                :class="{
-                    'no-profit': profit < 0,
-                }"
-            >
-                <span><i class="el-icon-coin"></i> 预计收益：</span>
-                <span class="u-price">
-                    <GamePrice class="u-price-num" :price="profit" :align="true" />
-                </span>
-            </div>
-        </template>
-    </el-popover>
+    <div
+        class="u-item-num"
+        :class="{
+            'no-profit': profit < 0,
+        }"
+    >
+        <span>
+            <el-popover placement="top" trigger="hover" popper-class="m-price-popper" width="320">
+                <div class="u-price-detail">
+                    <div class="u-item-num">
+                        <span><i class="el-icon-coin"></i> 预计售价：</span>
+                        <span class="u-price">
+                            <PriceItem
+                                v-if="price_mutable"
+                                class="u-price-num"
+                                :count="price_count"
+                                :price="price"
+                                :origin_price="origin_price"
+                                :name="price_name"
+                                @update_price="$emit('update_price', $event)"
+                                type="cart"
+                                :align="true"
+                            />
+                            <GamePrice v-else class="u-price-num" :price="price * (price_count || 1)" :align="true" />
+                        </span>
+                    </div>
+                    <div class="u-item-num">
+                        <span><i class="el-icon-coin"></i> 项目成本：</span>
+                        <span class="u-price">
+                            <GamePrice class="u-price-num" :price="cost" :align="true" />
+                        </span>
+                    </div>
+                    <div class="u-item-num" :class="{ 'is-cancel': !calc_tax }">
+                        <span class="u-label"><i class="el-icon-coin"></i> 交易行税：</span>
+                        <span class="u-price">
+                            <i
+                                v-if="tax_mutable"
+                                class="u-edit"
+                                :class="calc_tax ? 'el-icon-close' : 'el-icon-refresh-left'"
+                                title="取消税收"
+                                @click.stop="$emit('update_tax', !calc_tax)"
+                            ></i>
+                            <GamePrice class="u-price-num" :price="tax" :align="true" />
+                        </span>
+                    </div>
+                    <div
+                        class="u-item-num"
+                        :class="{
+                            'no-profit': profit < 0,
+                        }"
+                    >
+                        <span><i class="el-icon-coin"></i> 预计收益：</span>
+                        <span class="u-price">
+                            <GamePrice class="u-price-num" :price="profit" :align="true" />
+                        </span>
+                    </div>
+                </div>
+                <template #reference>
+                    <i class="el-icon-tickets" style="cursor: pointer;"></i>
+                </template>
+            </el-popover>
+            预计收益：</span
+        >
+        <span class="u-price">
+            <GamePrice class="u-price-num" :price="profit" :align="true" />
+        </span>
+    </div>
 </template>
 
 <script>
@@ -72,6 +76,9 @@ export default {
     name: "PriceDetail",
     components: { GamePrice, PriceItem },
     props: {
+        price_count: {
+            type: Number,
+        },
         price: {
             type: Number,
             default: 0,
