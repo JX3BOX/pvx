@@ -1,7 +1,7 @@
 <template>
     <el-popover popper-class="m-add-price" placement="bottom-end" trigger="click" v-model="visible">
         <el-divider content-position="left" v-if="type == 'cart'"
-            >修改 [ <b>{{ name }}</b> ] 账单金额</el-divider
+            >修改 [ <b>{{ name }}</b> ] 账单单价</el-divider
         >
         <el-divider content-position="left" v-else
             >修改 [ <b>{{ name }}</b> ] 单价</el-divider
@@ -25,7 +25,7 @@
                         v-if="price != origin_price"
                         @click.stop="onRemoveCustomPrice"
                     ></i>
-                    <GamePrice v-if="price" class="u-price-num" :price="price" :align="align" />
+                    <GamePrice v-if="showPrice" class="u-price-num" :price="showPrice" :align="align" />
                     <span class="u-null" v-else>暂无价格</span>
                 </template>
                 <template v-else>
@@ -36,7 +36,7 @@
                         v-if="price.from == 'custom'"
                         @click.stop="onRemoveCustomPrice"
                     ></i>
-                    <GamePrice v-if="price.price" class="u-price-num" :price="price.price" :align="align" />
+                    <GamePrice v-if="showPrice" class="u-price-num" :price="showPrice" :align="align" />
                     <span class="u-null" v-else>暂无价格</span>
                 </template>
             </div>
@@ -49,7 +49,7 @@ import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 
 export default {
     name: "PriceItem",
-    props: ["price", "server", "name", "item_id", "type", "origin_price", "align"],
+    props: ["price", "server", "name", "item_id", "type", "origin_price", "align", "count"],
     components: { GamePrice },
     data: function () {
         return {
@@ -65,7 +65,18 @@ export default {
     computed: {
         img() {
             return __imgPath + "image/price/";
-        }
+        },
+        showPrice() {
+            if (this.type == "cart") {
+                if (this.count) {
+                    return this.price * this.count;
+                } else {
+                    return this.price;
+                }
+            } else {
+                return this.price.price;
+            }
+        },
     },
     methods: {
         onRemoveCustomPrice() {
