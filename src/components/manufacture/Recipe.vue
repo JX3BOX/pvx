@@ -97,10 +97,10 @@ export default {
                 const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
                 materials.forEach((material) => {
                     const other = others[material.item_id];
-                    material.item = other;
+                    material.item = other || { item_info: { Name: "未知" } };
                 });
                 if (others[recipe.item_id]) {
-                    recipe.item = others[recipe.item_id];
+                    recipe.item = others[recipe.item_id] || { item_info: { Name: "未知" } };
                 }
             });
             // 让store拿价格
