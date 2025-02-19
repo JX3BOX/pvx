@@ -1,176 +1,228 @@
 <template>
     <div class="m-face-list_mobile">
-        <div style="padding-left: 20px; box-sizing: border-box">
-            <routine></routine>
+        <div class="m-face-list_mobile__tabs">
+            <div
+                class="u-tab_item"
+                v-for="(item, index) in tabsData"
+                :key="index"
+                :class="{ 'is-active': active == item.value }"
+                @click="setActive(item.value)"
+            >
+                {{ item.label }}
+            </div>
+        </div>
+        <div class="u-content-all" v-if="active == -1">
+            <div v-for="(item, index) in allList" :key="index">
+                <div class="u-card-title">{{ item.label }}</div>
+                <div class="u-list">
+                    <routine :list="item.list"></routine>
+                </div>
+            </div>
+
+            <div class="u-card-title">体型特辑</div>
+            <div class="u-list">
+                <habitus :list="bodyList"></habitus>
+            </div>
+            <!-- <div class="u-card-title">发现</div>
+            <div class="u-list">
+                <faceFind></faceFind>
+            </div> -->
+        </div>
+        <div class="u-content" v-else>
+            <div class="u-card-title">{{ activeName }}</div>
+            <div class="u-list" id="oneList">
+                <routine gap="12px" :size="104" :isOne="true" :list="list" v-if="listShow" @getMore="getMore"></routine>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import routine from "@/components/face/mobile/routine.vue";
-import { isPhone } from "@/utils/index";
+import habitus from "@/components/face/mobile/habitus.vue";
+import faceFind from "@/components/face/mobile/faceFind_v2.vue";
 import { cloneDeep, omit, concat, debounce } from "lodash";
 import { getFaceList, getSliders } from "@/service/face";
 export default {
-    components: { routine },
+    components: { routine, habitus },
     data() {
         return {
             loading: false,
-            tabsData: {},
             active: -1,
-            list: [
-                { label: "全部", list: [], value: -1, client: ["std", "origin"], page: 1, pages: 1 },
-                { label: "成男", list: [], value: 1, client: ["std", "origin"], page: 1, pages: 1 },
-                { label: "成女", list: [], value: 2, client: ["std", "origin"], page: 1, pages: 1 },
-                { label: "正太", list: [], value: 5, client: ["std"], page: 1, pages: 1 },
-                { label: "萝莉", list: [], value: 6, client: ["std", "origin"], page: 1, pages: 1 },
+            activeName: "",
+            tabsData: [
+                { label: "全部", value: -1, client: ["std", "origin"] },
+                { label: "成男", value: 1, client: ["std", "origin"] },
+                { label: "成女", value: 2, client: ["std", "origin"] },
+                { label: "正太", value: 5, client: ["std"] },
+                { label: "萝莉", value: 6, client: ["std", "origin"] },
             ],
-            page: 1,
-            per: 14,
+            allList: [
+                {
+                    label: "最新推荐",
+                    list: [],
+                    params: { star: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true },
+                },
+                {
+                    label: "写实派与写意派",
+                    list: [],
+                    params: { pageIndex: 1, pageSize: 12, filter_empty_images: true, star: 0, is_unlimited: 0 },
+                },
+                {
+                    label: "新建角色时推荐",
+                    list: [],
+                    params: { is_unlimited: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true, star: 0 },
+                },
+                // { label: "轮播", list: [], params: { pageIndex: 1, pageSize: 4 } },
+            ],
+            list: [],
+            listShow: false,
+            queryParams: {
+                pageIndex: 1,
+                pageSize: 15,
+            },
             total: 0,
-            count: 0,
-
-            appendMode: false,
-
-            link: {
-                data: "/face/facedata",
-                key: "face",
-            },
-            itemData: {
-                color: "#786CBB",
-                width: "190",
-                height: "280",
-            },
+            bodyList: [], // 体型特辑
         };
     },
     computed: {
         client() {
             return this.$store.state.client;
         },
-        params({ tabsData }) {
-            return {
-                ...tabsData,
-                body_type: this.active,
-                pageSize: this.per,
-                client: this.client,
-            };
-        },
-        hasNextPage() {
-            const pages = this.list.filter((e) => e.value == this.active)[0].pages;
-            return pages > 1 && this.page < pages;
-        },
-        alertTitle: function () {
-            if (this.title) return "没找到对应的捏脸，请重新选择条件或关键词搜索";
-            return "没有找到相关的捏脸";
-        },
-        subList() {
-            if (!this.active) return null;
-            return this.list.filter((e) => e.value === this.active)[0].list;
-        },
-        typeName() {
-            return this.list.filter((e) => e.value == this.active)[0].label;
-        },
-        noList() {
-            if (this.active === -1) return this.list.every((obj) => obj.list.length === 0);
-            return this.subList.length === 0;
-        },
     },
     watch: {
-        params: {
-            handler: debounce(function () {
-                this.loadData();
-            }, 500),
-            deep: true,
-        },
         active(val) {
-            this.per = val === -1 ? this.count : this.count * 3;
-            this.page = 1;
+            if (val != -1) {
+                this.queryParams.pageIndex = 1;
+                this.list = [];
+                this.listShow = false;
+                this.loadData();
+            }
         },
     },
-
+    mounted() {
+        // this.getSliders();
+        this.loadData();
+    },
     methods: {
         setActive(val) {
+            let item = this.tabsData.find((e) => e.value == val);
+            this.activeName = item.label;
             this.active = val;
-            document.documentElement.scrollTop = 0;
         },
         // 捏脸海报
         getSliders() {
             getSliders("slider", this.client, 9).then((res) => {
+                console.log(res);
                 this.slidersList = res.data.data.list || [];
             });
+        },
+        getMore() {
+            this.queryParams.pageIndex++;
+            this.loadData();
         },
         // 加载数据
         loadData() {
             this.loading = true;
-            let params = omit(this.params, ["type"]);
             if (this.active === -1) {
-                const list = this.list.filter((e) => e.value !== -1);
-                list.forEach((e) => {
-                    params.pageIndex = e.page;
-                    params.body_type = e.value;
-                    this.loadList(params, e.value);
+                this.allList.forEach((e, index) => {
+                    this.loadList({ client: this.client, ...e.params }, index);
+                });
+                //加载体型特辑，每个体型取第一条推荐
+                let arr = [1, 2, 5, 6];
+                arr.forEach((e, index) => {
+                    this.loadList(
+                        {
+                            client: this.client,
+                            body_type: e,
+                            star: 1,
+                            pageIndex: 1,
+                            pageSize: 1,
+                            filter_empty_images: true,
+                        },
+                        index,
+                        true
+                    );
                 });
             } else {
-                params.pageIndex = this.page;
-                this.loadList({ ...params, body_type: this.active }, this.active);
+                this.loadList({ ...this.queryParams, body_type: this.active }, this.active);
             }
         },
 
-        loadList(params, key) {
-            const index = this.list.findIndex((e) => e.value === key);
-            if (this.list[index].pages < params.pageIndex && this.active === -1) params.pageIndex = 1;
+        loadList(params, index, body = false) {
             getFaceList(params)
                 .then((res) => {
                     const { list, page } = res.data.data;
-                    const _list = this.appendMode ? concat(this.list[index].list, list) : list;
-                    this.list[index].list = _list || [];
-                    this.list[index].page = page.index || 1;
-                    this.list[index].pages = page.pageTotal || 1;
-                    if (this.active !== -1) this.page = page.index || 1;
-                    this.total = page.total;
+                    const _list = this.active != -1 ? concat(this.list, list) : list;
+                    if (body) {
+                        this.bodyList.push(_list[0]);
+                        return;
+                    }
+                    if (this.active !== -1) {
+                        this.list = _list || [];
+                        this.queryParams.pageIndex = page.index || 1;
+                        this.total = page.total;
+                    } else {
+                        this.allList[index].list = _list || [];
+                    }
+                    console.log(this.bodyList);
                 })
                 .finally(() => {
                     this.loading = false;
-                    this.appendMode = false;
+                    this.listShow = true;
                 });
         },
-        changePage(i) {
-            this.page = i;
-            this.loadData();
-        },
-        appendPage() {
-            this.appendMode = true;
-            this.handleLoad(this.active);
-        },
-        handleFaceTabChange: function (data) {
-            this.page = 1;
-            this.tabsData = data;
-        },
-        showCount() {
-            if (isPhone()) {
-                this.per = 8;
-                return;
-            }
-            const listWidth = this.$refs.listRef?.clientWidth - 120;
-            this.count = Math.floor(listWidth / (Number(this.itemData.width) + 10));
-            this.per = this.active === -1 ? this.count : this.count * 3;
-        },
-        handleLoad(type) {
-            const page = this.list.filter((e) => e.value === type)[0].page;
-            let params = cloneDeep(this.params);
-            params.pageSize = this.per;
-            params.pageIndex = page + 1;
-            params.body_type = type;
-            this.loadList(params, type);
-        },
-        listId(list) {
-            return list.map((e) => e.id);
-        },
-    },
-    mounted() {
-        this.showCount();
     },
 };
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+.m-face-list_mobile {
+    @fontcolor: #1c1c1c;
+    @fontcolor2: rgba(28, 28, 28, 0.8);
+    @fontcolor3: rgba(28, 28, 28, 0.4);
+    @fontColor-dark: #fff;
+    @fontColor-dark2: rgba(255, 255, 255, 0.8);
+    @fontColor-dark3: rgba(255, 255, 255, 0.4);
+    padding: 12px 20px;
+    .m-face-list_mobile__tabs {
+        .flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 32px;
+        .u-tab_item {
+            color: @fontcolor3;
+            .fz(18px,28px);
+            .bold(700);
+
+            &.is-active {
+                color: @fontcolor;
+                border-bottom: 2px solid @fontcolor;
+            }
+        }
+    }
+    .u-card-title {
+        margin: 20px 0 12px 0;
+        color: @fontcolor;
+        .fz(18px,28px);
+        .bold(700);
+    }
+    @media screen and (width: 390px) {
+        background-color: #000;
+        .m-face-list_mobile__tabs {
+            .u-tab_item {
+                color: @fontColor-dark2;
+                &.is-active {
+                    color: @fontColor-dark;
+                    border-bottom: 2px solid @fontColor-dark;
+                }
+            }
+        }
+        .u-card-title {
+            color: @fontColor-dark;
+        }
+    }
+    @media (prefers-color-scheme: dark) {
+    }
+}
+</style>
