@@ -59,13 +59,14 @@
                                             popper-class="u-icon-popper"
                                             placement="right"
                                             :visible-arrow="false"
-                                            trigger="hover"
+                                            trigger="click"
                                         >
                                             <Item :item_id="material.item_id" />
                                             <img
                                                 slot="reference"
                                                 :src="iconLink(material.item.item_info.IconID)"
                                                 :alt="material.item.item_info.Name"
+                                                style="cursor: pointer"
                                             />
                                         </el-popover>
 
