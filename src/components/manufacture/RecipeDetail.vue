@@ -124,13 +124,13 @@ export default {
     methods: {
         iconLink,
         // 添加购物车
-        onAddCartItem(recipe, { parent, count } = {}) {
+        onAddCartItem(recipe, { parent, require_count_unit } = {}) {
             recipe = recipe || this.recipe;
             const materials = recipe.materials.map((item) => {
                 return {
                     ...item,
-                    price: this.get_price(this.server, item.item_id).price * item.count || 0,
-                    origin_price: this.get_price(this.server, item.item_id).price * item.count || 0,
+                    price_unit: this.get_price(this.server, item.item_id).price || 0,
+                    price_unit_origin: this.get_price(this.server, item.item_id).price || 0,
                     make: false,
                 };
             });
@@ -148,11 +148,11 @@ export default {
                 server: this.server,
                 materials: materials,
                 ...pick(recipe, ["item_id", "item", "count"]),
-                yield_count: recipe.CreateItemMin1,
-                price_unit,
+                yield_count_unit: recipe.CreateItemMin1,
+                yield_count: recipe.CreateItemMin1 * recipe.count,
+                price_unit: price_unit || 0,
+                price_unit_origin: price_unit || 0,
                 cost_vigor: recipe.CostVigor || recipe.CostStamina,
-                price: price_unit * recipe.count * recipe.CreateItemMin1 || 0,
-                origin_price: price_unit * recipe.count * recipe.CreateItemMin1 || 0,
                 calc_tax: true,
                 id: nanoid(),
             };
@@ -160,7 +160,9 @@ export default {
                 payload.parent = parent;
                 payload.is_material = true;
             }
-            if (count) payload.count = count;
+            if (require_count_unit) {
+                payload.require_count_unit = require_count_unit;
+            }
             this.$emit("addCartItem", payload);
         },
 

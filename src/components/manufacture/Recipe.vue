@@ -133,12 +133,13 @@ export default {
                 .replace(".", "");
             this.recipe.count = ~~number;
         },
-        async addCartItemAsMaterial({ item, recipe: _recipe, require_count }) {
+        async addCartItemAsMaterial({ item, recipe: _recipe, require_count, require_count_unit }) {
             const recipe = await this.getRecipe(this.craftKey, _recipe.ID, this.client);
             const count = Math.ceil(require_count / recipe.CreateItemMin1);
+            recipe.count = count;
             this.$refs["recipe-detail"].onAddCartItem(recipe, {
                 parent: item.id,
-                count,
+                require_count_unit
             });
         },
     },
