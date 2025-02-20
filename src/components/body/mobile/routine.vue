@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-21 00:07:09
+ * @LastEditTime: 2025-02-20 23:50:46
  * @Description: 小程序适配捏脸常规模组
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -11,8 +11,8 @@
     <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }">
         <div
             class="u-item"
-            v-for="(item, index) in list"
-            :key="index"
+            v-for="item in list"
+            :key="item.id"
             :style="{ width: isOne ? 'calc(calc(100% - 24px) / 3)' : size + 'px' }"
         >
             <a :href="`${link}/${item.id}`">
@@ -23,7 +23,11 @@
                         height: isOne ? 'calc(calc(100vw - 64px) / 3)' : size + 'px',
                     }"
                 >
-                    <img :src="showImg(item)" />
+                    <el-image class="u-pic" :src="showImg(item)" fit="cover">
+                        <div slot="error" class="image-slot">
+                            <img src="@/assets/img/body_null.png" />
+                        </div>
+                    </el-image>
                 </div>
                 <div class="u-item_tag">
                     <div class="u-tag_item green" v-if="item.is_new_face"></div>
@@ -35,8 +39,8 @@
                 <div class="u-item_author">{{ item.display_name || "匿名" }}</div>
             </a>
         </div>
-        <div class="u-more" v-if="isOne && total > list.length">
-            <el-link type="primary" @click="getMore()">加载更多</el-link>
+        <div class="u-more" v-if="isOne && list.length < total">
+            <el-link type="primary" @click="getMore">加载更多</el-link>
         </div>
     </div>
 </template>
@@ -47,7 +51,7 @@ import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
 export default {
     computed: {
         link() {
-            return location.origin + "/face/singleMobile";
+            return location.origin + "/body/singleMobile";
         },
     },
     components: {},
@@ -83,7 +87,7 @@ export default {
         showImg(item) {
             let width = parseInt((document.body.clientWidth - 64) / 3);
             return this.getThumbnail(
-                item.images?.[0] || __imgPath + `image/face/null2.png`,
+                item.images?.[0] || __imgPath + `image/body/null2.png`,
                 this.isOne ? width : this.size
             );
         },
@@ -99,7 +103,6 @@ export default {
 @nameColor: rgba(28, 28, 28, 0.4);
 @titleColor-dark: rgba(255, 255, 255, 0.8);
 @nameColor-dark: rgba(255, 255, 255, 0.4);
-
 .p-face-routine {
     .size(100%,182px);
     .flex;
@@ -114,10 +117,6 @@ export default {
         height: calc(100vh - 116px);
     }
     .u-item {
-        a:visited {
-            background-color: transparent;
-        }
-
         .u-item_img {
             .r(4px);
             background: #d9d9d9;

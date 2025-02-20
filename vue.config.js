@@ -44,6 +44,12 @@ module.exports = {
             template: "public/index.html",
             filename: "face/index.html",
         },
+        body: {
+            title: "体型分享 - JX3BOX",
+            entry: "src/pages/body/index.js",
+            template: "public/index.html",
+            filename: "body/index.html",
+        },
     },
 
     //❤️ Proxy ~

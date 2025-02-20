@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 22:25:34
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-21 00:00:08
+ * @LastEditTime: 2025-02-20 23:56:04
  * @Description: 小程序适配体型常规模组
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -17,7 +17,11 @@
             @click="$emit('toTab', item)"
         >
             <div class="u-item_img">
-                <img :src="showImg(item)" />
+                <el-image class="u-pic" :src="showImg(item)" fit="cover">
+                    <div slot="error" class="image-slot">
+                        <img src="@/assets/img/body_null.png" />
+                    </div>
+                </el-image>
             </div>
 
             <div class="u-item_type">{{ showBodyTypeLabel(item.body_type) }}</div>
@@ -67,7 +71,6 @@ export default {
     //     width: 0;
     //     height: 0;
     // }
-
     .u-item {
         .pr;
         .h(156px);

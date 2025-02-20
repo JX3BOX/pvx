@@ -18,9 +18,8 @@ reporter.install(Vue);
 import router from "./router";
 import store from "./store";
 import { isPhone } from "@/utils/index";
-import App from "@/views/face/Face.vue";
-import AppMobile from "@/views/face/mobile/Index.vue";
-console.log("isPhone", isPhone());
+import App from "@/views/body/Body.vue";
+import AppMobile from "@/views/body/mobile/Index.vue";
 new Vue({
     router,
     store,

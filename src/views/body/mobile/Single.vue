@@ -2,14 +2,14 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-20 23:59:12
+ * @LastEditTime: 2025-02-20 23:57:58
  * @Description: 小程序捏脸详情
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
 -->
 <template>
-    <div class="p-face-detail" v-loading="loading">
-        <div class="m-face-detail_top">
+    <div class="p-body-detail" v-loading="loading">
+        <div class="m-body-detail_top">
             <el-carousel height="375px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">
                     <div class="u-img_item">
@@ -18,9 +18,9 @@
                 </el-carousel-item>
             </el-carousel>
             <!-- 作品名称/作者-->
-            <div class="u-face_info">
-                <div class="u-face_name">{{ post.title || "无标题" }}</div>
-                <div class="u-face_author">{{ post.display_name }}</div>
+            <div class="u-body_info">
+                <div class="u-body_name">{{ post.title || "无标题" }}</div>
+                <div class="u-body_author">{{ post.display_name }}</div>
             </div>
         </div>
         <div class="m-tags">
@@ -28,7 +28,7 @@
             <div class="u-tag" v-if="!!post.is_fr">首发</div>
             <div class="u-tag" v-if="!!post.original">原创</div>
             <div class="u-tag">{{ showClientLabel(post.client) }}</div>
-            <div class="u-tag">{{ newFaceMap[post.is_new_face] }}</div>
+            <div class="u-tag">{{ newbodyMap[post.is_new_body] }}</div>
             <div class="u-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
         <!-- 介绍 -->
@@ -44,7 +44,7 @@
         </div>
 
         <!-- 捏脸码 -->
-        <div class="m-face-number" v-if="post.code_mode">
+        <div class="m-body-number" v-if="post.code_mode">
             <div class="u-title">
                 <img src="@/assets/img/face/mobile/copy.svg" />
                 <div class="u-text">捏脸码</div>
@@ -52,13 +52,13 @@
             <div class="u-number">{{ post.code_mode }}</div>
         </div>
         <!-- 捏脸数据 -->
-        <div class="m-face-data" v-else>
+        <div class="m-body-data" v-else @click="goTobBodydatMobile()">
             <div class="u-text">捏脸数据</div>
             <img src="@/assets/img/face/mobile/CaretLeft.svg" class="u-img" />
             <img src="@/assets/img/face/mobile/CaretLeft-dark.svg" class="u-img-dark" />
         </div>
         <!-- 关于作者 -->
-        <div class="m-face-author">
+        <div class="m-body-author">
             <div class="u-title">关于作者</div>
             <img :src="showAvatar(post.user_avatar, 335)" />
             <div class="u-info-box">
@@ -72,7 +72,7 @@
             <div class="u-author_introduce">{{ userInfo.user_bio || "暂无介绍" }}</div>
         </div>
         <!-- 其他作品 -->
-        <div class="m-face-author_other">
+        <div class="m-body-author_other">
             <div class="u-title">{{ post.display_name }}其他作品</div>
             <div class="u-other_list">
                 <routine_other :list="randomList"></routine_other>
@@ -82,8 +82,8 @@
 </template>
 
 <script>
-import routine_other from "@/components/face/mobile/routine_other";
-import { getOneFaceInfo, getRandomFace } from "@/service/face";
+import routine_other from "@/components/body/mobile/routine_other";
+import { getOneBodyInfo, getRandomBody } from "@/service/body";
 import { getFans, getUserInfo } from "@/service/face/author";
 import { showAvatar, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 import { subscribeAuthor, unsubscribeAuthor } from "@jx3box/jx3box-common/js/rss.js";
@@ -98,16 +98,21 @@ export default {
         previewSrcList: function () {
             return this.post?.images || [];
         },
-        facedata: function () {
+        bodydata: function () {
             const data = this.post?.data || "";
-            return data.indexOf("\\") > -1 ? JSON.parse(data) : data;
-        },
-        faceAllData() {
-            return {
-                json: this.facedata,
-                object: JSON.parse(this.facedata),
-                type: "face",
+            const bodyData = {
+                object: {},
             };
+            try {
+                if (data) {
+                    bodyData.object = JSON.parse(JSON.parse(data));
+                } else {
+                    bodyData.object = data;
+                }
+            } catch {
+                bodyData.object = JSON.parse(data);
+            }
+            return bodyData;
         },
     },
     data() {
@@ -116,7 +121,7 @@ export default {
             post: {},
             randomList: [],
             client_map: __clients,
-            newFaceMap: ["写意", "写实"],
+            newbodyMap: ["写意", "写实"],
             userInfo: {},
             fans: 0,
             subscribed: false,
@@ -140,11 +145,11 @@ export default {
         getData() {
             if (this.id) {
                 this.loading = true;
-                getOneFaceInfo(this.id)
+                getOneBodyInfo(this.id)
                     .then((res) => {
                         this.post = res.data.data;
                         //获取作者作品 和 系统推荐作品
-                        this.getRandomFaceList();
+                        this.getRandombodyList();
                         this.getUserInfo();
                     })
                     .finally(() => {
@@ -178,24 +183,23 @@ export default {
             });
         },
         //获取随机作品列表
-        getRandomFaceList() {
+        getRandombodyList() {
             const { user_id } = this.post;
-            getRandomFace({
+            getRandomBody({
                 user_id,
                 list: 8,
             }).then((res) => {
                 if (res.data.data.list && res.data.data.list.length > 0) {
                     this.randomList = res.data.data.list;
+                    console.log(this.randomList);
                 }
             });
         },
-        copy() {
-            navigator.clipboard.writeText(this.post.code).then(() => {
-                this.$notify({
-                    title: "复制成功",
-                    message: "内容：" + this.post.code,
-                    type: "success",
-                });
+        goTobBodydatMobile() {
+            //session缓存捏脸数据
+            sessionStorage.setItem("bodyData", JSON.stringify(this.bodydata));
+            this.$router.push({
+                name: `bodydatMobile`,
             });
         },
     },
@@ -213,11 +217,11 @@ export default {
 @fontColor-dark2: rgba(255, 255, 255, 0.4);
 @btnBgColor: #24292e;
 @btnBgColor-dark: #fedaa3;
-.p-face-detail {
+.p-body-detail {
     height: 100vh;
     background-color: #f5f5f5;
     overflow: auto;
-    .m-face-detail_top {
+    .m-body-detail_top {
         .pr;
         .u-img_item {
             .size(100%,375px);
@@ -257,17 +261,17 @@ export default {
                 }
             }
         }
-        .u-face_info {
+        .u-body_info {
             .pa;
             .z(2);
             .lb(20px,6px);
-            .u-face_name {
+            .u-body_name {
                 color: @nameColor;
                 .fz(16px,24px);
                 .bold(700);
             }
 
-            .u-face_author {
+            .u-body_author {
                 color: rgba(28, 28, 28, 0.4);
                 .fz(12px,18px);
                 .bold(400);
@@ -327,7 +331,7 @@ export default {
             display: none;
         }
     }
-    .m-face-data {
+    .m-body-data {
         .flex;
         justify-content: space-between;
         align-items: center;
@@ -342,7 +346,7 @@ export default {
             display: none;
         }
     }
-    .m-face-number {
+    .m-body-number {
         margin: 0 20px 16px 20px;
         padding: 16px;
         .r(12px);
@@ -360,7 +364,7 @@ export default {
             .bold(700);
         }
     }
-    .m-face-author {
+    .m-body-author {
         margin: 0 20px 16px 20px;
         background-color: @fontBgColor;
         .pr;
@@ -418,7 +422,7 @@ export default {
             padding: 0 16px 16px 16px;
         }
     }
-    .m-face-author_other {
+    .m-body-author_other {
         margin: 0 20px 16px 20px;
         background-color: @fontBgColor;
         .pb(16px);
@@ -436,9 +440,9 @@ export default {
     // dark模式利用宽度模拟覆盖
     @media screen and (width: 390px) {
         background-color: #000;
-        .m-face-detail_top {
-            .u-face_info {
-                .u-face_name {
+        .m-body-detail_top {
+            .u-body_info {
+                .u-body_name {
                     color: @nameColor-dark;
                 }
             }
@@ -468,7 +472,7 @@ export default {
                 display: block;
             }
         }
-        .m-face-data {
+        .m-body-data {
             background-color: @fontBgColor-dark;
             color: @fontColor-dark;
             .u-img {
@@ -478,7 +482,7 @@ export default {
                 display: block;
             }
         }
-        .m-face-author {
+        .m-body-author {
             background-color: @fontBgColor-dark;
             .u-info-box {
                 .u-author_name {
@@ -496,8 +500,9 @@ export default {
                 color: @fontColor-dark2;
             }
         }
-        .m-face-author_other {
+        .m-body-author_other {
             background-color: @fontBgColor-dark;
+
             .u-title {
                 color: @fontColor-dark2;
             }

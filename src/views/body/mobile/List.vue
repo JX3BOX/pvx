@@ -1,6 +1,6 @@
 <template>
-    <div class="m-face-list_mobile">
-        <div class="m-face-list_mobile__tabs">
+    <div class="m-body-list_mobile">
+        <div class="m-body-list_mobile__tabs">
             <div
                 class="u-tab_item"
                 v-for="(item, index) in tabsData"
@@ -25,7 +25,7 @@
             </div>
             <!-- <div class="u-card-title">发现</div>
             <div class="u-list">
-                <faceFind></faceFind>
+                <bodyFind></bodyFind>
             </div> -->
         </div>
         <div class="u-content" v-else>
@@ -38,7 +38,7 @@
                     :list="list"
                     :total="total"
                     v-if="listShow"
-                    @getMore="getMore()"
+                    @getMore="getMore"
                 ></routine>
             </div>
         </div>
@@ -46,11 +46,10 @@
 </template>
 
 <script>
-import routine from "@/components/face/mobile/routine.vue";
-import habitus from "@/components/face/mobile/habitus.vue";
-import faceFind from "@/components/face/mobile/faceFind_v2.vue";
+import routine from "@/components/body/mobile/routine.vue";
+import habitus from "@/components/body/mobile/habitus.vue";
 import { cloneDeep, omit, concat, debounce } from "lodash";
-import { getFaceList, getSliders } from "@/service/face";
+import { getBodyList, getSliders } from "@/service/body";
 export default {
     components: { routine, habitus },
     data() {
@@ -69,7 +68,7 @@ export default {
                 {
                     label: "最新推荐",
                     list: [],
-                    params: { star: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true },
+                    params: { star: -1, pageIndex: 1, pageSize: 12, filter_empty_images: true },
                 },
                 {
                     label: "写实派与写意派",
@@ -109,7 +108,6 @@ export default {
         },
     },
     mounted() {
-        // this.getSliders();
         this.loadData();
     },
     methods: {
@@ -120,13 +118,6 @@ export default {
             let item = this.tabsData.find((e) => e.value == val);
             this.activeName = item.label;
             this.active = val;
-        },
-        // 捏脸海报
-        getSliders() {
-            getSliders("slider", this.client, 9).then((res) => {
-                console.log(res);
-                this.slidersList = res.data.data.list || [];
-            });
         },
         getMore() {
             this.queryParams.pageIndex++;
@@ -146,7 +137,7 @@ export default {
                         {
                             client: this.client,
                             body_type: e,
-                            star: 1,
+                            // star: 1,
                             pageIndex: 1,
                             pageSize: 1,
                             filter_empty_images: true,
@@ -161,7 +152,7 @@ export default {
         },
 
         loadList(params, index, body = false) {
-            getFaceList(params)
+            getBodyList(params)
                 .then((res) => {
                     const { list, page } = res.data.data;
                     const _list = this.active != -1 ? concat(this.list, list) : list;
@@ -172,10 +163,11 @@ export default {
                     if (this.active !== -1) {
                         this.list = _list || [];
                         this.queryParams.pageIndex = page.index || 1;
-                        this.total = page.total;
+                        this.total = Number(page.total) || 0;
                     } else {
                         this.allList[index].list = _list || [];
                     }
+                    console.log(this.bodyList);
                 })
                 .finally(() => {
                     this.loading = false;
@@ -187,7 +179,7 @@ export default {
 </script>
 
 <style lang="less">
-.m-face-list_mobile {
+.m-body-list_mobile {
     @fontcolor: #1c1c1c;
     @fontcolor2: rgba(28, 28, 28, 0.8);
     @fontcolor3: rgba(28, 28, 28, 0.4);
@@ -195,7 +187,7 @@ export default {
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
     padding: 12px 20px;
-    .m-face-list_mobile__tabs {
+    .m-body-list_mobile__tabs {
         .flex;
         justify-content: space-between;
         align-items: center;
@@ -219,7 +211,7 @@ export default {
     }
     @media screen and (width: 390px) {
         background-color: #000;
-        .m-face-list_mobile__tabs {
+        .m-body-list_mobile__tabs {
             .u-tab_item {
                 color: @fontColor-dark2;
                 &.is-active {
