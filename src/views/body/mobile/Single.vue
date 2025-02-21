@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-20 23:57:58
+ * @LastEditTime: 2025-02-21 08:47:55
  * @Description: 小程序捏脸详情
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -28,7 +28,7 @@
             <div class="u-tag" v-if="!!post.is_fr">首发</div>
             <div class="u-tag" v-if="!!post.original">原创</div>
             <div class="u-tag">{{ showClientLabel(post.client) }}</div>
-            <div class="u-tag">{{ newbodyMap[post.is_new_body] }}</div>
+            <div class="u-tag" v-if="post.is_new_body">{{ newbodyMap[post.is_new_body] }}</div>
             <div class="u-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
         <!-- 介绍 -->
