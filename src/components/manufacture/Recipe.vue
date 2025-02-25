@@ -26,7 +26,7 @@
                             @input="onlyInteger"
                             @click.stop.native
                         ></el-input-number>
-                        <el-button icon="el-icon-shopping-cart-2" size="small" @click="addCartItem"> </el-button>
+                        <el-button icon="el-icon-shopping-cart-2" size="small" @click="onAddCartItem(_list)"> </el-button>
                     </div>
                 </span>
             </span>
@@ -123,9 +123,10 @@ export default {
             this.itemId = id;
             this.loadItem(id);
         },
-        addCartItem() {
-            const data = { ...this.recipe, children: this.children };
-            this.$emit("addCartItem", data);
+        async onAddCartItem(item) {
+            const recipe = await this.getRecipe(this.craftKey, item.ID, this.client);
+            recipe.count = this.recipe.count;
+            this.$refs["recipe-detail"].onAddCartItem(recipe);
         },
         onlyInteger() {
             const number = String(this.recipe.count)
