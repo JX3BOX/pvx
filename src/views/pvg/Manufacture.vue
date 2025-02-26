@@ -13,7 +13,7 @@
                     </el-select>
                 </div>
                 <Recipe
-                    :list="search ? searchList : showList"
+                    :list="showList"
                     :craft-key="craftKey"
                     :server="server"
                     @addCartItem="onAddCartItem"
@@ -25,7 +25,7 @@
                 :data="cartItem"
                 :server="server"
                 ref="cart"
-                :craft-list="showList"
+                :craft-list="list"
                 @material-make="onMaterialMake"
                 @update-plan="onPlanUpdate"
             />
@@ -51,14 +51,14 @@ export default {
     components: { Recipe, Cart, MyList, CommonToolbar },
     data: function () {
         return {
-            craftList: [],
-            search: "",
-            searchList: [],
-            craftName: "",
-            index: -1,
-            showList: [],
             craftKey: "",
             craftTypes: craft_types,
+            craftList: [],
+
+            search: "",
+            craftName: "",
+            index: -1,
+            list: [],
             server: "蝶恋花",
             cartItem: {},
             active: "",
@@ -73,6 +73,18 @@ export default {
         },
         serverList() {
             return this.isStd ? servers_std : servers_origin;
+        },
+        showList() {
+            if (!this.search) return this.list;
+            return [
+                {
+                    BelongName: "搜索结果",
+                    list: this.list.reduce((acc, cur) => {
+                        acc.push(...cur.list.filter((item) => item.Name.includes(this.search)));
+                        return acc;
+                    }, []),
+                },
+            ];
         },
     },
     methods: {
@@ -109,7 +121,7 @@ export default {
                 }, {});
 
                 // 合并数据配方分类
-                this.showList = list
+                this.list = list
                     .map((item) => {
                         if (data[item.BelongID]) item.list = data[item.BelongID];
                         return item;
@@ -165,15 +177,6 @@ export default {
             const { name, key } = this.craftList[i];
             this.craftName = name;
             this.loadList(key, i);
-        },
-        search(key) {
-            let list = [];
-            this.showList.forEach((item) => {
-                item.list.forEach((_list) => {
-                    if (_list.Name.includes(key)) list.push(_list);
-                });
-            });
-            this.searchList = [{ BelongName: "搜索结果", list }];
         },
     },
     mounted() {
