@@ -123,7 +123,10 @@ export default {
                 // 合并数据配方分类
                 this.list = list
                     .map((item) => {
-                        if (data[item.BelongID]) item.list = data[item.BelongID];
+                        if (data[item.BelongID]) {
+                            item.list = data[item.BelongID];
+                            item.list.sort((a, b) => Number(b.ID) - Number(a.ID));
+                        }
                         return item;
                     })
                     .filter((item) => item.list);
