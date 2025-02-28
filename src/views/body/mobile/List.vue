@@ -9,6 +9,7 @@
                 @click="setActive(item.value)"
             >
                 {{ item.label }}
+                <div class="u-tab_item__line"></div>
             </div>
         </div>
         <div class="u-content-all" v-if="active == -1">
@@ -29,7 +30,7 @@
             </div> -->
         </div>
         <div class="u-content" v-else>
-            <div class="u-card-title">{{ activeName }}</div>
+            <!-- <div class="u-card-title">{{ activeName }}</div> -->
             <div class="u-list" id="oneList">
                 <routine
                     gap="12px"
@@ -188,10 +189,14 @@ export default {
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
     padding: 12px 20px;
     .m-body-list_mobile__tabs {
+        position: sticky;
+        top: 0;
+        .z(2);
         .flex;
         justify-content: space-between;
         align-items: center;
         height: 32px;
+        background-color: #fff;
         .u-tab_item {
             color: @fontcolor3;
             .fz(18px,28px);
@@ -199,7 +204,14 @@ export default {
 
             &.is-active {
                 color: @fontcolor;
-                border-bottom: 2px solid @fontcolor;
+                // border-bottom: 2px solid @fontcolor;
+                // border-bottom-left-radius: 2px; /* 底部左侧圆角 */
+                // border-bottom-right-radius: 2px; /* 底部右侧圆角 */
+                .u-tab_item__line {
+                    background-color: @fontcolor;
+                    .h(2px);
+                    .r(4px);
+                }
             }
         }
     }
@@ -212,11 +224,15 @@ export default {
     @media screen and (width: 390px) {
         background-color: #000;
         .m-body-list_mobile__tabs {
+            background-color: #000;
             .u-tab_item {
                 color: @fontColor-dark2;
                 &.is-active {
                     color: @fontColor-dark;
-                    border-bottom: 2px solid @fontColor-dark;
+                    // border-bottom: 2px solid @fontColor-dark;
+                    .u-tab_item__line {
+                        background-color: @fontColor-dark;
+                    }
                 }
             }
         }

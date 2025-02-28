@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-21 08:47:55
+ * @LastEditTime: 2025-02-28 22:51:05
  * @Description: 小程序捏脸详情
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -24,11 +24,13 @@
             </div>
         </div>
         <div class="m-tags">
-            <div class="u-tag" v-if="!!post.star">★ 编辑推荐</div>
+            <div class="u-tag purple" v-if="!!post.star">★ 编辑推荐</div>
             <div class="u-tag" v-if="!!post.is_fr">首发</div>
             <div class="u-tag" v-if="!!post.original">原创</div>
             <div class="u-tag">{{ showClientLabel(post.client) }}</div>
-            <div class="u-tag" v-if="post.is_new_body">{{ newbodyMap[post.is_new_body] }}</div>
+            <div class="u-tag" :class="post.is_new_face ? 'green' : 'mint'" v-if="post.is_new_body">
+                {{ newbodyMap[post.is_new_body] }}
+            </div>
             <div class="u-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
         <!-- 介绍 -->
@@ -69,13 +71,13 @@
                 <div class="u-follow" @click="follow" v-if="!subscribed">关注TA</div>
                 <div class="u-follow" @click="unfollow" v-else>取消关注</div>
             </div>
-            <div class="u-author_introduce">{{ userInfo.user_bio || "暂无介绍" }}</div>
+            <div class="u-author_introduce" v-if="userInfo.user_bio">{{ userInfo.user_bio }}</div>
         </div>
         <!-- 其他作品 -->
         <div class="m-body-author_other">
             <div class="u-title">{{ post.display_name }}其他作品</div>
             <div class="u-other_list">
-                <routine_other :list="randomList"></routine_other>
+                <routine_other :list="randomList" :isNumber="true"></routine_other>
             </div>
         </div>
     </div>
@@ -223,22 +225,21 @@ export default {
     overflow: auto;
     .m-body-detail_top {
         .pr;
+        overflow: hidden;
         .u-img_item {
             .size(100%,375px);
-
-            overflow: hidden;
             .pr;
             &::before {
                 content: "";
                 .pa;
-                .size(100%,100%);
+                .size(100%,calc(100% + 5px));
                 .lt(0);
                 .dbi;
                 .z(1);
-                background: linear-gradient(180deg, rgba(250, 250, 250, 0) 44.67%, #fafafa 100%);
+                background: linear-gradient(rgba(250, 250, 250, 0) 44.67%, #f5f5f5 100%);
             }
             img {
-                .size(100%,100%);
+                .size(100%,calc(100% - 2px));
                 object-fit: cover;
             }
         }
@@ -295,6 +296,18 @@ export default {
             color: @fontColor;
             .fz(10px,15px);
             .bold(400);
+            &.green {
+                background: #34c759;
+            }
+            &.mint {
+                background: #23abe5;
+            }
+            &.purple {
+                background: #af52de;
+            }
+            &.new {
+                background: #ff72af;
+            }
         }
     }
     .m-introduce {
@@ -441,6 +454,11 @@ export default {
     @media screen and (width: 390px) {
         background-color: #000;
         .m-body-detail_top {
+            .u-img_item {
+                &::before {
+                    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+                }
+            }
             .u-body_info {
                 .u-body_name {
                     color: @nameColor-dark;

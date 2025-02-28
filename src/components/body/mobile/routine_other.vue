@@ -2,16 +2,16 @@
  * @Author: zhusha 
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-20 23:53:30
+ * @LastEditTime: 2025-02-28 22:29:29
  * @Description: 小程序适配捏脸常规模组-其他作品
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
 -->
 <template>
     <div class="p-face-routine" :style="{ gap: gap }">
-        <div class="u-item" v-for="item in list" :key="item.id" :style="{ width: size + 'px' }">
-            <a :href="`${link}/${item.id}`">
-                <div class="u-item_img" :style="{ width: size + 'px', height: size / 0.6 + 'px' }">
+        <div class="u-item" v-for="item in list" :key="item.id" :style="{ width: width + 'px', height: height + 'px' }">
+            <a :href="`${link}/${item.id}`" :style="{ width: width + 'px', height: height + 'px' }">
+                <div class="u-item_img">
                     <img :src="showImg(item)" />
                     <div class="u-item_name">{{ item.title }}</div>
                 </div>
@@ -39,22 +39,36 @@ export default {
             type: Number,
             default: 110,
         },
+        isNumber: {
+            type: Boolean,
+            default: false,
+        },
+        number: {
+            type: Number,
+            default: 3,
+        },
         list: {
             type: Array,
             default: () => [],
         },
     },
     data() {
-        return {};
+        return {
+            width: 0,
+            height: 0,
+        };
     },
     created() {},
-    mounted() {},
+    mounted() {
+        this.width = this.isNumber ? parseInt((document.body.clientWidth - 72) / this.number) : this.size;
+        this.height = parseInt(this.width / 0.6);
+    },
     methods: {
         getThumbnail,
         showImg(item) {
-            return this.getThumbnail(item.images?.[0] || __imgPath + `image/face/null2.png`, [
-                this.size,
-                parseInt(this.size / 0.6),
+            return this.getThumbnail(item.images?.[0] || __imgPath + `image/body/null2.png`, [
+                this.width,
+                parseInt(this.width / 0.6),
             ]);
         },
         getMore() {
@@ -84,13 +98,24 @@ export default {
             background: #d9d9d9;
             overflow: hidden;
             .pr;
+            .size(100%,100%);
+            &::before {
+                content: "";
+                .pa;
+                .size(100%,100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+            }
             img {
-                .h(100%);
+                .size(100%,100%);
                 object-fit: cover;
             }
         }
         .u-item_name {
             .pa;
+            .z(2);
             .lb(6px);
             .bold(400);
             font-style: normal;
@@ -101,12 +126,12 @@ export default {
             overflow: hidden;
             text-overflow: ellipsis;
             color: @color;
-            @media screen and (width: 390px) {
-                color: @color-dark;
-            }
-            @media (prefers-color-scheme: dark) {
-                color: @color-dark;
-            }
+            // @media screen and (width: 390px) {
+            //     color: @color-dark;
+            // }
+            // @media (prefers-color-scheme: dark) {
+            //     color: @color-dark;
+            // }
         }
     }
 }

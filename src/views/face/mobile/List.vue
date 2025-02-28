@@ -69,7 +69,7 @@ export default {
                 {
                     label: "最新推荐",
                     list: [],
-                    params: { star: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true },
+                    params: { star: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true, code_mode: 1 },
                 },
                 {
                     label: "写实派与写意派",
@@ -196,10 +196,14 @@ export default {
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
     padding: 12px 20px;
     .m-face-list_mobile__tabs {
+        position: sticky;
+        top: 0;
+        .z(2);
         .flex;
         justify-content: space-between;
         align-items: center;
         height: 32px;
+        background-color: #fff;
         .u-tab_item {
             color: @fontcolor3;
             .fz(18px,28px);
@@ -220,6 +224,7 @@ export default {
     @media screen and (width: 390px) {
         background-color: #000;
         .m-face-list_mobile__tabs {
+            background-color: #000;
             .u-tab_item {
                 color: @fontColor-dark2;
                 &.is-active {

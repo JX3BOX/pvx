@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-20 23:59:12
+ * @LastEditTime: 2025-02-28 22:42:21
  * @Description: 小程序捏脸详情
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -24,11 +24,11 @@
             </div>
         </div>
         <div class="m-tags">
-            <div class="u-tag" v-if="!!post.star">★ 编辑推荐</div>
+            <div class="u-tag purple" v-if="!!post.star">★ 编辑推荐</div>
             <div class="u-tag" v-if="!!post.is_fr">首发</div>
             <div class="u-tag" v-if="!!post.original">原创</div>
             <div class="u-tag">{{ showClientLabel(post.client) }}</div>
-            <div class="u-tag">{{ newFaceMap[post.is_new_face] }}</div>
+            <div class="u-tag" :class="post.is_new_face ? 'green' : 'mint'">{{ newFaceMap[post.is_new_face] }}</div>
             <div class="u-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
         <!-- 介绍 -->
@@ -37,7 +37,7 @@
             <div class="u-content">{{ post.remark }}</div>
         </div>
         <!-- warning -->
-        <div class="m-warning">
+        <div class="m-warning" v-if="!post.code_mode">
             <img src="@/assets/img/face/mobile/warning.svg" class="u-img" />
             <img src="@/assets/img/face/mobile/warning-dark.svg" class="u-img-dark" />
             <div class="u-text">小程序暂时不支持[非捏脸码]作品数据下载</div>
@@ -49,7 +49,7 @@
                 <img src="@/assets/img/face/mobile/copy.svg" />
                 <div class="u-text">捏脸码</div>
             </div>
-            <div class="u-number">{{ post.code_mode }}</div>
+            <div class="u-number">{{ post.code }}</div>
         </div>
         <!-- 捏脸数据 -->
         <div class="m-face-data" v-else>
@@ -69,13 +69,13 @@
                 <div class="u-follow" @click="follow" v-if="!subscribed">关注TA</div>
                 <div class="u-follow" @click="unfollow" v-else>取消关注</div>
             </div>
-            <div class="u-author_introduce">{{ userInfo.user_bio || "暂无介绍" }}</div>
+            <div class="u-author_introduce" v-if="userInfo.user_bio">{{ userInfo.user_bio }}</div>
         </div>
         <!-- 其他作品 -->
         <div class="m-face-author_other">
             <div class="u-title">{{ post.display_name }}其他作品</div>
             <div class="u-other_list">
-                <routine_other :list="randomList"></routine_other>
+                <routine_other :list="randomList" :isNumber="true"></routine_other>
             </div>
         </div>
     </div>
@@ -291,6 +291,18 @@ export default {
             color: @fontColor;
             .fz(10px,15px);
             .bold(400);
+            &.green {
+                background: #34c759;
+            }
+            &.mint {
+                background: #23abe5;
+            }
+            &.purple {
+                background: #af52de;
+            }
+            &.new {
+                background: #ff72af;
+            }
         }
     }
     .m-introduce {
@@ -437,9 +449,17 @@ export default {
     @media screen and (width: 390px) {
         background-color: #000;
         .m-face-detail_top {
+            .u-img_item {
+                &::before {
+                    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+                }
+            }
             .u-face_info {
                 .u-face_name {
                     color: @nameColor-dark;
+                }
+                .u-face_author {
+                    color: @fontColor-dark2;
                 }
             }
         }
