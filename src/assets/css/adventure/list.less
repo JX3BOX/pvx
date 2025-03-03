@@ -88,7 +88,7 @@
         }
     }
 
-    .m-common-list { 
+    .m-common-list {
         overflow-x: auto;
         .scrollbar(2px);
     }
@@ -98,3 +98,202 @@
 //         .pt(64px);
 //     }
 // }
+
+.m-type-list {
+    display: none;
+}
+.m-adventure-item {
+    .u-name {
+        display: none;
+    }
+}
+@Brand-2: #fedaa3;
+@black-40: rgba(28, 28, 28, 0.4);
+@black-80: rgba(28, 28, 28, 0.8);
+@black-100: #1c1c1c;
+@black-40-dark: rgba(255, 255, 255, 0.4);
+@black-80-dark: rgba(255, 255, 255, 0.8);
+@black-100-dark: #ffffff;
+
+@brand4: #282828;
+// 小程序端适配
+.v-miniprogram {
+    &::after {
+        content: "";
+        display: block;
+        position: fixed;
+        .lt(0);
+        .rb(0);
+        z-index: -1;
+    }
+    .m-main {
+        padding-right: 0;
+        padding-top: 0;
+    }
+    .m-common-toolbar,
+    .m-card-banner-list .u-action {
+        display: none;
+    }
+    .p-common-list {
+        padding-top: 0;
+    }
+    .m-type-list {
+        display: flex;
+        gap: 18px;
+        padding-top: 12px;
+        padding-bottom: 4px;
+        .fz(18px,28px);
+        .bold();
+        color: @black-40;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background-color: white;
+
+        .u-type-item {
+            position: relative;
+            &.is-active {
+                color: @black-100;
+                &::after {
+                    content: "";
+                    display: block;
+                    width: 20px;
+                    height: 2px;
+                    background-color: @black-100;
+                    border-radius: 4px;
+                    position: absolute;
+                    bottom: -4px;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(50%);
+                }
+            }
+        }
+    }
+    // 原样式处理
+    .m-adventure-list {
+        .mt(20px);
+        .u-all-type {
+            .mt(20px);
+            .mb(8px);
+            .u-title {
+                .fz(16px,24px);
+                color: @black-80;
+            }
+        }
+        .m-card-banner-list {
+            .m-card-banner-list_header {
+                .mb(8px);
+                .u-title {
+                    .fz(16px,24px);
+                    color: @black-80;
+                }
+            }
+            .m-card-banner-list_box {
+                .m-cardlist-items {
+                    grid-template-columns: repeat(8, minmax(156px, 1fr)) !important;
+                    gap: 12px;
+                    padding-bottom: 28px;
+                    .m-cardlist-item {
+                        .m-adventure-item {
+                            height: 100%;
+                            overflow: initial;
+                            .u-title {
+                                bottom: 10px;
+                            }
+                            .u-name {
+                                margin-top: 8px;
+                                line-height: 20px;
+                                font-size: 14px;
+                                color: @Brand-2;
+                                display: block;
+                            }
+                        }
+                        &:nth-of-type(n + 9) {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .m-face-list--all {
+        .pr(20px);
+        .m-adventure-item {
+            flex: calc(50% - 20px);
+            height: 100%;
+            margin-bottom: 28px;
+            overflow: initial;
+            .u-title {
+                bottom: 10px;
+            }
+            .u-name {
+                position: absolute;
+                bottom: -8px;
+                transform: translateY(100%);
+                left: 0;
+                line-height: 20px;
+                font-size: 14px;
+                color: @Brand-2;
+                display: block;
+            }
+        }
+    }
+}
+@media (prefers-color-scheme: dark) {
+    .v-miniprogram {
+        &::after {
+            background-color: #000;
+        }
+    }
+}
+.dark.v-miniprogram {
+    &::after {
+        background-color: #000;
+    }
+
+    .m-type-list {
+        color: @black-40-dark;
+        background-color: #000;
+
+        .u-type-item {
+            &.is-active {
+                color: @black-100-dark;
+                &::after {
+                    background-color: @black-100-dark;
+                }
+            }
+        }
+    }
+    .m-adventure-list {
+        .u-all-type {
+            .u-title {
+                color: @black-80-dark;
+            }
+        }
+        .m-card-banner-list {
+            .m-card-banner-list_header {
+                .u-title {
+                    color: @black-80-dark;
+                }
+            }
+            .m-card-banner-list_box {
+                .m-cardlist-items {
+                    .m-cardlist-item {
+                        background-color: transparent;
+                        border-color: transparent;
+                        .m-adventure-item {
+                            background-color: @brand4;
+                            border-color: transparent;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .m-face-list--all {
+        .m-adventure-item {
+            background-color: @brand4;
+            border-color: transparent;
+        }
+    }
+}

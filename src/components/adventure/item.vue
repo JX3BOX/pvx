@@ -29,6 +29,7 @@
                 </div>
             </el-popover>
         </div>
+        <div class="u-name">{{ item.szName }}</div>
     </a>
 </template>
 

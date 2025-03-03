@@ -1,6 +1,19 @@
 <template>
     <div class="p-adventure-List p-common-list" v-loading="loading" ref="listRef">
         <AdventureTabs :active="active" :body_types="list" @setActive="setActive" @change="onSearch" />
+        <div class="m-type-list">
+            <div
+                class="u-type-item"
+                :class="{
+                    'is-active': active === item.value,
+                }"
+                v-for="(item, index) in list"
+                :key="'l' + index"
+                @click="setActive(item.value)"
+            >
+                {{ item.label }}
+            </div>
+        </div>
         <template v-if="active === 'all'">
             <div
                 v-for="(item, index) in list"
