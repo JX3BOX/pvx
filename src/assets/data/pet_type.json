@@ -1,0 +1,26 @@
+[{
+        "class":"",
+        "type": 0,
+        "name": "所有种类"
+    },
+    {
+        "class":1,
+        "type": 1,
+        "name": "水族"
+    },
+    {
+        "class":2,
+        "type": 2,
+        "name": "禽鸟"
+    },
+    {
+        "class":3,
+        "type": 3,
+        "name": "走兽"
+    },
+    {
+        "class":4,
+        "type": 4,
+        "name": "机关"
+    }
+]

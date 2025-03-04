@@ -1,0 +1,216 @@
+.m-pet-navigation {
+    .pr;
+    .mt(20px);
+    padding: 20px 0;
+    display: flex;
+    position: sticky;
+    top: @header-height;
+    background-color: #fff;
+    .z(10);
+    .u-goback {
+        .pointer;
+        .r(30px);
+        .fz(16px,40px);
+        .size(100px,40px);
+        .x;
+        .mr(10px);
+        .color(#fff);
+        border: none;
+        background: #24292e;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+        &:hover {
+            background: #d16400;
+        }
+    }
+}
+
+.m-pet-links {
+    .u-link {
+        .fz(14px);
+
+        i {
+            .mr(2px);
+            .y;
+        }
+
+        .underline(@color-link);
+    }
+
+    em {
+        margin: 0 5px;
+    }
+}
+
+.m-pet-content {
+    .pr;
+    .pt(20px);
+    .mb(40px);
+    gap: 20px;
+    justify-content: space-between;
+
+    .m-pet-card {
+        .mb(0);
+    }
+}
+
+.m-pet-info {
+    .r(10px);
+    flex: 1;
+    height: 380px;
+    background: #ffffff;
+    padding: 20px;
+    box-sizing: border-box;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    .u-title {
+        .pr;
+        .flex;
+        .fz(28px,28px);
+        .bold;
+        justify-content: space-between;
+        margin: 0 0 10px 0;
+    }
+    .u-stars {
+        .flex;
+        gap: 4px;
+        .u-star {
+            .size(21px);
+        }
+    }
+
+    .u-metas {
+        .flex;
+        flex-direction: column;
+        margin-top: 20px;
+        gap: 8px;
+        .u-meta {
+            .fz(14px);
+            font-weight: 300;
+            .u-meta-label {
+                .bold;
+            }
+        }
+        .u-lucky-dates {
+            cursor: pointer;
+        }
+    }
+
+    .u-shop {
+        .pa;
+        .rt(0,40px);
+        .flex;
+        gap: 10px;
+        flex-direction: column;
+        i {
+            .dbi;
+            // .y(1px);
+        }
+    }
+
+    .u-price {
+        display: inline-flex;
+    }
+
+    .u-price-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        i {
+            .size(18px);
+        }
+    }
+
+    .u-rewards {
+        .mr(10px);
+    }
+
+    .u-icon-rewards {
+        background: url("@{game_icons}exteriorbox3-16.png") no-repeat 0 0;
+    }
+
+    .u-icon-coin {
+        background: url("@{game_icons}money-121.png") no-repeat 0 0;
+        background-size: 18px;
+    }
+}
+
+.m-pet-wiki {
+    .r(10px);
+    margin-top: 20px;
+}
+.u-pet-skill-title {
+    .bold;
+    .fz(16px);
+    margin: 20px 0 10px 0;
+}
+.m-pet-skills {
+    .flex;
+    margin-top: 20px;
+    gap: 10px;
+    .u-skill {
+        .size(38px);
+    }
+}
+
+.m-pet-skill {
+    border-radius: 3px;
+    border: 1px solid #132221;
+    background: rgba(#132221f3);
+    padding: 10px;
+    .u-skill-name {
+        color: #ff0;
+    }
+
+    .u-skill-desc {
+        color: #eee;
+    }
+}
+.m-pet-comment {
+    .mt(20px);
+    background: #ffffff;
+    .r(10px);
+    padding: 20px;
+}
+.m-lucky-dates-dialog {
+    .u-lucky-dates-item {
+        margin: 2px;
+    }
+
+    .u-lucky-dates-description {
+        margin-top: 0px;
+        margin-bottom: 8px;
+        color: #999999;
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pet-content {
+        justify-content: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        .m-pet-links {
+            .w(100%);
+            flex-shrink: 0;
+        }
+        .m-pet-card {
+            .mb(15px);
+            .mr(0);
+        }
+        .m-pet-map {
+            .size(100%,auto);
+            .m-pet-map-box {
+                .size(100%,auto);
+            }
+            .u-map__wrapper,
+            .u-map__inner {
+                .w(100%) !important;
+            }
+        }
+    }
+    .m-pet-info {
+        .size(100%,auto);
+        .u-title {
+            flex-wrap: wrap;
+        }
+    }
+}

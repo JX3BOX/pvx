@@ -50,6 +50,12 @@ module.exports = {
             template: "public/index.html",
             filename: "body/index.html",
         },
+        pet: {
+            title: "宠物大全 - JX3BOX",
+            entry: "src/pages/pet/index.js",
+            template: "public/index.html",
+            filename: "pet/index.html",
+        }
     },
 
     //❤️ Proxy ~

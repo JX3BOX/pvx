@@ -1,0 +1,111 @@
+@petColor: #07ad36;
+.m-luckey-item {
+    .r(10px);
+    .clip;
+    .h(200px);
+    width: calc(33% - 10px);
+    min-width: 400px;
+    max-width: 1200px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+    .u-img {
+        .db;
+        .pr;
+        .size(100%);
+        background-color: #f5f8fa;
+        .r(4px);
+        .u-pic {
+            // .full;
+            .r(4px);
+            .size(100%);
+            object-fit: cover;
+        }
+    }
+}
+.m-luckey-item:last-child {
+    .mr(0);
+}
+.m-pet-item {
+    .r(5px);
+    .pointer;
+    // .size(186px,120px);
+    height: 120px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-out;
+    .m-info {
+        .flex;
+        gap: 7px;
+        .u-icon {
+            .size(45px);
+        }
+        .u-text {
+            .flex;
+            flex-direction: column;
+        }
+        .u-name {
+            color: #000;
+            .fz(14px,24px);
+            .nobreak;
+        }
+        .u-rate {
+            .flex;
+            .h(18px);
+            gap: 4px;
+            align-items: center;
+        }
+        .u-star {
+            .size(12px);
+        }
+    }
+    .u-desc {
+        .mt(8px);
+        .fz(12px,16px);
+        .break(3);
+        color: rgba(0, 0, 0, 0.5);
+    }
+
+    &:hover {
+        .u-item {
+            .mt(8px);
+            .ml(-2px);
+        }
+    }
+    &.pet-level-2 {
+        &:hover {
+            background: rgba(13, 192, 63, 0.1);
+            border: 1px solid rgba(13, 192, 63, 1);
+            box-shadow: 0px 0px 10px rgba(13, 192, 63, 0.2);
+        }
+    }
+    &.pet-level-3 {
+        &:hover {
+            background: rgba(0, 133, 255, 0.1);
+            border: 1px solid rgba(0, 133, 255, 1);
+            box-shadow: 0px 0px 10px rgba(0, 133, 255, 0.2);
+        }
+    }
+    &.pet-level-4 {
+        &:hover {
+            background: rgba(204, 70, 237, 0.1);
+            border: 1px solid rgba(204, 70, 237, 1);
+            box-shadow: 0px 0px 10px rgba(204, 70, 237, 0.2);
+        }
+    }
+    &.pet-level-5 {
+        &:hover {
+            background: rgba(255, 168, 17, 0.1);
+            border: 1px solid rgba(255, 168, 17, 1);
+            box-shadow: 0px 0px 10px rgba(255, 168, 17, 0.2);
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pet-item {
+        .w(100%);
+    }
+}
