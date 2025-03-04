@@ -1,0 +1,97 @@
+.horse-list-wrapper {
+    position: relative;
+    .operate-wrap {
+        position: fixed;
+        right: 20px;
+        top: 88px;
+        z-index: 5;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        .list-type-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-radius: 30px;
+            padding: 3px;
+            background-color: #fff;
+            .list-type-item {
+                font-size: 13px;
+                background-color: #fff;
+                color: #bbb;
+                padding: 5px 15px;
+                text-align: center;
+                cursor: pointer;
+                &:hover {
+                    font-weight: bold;
+                    color: @active-color;
+                }
+                &:first-of-type {
+                    border-top-left-radius: 30px;
+                    border-bottom-left-radius: 30px;
+                }
+                &:last-of-type {
+                    border-top-right-radius: 30px;
+                    border-bottom-right-radius: 30px;
+                }
+                &.active {
+                    font-weight: bold;
+                    color: #fff;
+                    border-radius: 30px;
+                    background: @active-color;
+                }
+            }
+        }
+    }
+    .horse-list-content {
+        margin-top: 48px;
+        .horse-list {
+            position: relative;
+            width: 100%;
+            &.card-wrap { 
+                .list-content {
+                    position: relative;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    .more-btn {
+                        width: 100%;
+                    }
+                    &.line-list-content {
+                        justify-content: flex-start;
+                        flex-wrap: nowrap;
+                        img {
+                            max-width: 160px !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .horse-list-wrapper {
+        .horse-list-content {
+            margin-top: 120px;
+            .horse-title-wrap {
+                padding: 0;
+            }
+            .list-content {
+                justify-content: center !important;
+            }
+        }
+    }
+}
+@media screen and (max-width: @phone) {
+    .horse-list-wrapper {
+        .horse-list-content {
+            margin-top: 84px;
+            .horse-title-wrap {
+                padding: 0;
+            }
+        }
+    }
+}

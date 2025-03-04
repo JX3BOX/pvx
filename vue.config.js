@@ -62,6 +62,12 @@ module.exports = {
             template: "public/index.html",
             filename: "furniture/index.html",
         },
+        horse: {
+            title: "坐骑大全 - JX3BOX",
+            entry: "src/pages/horse/index.js",
+            template: "public/index.html",
+            filename: "horse/index.html",
+        }
     },
 
     //❤️ Proxy ~

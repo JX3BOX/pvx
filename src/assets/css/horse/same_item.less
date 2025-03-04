@@ -1,0 +1,66 @@
+.same-item {
+    .flex;
+    .r(10px);
+    .pointer;
+    .size(auto, 128px);
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 20px 15px;
+    color: #24292e;
+    background-color: #fff;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    border: 1px solid #fff;
+    transition: 0.3s ease-out;
+    &:hover {
+        border: 1px solid #e86f00;
+        box-shadow: 0 0 10px 0 rgba(232, 111, 0, 0.4);
+        background-color: rgba(232, 111, 0, 0.1);
+        .info-item .u-more {
+            background-color: #fff;
+        }
+    }
+    .img-wrap {
+        .size(48px);
+        .r(10px);
+        flex-shrink: 0;
+        background-image: url("../../img/horse_item_bg_sm.jpg");
+        transition: all 0.5s;
+        box-sizing: border-box;
+        .u-image {
+            .full;
+            .r(10px);
+            box-sizing: border-box;
+        }
+    }
+
+    .info-wrap {
+        .flex;
+        .w(100%);
+        gap: 10px;
+    }
+
+    .info-item {
+        .flex;
+        gap: 10px;
+        align-items: center;
+        &.name {
+            .break(1);
+        }
+        .u-attr-icon {
+            .size(30px);
+            .clip;
+            flex-shrink: 0;
+        }
+        .u-more {
+            .flex;
+            .r(5px);
+            .size(100%,30px);
+            font-weight: 400;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            background-color: #f3f4f5;
+        }
+    }
+}

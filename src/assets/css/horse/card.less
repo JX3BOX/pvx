@@ -1,0 +1,87 @@
+@import "./pop.less";
+.m-horse-card {
+    flex-shrink: 0;
+    .pointer;
+    // .size(200px,289px);
+    .r(10px);
+    display: block;
+    height: 289px;
+    background-color: #fff;
+    box-sizing: border-box;
+    border: 1px solid #fff;
+    padding: 20px;
+    color: #24292e;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-out;
+    &:hover {
+        border: 1px solid #e86f00;
+        box-shadow: 0 0 10px 0 rgba(232, 111, 0, 0.4);
+        background-color: rgba(232, 111, 0, 0.1);
+        .u-more {
+            background-color: #fff;
+        }
+    }
+    .image-slot img {
+        .w(100%);
+    }
+    .u-image {
+        .size(100%,160px);
+        .r(10px);
+        box-sizing: border-box;
+        background: url("../../img/horse_item_bg_sm.jpg") no-repeat center center;
+        background-size: cover;
+        transition: all 0.5s;
+    }
+    .u-name {
+        .mt(10px);
+        .fz(16px);
+        font-weight: 700;
+    }
+    .u-desc {
+        .fz(12px,1.2);
+        width: 100%;
+        font-weight: 400;
+    }
+    .u-img {
+        .flex;
+        .scrollbar;
+        .mt(10px);
+        .pb(6px);
+        gap: 8px;
+        overflow-y: hidden;
+        overflow-x: auto;
+    }
+
+    .u-attr-icon {
+        .size(30px);
+        box-sizing: border-box;
+    }
+    .u-attr-wrap {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: row;
+        .u-attr {
+            position: relative;
+            margin: 2px;
+            img {
+                max-width: 36px;
+            }
+        }
+    }
+    .u-more {
+        .flex;
+        .r(5px);
+        .w(100%);
+        font-weight: 400;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        background-color: #f3f4f5;
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-horse-card {
+        flex-shrink: 0;
+    }
+}

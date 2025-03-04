@@ -1,0 +1,66 @@
+{
+    "list": [
+        {
+            "type": "",
+            "value": -1,
+            "name": "全部",
+            "label": "全部",
+            "page": 1,
+            "pages": 1,
+            "list": []
+        },
+        {
+            "type": 0,
+            "value": 1,
+            "name": "普通坐骑",
+            "label": "普通坐骑",
+            "page": 1,
+            "pages": 1,
+            "list": []
+        },
+        {
+            "type": 1,
+            "value": 2,
+            "name": "奇趣坐骑",
+            "label": "奇趣坐骑",
+            "page": 1,
+            "pages": 1,
+            "list": []
+        },
+        {
+            "type": 2,
+            "value": 3,
+            "name": "马具",
+            "label": "马具",
+            "page": 1,
+            "pages": 1,
+            "list": []
+        }
+    ],
+    "searchType": [
+        {
+            "key": "feed",
+            "type": "checkbox",
+            "name": "喂食饲料",
+            "list": [],
+            "checked": []
+        },
+        {
+            "key": "attr",
+            "type": "checkbox",
+            "name": "属性",
+            "list": [],
+            "checked": []
+        }
+    ],
+    "showTypes": [
+        {
+            "value": "list",
+            "label": "列表"
+        },
+        {
+            "value": "card",
+            "label": "卡片"
+        }
+    ]
+}

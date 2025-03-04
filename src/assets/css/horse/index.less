@@ -1,0 +1,192 @@
+.horse-home-wrapper {
+    .pt(40px);
+    position: relative;
+    .m-common-tabs {
+        .u-tab {
+            transition: 0.3s ease-out;
+            &.active,
+            &:hover {
+                background: #d16400;
+                color: #fff;
+            }
+        }
+        .u-search {
+            svg {
+                cursor: pointer;
+                border-radius: 20px;
+                margin-top: 3px;
+            }
+            &:hover {
+                svg {
+                    fill: #fff;
+                    background-color: #d16400;
+                    border-color: #d16400;
+                }
+            }
+        }
+    }
+    .m-horse-content {
+        .m-horse-broadcast__header {
+            .mb(10px);
+        }
+        .m-horse-broadcast .m-horse-broadcast__header .el-select input {
+            background-color: #f1f1f1;
+        }
+        .m-horse-broadcast {
+            .list {
+                overflow: auto;
+                padding: 10px;
+                .ml(-10px);
+            }
+        }
+    }
+    .m-list-wrapper {
+        .u-type {
+            .flex;
+            .mb(20px);
+            justify-content: space-between;
+            align-items: flex-end;
+            .u-all {
+                cursor: pointer;
+                color: #a5a5a5;
+                .fz(16px,21px);
+            }
+        }
+        .u-title {
+            .mt(40px);
+            .fz(28px,42px);
+            .bold(700);
+            color: #24292e;
+        }
+    }
+    .m-operate {
+        .flex;
+        .r(30px);
+        align-items: center;
+        justify-content: flex-end;
+        padding: 3px;
+        background-color: #f3f5f6;
+        .m-item {
+            .fz(13px);
+            .x;
+            .pointer;
+            .r(30px);
+            color: #bbb;
+            padding: 5px 15px;
+            &:hover {
+                color: #24292e;
+            }
+            &.active {
+                color: #fff;
+                background: #24292e;
+            }
+        }
+    }
+
+    .m-horse-list {
+        .mt(40px);
+        .u-type {
+            .flex;
+            .mb(20px);
+            justify-content: space-between;
+            align-items: flex-end;
+            &.reading {
+                .mb(0);
+            }
+            .u-all {
+                cursor: pointer;
+                color: #a5a5a5;
+                .fz(16px,21px);
+            }
+            span {
+                .fz(14px);
+                color: #777;
+                letter-spacing: 2px;
+                b {
+                    .bold;
+                    letter-spacing: 0;
+                }
+            }
+        }
+        .u-title {
+            .fz(28px,42px);
+            .bold(700);
+            color: #24292e;
+        }
+        .list {
+            margin: 10px 0 0 -10px;
+            padding: 10px;
+        }
+    }
+    .m-horse-list--card,
+    .m-horse-list--list {
+        .w(100%);
+        .flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .m-horse-list--list {
+        .flex;
+        flex-direction: column;
+        .m-book-card {
+            box-sizing: border-box;
+            .w(100%);
+        }
+    }
+    .m-archive-more {
+        .mt(40px);
+        .w(100%);
+        background-color: #fff;
+        &:hover {
+            color: #0366d6;
+            border-color: #b3d1f3;
+            background-color: #e6f0fb;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .horse-home-wrapper {
+        .m-common-card {
+            .u-tab:first-child {
+                .w(100%);
+            }
+        }
+        .m-list-wrapper {
+            .m-common-list--v2 {
+                .same-item {
+                    flex-shrink: 0;
+                }
+                .m-common-list {
+                    overflow-x: auto;
+                }
+            }
+        }
+        .m-horse-list--card {
+            .m-horse-card {
+                .w(100%);
+                .u-image {
+                    .flex;
+                    align-items: center;
+                    justify-content: center;
+                    .el-image__inner {
+                        .w(auto);
+                    }
+                }
+            }
+            .same-item {
+                .w(100%);
+            }
+        }
+    }
+}
+
+
+.m-horse-tabs {
+    .u-filter {
+        &:hover {
+            background-color: @petColor;
+        }
+    }
+
+}

@@ -1,0 +1,180 @@
+.m-horse-broadcast {
+    .mt(40px);
+    .m-horse-broadcast__header {
+        .flex;
+        .mb(0) !important;
+        align-items: flex-end;
+        gap: 20px;
+        .u-title {
+            font-weight: 700;
+            font-size: 28px;
+            height: 42px;
+            line-height: 42px;
+            color: #24292e;
+        }
+        .el-select {
+            width: 100px;
+            height: 40px;
+            border-radius: 30px;
+            input {
+                padding-right: 10px;
+                padding-left: 10px;
+                border: none;
+                width: 100px;
+                height: 40px;
+                border-radius: 30px;
+                text-align: center;
+                font-weight: 700;
+                font-size: 16px;
+                color: #24292e;
+            }
+            .el-input__suffix {
+                display: none;
+            }
+        }
+    }
+    .m-horse-broadcast__list {
+        .flex;
+        .mt(20px);
+        gap: 40px;
+        height: 192px;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        .r(10px);
+        .u-horse-map {
+            .size(306px,192px);
+            .r(10px);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .m-list {
+            .flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            width: 100%;
+            gap: 3px;
+            column-gap: 40px;
+            .m-item {
+                .pr;
+                width: calc(50% - 20px);
+                &:nth-child(4n-3)::after {
+                    content: "";
+                    .pa;
+                    left: -20px;
+                    top: 150%;
+                    width: 2px;
+                    height: 56px;
+                    background-color: #d6d6d6;
+                }
+            }
+            .m-horse {
+                .flex;
+                .pointer;
+                .r(10px);
+                // .mr(40px);
+                .bold;
+                .fz(14px);
+                .size(auto,43px);
+                background-color: #f5f5f5;
+                align-items: center;
+                padding: 0 10px;
+                gap: 5px;
+                color: #000;
+                border: 1px solid #f5f5f5;
+                &.no-horse {
+                    justify-content: center;
+                }
+                &.active {
+                    border: 1px solid #e86f00;
+                    background: rgba(232, 111, 0, 0.1);
+                }
+
+                .u-col {
+                    .flex;
+                    gap: 2px;
+                    width: 32%;
+                    flex-shrink: 0;
+                    justify-content: flex-end;
+                    &.u-times {
+                        justify-content: flex-start;
+                    }
+                }
+                .u-name {
+                    .x;
+                }
+                .u-horse {
+                    .item {
+                        background-color: #000;
+                        .size(25px);
+                        .r(5px);
+                        .pointer;
+                    }
+                }
+                &.is-chitu,
+                &.is-dilu {
+                    .u-times {
+                        .flex;
+                        flex-direction: column;
+                        font-size: 12px;
+                        color: #999;
+                    }
+                }
+            }
+        }
+    }
+    .w-no-data {
+        .r(10px);
+        .flex;
+        .bold;
+        .mt(20px);
+        justify-content: center;
+        align-items: center;
+        min-height: 232px;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    }
+}
+
+@media screen and(max-width: @ipad) {
+    .m-horse-broadcast .m-horse-broadcast__list {
+        padding: 10px;
+        height: auto;
+        flex-direction: column;
+        gap: 0;
+        .u-horse-map {
+            .w(100%);
+        }
+        .m-list {
+            .m-item {
+                width: 100%;
+            }
+            .m-horse {
+                .w(100%);
+                box-sizing: border-box;
+                padding: 10px;
+                flex-wrap: wrap;
+                height: auto;
+                gap: 20px;
+                .w(100%);
+                .fz(12px);
+                .u-col {
+                    .w(45%);
+                }
+                .u-col:last-child {
+                    width: 100%;
+                }
+            }
+            .m-item:nth-child(4n-3) {
+                .mt(40px);
+                &::after {
+                    content: "";
+                    .pa;
+                    .ml(-28px);
+                    left: 50%;
+                    top: -20px;
+                    height: 2px;
+                    width: 56px;
+                }
+            }
+        }
+    }
+}
