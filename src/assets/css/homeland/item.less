@@ -1,0 +1,134 @@
+.m-furniture-item {
+	.size(380px,200px);
+	.r(8px);
+	.pointer;
+	.color(@color);
+	border: 1px solid #ddd;
+}
+
+.m-furniture-image {
+	.size(175px);
+	.pr;
+	.ml(10px);
+	.r(5px);
+	.flex;
+	align-items: center;
+	justify-content: center;
+	background: #2b3d3d;
+	.u-use,
+	.u-dye {
+		.pa;
+		.rb(6px,10px);
+		.r(2px);
+		.size(26px,26px);
+		.z(1);
+		background: url("@{game_icons}homeland/interact.png") rgba(255, 255, 255, 0.5) center center no-repeat;
+		box-shadow: 0 0 3px #999;
+	}
+	.u-use + .u-dye {
+		.rb(6px,46px);
+	}
+	.u-dye {
+		.rb(6px,10px);
+		background: url("@{game_icons}homeland/dye.png") rgba(255, 255, 255, 0.5) center center no-repeat;
+	}
+
+	.u-img {
+		.r(5px);
+		max-width: 100%;
+		max-height: 100%;
+	}
+}
+
+.m-furniture-item {
+	transition: all 0.1 ease-in-out;
+	.m-furniture-image img{
+		transition: 0.2s ease;
+	}
+	&:hover {
+		.m-furniture-image{
+			overflow: hidden;
+			img{
+				transform: scale(1.2);
+			}
+		}
+		background-color:#f2f6fb;
+		box-shadow:0 0 8px rgba(0,0,0,.1);
+		border-color:#bdd2e9;
+	}
+}
+
+.m-furniture-detail {
+	.ml(15px);
+	.size(160px,100%);
+	box-sizing: border-box;
+	padding: 20px 10px 20px 0;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+
+	.u-name {
+		.w(100%);
+		.bold;
+		.clip;
+		.nobreak;
+		.mb(10px);
+		box-sizing: border-box;
+		font-size: 14px;
+		letter-spacing: 0.5px;
+		// font-family: "KaiTi", "Microsoft YaHei";
+		&.quality_2 {
+			color: #00d24b;
+		}
+		&.quality_3 {
+			color: #007eff;
+		}
+		&.quality_4 {
+			color: #ff2dff;
+		}
+		&.quality_5 {
+			color: #ffa500;
+		}
+	}
+
+	.u-num{
+		// .bold;
+		// color:#777;
+		font-family: 'Consolas';
+	}
+
+	.u-nature {
+		font-size: 12px;
+		.lh(22px);
+		.mb(4px);
+		display: flex;
+		align-items: center;
+	}
+
+	.u-attribute {
+		.r(3px);
+		.mr(5px);
+		color: #fff;
+		padding: 0 5px;
+	}
+
+	.u-blue {
+		background: #81b0cc;
+	}
+
+	.u-pink {
+		background: #cc819c;
+	}
+
+	.u-yellow {
+		background: #cca981;
+	}
+
+	.u-green {
+		background: #81ccb2;
+	}
+
+	.u-purple {
+		background: #b381cc;
+	}
+}

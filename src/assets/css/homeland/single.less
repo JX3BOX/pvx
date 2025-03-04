@@ -1,0 +1,283 @@
+@blue: #81b0cc;
+@pink: #cc819c;
+@yellow: #cca981;
+@green: #81ccb2;
+@purple: #b381cc;
+
+@quality2: #00d24b;
+@quality3: #007eff;
+@quality4: #ff2dff;
+@quality5: #ffa500;
+
+.v-homeland-furniture {
+    .pr;
+}
+
+.m-navigation {
+    display: flex;
+    .pr;
+    .mb(20px);
+    .u-input {
+        .ml(20px);
+        // .w(360px);
+        flex:1;
+    }
+    .u-links {
+        .pa;
+        .rt(0);
+
+        .u-link {
+            .fz(14px);
+
+            i {
+                .mr(2px);
+                .y;
+            }
+
+            .underline(@color-link);
+
+            .ml(10px);
+        }
+
+        em {
+            margin: 0 5px;
+        }
+    }
+}
+
+.m-info-box {
+    .mb(20px);
+    .flex;
+    .u-img {
+        .pr;
+        .w(240px);
+        .mr(20px);
+        .r(3px);
+        .flex;
+        .pointer;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        background: #2b3d3d;
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            transition: 0.2s ease;
+        }
+        &:hover img {
+            transform: scale(1.2);
+        }
+    }
+    .u-info {
+        .pr;
+        .size(100%,240px);
+        background-color: #f5f7fa;
+        padding: 10px 20px;
+        .u-info-title {
+            .flex;
+            align-items: center;
+            .bold;
+            .fz(22px,2);
+            font-family: "KaiTi", "Microsoft YaHei";
+
+            &.quality_2 {
+                color: @quality2;
+            }
+            &.quality_3 {
+                color: @quality3;
+            }
+            &.quality_4 {
+                color: @quality4;
+            }
+            &.quality_5 {
+                color: @quality5;
+            }
+        }
+        .u-interact {
+            .dbi;
+            .r(2px);
+            .size(26px,26px);
+            .ml(5px);
+            background: url("@{game_icons}homeland/interact.png") rgba(255, 255, 255, 0.5) center center no-repeat;
+        }
+        .u-attrs {
+            border-bottom: 1px dashed #ddd;
+            .pb(10px);
+        }
+        .u-attr {
+            .mr(20px);
+            .fz(14px);
+            .mt(10px);
+            .u-label {
+                color: #fff;
+                padding: 0 5px;
+                .r(3px);
+                .mr(5px);
+            }
+            .blue {
+                background: #81b0cc;
+            }
+
+            .pink {
+                background: #cc819c;
+            }
+
+            .yellow {
+                background: #cca981;
+            }
+
+            .green {
+                background: #81ccb2;
+            }
+
+            .purple {
+                background: #b381cc;
+            }
+
+            font-family: "Consolas";
+        }
+        .u-metas {
+            .pt(10px);
+            .pb(10px);
+        }
+        .u-meta {
+            .db;
+            .fz(13px,2);
+        }
+        .u-meta-scale {
+            b::after {
+                content: "~";
+            }
+            b:last-child::after {
+                content: "";
+            }
+        }
+        .u-meta-dyes {
+            .flex;
+        }
+        .u-dye {
+            .size(20px);
+            .r(50%);
+            .dbi;
+            .mr(8px);
+            border: 2px solid #ddd;
+        }
+        .u-relation {
+            .flex;
+            flex-direction: column;
+            .u-line {
+                .lh(28px);
+                .pointer;
+                .color(#666,#0366d6);
+                i {
+                    .mr(10px);
+                }
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+        .m-buttons {
+            .pa;
+            .rt(10px,10px);
+            .u-plansBox {
+                .mr(10px);
+            }
+        }
+
+        .u-label {
+            .mr(5px);
+            color: #8a6d3b;
+        }
+        .u-blue {
+            color: @blue;
+        }
+        .u-pink {
+            color: @pink;
+        }
+        .u-yellow {
+            color: @yellow;
+        }
+        .u-green {
+            color: @green;
+        }
+        .u-purple {
+            color: @purple;
+        }
+    }
+}
+.m-extend {
+    .mb(15px);
+    .pb(20px);
+    .r(5px);
+    .fz(14px);
+    background-color: #fafbfc;
+    border: 1px solid #eeeeee;
+
+    .m-extend-header {
+        .flex;
+        .lh(28px);
+        padding: 10px 15px;
+        background-color: #f5f7fa;
+        border-bottom: 1px solid #eeeeee;
+        .u-icon {
+            .size(28px);
+            .fz(22px);
+            .mr(7px);
+            color: #0366d6;
+            fill: #0366d6;
+        }
+        span {
+            .fz(17px);
+            color: #6c645c;
+            font-weight: 300;
+        }
+        .mb(10px);
+    }
+
+    .u-title {
+        .bold;
+        .mb(10px);
+        i {
+            .mr(5px);
+        }
+    }
+
+    .m-extend-content {
+        padding: 10px 20px;
+    }
+    .m-extend-desc {
+        .u-txt {
+            .fz(14px,24px);
+            .color(#fda522);
+        }
+    }
+    .m-extend-relation {
+        .u-title {
+            .flex;
+            align-items: center;
+        }
+        .u-star {
+            .ml(10px);
+        }
+    }
+}
+
+.m-furniture-wiki {
+    .mt(20px);
+}
+
+@media screen and (max-width: @phone) {
+    .m-info-box {
+        .db;
+        .u-img {
+            .w(auto);
+            .mr(0);
+            .mb(10px);
+        }
+        .u-info {
+            box-sizing: border-box;
+        }
+    }
+}

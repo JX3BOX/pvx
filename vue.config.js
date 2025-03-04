@@ -8,6 +8,12 @@ module.exports = {
     productionSourceMap: false,
     //❤️ Multiple pages ~
     pages: {
+        index: {
+            title: "休闲栏目 - JX3BOX",
+            entry: "src/pages/index/index.js",
+            template: "public/index.html",
+            filename: "index.html",
+        },
         adventure: {
             title: "奇遇大全 - JX3BOX",
             entry: "src/pages/adventure/index.js",
@@ -67,6 +73,12 @@ module.exports = {
             entry: "src/pages/horse/index.js",
             template: "public/index.html",
             filename: "horse/index.html",
+        },
+        homeland: {
+            title: "家园蓝图 - JX3BOX",
+            entry: "src/pages/homeland/index.js",
+            template: "public/index.html",
+            filename: "homeland/index.html",
         }
     },
 
