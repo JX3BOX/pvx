@@ -1,0 +1,103 @@
+.m-furniture-item {
+    padding: 10px;
+    width: 348px;
+    height: 140px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-sizing: border-box;
+    .flex;
+    gap: 10px;
+    cursor: pointer;
+    .u-image {
+        flex: none;
+        position: relative;
+        background-image: url("../../../assets/img/horse_item_bg_sm.jpg");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        border-radius: 10px;
+        width: 120px;
+        height: 120px;
+        .u-icon {
+            width: 100%;
+            height: 100%;
+            transition: all 0.2s;
+        }
+        .u-use,
+        .u-dye {
+            .pa;
+            .rb(6px,6px);
+            .r(50%);
+            .size(20px,20px);
+            .z(1);
+            background: url("@{game_icons}homeland/interact.png") rgba(255, 255, 255, 0.5) center center no-repeat;
+            box-shadow: 0 0 3px #999;
+        }
+        .u-use + .u-dye {
+            .rb(6px,30px);
+        }
+        .u-dye {
+            .rb(6px,6px);
+            background: url("@{game_icons}homeland/dye.png") rgba(255, 255, 255, 0.5) center center no-repeat;
+        }
+    }
+    .m-furniture-detail {
+        .u-name {
+            .flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 26px;
+            color: #000000;
+            .nobreak;
+        }
+        .m-attribute {
+            .flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .u-nature {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .u-attribute {
+            .dbi;
+            color: #fff;
+            .r(3px);
+            padding: 2px 4px;
+            width: 32px;
+            height: 20px;
+            line-height: 16px;
+            box-sizing: border-box;
+        }
+
+        .u-blue {
+            background: #81b0cc;
+        }
+
+        .u-pink {
+            background: #cc819c;
+        }
+
+        .u-yellow {
+            background: #cca981;
+        }
+
+        .u-green {
+            background: #81ccb2;
+        }
+
+        .u-purple {
+            background: #b381cc;
+        }
+    }
+    &:hover {
+        .u-icon {
+            transform: scale(1.2);
+        }
+    }
+}

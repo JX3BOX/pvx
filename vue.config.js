@@ -55,7 +55,13 @@ module.exports = {
             entry: "src/pages/pet/index.js",
             template: "public/index.html",
             filename: "pet/index.html",
-        }
+        },
+        furniture: {
+            title: "家具大全 - JX3BOX",
+            entry: "src/pages/furniture/index.js",
+            template: "public/index.html",
+            filename: "furniture/index.html",
+        },
     },
 
     //❤️ Proxy ~

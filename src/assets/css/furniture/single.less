@@ -1,0 +1,286 @@
+@import "~@/assets/css/common/back.less";
+
+.p-furniture-single {
+    .cross-wrapper {
+        .cross {
+            &.active {
+                background-color: @furnitureColor;
+            }
+        }
+    }
+    .m-furniture-comment {
+        margin-top: 40px;
+        .u-title {
+            font-weight: 700;
+            font-size: 28px;
+            line-height: 37px;
+            color: #24292e;
+        }
+        .u-desc {
+            margin-top: 4px;
+            margin-bottom: 20px;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 18px;
+            color: #24292e;
+        }
+    }
+}
+.m-furniture-content {
+    .mt(40px);
+    .mb(20px);
+    .flex;
+    gap: 20px;
+    .u-img {
+        box-shadow: 0px 0px 10px 0px #0000001A;
+        .pr;
+        .size(240px, 240px);
+        .r(10px);
+        box-sizing: border-box;
+        background: #ffffff;
+        padding: 10px;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        .u-img-wrap {
+            background-image: url("../../../assets/img/horse_item_bg_sm.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            width: 100%;
+            height: 100%;
+            .flex;
+            align-items: center;
+            justify-content: center;
+            .r(10px);
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            transition: 0.2s ease;
+        }
+        &:hover img {
+            transform: scale(1.2);
+        }
+    }
+    .u-info {
+        box-shadow: 0px 0px 10px 0px #0000001A;
+        .pr;
+        .size(100%,240px);
+        background-color: #fff;
+        padding: 20px;
+        box-sizing: border-box;
+        .r(10px);
+        .u-info-title {
+            font-weight: 700;
+            font-size: 28px;
+            line-height: 37px;
+        }
+        .u-interact {
+            .dbi;
+            .r(2px);
+            .size(26px,26px);
+            .ml(5px);
+            background: url("@{game_icons}homeland/interact.png") rgba(255, 255, 255, 0.5) center center no-repeat;
+        }
+        .u-attrs {
+            .flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            .pt(10px);
+            .pb(20px);
+        }
+        .u-attr {
+            box-sizing: border-box;
+            .fz(12px);
+            color: #000;
+            .u-label {
+                .dbi;
+                color: #fff;
+                padding: 2px 4px;
+                .r(2px);
+                .mr(4px);
+                .size(32px, 20px);
+                text-align: center;
+                line-height: 20px;
+            }
+            .blue {
+                background: #81b0cc;
+            }
+
+            .pink {
+                background: #cc819c;
+            }
+
+            .yellow {
+                background: #cca981;
+            }
+
+            .green {
+                background: #81ccb2;
+            }
+
+            .purple {
+                background: #b381cc;
+            }
+        }
+        .u-meta {
+            .db;
+            margin-bottom: 10px;
+            font-size: 14px;
+            .flex;
+            align-items: center;
+            .u-label {
+                font-weight: 700;
+                line-height: 18px;
+                color: #000;
+            }
+            svg {
+                width: 12px;
+                height: 12px;
+                margin-right: 6px;
+            }
+            &:first-of-type {
+                svg {
+                    margin-left: -2px;
+                    margin-top: -2px;
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 2px;
+                }
+            }
+        }
+        .u-meta-scale {
+            b::after {
+                content: "~";
+            }
+            b:last-child::after {
+                content: "";
+            }
+        }
+        .u-meta-dyes {
+            .flex;
+        }
+        .u-dye {
+            .size(20px);
+            .r(50%);
+            .dbi;
+            .mr(8px);
+            border: 2px solid #ddd;
+        }
+        .u-relation {
+            .flex;
+            flex-direction: column;
+            .u-line {
+                .lh(28px);
+                .pointer;
+                .color(#666,#0366d6);
+                i {
+                    .mr(10px);
+                }
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+        .m-buttons {
+            .pa;
+            .rt(10px,10px);
+            .flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            a {
+                font-size: 12px;
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+            .u-plansBox {
+                .mr(10px);
+            }
+        }
+
+        .u-label {
+            .mr(5px);
+            color: #8a6d3b;
+        }
+    }
+
+}
+
+@media screen and (max-width: @phone) {
+    .m-furniture-content {
+        padding-top: 0px;
+        flex-wrap: wrap;
+        .u-info {
+            order: 1;
+            padding-bottom: 40px;
+            box-sizing: content-box;
+            .m-buttons {
+                position: unset;
+            }
+        }
+        .u-img {
+            order: 0;
+            margin-right: 0;
+            width: 100%;
+            height: unset;
+            .flex;
+            justify-content: center;
+        }
+    }
+    .m-extend{
+        .u-furniture-list{
+            flex-wrap: nowrap !important;
+            width: 100%;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    }
+    .back-wrap {
+        width: 100%;
+    }
+}
+
+.m-extend {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    .u-furniture-list {
+        .flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .u-title {
+        font-weight: 700;
+        font-size: 28px;
+        line-height: 37px;
+        color: #24292e;
+    }
+
+    .u-desc {
+        margin-bottom: 20px;
+        .u-txt {
+            margin-top: 4px;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 18px;
+            color: #24292e;
+        }
+    }
+    .m-extend-relation {
+        .u-title {
+            .flex;
+            align-items: center;
+        }
+        .u-star {
+            .ml(10px);
+        }
+    }
+}
+
+.m-furniture-wiki {
+    .mt(20px);
+}
