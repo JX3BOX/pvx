@@ -16,7 +16,6 @@ import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
 export default {
     name: "App",
-    name: "Reputation",
     data: () => ({
         navStatusClass: "is-regular",
     }),
