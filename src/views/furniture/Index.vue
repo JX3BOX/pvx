@@ -517,6 +517,7 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/furniture/index.less";
+@import "~@/assets/css/miniprogram.less";
 .pvx-search-wrapper .search-group .search-item.filter-wrap {
     margin: 0;
 }

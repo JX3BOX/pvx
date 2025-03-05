@@ -39,4 +39,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/horse/horse.less";
+@import "~@/assets/css/miniprogram.less";
 </style>
