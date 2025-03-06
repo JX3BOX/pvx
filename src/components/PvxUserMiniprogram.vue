@@ -61,7 +61,7 @@
             <span>暂无攻略，我要</span>
             <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
         </div>
-        <Thx
+        <!-- <Thx
             class="m-thx"
             :postId="id"
             :postType="type"
@@ -73,7 +73,7 @@
             mode="wiki"
             :key="type + '-thx-' + id"
             :client="client"
-        />
+        /> -->
         <!-- 百科评论 -->
         <WikiComments v-if="!isFromSeasun" :type="type" :source-id="String(id)" />
     </div>
@@ -256,6 +256,8 @@ export default {
     @brand2: #24292e;
     @brand3: #fedaa3;
     @brand4: #282828;
+    @black-40: rgba(28, 28, 28, 0.4);
+    @black-40-dark: rgba(255, 255, 255, 0.4);
 
     // 注意：背景色只改变量在小程序上不生效
     @color-light: #1c1c1c;
@@ -353,6 +355,10 @@ export default {
         bottom: 0 !important;
     }
 
+    .m-adventure-navigation {
+        display: none;
+    }
+
     .w-pvx-user__miniprogram {
         .c-wiki-panel {
             background-color: @color-dark;
@@ -369,6 +375,7 @@ export default {
             .r(10px);
         }
         .m-panel-title {
+            padding: 0;
             .u-txt,
             span {
                 color: @brand2 !important;
@@ -382,7 +389,21 @@ export default {
             }
         }
         .m-panel-body {
-            padding: 0 15px 15px;
+            padding: 0 16px 16px;
+            .m-wiki-metas {
+                .u-creator {
+                    &:not(:last-child) {
+                        margin-right: -8px;
+                    }
+                }
+                .u-meta {
+                    margin-top: 4px;
+                    margin-bottom: 4px;
+                    &:nth-of-type(2) {
+                        display: none;
+                    }
+                }
+            }
             .u-label {
                 .none;
             }
@@ -399,9 +420,11 @@ export default {
             color: @brand2;
         }
         .m-wiki-signature {
-            margin-top: 10px;
+            margin-top: 16px;
+            padding-top: 20px;
             text-align: center;
             border: none;
+            color: @black-40;
         }
         .w-thx-copyright {
             background-color: @color-dark !important;
@@ -421,12 +444,8 @@ export default {
             .m-panel-title {
                 .u-txt,
                 span {
-                    color: @color-dark !important;
+                    color: @brand3 !important;
                 }
-            }
-            .u-nickname,
-            .u-content {
-                color: rgba(@color-dark, 0.8) !important;
             }
             .m-panel-head {
                 background-color: @brand2 !important;
@@ -441,6 +460,9 @@ export default {
             }
             .c-article-tinymce {
                 color: rgba(@color-dark, 0.8);
+            }
+            .m-wiki-signature {
+                color: #ffffff;
             }
         }
 
@@ -473,6 +495,38 @@ export default {
             a {
                 .underline(@color-link);
             }
+        }
+    }
+    &.dark {
+        .c-wiki-panel {
+            background-color: @brand2 !important;
+        }
+        .w-thx-copyright {
+            background-color: @bg-dark !important;
+        }
+
+        .m-panel-title {
+            .u-txt,
+            span {
+                color: @brand3 !important;
+            }
+        }
+        .m-panel-head {
+            background-color: @brand2 !important;
+        }
+        .m-panel-body {
+            .u-value {
+                color: rgba(@color-dark, 0.4);
+            }
+        }
+        .u-time {
+            color: rgba(@color-dark, 0.4) !important;
+        }
+        .c-article-tinymce {
+            color: rgba(@color-dark, 0.8);
+        }
+        .m-wiki-signature {
+            color: #ffffff;
         }
     }
 }

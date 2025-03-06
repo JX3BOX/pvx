@@ -107,7 +107,8 @@
         display: none;
     }
 }
-@Brand-2: #fedaa3;
+@Brand-2: #24292e;
+@Brand-2-dark: #fedaa3;
 @black-40: rgba(28, 28, 28, 0.4);
 @black-80: rgba(28, 28, 28, 0.8);
 @black-100: #1c1c1c;
@@ -201,7 +202,10 @@
                                 bottom: 10px;
                             }
                             .u-name {
-                                margin-top: 8px;
+                                position: absolute;
+                                bottom: -8px;
+                                transform: translateY(100%);
+                                left: 0;
                                 line-height: 20px;
                                 font-size: 14px;
                                 color: @Brand-2;
@@ -214,6 +218,10 @@
                     }
                 }
             }
+        }
+        .m-archive-more,
+        .m-archive-pages {
+            width: calc(100% - 20px);
         }
     }
     .m-face-list--all {
@@ -284,6 +292,9 @@
                         .m-adventure-item {
                             background-color: @brand4;
                             border-color: transparent;
+                            .u-name {
+                                color: @Brand-2-dark;
+                            }
                         }
                     }
                 }
