@@ -9,12 +9,15 @@ const faceData = () => import("@/views/face/Parse.vue");
 
 const faceListMobile = () => import("@/views/face/mobile/List.vue");
 const faceListSingle = () => import("@/views/face/mobile/Single.vue");
+
+const FaceDataMobile = () => import("@/views/face/mobile/FaceData.vue");
 const routes = [
     { name: "list", path: "/", component: faceList },
     { name: "single", path: "/:id(\\d+)", component: faceSingle },
     { name: "facedata", path: "/facedata", component: faceData },
     { name: "listMobile", path: "/listMobile", component: faceListMobile },
     { name: "singleMobile", path: "/singleMobile/:id(\\d+)", component: faceListSingle },
+    { name: "faceDataMobile", path: "/FaceDataMobile", component: FaceDataMobile },
 ];
 
 const router = new VueRouter({

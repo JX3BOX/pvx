@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-28 22:42:21
+ * @LastEditTime: 2025-03-03 21:59:43
  * @Description: 小程序捏脸详情
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -52,7 +52,7 @@
             <div class="u-number">{{ post.code }}</div>
         </div>
         <!-- 捏脸数据 -->
-        <div class="m-face-data" v-else>
+        <div class="m-face-data" v-else @click="goToFaceDataMobile()">
             <div class="u-text">捏脸数据</div>
             <img src="@/assets/img/face/mobile/CaretLeft.svg" class="u-img" />
             <img src="@/assets/img/face/mobile/CaretLeft-dark.svg" class="u-img-dark" />
@@ -196,6 +196,13 @@ export default {
                     message: "内容：" + this.post.code,
                     type: "success",
                 });
+            });
+        },
+        goToFaceDataMobile() {
+            //session缓存捏脸数据
+            sessionStorage.setItem("faceData", JSON.stringify(this.faceAllData));
+            this.$router.push({
+                name: `faceDataMobile`,
             });
         },
     },

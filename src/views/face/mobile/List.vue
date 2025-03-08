@@ -194,7 +194,7 @@ export default {
     @fontColor-dark: #fff;
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
-    padding: 12px 20px;
+    padding: 0 20px 12px 20px;
     .m-face-list_mobile__tabs {
         position: sticky;
         top: 0;
@@ -204,6 +204,7 @@ export default {
         align-items: center;
         height: 32px;
         background-color: #fff;
+        padding: 12px 0 20px 0;
         .u-tab_item {
             color: @fontcolor3;
             .fz(18px,28px);
@@ -216,7 +217,7 @@ export default {
         }
     }
     .u-card-title {
-        margin: 20px 0 12px 0;
+        .mb(12px);
         color: @fontcolor;
         .fz(18px,28px);
         .bold(700);
