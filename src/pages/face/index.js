@@ -20,7 +20,7 @@ import store from "./store";
 import { isPhone } from "@/utils/index";
 import App from "@/views/face/Face.vue";
 import AppMobile from "@/views/face/mobile/Index.vue";
-console.log("isPhone", isPhone());
+
 new Vue({
     router,
     store,

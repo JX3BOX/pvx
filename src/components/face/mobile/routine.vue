@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-08 23:37:36
+ * @LastEditTime: 2025-03-09 00:54:01
  * @Description: 小程序适配捏脸常规模组
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -168,14 +168,14 @@ export default {
             color: @nameColor;
             .fz(12px,18px);
         }
-        @media screen and (width: 390px) {
-            .u-item_name {
-                color: @titleColor-dark;
-            }
-            .u-item_author {
-                color: @nameColor-dark;
-            }
-        }
+        // @media screen and (width: 390px) {
+        //     .u-item_name {
+        //         color: @titleColor-dark;
+        //     }
+        //     .u-item_author {
+        //         color: @nameColor-dark;
+        //     }
+        // }
         @media (prefers-color-scheme: dark) {
             .u-item_name {
                 color: @titleColor-dark;

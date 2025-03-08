@@ -101,9 +101,9 @@ export default {
             .z(2);
             .lb(0,4px);
             padding: 0 6px;
-            @media screen and (width: 390px) {
-                color: @titleColor-dark;
-            }
+            // @media screen and (width: 390px) {
+            //     color: @titleColor-dark;
+            // }
             @media (prefers-color-scheme: dark) {
                 color: @titleColor-dark;
             }

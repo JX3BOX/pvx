@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 22:25:34
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-21 00:00:08
+ * @LastEditTime: 2025-03-09 00:10:05
  * @Description: 小程序适配体型常规模组
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -98,9 +98,9 @@ export default {
             .z(2);
             .lb(0,4px);
             padding: 0 6px;
-            @media screen and (width: 390px) {
-                color: @titleColor-dark;
-            }
+            // @media screen and (width: 390px) {
+            //     color: @titleColor-dark;
+            // }
             @media (prefers-color-scheme: dark) {
                 color: @titleColor-dark;
             }

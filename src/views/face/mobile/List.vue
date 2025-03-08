@@ -224,7 +224,8 @@ export default {
         .fz(18px,28px);
         .bold(700);
     }
-    @media screen and (width: 390px) {
+    // @media screen and (width: 390px)
+    @media (prefers-color-scheme: dark) {
         background-color: #000;
         .m-face-list_mobile__tabs {
             background-color: #000;
@@ -239,8 +240,6 @@ export default {
         .u-card-title {
             color: @fontColor-dark;
         }
-    }
-    @media (prefers-color-scheme: dark) {
     }
 }
 </style>

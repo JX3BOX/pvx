@@ -354,7 +354,8 @@ export default {
         color: #fba524;
     }
 }
-@media screen and (width: 390px) {
+// @media screen and (width: 390px)
+@media (prefers-color-scheme: dark) {
     .c-facedat {
         background-color: #000;
         .m-face-list_mobile__tabs {
@@ -403,7 +404,5 @@ export default {
             color: @fontColor-dark2;
         }
     }
-}
-@media (prefers-color-scheme: dark) {
 }
 </style>
