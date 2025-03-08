@@ -27,7 +27,7 @@ const router = new VueRouter({
 });
 router.beforeEach((to, from, next) => {
     if (to.name === "list" && isPhone()) {
-        next({ name: "listMobile" });
+        next({ name: "listMobile", replace: true });
     } else {
         next();
     }

@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-28 22:47:18
+ * @LastEditTime: 2025-03-08 23:36:03
  * @Description: 小程序适配捏脸常规模组
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -114,8 +114,8 @@ export default {
     }
     &.p-face-routine_one {
         flex-wrap: wrap;
-        height: calc(100vh - 66px);
-        .mt(10px);
+        height: calc(100vh - 76px);
+        // .mt(10px);
     }
     .u-item {
         .u-item_img {

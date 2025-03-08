@@ -52,6 +52,7 @@ import faceFind from "@/components/face/mobile/faceFind_v2.vue";
 import { cloneDeep, omit, concat, debounce } from "lodash";
 import { getFaceList, getSliders } from "@/service/face";
 export default {
+    name: "listMobile",
     components: { routine, habitus },
     data() {
         return {
@@ -195,6 +196,7 @@ export default {
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
     padding: 0 20px 12px 20px;
+    box-sizing: border-box;
     .m-face-list_mobile__tabs {
         position: sticky;
         top: 0;

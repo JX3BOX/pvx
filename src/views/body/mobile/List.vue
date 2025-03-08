@@ -188,6 +188,7 @@ export default {
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
     padding: 0 20px 12px 20px;
+    box-sizing: border-box;
     .m-body-list_mobile__tabs {
         position: sticky;
         top: 0;
