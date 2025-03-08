@@ -7,7 +7,7 @@
                 :class="active === item.value && 'active'"
                 v-for="item in tabs"
                 :key="item.value"
-                @click="active = item.value"
+                @click="onTabClick(item.value)"
                 >{{ item.label }}
             </a>
             <a href="https://gdca.xoyo.com/jx3/blueprint/index.html" class="u-tab" target="_blank">免费蓝图</a>
@@ -69,6 +69,13 @@ export default {
                 type: "warning",
                 message: "即将上线，敬请期待！",
             });
+        },
+        onTabClick(val) {
+            if (val == 3) {
+                window.open("/community?category=心得&page=1", "_self");
+                return;
+            }
+            this.active = val;
         },
     },
 };

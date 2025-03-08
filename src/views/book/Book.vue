@@ -60,4 +60,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/book/book.less";
+@import "~@/assets/css/miniprogram.less";
 </style>
