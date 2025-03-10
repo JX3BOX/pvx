@@ -17,12 +17,11 @@ reporter.install(Vue);
 // 数据与路由
 import router from "./router";
 import store from "./store";
-import { isPhone } from "@/utils/index";
+
 import App from "@/views/face/Face.vue";
-import AppMobile from "@/views/face/mobile/Index.vue";
 
 new Vue({
     router,
     store,
-    render: (h) => h(!isPhone() ? App : AppMobile),
+    render: (h) => h(App),
 }).$mount("#app");

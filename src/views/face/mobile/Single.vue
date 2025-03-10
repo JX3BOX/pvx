@@ -2,7 +2,7 @@
  * @Author: zhusha 
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-03 21:59:43
+ * @LastEditTime: 2025-03-09 00:59:01
  * @Description: 小程序捏脸详情
  * 
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
@@ -453,7 +453,8 @@ export default {
         }
     }
     // dark模式利用宽度模拟覆盖
-    @media screen and (width: 390px) {
+    // @media screen and (width: 390px)
+    @media (prefers-color-scheme: dark) {
         background-color: #000;
         .m-face-detail_top {
             .u-img_item {
@@ -529,9 +530,6 @@ export default {
                 color: @fontColor-dark2;
             }
         }
-    }
-    @media (prefers-color-scheme: dark) {
-        // dark模式覆盖
     }
 }
 </style>

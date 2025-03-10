@@ -1,13 +1,8 @@
 <template>
     <div class="m-body-list_mobile">
         <div class="m-body-list_mobile__tabs">
-            <div
-                class="u-tab_item"
-                v-for="(item, index) in tabsData"
-                :key="index"
-                :class="{ 'is-active': active == item.value }"
-                @click="setActive(item.value)"
-            >
+            <div class="u-tab_item" v-for="(item, index) in tabsData" :key="index"
+                :class="{ 'is-active': active == item.value }" @click="setActive(item.value)">
                 {{ item.label }}
                 <div class="u-tab_item__line"></div>
             </div>
@@ -32,15 +27,8 @@
         <div class="u-content" v-else>
             <!-- <div class="u-card-title">{{ activeName }}</div> -->
             <div class="u-list" id="oneList">
-                <routine
-                    gap="12px"
-                    :size="104"
-                    :isOne="true"
-                    :list="list"
-                    :total="total"
-                    v-if="listShow"
-                    @getMore="getMore"
-                ></routine>
+                <routine gap="12px" :size="104" :isOne="true" :list="list" :total="total" v-if="listShow"
+                    @getMore="getMore"></routine>
             </div>
         </div>
     </div>
@@ -49,8 +37,8 @@
 <script>
 import routine from "@/components/body/mobile/routine.vue";
 import habitus from "@/components/body/mobile/habitus.vue";
-import { cloneDeep, omit, concat, debounce } from "lodash";
-import { getBodyList, getSliders } from "@/service/body";
+import { concat } from "lodash";
+import { getBodyList } from "@/service/body";
 export default {
     components: { routine, habitus },
     data() {
@@ -189,6 +177,7 @@ export default {
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
     padding: 0 20px 12px 20px;
     box-sizing: border-box;
+
     .m-body-list_mobile__tabs {
         position: sticky;
         top: 0;
@@ -199,13 +188,15 @@ export default {
         height: 32px;
         background-color: #fff;
         padding: 12px 0 20px 0;
+
         .u-tab_item {
             color: @fontcolor3;
-            .fz(18px,28px);
+            .fz(18px, 28px);
             .bold(700);
 
             &.is-active {
                 color: @fontcolor;
+
                 // border-bottom: 2px solid @fontcolor;
                 // border-bottom-left-radius: 2px; /* 底部左侧圆角 */
                 // border-bottom-right-radius: 2px; /* 底部右侧圆角 */
@@ -217,20 +208,27 @@ export default {
             }
         }
     }
+
     .u-card-title {
         .mb(12px);
         color: @fontcolor;
-        .fz(18px,28px);
+        .fz(18px, 28px);
         .bold(700);
     }
-    @media screen and (width: 390px) {
+
+    // @media screen and (width: 390px)
+    @media (prefers-color-scheme: dark) {
         background-color: #000;
+
         .m-body-list_mobile__tabs {
             background-color: #000;
+
             .u-tab_item {
                 color: @fontColor-dark2;
+
                 &.is-active {
                     color: @fontColor-dark;
+
                     // border-bottom: 2px solid @fontColor-dark;
                     .u-tab_item__line {
                         background-color: @fontColor-dark;
@@ -238,11 +236,11 @@ export default {
                 }
             }
         }
+
         .u-card-title {
             color: @fontColor-dark;
         }
     }
-    @media (prefers-color-scheme: dark) {
-    }
+
 }
 </style>

@@ -125,7 +125,6 @@ export default {
         // 捏脸海报
         getSliders() {
             getSliders("slider", this.client, 9).then((res) => {
-                console.log(res);
                 this.slidersList = res.data.data.list || [];
             });
         },
