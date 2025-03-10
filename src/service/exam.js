@@ -2,114 +2,114 @@ import { $next } from "@jx3box/jx3box-common/js/https";
 
 //
 function getExamPaperList(params) {
-    return $next({ proxy: true }).get("/api/question/user-exam-paper", {
+    return $next({ proxy: false }).get("/api/question/user-exam-paper", {
         params,
     });
 }
 
 function getExamQuestionList(params) {
-    return $next({ proxy: true }).get("/api/question/public-list", {
+    return $next({ proxy: false }).get("/api/question/public-list", {
         params,
     });
 }
 
 function getPaper(id) {
-    return $next({ proxy: true }).get("api/question/user-exam-paper/" + id + "?details");
+    return $next({ proxy: false }).get("api/question/user-exam-paper/" + id + "?details");
 }
 
 function getQuestion(id) {
-    return $next({ proxy: true }).get("api/question/" + id + "/no-answer");
+    return $next({ proxy: false }).get("api/question/" + id + "/no-answer");
 }
 
 function getPublishQuestion(id) {
-    return $next({ proxy: true }).get(`/api/question/${id}`);
+    return $next({ proxy: false }).get(`/api/question/${id}`);
 }
 function getPublishPaper(id) {
-    return $next({ proxy: true }).get("/api/question/" + "exam-paper/" + id);
+    return $next({ proxy: false }).get("/api/question/" + "exam-paper/" + id);
 }
 
 function submitAnswer(id, answers, force = false) {
-    return $next({ proxy: true }).post(
+    return $next({ proxy: false }).post(
         `api/question/user-exam-paper/${id}/i-finish-all${force ? "?force" : ""}`,
         answers
     );
 }
 
 function submitQuestionAnswer(id, answers) {
-    return $next({ proxy: true }).post(`api/question/user-exam-paper/q/${id}/answer`, answers);
+    return $next({ proxy: false }).post(`api/question/user-exam-paper/q/${id}/answer`, answers);
 }
 
 function getAnswer(id) {
-    return $next({ proxy: true }).post(`api/question/user-exam-paper/${id}/i-need-answer`);
+    return $next({ proxy: false }).post(`api/question/user-exam-paper/${id}/i-need-answer`);
 }
 
 function getStat(type, id) {
-    return $next({ proxy: true }).get("api/summary-any/" + type + "-" + id + "/stat");
+    return $next({ proxy: false }).get("api/summary-any/" + type + "-" + id + "/stat");
 }
 
 function checkPaper(id, action) {
-    return $next({ proxy: true }).put("api/question/exam-paper/" + id + "/opt", "", {
+    return $next({ proxy: false }).put("api/question/exam-paper/" + id + "/opt", "", {
         params: {
             action: action,
         },
-        withCredentials: true,
+        withCredentials: false,
     });
 }
 
 function getExamRandom(count = 12) {
-    return $next({ proxy: true }).get("api/game/exam/random", {
+    return $next({ proxy: false }).get("api/game/exam/random", {
         params: {
             count,
         },
     });
 }
 function getExamByKey(params) {
-    return $next({ proxy: true }).get("api/game/exam/search", {
+    return $next({ proxy: false }).get("api/game/exam/search", {
         params,
     });
 }
 function createGameQuestion(data) {
-    return $next({ proxy: true }).post("api/game/exam/ugc", data);
+    return $next({ proxy: false }).post("api/game/exam/ugc", data);
 }
 
 function getGameQuestion(rid) {
-    return $next({ proxy: true }).get("api/game/exam/details/" + rid);
+    return $next({ proxy: false }).get("api/game/exam/details/" + rid);
 }
 
 function createQuestion(data) {
-    return $next({ proxy: true }).post("/api/question/create", data);
+    return $next({ proxy: false }).post("/api/question/create", data);
 }
 
 function updateQuestion(id, data) {
-    return $next({ proxy: true }).put("/api/question/" + id + "/update", data);
+    return $next({ proxy: false }).put("/api/question/" + id + "/update", data);
 }
 
 function createPaper(data) {
-    return $next({ proxy: true }).post("/api/question/" + "exam-paper", data);
+    return $next({ proxy: false }).post("/api/question/" + "exam-paper", data);
 }
 
 function updatePaper(id, data) {
-    return $next({ proxy: true }).put("/api/question/" + "exam-paper/" + id, data);
+    return $next({ proxy: false }).put("/api/question/" + "exam-paper/" + id, data);
 }
 
 function getQuestions(query) {
-    return $next({ proxy: true }).get("/api/question/" + "my-list", {
+    return $next({ proxy: false }).get("/api/question/" + "my-list", {
         params: query,
     });
 }
 
 function getPapers(query) {
-    return $next({ proxy: true }).get("/api/question/exam-paper?my", {
+    return $next({ proxy: false }).get("/api/question/exam-paper?my", {
         params: query,
     });
 }
 
 function deleteQuestion(id) {
-    return $next({ proxy: true }).delete(`/api/question/my/${id}`);
+    return $next({ proxy: false }).delete(`/api/question/my/${id}`);
 }
 
 function deletePaper(id) {
-    return $next({ proxy: true }).delete(`/api/question/exam-paper/my/${id}`);
+    return $next({ proxy: false }).delete(`/api/question/exam-paper/my/${id}`);
 }
 
 export {
