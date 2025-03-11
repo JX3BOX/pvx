@@ -252,8 +252,61 @@
         &::after {
             background-color: #000;
         }
+
+        .m-type-list {
+            color: @black-40-dark;
+            background-color: #000;
+
+            .u-type-item {
+                &.is-active {
+                    color: @black-100-dark;
+                    &::after {
+                        background-color: @black-100-dark;
+                    }
+                }
+            }
+        }
+        .m-adventure-list {
+            .u-all-type {
+                .u-title {
+                    color: @black-80-dark;
+                }
+            }
+            .m-card-banner-list {
+                .m-card-banner-list_header {
+                    .u-title {
+                        color: @black-80-dark;
+                    }
+                }
+                .m-card-banner-list_box {
+                    .m-cardlist-items {
+                        .m-cardlist-item {
+                            background-color: transparent;
+                            border-color: transparent;
+                            .m-adventure-item {
+                                background-color: @brand4;
+                                border-color: transparent;
+                                .u-name {
+                                    color: @Brand-2-dark;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .m-face-list--all {
+            .m-adventure-item {
+                background-color: @brand4;
+                border-color: transparent;
+                .u-name {
+                    color: @Brand-2-dark;
+                }
+            }
+        }
     }
 }
+// TODO 调试用，可删除
 .dark.v-miniprogram {
     &::after {
         background-color: #000;
@@ -305,6 +358,9 @@
         .m-adventure-item {
             background-color: @brand4;
             border-color: transparent;
+            .u-name {
+                color: @Brand-2-dark;
+            }
         }
     }
 }

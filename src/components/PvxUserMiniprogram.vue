@@ -251,21 +251,20 @@ export default {
 </script>
 
 <style lang="less">
+@brand2: #24292e;
+@brand3: #fedaa3;
+@brand4: #282828;
+@black-40: rgba(28, 28, 28, 0.4);
+@black-40-dark: rgba(255, 255, 255, 0.4);
+
+// 注意：背景色只改变量在小程序上不生效
+@color-light: #1c1c1c;
+@bg-light: #f9f9f9;
+
+@color-dark: #ffffff;
+@bg-dark: #060606;
 // html
 .v-miniprogram {
-    @brand2: #24292e;
-    @brand3: #fedaa3;
-    @brand4: #282828;
-    @black-40: rgba(28, 28, 28, 0.4);
-    @black-40-dark: rgba(255, 255, 255, 0.4);
-
-    // 注意：背景色只改变量在小程序上不生效
-    @color-light: #1c1c1c;
-    @bg-light: #f9f9f9;
-
-    @color-dark: #ffffff;
-    @bg-dark: #060606;
-
     .m-version-drawer {
         position: fixed !important;
         .el-drawer__header {
@@ -497,37 +496,70 @@ export default {
             }
         }
     }
-    &.dark {
-        .c-wiki-panel {
-            background-color: @brand2 !important;
-        }
-        .w-thx-copyright {
-            background-color: @bg-dark !important;
-        }
+}
+@media (prefers-color-scheme: dark) {
+    .c-wiki-panel {
+        background-color: @brand2 !important;
+    }
+    .w-thx-copyright {
+        background-color: @bg-dark !important;
+    }
 
-        .m-panel-title {
-            .u-txt,
-            span {
-                color: @brand3 !important;
-            }
+    .m-panel-title {
+        .u-txt,
+        span {
+            color: @brand3 !important;
         }
-        .m-panel-head {
-            background-color: @brand2 !important;
+    }
+    .m-panel-head {
+        background-color: @brand2 !important;
+    }
+    .m-panel-body {
+        .u-value {
+            color: rgba(@color-dark, 0.4);
         }
-        .m-panel-body {
-            .u-value {
-                color: rgba(@color-dark, 0.4);
-            }
+    }
+    .u-time {
+        color: rgba(@color-dark, 0.4) !important;
+    }
+    .c-article-tinymce {
+        color: rgba(@color-dark, 0.8);
+    }
+    .m-wiki-signature {
+        color: #ffffff;
+    }
+}
+// TODO 调试用，可删除
+.dark.v-miniprogram {
+    .c-wiki-panel {
+        background-color: @brand2 !important;
+    }
+    .w-thx-copyright {
+        background-color: @bg-dark !important;
+    }
+
+    .m-panel-title {
+        .u-txt,
+        span {
+            color: @brand3 !important;
         }
-        .u-time {
-            color: rgba(@color-dark, 0.4) !important;
+    }
+    .m-panel-head {
+        background-color: @brand2 !important;
+    }
+    .m-panel-body {
+        .u-value {
+            color: rgba(@color-dark, 0.4);
         }
-        .c-article-tinymce {
-            color: rgba(@color-dark, 0.8);
-        }
-        .m-wiki-signature {
-            color: #ffffff;
-        }
+    }
+    .u-time {
+        color: rgba(@color-dark, 0.4) !important;
+    }
+    .c-article-tinymce {
+        color: rgba(@color-dark, 0.8);
+    }
+    .m-wiki-signature {
+        color: #ffffff;
     }
 }
 </style>

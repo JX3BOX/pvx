@@ -23,16 +23,16 @@
         <div class="m-adventure-content">
             <task :id="id" :info="data" />
         </div>
+        <!-- (小程序端)包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
+        <PvxUserMiniprogram v-if="isMiniProgram" :id="achieve_id" name="奇遇" type="achievement"> </PvxUserMiniprogram>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="achieve_id" name="奇遇" type="achievement" v-if="achieve_id">
+        <pvx-user :id="achieve_id" name="奇遇" type="achievement" v-if="achieve_id && !isMiniProgram">
             <template slot="serendipity">
                 <div class="m-adventure-serendipity">
                     <Serendipity :title="title" />
                 </div>
             </template>
         </pvx-user>
-        <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <PvxUserMiniprogram v-if="isMiniProgram" :id="achieve_id" name="奇遇" type="achievement"> </PvxUserMiniprogram>
     </div>
 </template>
 
