@@ -95,6 +95,7 @@ export default {
                 .then((res) => {
                     this.isPet = false;
                     this.data = res.data;
+                    document.title = this.data?.szName;
                 })
                 .finally(() => {
                     this.loading = false;

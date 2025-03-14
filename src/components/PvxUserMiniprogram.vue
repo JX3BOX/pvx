@@ -1,6 +1,7 @@
 <template>
     <!-- 包含攻略、评论、历史版本、点赞等 -->
     <div class="w-pvx-user__miniprogram">
+        <div v-if="isMiniProgram" class="u-adventure-tips">← 左右滑动可以查看奇遇流程故事 →</div>
         <!--攻略-->
         <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
@@ -357,10 +358,19 @@ export default {
     }
 
     .w-pvx-user__miniprogram {
+        .mt(12px);
+        .u-adventure-tips {
+            text-align: center;
+            .mt(-20px);
+            color: @black-40;
+            text-align: center;
+            .fz(12px,18px);
+        }
         .c-wiki-panel {
             background-color: @color-dark;
-            border: none;
+            border: 1px solid rgba(40, 40, 40, 0.05);
             .r(10px);
+            .mt(20px);
         }
         .m-panel-actions {
             .none;
@@ -496,6 +506,9 @@ export default {
     }
 }
 @media (prefers-color-scheme: dark) {
+    .u-adventure-tips {
+        color: @black-40-dark !important;
+    }
     .c-wiki-panel {
         background-color: @brand2 !important;
     }
@@ -529,6 +542,9 @@ export default {
 }
 // TODO 调试用，可删除
 .dark.v-miniprogram {
+    .u-adventure-tips {
+        color: @black-40-dark !important;
+    }
     .c-wiki-panel {
         background-color: @brand2 !important;
     }
