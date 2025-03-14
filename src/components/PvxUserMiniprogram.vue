@@ -251,10 +251,14 @@ export default {
 
 <style lang="less">
 @brand2: #24292e;
+@brand2-dark: #fedaa3;
 @brand3: #fedaa3;
-@brand4: #282828;
+@brand4: #ffffff;
+@brand4-dark: #282828;
 @black-40: rgba(28, 28, 28, 0.4);
 @black-40-dark: rgba(255, 255, 255, 0.4);
+@black-80: rgba(28, 28, 28, 0.8);
+@black-80-dark: rgba(255, 255, 255, 0.8);
 
 // 注意：背景色只改变量在小程序上不生效
 @color-light: #1c1c1c;
@@ -359,6 +363,7 @@ export default {
 
     .w-pvx-user__miniprogram {
         .mt(12px);
+
         .u-adventure-tips {
             text-align: center;
             .mt(-20px);
@@ -366,141 +371,109 @@ export default {
             text-align: center;
             .fz(12px,18px);
         }
-        .c-wiki-panel {
-            background-color: @color-dark;
+
+        .m-wiki-post-panel {
+            background-color: @brand4;
             border: 1px solid rgba(40, 40, 40, 0.05);
             .r(10px);
             .mt(20px);
-        }
-        .m-panel-actions {
-            .none;
-        }
-        .m-panel-head {
-            padding: 16px 16px 0;
-            background-color: @color-dark !important;
-            border: none;
-            .r(10px);
-        }
-        .m-panel-title {
-            padding: 0;
-            .u-txt,
-            span {
-                color: @brand2 !important;
-                font-family: "Microsoft YaHei UI" !important;
-                font-size: 16px !important;
-                font-weight: 700 !important;
-            }
-            svg,
-            .el-icon-chat-line-round {
-                .none !important;
-            }
-        }
-        .m-panel-body {
-            padding: 0 16px 16px;
-            .m-wiki-metas {
-                .u-creator {
-                    &:not(:last-child) {
-                        margin-right: -8px;
-                    }
-                }
-                .u-meta {
-                    margin-top: 4px;
-                    margin-bottom: 4px;
-                    &:nth-of-type(2) {
-                        display: none;
-                    }
-                }
-            }
-            .u-label {
-                .none;
-            }
-            .u-value {
-                color: rgba(@brand2, 0.4);
-            }
-        }
-        .u-time {
-            color: rgba(@brand2, 0.4);
-        }
-        .c-article-tinymce,
-        .u-nickname,
-        .u-content {
-            color: @brand2;
-        }
-        .m-wiki-signature {
-            margin-top: 16px;
-            padding-top: 20px;
-            text-align: center;
-            border: none;
-            color: @black-40;
-        }
-        .w-thx-copyright {
-            background-color: @color-dark !important;
-            border: none;
-        }
-        .u-comment {
-            border: none !important;
-        }
-        @media (prefers-color-scheme: dark) {
             .c-wiki-panel {
-                background-color: @brand2 !important;
-            }
-            .w-thx-copyright {
-                background-color: @bg-dark !important;
-            }
+                background-color: transparent;
+                border: none;
+                .m-panel-head {
+                    padding: 16px 16px 0;
+                    background-color: transparent;
+                    border: none;
+                    .r(10px);
 
-            .m-panel-title {
-                .u-txt,
-                span {
-                    color: @brand3 !important;
+                    .m-panel-title {
+                        padding: 0;
+                        color: @brand2;
+                        .u-txt,
+                        span {
+                            font-family: "Microsoft YaHei UI" !important;
+                            font-size: 16px !important;
+                            font-weight: 700 !important;
+                        }
+                        svg,
+                        .el-icon-chat-line-round {
+                            .none !important;
+                        }
+                    }
                 }
-            }
-            .m-panel-head {
-                background-color: @brand2 !important;
-            }
-            .m-panel-body {
-                .u-value {
-                    color: rgba(@color-dark, 0.4);
+                .m-panel-body {
+                    padding: 0 16px 16px;
+                    .m-wiki-metas {
+                        .u-creator {
+                            &:not(:last-child) {
+                                margin-right: -8px;
+                            }
+                        }
+                        .u-meta {
+                            margin-top: 4px;
+                            margin-bottom: 4px;
+                            &:nth-of-type(2) {
+                                display: none;
+                            }
+                        }
+                    }
+                    .u-label {
+                        .none;
+                    }
+                    .u-value {
+                        color: rgba(@brand2, 0.4);
+                    }
+
+                    .c-article-tinymce,
+                    .u-content {
+                        color: @black-80;
+                    }
+                    .m-wiki-signature {
+                        margin-top: 16px;
+                        padding-top: 20px;
+                        text-align: center;
+                        border: none;
+                        color: @black-40;
+                    }
+                    .w-thx-copyright {
+                        background-color: @color-dark !important;
+                        border: none;
+                    }
+                    .u-comment {
+                        border: none !important;
+                    }
+
+                    .u-msg-yellow {
+                        color: #8a6d3b;
+                        background-color: #fcf8e3;
+                        border: 1px solid #faebcc;
+                        padding: 8px 14px 8px 14px;
+                        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+                        border-radius: 4px;
+                    }
+
+                    .m-wiki-post-empty {
+                        .u-msg-yellow;
+                        .x;
+
+                        .s-link {
+                            .underline(@color-link);
+                        }
+
+                        letter-spacing: 2px;
+                        .fz(14px);
+                    }
+
+                    .m-wiki-compatible {
+                        .u-msg-yellow;
+                        margin: 10px auto;
+                        padding: 5px 10px;
+
+                        a {
+                            .underline(@color-link);
+                        }
+                    }
                 }
-            }
-            .u-time {
-                color: rgba(@color-dark, 0.4) !important;
-            }
-            .c-article-tinymce {
-                color: rgba(@color-dark, 0.8);
-            }
-            .m-wiki-signature {
-                color: #ffffff;
-            }
-        }
-
-        .u-msg-yellow {
-            color: #8a6d3b;
-            background-color: #fcf8e3;
-            border: 1px solid #faebcc;
-            padding: 8px 14px 8px 14px;
-            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-            border-radius: 4px;
-        }
-
-        .m-wiki-post-empty {
-            .u-msg-yellow;
-            .x;
-
-            .s-link {
-                .underline(@color-link);
-            }
-
-            letter-spacing: 2px;
-            .fz(14px);
-        }
-
-        .m-wiki-compatible {
-            .u-msg-yellow;
-            margin: 10px auto;
-            padding: 5px 10px;
-
-            a {
-                .underline(@color-link);
             }
         }
     }
@@ -509,71 +482,49 @@ export default {
     .u-adventure-tips {
         color: @black-40-dark !important;
     }
-    .c-wiki-panel {
-        background-color: @brand2 !important;
-    }
-    .w-thx-copyright {
-        background-color: @bg-dark !important;
-    }
-
-    .m-panel-title {
-        .u-txt,
-        span {
-            color: @brand3 !important;
+    .m-wiki-post-panel {
+        background-color: @brand4-dark !important;
+        .m-panel-title {
+            color: @brand2-dark !important;
         }
-    }
-    .m-panel-head {
-        background-color: @brand2 !important;
-    }
-    .m-panel-body {
-        .u-value {
-            color: rgba(@color-dark, 0.4);
+        .m-panel-body {
+            .m-wiki-metas {
+                .u-value {
+                    color: rgba(@color-dark, 0.4) !important;
+                }
+            }
+            .c-article-tinymce {
+                color: @black-80-dark !important;
+            }
         }
-    }
-    .u-time {
-        color: rgba(@color-dark, 0.4) !important;
-    }
-    .c-article-tinymce {
-        color: rgba(@color-dark, 0.8);
-    }
-    .m-wiki-signature {
-        color: #ffffff;
+        .m-wiki-signature {
+            color: @black-40-dark !important;
+        }
     }
 }
 // TODO 调试用，可删除
 .dark.v-miniprogram {
     .u-adventure-tips {
-        color: @black-40-dark !important;
+        color: @black-40-dark;
     }
-    .c-wiki-panel {
-        background-color: @brand2 !important;
-    }
-    .w-thx-copyright {
-        background-color: @bg-dark !important;
-    }
-
-    .m-panel-title {
-        .u-txt,
-        span {
-            color: @brand3 !important;
+    .m-wiki-post-panel {
+        background-color: @brand4-dark;
+        .m-panel-title {
+            color: @brand2-dark !important;
         }
-    }
-    .m-panel-head {
-        background-color: @brand2 !important;
-    }
-    .m-panel-body {
-        .u-value {
-            color: rgba(@color-dark, 0.4);
+        .m-panel-body {
+            .m-wiki-metas {
+                .u-value {
+                    color: rgba(@color-dark, 0.4);
+                }
+            }
+            .c-article-tinymce {
+                color: @black-80-dark !important;
+            }
         }
-    }
-    .u-time {
-        color: rgba(@color-dark, 0.4) !important;
-    }
-    .c-article-tinymce {
-        color: rgba(@color-dark, 0.8);
-    }
-    .m-wiki-signature {
-        color: #ffffff;
+        .m-wiki-signature {
+            color: @black-40-dark !important;
+        }
     }
 }
 </style>
