@@ -130,6 +130,7 @@
     .m-main {
         padding-right: 0;
         padding-top: 0;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
     }
     .m-common-toolbar,
     .m-card-banner-list .u-action {
@@ -226,6 +227,7 @@
     }
     .m-face-list--all {
         .pr(20px);
+        margin-bottom: 0;
         .m-adventure-item {
             flex: calc(50% - 20px);
             height: 100%;
@@ -245,6 +247,14 @@
                 display: block;
             }
         }
+        &::after {
+            content: "";
+            flex: 0 0 calc(50% - 20px);
+        }
+    }
+    .m-get-more {
+        text-align: center;
+        padding-top: 20px;
     }
 }
 @media (prefers-color-scheme: dark) {
