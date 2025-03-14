@@ -63,6 +63,7 @@ export default {
             isPet: true,
             loading: false,
             search: "",
+            isMiniProgram: isMiniProgram(),
         };
     },
     computed: {
@@ -105,9 +106,6 @@ export default {
         },
         goSearch() {
             this.$router.push({ name: "list", params: { search: this.search } });
-        },
-        isMiniProgram() {
-            return isMiniProgram();
         },
     },
     mounted: function () {},

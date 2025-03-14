@@ -126,6 +126,7 @@ export default {
             is_empty: true,
             versionVisible: false,
             versions: [],
+            isMiniProgram: isMiniProgram(),
         };
     },
     watch: {
@@ -203,9 +204,6 @@ export default {
                 );
             }
             return [];
-        },
-        isMiniProgram() {
-            return isMiniProgram();
         },
         // 西山居的页面不展示评论
         isFromSeasun() {
