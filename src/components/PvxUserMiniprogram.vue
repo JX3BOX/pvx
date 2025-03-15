@@ -1,7 +1,7 @@
 <template>
     <!-- 包含攻略、评论、历史版本、点赞等 -->
     <div class="w-pvx-user__miniprogram">
-        <div v-if="isMiniProgram" class="u-adventure-tips">← 左右滑动可以查看奇遇流程故事 →</div>
+        <div v-if="isMiniProgram && name == '奇遇'" class="u-adventure-tips">← 左右滑动可以查看奇遇流程故事 →</div>
         <!--攻略-->
         <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
@@ -266,6 +266,7 @@ export default {
 
 @color-dark: #ffffff;
 @bg-dark: #060606;
+@secondary-cyan: #32ade6;
 // html
 .v-miniprogram {
     .m-version-drawer {
@@ -477,6 +478,31 @@ export default {
             }
         }
     }
+
+    .c-wiki-comments {
+        margin: 20px -20px 0;
+        border: none;
+        background-color: @brand4;
+        border-radius: 0;
+
+        .m-panel-head {
+            display: none;
+        }
+
+        .u-nickname {
+            color: @secondary-cyan !important;
+        }
+        .u-content {
+            color: @black-80;
+        }
+        .u-time {
+            color: @black-40;
+        }
+
+        .el-pagination {
+            overflow-x: scroll;
+        }
+    }
 }
 @media (prefers-color-scheme: dark) {
     .u-adventure-tips {
@@ -501,21 +527,30 @@ export default {
             color: @black-40-dark !important;
         }
     }
+    .c-wiki-comments {
+        background-color: @brand4-dark;
+        .u-content {
+            color: @black-80-dark !important;
+        }
+        .u-time {
+            color: @black-40-dark !important;
+        }
+    }
 }
 // TODO 调试用，可删除
 .dark.v-miniprogram {
     .u-adventure-tips {
-        color: @black-40-dark;
+        color: @black-40-dark !important;
     }
     .m-wiki-post-panel {
-        background-color: @brand4-dark;
+        background-color: @brand4-dark !important;
         .m-panel-title {
             color: @brand2-dark !important;
         }
         .m-panel-body {
             .m-wiki-metas {
                 .u-value {
-                    color: rgba(@color-dark, 0.4);
+                    color: rgba(@color-dark, 0.4) !important;
                 }
             }
             .c-article-tinymce {
@@ -523,6 +558,15 @@ export default {
             }
         }
         .m-wiki-signature {
+            color: @black-40-dark !important;
+        }
+    }
+    .c-wiki-comments {
+        background-color: @brand4-dark;
+        .u-content {
+            color: @black-80-dark !important;
+        }
+        .u-time {
             color: @black-40-dark !important;
         }
     }
