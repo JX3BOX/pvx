@@ -49,6 +49,7 @@ import { __clients, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
 import { cloneDeep } from "lodash";
 import { deleteNull } from "@/utils/index";
 import User from "@jx3box/jx3box-common/js/user";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "ExamList",
     components: {
@@ -118,6 +119,7 @@ export default {
                 type: ~~this.$route.params.type || 1,
             },
             data: [],
+            isMiniProgram: isMiniProgram(),
         };
     },
     computed: {
@@ -229,7 +231,7 @@ export default {
             },
         },
     },
-    methods: { 
+    methods: {
         load() {
             const type = ~~this.search.type;
             if (type === 2) {
@@ -238,7 +240,7 @@ export default {
             if (type === 3) {
                 this.loadMethod(getExamPaperList);
             }
-        }, 
+        },
         searchEvent(data) {
             const search = cloneDeep(this.search);
             this.search = {
@@ -294,4 +296,5 @@ export default {
 </script>
 <style lang="less">
 @import "~@/assets/css/exam/index.less";
+@import "~@/assets/css/exam/exam_miniprogram.less";
 </style>
