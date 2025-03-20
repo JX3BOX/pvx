@@ -1,18 +1,13 @@
 <template>
     <div class="m-face-list_mobile">
         <div class="m-face-list_mobile__tabs">
-            <div
-                class="u-tab_item"
-                v-for="(item, index) in tabsData"
-                :key="index"
-                :class="{ 'is-active': active == item.value }"
-                @click="setActive(item.value)"
-            >
+            <div class="u-tab_item" v-for="(item, index) in tabsData" :key="index"
+                :class="{ 'is-active': active == item.value }" @click="setActive(item.value)">
                 {{ item.label }}
             </div>
         </div>
         <div class="u-content-all" v-if="active == -1">
-            <div v-for="(item, index) in allList" :key="index">
+            <div v-for="(item, index) in allList" :key="index" class="u-content-item">
                 <div class="u-card-title">{{ item.label }}</div>
                 <div class="u-list">
                     <routine :list="item.list"></routine>
@@ -29,17 +24,10 @@
             </div> -->
         </div>
         <div class="u-content" v-else>
-            <div class="u-card-title">{{ activeName }}</div>
-            <div class="u-list" id="oneList">
-                <routine
-                    gap="12px"
-                    :size="104"
-                    :isOne="true"
-                    :list="list"
-                    :total="total"
-                    v-if="listShow"
-                    @getMore="getMore()"
-                ></routine>
+            <!-- <div class="u-card-title">{{ activeName }}</div> -->
+            <div class="u-list" id="oneList" v-loading="loadingList">
+                <routine gap="12px" :size="104" :isOne="true" :list="list" :total="total" :loadingList="loadingList"
+                    v-if="listShow" @getMore="getMore()"></routine>
             </div>
         </div>
     </div>
@@ -70,17 +58,17 @@ export default {
                 {
                     label: "最新推荐",
                     list: [],
-                    params: { star: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true, code_mode: 1 },
+                    params: { star: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true, code_mode: 1, is_personal_newest: 1 },
                 },
                 {
                     label: "写实派与写意派",
                     list: [],
-                    params: { pageIndex: 1, pageSize: 12, filter_empty_images: true, star: 0, is_unlimited: 0 },
+                    params: { pageIndex: 1, pageSize: 12, filter_empty_images: true, star: 0, is_unlimited: 0, is_personal_newest: 1 },
                 },
                 {
                     label: "新建角色时推荐",
                     list: [],
-                    params: { is_unlimited: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true, star: 0 },
+                    params: { is_unlimited: 1, pageIndex: 1, pageSize: 12, filter_empty_images: true, star: 0, is_personal_newest: 1 },
                 },
                 // { label: "轮播", list: [], params: { pageIndex: 1, pageSize: 4 } },
             ],
@@ -92,6 +80,7 @@ export default {
             },
             total: 0,
             bodyList: [], // 体型特辑
+            loadingList: false
         };
     },
     computed: {
@@ -161,8 +150,10 @@ export default {
         },
 
         loadList(params, index, body = false) {
+            this.loadingList = true
             getFaceList(params)
                 .then((res) => {
+                    this.loadingList = false
                     const { list, page } = res.data.data;
                     const _list = this.active != -1 ? concat(this.list, list) : list;
                     if (body) {
@@ -194,8 +185,9 @@ export default {
     @fontColor-dark: #fff;
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
-    padding: 0 20px 12px 20px;
+    padding: 0 20px 40px 20px;
     box-sizing: border-box;
+
     .m-face-list_mobile__tabs {
         position: sticky;
         top: 0;
@@ -206,9 +198,10 @@ export default {
         height: 32px;
         background-color: #fff;
         padding: 12px 0 20px 0;
+
         .u-tab_item {
             color: @fontcolor3;
-            .fz(18px,28px);
+            .fz(18px, 28px);
             .bold(700);
 
             &.is-active {
@@ -217,25 +210,35 @@ export default {
             }
         }
     }
+
     .u-card-title {
         .mb(12px);
         color: @fontcolor;
-        .fz(18px,28px);
+        .fz(18px, 28px);
         .bold(700);
     }
+
+    .u-content-item {
+        .mb(10px);
+    }
+
     // @media screen and (width: 390px)
     @media (prefers-color-scheme: dark) {
         background-color: #000;
+
         .m-face-list_mobile__tabs {
             background-color: #000;
+
             .u-tab_item {
                 color: @fontColor-dark2;
+
                 &.is-active {
                     color: @fontColor-dark;
                     border-bottom: 2px solid @fontColor-dark;
                 }
             }
         }
+
         .u-card-title {
             color: @fontColor-dark;
         }

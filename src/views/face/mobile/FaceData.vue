@@ -98,9 +98,11 @@ export default {
         // 数据构建
         render: function () {
             let data = JSON.parse(sessionStorage.getItem("faceData"));
-            console.log(this.client);
+            console.log(data);
             // this.decalDb.ready()
+            console.log(this.client)
             this.decalDb = new DecalDatabase(this.client, data.bNewFace);
+
             // 是否为空
             if (!data) {
                 this.body_type = "";
@@ -113,6 +115,7 @@ export default {
                 let facedata = data.object;
                 // 旧版数据
                 this.body_type = facedata.status ? facedata.misc[0]["value"] : facedata.nRoleType;
+                console.log(this.body_type);
                 this.decalDb.setBodyType(this.body_type);
                 this.facedata = facedata.status ? fixOldData(facedata) : facedata;
                 if (!this.facedata.bNewFace) {

@@ -2,13 +2,13 @@
  * @Author: zhusha
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-09 00:54:01
+ * @LastEditTime: 2025-03-20 21:51:05
  * @Description: 小程序适配捏脸常规模组
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
-    <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }">
+    <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
         <div class="u-item" v-for="item in list" :key="item.id"
             :style="{ width: isOne ? 'calc(calc(100% - 24px) / 3)' : size + 'px' }">
             <a :href="`${link}/${item.id}`">
@@ -32,9 +32,9 @@
                 <div class="u-item_author">{{ item.display_name || "匿名" }}</div>
             </a>
         </div>
-        <div class="u-more" v-if="isOne && list.length < total">
+        <!-- <div class="u-more" v-if="isOne && list.length < total">
             <el-link type="primary" @click="getMore">加载更多</el-link>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -51,7 +51,7 @@ export default {
     props: {
         gap: {
             type: String,
-            default: "20px",
+            default: "16px",
         },
         size: {
             type: Number,
@@ -69,6 +69,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        loadingList: {
+            type: Boolean,
+            default: false,
+        }
     },
     data() {
         return {};
@@ -86,6 +90,13 @@ export default {
         },
         getMore() {
             this.$emit("getMore");
+        },
+        handleScroll(event) {
+            const { target } = event;
+            if (this.loadingList) return;
+            if (target.scrollHeight - target.scrollTop - 60 < target.clientHeight) {
+                this.getMore();
+            }
         },
     },
 };

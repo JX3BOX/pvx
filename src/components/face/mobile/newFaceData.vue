@@ -1,50 +1,28 @@
 <template>
     <div class="p-new-face_data">
         <div class="m-face-list_mobile__tabs">
-            <div
-                class="u-tab_item"
-                v-for="(item, index) in tablist"
-                :key="index"
-                :class="{ 'is-active': active == item.value }"
-                @click="active = item.value"
-            >
+            <div class="u-tab_item" v-for="(item, index) in tablist" :key="index"
+                :class="{ 'is-active': active == item.value }" @click="active = item.value">
                 {{ item.label }}
             </div>
         </div>
         <div class="c-facedat-preivew">
             <div class="c-facedat-group" v-show="active === 'contour'">
                 <!-- star -->
-                <div
-                    class="c-facedat-group__item"
-                    v-for="(item, index) in Object.keys(new_face_dict['轮廓'])"
-                    :key="index"
-                >
+                <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_face_dict['轮廓'])"
+                    :key="index">
                     <div class="u-type-title">{{ item }}</div>
                     <!-- 二级标题 -->
-                    <ul
-                        class="u-list u-new"
-                        v-for="(subItem, itemIndex) in Object.keys(new_face_dict['轮廓'][item])"
-                        :key="itemIndex"
-                    >
+                    <ul class="u-list u-new" v-for="(subItem, itemIndex) in Object.keys(new_face_dict['轮廓'][item])"
+                        :key="itemIndex">
                         <template v-if="subItem === 'root'">
                             <li v-for="(key, i) in new_face_dict['轮廓'][item].root" :key="key + i">
                                 <label @click="clog(facedata['tBone'][key.BoneType])">{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                         <li v-if="subItem !== 'root'" class="u-sub-title">{{ subItem }}</li>
@@ -52,21 +30,10 @@
                             <li v-for="(key, i) in new_face_dict['轮廓'][item][subItem]" :key="i">
                                 <label>{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                     </ul>
@@ -74,37 +41,20 @@
                 <!-- end -->
             </div>
             <div class="c-facedat-group" v-show="active === 'eyebrow'">
-                <div
-                    class="c-facedat-group__item"
-                    v-for="(item, index) in Object.keys(new_face_dict['眉毛'])"
-                    :key="index"
-                >
+                <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_face_dict['眉毛'])"
+                    :key="index">
                     <div class="u-type-title">{{ item }}</div>
                     <!-- 二级标题 -->
-                    <ul
-                        class="u-list u-new"
-                        v-for="(subItem, itemIndex) in Object.keys(new_face_dict['眉毛'][item])"
-                        :key="itemIndex"
-                    >
+                    <ul class="u-list u-new" v-for="(subItem, itemIndex) in Object.keys(new_face_dict['眉毛'][item])"
+                        :key="itemIndex">
                         <template v-if="subItem === 'root'">
                             <li v-for="(key, i) in new_face_dict['眉毛'][item].root" :key="key + i">
                                 <label @click="clog(facedata['tBone'][key.BoneType])">{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                         <li v-if="subItem !== 'root'" class="u-sub-title">{{ subItem }}</li>
@@ -112,58 +62,30 @@
                             <li v-for="(key, i) in new_face_dict['眉毛'][item][subItem]" :key="i">
                                 <label>{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                     </ul>
                 </div>
             </div>
             <div class="c-facedat-group" v-show="active === 'eye'">
-                <div
-                    class="c-facedat-group__item"
-                    v-for="(item, index) in Object.keys(new_face_dict['眼部'])"
-                    :key="index"
-                >
+                <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_face_dict['眼部'])"
+                    :key="index">
                     <div class="u-type-title">{{ item }}</div>
                     <!-- 二级标题 -->
-                    <ul
-                        class="u-list u-new"
-                        v-for="(subItem, itemIndex) in Object.keys(new_face_dict['眼部'][item])"
-                        :key="itemIndex"
-                    >
+                    <ul class="u-list u-new" v-for="(subItem, itemIndex) in Object.keys(new_face_dict['眼部'][item])"
+                        :key="itemIndex">
                         <template v-if="subItem === 'root'">
                             <li v-for="(key, i) in new_face_dict['眼部'][item].root" :key="key + i">
                                 <label @click="clog(facedata['tBone'][key.BoneType])">{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                         <li v-if="subItem !== 'root'" class="u-sub-title">{{ subItem }}</li>
@@ -171,58 +93,30 @@
                             <li v-for="(key, i) in new_face_dict['眼部'][item][subItem]" :key="i">
                                 <label>{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                     </ul>
                 </div>
             </div>
             <div class="c-facedat-group" v-show="active === 'nose'">
-                <div
-                    class="c-facedat-group__item"
-                    v-for="(item, index) in Object.keys(new_face_dict['鼻子'])"
-                    :key="index"
-                >
+                <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_face_dict['鼻子'])"
+                    :key="index">
                     <div class="u-type-title">{{ item }}</div>
                     <!-- 二级标题 -->
-                    <ul
-                        class="u-list u-new"
-                        v-for="(subItem, itemIndex) in Object.keys(new_face_dict['鼻子'][item])"
-                        :key="itemIndex"
-                    >
+                    <ul class="u-list u-new" v-for="(subItem, itemIndex) in Object.keys(new_face_dict['鼻子'][item])"
+                        :key="itemIndex">
                         <template v-if="subItem === 'root'">
                             <li v-for="(key, i) in new_face_dict['鼻子'][item].root" :key="key + i">
                                 <label @click="clog(facedata['tBone'][key.BoneType])">{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                         <li v-if="subItem !== 'root'" class="u-sub-title">{{ subItem }}</li>
@@ -230,58 +124,30 @@
                             <li v-for="(key, i) in new_face_dict['鼻子'][item][subItem]" :key="i">
                                 <label>{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                     </ul>
                 </div>
             </div>
             <div class="c-facedat-group" v-show="active === 'mouth'">
-                <div
-                    class="c-facedat-group__item"
-                    v-for="(item, index) in Object.keys(new_face_dict['嘴部'])"
-                    :key="index"
-                >
+                <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_face_dict['嘴部'])"
+                    :key="index">
                     <div class="u-type-title">{{ item }}</div>
                     <!-- 二级标题 -->
-                    <ul
-                        class="u-list u-new"
-                        v-for="(subItem, itemIndex) in Object.keys(new_face_dict['嘴部'][item])"
-                        :key="itemIndex"
-                    >
+                    <ul class="u-list u-new" v-for="(subItem, itemIndex) in Object.keys(new_face_dict['嘴部'][item])"
+                        :key="itemIndex">
                         <template v-if="subItem === 'root'">
                             <li v-for="(key, i) in new_face_dict['嘴部'][item].root" :key="key + i">
                                 <label @click="clog(facedata['tBone'][key.BoneType])">{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                         <li v-if="subItem !== 'root'" class="u-sub-title">{{ subItem }}</li>
@@ -289,39 +155,21 @@
                             <li v-for="(key, i) in new_face_dict['嘴部'][item][subItem]" :key="i">
                                 <label>{{ key.BoneName }}</label>
                                 <span>{{ facedata["tBone"][key.BoneType] }}</span>
-                                <slider
-                                    v-if="lock"
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    :value="facedata['tBone'][key.BoneType]"
-                                ></slider>
-                                <el-slider
-                                    v-else
-                                    class="u-range"
-                                    :min="-128"
-                                    :max="128"
-                                    v-model="facedata['tBone'][key]"
-                                    :disabled="lock"
-                                ></el-slider>
+                                <slider v-if="lock" class="u-range" :min="-128" :max="128"
+                                    :value="facedata['tBone'][key.BoneType]"></slider>
+                                <el-slider v-else class="u-range" :min="-128" :max="128"
+                                    v-model="facedata['tBone'][key]" :disabled="lock"></el-slider>
                             </li>
                         </template>
                     </ul>
                 </div>
             </div>
             <div class="c-facedat-group" id="decals" v-show="active === 'decals'">
-                <div
-                    class="c-facedat-group__item"
-                    v-for="(item, index) in Object.keys(new_decal_group['妆容'])"
-                    :key="index"
-                >
+                <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_decal_group['妆容'])"
+                    :key="index">
                     <div class="u-type-title">{{ item }}</div>
                     <!-- 二级标题 -->
-                    <div
-                        class="u-decals"
-                        v-for="(subItem, itemIndex) in new_decal_group['妆容'][item]"
-                        :key="itemIndex"
-                    >
+                    <div class="u-decals" v-for="(subItem, itemIndex) in new_decal_group['妆容'][item]" :key="itemIndex">
                         <div v-if="facedata.tDecal[subItem.DecalsType].bUse" class="u-decals-box">
                             <div class="u-price">
                                 <i class="el-icon-coin"></i>
@@ -335,23 +183,21 @@
                                 通宝
                             </div>
                             <div class="u-title">
-                                <img
-                                    class="u-pic"
-                                    :src="
-                                        decalDb.getDecalIcon(
-                                            subItem.DecalsType,
-                                            facedata.tDecal[subItem.DecalsType]['nShowID'],
-                                            true
-                                        )
-                                    "
-                                />
-                                {{
+                                <img class="u-pic" :src="decalDb.getDecalIcon(
+                                    subItem.DecalsType,
+                                    facedata.tDecal[subItem.DecalsType]['nShowID'],
+                                    true
+                                )
+                                    " />
+                                {{ subItem.DecalsType }}
+                                {{ facedata.tDecal[subItem.DecalsType]["nShowID"] }}
+                                <!-- {{
                                     decalDb.getDecalName(
                                         subItem.DecalsType,
                                         facedata.tDecal[subItem.DecalsType]["nShowID"],
                                         true
                                     )
-                                }}
+                                }} -->
                                 <span class="u-dname"> ({{ facedata.tDecal[subItem.DecalsType].nColorID }})</span>
                             </div>
                             <div class="u-decals-params-box">
@@ -386,9 +232,8 @@
 
                 <div class="m-price-all">
                     <span class="u-title">总计：</span>
-                    <span class="u-total"
-                        ><i class="el-icon-coin"></i> <b>{{ decalDb.getTotalPrice(facedata, true) }}</b> 通宝</span
-                    >
+                    <span class="u-total"><i class="el-icon-coin"></i>
+                        <b>{{ decalDb.getTotalPrice(facedata, true) }}</b> 通宝</span>
                 </div>
             </div>
         </div>
@@ -452,6 +297,7 @@ export default {
 
     mounted() {
         console.log(this.decalDb);
+        console.log("xxxx")
     },
 
     computed: {
