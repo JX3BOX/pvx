@@ -1,21 +1,16 @@
 <!--
- * @Author: zhusha 
+ * @Author: zhusha
  * @Date: 2025-02-17 22:25:34
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-20 23:56:04
+ * @LastEditTime: 2025-03-21 21:31:30
  * @Description: 小程序适配体型常规模组
- * 
- * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
+ *
+ * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
     <div class="p-pvx-habitus">
-        <div
-            class="u-item"
-            v-for="(item, index) in list"
-            :key="index"
-            :style="{ width: 'calc(calc(100vw - 70px) / 4)' }"
-            @click="$emit('toTab', item)"
-        >
+        <div class="u-item" v-for="(item, index) in list" :key="index"
+            :style="{ width: 'calc(calc(100vw - 70px) / 4)' }" @click="$emit('toTab', item)">
             <div class="u-item_img">
                 <el-image class="u-pic" :src="showImg(item)" fit="cover">
                     <div slot="error" class="image-slot">
@@ -44,8 +39,8 @@ export default {
     data() {
         return {};
     },
-    created() {},
-    mounted() {},
+    created() { },
+    mounted() { },
     methods: {
         getThumbnail,
         showBodyTypeLabel(val) {
@@ -62,9 +57,11 @@ export default {
 <style lang="less" scoped>
 @titleColor: #fafafa;
 @titleColor-dark: rgba(255, 255, 255, 0.8);
+
 .p-pvx-habitus {
     .flex;
     gap: 10px;
+
     // overflow: auto;
     // box-sizing: border-box;
     // &::-webkit-scrollbar {
@@ -74,33 +71,39 @@ export default {
     .u-item {
         .pr;
         .h(156px);
+
         .u-item_img {
             .size(100%);
             .r(4px);
             .pr;
+            overflow: hidden;
+
             &::before {
                 content: "";
                 .pa;
-                .size(100%,100%);
+                .size(100%, 100%);
                 .lt(0);
                 .dbi;
                 .z(1);
                 background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
             }
+
             img {
                 .size(100%);
                 object-fit: cover;
             }
         }
+
         .u-item_type {
             color: @titleColor;
-            .fz(10px,15px);
+            .fz(10px, 15px);
             .bold(400);
             font-style: normal;
             .pa;
             .z(2);
-            .lb(0,4px);
+            .lb(0, 4px);
             padding: 0 6px;
+
             // @media screen and (width: 390px) {
             //     color: @titleColor-dark;
             // }

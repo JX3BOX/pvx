@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-10 22:52:58
+ * @LastEditTime: 2025-03-21 21:47:39
  * @Description: 小程序捏脸详情
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -25,12 +25,13 @@
         </div>
         <div class="m-tags">
             <div class="u-tag purple" v-if="!!post.star">★ 编辑推荐</div>
-            <div class="u-tag" v-if="!!post.is_fr">首发</div>
-            <div class="u-tag" v-if="!!post.original">原创</div>
-            <div class="u-tag">{{ showClientLabel(post.client) }}</div>
             <div class="u-tag" :class="post.is_new_face ? 'green' : 'mint'" v-if="post.is_new_body">
                 {{ newbodyMap[post.is_new_body] }}
             </div>
+            <div class="u-tag" v-if="!!post.is_fr">首发</div>
+            <div class="u-tag" v-if="!!post.original">原创</div>
+            <div class="u-tag">{{ showClientLabel(post.client) }}</div>
+
             <div class="u-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
         <!-- 介绍 -->
@@ -310,18 +311,22 @@ export default {
 
             &.green {
                 background: #34c759;
+                color: @nameColor-dark;
             }
 
             &.mint {
                 background: #23abe5;
+                color: @nameColor-dark;
             }
 
             &.purple {
                 background: #af52de;
+                color: @nameColor-dark;
             }
 
             &.new {
                 background: #ff72af;
+                color: @nameColor-dark;
             }
         }
     }

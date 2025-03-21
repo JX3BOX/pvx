@@ -28,7 +28,7 @@
             <!-- <div class="u-card-title">{{ activeName }}</div> -->
             <div class="u-list" id="oneList">
                 <routine gap="12px" :size="104" :isOne="true" :list="list" :total="total" v-if="listShow"
-                    @getMore="getMore"></routine>
+                    :loadingList="loadingList" @getMore="getMore"></routine>
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@ export default {
             activeName: "",
             tabsData: [
                 { label: "全部", value: -1, client: ["std", "origin"] },
-                { label: "成男", value: 1, client: ["std", "origin"] },
+                { label: "成男", value: 1, client: ["std", "origin"], },
                 { label: "成女", value: 2, client: ["std", "origin"] },
                 { label: "正太", value: 5, client: ["std"] },
                 { label: "萝莉", value: 6, client: ["std", "origin"] },
@@ -79,6 +79,8 @@ export default {
             },
             total: 0,
             bodyList: [], // 体型特辑
+            loadingList: false,
+            isFinish: false
         };
     },
     computed: {
@@ -107,6 +109,7 @@ export default {
             let item = this.tabsData.find((e) => e.value == val);
             this.activeName = item.label;
             this.active = val;
+            this.isFinish = false
         },
         getMore() {
             this.queryParams.pageIndex++;
@@ -141,24 +144,27 @@ export default {
         },
 
         loadList(params, index, body = false) {
+            this.loadingList = true
+            if (this.isFinish) return;
             getBodyList(params)
                 .then((res) => {
                     const { list, page } = res.data.data;
-                    const _list = this.active != -1 ? concat(this.list, list) : list;
+                    const _list = this.active != -1 ? concat(this.list, list || []) : list;
                     if (body) {
                         this.bodyList.push(_list[0]);
                         return;
                     }
                     if (this.active !== -1) {
+                        if (!list || list.length < params.pageSize) this.isFinish = true
                         this.list = _list || [];
                         this.queryParams.pageIndex = page.index || 1;
                         this.total = Number(page.total) || 0;
                     } else {
                         this.allList[index].list = _list || [];
                     }
-                    console.log(this.bodyList);
                 })
                 .finally(() => {
+                    this.loadingList = false
                     this.loading = false;
                     this.listShow = true;
                 });

@@ -80,7 +80,8 @@ export default {
             },
             total: 0,
             bodyList: [], // 体型特辑
-            loadingList: false
+            loadingList: false,
+            isFinish: false
         };
     },
     computed: {
@@ -110,6 +111,7 @@ export default {
             let item = this.tabsData.find((e) => e.value == val);
             this.activeName = item.label;
             this.active = val;
+            this.isFinish = false
         },
         // 捏脸海报
         getSliders() {
@@ -151,16 +153,18 @@ export default {
 
         loadList(params, index, body = false) {
             this.loadingList = true
+            if (this.isFinish) return;
             getFaceList(params)
                 .then((res) => {
-                    this.loadingList = false
+
                     const { list, page } = res.data.data;
-                    const _list = this.active != -1 ? concat(this.list, list) : list;
+                    const _list = this.active != -1 ? concat(this.list, list || []) : list;
                     if (body) {
                         this.bodyList.push(_list[0]);
                         return;
                     }
                     if (this.active !== -1) {
+                        if (!list || list.length < params.pageSize) this.isFinish = true
                         this.list = _list || [];
                         this.queryParams.pageIndex = page.index || 1;
                         this.total = page.total;
@@ -169,6 +173,7 @@ export default {
                     }
                 })
                 .finally(() => {
+                    this.loadingList = false
                     this.loading = false;
                     this.listShow = true;
                 });
