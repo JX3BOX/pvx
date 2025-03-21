@@ -1,5 +1,5 @@
 import { $next, $pay, $cms } from "@jx3box/jx3box-common/js/https";
-import axios from 'axios'
+import axios from "axios";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 /**
  * 获取捏脸列表
@@ -78,7 +78,8 @@ function deleteFace(id) {
  */
 function payFace(params) {
     return $pay({ mute: true }).post(
-        `/api/buy-licence/article/${params.postType}/${params.PostId}/pay/${params.priceType}/${params.priceCount}/from/${params.payUserId}/to/${params.accessUserId}`, {}
+        `/api/buy-licence/article/${params.postType}/${params.PostId}/pay/${params.priceType}/${params.priceCount}/from/${params.payUserId}/to/${params.accessUserId}`,
+        {}
     );
 }
 /**
@@ -137,7 +138,7 @@ function getRandomFace(params) {
 
 function getRandomFaceAndBody(params) {
     return $next().get(`/api/face/random-one/with-many-body`, {
-        params
+        params,
     });
 }
 
@@ -169,19 +170,19 @@ function setPost(id, data) {
 function getUserInfo(uid) {
     return $cms().get(`/api/cms/user/${uid}/info`, {
         params: {
-            nocache: 1
-        }
+            nocache: 1,
+        },
     });
 }
 
 function getDecorationJson() {
-    let url = __imgPath + "decoration/index.json"
-    return axios.get(url)
+    let url = __imgPath + "decoration/index.json";
+    return axios.get(url);
 }
 //获取装扮
 function getDecoration(params) {
-    return $cms().get(`/api/cms/user/decoration`,{
-        params
+    return $cms().get(`/api/cms/user/decoration`, {
+        params,
     });
 }
 export {
@@ -205,5 +206,5 @@ export {
     setPost,
     getUserInfo,
     getDecorationJson,
-    getDecoration
+    getDecoration,
 };

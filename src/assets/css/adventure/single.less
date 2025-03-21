@@ -196,3 +196,87 @@
         }
     }
 }
+
+@black-100: #1c1c1c;
+@black-100-dark: #ffffff;
+.v-miniprogram {
+    .m-main {
+        padding-top: 0;
+    }
+    &::after {
+        content: "";
+        display: block;
+        position: fixed;
+        .lt(0);
+        .rb(0);
+        z-index: -1;
+        background-color: #fafafa;
+    }
+    .m-adventure-content {
+        overflow-x: scroll;
+        padding: 20px;
+        border-radius: 0;
+        box-shadow: none;
+        margin-left: -20px;
+        margin-right: -20px;
+        .mb(0);
+        &::-webkit-scrollbar {
+            display: none;
+        }
+        .m-adventure-task {
+            width: max-content;
+            border-radius: 10px;
+        }
+    }
+
+    .m-adventure-header {
+        text-align: center;
+        margin: 0 -20px;
+        position: sticky;
+        top: 0;
+        background-color: #fafafa;
+        z-index: 5;
+        display: none;
+        .m-adventure-title {
+            .fz(16px,48px);
+            color: @black-100;
+        }
+        .m-trigger-links {
+            display: none;
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .v-miniprogram {
+        &::after {
+            background-color: #000;
+        }
+        .m-adventure-header {
+            background-color: #000;
+            .m-adventure-title {
+                .fz(16px,48px);
+                color: @black-100-dark;
+            }
+            .m-trigger-links {
+                display: none;
+            }
+        }
+    }
+}
+// 调试用，可删除
+.dark.v-miniprogram {
+    &::after {
+        background-color: #000;
+    }
+    .m-adventure-header {
+        background-color: #000;
+        .m-adventure-title {
+            .fz(16px,48px);
+            color: @black-100-dark;
+        }
+        .m-trigger-links {
+            display: none;
+        }
+    }
+}

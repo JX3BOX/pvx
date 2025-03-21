@@ -107,7 +107,8 @@
         display: none;
     }
 }
-@Brand-2: #fedaa3;
+@Brand-2: #24292e;
+@Brand-2-dark: #fedaa3;
 @black-40: rgba(28, 28, 28, 0.4);
 @black-80: rgba(28, 28, 28, 0.8);
 @black-100: #1c1c1c;
@@ -125,10 +126,12 @@
         .lt(0);
         .rb(0);
         z-index: -1;
+        background-color: #fafafa;
     }
     .m-main {
         padding-right: 0;
         padding-top: 0;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
     }
     .m-common-toolbar,
     .m-card-banner-list .u-action {
@@ -148,7 +151,7 @@
         position: sticky;
         top: 0;
         z-index: 5;
-        background-color: white;
+        background-color: #fafafa;
 
         .u-type-item {
             position: relative;
@@ -194,14 +197,26 @@
                     gap: 12px;
                     padding-bottom: 28px;
                     .m-cardlist-item {
+                        background-color: transparent;
+                        border: none;
                         .m-adventure-item {
                             height: 100%;
                             overflow: initial;
+                            box-shadow: none;
+                            border-radius: 8px;
+                            border: 1px solid rgba(40, 40, 40, 0.05);
+                            &:hover {
+                                background-color: transparent;
+                                box-shadow: none;
+                            }
                             .u-title {
                                 bottom: 10px;
                             }
                             .u-name {
-                                margin-top: 8px;
+                                position: absolute;
+                                bottom: -8px;
+                                transform: translateY(100%);
+                                left: 0;
                                 line-height: 20px;
                                 font-size: 14px;
                                 color: @Brand-2;
@@ -215,14 +230,21 @@
                 }
             }
         }
+        .m-archive-more,
+        .m-archive-pages {
+            width: calc(100% - 20px);
+        }
     }
     .m-face-list--all {
         .pr(20px);
+        margin-bottom: 0;
         .m-adventure-item {
             flex: calc(50% - 20px);
             height: 100%;
             margin-bottom: 28px;
             overflow: initial;
+            box-shadow: none;
+            border: 1px solid rgba(40, 40, 40, 0.05);
             .u-title {
                 bottom: 10px;
             }
@@ -237,6 +259,14 @@
                 display: block;
             }
         }
+        &::after {
+            content: "";
+            flex: 0 0 calc(50% - 20px);
+        }
+    }
+    .m-get-more {
+        text-align: center;
+        padding-top: 20px;
     }
 }
 @media (prefers-color-scheme: dark) {
@@ -244,8 +274,61 @@
         &::after {
             background-color: #000;
         }
+
+        .m-type-list {
+            color: @black-40-dark;
+            background-color: #000;
+
+            .u-type-item {
+                &.is-active {
+                    color: @black-100-dark;
+                    &::after {
+                        background-color: @black-100-dark;
+                    }
+                }
+            }
+        }
+        .m-adventure-list {
+            .u-all-type {
+                .u-title {
+                    color: @black-80-dark;
+                }
+            }
+            .m-card-banner-list {
+                .m-card-banner-list_header {
+                    .u-title {
+                        color: @black-80-dark;
+                    }
+                }
+                .m-card-banner-list_box {
+                    .m-cardlist-items {
+                        .m-cardlist-item {
+                            background-color: transparent;
+                            border-color: transparent;
+                            .m-adventure-item {
+                                background-color: @brand4;
+                                border-color: transparent;
+                                .u-name {
+                                    color: @Brand-2-dark;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .m-face-list--all {
+            .m-adventure-item {
+                background-color: @brand4;
+                border-color: transparent;
+                .u-name {
+                    color: @Brand-2-dark;
+                }
+            }
+        }
     }
 }
+// TODO 调试用，可删除
 .dark.v-miniprogram {
     &::after {
         background-color: #000;
@@ -284,6 +367,9 @@
                         .m-adventure-item {
                             background-color: @brand4;
                             border-color: transparent;
+                            .u-name {
+                                color: @Brand-2-dark;
+                            }
                         }
                     }
                 }
@@ -294,6 +380,9 @@
         .m-adventure-item {
             background-color: @brand4;
             border-color: transparent;
+            .u-name {
+                color: @Brand-2-dark;
+            }
         }
     }
 }

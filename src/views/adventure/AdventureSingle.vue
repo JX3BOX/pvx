@@ -23,8 +23,10 @@
         <div class="m-adventure-content">
             <task :id="id" :info="data" />
         </div>
+        <!-- (小程序端)包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
+        <PvxUserMiniprogram v-if="isMiniProgram" :id="achieve_id" name="奇遇" type="achievement"> </PvxUserMiniprogram>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="achieve_id" name="奇遇" type="achievement" v-if="achieve_id">
+        <pvx-user :id="achieve_id" name="奇遇" type="achievement" v-if="achieve_id && !isMiniProgram">
             <template slot="serendipity">
                 <div class="m-adventure-serendipity">
                     <Serendipity :title="title" />
@@ -41,6 +43,8 @@ import PvxUser from "@/components/PvxUser.vue";
 import task from "@/components/adventure/task.vue";
 import Serendipity from "@/components/common/serendipity.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
+import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "adventureSingle",
     props: [],
@@ -48,6 +52,7 @@ export default {
         task,
         Serendipity,
         PvxUser,
+        PvxUserMiniprogram,
     },
     data: function () {
         return {
@@ -58,6 +63,7 @@ export default {
             isPet: true,
             loading: false,
             search: "",
+            isMiniProgram: isMiniProgram(),
         };
     },
     computed: {
@@ -89,6 +95,7 @@ export default {
                 .then((res) => {
                     this.isPet = false;
                     this.data = res.data;
+                    document.title = this.data?.szName;
                 })
                 .finally(() => {
                     this.loading = false;

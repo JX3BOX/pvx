@@ -1,11 +1,11 @@
 <!--
- * @Author: zhusha 
+ * @Author: zhusha
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-28 22:29:29
+ * @LastEditTime: 2025-03-08 23:55:59
  * @Description: 小程序适配捏脸常规模组-其他作品
- * 
- * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
+ *
+ * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
     <div class="p-face-routine" :style="{ gap: gap }">
@@ -26,7 +26,7 @@ import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
 export default {
     computed: {
         link() {
-            return location.origin + "/body/singleMobile";
+            return location.origin + "/body";
         },
     },
     components: {},
@@ -58,7 +58,7 @@ export default {
             height: 0,
         };
     },
-    created() {},
+    created() { },
     mounted() {
         this.width = this.isNumber ? parseInt((document.body.clientWidth - 72) / this.number) : this.size;
         this.height = parseInt(this.width / 0.6);
@@ -83,36 +83,42 @@ export default {
 @black-40: rgba(28, 28, 28, 0.4);
 @color: #fafafa;
 @color-dark: #282828;
+
 .p-face-routine {
-    .size(100%,182px);
+    .w(100%);
     .flex;
     overflow: auto;
     box-sizing: border-box;
+
     &::-webkit-scrollbar {
         width: 0;
         height: 0;
     }
+
     .u-item {
         .u-item_img {
             .r(4px);
             background: #d9d9d9;
             overflow: hidden;
             .pr;
-            .size(100%,100%);
+            .size(100%, 100%);
+
             &::before {
                 content: "";
                 .pa;
-                .size(100%,100%);
+                .size(100%, 100%);
                 .lt(0);
                 .dbi;
                 .z(1);
                 background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
             }
+
             img {
-                .size(100%,100%);
+                .size(100%, 100%);
                 object-fit: cover;
             }
         }
+
         .u-item_name {
             .pa;
             .z(2);
@@ -120,7 +126,7 @@ export default {
             .bold(400);
             font-style: normal;
             .w(calc(100% - 12px));
-            .fz(14px,20px);
+            .fz(14px, 20px);
             .mb(4px);
             white-space: nowrap;
             overflow: hidden;

@@ -55,25 +55,32 @@
                     :reporter="{ aggregate: listId(subList) }"
                 />
             </div>
-            <el-button
-                class="m-archive-more"
-                v-show="hasNextPage"
-                type="primary"
-                @click="appendPage"
-                :loading="loading"
-                icon="el-icon-arrow-down"
-                >加载更多</el-button
-            >
-            <el-pagination
-                class="m-archive-pages"
-                background
-                layout="total, prev, pager, next, jumper"
-                :hide-on-single-page="true"
-                :page-size="per"
-                :total="total"
-                :current-page="page"
-                @current-change="changePage"
-            ></el-pagination>
+            <template v-if="isMiniProgram">
+                <div class="m-get-more" v-if="hasNextPage">
+                    <el-link type="primary" @click="appendPage">加载更多</el-link>
+                </div>
+            </template>
+            <template v-else>
+                <el-button
+                    class="m-archive-more"
+                    v-show="hasNextPage"
+                    type="primary"
+                    @click="appendPage"
+                    :loading="loading"
+                    icon="el-icon-arrow-down"
+                    >加载更多</el-button
+                >
+                <el-pagination
+                    class="m-archive-pages"
+                    background
+                    layout="total, prev, pager, next, jumper"
+                    :hide-on-single-page="true"
+                    :page-size="per"
+                    :total="total"
+                    :current-page="page"
+                    @current-change="changePage"
+                ></el-pagination>
+            </template>
         </div>
         <div class="u-archive-alert" v-if="noList || (subList && !subList.length)">
             <el-alert title="没有对应的奇遇，请重新查找" type="info" center show-icon />
@@ -88,6 +95,7 @@ import AdventureItem from "@/components/adventure/item.vue";
 import { getAdventures } from "@/service/adventure/adventure";
 import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import dayjs from "@/utils/day";
 export default {
     name: "adventureList",
@@ -144,6 +152,8 @@ export default {
                 width: "210",
                 height: "224",
             },
+
+            isMiniProgram: isMiniProgram(),
         };
     },
     computed: {

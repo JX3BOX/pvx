@@ -34,7 +34,7 @@
                     {{ scope.row.createUser }}
                 </template>
             </el-table-column>
-            <el-table-column fixed="right" label="操作" width="100">
+            <el-table-column fixed="right" label="操作" width="100" v-if="!isMiniProgram">
                 <template>
                     <el-button size="small" plain type="primary" icon="el-icon-edit">去答题</el-button>
                 </template>
@@ -44,12 +44,13 @@
 </template>
 <script>
 import { __clients } from "@jx3box/jx3box-common/data/jx3box.json";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "QuestionList",
     props: ["data"],
     components: {},
     data: function () {
-        return { clients: __clients };
+        return { clients: __clients, isMiniProgram: isMiniProgram() };
     },
     computed: {
         client: function () {

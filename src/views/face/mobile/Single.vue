@@ -1,11 +1,11 @@
 <!--
- * @Author: zhusha 
+ * @Author: zhusha
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-02-28 22:42:21
+ * @LastEditTime: 2025-03-20 21:56:29
  * @Description: 小程序捏脸详情
- * 
- * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved. 
+ *
+ * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
     <div class="p-face-detail" v-loading="loading">
@@ -25,10 +25,10 @@
         </div>
         <div class="m-tags">
             <div class="u-tag purple" v-if="!!post.star">★ 编辑推荐</div>
+            <div class="u-tag" :class="post.is_new_face ? 'green' : 'mint'">{{ newFaceMap[post.is_new_face] }}</div>
             <div class="u-tag" v-if="!!post.is_fr">首发</div>
             <div class="u-tag" v-if="!!post.original">原创</div>
             <div class="u-tag">{{ showClientLabel(post.client) }}</div>
-            <div class="u-tag" :class="post.is_new_face ? 'green' : 'mint'">{{ newFaceMap[post.is_new_face] }}</div>
             <div class="u-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
         <!-- 介绍 -->
@@ -52,7 +52,7 @@
             <div class="u-number">{{ post.code }}</div>
         </div>
         <!-- 捏脸数据 -->
-        <div class="m-face-data" v-else>
+        <div class="m-face-data" v-else @click="goToFaceDataMobile()">
             <div class="u-text">捏脸数据</div>
             <img src="@/assets/img/face/mobile/CaretLeft.svg" class="u-img" />
             <img src="@/assets/img/face/mobile/CaretLeft-dark.svg" class="u-img-dark" />
@@ -125,7 +125,7 @@ export default {
     created() {
         this.getData();
     },
-    mounted() {},
+    mounted() { },
     methods: {
         showAvatar,
         showPic(url) {
@@ -143,6 +143,7 @@ export default {
                 getOneFaceInfo(this.id)
                     .then((res) => {
                         this.post = res.data.data;
+                        console.log(this.post)
                         //获取作者作品 和 系统推荐作品
                         this.getRandomFaceList();
                         this.getUserInfo();
@@ -198,6 +199,13 @@ export default {
                 });
             });
         },
+        goToFaceDataMobile() {
+            //session缓存捏脸数据
+            sessionStorage.setItem("faceData", JSON.stringify(this.faceAllData));
+            this.$router.push({
+                name: `faceDataMobile`,
+            });
+        },
     },
 };
 </script>
@@ -213,43 +221,55 @@ export default {
 @fontColor-dark2: rgba(255, 255, 255, 0.4);
 @btnBgColor: #24292e;
 @btnBgColor-dark: #fedaa3;
+
 .p-face-detail {
     height: 100vh;
-    background-color: #f5f5f5;
+    background-color: #fafafa;
     overflow: auto;
+    .pb(20px);
+
     .m-face-detail_top {
         .pr;
+
         .u-img_item {
-            .size(100%,375px);
+            .size(100%, 375px);
 
             overflow: hidden;
             .pr;
+
             &::before {
                 content: "";
                 .pa;
-                .size(100%,100%);
+                .size(100%, 100%);
                 .lt(0);
                 .dbi;
                 .z(1);
                 background: linear-gradient(180deg, rgba(250, 250, 250, 0) 44.67%, #fafafa 100%);
             }
+
             img {
-                .size(100%,100%);
+                .size(100%, 100%);
                 object-fit: cover;
             }
         }
 
         .el-carousel__indicators {
+            height: 42px;
+
             &.el-carousel__indicators--horizontal {
                 right: 0;
                 left: unset;
             }
+
             .el-carousel__indicator {
+                .pt(0);
+
                 .el-carousel__button {
-                    .size(8px,8px);
+                    .size(8px, 8px);
                     .r(8px);
                     background-color: rgba(28, 28, 28, 0.4);
                 }
+
                 &.is-active {
                     .el-carousel__button {
                         background-color: #1c1c1c;
@@ -257,23 +277,26 @@ export default {
                 }
             }
         }
+
         .u-face_info {
             .pa;
             .z(2);
-            .lb(20px,6px);
+            .lb(20px, 6px);
+
             .u-face_name {
                 color: @nameColor;
-                .fz(16px,24px);
+                .fz(16px, 24px);
                 .bold(700);
             }
 
             .u-face_author {
                 color: rgba(28, 28, 28, 0.4);
-                .fz(12px,18px);
+                .fz(12px, 18px);
                 .bold(400);
             }
         }
     }
+
     .m-tags {
         .flex;
         padding: 14px 20px;
@@ -281,6 +304,7 @@ export default {
         gap: 4px;
         align-items: center;
         align-self: stretch;
+
         .u-tag {
             padding: 4px 8px;
             .flex;
@@ -289,22 +313,31 @@ export default {
             border: 1px solid rgba(40, 40, 40, 0.05);
             background: @fontBgColor;
             color: @fontColor;
-            .fz(10px,15px);
+            .fz(10px, 15px);
             .bold(400);
+
             &.green {
                 background: #34c759;
+                color: @nameColor-dark;
             }
+
             &.mint {
                 background: #23abe5;
+                color: @nameColor-dark;
             }
+
             &.purple {
                 background: #af52de;
+                color: @nameColor-dark;
             }
+
             &.new {
                 background: #ff72af;
+                color: @nameColor-dark;
             }
         }
     }
+
     .m-introduce {
         border: 1px solid rgba(40, 40, 40, 0.05);
         padding: 16px;
@@ -312,18 +345,21 @@ export default {
         background-color: @fontBgColor;
         margin: 0 20px 16px 20px;
         box-sizing: border-box;
+
         .u-title {
             color: @fontColor2;
-            .fz(12px,18px);
+            .fz(12px, 18px);
             .bold(400);
             .mb(4px);
         }
+
         .u-content {
             color: @fontColor;
-            .fz(14px,20px);
+            .fz(14px, 20px);
             .bold(400);
         }
     }
+
     .m-warning {
         .flex;
         gap: 12px;
@@ -333,12 +369,14 @@ export default {
         .r(12px);
         background-color: @fontBgColor;
         color: @fontColor2;
-        .fz(14px,20px);
+        .fz(14px, 20px);
         .bold(400);
+
         .u-img-dark {
             display: none;
         }
     }
+
     .m-face-data {
         .flex;
         justify-content: space-between;
@@ -348,19 +386,22 @@ export default {
         .r(12px);
         background-color: @fontBgColor;
         color: @fontColor;
-        .fz(16px,24px);
+        .fz(16px, 24px);
         .bold(700);
+
         .u-img-dark {
             display: none;
         }
     }
+
     .m-face-number {
         margin: 0 20px 16px 20px;
         padding: 16px;
         .r(12px);
         background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%), #ff7991;
         color: #fff;
-        .fz(12px,18px);
+        .fz(12px, 18px);
+
         .u-title {
             .flex;
             gap: 2px;
@@ -368,51 +409,60 @@ export default {
             .bold(400);
             .mb(4px);
         }
+
         .u-number {
             .bold(700);
         }
     }
+
     .m-face-author {
         margin: 0 20px 16px 20px;
         background-color: @fontBgColor;
         .pr;
         .r(12px);
         overflow: hidden;
+
         &::before {
             content: "";
             .pa;
-            .size(100%,150px);
+            .size(100%, 150px);
             .lt(0);
             .dbi;
             .z(1);
             background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 100%);
         }
+
         .u-title {
             .pa;
             .lt(16px);
-            .fz(12px,18px);
+            .fz(12px, 18px);
             .bold(700);
             .z(2);
             color: #fff;
         }
+
         img {
-            .size(100%,140px);
+            .size(100%, 140px);
             object-fit: cover;
         }
+
         .u-info-box {
             .flex;
             justify-content: space-between;
             padding: 12px 16px;
+
             .u-author_name {
                 color: @fontColor;
-                .fz(14px,20px);
+                .fz(14px, 20px);
                 .bold(700);
             }
+
             .u-author_vermicelli {
                 color: @fontColor2;
-                .fz(10px,15px);
+                .fz(10px, 15px);
                 .bold(400);
             }
+
             .u-follow {
                 .flex;
                 .flex(o);
@@ -420,111 +470,134 @@ export default {
                 .r(8px);
                 background: @btnBgColor;
                 color: @btnBgColor-dark;
-                .fz(10px,15px);
+                .fz(10px, 15px);
             }
         }
+
         .u-author_introduce {
             color: @fontColor2;
-            .fz(12px,18px);
+            .fz(12px, 18px);
             .bold(400);
             padding: 0 16px 16px 16px;
         }
     }
+
     .m-face-author_other {
         margin: 0 20px 16px 20px;
         background-color: @fontBgColor;
         .pb(16px);
         .r(12px);
+
         .u-title {
             color: @fontColor;
-            .fz(12px,18px);
+            .fz(12px, 18px);
             .bold(700);
             padding: 16px 16px 12px 16px;
         }
+
         .u-other_list {
             padding: 0 16px;
         }
     }
+
     // dark模式利用宽度模拟覆盖
-    @media screen and (width: 390px) {
+    // @media screen and (width: 390px)
+    @media (prefers-color-scheme: dark) {
         background-color: #000;
+
         .m-face-detail_top {
             .u-img_item {
                 &::before {
                     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
                 }
             }
+
             .u-face_info {
                 .u-face_name {
                     color: @nameColor-dark;
                 }
+
                 .u-face_author {
                     color: @fontColor-dark2;
                 }
             }
         }
+
         .m-tags {
             .u-tag {
                 background: @fontBgColor-dark;
                 color: @fontColor-dark;
             }
         }
+
         .m-introduce {
             background-color: @fontBgColor-dark;
+
             .u-title {
                 color: @fontColor-dark2;
             }
+
             .u-content {
                 color: @fontColor-dark;
             }
         }
+
         .m-warning {
             background-color: @fontBgColor-dark;
             color: @fontColor-dark2;
+
             .u-img {
                 display: none;
             }
+
             .u-img-dark {
                 display: block;
             }
         }
+
         .m-face-data {
             background-color: @fontBgColor-dark;
             color: @fontColor-dark;
+
             .u-img {
                 display: none;
             }
+
             .u-img-dark {
                 display: block;
             }
         }
+
         .m-face-author {
             background-color: @fontBgColor-dark;
+
             .u-info-box {
                 .u-author_name {
                     color: @fontColor-dark;
                 }
+
                 .u-author_vermicelli {
                     color: @fontColor-dark2;
                 }
+
                 .u-follow {
                     background: @btnBgColor-dark;
                     color: @btnBgColor;
                 }
             }
+
             .u-author_introduce {
                 color: @fontColor-dark2;
             }
         }
+
         .m-face-author_other {
             background-color: @fontBgColor-dark;
+
             .u-title {
                 color: @fontColor-dark2;
             }
         }
-    }
-    @media (prefers-color-scheme: dark) {
-        // dark模式覆盖
     }
 }
 </style>

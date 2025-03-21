@@ -34,4 +34,10 @@ export default {
 </script>
 <style lang="less">
 @import "~@/assets/css/app.less";
+
+.v-miniprogram {
+    .m-main {
+        padding: 0;
+    }
+}
 </style>
