@@ -189,15 +189,13 @@
                                     true
                                 )
                                     " />
-                                {{ subItem.DecalsType }}
-                                {{ facedata.tDecal[subItem.DecalsType]["nShowID"] }}
-                                <!-- {{
+                                {{
                                     decalDb.getDecalName(
                                         subItem.DecalsType,
                                         facedata.tDecal[subItem.DecalsType]["nShowID"],
                                         true
                                     )
-                                }} -->
+                                }}
                                 <span class="u-dname"> ({{ facedata.tDecal[subItem.DecalsType].nColorID }})</span>
                             </div>
                             <div class="u-decals-params-box">
@@ -296,8 +294,7 @@ export default {
     },
 
     mounted() {
-        console.log(this.decalDb);
-        console.log("xxxx")
+
     },
 
     computed: {
@@ -307,7 +304,7 @@ export default {
                 _cleandata.nDecorationID = 0;
                 for (let key in _cleandata.tDecal) {
                     let CanUseInCreate = this.decalDb.getDecalIsFree(key, _cleandata.tDecal[key]["nShowID"], true);
-                    console.log(CanUseInCreate);
+
                     if (!CanUseInCreate) {
                         _cleandata.tDecal[key]["nShowID"] = decal_default[key]["nShowID"];
                     }

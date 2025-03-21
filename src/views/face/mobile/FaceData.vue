@@ -98,10 +98,8 @@ export default {
         // 数据构建
         render: function () {
             let data = JSON.parse(sessionStorage.getItem("faceData"));
-            console.log(data);
             // this.decalDb.ready()
-            console.log(this.client)
-            this.decalDb = new DecalDatabase(this.client, data.bNewFace);
+            this.decalDb = new DecalDatabase(this.client, data?.object?.bNewFace);
 
             // 是否为空
             if (!data) {
