@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-08 23:56:12
+ * @LastEditTime: 2025-03-21 22:50:45
  * @Description: 小程序适配捏脸常规模组-其他作品
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -26,7 +26,7 @@ import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
 export default {
     computed: {
         link() {
-            return location.origin + "/body";
+            return location.origin + "/face";
         },
     },
     components: {},
