@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-21 21:47:39
+ * @LastEditTime: 2025-03-21 22:13:11
  * @Description: 小程序捏脸详情
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -223,7 +223,7 @@ export default {
 
 .p-body-detail {
     height: 100vh;
-    background-color: #f5f5f5;
+    background-color: #fafafa;
     overflow: auto;
 
     .m-body-detail_top {
@@ -241,7 +241,7 @@ export default {
                 .lt(0);
                 .dbi;
                 .z(1);
-                background: linear-gradient(rgba(250, 250, 250, 0) 44.67%, #f5f5f5 100%);
+                background: linear-gradient(rgba(250, 250, 250, 0) 44.67%, #fafafa 100%);
             }
 
             img {
