@@ -127,7 +127,7 @@ export default {
 
     .u-item {
         .u-item_img {
-            .r(4px);
+            .r(8px);
             background: #d9d9d9;
             overflow: hidden;
 

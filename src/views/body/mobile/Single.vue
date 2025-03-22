@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-21 22:13:11
+ * @LastEditTime: 2025-03-22 09:43:51
  * @Description: 小程序捏脸详情
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -47,7 +47,7 @@
         </div>
 
         <!-- 捏脸码 -->
-        <div class="m-body-number" v-if="post.code_mode">
+        <div class="m-body-number" v-if="post.code_mode" @click="copy">
             <div class="u-title">
                 <img src="@/assets/img/face/mobile/copy.svg" />
                 <div class="u-text">捏脸码</div>
@@ -196,6 +196,15 @@ export default {
                     this.randomList = res.data.data.list;
 
                 }
+            });
+        },
+        copy() {
+            navigator.clipboard.writeText(this.post.code_mode).then(() => {
+                this.$notify({
+                    title: "复制成功",
+                    message: "内容：" + this.post.code_mode,
+                    type: "success",
+                });
             });
         },
         goTobBodydatMobile() {

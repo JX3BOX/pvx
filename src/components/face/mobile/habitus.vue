@@ -67,7 +67,7 @@ export default {
     .u-item {
         .pr;
         .h(156px);
-        .r(4px);
+        .r(8px);
         overflow: hidden;
 
         .u-item_img {
@@ -93,7 +93,7 @@ export default {
 
         .u-item_type {
             color: @titleColor;
-            .fz(10px, 15px);
+            .fz(14px, 15px);
             .bold(400);
             font-style: normal;
             .pa;

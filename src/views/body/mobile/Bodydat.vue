@@ -1,13 +1,8 @@
 <template>
     <div class="c-facedat" v-if="ready && group_tabs">
         <div class="m-body-list_mobile__tabs">
-            <div
-                class="u-tab_item"
-                v-for="(item, index) in Object.values(group_tabs)"
-                :key="index"
-                :class="{ 'is-active': active == item.value }"
-                @click="active = item.value"
-            >
+            <div class="u-tab_item" v-for="(item, index) in Object.values(group_tabs)" :key="index"
+                :class="{ 'is-active': active == item.value }" @click="active = item.value">
                 {{ item.label }}
             </div>
         </div>
@@ -19,13 +14,8 @@
                         <li v-for="(item, i) in currentGroup" :key="i">
                             <label>{{ item.name }}</label>
                             <span>{{ item.value }}</span>
-                            <slider
-                                class="u-range"
-                                :min="item.min"
-                                :max="item.max"
-                                v-model="body_data.tBody[item.key]"
-                                :disabled="false"
-                            ></slider>
+                            <slider class="u-range" :min="item.min" :max="item.max" v-model="body_data.tBody[item.key]"
+                                :disabled="false"></slider>
                         </li>
                     </ul>
                 </div>
@@ -117,10 +107,14 @@ export default {
             }
         },
     },
-    mounted() {},
+    mounted() { },
 };
 </script>
 
 <style lang="less">
 @import "~@/assets/css/body/data.less";
+
+.slide-bar {
+    background-color: rgb(107, 82, 255) !important;
+}
 </style>

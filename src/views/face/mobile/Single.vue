@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-20 21:56:29
+ * @LastEditTime: 2025-03-22 09:43:04
  * @Description: 小程序捏脸详情
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -10,7 +10,7 @@
 <template>
     <div class="p-face-detail" v-loading="loading">
         <div class="m-face-detail_top">
-            <el-carousel height="375px">
+            <el-carousel height="500px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">
                     <div class="u-img_item">
                         <img :src="showPic(item)" />
@@ -44,7 +44,7 @@
         </div>
 
         <!-- 捏脸码 -->
-        <div class="m-face-number" v-if="post.code_mode">
+        <div class="m-face-number" v-if="post.code_mode" @click="copy">
             <div class="u-title">
                 <img src="@/assets/img/face/mobile/copy.svg" />
                 <div class="u-text">捏脸码</div>
@@ -232,7 +232,7 @@ export default {
         .pr;
 
         .u-img_item {
-            .size(100%, 375px);
+            .size(100%, 500px);
 
             overflow: hidden;
             .pr;
@@ -313,7 +313,7 @@ export default {
             border: 1px solid rgba(40, 40, 40, 0.05);
             background: @fontBgColor;
             color: @fontColor;
-            .fz(10px, 15px);
+            .fz(14px, 15px);
             .bold(400);
 
             &.green {

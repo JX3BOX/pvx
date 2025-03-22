@@ -45,13 +45,13 @@ module.exports = {
             filename: "exam/index.html",
         },
         face: {
-            title: "捏脸分享 - JX3BOX",
+            title: "捏脸数据 - JX3BOX",
             entry: "src/pages/face/index.js",
             template: "public/index.html",
             filename: "face/index.html",
         },
         body: {
-            title: "体型分享 - JX3BOX",
+            title: "体型数据 - JX3BOX",
             entry: "src/pages/body/index.js",
             template: "public/index.html",
             filename: "body/index.html",
@@ -79,7 +79,7 @@ module.exports = {
             entry: "src/pages/homeland/index.js",
             template: "public/index.html",
             filename: "homeland/index.html",
-        }
+        },
     },
 
     //❤️ Proxy ~

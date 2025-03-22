@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-21 21:48:16
+ * @LastEditTime: 2025-03-22 09:39:36
  * @Description: 小程序适配体型常规模组
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -127,7 +127,7 @@ export default {
 
     .u-item {
         .u-item_img {
-            .r(4px);
+            .r(8px);
             background: #d9d9d9;
             overflow: hidden;
 

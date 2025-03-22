@@ -2,7 +2,7 @@
  * @Author: zhusha
  * @Date: 2025-02-17 22:25:34
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-21 21:31:30
+ * @LastEditTime: 2025-03-22 09:38:34
  * @Description: 小程序适配体型常规模组
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
@@ -74,7 +74,7 @@ export default {
 
         .u-item_img {
             .size(100%);
-            .r(4px);
+            .r(8px);
             .pr;
             overflow: hidden;
 
@@ -96,7 +96,7 @@ export default {
 
         .u-item_type {
             color: @titleColor;
-            .fz(10px, 15px);
+            .fz(14px, 15px);
             .bold(400);
             font-style: normal;
             .pa;

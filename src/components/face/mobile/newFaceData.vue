@@ -319,4 +319,8 @@ export default {
 };
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+.slide-bar {
+    background-color: rgb(107, 82, 255) !important;
+}
+</style>
