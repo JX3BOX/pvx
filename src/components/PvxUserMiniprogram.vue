@@ -505,69 +505,37 @@ export default {
     }
 }
 @media (prefers-color-scheme: dark) {
-    .u-adventure-tips {
-        color: @black-40-dark !important;
-    }
-    .m-wiki-post-panel {
-        background-color: @brand4-dark !important;
-        .m-panel-title {
-            color: @brand2-dark !important;
+    .w-pvx-user__miniprogram{
+        .u-adventure-tips {
+            color: @black-40-dark !important;
         }
-        .m-panel-body {
-            .m-wiki-metas {
-                .u-value {
-                    color: rgba(@color-dark, 0.4) !important;
+        .m-wiki-post-panel {
+            background-color: @brand4-dark !important;
+            .m-panel-title {
+                color: @brand2-dark !important;
+            }
+            .m-panel-body {
+                .m-wiki-metas {
+                    .u-value {
+                        color: rgba(@color-dark, 0.4) !important;
+                    }
+                }
+                .c-article-tinymce {
+                    color: @black-80-dark !important;
                 }
             }
-            .c-article-tinymce {
+            .m-wiki-signature {
+                color: @black-40-dark !important;
+            }
+        }
+        .c-wiki-comments {
+            background-color: @brand4-dark;
+            .u-content {
                 color: @black-80-dark !important;
             }
-        }
-        .m-wiki-signature {
-            color: @black-40-dark !important;
-        }
-    }
-    .c-wiki-comments {
-        background-color: @brand4-dark;
-        .u-content {
-            color: @black-80-dark !important;
-        }
-        .u-time {
-            color: @black-40-dark !important;
-        }
-    }
-}
-// TODO 调试用，可删除
-.dark.v-miniprogram {
-    .u-adventure-tips {
-        color: @black-40-dark !important;
-    }
-    .m-wiki-post-panel {
-        background-color: @brand4-dark !important;
-        .m-panel-title {
-            color: @brand2-dark !important;
-        }
-        .m-panel-body {
-            .m-wiki-metas {
-                .u-value {
-                    color: rgba(@color-dark, 0.4) !important;
-                }
+            .u-time {
+                color: @black-40-dark !important;
             }
-            .c-article-tinymce {
-                color: @black-80-dark !important;
-            }
-        }
-        .m-wiki-signature {
-            color: @black-40-dark !important;
-        }
-    }
-    .c-wiki-comments {
-        background-color: @brand4-dark;
-        .u-content {
-            color: @black-80-dark !important;
-        }
-        .u-time {
-            color: @black-40-dark !important;
         }
     }
 }
