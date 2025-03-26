@@ -88,7 +88,7 @@ export default {
         },
         onUpdateCustomPrice() {
             const { jin, yin, tong } = this.newPrice;
-            const price = Number(jin * 10000 + yin * 100 + tong);
+            const price = Number(jin * 10000) + Number(yin * 100) + Number(tong);
             if (this.type == "cart") {
                 this.$emit("update_price", price);
             } else {
