@@ -172,7 +172,12 @@
 
             <div class="m-stat">
                 <div class="m-all">
-                    <div class="u-label">总计</div>
+                    <div class="u-label">
+                        总计
+                        <el-tooltip content="查看材料详情">
+                            <el-button type="text" icon="el-icon-toilet-paper" @click="onViewMaterials"> </el-button>
+                        </el-tooltip>
+                    </div>
                     <div class="u-value">
                         <div class="u-num">
                             <span><i class="el-icon-sunny"></i> 消耗精力值：</span>
@@ -220,6 +225,7 @@
                 </div>
             </div>
         </div>
+        <CartMaterialsVue ref="materials"></CartMaterialsVue>
     </div>
 </template>
 <script>
@@ -233,10 +239,11 @@ import PriceItem from "@/components/manufacture/PriceItem.vue";
 import PriceDetail from "@/components/manufacture/PriceDetail.vue";
 import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
 import User from "@jx3box/jx3box-common/js/user";
+import CartMaterialsVue from "./CartMaterials.vue";
 
 export default {
     name: "cart",
-    components: { Item, GamePrice, PriceItem, PriceDetail },
+    components: { Item, GamePrice, PriceItem, PriceDetail, CartMaterialsVue },
     props: ["craftList"],
     data: function () {
         return {
@@ -295,6 +302,29 @@ export default {
 
     methods: {
         iconLink,
+        getMaterials() {
+            const result = {}; //{id: {count}}
+            for (const recipe of this.cartList) {
+                for (const material of recipe.materials) {
+                    if (material.make) continue;
+                    if (!result[material.item_id]) {
+                        result[material.item_id] = {
+                            count: 0,
+                            price: 0,
+                            item: material.item,
+                        };
+                    }
+                    result[material.item_id].count += material.count * recipe.count;
+                    result[material.item_id].price += material.price_unit * material.count * recipe.count;
+                }
+            }
+            return Object.keys(result).map((id) => {
+                return { ...result[id], id };
+            });
+        },
+        onViewMaterials() {
+            this.$refs.materials.open(this.getMaterials());
+        },
         // 移除
         onRemove(item) {
             if (!item) {
@@ -512,7 +542,7 @@ export default {
 <style lang="less">
 @import "~@/assets/css/manufacture/cart.less";
 </style>
-<style lang="less" scoped>
+<style lang="less">
 .no-profit {
     color: #f56c6c;
 }
@@ -532,6 +562,14 @@ export default {
 }
 .m-cart-list .m-item:first-of-type .u-header {
     padding-top: 0;
+}
+.m-cart-body .m-stat .m-all .u-total {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    .el-button {
+        padding: 2px 0;
+    }
 }
 .m-cart-body .m-item {
     .u-item-num.no-padding {
@@ -561,11 +599,16 @@ export default {
             }
         }
     }
-    .u-info .u-price-mode-switch {
-        .ml(6px);
+    .u-info .el-divider__text {
+        display: flex;
+        align-items: center;
+        .u-price-mode-switch {
+            .ml(6px);
+            padding: 0;
 
-        .el-icon-sort {
-            transform: rotate(90deg);
+            .el-icon-sort {
+                transform: rotate(90deg);
+            }
         }
     }
 }
