@@ -77,6 +77,9 @@
         <!-- 其他作品 -->
         <div class="m-body-author_other">
             <div class="u-title">{{ post.display_name }}其他作品</div>
+            <div class="u-img_item" v-if="randomList.length === 0">
+                <img src="@/assets/img/face/mobile/empty.png" />
+            </div>
             <div class="u-other_list">
                 <routine_other :list="randomList" :isNumber="true"></routine_other>
             </div>
@@ -497,6 +500,20 @@ export default {
             padding: 16px 16px 12px 16px;
         }
 
+        .u-img_item {
+            .pr;
+
+            &::before {
+                content: "";
+                .pa;
+                .size(100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                background: linear-gradient(180deg, #FFF 0.04%, rgba(250, 250, 250, 0.00) 49.5%, #FAFAFA 99.96%);
+            }
+        }
+
         .u-other_list {
             padding: 0 16px;
         }
@@ -594,6 +611,12 @@ export default {
 
             .u-title {
                 color: @fontColor-dark2;
+            }
+
+            .u-img_item {
+                &::before {
+                    background: linear-gradient(180deg, #1C1C1C 0.04%, rgba(0, 0, 0, 0.00) 49.5%, #000 99.96%);
+                }
             }
         }
     }
