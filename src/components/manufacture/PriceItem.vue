@@ -79,6 +79,17 @@ export default {
         },
     },
     methods: {
+        reset() {
+            const price = this.price || 0;
+            const jin = Math.floor(price / 10000);
+            const yin = Math.floor((price % 10000) / 100);
+            const tong = price % 100;
+            this.newPrice = {
+                jin,
+                yin,
+                tong,
+            };
+        },
         onRemoveCustomPrice() {
             if (this.type == "cart") {
                 this.$emit("update_price", this.origin_price);
@@ -101,12 +112,11 @@ export default {
             }
 
             this.visible = false;
-            this.newPrice = {
-                jin: "",
-                yin: "",
-                tong: "",
-            };
+            this.reset();
         },
+    },
+    mounted() {
+        this.reset();
     },
 };
 </script>

@@ -50,6 +50,10 @@
                         <div class="u-info">
                             <el-divider content-position="left" v-if="!item.fold">
                                 [ {{ item.server }} ] - <i class="el-icon-box"></i> 材料成本统计
+                                <el-button class="u-price-mode-switch" type="text" @click="switchPriceMode(item)">
+                                    <i class="el-icon-sort"></i>
+                                    {{ item.priceMode == "single" ? "单价" : "总价" }}
+                                </el-button>
                             </el-divider>
                             <!-- 材料列表 -->
                             <div class="u-children" v-if="item.materials.length && !item.fold">
@@ -96,7 +100,7 @@
                                     <PriceItem
                                         v-if="!material.make"
                                         class="u-price-num"
-                                        :count="material.count * item.count"
+                                        :count="item.priceMode == 'single' ? 1 : material.count * item.count"
                                         :price="material.price_unit"
                                         :origin_price="material.price_unit_origin"
                                         :name="material.item.item_info.Name"
@@ -327,11 +331,8 @@ export default {
                     return "";
             }
         },
-        onlyInteger(index, number) {
-            number = number + "";
-            number = number.replace(/[^\.\d]/g, "");
-            number = number.replace(".", "");
-            this.cartList[index].count = ~~number;
+        switchPriceMode(item) {
+            this.$set(item, "priceMode", item.priceMode == "single" ? "total" : "single");
         },
         add(recipe) {
             this.cartList.push(recipe);
@@ -416,7 +417,7 @@ export default {
             } else {
                 this.$prompt(`请输入账单名称`, `保存新账单`, {
                     inputValue: `账单 ${showTime(new Date())}`,
-                    closeOnClickModal: false
+                    closeOnClickModal: false,
                 })
                     .catch((e) => {
                         console.error(e);
@@ -558,6 +559,13 @@ export default {
                 .pointer;
                 color: #000;
             }
+        }
+    }
+    .u-info .u-price-mode-switch {
+        .ml(6px);
+
+        .el-icon-sort {
+            transform: rotate(90deg);
         }
     }
 }
