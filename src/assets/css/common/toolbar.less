@@ -162,3 +162,40 @@
         }
     }
 }
+
+.v-miniprogram {
+    .m-common-toolbar {
+        .m-toolbar-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .m-toolbar-item__mobile {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            .u-current-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                .u-item {
+                    flex-grow: 1;
+                    width: 0;
+                }
+                .u-more {
+                    .w(20px);
+                }
+            }
+
+            .u-item-options {
+                display: flex;
+                gap: 10px;
+                flex-direction: column;
+                
+                .u-item {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}

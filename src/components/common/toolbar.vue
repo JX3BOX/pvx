@@ -6,20 +6,57 @@
         <div class="m-toolbar-box">
             <slot name="prefix"></slot>
             <div class="m-toolbar-item" v-if="types.length">
-                <div
-                    class="u-item"
-                    :style="style(item.value)"
-                    @mouseover="handleMouseOver(item.value)"
-                    @mouseout="handleMouseOut"
-                    v-for="(item, i) in types"
-                    :key="i"
-                    @click="changeType(item.value)"
-                >
-                    {{ item.label }}
-                </div>
+                <template v-if="!isMiniProgram">
+                    <div
+                        class="u-item"
+                        :style="style(item.value)"
+                        @mouseover="handleMouseOver(item.value)"
+                        @mouseout="handleMouseOut"
+                        v-for="(item, i) in types"
+                        :key="i"
+                        @click="changeType(item.value)"
+                    >
+                        {{ item.label }}
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="m-toolbar-item__mobile">
+                        <!-- 第一项 -->
+                        <div class="u-current-item">
+                            <div class="u-item" :style="style(activeType.value)">{{ activeType.label }}</div>
+                            <div class="u-more" :class="{ 'is-active': showMore }" @click="showMore = !showMore">
+                                <i class="el-icon-more"></i>
+                            </div>
+                        </div>
+                        <div class="u-item-options" v-if="showMore">
+                            <template v-for="(item, i) in types">
+                                <div
+                                    class="u-item"
+                                    :key="i"
+                                    v-if="item.value != active"
+                                    @click="
+                                        changeType(item.value);
+                                        showMore = false;
+                                    "
+                                    :style="style(item.value)"
+                                >
+                                    {{ item.label }}
+                                </div>
+                            </template>
+                        </div>
+                        <div class="u-search">
+                            <el-input
+                                placeholder="请输入搜索内容"
+                                v-model="title"
+                                suffix-icon="el-icon-search"
+                                class="u-search-input"
+                            />
+                        </div>
+                    </div>
+                </template>
             </div>
             <slot name="prepend"></slot>
-            <div class="m-toolbar-item m-toolbar-search" v-if="search">
+            <div class="m-toolbar-item m-toolbar-search" v-if="search && !isMiniProgram">
                 <slot name="filter"></slot>
                 <div class="u-search">
                     <el-input
@@ -38,6 +75,7 @@
 <script>
 export default {
     name: "toolbar",
+    inject: ["isMiniProgram"],
     props: {
         types: {
             type: Array,
@@ -65,6 +103,7 @@ export default {
             type: null,
             hover: null,
             title: "",
+            showMore: false,
         };
     },
     computed: {
@@ -74,6 +113,9 @@ export default {
             };
             if (this.title) _params.search = this.title;
             return _params;
+        },
+        activeType() {
+            return this.types.find((item) => item.value === this.active);
         },
     },
 
