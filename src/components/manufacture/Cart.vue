@@ -151,7 +151,6 @@
                             </div>
                             <price-detail
                                 v-else
-                                :is_custom="item.custom_price"
                                 :price_count="item.yield_count"
                                 :price="item.price_unit"
                                 :origin_price="item.price_unit_origin"
@@ -162,11 +161,7 @@
                                 :tax_mutable="true"
                                 :price_mutable="true"
                                 :calc_tax="item.calc_tax"
-                                @update_price="
-                                    item.price_unit = $event;
-                                    $set(item, 'custom_price', true);
-                                "
-                                @clear_price="$set(item, 'custom_price', false)"
+                                @update_price="item.price_unit = $event"
                                 @update_tax="item.calc_tax = $event"
                             ></price-detail>
                         </div>
