@@ -151,6 +151,7 @@
                             </div>
                             <price-detail
                                 v-else
+                                :is_custom="item.custom_price"
                                 :price_count="item.yield_count"
                                 :price="item.price_unit"
                                 :origin_price="item.price_unit_origin"
@@ -161,7 +162,11 @@
                                 :tax_mutable="true"
                                 :price_mutable="true"
                                 :calc_tax="item.calc_tax"
-                                @update_price="item.price_unit = $event"
+                                @update_price="
+                                    item.price_unit = $event;
+                                    $set(item, 'custom_price', true);
+                                "
+                                @clear_price="$set(item, 'custom_price', false)"
                                 @update_tax="item.calc_tax = $event"
                             ></price-detail>
                         </div>
@@ -379,10 +384,10 @@ export default {
             );
         },
         calcCartItemTax(item) {
-            return item.price_unit * item.yield_count * item.count * 0.05;
+            return item.price_unit * item.yield_count * 0.05;
         },
         calcCartItemProfit(item) {
-            const profit = item.price_unit * item.yield_count * item.count - this.calcCartItemCostPrice(item);
+            const profit = item.price_unit * item.yield_count - this.calcCartItemCostPrice(item);
             if (item.calc_tax) return profit - this.calcCartItemTax(item);
             return profit;
         },
