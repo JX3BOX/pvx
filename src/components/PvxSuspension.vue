@@ -2,8 +2,7 @@
     <div class="m-pvx-suspension" :class="navStatusClass" @touchstart="handleTouchStart" @touchend="handleTouchEnd"
         @touchcancel="handleTouchCancel">
         <div :class="`m-pvx-suspension_box ${navStatus ? 'open' : 'close'}`"
-            :style="{ width: options.length * 34 + 100 + (isType == 'single' ? localList.length * 34 : 0) + 'px' }"
-            @click="toRight">
+            :style="{ width: options.length * 34 + 100 + localList.length * 34 + 'px' }" @click="toRight">
             <template v-if="navStatus">
                 <div class="u-btn-box">
                     <!-- 固定按钮 -->
@@ -186,6 +185,7 @@ export default {
             this.longPress = false; // 重置长按标记
         },
         handleLongPress(event) {
+            if (this.isType == 'list') return;
             // 在这里处理长按逻辑
             this.toLeft();
             this.drawerLong = true
@@ -309,6 +309,7 @@ export default {
         }
     },
     mounted() {
+        if (this.isType == 'list') return
         this.getCollectStatus()
         //获取本地存储的稍后再看历史
         let history = localStorage.getItem('pvx-view-history');
