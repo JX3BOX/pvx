@@ -1,5 +1,6 @@
 <template>
     <div class="m-face-list_mobile">
+        <PvxSuspension isType='list' @itemClick="suspensionClick($event)" />
         <div class="m-face-list_mobile__tabs">
             <div class="u-tab_item" v-for="(item, index) in tabsData" :key="index"
                 :class="{ 'is-active': active == item.value }" @click="setActive(item.value)">
@@ -34,6 +35,7 @@
 </template>
 
 <script>
+import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine from "@/components/face/mobile/routine.vue";
 import habitus from "@/components/face/mobile/habitus.vue";
 import faceFind from "@/components/face/mobile/faceFind_v2.vue";
@@ -41,7 +43,7 @@ import { cloneDeep, omit, concat, debounce } from "lodash";
 import { getFaceList, getSliders } from "@/service/face";
 export default {
     name: "listMobile",
-    components: { routine, habitus },
+    components: { PvxSuspension, routine, habitus },
     data() {
         return {
             loading: false,
@@ -104,6 +106,9 @@ export default {
         this.loadData();
     },
     methods: {
+        suspensionClick(item) {
+            console.log(item)
+        },
         toTab(val) {
             this.setActive(val.body_type);
         },

@@ -2,13 +2,14 @@
  * @Author: zhusha
  * @Date: 2025-02-17 23:22:35
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-26 08:48:22
+ * @LastEditTime: 2025-03-29 15:26:18
  * @Description: 小程序捏脸详情
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
     <div class="p-face-detail" v-loading="loading">
+        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" />
         <div class="m-face-detail_top">
             <el-carousel height="500px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">
@@ -87,6 +88,7 @@
 </template>
 
 <script>
+import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine_other from "@/components/face/mobile/routine_other";
 import { getOneFaceInfo, getRandomFace } from "@/service/face";
 import { getFans, getUserInfo } from "@/service/face/author";
@@ -95,7 +97,7 @@ import { subscribeAuthor, unsubscribeAuthor } from "@jx3box/jx3box-common/js/rss
 import { __clients, __imgPath, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
 import { bodyMap } from "@jx3box/jx3box-data/data/role/body.json";
 export default {
-    components: { routine_other },
+    components: { PvxSuspension, routine_other },
     computed: {
         id: function () {
             return ~~this.$route.params.id;
@@ -232,6 +234,7 @@ export default {
     background-color: #fafafa;
     overflow: auto;
     .pb(20px);
+    box-sizing: border-box;
 
     .m-face-detail_top {
         .pr;
