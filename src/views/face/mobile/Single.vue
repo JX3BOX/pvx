@@ -9,7 +9,7 @@
 -->
 <template>
     <div class="p-face-detail" v-loading="loading">
-        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" />
+        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" :miniprogram="{app:'捏脸',filter_name:'pvxface'}"/>
         <div class="m-face-detail_top">
             <el-carousel height="500px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">

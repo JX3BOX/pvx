@@ -8,11 +8,14 @@
                     <!-- 固定按钮 -->
                     <div class="u-immobilization">
                         <div class="u-item" style="transform: scaleX(-1);" @click.stop="toLeft">
-                            <img class="u-icon" src="@/assets/img/pvxsuspension/right.svg" svg-inline />
+                            <img class="u-icon" src="@/assets/img/pvxsuspension/right.svg" svg-inline
+                                v-if="!isDarkModeStatus" />
+                            <img class="u-icon" src="@/assets/img/pvxsuspension/right_dark.svg" svg-inline v-else />
                         </div>
                         <div class="u-item" v-for="item in options" :key="item.label" @click.stop="itemClick(item)">
                             <img class="u-icon"
-                                :src="item.isJudge ? isCollect ? item.icon_active : item.icon : item.icon" svg-inline />
+                                :src="item.isJudge ? isCollect ? isDarkModeStatus ? item.icon_active_dark : item.icon_active : isDarkModeStatus ? item.icon_dark : item.icon : isDarkModeStatus ? item.icon_dark : item.icon"
+                                svg-inline />
                         </div>
                     </div>
                     <!-- 标定的列表 -->
@@ -25,7 +28,9 @@
             </template>
             <div class="u-btn" v-else @mouseenter="toRight">
                 <div class="u-btn-item">
-                    <img class="u-icon" src="@/assets/img/pvxsuspension/right.svg" svg-inline />
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/right.svg" svg-inline
+                        v-if="!isDarkModeStatus" />
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/right_dark.svg" svg-inline v-else />
                 </div>
             </div>
         </div>
@@ -61,21 +66,44 @@
                     <div class="u-text">分享内容</div>
                 </div>
             </div>
+            <div class="u-drawer-top_dark">
+                <div class="u-item">
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/search.svg" svg-inline />
+                    <div class="u-text">搜索</div>
+                </div>
+                <div class="u-item" @click="setCollect()">
+                    <img class="u-icon"
+                        :src="isCollect ? require('@/assets/img/pvxsuspension/collect_active.svg') : require('@/assets/img/pvxsuspension/collect.svg')"
+                        svg-inline />
+                    <div class="u-text">加入收藏</div>
+                </div>
+                <div class="u-item" @click="setLater()">
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/pinned.svg" svg-inline />
+                    <div class="u-text">固定页面</div>
+                </div>
+                <div class="u-item">
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/share.svg" svg-inline />
+                    <div class="u-text">分享内容</div>
+                </div>
+            </div>
             <div class="u-drawer-pack_up" @click="drawerLong = false">
                 <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowLineRight.svg" svg-inline />
+                <img class="u-icon_dark" src="@/assets/img/pvxsuspension/ArrowLineRight_dark.svg" svg-inline />
                 <div class="u-text">收起悬浮窗</div>
             </div>
             <div class="u-pinned-list" v-if="localList.length">
                 <div class="u-item" v-for="item in localList" :key="item.id">
                     <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowLineLeft.svg" svg-inline />
+                    <img class="u-icon_dark" src="@/assets/img/pvxsuspension/ArrowLineLeft_dark.svg" svg-inline />
                     <div class="u-text">{{ item.title }}</div>
                     <div class="u-btn" @click.stop="cancelPinned(item)">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/delete.svg" svg-inline />
+                        <img class="u-icon_dark" src="@/assets/img/pvxsuspension/delete_dark.svg" svg-inline />
                     </div>
                 </div>
                 <div class="u-item" @click.stop="cancelPinnedAll()">
-                    <img class="u-icon" src="@/assets/img/pvxsuspension/delete_all.svg" svg-inline />
-                    <div class="u-text">清空所有固定内容</div>
+                    <img class="u-icon_delete" src="@/assets/img/pvxsuspension/delete_all.svg" svg-inline />
+                    <div class="u-text_delete">清空所有固定内容</div>
 
                 </div>
             </div>
@@ -112,6 +140,14 @@ export default {
             type: [String, Number],
             default: '',
         },
+        // 小程序跳转搜索界面参数
+        miniprogram: {
+            type: Object,
+            default: () => {
+                return {}
+            }
+        }
+
     },
     components: {},
     data: function () {
@@ -126,7 +162,9 @@ export default {
             iframeInfo: null,
             removeIframePinned: false,
             longPress: false, // 用于标记是否为长按
-            drawerLong: false //长按弹窗
+            drawerLong: false, //长按弹窗
+            localStorageKey: 'pvx-view-history',
+            isDarkModeStatus: false,
         };
     },
     computed: {
@@ -140,16 +178,25 @@ export default {
             }
             return text;
         },
+        miniprogramParams() {
+            const params = [];
+            for (const key in this.miniprogram) {
+                if (this.miniprogram.hasOwnProperty(key)) {
+                    params.push(encodeURIComponent(key) + '=' + encodeURIComponent(this.miniprogram[key]));
+                }
+            }
+            return params.join('&');
+        }
     },
     watch: {
         isType: {
             handler(val) {
                 if (val === "single") {
                     let arr = [
-                        { label: '搜索', icon: require('@/assets/img/pvxsuspension/search.svg'), value: 1 },
-                        { label: '稍后再看', icon: require('@/assets/img/pvxsuspension/pinned.svg'), value: 2 },
-                        { label: '收藏', icon: require('@/assets/img/pvxsuspension/collect.svg'), icon_active: require('@/assets/img/pvxsuspension/collect_active.svg'), value: 3, isJudge: true },
-                        { label: '分享', icon: require('@/assets/img/pvxsuspension/share.svg'), value: 4 },
+                        { label: '搜索', icon: require('@/assets/img/pvxsuspension/search.svg'), icon_dark: require('@/assets/img/pvxsuspension/search_dark.svg'), value: 1 },
+                        { label: '稍后再看', icon: require('@/assets/img/pvxsuspension/pinned.svg'), icon_dark: require('@/assets/img/pvxsuspension/pinned_dark.svg'), value: 2 },
+                        { label: '收藏', icon: require('@/assets/img/pvxsuspension/collect.svg'), icon_active: require('@/assets/img/pvxsuspension/collect_active.svg'), icon_dark: require('@/assets/img/pvxsuspension/collect_dark.svg'), icon_active_dark: require('@/assets/img/pvxsuspension/collect_active_dark.svg'), value: 3, isJudge: true },
+                        // { label: '分享', icon: require('@/assets/img/pvxsuspension/share.svg'), value: 4 },
                     ]
                     this.options = arr
                 }
@@ -164,6 +211,13 @@ export default {
         },
     },
     methods: {
+        isDarkMode() {
+            // 使用 window.matchMedia 检查系统是否启用了暗色模式
+            const mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
+
+            this.isDarkMode = mediaQueryList.matches;
+            // return mediaQueryList.matches;
+        },
         handleTouchStart(event) {
             // 记录触摸开始的时间
             this.startTime = Date.now();
@@ -198,6 +252,11 @@ export default {
         },
         itemClick(item) {
             //如果是搜索 直接跳转原生搜索界面
+            if (item.value == 1) {
+                let params = this.miniprogramParams
+                console.log(params)
+                wx.miniProgram.navigateTo({ url: "/pages/search/search-detail/search-detail?" + params });
+            }
             // 定住当前页面
             if (item.value == 2) {
                 this.setLater()
@@ -211,7 +270,7 @@ export default {
         //设置稍后再看功能
         setLater() {
             //先判断是否存在本地存储
-            let history = localStorage.getItem('pvx-view-history');
+            let history = localStorage.getItem(this.localStorageKey);
             if (history) {
                 //判断当前id和type的界面是否存在本地存储，如果存在则忽略，不存在则添加
                 let historyList = JSON.parse(history);
@@ -219,6 +278,14 @@ export default {
                     return item.id == this.id && item.type == this.type
                 })
                 if (!isExist) {
+                    //如果historyList长度等于3，提示用户删除一个
+                    if (historyList.length == 3) {
+                        this.$message({
+                            message: '最多保存3个页面，可删除一个后再保存',
+                            type: 'warning'
+                        })
+                        return
+                    }
                     //先获取当前界面的链接
                     let url = window.location.href;
                     let json = {
@@ -229,7 +296,7 @@ export default {
                         type: this.type
                     }
                     historyList.push(json)
-                    localStorage.setItem('pvx-view-history', JSON.stringify(historyList))
+                    localStorage.setItem(this.localStorageKey, JSON.stringify(historyList))
                     this.localList = historyList
                 }
             } else {
@@ -243,7 +310,7 @@ export default {
                     type: this.type
                 }
                 historyList.push(json)
-                localStorage.setItem('pvx-view-history', JSON.stringify(historyList))
+                localStorage.setItem(this.localStorageKey, JSON.stringify(historyList))
                 this.localList = historyList
             }
         },
@@ -263,7 +330,7 @@ export default {
             }
             if (index != -1) {
                 historyList.splice(index, 1)
-                localStorage.setItem('pvx-view-history', JSON.stringify(historyList))
+                localStorage.setItem(this.localStorageKey, JSON.stringify(historyList))
                 this.localList = historyList
                 this.$message({
                     message: '取消成功',
@@ -274,7 +341,7 @@ export default {
         },
         //清除所有固定页面
         cancelPinnedAll() {
-            localStorage.removeItem('pvx-view-history')
+            localStorage.removeItem(this.localStorageKey)
             this.localList = []
             this.$message({
                 message: '清除成功',
@@ -310,9 +377,10 @@ export default {
     },
     mounted() {
         if (this.isType == 'list') return
+        this.isDarkMode();
         this.getCollectStatus()
         //获取本地存储的稍后再看历史
-        let history = localStorage.getItem('pvx-view-history');
+        let history = localStorage.getItem(this.localStorageKey);
         if (history) {
             let historyList = JSON.parse(history);
             this.localList = historyList
