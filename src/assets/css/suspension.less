@@ -124,6 +124,24 @@
 }
 .p-drawer {
     border-radius: 20px 20px 0 0;
+    // --------------------------
+    position: fixed !important;
+    bottom: 0;
+    margin: 0;
+    left: 0;
+    width: 100% !important;
+    border-radius: 20px 20px 0px 0px;
+    .el-dialog__header {
+        .none;
+    }
+    .el-dialog__body {
+        height: 100%;
+        padding: 0;
+        iframe {
+            border-radius: 20px 20px 0px 0px;
+        }
+    }
+    // --------------------------------
     .size(100vw,70vh) !important;
     .el-drawer__header {
         .mb(10px);
@@ -231,7 +249,7 @@
 }
 // dark模式利用宽度模拟覆盖    //
 // @media screen and (width: 390px)
-@media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: dark) {
     .m-pvx-suspension {
         .m-pvx-suspension_box {
             background: #fedaa3;

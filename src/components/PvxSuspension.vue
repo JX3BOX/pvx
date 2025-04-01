@@ -35,14 +35,17 @@
             </div>
         </div>
         <!-- 稍后再看的webview -->
-        <el-drawer :visible.sync="drawer" direction="btt" custom-class="p-drawer" size="100%" append-to-body>
+        <!-- <el-drawer :visible.sync="drawer" direction="btt" custom-class="p-drawer" size="100%" append-to-body>
             <template slot="title">
                 <div class="u-drawer-title" @click="cancelPinned" v-if="!removeIframePinned"><img
                         src="@/assets/img/pvxsuspension/pinned_dark.svg" svg-inline style="fill: black;" />取消
                 </div>
             </template>
             <iframe :src="iframeInfo?.url" frameborder="0" width="100%" height="100%" />
-        </el-drawer>
+        </el-drawer> -->
+        <el-dialog :visible.sync="drawer" append-to-body custom-class="p-drawer">
+            <iframe :src="iframeInfo?.url" frameborder="0" width="100%" height="100%" />
+        </el-dialog>
         <!-- 长按弹出 -->
         <el-drawer :visible.sync="drawerLong" direction="btt" custom-class="p-drawer long" size="100%" append-to-body
             wrapper-closable :with-header="false">

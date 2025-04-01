@@ -36,12 +36,24 @@
             <!-- 历史版本 -->
             <!-- <WikiRevisions :type="type" :source-id="id" /> -->
 
-            <el-drawer
+            <el-dialog :lock-scroll="false" :visible.sync="versionVisible" custom-class="m-version-drawer">
+                <div class="m-version-container">
+                    <div class="u-version" v-for="(item, i) in versions" :key="i">
+                        <div class="u-title-wrap">
+                            <div class="u-title">{{ item.version }}</div>
+                            <div class="u-user">{{ item.user_nickname }}</div>
+                        </div>
+                        <div class="u-time">{{ item.time }}</div>
+                        <div class="u-content">{{ item.remark }}</div>
+                    </div>
+                </div>
+            </el-dialog>
+
+            <!-- <el-drawer
                 class="m-version-drawer"
                 :visible.sync="versionVisible"
                 direction="btt"
                 append-to-body
-                :show-close="false"
                 custom-class="bottom-drawer"
                 modal-class="full-modal"
             >
@@ -55,7 +67,7 @@
                         <div class="u-content">{{ item.remark }}</div>
                     </div>
                 </div>
-            </el-drawer>
+            </el-drawer> -->
         </div>
         <div class="m-wiki-post-empty" v-if="(!wiki_post || !wiki_post.post) && id">
             <i class="el-icon-s-opportunity"></i>
@@ -271,12 +283,20 @@ export default {
 .v-miniprogram {
     .m-version-drawer {
         position: fixed !important;
-        .el-drawer__header {
+        bottom: 0;
+        margin: 0;
+        left: 0;
+        width: 100% !important;
+        border-radius: 20px 20px 0px 0px;
+        background: @brand4;
+        .el-dialog__header {
             .none;
         }
-        .el-drawer__body {
+
+        .el-dialog__body {
             padding: 20px;
-            box-sizing: border-box;
+            max-height: 70vh;
+            overflow-y: scroll;
         }
         .m-version-container {
             .u-title-wrap {
@@ -505,7 +525,10 @@ export default {
     }
 }
 @media (prefers-color-scheme: dark) {
-    .w-pvx-user__miniprogram{
+    .m-version-drawer {
+        background: @brand4-dark !important;
+    }
+    .w-pvx-user__miniprogram {
         .u-adventure-tips {
             color: @black-40-dark !important;
         }

@@ -1,5 +1,6 @@
 <template>
     <div class="p-adventure-List p-common-list" v-loading="loading" ref="listRef">
+        <PvxSuspension v-if="isMiniProgram" isType="list" />
         <AdventureTabs :active="active" :body_types="list" @setActive="setActive" @change="onSearch" />
         <div class="m-type-list">
             <div
@@ -97,10 +98,12 @@ import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import dayjs from "@/utils/day";
+
+import PvxSuspension from "@/components/PvxSuspension.vue";
 export default {
     name: "adventureList",
     props: [],
-    components: { CardBannerList, AdventureTabs, AdventureItem },
+    components: { PvxSuspension, CardBannerList, AdventureTabs, AdventureItem },
     data: function () {
         return {
             loading: false,
