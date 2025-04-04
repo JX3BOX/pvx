@@ -149,7 +149,12 @@ export default {
             default: () => {
                 return {}
             }
-        }
+        },
+        // 内部路由搜索
+        searchRouter: {
+            type: String,
+            default: ''
+        },
 
     },
     components: {},
@@ -256,9 +261,13 @@ export default {
         itemClick(item) {
             //如果是搜索 直接跳转原生搜索界面
             if (item.value == 1) {
-                let params = this.miniprogramParams
-                console.log(params)
-                wx.miniProgram.navigateTo({ url: "/pages/search/search-detail/search-detail?" + params });
+                if (this.searchRouter) {
+                    this.$router.push(this.searchRouter)
+                } else {
+                    let params = this.miniprogramParams
+                    console.log(params)
+                    wx.miniProgram.navigateTo({ url: "/pages/search/search-detail/search-detail?" + params });
+                }
             }
             // 定住当前页面
             if (item.value == 2) {
