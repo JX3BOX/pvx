@@ -2,7 +2,8 @@
     <div class="m-pvx-suspension" :class="navStatusClass" @touchstart="handleTouchStart" @touchend="handleTouchEnd"
         @touchcancel="handleTouchCancel">
         <div :class="`m-pvx-suspension_box ${navStatus ? 'open' : 'close'}`"
-            :style="{ width: options.length * 34 + 100 + localList.length * 34 + 'px' }" @click="toRight">
+            :style="{ width: options.length * 34 + 100 + localList.length * 34 + 'px', bottom: bottomNum }"
+            @click="toRight">
             <template v-if="navStatus">
                 <div class="u-btn-box">
                     <!-- 固定按钮 -->
@@ -106,8 +107,7 @@
                 </div>
                 <div class="u-item" @click.stop="cancelPinnedAll()">
                     <img class="u-icon_delete" src="@/assets/img/pvxsuspension/delete_all.svg" svg-inline />
-                    <div class="u-text_delete">清空所有固定内容</div>
-
+                    <div class="u-text u-text_delete">清空所有固定内容</div>
                 </div>
             </div>
         </el-drawer>
@@ -154,6 +154,10 @@ export default {
         searchRouter: {
             type: String,
             default: ''
+        },
+        bottomNum: {
+            type: String,
+            default: '50px'
         },
 
     },

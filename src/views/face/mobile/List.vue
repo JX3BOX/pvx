@@ -1,6 +1,6 @@
 <template>
     <div class="m-face-list_mobile">
-        <PvxSuspension isType='list' />
+        <PvxSuspension isType='list' :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }" />
         <div class="m-face-list_mobile__tabs">
             <div class="u-tab_item" v-for="(item, index) in tabsData" :key="index"
                 :class="{ 'is-active': active == item.value }" @click="setActive(item.value)">

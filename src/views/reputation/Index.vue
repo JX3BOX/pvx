@@ -1,16 +1,13 @@
 <template>
     <div class="reputation-container" v-loading="loading">
+        <PvxSuspension isType='list' bottom-num="100px" />
         <CommonToolbar class="m-reputation-tabs" color="#d16400" search @update="updateToolbar">
             <template v-slot:prefix>
                 <div class="m-toolbar-item">
                     <div class="u-item" :class="{ active: isAll }" @click="toAll">全部</div>
                     <el-select class="u-select" v-model="dlc" clearable :class="{ active: dlc }">
-                        <el-option
-                            v-for="item in versions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        ></el-option>
+                        <el-option v-for="item in versions" :key="item.value" :value="item.value"
+                            :label="item.label"></el-option>
                         <template #prefix> 版本 </template>
                     </el-select>
                 </div>
@@ -19,13 +16,8 @@
         <el-scrollbar class="m-reputation-tabs__miniprogram">
             <div class="m-reputation-tabs__content">
                 <div class="u-tab" :class="{ active: isAll }" @click="toAll">全部</div>
-                <div
-                    class="u-tab"
-                    v-for="item in versions"
-                    :class="{ active: dlc === item.value }"
-                    :key="item.value"
-                    @click="dlc = item.value"
-                >
+                <div class="u-tab" v-for="item in versions" :class="{ active: dlc === item.value }" :key="item.value"
+                    @click="dlc = item.value">
                     {{ item.label.replace(/\([^)]*\)/g, "") }}
                 </div>
             </div>
@@ -49,6 +41,7 @@
 </template>
 
 <script>
+import PvxSuspension from '@/components/PvxSuspension.vue'
 import CommonToolbar from "@/components/common/toolbar.vue";
 import ReputationItem from "@/components/reputation/ReputationItem.vue";
 import { getList, getMenus } from "@/service/reputation";
@@ -59,7 +52,7 @@ import { cloneDeep } from "lodash";
 
 export default {
     name: "Index",
-    components: { ReputationItem, CommonToolbar },
+    components: { ReputationItem, CommonToolbar, PvxSuspension },
     data() {
         return {
             loading: false,
