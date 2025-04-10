@@ -1,5 +1,13 @@
 <template>
     <div class="p-adventure-single" v-if="id" v-loading="loading">
+        <!-- TODO需更换参数 -->
+        <PvxSuspension
+            isType="single"
+            type="adventure"
+            :id="id"
+            :title="title"
+            :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }"
+        />
         <div class="m-adventure-navigation">
             <div class="u-goback" @click="goBack">返回列表</div>
             <!-- <el-input
@@ -45,6 +53,7 @@ import Serendipity from "@/components/common/serendipity.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import PvxSuspension from "@/components/PvxSuspension.vue";
 export default {
     name: "adventureSingle",
     props: [],
@@ -53,6 +62,7 @@ export default {
         Serendipity,
         PvxUser,
         PvxUserMiniprogram,
+        PvxSuspension,
     },
     data: function () {
         return {

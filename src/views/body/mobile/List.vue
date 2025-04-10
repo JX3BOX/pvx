@@ -1,5 +1,6 @@
 <template>
     <div class="m-body-list_mobile">
+        <PvxSuspension isType='list' :miniprogram="{ app: '体型', filter_name: 'pvxbody' }" />
         <div class="m-body-list_mobile__tabs">
             <div class="u-tab_item" v-for="(item, index) in tabsData" :key="index"
                 :class="{ 'is-active': active == item.value }" @click="setActive(item.value)">
@@ -35,12 +36,13 @@
 </template>
 
 <script>
+import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine from "@/components/body/mobile/routine.vue";
 import habitus from "@/components/body/mobile/habitus.vue";
 import { concat } from "lodash";
 import { getBodyList } from "@/service/body";
 export default {
-    components: { routine, habitus },
+    components: { routine, habitus, PvxSuspension },
     data() {
         return {
             loading: false,
