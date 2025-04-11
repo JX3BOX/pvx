@@ -11,6 +11,7 @@ Vue.use(VueRouter);
 
 const Index = () => import("@/views/reputation/Index.vue");
 const Single = () => import("@/views/reputation/Single.vue");
+const Search = () => import("@/views/reputation/Search.vue");
 
 const routes = [
     {
@@ -25,6 +26,11 @@ const routes = [
         name: "single",
         path: "/:id(\\d+)",
         component: Single,
+    },
+    {
+        name: "search",
+        path: "/search",
+        component: Search,
     },
 ];
 

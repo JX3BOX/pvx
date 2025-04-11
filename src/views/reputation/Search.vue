@@ -1,58 +1,45 @@
 <template>
-    <div class="reputation-container" v-loading="loading">
-        <PvxSuspension isType='list' bottom-num="100px" searchRouter="/search" />
-        <CommonToolbar class="m-reputation-tabs" color="#d16400" search @update="updateToolbar">
-            <template v-slot:prefix>
-                <div class="m-toolbar-item">
-                    <div class="u-item" :class="{ active: isAll }" @click="toAll">全部</div>
-                    <el-select class="u-select" v-model="dlc" clearable :class="{ active: dlc }">
-                        <el-option v-for="item in versions" :key="item.value" :value="item.value"
-                            :label="item.label"></el-option>
-                        <template #prefix> 版本 </template>
-                    </el-select>
+    <div class="m-pvx-reputation-search">
+        <div style="margin-top: 15px;">
+            <el-select v-model="dlc" clearable placeholder="请选择" class="u-select">
+                <el-option v-for="item in versions" :key="item.value" :label="item.label" :value="item.value">
+                </el-option>
+                <template #prefix>
+                    <div class="u-text">版本：</div>
+                </template>
+            </el-select>
+            <el-input placeholder="请输入搜索内容" v-model="keyword" class="input-with-select">
+                <el-button slot="append" icon="el-icon-search"></el-button>
+            </el-input>
+        </div>
+        <div class="reputation-list">
+            <template v-if="dlc||keyword" >
+                <div class="reputation-show-list" v-for="item in showList" :key="item.value">
+                    <div class="u-title" >{{ item.label }}</div>
+                    <div class="u-list">
+                        <reputation-item :item="item" v-for="item in item.list" :key="item.dwForceID"></reputation-item>
+                    </div>
                 </div>
             </template>
-        </CommonToolbar>
-        <el-scrollbar class="m-reputation-tabs__miniprogram">
-            <div class="m-reputation-tabs__content">
-                <div class="u-tab" :class="{ active: isAll }" @click="toAll">全部</div>
-                <div class="u-tab" v-for="item in versions" :class="{ active: dlc === item.value }" :key="item.value"
-                    @click="dlc = item.value">
-                    {{ item.label.replace(/\([^)]*\)/g, "") }}
-                </div>
-            </div>
-        </el-scrollbar>
-
-        <div v-if="isAll && !this.keyword" class="reputation-list-wrapper">
-            <div class="reputation-title">资料片新增</div>
-            <div class="reputation-list">
+            <template v-else >
                 <reputation-item :item="item" v-for="item in newsList" :key="item.dwForceID"></reputation-item>
-            </div>
+            </template>
+
         </div>
-        <template v-if="showList.length">
-            <div class="reputation-list-wrapper" v-for="item in showList" :key="item.value">
-                <div class="reputation-title" :class="!isAll ? 'is-not-all-title' : ''">{{ item.label }}</div>
-                <div class="reputation-list">
-                    <reputation-item :item="item" v-for="item in item.list" :key="item.dwForceID"></reputation-item>
-                </div>
-            </div>
-        </template>
     </div>
 </template>
 
 <script>
-import PvxSuspension from '@/components/PvxSuspension.vue'
-import CommonToolbar from "@/components/common/toolbar.vue";
-import ReputationItem from "@/components/reputation/ReputationItem.vue";
 import { getList, getMenus } from "@/service/reputation";
+import ReputationItem from "@/components/reputation/ReputationItem.vue";
+import { getBreadcrumb } from "@jx3box/jx3box-common/js/api_misc";
 import maps_std from "@jx3box/jx3box-data/data/fb/fb_map.json";
 import maps_origin from "@jx3box/jx3box-data/data/fb/fb_map_origin.json";
-import { getBreadcrumb } from "@jx3box/jx3box-common/js/api_misc";
 import { cloneDeep } from "lodash";
-
 export default {
-    name: "Index",
-    components: { ReputationItem, CommonToolbar, PvxSuspension },
+    components: {
+        ReputationItem
+    },
     data() {
         return {
             loading: false,
@@ -61,7 +48,6 @@ export default {
             level: -1,
             versions: [],
             versionList: [],
-            isAll: true,
             keyword: "",
             dlc: "",
         };
@@ -73,14 +59,17 @@ export default {
         params() {
             return {
                 page: 1,
-                per: 50,
+                per: 100,
                 client: this.client,
             };
         },
         showList() {
             let list = cloneDeep(this.versionList);
+            console.log(list)
+            console.log(this.dlc)
             if (this.dlc) {
                 list = list.filter((item) => item.value === Number(this.dlc));
+                console.log("筛选",list)
             }
             if (this.keyword) {
                 const keyword = this.keyword.trim();
@@ -97,19 +86,13 @@ export default {
         },
     },
     watch: {
-        dlc(val) {
-            this.isAll = val ? false : true;
-        },
+
+    },
+    created() { },
+    mounted() {
+        this.loadData();
     },
     methods: {
-        updateToolbar(data) {
-            const { search } = data;
-            this.keyword = search;
-        },
-        toAll() {
-            this.isAll = true;
-            this.dlc = "";
-        },
         loadData() {
             this.loading = true;
             getBreadcrumb("reputation-newest", { client: this.client })
@@ -153,14 +136,74 @@ export default {
                 });
         },
     },
-    mounted() {
-        this.loadData();
-    },
 };
 </script>
 
 <style lang="less">
-@import "~@/assets/css/reputation/home.less";
-@import "~@/assets/css/reputation/reputation_miniprogram.less";
-@import "~@/assets/css/miniprogram.less";
+.v-miniprogram {
+    .m-main {
+        box-sizing: border-box;
+        height: 100vh;
+        overflow: hidden;
+    }
+}
+
+.m-pvx-reputation-search {
+    height: 100%;
+
+    .u-select {
+        .mb(10px);
+        .w(100%);
+
+        .el-input__inner {
+            .pl(50px);
+        }
+
+        .el-input__prefix {
+            .flex;
+            align-items: center;
+            gap: 6px;
+
+            .u-text {
+                .fz(16px);
+
+            }
+        }
+
+    }
+
+    .reputation-list {
+        height: calc(100% - 100px);
+        overflow-y: auto;
+        .mt(10px);
+        .flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        .reputation-title{
+            .fz(16px);
+        }
+        .reputation-show-list{
+           .w(100%);
+            .u-title{
+                .fz(16px);
+            }
+            .u-list{
+                .mt(10px);
+            }
+        }
+        .reputation-item {
+            .w(100%);
+        }
+    }
+}
+//@media screen and (width: 390px)
+@media (prefers-color-scheme: dark)
+{
+    .v-miniprogram {
+        .m-main {
+            background: #000000;
+        }
+    }
+}
 </style>
