@@ -1,8 +1,8 @@
 <template>
     <div class="m-pvx-suspension" :class="navStatusClass" @touchstart="handleTouchStart" @touchend="handleTouchEnd"
         @touchcancel="handleTouchCancel">
-        <div :class="`m-pvx-suspension_box ${navStatus ? 'open' : 'close'}`"
-            :style="{ width: options.length * 34 + 100 + localList.length * 34 + 'px', bottom: bottomNum }"
+        <div :class="`m-pvx-suspension_box ${navStatus ? 'open' : 'close'} ${isType == 'single' ? 'single' : 'list'}`"
+            :style="{ width: options.length * 34 + (isType == 'single' ? 100 : 66) + localList.length * 34 + 'px', bottom: bottomNum }"
             @click="toRight">
             <template v-if="navStatus">
                 <div class="u-btn-box">
@@ -11,7 +11,7 @@
                         <div class="u-item" style="transform: scaleX(-1);" @click.stop="toLeft">
                             <img class="u-icon" src="@/assets/img/pvxsuspension/right.svg" svg-inline
                                 v-if="!isDarkModeStatus" />
-                            <img class="u-icon" src="@/assets/img/pvxsuspension/right_dark.svg" svg-inline v-else />
+                            <img class="u-icon-dark" src="@/assets/img/pvxsuspension/right_dark.svg" svg-inline v-else />
                         </div>
                         <div class="u-item" v-for="item in options" :key="item.label" @click.stop="itemClick(item)">
                             <img class="u-icon"
@@ -194,7 +194,8 @@ export default {
             const params = [];
             for (const key in this.miniprogram) {
                 if (this.miniprogram.hasOwnProperty(key)) {
-                    params.push(encodeURIComponent(key) + '=' + encodeURIComponent(this.miniprogram[key]));
+                    // params.push(encodeURIComponent(key) + '=' + encodeURIComponent(this.miniprogram[key]));
+                    params.push(encodeURIComponent(key) + '=' + this.miniprogram[key]);
                 }
             }
             return params.join('&');
@@ -214,7 +215,7 @@ export default {
                 }
                 if (val === "list") {
                     let arr = [
-                        { label: '搜索', icon: require('@/assets/img/pvxsuspension/search.svg'), value: 1 },
+                        { label: '搜索', icon: require('@/assets/img/pvxsuspension/search.svg'), icon_dark: require('@/assets/img/pvxsuspension/search_dark.svg'), value: 1 },
                     ]
                     this.options = arr
                 }
@@ -223,12 +224,12 @@ export default {
         },
     },
     methods: {
-        isDarkMode() {
-            // 使用 window.matchMedia 检查系统是否启用了暗色模式
+        isDarkModeFun() {
+            // // 使用 window.matchMedia 检查系统是否启用了暗色模式
             const mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
 
-            this.isDarkMode = mediaQueryList.matches;
-            // return mediaQueryList.matches;
+            this.isDarkModeStatus = mediaQueryList.matches;
+            // this.isDarkModeStatus= true;
         },
         handleTouchStart(event) {
             // 记录触摸开始的时间
@@ -269,7 +270,6 @@ export default {
                     this.$router.push(this.searchRouter)
                 } else {
                     let params = this.miniprogramParams
-                    console.log(params)
                     wx.miniProgram.navigateTo({ url: "/pages/search/search-detail/search-detail?" + params });
                 }
             }
@@ -392,8 +392,8 @@ export default {
         }
     },
     mounted() {
+        this.isDarkModeFun();
         if (this.isType == 'list') return
-        this.isDarkMode();
         this.getCollectStatus()
         //获取本地存储的稍后再看历史
         let history = localStorage.getItem(this.localStorageKey);

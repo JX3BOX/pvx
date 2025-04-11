@@ -30,6 +30,13 @@
         min-height: 54px;
         overflow-y: auto;
         overflow-x: hidden;
+        &.list {
+            .pr(10px);
+            .u-immobilization {
+                .pr(0) !important;
+                .mr(0) !important;
+            }
+        }
         &.close {
             .h(54px);
             width: 46px !important;
@@ -250,9 +257,11 @@
         }
     }
 }
-// dark模式利用宽度模拟覆盖    //
+// dark模式利用宽度模拟覆盖
+// //
 // @media screen and (width: 390px)
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark)
+{
     .m-pvx-suspension {
         .m-pvx-suspension_box {
             background: #fedaa3;

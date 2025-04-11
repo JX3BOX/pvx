@@ -1,7 +1,7 @@
 <template>
     <div class="m-reputation-wrapper m-single-wrapper">
-        <PvxSuspension isType='single' type="reputation" :id="id" :title="reputation.szName"
-            :miniprogram="{ app: '声望', filter_name: 'pvxreputation' }" bottom-num="100px" />
+        <PvxSuspension isType='single' type="reputation" :id="id" :title="reputation.szName" searchRouter="/search"
+            bottom-num="100px" />
         <div class="m-reputation-single">
             <div class="back-wrap">
                 <el-button @click="goBack">返回列表</el-button>
