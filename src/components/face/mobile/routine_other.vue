@@ -26,14 +26,14 @@ import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
 export default {
     computed: {
         link() {
-            return location.origin + "/face";
+            return location.origin + `/${this.type}`
         },
     },
     components: {},
     props: {
         gap: {
             type: String,
-            default: "8px",
+            default: "0.444rem",
         },
         size: {
             type: Number,
@@ -51,6 +51,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        type:{
+            type: String,
+            default: 'face'
+        }
     },
     data() {
         return {
@@ -97,7 +101,7 @@ export default {
 
     .u-item {
         .u-item_img {
-            .r(8px);
+            .r(0.444rem);
             background: #d9d9d9;
             overflow: hidden;
             .pr;
@@ -125,16 +129,16 @@ export default {
             .lb(6px);
             .bold(400);
             font-style: normal;
-            .w(calc(100% - 12px));
-            .fz(14px, 20px);
-            .mb(4px);
+            .w(calc(100% - 0.667rem));
+            .fz(0.778rem, 1.111rem);
+            .mb(0.222rem);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             color: @color;
-            // @media screen and (width: 390px) {
-            //     color: @color-dark;
-            // }
+             //@media screen and (width: 375px) {
+             //    color: @color-dark;
+             //}
             // @media (prefers-color-scheme: dark) {
             //     color: @color-dark;
             // }

@@ -1,4 +1,4 @@
-@box_width: 356px;
+@box_width: 19.778rem;
 @z_index: 666;
 .v-miniprogram {
     .m-pvx-suspension {
@@ -10,12 +10,12 @@
     position: fixed;
     z-index: @z_index;
     .m-pvx-suspension_box {
-        max-width: 100px;
+        max-width: 5.556rem;
         max-width: @box_width;
-        border-radius: 30px 0 0 30px;
+        border-radius: 1.667rem 0 0 1.667rem;
         background: #24292e;
         /* 黑色阴影-中浓度 */
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+        box-shadow: 0px 0px 0.556rem 0px rgba(0, 0, 0, 0.25);
         position: fixed;
         z-index: @z_index;
         transition: width 0.5s ease-in-out;
@@ -24,22 +24,21 @@
         // bottom: 50px;
         box-sizing: border-box;
         border-right: 1px solid rgba(0, 0, 0, 0.1);
-        // padding: 12px 0 12px 20px;
-        padding: 12px 20px;
-        max-height: calc(100vh - @header-height - 50px);
-        min-height: 54px;
+        padding: 0.667rem 1.111rem;
+        max-height: calc(100vh - @header-height - 2.778rem);
+        min-height: 3rem;
         overflow-y: auto;
         overflow-x: hidden;
         &.list {
-            .pr(10px);
+            .pr(0.556rem);
             .u-immobilization {
                 .pr(0) !important;
                 .mr(0) !important;
             }
         }
         &.close {
-            .h(54px);
-            width: 46px !important;
+            .h(3rem);
+            width: 2.556rem !important;
             // padding: 8px 2px;
             box-sizing: border-box;
             .flex;
@@ -52,8 +51,8 @@
                     .flex;
                     .flex(o);
                     .u-icon {
-                        .size(30px);
-                        padding: 4px;
+                        .size(1.667rem);
+                        padding: 0.222rem;
                         box-sizing: border-box;
                     }
                 }
@@ -65,17 +64,21 @@
             .u-immobilization {
                 .flex;
                 align-items: center;
-                gap: 4px;
+                gap: 0.222rem;
                 border-right: 1px solid rgba(255, 255, 255, 0.1);
-                .pr(12px);
-                .mr(12px);
+                .pr(0.667rem);
+                .mr(0.667rem);
+                &.noList{
+                    .pr(0);
+                    .mr(0);
+                }
                 .u-item {
                     .flex;
                     .flex(o);
                 }
                 .u-icon {
-                    .size(30px);
-                    padding: 4px;
+                    .size(1.667rem);
+                    padding: 0.222rem;
                     box-sizing: border-box;
                 }
             }
@@ -83,13 +86,13 @@
         .u-list {
             .flex;
             align-items: center;
-            gap: 12px;
+            gap: 0.667rem;
             .u-item {
-                .size(30px);
-                .r(30px);
+                .size(1.667rem);
+                .r(1.667rem);
                 background: #fedaa3;
                 color: #24292e;
-                .fz(12px);
+                .fz(0.667rem);
                 .bold(700);
                 .flex;
                 .flex(o);
@@ -135,14 +138,13 @@
     }
 }
 .p-drawer {
-    border-radius: 20px 20px 0 0;
-    // --------------------------
+    border-radius: 1.111rem 1.111rem 0 0;
     position: fixed !important;
     bottom: 0;
     margin: 0;
     left: 0;
     width: 100% !important;
-    border-radius: 20px 20px 0px 0px;
+    user-select: none;
     .el-dialog__header {
         .none;
     }
@@ -150,17 +152,17 @@
         height: 100%;
         padding: 0;
         iframe {
-            border-radius: 20px 20px 0px 0px;
+            border-radius: 1.111rem 1.111rem 0 0;
         }
     }
     // --------------------------------
     .size(100vw,70vh) !important;
     .el-drawer__header {
-        .mb(10px);
+        .mb(0.556rem);
     }
     &.long {
         height: auto !important;
-        padding: 20px 14px 30px 14px;
+        padding:1.111rem 0.778rem 1.667rem 0.778rem;
         box-sizing: border-box;
     }
 
@@ -172,22 +174,22 @@
     .u-drawer-top_dark {
         .flex;
         .flex(o);
-        gap: 30px;
+        gap: 1.667rem;
         .u-item {
             .flex;
             .flex(o);
             flex-direction: column;
-            padding: 8px 0;
+            padding: 0.444rem 0;
             .u-icon,
             .u-icon_dark {
-                .size(30px);
-                padding: 4px;
+                .size(1.667rem);
+                padding: 0.222rem;
                 box-sizing: border-box;
             }
 
             .u-text {
                 color: #24292e;
-                .fz(12px,18px);
+                .fz(0.667rem,1rem);
                 .bold(400);
             }
         }
@@ -197,12 +199,12 @@
     }
     .u-drawer-pack_up {
         .flex;
-        .mt(12px);
+        .mt(0.667rem);
         align-items: center;
         background: #1c1c1c0d;
-        padding: 12px 20px;
-        gap: 12px;
-        .r(12px);
+        padding: 0.667rem 1.111rem;
+        gap: 0.667rem;
+        .r(0.667rem);
         box-sizing: border-box;
         .u-icon {
             .size(30px);
@@ -213,29 +215,29 @@
             display: none;
         }
         .u-text {
-            .fz(14px,20px);
+            .fz(0.778rem,1.111rem);
             .bold(400);
             letter-spacing: 0%;
         }
     }
     .u-pinned-list {
-        .mt(12px);
+        .mt(0.667rem);
         background: #1c1c1c0d;
-        padding: 12px 20px;
+        padding:0.667rem 1.111rem;
         box-sizing: border-box;
-        .r(12px);
+        .r(0.667rem);
         .u-item {
             .flex;
 
             align-items: center;
-            .pt(12px);
-            gap: 12px;
+            .pt(0.667rem);
+            gap: 0.667rem;
             .u-icon,
             .u-icon_dark,
             .u-btn,
             .u-icon_delete {
-                .size(30px);
-                padding: 4px;
+                .size(1.667rem);
+                padding: 0.222rem;
                 box-sizing: border-box;
                 flex-shrink: 0;
             }
@@ -244,7 +246,7 @@
             }
             .u-text {
                 flex: 1;
-                .fz(14px,20px);
+                .fz(0.778rem,1.111rem);
                 .bold(400);
                 letter-spacing: 0%;
                 white-space: nowrap;

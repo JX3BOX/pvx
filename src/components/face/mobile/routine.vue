@@ -10,11 +10,11 @@
 <template>
     <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
         <div class="u-item" v-for="item in list" :key="item.id"
-            :style="{ width: isOne ? 'calc(calc(100% - 24px) / 3)' : size + 'px' }">
+            :style="{ width: isOne ? 'calc(calc(100% - 1.333rem) / 3)' : size  }">
             <a :href="`${link}/${item.id}`">
                 <div class="u-item_img" :style="{
-                    width: isOne ? '100%' : size + 'px',
-                    height: isOne ? 'calc(calc(100vw - 64px) / 3)' : size + 'px',
+                    width: isOne ? '100%' : size,
+                    height: isOne ? 'calc(calc(100vw - 3.556rem) / 3)' : size ,
                 }">
                     <el-image class="u-pic" :src="showImg(item)" fit="cover">
                         <div slot="error" class="image-slot">
@@ -44,18 +44,18 @@ import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
 export default {
     computed: {
         link() {
-            return location.origin + "/face";
+            return location.origin + `/${this.type}`
         },
     },
     components: {},
     props: {
         gap: {
             type: String,
-            default: "16px",
+            default: "0.889rem",
         },
         size: {
-            type: Number,
-            default: 120,
+            type: String,
+            default: '6.667rem',
         },
         list: {
             type: Array,
@@ -72,12 +72,19 @@ export default {
         loadingList: {
             type: Boolean,
             default: false,
+        },
+        type:{
+            type: String,
+            default: 'face'
         }
     },
     data() {
-        return {};
+        return {
+        };
     },
-    created() { },
+    created() {
+
+    },
     mounted() { },
     methods: {
         getThumbnail,
@@ -85,8 +92,33 @@ export default {
             let width = parseInt((document.body.clientWidth - 64) / 3);
             return this.getThumbnail(
                 item.images?.[0] || __imgPath + `image/face/null2.png`,
-                this.isOne ? width : this.size
+                this.isOne ? this.getImgSize(width) : this.getImgSize(this.size)
             );
+        },
+        getImgSize(w){
+            if(typeof w=='number') return w;
+          if(w.indexOf('px')>-1){
+              return Math.ceil(w.substring(0,w.length - 2))
+          }else if(w.indexOf('rem')>-1){
+              let str=this.convertRemPx(w.substring(0, w.length - 3),'px')
+              return Math.ceil(str.substring(0,str.length - 2))
+          }
+        },
+        convertRemPx(value, mode) {
+            // 获取根元素font-size大小
+            const htmlFontSize = window.getComputedStyle(
+                document.documentElement,
+            ).fontSize;
+
+            if (mode === "rem") {
+                // 转rem
+                return `${value / parseFloat(htmlFontSize)}rem`;
+            } else if (mode === "px") {
+                // 转px
+                return `${value * parseFloat(htmlFontSize)}px`;
+            } else {
+                console.error("参数错误！");
+            }
         },
         getMore() {
             this.$emit("getMore");
@@ -121,13 +153,13 @@ export default {
 
     &.p-face-routine_one {
         flex-wrap: wrap;
-        height: calc(100vh - 76px);
+        height: calc(100vh - 4.222rem);
         // .mt(10px);
     }
 
     .u-item {
         .u-item_img {
-            .r(8px);
+            .r(0.444rem);
             background: #d9d9d9;
             overflow: hidden;
 
@@ -138,12 +170,12 @@ export default {
 
         .u-item_tag {
             .flex;
-            gap: 4px;
-            padding: 4px 2px;
+            gap: 0.222rem;
+            padding: 0.222rem 0.111rem;
             box-sizing: border-box;
 
             .u-tag_item {
-                .size(12px, 2px);
+                .size(0.667rem, 0.111rem);
                 border-radius: 100px;
 
                 &.green {
@@ -166,7 +198,7 @@ export default {
 
         .u-item_name,
         .u-item_author {
-            padding: 0 2px;
+            padding: 0 0.111rem;
             box-sizing: border-box;
             .bold(400);
             font-style: normal;
@@ -175,8 +207,8 @@ export default {
         .u-item_name {
             .w(100%);
             color: @titleColor;
-            .fz(14px, 20px);
-            .mb(4px);
+            .fz(0.778rem, 1.333rem);
+            .mb(0.222rem);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -184,7 +216,7 @@ export default {
 
         .u-item_author {
             color: @nameColor;
-            .fz(12px, 18px);
+            .fz(0.667rem, 1rem);
         }
 
         // @media screen and (width: 390px) {

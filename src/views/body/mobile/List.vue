@@ -12,13 +12,13 @@
             <div v-for="(item, index) in allList" :key="index">
                 <div class="u-card-title">{{ item.label }}</div>
                 <div class="u-list">
-                    <routine :list="item.list"></routine>
+                    <routine :list="item.list" type="body"></routine>
                 </div>
             </div>
 
             <div class="u-card-title">体型特辑</div>
             <div class="u-list">
-                <habitus :list="bodyList" @toTab="toTab"></habitus>
+                <habitus :list="bodyList" @toTab="toTab" type="body"></habitus>
             </div>
             <!-- <div class="u-card-title">发现</div>
             <div class="u-list">
@@ -28,8 +28,8 @@
         <div class="u-content" v-else>
             <!-- <div class="u-card-title">{{ activeName }}</div> -->
             <div class="u-list" id="oneList">
-                <routine gap="12px" :size="104" :isOne="true" :list="list" :total="total" v-if="listShow"
-                    :loadingList="loadingList" @getMore="getMore"></routine>
+                <routine gap="0.667rem" size="5.778rem" :isOne="true" :list="list" :total="total" v-if="listShow"
+                    :loadingList="loadingList" @getMore="getMore" type="body"></routine>
             </div>
         </div>
     </div>
@@ -37,8 +37,8 @@
 
 <script>
 import PvxSuspension from '@/components/PvxSuspension.vue';
-import routine from "@/components/body/mobile/routine.vue";
-import habitus from "@/components/body/mobile/habitus.vue";
+import routine from "@/components/face/mobile/routine.vue";
+import habitus from "@/components/face/mobile/habitus.vue";
 import { concat } from "lodash";
 import { getBodyList } from "@/service/body";
 export default {
@@ -183,7 +183,7 @@ export default {
     @fontColor-dark: #fff;
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
-    padding: 0 20px 12px 20px;
+    padding: 0 1.111rem 2.222rem 1.111rem;
     box-sizing: border-box;
 
     .m-body-list_mobile__tabs {
@@ -193,13 +193,13 @@ export default {
         .flex;
         justify-content: space-between;
         align-items: center;
-        height: 32px;
+        height:1.778rem;
         background-color: #fff;
-        padding: 12px 0 20px 0;
+        padding: 0.667rem 0 1.111rem 0;
 
         .u-tab_item {
             color: @fontcolor3;
-            .fz(18px, 28px);
+            .fz(1rem, 1.556rem);
             .bold(700);
 
             &.is-active {
@@ -210,17 +210,17 @@ export default {
                 // border-bottom-right-radius: 2px; /* 底部右侧圆角 */
                 .u-tab_item__line {
                     background-color: @fontcolor;
-                    .h(2px);
-                    .r(4px);
+                    .h(0.111rem);
+                    .r(0.222rem);
                 }
             }
         }
     }
 
     .u-card-title {
-        .mb(12px);
+        .mb(0.667rem);
         color: @fontcolor;
-        .fz(18px, 28px);
+        .fz(1rem, 1.556rem);
         .bold(700);
     }
 

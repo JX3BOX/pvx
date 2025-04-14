@@ -2,12 +2,12 @@
     <div class="m-pvx-suspension" :class="navStatusClass" @touchstart="handleTouchStart" @touchend="handleTouchEnd"
         @touchcancel="handleTouchCancel">
         <div :class="`m-pvx-suspension_box ${navStatus ? 'open' : 'close'} ${isType == 'single' ? 'single' : 'list'}`"
-            :style="{ width: options.length * 34 + (isType == 'single' ? 100 : 66) + localList.length * 34 + 'px', bottom: bottomNum }"
+            :style="{ width: options.length * 1.6 + (isType == 'single' ? 5 : 4.2) +(localList.length>0?1.6:0)+ localList.length * 1.8 + 'rem', bottom: bottomNum }"
             @click="toRight">
             <template v-if="navStatus">
                 <div class="u-btn-box">
                     <!-- 固定按钮 -->
-                    <div class="u-immobilization">
+                    <div class="u-immobilization" :class="{noList:localList.length==0}">
                         <div class="u-item" style="transform: scaleX(-1);" @click.stop="toLeft">
                             <img class="u-icon" src="@/assets/img/pvxsuspension/right.svg" svg-inline
                                 v-if="!isDarkModeStatus" />
