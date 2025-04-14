@@ -10,11 +10,11 @@
 <template>
     <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
         <div class="u-item" v-for="item in list" :key="item.id"
-            :style="{ width: isOne ? 'calc(calc(100% - 1.333rem) / 3)' : size  }">
+            :style="{ width: isOne ? 'calc(calc(100vw - 64px) / 3)' : size  }">
             <a :href="`${link}/${item.id}`">
                 <div class="u-item_img" :style="{
                     width: isOne ? '100%' : size,
-                    height: isOne ? 'calc(calc(100vw - 3.556rem) / 3)' : size ,
+                    height: isOne ? 'calc(calc(100vw - 64px) / 3)' : size ,
                 }">
                     <el-image class="u-pic" :src="showImg(item)" fit="cover">
                         <div slot="error" class="image-slot">
