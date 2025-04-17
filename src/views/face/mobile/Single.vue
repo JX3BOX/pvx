@@ -233,18 +233,15 @@ export default {
     height: 100vh;
     background-color: #fafafa;
     overflow: auto;
-    .pb(20px);
+    .pb(1.111rem);
     box-sizing: border-box;
 
     .m-face-detail_top {
         .pr;
-
+        overflow: hidden;
         .u-img_item {
             .size(100%, 500px);
-
-            overflow: hidden;
             .pr;
-
             &::before {
                 content: "";
                 .pa;
@@ -262,7 +259,7 @@ export default {
         }
 
         .el-carousel__indicators {
-            height: 42px;
+            height: 2.333rem;
 
             &.el-carousel__indicators--horizontal {
                 right: 0;
@@ -273,8 +270,8 @@ export default {
                 .pt(0);
 
                 .el-carousel__button {
-                    .size(8px, 8px);
-                    .r(8px);
+                    .size(0.444rem);
+                    .r(0.444rem);
                     background-color: rgba(28, 28, 28, 0.4);
                 }
 
@@ -289,17 +286,17 @@ export default {
         .u-face_info {
             .pa;
             .z(2);
-            .lb(20px, 6px);
+            .lb(1.111rem,0.333rem);
 
             .u-face_name {
                 color: @nameColor;
-                .fz(16px, 24px);
+                .fz(0.889rem, 1.333rem);
                 .bold(700);
             }
 
             .u-face_author {
                 color: rgba(28, 28, 28, 0.4);
-                .fz(12px, 18px);
+                .fz(0.667rem, 1rem);
                 .bold(400);
             }
         }
@@ -307,21 +304,21 @@ export default {
 
     .m-tags {
         .flex;
-        padding: 14px 20px;
+        padding: 0.778rem 1.111rem;
         box-sizing: border-box;
-        gap: 4px;
+        gap: 0.222rem;
         align-items: center;
         align-self: stretch;
 
         .u-tag {
-            padding: 4px 8px;
+            padding: 0.222rem 0.444rem;
             .flex;
             .flex(o);
-            .r(8px);
+            .r(0.444rem);
             border: 1px solid rgba(40, 40, 40, 0.05);
             background: @fontBgColor;
             color: @fontColor;
-            .fz(14px, 15px);
+            .fz(0.778rem, 0.889rem);
             .bold(400);
 
             &.green {
@@ -348,36 +345,36 @@ export default {
 
     .m-introduce {
         border: 1px solid rgba(40, 40, 40, 0.05);
-        padding: 16px;
-        .r(12px);
+        padding: 0.889rem;
+        .r(0.667rem);
         background-color: @fontBgColor;
-        margin: 0 20px 16px 20px;
+        margin: 0 1.111rem 0.889rem 1.111rem;
         box-sizing: border-box;
 
         .u-title {
             color: @fontColor2;
-            .fz(12px, 18px);
+            .fz(0.667rem, 1rem);
             .bold(400);
-            .mb(4px);
+            .mb(0.222rem);
         }
 
         .u-content {
             color: @fontColor;
-            .fz(14px, 20px);
+            .fz(0.778rem, 1.111rem);
             .bold(400);
         }
     }
 
     .m-warning {
         .flex;
-        gap: 12px;
+        gap: 0.667rem;
         align-items: center;
-        margin: 0 20px 16px 20px;
-        padding: 16px;
-        .r(12px);
+        margin: 0 1.111rem 0.889rem 1.111rem;
+        padding: 0.889rem;
+        .r(0.667rem);
         background-color: @fontBgColor;
         color: @fontColor2;
-        .fz(14px, 20px);
+        .fz(0.778rem, 1.111rem);
         .bold(400);
 
         .u-img-dark {
@@ -389,12 +386,12 @@ export default {
         .flex;
         justify-content: space-between;
         align-items: center;
-        margin: 0 20px 16px 20px;
-        padding: 16px;
-        .r(12px);
+        margin: 0 1.111rem 0.889rem 1.111rem;
+        padding: 0.889rem;
+        .r(0.667rem);
         background-color: @fontBgColor;
         color: @fontColor;
-        .fz(16px, 24px);
+        .fz(0.889rem, 1.333rem);
         .bold(700);
 
         .u-img-dark {
@@ -403,19 +400,19 @@ export default {
     }
 
     .m-face-number {
-        margin: 0 20px 16px 20px;
-        padding: 16px;
-        .r(12px);
+        margin: 0 1.111rem 0.889rem 1.111rem;
+        padding: 0.889rem;
+        .r(0.667rem);
         background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%), #ff7991;
         color: #fff;
-        .fz(12px, 18px);
+        .fz(0.667rem, 1rem);
 
         .u-title {
             .flex;
-            gap: 2px;
+            gap: 0.111rem;
             align-items: center;
             .bold(400);
-            .mb(4px);
+            .mb(0.222rem);
         }
 
         .u-number {
@@ -424,10 +421,10 @@ export default {
     }
 
     .m-face-author {
-        margin: 0 20px 16px 20px;
+        margin: 0 1.111rem 0.889rem 1.111rem;
         background-color: @fontBgColor;
         .pr;
-        .r(12px);
+        .r(0.667rem);
         overflow: hidden;
 
         &::before {
@@ -442,8 +439,8 @@ export default {
 
         .u-title {
             .pa;
-            .lt(16px);
-            .fz(12px, 18px);
+            .lt(0.889rem);
+            .fz(0.667rem, 1rem);
             .bold(700);
             .z(2);
             color: #fff;
@@ -457,50 +454,50 @@ export default {
         .u-info-box {
             .flex;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 0.667rem 0.889rem;
 
             .u-author_name {
                 color: @fontColor;
-                .fz(14px, 20px);
+                .fz(0.778rem, 1.111rem);
                 .bold(700);
             }
 
             .u-author_vermicelli {
                 color: @fontColor2;
-                .fz(10px, 15px);
+                .fz(0.556rem, 0.889rem);
                 .bold(400);
             }
 
             .u-follow {
                 .flex;
                 .flex(o);
-                padding: 4px 8px;
-                .r(8px);
+                padding: 0.222rem 0.444rem;
+                .r(0.444rem);
                 background: @btnBgColor;
                 color: @btnBgColor-dark;
-                .fz(10px, 15px);
+                .fz(0.556rem, 0.889rem);
             }
         }
 
         .u-author_introduce {
             color: @fontColor2;
-            .fz(12px, 18px);
+            .fz(0.667rem, 1rem);
             .bold(400);
-            padding: 0 16px 16px 16px;
+            padding: 0 0.889rem 0.889rem 0.889rem;
         }
     }
 
     .m-face-author_other {
-        margin: 0 20px 16px 20px;
+        margin: 0 1.111rem 0.889rem 1.111rem;
         background-color: @fontBgColor;
-        .pb(16px);
-        .r(12px);
+        .pb(0.889rem);
+        .r(0.667rem);
 
         .u-title {
             color: @fontColor;
-            .fz(12px, 18px);
+            .fz(0.667rem, 1rem);
             .bold(700);
-            padding: 16px 16px 12px 16px;
+            padding: 0.889rem 0.889rem 0.667rem 0.889rem;
         }
 
         .u-img_item {
@@ -518,9 +515,7 @@ export default {
         }
 
         .u-other_list {
-            padding: 0 16px;
-
-
+            padding: 0 0.889rem;
         }
     }
 

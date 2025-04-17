@@ -177,6 +177,7 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/app.less";
+@import "~@/assets/css/miniprogram.less";
 
 .v-miniprogram {
     .m-main {

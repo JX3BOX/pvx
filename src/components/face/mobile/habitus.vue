@@ -30,7 +30,12 @@ export default {
             type: Array,
             default: () => [],
         },
+        type: {
+            type: String,
+            default: "face",
+        },
     },
+
     components: {},
     data() {
         return {};
@@ -56,18 +61,13 @@ export default {
 
 .p-pvx-habitus {
     .flex;
-    gap: 10px;
-    // overflow: auto;
-    // box-sizing: border-box;
-    // &::-webkit-scrollbar {
-    //     width: 0;
-    //     height: 0;
-    // }
+    justify-content: space-between;
+    gap: 0.556rem;
 
     .u-item {
         .pr;
         .h(156px);
-        .r(8px);
+        .r(0.444rem);
         overflow: hidden;
 
         .u-item_img {
@@ -93,13 +93,13 @@ export default {
 
         .u-item_type {
             color: @titleColor;
-            .fz(14px, 15px);
+            .fz(0.778rem, 0.889rem);
             .bold(400);
             font-style: normal;
             .pa;
             .z(2);
-            .lb(0, 4px);
-            padding: 0 6px;
+            .lb(0, 0.222rem);
+            padding: 0 0.333rem;
 
             // @media screen and (width: 390px) {
             //     color: @titleColor-dark;

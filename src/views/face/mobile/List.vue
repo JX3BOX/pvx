@@ -27,7 +27,7 @@
         <div class="u-content" v-else>
             <!-- <div class="u-card-title">{{ activeName }}</div> -->
             <div class="u-list" id="oneList" v-loading="loadingList">
-                <routine gap="12px" :size="104" :isOne="true" :list="list" :total="total" :loadingList="loadingList"
+                <routine gap="0.667rem" size="5.778rem" :isOne="true" :list="list" :total="total" :loadingList="loadingList"
                     v-if="listShow" @getMore="getMore()"></routine>
             </div>
         </div>
@@ -195,7 +195,7 @@ export default {
     @fontColor-dark: #fff;
     @fontColor-dark2: rgba(255, 255, 255, 0.8);
     @fontColor-dark3: rgba(255, 255, 255, 0.4);
-    padding: 0 20px 40px 20px;
+    padding: 0 1.111rem 2.222rem 1.111rem;
     box-sizing: border-box;
 
     .m-face-list_mobile__tabs {
@@ -205,31 +205,36 @@ export default {
         .flex;
         justify-content: space-between;
         align-items: center;
-        height: 32px;
+        height: 1.778rem;
         background-color: #fff;
-        padding: 12px 0 20px 0;
+        padding: 0.667rem 0 1.111rem 0;
 
         .u-tab_item {
             color: @fontcolor3;
-            .fz(18px, 28px);
+            .fz(1rem, 1.556rem);
             .bold(700);
 
             &.is-active {
                 color: @fontcolor;
-                border-bottom: 2px solid @fontcolor;
+                //border-bottom: 0.111rem solid @fontcolor;
+                .u-tab_item__line {
+                    background-color: @fontcolor;
+                    .h(0.111rem);
+                    .r(0.222rem);
+                }
             }
         }
     }
 
     .u-card-title {
-        .mb(12px);
+        .mb(0.667rem);
         color: @fontcolor;
-        .fz(18px, 28px);
+        .fz(1rem, 1.556rem);
         .bold(700);
     }
 
     .u-content-item {
-        .mb(10px);
+        .mb(0.556rem);
     }
 
     // @media screen and (width: 390px)
@@ -244,7 +249,7 @@ export default {
 
                 &.is-active {
                     color: @fontColor-dark;
-                    border-bottom: 2px solid @fontColor-dark;
+                    border-bottom: 0.111rem solid @fontColor-dark;
                 }
             }
         }
