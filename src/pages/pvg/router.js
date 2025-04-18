@@ -1,5 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 
 // 解决重复点击路由报错的BUG
 const originalPush = VueRouter.prototype.push;
@@ -21,7 +22,9 @@ const routes = [
     {
         name: "price",
         path: "/price",
-        component: ()=> import("@/views/pvg/price/index.vue"),
+        component: isMiniProgram()
+            ? () => import("@/views/pvg/price/mobile/index.vue")
+            : () => import("@/views/pvg/price/index.vue"),
         meta: {
             name: "价格走势",
         },
