@@ -49,6 +49,11 @@ import MyList from "@/components/manufacture/MyList.vue";
 export default {
     name: "Manufacture",
     components: { Recipe, Cart, MyList, CommonToolbar },
+    provide() {
+        return {
+            isMiniProgram: this.isMiniProgram
+        };
+    },
     data: function () {
         return {
             craftKey: "",
@@ -65,6 +70,9 @@ export default {
         };
     },
     computed: {
+        isMiniProgram() {
+            return document.getElementsByClassName("v-miniprogram")?.length > 0
+        },
         client() {
             return this.$store.state.client;
         },
@@ -158,6 +166,7 @@ export default {
         },
         updateToolbar(data) {
             const { type, search } = data;
+            this.active = type;
             this.search = search;
             this.changeCraft(type);
         },
@@ -261,6 +270,11 @@ export default {
             padding: 0 0 0 15px;
             white-space: nowrap;
         }
+    }
+}
+.v-miniprogram {
+    .m-manufacture {
+        padding-top: 20px;
     }
 }
 </style>

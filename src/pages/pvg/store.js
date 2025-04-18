@@ -15,9 +15,12 @@ let store = {
         // 角色信息
         roles: [],
 
+        // ======== 技艺助手 ========
         // 使用 `服务器_id` 作为key存储价格
+        server: "梦江南",
         prices: {},
         custom_prices: {},
+        cart_list: [],
 
         // gonggao
         server: "梦江南",
@@ -59,6 +62,21 @@ let store = {
                 },
                 {}
             );
+        },
+        cart_push(state, item) {
+            state.cart_list.push(item);
+        },
+        cart_delete(state, item) {
+            const index = state.cart_list.findIndex((el) => el.id == item.id);
+            if (index > -1) {
+                state.cart_list.splice(index, 1);
+            }
+        },
+        cart_flush(state) {
+            state.cart_list = [];
+        },
+        cart_set(state, list) {
+            state.cart_list = list;
         },
 
         // gonggao
@@ -129,19 +147,28 @@ let store = {
         },
     },
     actions: {
+        set_server({ state, dispatch }, server) {
+            state.server = server;
+            // 更新已有价格
+            const ids = Object.keys(state.prices)
+                .filter((key) => state.prices[key]?.from == "auction" && !key.startsWith(server))
+                .map((key) => key.split("_").slice(1).join("_"));
+            dispatch("fetch_prices", { server, ids });
+        },
         async fetch_prices({ commit, state }, { server, ids }) {
             const keys = ids.map((id) => `${server}_${id}`).filter((key) => !state.prices[key]);
             if (keys.length === 0) return Promise.resolve();
 
             const [auction_prices, npc_prices] = await Promise.all([
                 getAuctionPrice({
+                    aggregate_type: "hourly",
+                    item_ids: ids,
                     server,
-                    itemIds: ids.join(","),
                 }).then((res) => {
-                    const data = res.data.data;
-                    return Object.entries(data).reduce((payload, [id, { Server, AvgPrice }]) => {
-                        const key = `${Server}_${id}`;
-                        const item = { price: AvgPrice, server: Server, from: "auction" };
+                    const data = res.data || [];
+                    return data.reduce((payload, { item_id, server, price }) => {
+                        const key = `${server}_${item_id}`;
+                        const item = { price: price, server: server, from: "auction" };
                         return { ...payload, [key]: item };
                     }, {});
                 }),

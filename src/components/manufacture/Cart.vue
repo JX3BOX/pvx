@@ -379,10 +379,10 @@ export default {
             );
         },
         calcCartItemTax(item) {
-            return item.price_unit * item.yield_count * item.count * 0.05;
+            return item.price_unit * item.yield_count * 0.05;
         },
         calcCartItemProfit(item) {
-            const profit = item.price_unit * item.yield_count * item.count - this.calcCartItemCostPrice(item);
+            const profit = item.price_unit * item.yield_count - this.calcCartItemCostPrice(item);
             if (item.calc_tax) return profit - this.calcCartItemTax(item);
             return profit;
         },

@@ -36,6 +36,12 @@ export default {
             return require(`@/assets/img/nav/${key}2.svg`);
         },
     },
+    mounted() {
+        const { type, id } = this.$route.query;
+        if (type && id) {
+            window.open(`/${type}/${id}`, "_self");
+        }
+    },
 };
 </script>
 
