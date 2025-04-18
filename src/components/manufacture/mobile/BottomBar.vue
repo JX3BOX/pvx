@@ -140,7 +140,8 @@ export default {
     bottom: 50px;
     padding: 12px 20px;
 
-    margin-left: 10px;
+    left:50%;
+    transform: translateX(-50%);
     .w(310px);
     .r(30px);
     display: flex;
