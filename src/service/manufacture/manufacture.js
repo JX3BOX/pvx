@@ -30,19 +30,11 @@ function getItemsPrice(params) {
 }
 // 获取交易行物品价格
 function getAuctionPrice(params) {
-    return $next().get(`/api/item-price/list`, { params });
+    return $next().post(`/api/auction/`, params);
 }
 
 function getUserInfo() {
     return $cms().get("/api/cms/user/my/info");
 }
 
-export {
-    getManufactures,
-    getManufactureItem,
-    getCraftJson,
-    getOther,
-    getItemsPrice,
-    getAuctionPrice,
-    getUserInfo,
-};
+export { getManufactures, getManufactureItem, getCraftJson, getOther, getItemsPrice, getAuctionPrice, getUserInfo };

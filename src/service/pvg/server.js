@@ -29,7 +29,7 @@ async function getServer(type) {
         // 1.1尝试获取资料设定服务器
         return getProfile()
             .then((data) => {
-                return data.server;
+                return data.server || data.jx3_server;
             })
             .then((server) => {
                 if (server) {

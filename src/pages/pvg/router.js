@@ -15,6 +15,15 @@ const routes = [
         name: "manufacture",
         path: "/manufacture",
         component: () => import("@/views/pvg/Manufacture.vue"),
+
+        meta: {
+            name: "技艺助手",
+        },
+    },
+    {
+        name: "mobile-manufacture",
+        path: "/manufacture/mobile",
+        component: () => import("@/views/pvg/ManufactureMobile.vue"),
         meta: {
             name: "技艺助手",
         },
@@ -86,7 +95,13 @@ const today = new Date();
 
 router.beforeEach((to, from, next) => {
     if (to.fullPath === "/gonggao/calendar") {
-        next(`${to.fullPath}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`);
+        return next(`${to.fullPath}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`);
+    }
+    if (to.fullPath === "/manufacture") {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            return next("/manufacture/mobile");
+        }
     }
     next();
 });
