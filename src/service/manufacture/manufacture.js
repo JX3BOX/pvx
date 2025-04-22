@@ -24,6 +24,17 @@ function getManufactureItem(type, id, client = "std") {
 function getOther(params) {
     return $n.get(`/other`, { params });
 }
+// 获取物品信息
+export function getItemMerges(client, ids) {
+    return $n.get(
+        `/resource/${client}/item_merged.${ids}.Genre,id,Name,Price,Quality,ScriptName,SkillID,SkillID,SkillLevel,Subtype,UiID`,
+        {
+            params: {
+                include: "item",
+            },
+        }
+    );
+}
 // 获取商店物品价格
 function getItemsPrice(params) {
     return $n.get(`/craft/price`, { params });

@@ -60,7 +60,7 @@ export default {
         recipeTree() {
             const tree = {};
             for (const subtype of this.craftSubtypes) {
-                const recipes = this.craftRecipes.filter((recipe) => recipe.Belong == subtype.BelongID);
+                let recipes = this.craftRecipes.filter((recipe) => recipe.Belong == subtype.BelongID);
                 if (this.keyword) {
                     recipes = recipes.filter((recipe) => recipe.Name.includes(this.keyword));
                 }
