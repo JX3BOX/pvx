@@ -1,0 +1,113 @@
+@color-light: #1c1c1c;
+@bg-light: #f9f9f9;
+@color-dark:rgba(255, 255, 255, 0.80);
+@color-light-40: rgba(28, 28, 28, 0.40);
+.m-pet-mobile_single{
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    padding:0.75rem 1.1rem;
+    box-sizing: border-box;
+    overflow: auto;
+    .m-pet-card{
+        border-radius: 0.75rem;
+        border: 1px solid rgba(40, 40, 40, 0.05);
+        background: #ffffff;
+        padding: 1rem;
+        box-sizing: border-box;
+        .mb(1.25rem);
+
+    }
+    .m-top{
+        .u-icon-name{
+            .flex;
+            align-items: center;
+            //justify-content: space-between;
+            gap: 0.5rem;
+            .fz(0.875rem, 1.25rem);
+            .bold(700);
+            color: @color-light;
+            .u-icon{
+                .size(2rem);
+            }
+            .u-rate{
+                height: 10px;
+                .flex;
+                align-items: center;
+            }
+            .u-star{
+                width: 10px;
+                height: 10px;
+            }
+
+        }
+        .u-info-box{
+            .flex;
+            flex-wrap: wrap;
+            .w(100%);
+            gap:1.25rem;
+            .mt(1.25rem);
+            .u-content{
+                .w(calc(50% - 0.625rem));
+                flex-shrink: 0;
+                .u-label{
+                    .fz(0.75rem, 1.125rem);
+                    colror: @color-light-40;
+                    .bold(400)
+                }
+                .u-text{
+                    .fz(0.875rem, 1.25rem);
+                    color: @color-light;
+                    .bold(400);
+                }
+                &.w-100{
+                    .w(100%);
+                }
+                .u-skill-list{
+                    .flex;
+                    gap:0.5rem;
+                    overflow: auto;
+                    .w(100%);
+                    flex-wrap: wrap;
+                    .u-skill-icon{
+                        .mt(0.5rem);
+                        .r(0.5rem)
+                    }
+                }
+            }
+        }
+    }
+}
+.m-pet-skill {
+    border-radius: 3px;
+    border: 1px solid #132221;
+    background: rgba(#132221f3);
+    padding: 10px;
+    max-width: 90vw;
+    .u-skill-name {
+        color: #ff0;
+    }
+
+    .u-skill-desc {
+        color: #eee;
+    }
+}
+@media (prefers-color-scheme: dark){
+    .m-pet-mobile_single{
+        background: #000000;
+        //.m-pet-card{
+        //    background: rgba(255, 255, 255, 0.4);
+        //}
+        //.m-top{
+        //    .u-icon-name{
+        //        color: @color-dark;
+        //    }
+        //    .u-info-box{
+        //        .u-content{
+        //            .u-label,.u-text{
+        //                color:@color-dark;
+        //            }
+        //        }
+        //    }
+        //}
+    }
+}
