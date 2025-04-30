@@ -1,6 +1,6 @@
 <template>
     <div class="m-pvx-reputation-search">
-        <div style="margin-top: 15px;">
+        <div class="u-search">
             <el-select v-model="dlc" clearable placeholder="请选择" class="u-select">
                 <el-option v-for="item in versions" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
@@ -151,6 +151,9 @@ export default {
 .m-pvx-reputation-search {
     height: 100%;
     background: #f9f9f9;
+    .u-search{
+        .mt(15px);
+    }
     .u-select {
         .mb(10px);
         .w(100%);
@@ -175,7 +178,7 @@ export default {
     .reputation-list {
         height: calc(100% - 100px);
         overflow-y: auto;
-        .mt(10px);
+        .pt(10px);
         .flex;
         flex-direction: column;
         gap: 10px;
@@ -207,17 +210,22 @@ export default {
     }
 }
 //@media screen and (width: 390px)
-@media (prefers-color-scheme: dark)
-{
+@media (prefers-color-scheme: dark) {
     .v-miniprogram {
         .m-main {
             background: #000000;
         }
     }
     .m-pvx-reputation-search{
+        .u-search{
+            background: #000000;
+        }
         .reputation-list{
            background: #000000;
             .reputation-show-list{
+                .u-title{
+                    color: #ffffff;
+                }
                 .u-list{
                    background: #000000;
                 }
