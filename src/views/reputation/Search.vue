@@ -150,7 +150,7 @@ export default {
 
 .m-pvx-reputation-search {
     height: 100%;
-
+    background: #f9f9f9;
     .u-select {
         .mb(10px);
         .w(100%);
@@ -180,6 +180,11 @@ export default {
         flex-direction: column;
         gap: 10px;
         align-items: center;
+        background: #f9f9f9;
+        &::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
         .reputation-title{
             .fz(16px);
         }
@@ -190,6 +195,10 @@ export default {
             }
             .u-list{
                 .mt(10px);
+                .flex;
+                flex-direction: column;
+                gap: 10px;
+                background: #f9f9f9;
             }
         }
         .reputation-item {
@@ -203,6 +212,16 @@ export default {
     .v-miniprogram {
         .m-main {
             background: #000000;
+        }
+    }
+    .m-pvx-reputation-search{
+        .reputation-list{
+           background: #000000;
+            .reputation-show-list{
+                .u-list{
+                   background: #000000;
+                }
+            }
         }
     }
 }

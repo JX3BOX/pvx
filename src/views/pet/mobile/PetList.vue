@@ -15,7 +15,7 @@
                 <div class="u-lucky-item" v-for="item in luckyList" :key="item.id">
                     <a class="u-pet" :href="getPetLuckLink(item)">
                         <i class="u-img">
-                            <img class="u-pic" :src="imgPath(item)" loading="lazy"/>
+                            <img class="u-pic" :src="imgPath(item)" loading="lazy" @error="onError($event,item)" />
                         </i>
                     </a>
                 </div>
@@ -80,7 +80,7 @@
 </template>
 <script>
 import { __cdn } from "@jx3box/jx3box-common/data/jx3box";
-import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
+import { extractTextContent, iconLink, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 
 import { clone } from "lodash";
 import { getPetLucky, getPets, getSliders } from "@/service/pet";
@@ -157,6 +157,10 @@ export default {
     },
     methods: {
         iconLink,
+        resolveImagePath,
+        onError(e,item) {
+            e.target.src = this.resolveImagePath(item.img);
+        },
         imgPath(item) {
             return `${__cdn}design/pet/std/${item.source_id}.png`;
         },
