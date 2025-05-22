@@ -42,7 +42,7 @@ import Plan from "@/components/manufacture/mobile/Plan.vue";
 
 import { keyBy } from "lodash";
 import { craft_types } from "@/assets/data/manufacture.json";
-import { getCraftJson, getManufactures, getManufactureItem, getOther } from "@/service/manufacture/manufacture";
+import { getCraftJson, getManufactures, getManufactureItem, getItemMerges } from "@/service/manufacture/manufacture";
 import { omit, pick } from "lodash";
 import { nanoid } from "nanoid";
 import { mapGetters } from "vuex";
@@ -179,17 +179,17 @@ export default {
             }
             // 获取材料列表，并且把材料信息写到 materials
             const other_ids = [
-                ...materials.map((item) => item.item_id.split("_").pop()),
-                recipe.item_id.split("_").pop(),
+                ...materials.map((item) => item.item_id),
+                recipe.item_id,
             ].join(",");
-            await getOther({ client: this.client, ids: other_ids, per: materials.length + 1 }).then((res) => {
-                const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
+            await getItemMerges(this.client, other_ids).then((res) => {
+                const items = keyBy(res.data, "id");
                 materials.forEach((material) => {
-                    const other = others[material.item_id];
+                    const other = items[material.item_id];
                     material.item = other || { item_info: { Name: "未知" } };
                 });
-                if (others[recipe.item_id]) {
-                    recipe.item = others[recipe.item_id] || { item_info: { Name: "未知" } };
+                if (items[recipe.item_id]) {
+                    recipe.item = items[recipe.item_id] || { item_info: { Name: "未知" } };
                 }
             });
             this.$store.dispatch("fetch_prices", {

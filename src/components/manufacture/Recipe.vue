@@ -26,7 +26,8 @@
                             @input="onlyInteger"
                             @click.stop.native
                         ></el-input-number>
-                        <el-button icon="el-icon-shopping-cart-2" size="small" @click="onAddCartItem(_list)"> </el-button>
+                        <el-button icon="el-icon-shopping-cart-2" size="small" @click="onAddCartItem(_list)">
+                        </el-button>
                     </div>
                 </span>
             </span>
@@ -36,7 +37,7 @@
 </template>
 <script>
 import { keyBy } from "lodash";
-import { getManufactureItem, getOther } from "@/service/manufacture/manufacture";
+import { getManufactureItem, getItemMerges } from "@/service/manufacture/manufacture";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import RecipeDetail from "@/components/manufacture/RecipeDetail.vue";
@@ -89,18 +90,15 @@ export default {
                 }
             }
             // 获取材料列表，并且把材料信息写到 materials
-            const other_ids = [
-                ...materials.map((item) => item.item_id.split("_").pop()),
-                recipe.item_id.split("_").pop(),
-            ].join(",");
-            await getOther({ client: this.client, ids: other_ids, per: materials.length + 1 }).then((res) => {
-                const others = keyBy(res.data.list, (item) => `5_${item.ID}`);
+            const other_ids = [...materials.map((item) => item.item_id), recipe.item_id].join(",");
+            await getItemMerges(this.client, other_ids).then((res) => {
+                const items = keyBy(res.data, "id");
                 materials.forEach((material) => {
-                    const other = others[material.item_id];
+                    const other = items[material.item_id];
                     material.item = other || { item_info: { Name: "未知" } };
                 });
-                if (others[recipe.item_id]) {
-                    recipe.item = others[recipe.item_id] || { item_info: { Name: "未知" } };
+                if (items[recipe.item_id]) {
+                    recipe.item = items[recipe.item_id] || { item_info: { Name: "未知" } };
                 }
             });
             // 让store拿价格
@@ -140,7 +138,7 @@ export default {
             recipe.count = count;
             this.$refs["recipe-detail"].onAddCartItem(recipe, {
                 parent: item.id,
-                require_count_unit
+                require_count_unit,
             });
         },
     },
