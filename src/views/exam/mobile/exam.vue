@@ -3,6 +3,7 @@
         <div class="m-search">
             <img class="u-icon" src="@/assets/img/exam/mobile/search.svg" svg-inline />
             <input class="u-input" type="text" placeholder="输入2个字符以上的关键词搜索~" @input="searchEvent" />
+            <i v-if="reqLoading" class="el-icon-loading"></i>
         </div>
 
         <div class="m-exam-list">
@@ -11,6 +12,8 @@
                 <div class="u-answer">{{ getAnswer(item) }}</div>
             </div>
         </div>
+        
+        <img class="u-no-data" v-if="!dataList.length" src="@/assets/img/exam/mobile/noData.png" />
     </div>
 </template>
 <script>
@@ -20,6 +23,7 @@ export default {
     data() {
         return {
             dataList: [],
+            reqLoading: false,
         };
     },
     computed: {
@@ -38,11 +42,15 @@ export default {
 
             this.searchTimer = setTimeout(() => {
                 if (searchValue.length >= 2) {
+                    this.reqLoading = true;
                     getExamByKey({
                         key: searchValue,
                     }).then((res) => {
                         this.dataList = res.data.data;
+                        this.reqLoading = false;
                     });
+                } else {
+                    this.dataList = [];
                 }
             }, 300);
         },
@@ -99,6 +107,16 @@ export default {
                 color: #fedaa3;
             }
         }
+        .el-icon-loading {
+            color: #fedaa3;
+        }
+    }
+
+    .u-no-data {
+        .size(250px);
+        display: block;
+        margin: 0 auto;
+        margin-top: 100px;
     }
 
     .m-exam-list {
