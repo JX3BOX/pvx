@@ -12,14 +12,19 @@
                 <div class="u-answer">{{ getAnswer(item) }}</div>
             </div>
         </div>
-        
+
         <img class="u-no-data" v-if="!dataList.length" src="@/assets/img/exam/mobile/noData.png" />
+
+        <SuspendCommon />
     </div>
 </template>
 <script>
 import { getExamByKey } from "@/service/exam.js";
+import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 export default {
-    components: {},
+    components: {
+        SuspendCommon,
+    },
     data() {
         return {
             dataList: [],
