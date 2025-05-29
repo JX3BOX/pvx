@@ -50,7 +50,7 @@ import SingleCard from "@/components/exam/single_card.vue";
 import PaperTitle from "@/components/exam/paper_title.vue";
 import Comment from "@jx3box/jx3box-comment-ui/src/Comment.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
-import { getPaper, submitAnswer } from "@/service/exam.js";
+import { getPaper, submitAnswer, submitAnswerTrial } from "@/service/exam.js";
 import User from "@jx3box/jx3box-common/js/user";
 
 export default {
@@ -87,6 +87,9 @@ export default {
         canManage: function () {
             return User.isEditor() || User.getInfo().uid == this.data.createUserId;
         },
+        isPractice() {
+            return this.$route?.query?.mode == "practice";
+        }
     },
     methods: {
         editLink(type, id) {
@@ -130,7 +133,7 @@ export default {
             };
         },
         submit() {
-            if (!User.isLogin()) return this.$message.error("请先登录");
+            if (!this.isPractice && !User.isLogin()) return this.$message.error("请先登录");
             if (!Object.keys(this.userAnswers).length) {
                 this.$alert("不能交白卷哦~", "提交失败", {
                     type: "error",
@@ -150,7 +153,8 @@ export default {
                         myAnswer: this.userAnswers[i].sort(),
                     });
                 }
-                submitAnswer(this.id, submitList, true).then((res) => {
+                const fn = this.isPractice ? submitAnswerTrial : submitAnswer;
+                fn(this.id, submitList, true).then((res) => {
                     if (res.data.score) {
                         document.documentElement.scrollTop = 0;
                         const paper = res.data.paper;
