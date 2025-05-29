@@ -25,7 +25,7 @@
                 <div class="u-cut-box">
                     <div class="u-cut-item" v-for="(item, index) in tabsData" :key="index"
                          :class="{ 'is-active': showActive == item.value }" @click="showActive=item.value">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/copy_touchbar.svg" svg-inline />
+                        <img class="u-icon" :src="item.icon" svg-inline />
                         <span>{{ item.label }} </span>
                     </div>
                 </div>
@@ -113,10 +113,10 @@ export default {
             showActive: -1,//切换弹窗内active，仅在弹窗打开时有效
             tabsData: [
                 // { label: "全部", value: -1, client: ["std", "origin"] },
-                { label: "成男", value: 1, client: ["std", "origin"] },
-                { label: "成女", value: 2, client: ["std", "origin"] },
-                { label: "正太", value: 5, client: ["std"] },
-                { label: "萝莉", value: 6, client: ["std", "origin"] },
+                { label: "成男", value: 1, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/man.svg') },
+                { label: "成女", value: 2, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/woman.svg') },
+                { label: "正太", value: 5, client: ["std"],icon:require('@/assets/img/pvxsuspension/boy.svg') },
+                { label: "萝莉", value: 6, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/girl.svg') },
             ],
             allList: [
                 {
