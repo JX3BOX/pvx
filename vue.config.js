@@ -9,7 +9,7 @@ module.exports = {
     //❤️ Multiple pages ~
     pages: {
         index: {
-            title: "休闲栏目 - JX3BOX",
+            title: "休闲栏目",
             entry: "src/pages/index/index.js",
             template: "public/index.html",
             filename: "index.html",
@@ -27,7 +27,7 @@ module.exports = {
             filename: "pvg/index.html",
         },
         reputation: {
-            title: "声望大全 - JX3BOX",
+            title: "声望大全",
             entry: "src/pages/reputation/index.js",
             template: "public/index.html",
             filename: "reputation/index.html",
@@ -45,13 +45,13 @@ module.exports = {
             filename: "exam/index.html",
         },
         face: {
-            title: "捏脸数据 - JX3BOX",
+            title: "捏脸数据",
             entry: "src/pages/face/index.js",
             template: "public/index.html",
             filename: "face/index.html",
         },
         body: {
-            title: "体型数据 - JX3BOX",
+            title: "体型数据",
             entry: "src/pages/body/index.js",
             template: "public/index.html",
             filename: "body/index.html",
