@@ -9,9 +9,52 @@
 -->
 <template>
     <div class="p-face-detail" v-loading="loading">
-        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" :miniprogram="{app:'捏脸',filter_name:'pvxface'}"/>
+        <SuspendCommon
+            :btnOptions="{showHome:true}"
+            :drawerOptions="{
+            hideType:['report','rss'],
+            author:{
+                name:post.author_name,
+                avatar:post.user_avatar,
+                id:post.user_id
+            },
+            title:post.title,
+            postType:'face',
+            id:id
+            }"
+            @search="search"
+        >
+            <template #default>
+                <div class="u-copy" @click="showFaceData=true">
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowsLeftRight.svg" svg-inline />复制捏脸码
+                </div>
+            </template>
+        </SuspendCommon>
+        <el-drawer :visible.sync="showFaceData" direction="btt"  :with-header="false" custom-class="u-drawer" :modal-append-to-body="false" append-to-body class="p-drawer">
+            <div class="m-face-data_copy">
+                <div class="u-copy-box" v-if="post.code_mode">
+                    <div class="u-copy-top">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/copy_touchbar_120.svg" svg-inline />
+                        <div class="u-label">复制捏脸码</div>
+                    </div>
+
+                    <div class="u-number">{{ post.code }}</div>
+                    <div class="u-copy-btn" @click="copy">复制</div>
+                </div>
+                <div class="u-data-box" v-else>
+                    <div class="u-copy-top">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/report.svg" svg-inline />
+                        <div class="u-label">非捏脸码作品，无法直接复制</div>
+                    </div>
+                    <div class="u-no-data-btn" @click="goToFaceDataMobile()">查看捏脸数据</div>
+                </div>
+
+            </div>
+        </el-drawer>
+        <!--        复制捏脸码相关弹窗-->
+<!--        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" :miniprogram="{app:'捏脸',filter_name:'pvxface'}"/>-->
         <div class="m-face-detail_top">
-            <el-carousel height="500px">
+            <el-carousel height="550px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">
                     <div class="u-img_item">
                         <img :src="showPic(item)" />
@@ -88,7 +131,8 @@
 </template>
 
 <script>
-import PvxSuspension from '@/components/PvxSuspension.vue';
+import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+// import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine_other from "@/components/face/mobile/routine_other";
 import { getOneFaceInfo, getRandomFace } from "@/service/face";
 import { getFans, getUserInfo } from "@/service/face/author";
@@ -97,7 +141,7 @@ import { subscribeAuthor, unsubscribeAuthor } from "@jx3box/jx3box-common/js/rss
 import { __clients, __imgPath, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
 import { bodyMap } from "@jx3box/jx3box-data/data/role/body.json";
 export default {
-    components: { PvxSuspension, routine_other },
+    components: { SuspendCommon, routine_other },
     computed: {
         id: function () {
             return ~~this.$route.params.id;
@@ -127,6 +171,8 @@ export default {
             userInfo: {},
             fans: 0,
             subscribed: false,
+
+            showFaceData:false,
         };
     },
     created() {
@@ -134,6 +180,9 @@ export default {
     },
     mounted() { },
     methods: {
+        search(){
+            wx.miniProgram.navigateTo({ url: `/pages/search/search-detail/search-detail?app=捏脸&filter_name=pvxface` });
+        },
         showAvatar,
         showPic(url) {
             return resolveImagePath(url);
@@ -151,6 +200,7 @@ export default {
                     .then((res) => {
                         this.post = res.data.data;
                         console.log(this.post)
+                        document.title = this.post.title;
                         //获取作者作品 和 系统推荐作品
                         this.getRandomFaceList();
                         this.getUserInfo();
@@ -228,20 +278,97 @@ export default {
 @fontColor-dark2: rgba(255, 255, 255, 0.4);
 @btnBgColor: #24292e;
 @btnBgColor-dark: #fedaa3;
+.m-face-data_copy{
+    .w(100%);
 
+    .u-copy-box,.u-data-box{
+        .w(100%);
+        .flex;
+        .flex(o);
+        flex-direction: column;
+        gap:1.25rem;
+        .u-copy-top{
+            .flex;
+            .flex(o);
+            flex-direction: column;
+        }
+    }
+    .u-label{
+        color: rgba(255, 255, 255, 0.40);
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+    }
+    .u-number{
+        .w(100%);
+        .flex;
+        padding: 1rem;
+        align-items: flex-start;
+        gap: 0.25rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: #FF7991;
+        box-sizing: border-box;
+        color: @fontBgColor;
+
+        .fz(0.75rem,1.125rem);
+        .bold(700);
+    }
+    .u-copy-btn{
+        .flex;
+        .flex(o);
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: #FEDAA3;
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+    }
+    .u-no-data-btn{
+        .flex;
+        .flex(o);
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: rgba(255, 255, 255, 0.10);
+        color: rgba(255, 255, 255, 0.40);
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+    }
+}
 .p-face-detail {
     height: 100vh;
     background-color: #fafafa;
     overflow: auto;
-    .pb(1.111rem);
+    .pb(3.5rem);
     box-sizing: border-box;
+    .m-base{
+        .w(100%);
+        .u-copy{
+            .w(100%);
+            .flex;
+            .flex(o);
+            gap:0.75rem;
+        }
+    }
 
     .m-face-detail_top {
         .pr;
         overflow: hidden;
         .u-img_item {
-            .size(100%, 500px);
+            .size(100%, 550px);
             .pr;
+            &::after {
+                content: "";
+                .pa;
+                .size(100%, 100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                //background: linear-gradient(0deg, rgba(250, 250, 250, 0) 44.67%, #fafafa 100%);
+                background: linear-gradient(0deg, white 0%, rgba(250, 250, 250, 0) 50%, #FAFAFA 100%)
+            }
             &::before {
                 content: "";
                 .pa;
@@ -526,6 +653,9 @@ export default {
 
         .m-face-detail_top {
             .u-img_item {
+                &::after {
+                    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+                }
                 &::before {
                     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
                 }
