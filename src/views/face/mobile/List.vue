@@ -267,7 +267,9 @@ export default {
         },
         toTab(val) {
             this.active = val.body_type;
+            this.showActive = val.body_type;
             this.isFinish = false;
+            this.queryFiltrateParams.body_type = this.active;
             if (this.active != -1) {
                 this.queryParams.pageIndex = 1;
                 this.list = [];
