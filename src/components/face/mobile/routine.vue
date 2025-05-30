@@ -145,7 +145,7 @@ export default {
     .flex;
     overflow: auto;
     box-sizing: border-box;
-
+    padding: 0 1.25rem;
     &::-webkit-scrollbar {
         width: 0;
         height: 0;
