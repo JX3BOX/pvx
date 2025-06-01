@@ -71,7 +71,8 @@ export default {
             return link.match(/(\S*)Adventure\/(\S*)\.tga/)[2];
         },
         imgUrl(link) {
-            return this.__imgRoot + `adventure/std/${link}.png`;
+            const client = this.client; 
+            return this.__imgRoot + `adventure/${client}/${link}.png`;
         },
         getImg(info) {
             const type = info.szRewardType;
@@ -93,7 +94,9 @@ export default {
             return str;
         },
         loadData() {
-            getAdventureTask(this.id).then((res) => {
+            getAdventureTask(this.id, {
+                client: this.client,
+            }).then((res) => {
                 let list = [];
                 console.log( res.data)
                 res.data.forEach((e) => {

@@ -101,7 +101,9 @@ export default {
         },
         getData() {
             this.loading = true;
-            getAdventure(this.id)
+            getAdventure(this.id, {
+                client: this.$store.state.client,
+            })
                 .then((res) => {
                     this.isPet = false;
                     this.data = res.data;
@@ -111,8 +113,10 @@ export default {
                     this.loading = false;
                     postStat(this.type, this.id);
                 });
-            getSerendipityAchievementId(this.id).then((res) => {
-                this.achieve_id = res.data.achievement_id;
+            getSerendipityAchievementId(this.id, {
+                client: this.$store.state.client,
+            }).then((res) => {
+                this.achieve_id = res.data?.achievement_id;
             });
         },
         goSearch() {
