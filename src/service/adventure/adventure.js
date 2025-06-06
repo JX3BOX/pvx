@@ -8,23 +8,30 @@ function getAdventures(params) {
     });
 }
 // 获取奇遇详情
-function getAdventure(id) {
-    return $node().get(`/serendipity/${id}`);
+function getAdventure(id, params) {
+    return $node().get(`/serendipity/${id}`, { params });
 }
 // 获取奇遇任务链
 
-function getAdventureTask(id) {
-    return $node().get(`/serendipity/${id}/task`);
+function getAdventureTask(id, params) {
+    return $node().get(`/serendipity/${id}/task`, { params });
 }
 
 function getSerendipityAchievementIds() {
     return axios.get(`${__dataPath}pvx/serendipity/output/serendipity.json`);
 }
-function getSerendipityAchievementId(dwId){
-    return $node().get(`/serendipity/${dwId}/achievement`);
+function getSerendipityAchievementId(dwId, { params }) {
+    return $node().get(`/serendipity/${dwId}/achievement`, { params });
 }
 function getUserSchool() {
     return $team().get("api/team/my-game-roles");
 }
 
-export { getAdventures, getAdventure, getAdventureTask, getSerendipityAchievementIds, getSerendipityAchievementId, getUserSchool };
+export {
+    getAdventures,
+    getAdventure,
+    getAdventureTask,
+    getSerendipityAchievementIds,
+    getSerendipityAchievementId,
+    getUserSchool,
+};

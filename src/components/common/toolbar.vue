@@ -71,11 +71,10 @@
         </div>
     </div>
 </template>
-
+ 
 <script>
 export default {
     name: "toolbar",
-    inject: ["isMiniProgram"],
     props: {
         types: {
             type: Array,
@@ -107,6 +106,9 @@ export default {
         };
     },
     computed: {
+        isMiniProgram() {
+            return document.getElementsByClassName("v-miniprogram")?.length > 0
+        },
         params() {
             const _params = {
                 type: this.type,

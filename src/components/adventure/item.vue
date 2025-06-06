@@ -64,8 +64,11 @@ export default {
             return __imgPath + "image/pvx/bg.png";
         },
         titleImg: function () {
-            const client = "std"; // 图片使用正式服
-            return this.__imgRoot + `image_ui/${client}/luckymeeting7_` + this.item.nOpenFrame + ".png";
+            const client = this.client; // 图片使用正式服
+            const [, tga] = this.item.szOpenPath?.toLowerCase().match(/\\([^\\]+?)\.uitex/i);
+            const filename = `${tga}_${this.item.nOpenFrame}`;
+            console.log("tga", this.item.szOpenPath?.toLowerCase(), tga, filename);
+            return this.__imgRoot + `image_ui/${client}/${filename}.png`;
         },
         titleStyle: function () {
             return {};
@@ -77,8 +80,8 @@ export default {
             return `${__imgPath}image/school/${forceName}.png`;
         },
         getImgUrl() {
-            // const client = this.client;
-            const client = "std"; // 怀旧服的奇遇图片先取正式服的
+            const client = this.client;
+            // const client = "std"; // 怀旧服的奇遇图片先取正式服的
             let tgaPath = this.item.szOpenRewardPath?.toLowerCase();
             if (!tgaPath) return "";
             tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
