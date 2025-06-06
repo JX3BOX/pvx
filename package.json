@@ -13,12 +13,12 @@
         "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common-ui@latest @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-emotion@latest @jx3box/jx3box-comment-ui@latest @jx3box/jx3box-editor@latest @jx3box/jx3box-map@latest"
     },
     "dependencies": {
-        "@jx3box/jx3box-comment-ui": "^2.0.4",
+        "@jx3box/jx3box-comment-ui": "^2.0.5",
         "@jx3box/jx3box-common": "^8.7.1",
-        "@jx3box/jx3box-common-ui": "^9.4.1",
-        "@jx3box/jx3box-data": "^3.8.2",
-        "@jx3box/jx3box-editor": "^2.2.27",
-        "@jx3box/jx3box-emotion": "^1.2.8",
+        "@jx3box/jx3box-common-ui": "^9.4.4",
+        "@jx3box/jx3box-data": "^3.8.3",
+        "@jx3box/jx3box-editor": "^2.2.29",
+        "@jx3box/jx3box-emotion": "^1.2.13",
         "@jx3box/jx3box-facedat": "^2.6.2",
         "@jx3box/jx3box-map": "^0.2.0",
         "animate.css": "^4.1.1",
