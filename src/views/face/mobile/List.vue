@@ -2,12 +2,12 @@
     <div class="m-face-list_mobile">
         <!--        <PvxSuspension isType='list' :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }" />-->
         <SuspendCommon :btnOptions="{showHome:true}"
-                       :drawerOptions="{hideType:['collect','rss','laterOn','user','report']}"  @search="search">
+                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" v-if="$route.query?.disabled!='true'">
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="switchType('cutShow')">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowsLeftRight.svg" svg-inline /> 切换
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowsLeftRight.svg" svg-inline /> {{ habitusName }}
                     </div>
                     <div class="u-btn-item" @click="switchType('filtrateShow')">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/filter_disabled_touchbar.svg" svg-inline />
@@ -18,10 +18,12 @@
             </template>
         </SuspendCommon>
         <el-drawer :visible.sync="showForm" direction="btt" :with-header="false" custom-class="u-drawer"
-                   :modal-append-to-body="false" append-to-body class="p-drawer">
+                   :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
             <!--                体型区域-->
             <div class="m-cut" v-if="cutShow">
-                <div class="u-cut-all" :class="{'is-active':showActive==-1}" @click="showActive=-1">全部体型</div>
+                <div class="u-cut-all" :class="{'is-active':showActive==-1}" @click="showActive=-1">
+                    <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline /> 全部体型
+                </div>
                 <div class="u-cut-box">
                     <div class="u-cut-item" v-for="(item, index) in tabsData" :key="index"
                          :class="{ 'is-active': showActive == item.value }" @click="showActive=item.value">
@@ -31,16 +33,16 @@
                 </div>
                 <div class="u-cut-btn">
                     <div class="u-report-btn" @click="report()">重置</div>
-                    <div class="u-confirm-btn" @click="cut()">确定</div>
+                    <div class="u-confirm-btn" :class="{active:showHighlightConfirm}" @click="cut()">确定</div>
                 </div>
             </div>
             <!--                筛选区域-->
             <div class="m-filtrate" v-if="filtrateShow">
-                <div class="u-filtrate-title">体型</div>
-                <div class="u-box">
-<!--                    <div class="u-item">全部</div>-->
-                    <div class="u-item" :class="{ 'active': queryFiltrateParams.body_type == item.value }" v-for="(item, index) in tabsData" :key="index"  @click="filtrateParams('body_type',item.value)">{{ item.label }}</div>
-                </div>
+<!--                <div class="u-filtrate-title">体型</div>-->
+<!--                <div class="u-box">-->
+<!--&lt;!&ndash;                    <div class="u-item">全部</div>&ndash;&gt;-->
+<!--                    <div class="u-item" :class="{ 'active': queryFiltrateParams.body_type == item.value }" v-for="(item, index) in tabsData" :key="index"  @click="filtrateParams('body_type',item.value)">{{ item.label }}</div>-->
+<!--                </div>-->
                 <div class="u-filtrate-title">类型</div>
                 <div class="u-box">
                     <div class="u-item all" :class="{'active':!queryFiltrateParams.is_new_face}"  @click="filtrateParams('is_new_face','')">全部</div>
@@ -56,12 +58,13 @@
                 </div>
                 <div class="u-filtrate-title">其他</div>
                 <div class="u-box">
-                    <div class="u-item all" :class="{'active':!queryFiltrateParams.filter_empty_images}"  @click="filtrateParams('filter_empty_images','')">全部</div>
-                    <div class="u-item"  :class="{'active':queryFiltrateParams.filter_empty_images}"  @click="filtrateParams('filter_empty_images','1')">只看捏脸码</div>
+                    <div class="u-item all" :class="{'active':!queryFiltrateParams.filter_empty_images}"  @click="filtrateParams(['filter_empty_images','code_mode'],'')">全部</div>
+                    <div class="u-item"  :class="{'active':queryFiltrateParams.filter_empty_images}"  @click="filtrateParams('filter_empty_images','1')">只看有图</div>
+                    <div class="u-item"  :class="{'active':queryFiltrateParams.code_mode}"  @click="filtrateParams('code_mode','1')">只看捏脸码</div>
                 </div>
                 <div class="u-btn">
                     <div class="u-report-btn" @click="filtrateReport()">重置</div>
-                    <div class="u-confirm-btn" @click="filtrateConfirm()">确定</div>
+                    <div class="u-confirm-btn" :class="{active:showFiltrateConfirm}" @click="filtrateConfirm()">确定</div>
                 </div>
             </div>
         </el-drawer>
@@ -111,6 +114,7 @@ export default {
             loading: false,
             active: -1,
             showActive: -1,//切换弹窗内active，仅在弹窗打开时有效
+            showHighlightConfirm:false,
             tabsData: [
                 // { label: "全部", value: -1, client: ["std", "origin"] },
                 { label: "成男", value: 1, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/man.svg') },
@@ -171,21 +175,37 @@ export default {
             showForm: false,
             cutShow: false, //体型切换区域
             filtrateShow: false, //筛选切换区域
+            showFiltrateConfirm:false,
             //筛选区域参数，查询时将参数与queryParams合并
-            queryFiltrateParams:{
-                body_type:-1,
+            queryFiltrateParamsBak:{
+                // body_type:-1,
                 filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
                 is_unlimited:"", //是否可新建
                 // is_personal_newest: 1, //小程序获取列表时是否去重作者避免刷屏，可选，默认值0 不去重; 1: 去重
                 is_new_face:"", // 0 写意 1 写实
+                code_mode:'',
+            },
+            queryFiltrateParams:{
+                // body_type:-1,
+                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
+                price_type:"", //价格类型，0免费1盒子币2金箔
+                is_unlimited:"", //是否可新建
+                // is_personal_newest: 1, //小程序获取列表时是否去重作者避免刷屏，可选，默认值0 不去重; 1: 去重
+                is_new_face:"", // 0 写意 1 写实
+                code_mode:'',
             }
         };
     },
     computed: {
         client() {
             return this.$store.state.client;
+        },
+        habitusName() {
+            if(this.active==-1) return '体型';
+            return this.tabsData.find((e) => e.value == this.active)?.label
         },
     },
     watch: {
@@ -197,6 +217,19 @@ export default {
         //         this.loadData();
         //     }
         // },
+        showActive(val){
+            this.showHighlightConfirm=(val!==this.active)
+        },
+        queryFiltrateParams:{
+            handler(newValue, oldValue) {
+                if(JSON.stringify(newValue)==JSON.stringify(this.queryFiltrateParamsBak)){
+                    this.showFiltrateConfirm=false
+                }else{
+                    this.showFiltrateConfirm=true;
+                }
+            },
+            deep: true
+        }
     },
     mounted() {
         // this.getSliders();
@@ -214,11 +247,16 @@ export default {
             } else if (type == "filtrateShow") {
                 this.cutShow = false;
                 this.filtrateShow = true;
+                this.queryFiltrateParams=cloneDeep(this.queryFiltrateParamsBak);
             }
             this.showForm = true;
         },
         // 切换体型时操作
         cut() {
+            if(!this.showHighlightConfirm){
+                this.showForm = false;
+                return;
+            }
             this.cutShow = false;
             this.active = this.showActive;
             this.isFinish = false;
@@ -230,6 +268,7 @@ export default {
                 this.listShow = false;
                 this.loadData();
             }
+            this.switchType('filtrateShow')
         },
         report() {
             this.showActive = -1;
@@ -248,6 +287,11 @@ export default {
         },
         //筛选确认
         filtrateConfirm(){
+            if(!this.showFiltrateConfirm){
+                this.showForm = false;
+                return;
+            }
+            this.queryFiltrateParamsBak=cloneDeep(this.queryFiltrateParams);
             this.queryParams.pageIndex = 1;
             this.list = [];
             this.listShow = false;
@@ -257,7 +301,7 @@ export default {
         //筛选重置,重置其他参数，body_type保持
         filtrateReport(){
             this.queryFiltrateParams={
-                ...this.queryFiltrateParams,
+                // ...this.queryFiltrateParams,
                 filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
@@ -362,8 +406,8 @@ body{
     margin: 0 auto;
 
     .u-cut-all {
-        background: rgba(255, 255, 255, 0.10);
-        color: @fontColor-dark3;
+        background: rgba(255, 255, 255, 0.05);
+        color: @fontColor-dark2;
         .fz(1rem, 1.5rem);
         .bold(700);
         padding: 0.75rem 1rem;
@@ -372,7 +416,10 @@ body{
         .flex;
         .flex(o);
         .mb(1rem);
-
+        .u-icon{
+            .w(1.25rem);
+            .mr(0.25rem);
+        }
         &.is-active {
             background: #FEDAA3;
             color: #24292E;
@@ -391,15 +438,16 @@ body{
             .flex;
             .flex(o);
             flex-direction: column;
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.05);
+            color: @fontColor-dark2;
             padding: 0.75rem;
             box-sizing: border-box;
             .r(0.75rem);
-            color: #B0B2B3;
+
 
             &.is-active {
-                color: #fedaa3;
-
+                color: #24292E;
+                background: #FEDAA3;
                 svg, path {
                     fill: #fedaa3;
                     stroke: #fedaa3;
@@ -419,8 +467,8 @@ body{
             box-sizing: border-box;
             flex-shrink: 0;
             .r(0.75rem);
-            background: rgba(255, 255, 255, 0.10);
-            color: @fontColor-dark3;
+            background: rgba(255, 255, 255, 0.05);
+            color: @fontColor-dark2;
         }
 
         .u-confirm-btn {
@@ -428,9 +476,13 @@ body{
             padding: 0.75rem 1rem;
             box-sizing: border-box;
             .r(0.75rem);
-            background: #FEDAA3;
-            color: #24292E;
+            background: rgba(255, 255, 255, 0.05);
+            color: @fontColor-dark3;
             .x;
+            &.active{
+                background: #FEDAA3;
+                color: #24292E;
+            }
         }
     }
 }
@@ -456,7 +508,8 @@ body{
             color: #fff;
             .fz(0.875rem, 1.25rem);
             .bold(400);
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.05);
+            color: @fontColor-dark2;
             .r(0.75rem);
             flex: 1;
             .flex;
@@ -482,8 +535,8 @@ body{
             box-sizing: border-box;
             flex-shrink: 0;
             .r(0.75rem);
-            background: rgba(255, 255, 255, 0.10);
-            color: @fontColor-dark3;
+            background: rgba(255, 255, 255, 0.05);
+            color: @fontColor-dark2;
         }
 
         .u-confirm-btn {
@@ -491,9 +544,13 @@ body{
             padding: 0.75rem 1rem;
             box-sizing: border-box;
             .r(0.75rem);
-            background: #FEDAA3;
-            color: #24292E;
+            background: rgba(255, 255, 255, 0.05);
+            color: @fontColor-dark3;
             .x;
+            &.active{
+                background: #FEDAA3;
+                color: #24292E;
+            }
         }
     }
 }
@@ -514,8 +571,8 @@ body{
             .flex;
             .flex(o);
             gap: 0.5rem;
-            .w(7.5rem);
-
+            //.w(7.5rem);
+            flex:1;
             &.line {
                 border-right: 0.5px solid rgba(254, 218, 163, 0.2);
             }

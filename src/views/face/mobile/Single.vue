@@ -12,7 +12,7 @@
         <SuspendCommon
             :btnOptions="{showHome:true}"
             :drawerOptions="{
-            hideType:['report','rss'],
+            hideType:['report','rss','search'],
             author:{
                 name:post.author_name,
                 avatar:post.user_avatar,
@@ -23,14 +23,15 @@
             id:id
             }"
             @search="search"
+            v-if="$route.query?.disabled!='true'"
         >
             <template #default>
                 <div class="u-copy" @click="showFaceData=true">
-                    <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowsLeftRight.svg" svg-inline />复制捏脸码
+                    <img class="u-copy-icon" src="@/assets/img/pvxsuspension/copy_touchbar.svg" svg-inline />复制捏脸码
                 </div>
             </template>
         </SuspendCommon>
-        <el-drawer :visible.sync="showFaceData" direction="btt"  :with-header="false" custom-class="u-drawer" :modal-append-to-body="false" append-to-body class="p-drawer">
+        <el-drawer :visible.sync="showFaceData" direction="btt"  :with-header="false" custom-class="u-drawer" :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
             <div class="m-face-data_copy">
                 <div class="u-copy-box" v-if="post.code_mode">
                     <div class="u-copy-top">
@@ -116,11 +117,11 @@
             <div class="u-author_introduce" v-if="userInfo.user_bio">{{ userInfo.user_bio }}</div>
         </div>
         <!-- 其他作品 -->
-        <div class="m-face-author_other">
+        <div class="m-face-author_other" v-if="randomList.length >0">
             <div class="u-title">{{ post.display_name }}其他作品</div>
-            <div class="u-img_item" v-if="randomList.length === 0">
-                <img src="@/assets/img/face/mobile/empty.png" />
-            </div>
+<!--            <div class="u-img_item" v-if="randomList.length === 0">-->
+<!--                <img src="@/assets/img/face/mobile/empty.png" />-->
+<!--            </div>-->
 
             <div class="u-other_list">
                 <routine_other :list="randomList" :isNumber="true"></routine_other>
@@ -199,7 +200,6 @@ export default {
                 getOneFaceInfo(this.id)
                     .then((res) => {
                         this.post = res.data.data;
-                        console.log(this.post)
                         document.title = this.post.title;
                         //获取作者作品 和 系统推荐作品
                         this.getRandomFaceList();
@@ -249,6 +249,8 @@ export default {
         },
         copy() {
             navigator.clipboard.writeText(this.post.code).then(() => {
+                this.showFaceData=false
+
                 this.$notify({
                     title: "复制成功",
                     message: "内容：" + this.post.code,
@@ -343,6 +345,14 @@ export default {
     overflow: auto;
     .pb(3.5rem);
     box-sizing: border-box;
+    .u-copy-icon{
+        .size(1.5rem,1.5rem);
+        svg, path {
+            fill: #fedaa3;
+            stroke: #fedaa3;
+        }
+    }
+
     .m-base{
         .w(100%);
         .u-copy{
@@ -647,14 +657,15 @@ export default {
     }
 
     // dark模式利用宽度模拟覆盖
-    // @media screen and (width: 390px)
-    @media (prefers-color-scheme: dark) {
+    // @media screen and (width: 414px)
+    @media (prefers-color-scheme: dark)
+    {
         background-color: #000;
 
         .m-face-detail_top {
             .u-img_item {
                 &::after {
-                    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+                    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, #000 100%);
                 }
                 &::before {
                     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
