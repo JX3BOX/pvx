@@ -648,18 +648,14 @@ export default {
     }
     .m-robot__map {
         margin-top: -10px;
-        height: 410px !important;
+        margin-bottom: -15px;
         border-radius: 8px;
         overflow: hidden;
         .c-map,
         .u-map__wrapper {
-            width: 100% !important;
-            height: 410px !important;
             .r(8px) !important;
         }
         .u-map__inner {
-            width: 100% !important;
-            height: 410px !important;
             border: none !important;
             box-shadow: none !important;
         }

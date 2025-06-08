@@ -3,6 +3,7 @@
         <div class="m-pvx__container">
             <AdventureSingle v-if="type === 'adventure'" :is-robot="true" :source-id="id"></AdventureSingle>
             <PetSingle v-if="type === 'pet'" :is-robot="true" :source-id="id"></PetSingle>
+            <HorseSingle v-if="type === 'horse'" :is-robot="true" :source-id="id"></HorseSingle>
 
             <RobotBottom :type="type" :id="id"></RobotBottom>
         </div>
@@ -12,12 +13,14 @@
 <script>
 import AdventureSingle from "@/views/adventure/AdventureSingle.vue";
 import PetSingle from "@/views/pet/PetSingle.vue";
+import HorseSingle from "@/views/horse/HorseSingle.vue";
 import RobotBottom from "./Bottom.vue";
 export default {
     name: "QQRobotPvxDetail",
     components: {
         AdventureSingle,
         PetSingle,
+        HorseSingle,
         RobotBottom,
     },
     computed: {
@@ -102,6 +105,9 @@ export default {
 
             color: rgba(#fff, 0.75) !important;
         }
+    }
+    .m-single-wrapper .m-wiki-post-panel > div {
+        margin-bottom: 0 !important;
     }
 }
 </style>
