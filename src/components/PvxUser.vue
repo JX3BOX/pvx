@@ -8,7 +8,7 @@
                     <img class="u-icon" svg-inline src="@/assets/img/item.svg" />
                     <span class="u-txt">{{ name }}攻略</span>
                 </template>
-                <template slot="head-actions">
+                <template slot="head-actions" v-if="!isRobot">
                     <a class="el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
                         <i class="el-icon-edit"></i>
                         <span>完善{{ name }}攻略</span>
@@ -29,33 +29,35 @@
                     </div>
                 </template>
             </WikiPanel>
+            <template v-if="!isRobot">
+                <!-- 奇遇触发记录 -->
+                <slot name="serendipity"></slot>
 
-            <!-- 奇遇触发记录 -->
-            <slot name="serendipity"></slot>
-
-            <!-- 历史版本 -->
-            <WikiRevisions :type="type" :source-id="id" />
+                <!-- 历史版本 -->
+                <WikiRevisions :type="type" :source-id="id" />
+            </template>
         </div>
         <div class="m-wiki-post-empty" v-if="(!wiki_post || !wiki_post.post) && id">
             <i class="el-icon-s-opportunity"></i>
             <span>暂无攻略，我要</span>
             <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
         </div>
-        <Thx
-            class="m-thx"
-            :postId="id"
-            :postType="type"
-            :postTitle="wiki_post.source.Name"
-            :userId="author_id"
-            :adminBoxcoinEnable="false"
-            :userBoxcoinEnable="false"
-            :authors="authors"
-            mode="wiki"
-            :key="type + '-thx-' + id"
-            :client="client"
-        />
-        <!-- 百科评论 -->
-        <WikiComments :type="type" :source-id="String(id)" />
+        <template v-if="!isRobot">
+            <Thx
+                class="m-thx"
+                :postId="id"
+                :postType="type"
+                :postTitle="wiki_post.source.Name"
+                :userId="author_id"
+                :adminBoxcoinEnable="false"
+                :userBoxcoinEnable="false"
+                :authors="authors"
+                mode="wiki"
+                :key="type + '-thx-' + id"
+                :client="client" />
+            <!-- 百科评论 -->
+            <WikiComments :type="type" :source-id="String(id)"
+        /></template>
     </div>
 </template>
 
@@ -93,6 +95,10 @@ export default {
         itemId: {
             type: String,
             default: "",
+        },
+        isRobot: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {
@@ -165,10 +171,10 @@ export default {
     methods: {
         getLink,
         //百科相关
-        loadData: function () {
+        loadData: async function () {
             // 获取最新攻略
             if (this.id) {
-                wiki.mix({ type: this.type, id: this.id, client: this.client }).then((res) => {
+                await wiki.mix({ type: this.type, id: this.id, client: this.client }).then((res) => {
                     const { post, source, compatible, isEmpty, users } = res;
                     this.wiki_post = {
                         post: post,
@@ -178,6 +184,8 @@ export default {
                     this.is_empty = isEmpty;
                     this.compatible = compatible;
                 });
+                // TEST:请注意，为防止QQBOT无法抓取完全，请不要删除本行
+                window.__READY__ = true;
             }
             this.triggerStat();
         },

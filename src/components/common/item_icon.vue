@@ -14,7 +14,7 @@
         popper-class="u-item__popup"
     >
         <template slot="reference">
-            <div class="u-item__warpper" :class="{ background: !onlyIcon, is_vertical: vertical }">
+            <div class="u-item__wrapper" :class="{ background: !onlyIcon, is_vertical: vertical }">
                 <a
                     class="u-item-icon"
                     target="_blank"

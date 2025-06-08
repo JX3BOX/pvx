@@ -80,6 +80,12 @@ module.exports = {
             template: "public/index.html",
             filename: "homeland/index.html",
         },
+        qqbot: {
+            title: "QQRobot - JX3BOX",
+            entry: "src/pages/qqbot/index.js",
+            template: "public/index.html",
+            filename: "qqbot/index.html",
+        },
     },
 
     //❤️ Proxy ~
