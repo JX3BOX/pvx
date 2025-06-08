@@ -38,12 +38,12 @@
                 <div class="m-title">
                     <div class="u-title">{{ robotTitle }}</div>
                 </div>
-                <div class="m-rewards">
+                <div class="m-rewards" v-if="data?.RewdItem?.split(';')?.length">
                     奖励：
                     <item_icon
                         :item_id="String(item)"
                         :size="16"
-                        v-for="(item, i) in data?.RewdItem?.split(';') || ['8_38696']"
+                        v-for="(item, i) in data.RewdItem.split(';')"
                         :key="i"
                     ></item_icon>
                 </div>
@@ -111,7 +111,7 @@ export default {
             return this.$route.params.id || this.sourceId;
         },
         title: function () {
-            return this.data?.szName;
+            return this.data?.szName || "";
         },
         isPerfect() {
             return !!this.data?.bPerfect;
