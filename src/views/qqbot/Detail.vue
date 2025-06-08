@@ -2,6 +2,8 @@
     <div class="p-qqrobot-pvx-detail">
         <div class="m-pvx__container">
             <AdventureSingle v-if="type === 'adventure'" :is-robot="true" :source-id="id"></AdventureSingle>
+            <PetSingle v-if="type === 'pet'" :is-robot="true" :source-id="id"></PetSingle>
+
             <RobotBottom :type="type" :id="id"></RobotBottom>
         </div>
     </div>
@@ -9,11 +11,13 @@
 
 <script>
 import AdventureSingle from "@/views/adventure/AdventureSingle.vue";
+import PetSingle from "@/views/pet/PetSingle.vue";
 import RobotBottom from "./Bottom.vue";
 export default {
     name: "QQRobotPvxDetail",
     components: {
         AdventureSingle,
+        PetSingle,
         RobotBottom,
     },
     computed: {
@@ -34,6 +38,18 @@ export default {
     width: 560px;
     background-color: #000;
     box-sizing: border-box;
+    .m-pvx__item {
+        padding: 12px;
+        border-radius: 8px;
+        box-sizing: border-box;
+        background: linear-gradient(to top, #383838 0%, #000000 100%);
+
+        border: 1px solid #6e6e6e !important;
+
+        box-shadow: inset 0px 10px 5px #000000;
+        text-shadow: none !important;
+        font-size: 10px;
+    }
     .m-pvx__container {
         margin: 0 auto;
         width: 560px;
@@ -63,6 +79,28 @@ export default {
             .m-panel-actions {
                 .none;
             }
+        }
+    }
+
+    .m-wiki-post-empty {
+        &.is-robot-empty {
+            width: 100%;
+            height: 42px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: linear-gradient(to top, #383838 0%, #000000 100%);
+
+            border: 1px solid #6e6e6e !important;
+
+            box-shadow: inset 0px 10px 5px #000000;
+            text-shadow: none !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+
+            color: rgba(#fff, 0.75) !important;
         }
     }
 }

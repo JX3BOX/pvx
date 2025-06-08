@@ -37,10 +37,17 @@
                 <WikiRevisions :type="type" :source-id="id" />
             </template>
         </div>
-        <div class="m-wiki-post-empty" v-if="(!wiki_post || !wiki_post.post) && id">
-            <i class="el-icon-s-opportunity"></i>
-            <span>暂无攻略，我要</span>
-            <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
+        <div
+            class="m-wiki-post-empty"
+            :class="isRobot ? 'is-robot-empty' : ''"
+            v-if="(!wiki_post || !wiki_post.post) && id"
+        >
+            <template v-if="!isRobot">
+                <i class="el-icon-s-opportunity"></i>
+                <span>暂无攻略，我要</span>
+                <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
+            </template>
+            <span v-else>暂无相关攻略，欢迎热心侠士前往补充！</span>
         </div>
         <template v-if="!isRobot">
             <Thx
