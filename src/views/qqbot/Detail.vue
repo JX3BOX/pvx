@@ -4,6 +4,7 @@
             <AdventureSingle v-if="type === 'adventure'" :is-robot="true" :source-id="id"></AdventureSingle>
             <PetSingle v-if="type === 'pet'" :is-robot="true" :source-id="id"></PetSingle>
             <HorseSingle v-if="type === 'horse'" :is-robot="true" :source-id="id"></HorseSingle>
+            <ReputationSingle v-if="type === 'reputation'" :is-robot="true" :source-id="id"></ReputationSingle>
 
             <RobotBottom :type="type" :id="id"></RobotBottom>
         </div>
@@ -14,6 +15,7 @@
 import AdventureSingle from "@/views/adventure/AdventureSingle.vue";
 import PetSingle from "@/views/pet/PetSingle.vue";
 import HorseSingle from "@/views/horse/HorseSingle.vue";
+import ReputationSingle from "@/views/reputation/Single.vue";
 import RobotBottom from "./Bottom.vue";
 export default {
     name: "QQRobotPvxDetail",
@@ -21,6 +23,7 @@ export default {
         AdventureSingle,
         PetSingle,
         HorseSingle,
+        ReputationSingle,
         RobotBottom,
     },
     computed: {

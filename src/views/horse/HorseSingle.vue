@@ -118,7 +118,7 @@
                     </div>
                 </div>
                 <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/jx3box_qqbot_pet.svg" />
+                    <img class="u-icon" src="@/assets/img/jx3box_qqbot_horse.svg" />
                 </div>
             </div>
             <div class="m-pvx__item m-robot__horse-info">
