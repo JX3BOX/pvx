@@ -291,7 +291,7 @@ export default {
         }
     }
 }
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
     .m-exam {
         &::after {
             background: #000;
