@@ -220,7 +220,7 @@ export default {
     .flex;
     .pb(20px);
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
     gap: 20px;
     height: calc(100vh - 254px);
 }
