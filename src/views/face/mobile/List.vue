@@ -2,12 +2,18 @@
     <div class="m-face-list_mobile">
         <!--        <PvxSuspension isType='list' :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }" />-->
         <SuspendCommon :btnOptions="{showHome:true}"
-                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" v-if="$route.query?.disabled!='true'">
+                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" >
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="switchType('cutShow')">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowsLeftRight.svg" svg-inline /> {{ habitusName }}
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline v-if="showActive==-1"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/man.svg" svg-inline v-if="showActive==1"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/woman.svg" svg-inline ne v-if="showActive==2"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/boy.svg" svg-inline v-if="showActive==5"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/girl.svg" svg-inline v-if="showActive==6"/>
+
+                        {{ habitusName }}
                     </div>
                     <div class="u-btn-item" @click="switchType('filtrateShow')">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/filter_disabled_touchbar.svg" svg-inline />
@@ -27,7 +33,11 @@
                 <div class="u-cut-box">
                     <div class="u-cut-item" v-for="(item, index) in tabsData" :key="index"
                          :class="{ 'is-active': showActive == item.value }" @click="showActive=item.value">
-                        <img class="u-icon" :src="item.icon" svg-inline />
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/man.svg" svg-inline v-if="item.value==1"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/woman.svg" svg-inline ne v-if="item.value==2"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/boy.svg" svg-inline v-if="item.value==5"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/girl.svg" svg-inline v-if="item.value==6"/>
+
                         <span>{{ item.label }} </span>
                     </div>
                 </div>
@@ -36,7 +46,18 @@
                     <div class="u-confirm-btn" :class="{active:showHighlightConfirm}" @click="cut()">确定</div>
                 </div>
             </div>
+<!--            请先选择体型区域-->
+            <transition name="slide-up">
+            <div class="m-no-body" v-if="noBody">
+                <div class="u-icon">
+                    <img src="@/assets/img/pvxsuspension/report.svg" svg-inline />
+                    <div class="u-tips">请先选择体型</div>
+                </div>
+                <div class="u-btn" @click="switchType('selectBody')">选择体型</div>
+            </div>
+            </transition>
             <!--                筛选区域-->
+            <transition name="slide-up">
             <div class="m-filtrate" v-if="filtrateShow">
 <!--                <div class="u-filtrate-title">体型</div>-->
 <!--                <div class="u-box">-->
@@ -67,6 +88,7 @@
                     <div class="u-confirm-btn" :class="{active:showFiltrateConfirm}" @click="filtrateConfirm()">确定</div>
                 </div>
             </div>
+            </transition>
         </el-drawer>
         <!--        弹出层区域-->
         <div class="u-content-all" v-if="active == -1">
@@ -117,10 +139,10 @@ export default {
             showHighlightConfirm:false,
             tabsData: [
                 // { label: "全部", value: -1, client: ["std", "origin"] },
-                { label: "成男", value: 1, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/man.svg') },
-                { label: "成女", value: 2, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/woman.svg') },
-                { label: "正太", value: 5, client: ["std"],icon:require('@/assets/img/pvxsuspension/boy.svg') },
-                { label: "萝莉", value: 6, client: ["std", "origin"],icon:require('@/assets/img/pvxsuspension/girl.svg') },
+                { label: "成男", value: 1, client: ["std", "origin"],},
+                { label: "成女", value: 2, client: ["std", "origin"], },
+                { label: "正太", value: 5, client: ["std"], },
+                { label: "萝莉", value: 6, client: ["std", "origin"], },
             ],
             allList: [
                 {
@@ -174,6 +196,7 @@ export default {
 
             showForm: false,
             cutShow: false, //体型切换区域
+            noBody:false,//尚未选择体型的提示区域
             filtrateShow: false, //筛选切换区域
             showFiltrateConfirm:false,
             //筛选区域参数，查询时将参数与queryParams合并
@@ -241,13 +264,26 @@ export default {
         },
         switchType(type) {
             if (!type) return;
-            if (type == "cutShow"|| this.active==-1) {
+            if (type == "cutShow") {
                 this.cutShow = true;
                 this.filtrateShow = false;
+                this.noBody=false;
             } else if (type == "filtrateShow") {
-                this.cutShow = false;
-                this.filtrateShow = true;
-                this.queryFiltrateParams=cloneDeep(this.queryFiltrateParamsBak);
+                if(this.active==-1){
+                    this.cutShow=false;
+                    this.filtrateShow = false;
+                    this.noBody=true;
+                }else{
+                    this.cutShow = false;
+                    this.filtrateShow = true;
+                    this.noBody=false;
+                    this.queryFiltrateParams=cloneDeep(this.queryFiltrateParamsBak);
+                }
+
+            }else if(type=='selectBody'){
+                this.cutShow=true;
+                this.filtrateShow = false;
+                this.noBody=false;
             }
             this.showForm = true;
         },
@@ -268,7 +304,7 @@ export default {
                 this.listShow = false;
                 this.loadData();
             }
-            this.switchType('filtrateShow')
+            // this.switchType('filtrateShow')
         },
         report() {
             this.showActive = -1;
@@ -419,10 +455,18 @@ body{
         .u-icon{
             .w(1.25rem);
             .mr(0.25rem);
+            svg, path {
+                fill: @fontColor-dark2;
+                stroke: @fontColor-dark2;
+            }
         }
         &.is-active {
             background: #FEDAA3;
             color: #24292E;
+            svg, path {
+                fill: #24292E;
+                stroke: #24292E;
+            }
         }
     }
 
@@ -443,14 +487,19 @@ body{
             padding: 0.75rem;
             box-sizing: border-box;
             .r(0.75rem);
-
+            .u-icon{
+                svg, path {
+                    fill: @fontColor-dark2;
+                    stroke: @fontColor-dark2;
+                }
+            }
 
             &.is-active {
                 color: #24292E;
                 background: #FEDAA3;
                 svg, path {
-                    fill: #fedaa3;
-                    stroke: #fedaa3;
+                    fill: #24292E;
+                    stroke: #24292E;
                 }
             }
         }
@@ -486,7 +535,29 @@ body{
         }
     }
 }
-
+.m-no-body{
+    .flex;
+    .flex(o);
+    flex-direction: column;
+    .u-tips{
+        color: @fontColor-dark3;
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+        .flex;
+        .flex(o);
+    }
+    .u-btn{
+        .flex;
+        .flex(o);
+        .mt(1.25rem);
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: rgba(255, 255, 255, 0.10);
+        color: @fontColor-dark3;
+    }
+}
 //筛选切换
 .m-filtrate {
     padding: 0.75rem;
@@ -575,6 +646,13 @@ body{
             flex:1;
             &.line {
                 border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+            .u-icon{
+                .size(1.25rem, 1.25rem);
+                svg, path {
+                    fill: #FEDAA3;
+                    stroke: #FEDAA3;
+                }
             }
         }
     }
