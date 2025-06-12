@@ -2,12 +2,12 @@
     <div class="m-face-list_mobile">
         <!--        <PvxSuspension isType='list' :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }" />-->
         <SuspendCommon :btnOptions="{showHome:true}"
-                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" v-if="$route.query?.disabled!='true'">
+                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" >
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="switchType('cutShow')">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/ArrowsLeftRight.svg" svg-inline v-if="showActive==-1"/>
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline v-if="showActive==-1"/>
                         <img class="u-icon" src="@/assets/img/pvxsuspension/man.svg" svg-inline v-if="showActive==1"/>
                         <img class="u-icon" src="@/assets/img/pvxsuspension/woman.svg" svg-inline ne v-if="showActive==2"/>
                         <img class="u-icon" src="@/assets/img/pvxsuspension/boy.svg" svg-inline v-if="showActive==5"/>
