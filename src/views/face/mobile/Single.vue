@@ -16,7 +16,7 @@
             author:{
                 name:post.author_name,
                 avatar:post.user_avatar,
-                id:post.user_id
+                author_id:post.user_id
             },
             title:post.title,
             postType:'face',
