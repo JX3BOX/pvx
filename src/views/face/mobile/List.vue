@@ -26,6 +26,7 @@
         <el-drawer :visible.sync="showForm" direction="btt" :with-header="false" custom-class="u-drawer"
                    :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
             <!--                体型区域-->
+            <transition :name="cutshowTra?'slide-up':''">
             <div class="m-cut" v-if="cutShow">
                 <div class="u-cut-all" :class="{'is-active':showActive==-1}" @click="showActive=-1">
                     <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline /> 全部体型
@@ -46,8 +47,9 @@
                     <div class="u-confirm-btn" :class="{active:showHighlightConfirm}" @click="cut()">确定</div>
                 </div>
             </div>
+            </transition>
 <!--            请先选择体型区域-->
-            <transition name="slide-up">
+<!--            <transition name="slide-up">-->
             <div class="m-no-body" v-if="noBody">
                 <div class="u-icon">
                     <img src="@/assets/img/pvxsuspension/report.svg" svg-inline />
@@ -55,9 +57,9 @@
                 </div>
                 <div class="u-btn" @click="switchType('selectBody')">选择体型</div>
             </div>
-            </transition>
+<!--            </transition>-->
             <!--                筛选区域-->
-            <transition name="slide-up">
+<!--            <transition name="slide-up">-->
             <div class="m-filtrate" v-if="filtrateShow">
 <!--                <div class="u-filtrate-title">体型</div>-->
 <!--                <div class="u-box">-->
@@ -88,7 +90,7 @@
                     <div class="u-confirm-btn" :class="{active:showFiltrateConfirm}" @click="filtrateConfirm()">确定</div>
                 </div>
             </div>
-            </transition>
+<!--            </transition>-->
         </el-drawer>
         <!--        弹出层区域-->
         <div class="u-content-all" v-if="active == -1">
@@ -196,6 +198,7 @@ export default {
 
             showForm: false,
             cutShow: false, //体型切换区域
+            cutshowTra:false,
             noBody:false,//尚未选择体型的提示区域
             filtrateShow: false, //筛选切换区域
             showFiltrateConfirm:false,
@@ -264,10 +267,12 @@ export default {
         },
         switchType(type) {
             if (!type) return;
+            this.cutshowTra=false;
             if (type == "cutShow") {
-                this.cutShow = true;
                 this.filtrateShow = false;
                 this.noBody=false;
+                this.cutShow = true;
+
             } else if (type == "filtrateShow") {
                 if(this.active==-1){
                     this.cutShow=false;
@@ -275,12 +280,13 @@ export default {
                     this.noBody=true;
                 }else{
                     this.cutShow = false;
-                    this.filtrateShow = true;
                     this.noBody=false;
+                    this.filtrateShow = true;
                     this.queryFiltrateParams=cloneDeep(this.queryFiltrateParamsBak);
                 }
 
             }else if(type=='selectBody'){
+                this.cutshowTra=true
                 this.cutShow=true;
                 this.filtrateShow = false;
                 this.noBody=false;
