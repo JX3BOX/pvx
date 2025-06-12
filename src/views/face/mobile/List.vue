@@ -59,7 +59,7 @@
             </div>
 <!--            </transition>-->
             <!--                筛选区域-->
-            <transition name="slide-up">
+<!--            <transition name="slide-up">-->
             <div class="m-filtrate" v-if="filtrateShow">
 <!--                <div class="u-filtrate-title">体型</div>-->
 <!--                <div class="u-box">-->
@@ -90,7 +90,7 @@
                     <div class="u-confirm-btn" :class="{active:showFiltrateConfirm}" @click="filtrateConfirm()">确定</div>
                 </div>
             </div>
-            </transition>
+<!--            </transition>-->
         </el-drawer>
         <!--        弹出层区域-->
         <div class="u-content-all" v-if="active == -1">
