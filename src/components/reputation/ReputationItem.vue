@@ -19,7 +19,8 @@
 
 <script>
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
-
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import  { wxNewPage } from "@/utils/minprogram";
 export default {
     name: "ReputationItem",
     props: {
@@ -31,7 +32,11 @@ export default {
     methods: {
         go(id) {
             // this.$router.push({ path: `/${id}` });
-            window.open(`/reputation/${id}`, "_self");
+            if(isMiniProgram()){
+                wxNewPage(`/reputation/${id}`);
+            }else{
+                window.open(`/reputation/${id}`, "_self");
+            }
         },
         getIcon(iconPath) {
             const rPath = iconPath ? iconPath.replace(/\//g, "\\") : "";
