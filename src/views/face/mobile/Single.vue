@@ -132,6 +132,7 @@
 </template>
 
 <script>
+import wx from "weixin-js-sdk";
 import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 // import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine_other from "@/components/face/mobile/routine_other";
@@ -376,7 +377,7 @@ export default {
                 .lt(0);
                 .dbi;
                 .z(1);
-                background: linear-gradient(180deg, #F8F8F8 0.04%,rgba(248,248,248, 0.00) 20%, rgba(248,248,248, 0.00) 80%, #FAFAFA 100%);
+                background: linear-gradient(180deg, #F8F8F8 0.04%,rgba(248,248,248, 0.00) 30%, rgba(248,248,248, 0.00) 70%, #FAFAFA 100%);
             }
 
             img {
@@ -647,8 +648,8 @@ export default {
     }
 
     // dark模式利用宽度模拟覆盖
-     @media screen and (width: 414px)
-    //@media (prefers-color-scheme: dark)
+    // @media screen and (width: 414px)
+    @media (prefers-color-scheme: dark)
     {
         background-color: #000;
 

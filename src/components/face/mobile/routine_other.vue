@@ -9,13 +9,13 @@
 -->
 <template>
     <div class="p-face-routine" :style="{ gap: gap }">
-        <div class="u-item" v-for="item in list" :key="item.id" :style="{ width: width + 'px', height: height + 'px' }">
-            <a :href="`${link}/${item.id}`" :style="{ width: width + 'px', height: height + 'px' }">
+        <div class="u-item" v-for="item in list" :key="item.id" :style="{ width: width + 'px', height: height + 'px' }" @click="openNewFace(item.id)">
+<!--            <a :href="`${link}/${item.id}`" :style="{ width: width + 'px', height: height + 'px' }">-->
                 <div class="u-item_img">
                     <img :src="showImg(item)" />
                     <div class="u-item_name">{{ item.title }}</div>
                 </div>
-            </a>
+<!--            </a>-->
         </div>
     </div>
 </template>
@@ -23,6 +23,7 @@
 <script>
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box";
 import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
+import  { wxNewPage } from "@/utils/minprogram";
 export default {
     computed: {
         link() {
@@ -68,6 +69,9 @@ export default {
         this.height = parseInt(this.width / 0.6);
     },
     methods: {
+        openNewFace(id){
+            wxNewPage(`${this.link}/${id}`)
+        },
         getThumbnail,
         showImg(item) {
             return this.getThumbnail(item.images?.[0] || __imgPath + `image/face/null2.png`, [
