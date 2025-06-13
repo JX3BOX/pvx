@@ -10,8 +10,8 @@
 <template>
     <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
         <div class="u-item" v-for="item in list" :key="item.id"
-            :style="{ width: isOne ? 'calc(calc(100vw - 70px) / 3)' : size  }">
-            <a :href="`${link}/${item.id}`">
+            :style="{ width: isOne ? 'calc(calc(100vw - 70px) / 3)' : size  }" @click="openNewFace(item.id)">
+<!--            <a :href="`${link}/${item.id}`">-->
                 <div class="u-item_img" :style="{
                     width: isOne ? '100%' : size,
                     height: isOne ? 'calc(calc(100vw - 70px) / 3)' : size ,
@@ -30,7 +30,7 @@
                 </div>
                 <div class="u-item_name">{{ item.title }}</div>
                 <div class="u-item_author">{{ item.display_name || "匿名" }}</div>
-            </a>
+<!--            </a>-->
         </div>
     </div>
 </template>
@@ -38,6 +38,7 @@
 <script>
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box";
 import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
+import  { wxNewPage } from "@/utils/minprogram";
 export default {
     computed: {
         link() {
@@ -88,6 +89,9 @@ export default {
     },
     mounted() { },
     methods: {
+        openNewFace(id){
+            wxNewPage(`${this.link}/${id}`)
+        },
         getThumbnail,
         showImg(item) {
             let width = parseInt((document.body.clientWidth - 64) / 3);
@@ -125,6 +129,7 @@ export default {
             this.$emit("getMore");
         },
         handleScroll(event) {
+            console.log(this.loadingList,this.isFinish)
             const { target } = event;
             if (this.loadingList || this.isFinish) return;
             if (target.scrollHeight - target.scrollTop - 60 < target.clientHeight) {

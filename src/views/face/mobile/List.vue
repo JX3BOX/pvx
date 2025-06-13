@@ -117,6 +117,7 @@ import habitus from "@/components/face/mobile/habitus.vue";
 import faceFind from "@/components/face/mobile/faceFind_v2.vue";
 import { cloneDeep, omit, concat, debounce } from "lodash";
 import { getFaceList, getSliders } from "@/service/face";
+import wx from "weixin-js-sdk";
 
 export default {
     name: "listMobile",
@@ -668,6 +669,12 @@ body{
                 padding: 0 1.25rem;
                 box-sizing: border-box;
             }
+        }
+    }
+    .u-content{
+        .h(100%);
+        .u-list{
+            .h(100%);
         }
     }
     .u-content-item {
