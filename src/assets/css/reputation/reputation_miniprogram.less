@@ -33,8 +33,9 @@
         background-color: @bg-light;
         font-family: "Microsoft YaHei UI";
     }
-
-    @media (prefers-color-scheme: dark) {
+    //@media screen and (width: 414px)
+    @media (prefers-color-scheme: dark)
+    {
         // html背景色
         background-color: @bg-dark;
         .m-main {
@@ -375,12 +376,14 @@
                         background-color: @color-light;
                     }
                 }
-                @media (prefers-color-scheme: dark) {
+                //@media screen and (width: 414px)
+                @media (prefers-color-scheme: dark)
+                {
                     color: rgba(@color-dark, 0.4);
                     &.active {
                         color: @color-dark;
                         &::after {
-                            background-color: @color-dark;
+                            background-color: #ffffff;
                         }
                     }
                 }
