@@ -49,7 +49,6 @@
             </div>
             </transition>
 <!--            请先选择体型区域-->
-<!--            <transition name="slide-up">-->
             <div class="m-no-body" v-if="noBody">
                 <div class="u-icon">
                     <img src="@/assets/img/pvxsuspension/report.svg" svg-inline />
@@ -57,15 +56,9 @@
                 </div>
                 <div class="u-btn" @click="switchType('selectBody')">选择体型</div>
             </div>
-<!--            </transition>-->
+
             <!--                筛选区域-->
-<!--            <transition name="slide-up">-->
             <div class="m-filtrate" v-if="filtrateShow">
-<!--                <div class="u-filtrate-title">体型</div>-->
-<!--                <div class="u-box">-->
-<!--&lt;!&ndash;                    <div class="u-item">全部</div>&ndash;&gt;-->
-<!--                    <div class="u-item" :class="{ 'active': queryFiltrateParams.body_type == item.value }" v-for="(item, index) in tabsData" :key="index"  @click="filtrateParams('body_type',item.value)">{{ item.label }}</div>-->
-<!--                </div>-->
                 <div class="u-filtrate-title">类型</div>
                 <div class="u-box">
                     <div class="u-item all" :class="{'active':!queryFiltrateParams.is_new_face}"  @click="filtrateParams('is_new_face','')">全部</div>
@@ -105,16 +98,11 @@
             <div class="u-list body">
                 <habitus :list="bodyList" @toTab="toTab"></habitus>
             </div>
-            <!-- <div class="u-card-title">发现</div>
-            <div class="u-list">
-                <faceFind></faceFind>
-            </div> -->
         </div>
         <div class="u-content" v-else>
-            <!-- <div class="u-card-title">{{ activeName }}</div> -->
             <div class="u-list" id="oneList" v-loading="loadingList">
                 <routine gap="0.667rem" size="5.778rem" :isOne="true" :list="list" :total="total"
-                         :loadingList="loadingList"
+                         :loadingList="loadingList" :isFinish="isFinish"
                          v-if="listShow" @getMore="getMore()"></routine>
             </div>
         </div>
@@ -303,8 +291,9 @@ export default {
             this.active = this.showActive;
             this.isFinish = false;
             this.showForm = false;
-            this.queryFiltrateParams.body_type = this.active;
+            this.queryParams.body_type = "";
             if (this.active != -1) {
+                this.queryParams.body_type = this.active;
                 this.queryParams.pageIndex = 1;
                 this.list = [];
                 this.listShow = false;
@@ -633,9 +622,10 @@ body{
 }
 
 .m-face-list_mobile {
-    padding: 1.25rem 0 5.25rem 0;
+    padding: .45rem 0 4.45rem 0;
     box-sizing: border-box;
-
+    .h(100vh);
+    overflow: auto;
     .m-base {
         .w(100%);
     }
@@ -664,34 +654,6 @@ body{
     }
 
 
-    .m-face-list_mobile__tabs {
-        position: sticky;
-        top: 0;
-        .z(2);
-        .flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 1.778rem;
-        background-color: #fff;
-        padding: 0.667rem 0 1.111rem 0;
-
-        .u-tab_item {
-            color: @fontcolor3;
-            .fz(1rem, 1.556rem);
-            .bold(700);
-
-            &.is-active {
-                color: @fontcolor;
-                //border-bottom: 0.111rem solid @fontcolor;
-                .u-tab_item__line {
-                    background-color: @fontcolor;
-                    .h(0.111rem);
-                    .r(0.222rem);
-                }
-            }
-        }
-    }
-
     .u-card-title {
         padding: 0 1.25rem;
         box-sizing: border-box;
@@ -712,22 +674,10 @@ body{
         .mb(0.556rem);
     }
 
-    // @media screen and (width: 390px)
-    @media (prefers-color-scheme: dark) {
+     //@media screen and (width: 414px)
+    @media (prefers-color-scheme: dark)
+    {
         background-color: #000;
-
-        .m-face-list_mobile__tabs {
-            background-color: #000;
-
-            .u-tab_item {
-                color: @fontColor-dark2;
-
-                &.is-active {
-                    color: @fontColor-dark;
-                    border-bottom: 0.111rem solid @fontColor-dark;
-                }
-            }
-        }
 
         .u-card-title {
             color: @fontColor-dark;

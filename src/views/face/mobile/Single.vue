@@ -369,16 +369,6 @@ export default {
         .u-img_item {
             .size(100%, 550px);
             .pr;
-            &::after {
-                content: "";
-                .pa;
-                .size(100%, 100%);
-                .lt(0);
-                .dbi;
-                .z(1);
-                //background: linear-gradient(0deg, rgba(250, 250, 250, 0) 44.67%, #fafafa 100%);
-                background: linear-gradient(0deg, #F8F8F8 0.04%,rgba(248,248,248, 0.00) 20%, rgba(248,248,248, 0.00) 80%, #FAFAFA 100%)
-            }
             &::before {
                 content: "";
                 .pa;
@@ -657,16 +647,13 @@ export default {
     }
 
     // dark模式利用宽度模拟覆盖
-    // @media screen and (width: 414px)
-    @media (prefers-color-scheme: dark)
+     @media screen and (width: 414px)
+    //@media (prefers-color-scheme: dark)
     {
         background-color: #000;
 
         .m-face-detail_top {
             .u-img_item {
-                &::after {
-                    background: linear-gradient(0deg,#1C1C1C 0.04%,rgba(0,0,0, 0.00) 20%, rgba(0,0,0, 0.00) 80%, #000000 100%);
-                }
                 &::before {
                     background: linear-gradient(180deg, #1C1C1C 0.04%,rgba(0,0,0, 0.00) 20%, rgba(0,0,0, 0.00) 80%, #000000 100%);
                 }

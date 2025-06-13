@@ -10,11 +10,11 @@
 <template>
     <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
         <div class="u-item" v-for="item in list" :key="item.id"
-            :style="{ width: isOne ? 'calc(calc(100vw - 64px) / 3)' : size  }">
+            :style="{ width: isOne ? 'calc(calc(100vw - 70px) / 3)' : size  }">
             <a :href="`${link}/${item.id}`">
                 <div class="u-item_img" :style="{
                     width: isOne ? '100%' : size,
-                    height: isOne ? 'calc(calc(100vw - 64px) / 3)' : size ,
+                    height: isOne ? 'calc(calc(100vw - 70px) / 3)' : size ,
                 }">
                     <el-image class="u-pic" :src="showImg(item)" fit="cover">
                         <div slot="error" class="image-slot">
@@ -32,9 +32,6 @@
                 <div class="u-item_author">{{ item.display_name || "匿名" }}</div>
             </a>
         </div>
-        <!-- <div class="u-more" v-if="isOne && list.length < total">
-            <el-link type="primary" @click="getMore">加载更多</el-link>
-        </div> -->
     </div>
 </template>
 
@@ -70,6 +67,10 @@ export default {
             default: false,
         },
         loadingList: {
+            type: Boolean,
+            default: false,
+        },
+        isFinish: {
             type: Boolean,
             default: false,
         },
@@ -125,7 +126,7 @@ export default {
         },
         handleScroll(event) {
             const { target } = event;
-            if (this.loadingList) return;
+            if (this.loadingList || this.isFinish) return;
             if (target.scrollHeight - target.scrollTop - 60 < target.clientHeight) {
                 this.getMore();
             }
@@ -153,7 +154,8 @@ export default {
 
     &.p-face-routine_one {
         flex-wrap: wrap;
-        height: calc(100vh - 4.222rem);
+        //height: calc(100vh - 4.222rem);
+        height: 100%;
         // .mt(10px);
     }
 
