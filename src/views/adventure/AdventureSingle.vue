@@ -32,13 +32,34 @@
             <div class="m-adventure-content">
                 <task :id="id" :info="data" />
             </div>
+            <!-- (小程序端)包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
+            <PvxUserMiniprogram v-if="isMiniProgram" :id="achieve_id" name="奇遇" type="achievement">
+            </PvxUserMiniprogram>
+            <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
+            <pvx-user
+                :id="achieve_id"
+                name="奇遇"
+                type="achievement"
+                :isRobot="isRobot"
+                v-if="achieve_id && !isMiniProgram"
+            >
+                <template slot="serendipity" v-if="!isRobot">
+                    <div class="m-adventure-serendipity">
+                        <Serendipity :title="title" />
+                    </div>
+                </template>
+            </pvx-user>
         </template>
         <template v-else>
             <div class="m-robot__adventure-header" :class="isPerfect ? 'is-perfect' : ''">
                 <div class="m-title">
                     <div class="u-title">{{ robotTitle }}</div>
                 </div>
-                <div class="m-rewards" v-if="data?.RewdItem?.split(';')?.length">
+                <div class="m-reward">
+                    奖励：
+                    <div class="u-reward" v-html="rewardContent"></div>
+                </div>
+                <!-- <div class="m-rewards" v-if="data?.RewdItem?.split(';')?.length">
                     奖励：
                     <item_icon
                         :item_id="String(item)"
@@ -46,28 +67,42 @@
                         v-for="(item, i) in data.RewdItem.split(';')"
                         :key="i"
                     ></item_icon>
+                </div> -->
+            </div>
+            <div class="m-robot-item m-robot__adventure-condition">
+                <img class="u-pvx-logo" :src="imgUrl" />
+                <div class="m-condition">
+                    <div class="m-title">
+                        <img src="@/assets/img/jx3box_qqbot_adventure_item.svg" alt="" />
+                        <div class="u-title">触发前置</div>
+                        <span>（需全部满足）</span>
+                    </div>
+                    <div class="m-content">
+                        <div class="u-content" v-html="conditionContent"></div>
+                    </div>
                 </div>
             </div>
-            <div class="m-robot__adventure-method">
-                <img class="u-pvx-logo" :src="getImg(data)" />
+            <div class="m-robot-item m-robot__adventure-method">
+                <div class="m-title">
+                    <img src="@/assets/img/jx3box_qqbot_adventure_item.svg" alt="" />
+                    <div class="u-title">触发方式</div>
+                    <span>（完成任一均有可能触发奇遇）</span>
+                </div>
+                <div class="m-content">
+                    <div class="u-content" v-html="methodContent"></div>
+                </div>
+            </div>
+            <div class="m-robot-item m-robot__adventure-method">
+                <div class="m-title">
+                    <img src="@/assets/img/jx3box_qqbot_adventure_item.svg" alt="" />
+                    <div class="u-title">奇遇流程</div>
+                    <span>（以魔盒在线版本为准）</span>
+                </div>
+                <div class="m-content">
+                    <div class="u-content" v-html="processContent"></div>
+                </div>
             </div>
         </template>
-        <!-- (小程序端)包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <PvxUserMiniprogram v-if="isMiniProgram" :id="achieve_id" name="奇遇" type="achievement"> </PvxUserMiniprogram>
-        <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user
-            :id="achieve_id"
-            name="奇遇"
-            type="achievement"
-            :isRobot="isRobot"
-            v-if="achieve_id && !isMiniProgram"
-        >
-            <template slot="serendipity" v-if="!isRobot">
-                <div class="m-adventure-serendipity">
-                    <Serendipity :title="title" />
-                </div>
-            </template>
-        </pvx-user>
     </div>
 </template>
 
@@ -75,7 +110,7 @@
 import { getLink } from "@jx3box/jx3box-common/js/utils";
 import { getAdventure, getSerendipityAchievementId } from "@/service/adventure/adventure";
 import PvxUser from "@/components/PvxUser.vue";
-import item_icon from "@/components/common/item_icon.vue";
+// import item_icon from "@/components/common/item_icon.vue";
 import task from "@/components/adventure/task.vue";
 import Serendipity from "@/components/common/serendipity.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
@@ -83,6 +118,7 @@ import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import PvxSuspension from "@/components/PvxSuspension.vue";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
 export default {
     name: "adventureSingle",
     props: ["isRobot", "sourceId"],
@@ -92,7 +128,7 @@ export default {
         PvxUser,
         PvxUserMiniprogram,
         PvxSuspension,
-        item_icon,
+        // item_icon,
     },
     data: function () {
         return {
@@ -104,6 +140,12 @@ export default {
             loading: false,
             search: "",
             isMiniProgram: isMiniProgram(),
+            conditionContent: "",
+            methodContent: "",
+            processContent: "",
+            rewardContent: "",
+            camp: 1,
+            force: 2,
         };
     },
     computed: {
@@ -112,6 +154,9 @@ export default {
         },
         title: function () {
             return this.data?.szName || "";
+        },
+        client() {
+            return this.$store.state.client;
         },
         isPerfect() {
             return !!this.data?.bPerfect;
@@ -126,6 +171,27 @@ export default {
             }
             return titlePrefix + " · " + this.title;
         },
+        defaultImg: function () {
+            return __imgPath + "image/pvx/bg.png";
+        },
+        imgUrl() {
+            const client = this.client;
+            // const client = "std"; // 怀旧服的奇遇图片先取正式服的
+            let tgaPath = this.data.szOpenRewardPath?.toLowerCase();
+            if (!tgaPath) return "";
+            tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
+            if (!this.data.szRewardType) {
+                let pngPath = tgaPath.replace(/\.tga$/, ".png");
+                return `${__imgPath}adventure/adventure/${client}/${pngPath}`;
+            }
+            // 传给组件的数据是修改过的
+            tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
+            if (this.data.szRewardType === "camp")
+                return `${__imgPath}adventure/adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
+            if (this.data.szRewardType === "school")
+                return `${__imgPath}adventure/adventure/${client}/${tgaPath}/school_${this.force}_open.png`;
+            return defaultImg;
+        },
     },
     watch: {
         id: {
@@ -138,24 +204,30 @@ export default {
         },
     },
     methods: {
-        getImg(info) {
-            const type = info.szRewardType;
-            if (type === "school" || type === "camp") {
-                return this.toSpecial(info);
-            } else {
-                let img = info.szOpenRewardPath?.toLowerCase().match(/.*[\/,\\]adventure(.*?).tga/) || "";
-                let name = "";
-                if (img?.[1]) name = img?.[1].replace(/\\/g, "/");
-                return this.imgUrl(name);
-            }
-        },
-        imgUrl(link) {
-            const client = this.$store.state.client;
-            return __imgPath + `adventure/adventure/${client}/${link}.png`;
-        },
         getLink,
         goBack() {
             this.$router.push({ name: "list" });
+        },
+        //百科相关
+        loadData: async function () {
+            // 获取最新攻略
+            if (this.achieve_id) {
+                await wiki.mix({ type: "achievement", id: this.achieve_id, client: this.client }).then((res) => {
+                    const { post } = res;
+                    const content = post?.content || "";
+                    // 触发前置
+                    // 触发方式
+                    // 奇遇流程
+                    // 奇遇奖励
+                    const contentList = content.split("<p>◆◆◆◆◆◆</p>");
+                    this.conditionContent = contentList?.[0] || "";
+                    this.methodContent = contentList?.[1] || "";
+                    this.processContent = contentList?.[2] || "";
+                    this.rewardContent = contentList?.[3] || "";
+                });
+                // TEST:请注意，为防止QQBOT无法抓取完全，请不要删除本行
+                window.__READY__ = true;
+            }
         },
         getData() {
             this.loading = true;
@@ -175,6 +247,7 @@ export default {
                 client: this.$store.state.client,
             }).then((res) => {
                 this.achieve_id = res.data?.achievement_id;
+                this.loadData();
             });
         },
         goSearch() {
@@ -219,13 +292,75 @@ export default {
             font-size: 12px;
         }
     }
+    .m-reward {
+        margin-top: 4px;
+        .flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+        font-size: 12px;
+        color: #ffeb3b;
+        .u-reward > p:first-child {
+            .none;
+        }
+        p {
+            margin: 0;
+            padding: 0;
+        }
+        img {
+            .none;
+        }
+    }
 }
-.m-robot__adventure-method {
+.m-robot__adventure-condition {
     .flex;
-    justify-content: center;
-    align-items: center;
+    gap: 5px;
     .u-pvx-logo {
-        .size(143px);
+        .size(180px);
+    }
+    .m-condition {
+        flex: 1;
+    }
+}
+.m-robot-item {
+    margin-top: 10px;
+    .u-content > h3:first-child,
+    .u-content > #c-article > h3:first-child {
+        .none;
+    }
+    .u-content p {
+        margin-top: 0;
+    }
+    .m-title {
+        .flex;
+        align-items: center;
+        gap: 4px;
+        span {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(#ffffff, 0.5);
+        }
+    }
+    .u-title {
+        font-size: 16px;
+        color: #ffc300;
+        font-weight: 700;
+    }
+    .m-content {
+        margin-top: 10px;
+        border-radius: 4px;
+        background: linear-gradient(to top, #383838 0%, #000000 100%);
+
+        border: 1px solid #6e6e6e;
+
+        box-shadow: inset 0px 10px 5px #000000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 12px 12px 12px;
+        font-size: 10px;
+        color: #fff;
     }
 }
 </style>

@@ -2,17 +2,23 @@
     <!-- 包含攻略、评论、历史版本、点赞等 -->
     <div class="w-pvx-user">
         <!--攻略-->
-        <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
+        <div class="m-wiki-post-panel" :class="isRobot ? 'is-robot' : ''" v-if="wiki_post && wiki_post.post">
+            <div v-if="isRobot" class="m-pvx-wiki-title">
+                <span class="u-title">{{ name }}攻略</span>
+                <span>（以魔盒在线版本为准）</span>
+            </div>
             <WikiPanel :wiki-post="wiki_post">
-                <template slot="head-title">
-                    <img class="u-icon" svg-inline src="@/assets/img/item.svg" />
-                    <span class="u-txt">{{ name }}攻略</span>
-                </template>
-                <template slot="head-actions" v-if="!isRobot">
-                    <a class="el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
-                        <i class="el-icon-edit"></i>
-                        <span>完善{{ name }}攻略</span>
-                    </a>
+                <template v-if="!isRobot">
+                    <template slot="head-title">
+                        <img class="u-icon" svg-inline src="@/assets/img/item.svg" />
+                        <span class="u-txt">{{ name }}攻略</span>
+                    </template>
+                    <template slot="head-actions">
+                        <a class="el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
+                            <i class="el-icon-edit"></i>
+                            <span>完善{{ name }}攻略</span>
+                        </a>
+                    </template>
                 </template>
                 <template slot="body">
                     <div class="m-wiki-compatible" v-if="compatible">
@@ -217,6 +223,23 @@ export default {
 
 <style lang="less">
 .w-pvx-user {
+    .m-wiki-post-panel.is-robot .m-panel-head .m-panel-title {
+        .none;
+    }
+    .m-pvx-wiki-title {
+        margin-top: 10px;
+        span {
+            font-weight: normal;
+            font-style: normal;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+        }
+        .u-title {
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    }
     & > div {
         margin-top: 40px !important;
     }
