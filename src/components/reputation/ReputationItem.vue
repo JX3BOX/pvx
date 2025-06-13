@@ -12,7 +12,7 @@
             <div class="progress-wrap">
                 <div class="progress-value"></div>
             </div>
-            <div class="m-reputation-desc__miniprogram" v-html="item.szDesc.replace(/\\n/g, '')"></div>
+<!--            <div class="m-reputation-desc__miniprogram" v-html="item.szDesc.replace(/\\n/g, '')"></div>-->
         </div>
     </div>
 </template>

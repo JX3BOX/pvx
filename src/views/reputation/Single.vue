@@ -1,12 +1,40 @@
 <template>
     <div class="m-reputation-wrapper m-single-wrapper">
-        <PvxSuspension isType='single' type="reputation" :id="id" :title="reputation.szName" searchRouter="/search"
-            bottom-num="100px" />
+<!--        <PvxSuspension isType='single' type="reputation" :id="id" :title="reputation.szName" searchRouter="/search"-->
+<!--            bottom-num="100px" />-->
+        <SuspendCommon
+            :btnOptions="{showHome:true}"
+            :drawerOptions="{
+            hideType:['report','rss','search','user'],
+            title:reputation.szName,
+            postType:'reputation',
+            id:id
+            }"
+            v-if="$route.query?.disabled!='true'"
+        >
+            <template #default>
+                <div class="m-suspend-btn">
+                    <div class="u-btn-item line" @click="showForm=true">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline />
+                        导航
+                    </div>
+                </div>
+            </template>
+        </SuspendCommon>
+        <!--        导航弹窗-->
+        <el-drawer :visible.sync="showForm" direction="btt" :with-header="false" custom-class="u-drawer"
+                   :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
+            <div class="m-reputation-tabs__miniprogram">
+                <div class="u-tab" v-for="item in navigation"  :key="item.value"  @click="switchNav(item)">
+                    {{ item.label }}
+                </div>
+            </div>
+        </el-drawer>
         <div class="m-reputation-single">
             <div class="back-wrap">
                 <el-button @click="goBack">返回列表</el-button>
             </div>
-            <div class="m-reputation-content" v-if="reputation">
+            <div class="m-reputation-content" v-if="reputation" >
                 <div class="info-wrapper">
                     <div class="m-content m-content-info">
                         <div class="title">
@@ -131,7 +159,7 @@
         </div>
         <!-- 小程序 -->
         <div class="m-reputation-single__miniprogram">
-            <div class="m-reputation-content" v-if="reputation">
+            <div class="m-reputation-content" v-if="reputation" id="info">
                 <div class="info-wrapper">
                     <div class="m-content m-content-info">
                         <div class="title">
@@ -196,7 +224,7 @@
                 </div>
             </div>
             <!-- 小程序声望奖励 -->
-            <div class="m-reputation-reward__miniprogram" v-if="reputation.gainList">
+            <div class="m-reputation-reward__miniprogram" v-if="reputation.gainList"  id="award">
                 <el-scrollbar>
                     <div class="m-reward-tabs">
                         <div class="u-reward-tab" :class="{ active: stage === index }"
@@ -223,9 +251,10 @@
                     </div>
                 </div>
             </div>
+            <div id="strategy">
             <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-            <PvxUserMiniprogram :id="achievement_id" name="声望" type="achievement"></PvxUserMiniprogram>
-
+            <PvxUserMiniprogram :id="achievement_id" name="声望" type="achievement"  ></PvxUserMiniprogram>
+            </div>
             <!-- 小程序知交 -->
             <el-drawer :title="`${reputation.servant && reputation.servant.szNpcName} - 声望知交`"
                 :visible.sync="servantVisible" direction="btt" append-to-body :show-close="false"
@@ -257,7 +286,8 @@
 </template>
 
 <script>
-import PvxSuspension from '@/components/PvxSuspension.vue';
+import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+// import PvxSuspension from '@/components/PvxSuspension.vue';
 import PvxUser from "@/components/PvxUser.vue";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import reputationMap from "@/components/reputation/ReputationMap.vue";
@@ -277,7 +307,7 @@ export default {
         ItemIcon,
         PvxUser,
         PvxUserMiniprogram,
-        PvxSuspension
+        SuspendCommon
     },
     data() {
         return {
@@ -309,6 +339,14 @@ export default {
                 8: "钦佩",
             },
             stageListMini: [],
+
+            showForm:false,
+            navigationActive:1,
+            navigation:[
+                {label:'声望信息',value:1,id:'info'},
+                {label:'声望奖励',value:2,id:'award'},
+                {label:'声望攻略',value:3,id:'strategy'},
+            ]
         };
     },
     computed: {
@@ -349,6 +387,14 @@ export default {
         },
     },
     methods: {
+        switchNav(item){
+
+            const element = document.getElementById(item.id);
+            if (element) {
+                this.showForm=false;
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        },
         loadMore() {
             if (this.stageList[this.currentPage]) {
                 this.stageListMini = this.stageListMini.concat(this.stageList[this.currentPage]);
@@ -422,6 +468,7 @@ export default {
                     this.reputation = data;
 
                     if (this.isMiniProgram) {
+                        document.title=this.reputation?.szName
                         this.$nextTick(() => {
                             this.stage = 0;
                         });

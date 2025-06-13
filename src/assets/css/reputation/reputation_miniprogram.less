@@ -19,6 +19,7 @@
     @brand2: #24292e;
     @brand3: #fedaa3;
     @brand4: #282828;
+    @brand5: #1C1C1C;
 
     // 注意：背景色只改变量在小程序上不生效
     @color-light: #1c1c1c;
@@ -40,49 +41,61 @@
             background-color: @bg-dark;
         }
     }
+    .el-backtop{
+        display: none;
+    }
+    .m-base {
+        .w(100%);
+    }
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
 
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            gap: 0.5rem;
+            //.w(7.5rem);
+            flex:1;
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+            .u-icon{
+                .size(1.25rem, 1.25rem);
+                svg, path {
+                    fill: #FEDAA3;
+                    stroke: #FEDAA3;
+                }
+            }
+        }
+    }
     .m-reputation-tabs {
         .none;
     }
     .m-reputation-tabs__miniprogram {
-        .db;
-        width: 100%;
-        margin-top: 15px;
-    }
-    .m-reputation-tabs__content {
         .flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        gap: 18px;
-        .u-tab {
-            flex: none;
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 28px;
-            color: @color-light;
-            &.active {
-                position: relative;
-                &::after {
-                    position: absolute;
-                    .db;
-                    content: "";
-                    @w: 20px;
-                    width: @w;
-                    height: 2px;
-                    left: calc((100% - @w) / 2);
-                    bottom: 0;
-                    background-color: @color-light;
-                }
-            }
-            @media (prefers-color-scheme: dark) {
-                color: @color-dark;
-                &.active {
-                    &::after {
-                        background-color: @color-dark;
-                    }
-                }
+
+        flex-wrap: wrap;
+        gap:0.75rem;
+        .u-tab{
+            .w(calc(50% - 0.375rem));
+            .r( 0.75rem);
+            background: rgba(255, 255, 255, 0.10);
+            padding: 0.75rem 1rem;
+            .flex;
+            .flex(o);
+            box-sizing: border-box;
+            flex-shink:0;
+            color: rgba(255, 255, 255, 0.40);
+            .fz(1rem,1.5rem);
+            &.active{
+                color: #24292E;
+                background: #FEDAA3;
             }
         }
+    }
+    .m-reputation-tabs__content {
+
     }
     .is-not-all-title {
         .none;
@@ -135,6 +148,7 @@
         gap: 12px;
         background-color: @color-dark;
         border-color: @color-dark;
+        box-shadow: none;
         @media (prefers-color-scheme: dark) {
             background-color: @brand4;
             border-color: @brand4;
@@ -151,7 +165,9 @@
         font-weight: 700;
         line-height: 20px;
         margin: 0;
-
+        height:80px;
+        .flex;
+        align-items: center;
         @media (prefers-color-scheme: dark) {
             color: @color-dark;
         }
@@ -345,6 +361,7 @@
                 color: rgba(@color-light, 0.4);
                 &.active {
                     position: relative;
+                    color: @brand5;
                     &::after {
                         position: absolute;
                         .db;
