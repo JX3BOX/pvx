@@ -27,7 +27,7 @@ import  { wxNewPage } from "@/utils/minprogram";
 export default {
     computed: {
         link() {
-            return location.origin + `/${this.type}`
+            return  `/${this.type}`
         },
     },
     components: {},
