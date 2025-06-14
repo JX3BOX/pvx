@@ -307,8 +307,15 @@ export default {
             margin: 0;
             padding: 0;
         }
-        img {
+        img,
+        h1 {
             .none;
+        }
+        .c-article {
+            .flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
         }
     }
 }
@@ -326,13 +333,12 @@ export default {
     margin-top: 10px;
     .u-content {
         width: 100%;
-    }
-    // .u-content > h3:first-child,
-    // .u-content > #c-article > h3:first-child {
-    //     .none;
-    // }
-    .u-content p {
-        margin-top: 0;
+        h1 {
+            .none;
+        }
+        p {
+            margin-top: 0;
+        }
     }
     .m-title {
         .flex;
