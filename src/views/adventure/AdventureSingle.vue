@@ -324,10 +324,13 @@ export default {
 }
 .m-robot-item {
     margin-top: 10px;
-    .u-content > h3:first-child,
-    .u-content > #c-article > h3:first-child {
-        .none;
+    .u-content {
+        width: 100%;
     }
+    // .u-content > h3:first-child,
+    // .u-content > #c-article > h3:first-child {
+    //     .none;
+    // }
     .u-content p {
         margin-top: 0;
     }
