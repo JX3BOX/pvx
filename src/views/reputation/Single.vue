@@ -4,6 +4,7 @@
             <div class="m-reputation-single">
                 <div class="back-wrap">
                     <el-button @click="goBack">返回列表</el-button>
+                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
                 <div class="m-reputation-content" v-if="reputation">
                     <div class="info-wrapper">
@@ -449,6 +450,7 @@ import PvxUser from "@/components/PvxUser.vue";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import reputationMap from "@/components/reputation/ReputationMap.vue";
 import ItemIcon from "@/components/common/item_icon.vue";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import paths from "@/assets/data/reputation_exchange_path.json";
 import levelList from "@/assets/data/reputation_level.json";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
@@ -466,6 +468,7 @@ export default {
         PvxUser,
         PvxUserMiniprogram,
         SuspendCommon,
+        PvxSingleAdminDrop,
     },
     data() {
         return {

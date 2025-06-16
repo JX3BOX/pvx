@@ -3,6 +3,7 @@
         <template v-if="!isRobot">
             <div class="m-pet-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
+                <PvxSingleAdminDrop></PvxSingleAdminDrop>
             </div>
 
             <PublicNotice bckey="pet_ac" />
@@ -209,6 +210,7 @@ import { getPet, getPets, getShopInfo, getPetSkill, getSkill, getPetLucky } from
 import PvxUser from "@/components/PvxUser.vue";
 import petCard from "@/components/pet/PetCard.vue";
 import petFetters from "@/components/pet/PetFetters.vue";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 // import Wiki from "@/components/wiki/Wiki.vue";
 import petType from "@/assets/data/pet_type.json";
 import petSource from "@/assets/data/pet_source.json";
@@ -230,6 +232,7 @@ export default {
         // WikiComments,
         PvxUser,
         PublicNotice,
+        PvxSingleAdminDrop,
     },
     data: function () {
         return {

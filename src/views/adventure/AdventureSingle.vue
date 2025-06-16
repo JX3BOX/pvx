@@ -11,6 +11,7 @@
             />
             <div class="m-adventure-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
+                <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 <!-- <el-input
                 placeholder="请输入奇遇或宠物名字搜索"
                 v-model="search"
@@ -119,6 +120,7 @@ import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import PvxSuspension from "@/components/PvxSuspension.vue";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 export default {
     name: "adventureSingle",
     props: ["isRobot", "sourceId"],
@@ -128,6 +130,7 @@ export default {
         PvxUser,
         PvxUserMiniprogram,
         PvxSuspension,
+        PvxSingleAdminDrop,
         // item_icon,
     },
     data: function () {
