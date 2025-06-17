@@ -57,7 +57,7 @@
                     <div class="u-title">{{ robotTitle }}</div>
                 </div>
                 <div class="m-reward">
-                    <span>奖励：</span>
+                    <!-- <span>奖励：</span> -->
                     <div class="u-reward" v-html="rewardContent"></div>
                 </div>
                 <!-- <div class="m-rewards" v-if="data?.RewdItem?.split(';')?.length">
@@ -345,11 +345,16 @@ export default {
     margin-top: 10px;
     .u-content {
         width: 100%;
+        line-height: 18px;
         h1 {
             .none;
         }
         p {
             margin-top: 0;
+            margin-bottom: 5px;
+        }
+        img {
+            margin: 5px 0;
         }
     }
     .m-title {
