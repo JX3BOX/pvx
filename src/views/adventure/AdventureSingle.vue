@@ -335,6 +335,9 @@ export default {
         div {
             color: #ffeb3b !important;
             font-size: 12px !important;
+            white-space: pre-wrap;
+            max-width: 100%;
+            display: inline-block;
         }
     }
 }
