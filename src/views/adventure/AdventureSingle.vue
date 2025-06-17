@@ -329,6 +329,13 @@ export default {
             gap: 4px;
             align-items: center;
         }
+        p,
+        a,
+        span,
+        div {
+            color: #ffeb3b !important;
+            font-size: 12px !important;
+        }
     }
 }
 .m-robot__adventure-condition {
@@ -355,6 +362,13 @@ export default {
         }
         img {
             margin: 5px 0;
+        }
+        p,
+        span,
+        a,
+        div {
+            font-size: 12px !important;
+            color: #fff !important;
         }
     }
     .m-title {
