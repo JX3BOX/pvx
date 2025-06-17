@@ -57,7 +57,7 @@
                     <div class="u-title">{{ robotTitle }}</div>
                 </div>
                 <div class="m-reward">
-                    奖励：
+                    <span>奖励：</span>
                     <div class="u-reward" v-html="rewardContent"></div>
                 </div>
                 <!-- <div class="m-rewards" v-if="data?.RewdItem?.split(';')?.length">
@@ -223,10 +223,10 @@ export default {
                     // 奇遇流程
                     // 奇遇奖励
                     const contentList = content.split("<p>◆◆◆◆◆◆</p>");
-                    this.conditionContent = contentList?.[0] || "";
-                    this.methodContent = contentList?.[1] || "";
-                    this.processContent = contentList?.[2] || "";
-                    this.rewardContent = contentList?.[3] || "";
+                    this.conditionContent = (contentList?.[0] || "").replaceAll("&nbsp;", "");
+                    this.methodContent = (contentList?.[1] || "").replaceAll("&nbsp;", "");
+                    this.processContent = (contentList?.[2] || "").replaceAll("&nbsp;", "");
+                    this.rewardContent = (contentList?.[3] || "").replaceAll("&nbsp;", "");
                 });
                 // TEST:请注意，为防止QQBOT无法抓取完全，请不要删除本行
                 window.__READY__ = true;
@@ -266,7 +266,7 @@ export default {
 .m-robot__adventure-header {
     padding: 12px;
     width: 100%;
-    height: 75px;
+    min-height: 75px;
     opacity: 1;
     border-radius: 8px;
     box-sizing: border-box;
@@ -299,12 +299,21 @@ export default {
         margin-top: 4px;
         .flex;
         align-items: center;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 4px;
         font-size: 12px;
         color: #ffeb3b;
-        .u-reward > p:first-child {
-            .none;
+        span {
+            flex: none;
+        }
+        .u-reward {
+            flex: none;
+            .flex;
+            align-items: center;
+            flex-wrap: wrap;
+            & > p:first-child {
+                .none;
+            }
         }
         p {
             margin: 0;
