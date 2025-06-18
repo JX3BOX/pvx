@@ -335,7 +335,7 @@ export default {
             color: #ffeb3b !important;
             font-size: 12px !important;
             white-space: pre-wrap;
-            max-width: 100%;
+            max-width: 94%;
             display: inline-block;
         }
         div {
