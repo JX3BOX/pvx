@@ -331,13 +331,16 @@ export default {
         }
         p,
         a,
-        span,
-        div {
+        span {
             color: #ffeb3b !important;
             font-size: 12px !important;
             white-space: pre-wrap;
             max-width: 100%;
             display: inline-block;
+        }
+        div {
+            color: #ffeb3b !important;
+            font-size: 12px !important;
         }
     }
 }
@@ -349,6 +352,9 @@ export default {
     }
     .m-condition {
         flex: 1;
+        .u-content {
+            min-height: 100px;
+        }
     }
 }
 .m-robot-item {
@@ -365,6 +371,8 @@ export default {
         }
         img {
             margin: 5px 0;
+            width: 100%;
+            height: auto;
         }
         p,
         span,
