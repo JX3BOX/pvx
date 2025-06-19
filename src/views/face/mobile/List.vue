@@ -326,6 +326,7 @@ export default {
             this.queryFiltrateParamsBak=cloneDeep(this.queryFiltrateParams);
             this.queryParams.pageIndex = 1;
             this.list = [];
+            this.isFinish=false
             this.listShow = false;
             this.showForm = false;
             this.loadData();

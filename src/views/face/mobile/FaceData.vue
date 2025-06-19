@@ -113,7 +113,7 @@ export default {
                 let facedata = data.object;
                 // 旧版数据
                 this.body_type = facedata.status ? facedata.misc[0]["value"] : facedata.nRoleType;
-                console.log(this.body_type);
+
                 this.decalDb.setBodyType(this.body_type);
                 this.facedata = facedata.status ? fixOldData(facedata) : facedata;
                 if (!this.facedata.bNewFace) {
@@ -121,7 +121,7 @@ export default {
                 }
             } catch (e) {
                 this.facedata = "";
-                console.log(e);
+
                 this.$notify.error({
                     title: "错误",
                     message: "脸型数据无法解析",
@@ -131,7 +131,6 @@ export default {
     },
     mounted: function () {
         this.render()
-        console.log(navigator.userAgent.toLowerCase())
     },
 };
 </script>

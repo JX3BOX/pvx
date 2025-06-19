@@ -85,7 +85,6 @@ export default {
             // 是否为空
             //获取缓存
             let data = JSON.parse(sessionStorage.getItem("bodyData"));
-            console.log(data);
             if (!data) {
                 this.body_data = "";
                 this.body_type = "";
