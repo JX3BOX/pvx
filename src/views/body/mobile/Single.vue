@@ -9,7 +9,49 @@
 -->
 <template>
     <div class="p-body-detail" v-loading="loading">
-        <PvxSuspension isType='single' type="body" :id="id" :title="post.title" :miniprogram="{app:'体型',filter_name:'pvxbody'}"/>
+        <SuspendCommon
+            :btnOptions="{showHome:true}"
+            :drawerOptions="{
+            hideType:['report','rss','search'],
+            author:{
+                name:post.author_name,
+                avatar:post.user_avatar,
+                author_id:post.user_id
+            },
+            title:post.title,
+            postType:'face',
+            id:id
+            }"
+            @search="search"
+            v-if="$route.query?.disabled!='true'"
+        >
+            <template #default>
+                <div class="u-copy" @click="showFaceData=true">
+                    <img class="u-copy-icon" src="@/assets/img/pvxsuspension/copy_touchbar.svg" svg-inline />复制体型码
+                </div>
+            </template>
+        </SuspendCommon>
+        <el-drawer :visible.sync="showFaceData" direction="btt"  :with-header="false" custom-class="u-drawer" :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
+            <div class="m-face-data_copy">
+                <div class="u-copy-box" v-if="post.code_mode">
+                    <div class="u-copy-top">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/copy_touchbar_120.svg" svg-inline />
+                        <div class="u-label">复制体型码</div>
+                    </div>
+
+                    <div class="u-number">{{ post.code }}</div>
+                    <div class="u-copy-btn" @click="copy">复制</div>
+                </div>
+                <div class="u-data-box" v-else>
+                    <div class="u-copy-top">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/report.svg" svg-inline />
+                        <div class="u-label">非体型码作品，无法直接复制</div>
+                    </div>
+                    <div class="u-no-data-btn" @click="goTobBodydatMobile()">查看体型数据</div>
+                </div>
+
+            </div>
+        </el-drawer>
         <div class="m-body-detail_top">
             <el-carousel height="500px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">
@@ -26,9 +68,7 @@
         </div>
         <div class="m-tags">
             <div class="u-tag purple" v-if="!!post.star">★ 编辑推荐</div>
-            <div class="u-tag" :class="post.is_new_face ? 'green' : 'mint'" v-if="post.is_new_body">
-                {{ newbodyMap[post.is_new_body] }}
-            </div>
+
             <div class="u-tag" v-if="!!post.is_fr">首发</div>
             <div class="u-tag" v-if="!!post.original">原创</div>
             <div class="u-tag">{{ showClientLabel(post.client) }}</div>
@@ -44,20 +84,20 @@
         <div class="m-warning">
             <img src="@/assets/img/face/mobile/warning.svg" class="u-img" />
             <img src="@/assets/img/face/mobile/warning-dark.svg" class="u-img-dark" />
-            <div class="u-text">小程序暂时不支持[非捏脸码]作品数据下载</div>
+            <div class="u-text">小程序暂时不支持[非体型码]作品数据下载</div>
         </div>
 
         <!-- 捏脸码 -->
         <div class="m-body-number" v-if="post.code_mode" @click="copy">
             <div class="u-title">
                 <img src="@/assets/img/face/mobile/copy.svg" />
-                <div class="u-text">捏脸码</div>
+                <div class="u-text">体型码</div>
             </div>
             <div class="u-number">{{ post.code_mode }}</div>
         </div>
         <!-- 捏脸数据 -->
         <div class="m-body-data" v-else @click="goTobBodydatMobile()">
-            <div class="u-text">捏脸数据</div>
+            <div class="u-text">体型数据</div>
             <img src="@/assets/img/face/mobile/CaretLeft.svg" class="u-img" />
             <img src="@/assets/img/face/mobile/CaretLeft-dark.svg" class="u-img-dark" />
         </div>
@@ -76,11 +116,9 @@
             <div class="u-author_introduce" v-if="userInfo.user_bio">{{ userInfo.user_bio }}</div>
         </div>
         <!-- 其他作品 -->
-        <div class="m-body-author_other">
+        <div class="m-body-author_other"  v-if="randomList.length === 0">
             <div class="u-title">{{ post.display_name }}其他作品</div>
-            <div class="u-img_item" v-if="randomList.length === 0">
-                <img src="@/assets/img/face/mobile/empty.png" />
-            </div>
+
             <div class="u-other_list">
                 <routine_other :list="randomList" :isNumber="true" type="body"></routine_other>
             </div>
@@ -89,7 +127,8 @@
 </template>
 
 <script>
-import PvxSuspension from '@/components/PvxSuspension.vue';
+import wx from "weixin-js-sdk";
+import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 import routine_other from "@/components/face/mobile/routine_other";
 import { getOneBodyInfo, getRandomBody } from "@/service/body";
 import { getFans, getUserInfo } from "@/service/face/author";
@@ -98,7 +137,7 @@ import { subscribeAuthor, unsubscribeAuthor } from "@jx3box/jx3box-common/js/rss
 import { __clients, __imgPath, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
 import { bodyMap } from "@jx3box/jx3box-data/data/role/body.json";
 export default {
-    components: {PvxSuspension, routine_other },
+    components: { routine_other,SuspendCommon },
     computed: {
         id: function () {
             return ~~this.$route.params.id;
@@ -129,10 +168,10 @@ export default {
             post: {},
             randomList: [],
             client_map: __clients,
-            newbodyMap: ["写意", "写实"],
             userInfo: {},
             fans: 0,
             subscribed: false,
+            showFaceData:false,
         };
     },
     created() {
@@ -140,6 +179,9 @@ export default {
     },
     mounted() { },
     methods: {
+        search(){
+            wx.miniProgram.navigateTo({ url: `/pages/search/search-detail/search-detail?app=体型&filter_name=pvxbody` });
+        },
         showAvatar,
         showPic(url) {
             return resolveImagePath(url);
@@ -156,6 +198,7 @@ export default {
                 getOneBodyInfo(this.id)
                     .then((res) => {
                         this.post = res.data.data;
+                        document.title = this.post.title;
                         //获取作者作品 和 系统推荐作品
                         this.getRandombodyList();
                         this.getUserInfo();
@@ -234,13 +277,88 @@ export default {
 @fontColor-dark2: rgba(255, 255, 255, 0.4);
 @btnBgColor: #24292e;
 @btnBgColor-dark: #fedaa3;
+.m-face-data_copy{
+    .w(100%);
 
+    .u-copy-box,.u-data-box{
+        .w(100%);
+        .flex;
+        .flex(o);
+        flex-direction: column;
+        gap:1.25rem;
+        .u-copy-top{
+            .flex;
+            .flex(o);
+            flex-direction: column;
+        }
+    }
+    .u-label{
+        color: rgba(255, 255, 255, 0.40);
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+    }
+    .u-number{
+        .w(100%);
+        .flex;
+        padding: 1rem;
+        align-items: flex-start;
+        gap: 0.25rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: #FF7991;
+        box-sizing: border-box;
+        color: @fontBgColor;
+
+        .fz(0.75rem,1.125rem);
+        .bold(700);
+    }
+    .u-copy-btn{
+        .flex;
+        .flex(o);
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: #FEDAA3;
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+    }
+    .u-no-data-btn{
+        .flex;
+        .flex(o);
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: rgba(255, 255, 255, 0.10);
+        color: rgba(255, 255, 255, 0.40);
+        .fz(0.875rem,1.25rem);
+        .bold(700);
+    }
+}
 .p-body-detail {
     height: 100vh;
     background-color: #fafafa;
     overflow: auto;
-    .pb(1.111rem);
+    .pb(3.5rem);
     box-sizing: border-box;
+    .u-copy-icon{
+        .size(1.5rem,1.5rem);
+        svg, path {
+            fill: #fedaa3;
+            stroke: #fedaa3;
+        }
+    }
+
+    .m-base{
+        .w(100%);
+        .u-copy{
+            .w(100%);
+            .flex;
+            .flex(o);
+            gap:0.75rem;
+        }
+    }
 
     .m-body-detail_top {
         .pr;
@@ -255,7 +373,7 @@ export default {
                 .lt(0);
                 .dbi;
                 .z(1);
-                background: linear-gradient(180deg, rgba(250, 250, 250, 0) 44.67%, #fafafa 100%);
+                background: linear-gradient(180deg, #F8F8F8 0.04%,rgba(248,248,248, 0.00) 30%, rgba(248,248,248, 0.00) 70%, #FAFAFA 100%);
             }
 
             img {
@@ -409,7 +527,7 @@ export default {
         margin: 0 1.111rem 0.889rem 1.111rem;
         padding: 0.889rem;
         .r(0.667rem);
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%), #ff7991;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 100%), #79CEFF;
         color: #fff;
         .fz(0.667rem, 1rem);
 
@@ -533,7 +651,7 @@ export default {
         .m-body-detail_top {
             .u-img_item {
                 &::before {
-                    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%);
+                    background: linear-gradient(180deg, #1C1C1C 0.04%,rgba(0,0,0, 0.00) 20%, rgba(0,0,0, 0.00) 80%, #000000 100%);
                 }
             }
 
