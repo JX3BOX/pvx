@@ -311,6 +311,7 @@ export default {
             .flex;
             align-items: center;
             flex-wrap: wrap;
+            width: 100%;
             & > p:first-child {
                 .none;
             }
