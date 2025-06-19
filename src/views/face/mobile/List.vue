@@ -194,7 +194,7 @@ export default {
             //筛选区域参数，查询时将参数与queryParams合并
             queryFiltrateParamsBak:{
                 // body_type:-1,
-                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
                 is_unlimited:"", //是否可新建
@@ -204,7 +204,7 @@ export default {
             },
             queryFiltrateParams:{
                 // body_type:-1,
-                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
                 is_unlimited:"", //是否可新建
@@ -335,7 +335,7 @@ export default {
         filtrateReport(){
             this.queryFiltrateParams={
                 // ...this.queryFiltrateParams,
-                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
                 is_unlimited:"", //是否可新建

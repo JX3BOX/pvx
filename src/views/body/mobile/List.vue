@@ -58,12 +58,6 @@
 
             <!--                筛选区域-->
             <div class="m-filtrate" v-if="filtrateShow">
-<!--                <div class="u-filtrate-title">类型</div>-->
-<!--                <div class="u-box">-->
-<!--                    <div class="u-item all" :class="{'active':!queryFiltrateParams.is_new_face}"  @click="filtrateParams('is_new_face','')">全部</div>-->
-<!--                    <div class="u-item"  :class="{'active':queryFiltrateParams.is_new_face=='1'}"  @click="filtrateParams('is_new_face','1')">写实</div>-->
-<!--                    <div class="u-item"  :class="{'active':queryFiltrateParams.is_new_face=='0'}"  @click="filtrateParams('is_new_face','0')">写意</div>-->
-<!--                </div>-->
                 <div class="u-filtrate-title">标签</div>
                 <div class="u-box">
                     <div class="u-item all" :class="{'active':!queryFiltrateParams.star && queryFiltrateParams.price_type==''&&!queryFiltrateParams.is_unlimited}"  @click="filtrateParams(['star','price_type','is_unlimited'],'')">全部</div>
@@ -131,22 +125,22 @@ export default {
                 {
                     label: "成男体型",
                     list: [],
-                    params: { body_type: 1, pageIndex: 1, pageSize: 12, is_new_face: -1 },
+                    params: { body_type: 1, pageIndex: 1, pageSize: 12, filter_empty_images: "1" },
                 },
                 {
                     label: "成女体型",
                     list: [],
-                    params: { body_type: 2, pageIndex: 1, pageSize: 12, is_new_face: -1 },
+                    params: { body_type: 2, pageIndex: 1, pageSize: 12, filter_empty_images: "1" },
                 },
                 {
                     label: "正太体型",
                     list: [],
-                    params: { body_type: 5, pageIndex: 1, pageSize: 12, is_new_face: -1 },
+                    params: { body_type: 5, pageIndex: 1, pageSize: 12, filter_empty_images: "1" },
                 },
                 {
                     label: "萝莉体型",
                     list: [],
-                    params: { body_type: 6, pageIndex: 1, pageSize: 12, is_new_face: -1 },
+                    params: { body_type: 6, pageIndex: 1, pageSize: 12, filter_empty_images: "1" },
                 },
 
             ],
@@ -170,13 +164,13 @@ export default {
             //筛选区域参数，查询时将参数与queryParams合并
             queryFiltrateParamsBak:{
                 // body_type:-1,
-                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
             },
             queryFiltrateParams:{
                 // body_type:-1,
-                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
             }
@@ -303,7 +297,7 @@ export default {
         filtrateReport(){
             this.queryFiltrateParams={
                 // ...this.queryFiltrateParams,
-                filter_empty_images: "" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
                 price_type:"", //价格类型，0免费1盒子币2金箔
             }
@@ -339,11 +333,9 @@ export default {
                         {
                             client: this.client,
                             body_type: e,
-                            star: "",
                             pageIndex: 1,
                             pageSize: 1,
-                            filter_empty_images: "",
-                            price_type:""
+                            filter_empty_images: "1",
                         },
                         index,
                         true
