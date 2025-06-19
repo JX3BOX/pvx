@@ -80,7 +80,8 @@
                             </a>
                         </div>
                         <div class="img-wrap" :class="`u-quality-bg--` + item.Quality">
-                            <el-image v-if="item.SubType === 15" :src="getImgSrc(item)" class="u-image"> </el-image>
+                            <el-image v-if="item.SubType === 15" :src="getCdnImgUrl(item.ID)" class="u-image">
+                            </el-image>
                             <item-icon
                                 v-else
                                 class="u-image"
@@ -122,10 +123,10 @@
                     <img class="u-icon" src="@/assets/img/jx3box_qqbot_horse.svg" />
                 </div>
             </div>
-            <div class="m-pvx__item m-robot__horse-info">
+            <div class="m-robot__horse-info">
                 <div class="m-left">
                     <div class="img-wrap">
-                        <el-image v-if="item.SubType === 15" :src="getImgSrc(item)" class="u-image"> </el-image>
+                        <el-image v-if="item.SubType === 15" :src="getCdnImgUrl(item.ID)" class="u-image"> </el-image>
                         <item-icon
                             v-else
                             class="u-image"
@@ -201,7 +202,7 @@ import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";
-import { __imgPath, __dataPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath, __dataPath, __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
 
 export default {
     name: "Single",
@@ -350,6 +351,9 @@ export default {
         },
     },
     methods: {
+        getCdnImgUrl(id) {
+            return `${__cdn}design/horse/std/${id}.png`;
+        },
         goBack() {
             this.$router.push({ path: "/" });
         },
@@ -476,7 +480,11 @@ export default {
 .m-robot__horse-info {
     .flex;
     gap: 10px;
+    margin-top: 12px;
     .m-left {
+        .flex;
+        flex-direction: column;
+        gap: 10px;
         flex: none;
         width: 120px;
     }
@@ -489,7 +497,7 @@ export default {
         transition: all 0.5s;
     }
     .m-id {
-        margin-top: 10px;
+        flex: 1;
         .u-id {
             color: rgba(255, 168, 17, 1);
         }

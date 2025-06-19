@@ -57,7 +57,7 @@ export default {
 
 <style lang="less">
 .m-pvx-robot__bottom {
-    margin: 12px 0;
+    margin: 12px 0 0;
     width: 100%;
     height: 126px;
     border-radius: 8px;

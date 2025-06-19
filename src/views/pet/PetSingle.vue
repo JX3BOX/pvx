@@ -553,6 +553,7 @@ export default {
             .size(100px, 100px);
             object-fit: cover;
             .r(4px);
+            .db;
         }
     }
     .u-info {
@@ -577,15 +578,19 @@ export default {
         margin-bottom: 8px;
     }
     .m-skills {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        display: flex;
         flex-wrap: wrap;
         gap: 4px;
+        width: 100%;
     }
     .u-skill {
         .flex;
         align-items: center;
         gap: 4px;
+        width: 33.33%;
+    }
+    .u-skill-info {
+        width: calc(100% - 28px);
     }
     .u-skill-icon {
         .size(24px);
@@ -595,6 +600,7 @@ export default {
     }
     .u-skill-desc {
         color: rgba(255, 255, 255, 0.5);
+        width: 100%;
         .nobreak;
     }
 }
@@ -631,6 +637,9 @@ export default {
         &.u-quality-5 {
             border-color: rgba(255, 168, 17, 1);
         }
+    }
+    .u-fetter-name {
+        text-align: center;
     }
     .u-fetter-name.is-active {
         color: #fff;

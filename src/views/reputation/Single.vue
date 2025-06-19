@@ -176,7 +176,7 @@
             </div>
             <div class="m-pvx__item m-robot__reputation-info">
                 <div class="u-reputation-logo">
-                    <img v-if="getIcon(reputation.szIconPath)" :src="getIcon(reputation.szIconPath)" />
+                    <img v-if="getIcon(reputation.szIconPath)" width="28" :src="getIcon(reputation.szIconPath)" />
                 </div>
                 <div class="u-intro" v-html="reputation.szDesc"></div>
             </div>
@@ -239,7 +239,7 @@
                     <div class="sub-title u-zf">
                         知交祝福
                         <span>{{ reputation.servant.szBuffName }}</span>
-                        {{ reputation.servant.szBuffDesc }}
+                        {{ reputation.servant.szBuffDesc?.replace("。", "") }}
                     </div>
                     <div class="u-desc" v-html="reputation.servant.szDescBrief"></div>
                     <div class="u-desc" v-html="reputation.servant.szDescPersonality.replace(/\\n/g, '<br>')"></div>
@@ -755,6 +755,7 @@ export default {
     .reward-content {
         background: none !important;
         box-shadow: none !important;
+        padding: 6px !important;
     }
     .item {
         background: rgba(28, 28, 28, 1) !important;
@@ -787,7 +788,7 @@ export default {
         gap: 0;
     }
     .u-item-name {
-        font-size: 10px;
+        font-size: 10px !important;
     }
 }
 .m-robot__reputation-servant {
@@ -809,6 +810,7 @@ export default {
         .r(2px);
         border: 1px solid rgba(255, 232, 23, 1);
         margin: 4px 0;
+        padding: 0 4px;
     }
     .u-desc {
         color: rgba(#fff, 0.5);

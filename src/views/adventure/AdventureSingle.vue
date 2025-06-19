@@ -52,23 +52,18 @@
             </pvx-user>
         </template>
         <template v-else>
-            <div class="m-robot__adventure-header" :class="isPerfect ? 'is-perfect' : ''">
-                <div class="m-title">
-                    <div class="u-title">{{ robotTitle }}</div>
+            <div class="m-robot__adventure-header is-perfect">
+                <div class="m-left">
+                    <div class="m-title">
+                        <img :src="require(`@/assets/img/jx3box_qqbot_adventure_${robotIcon}.svg`)" />
+                        <div class="u-title">{{ robotTitle }}</div>
+                    </div>
+                    <div class="m-reward">
+                        <!-- <span>奖励：</span> -->
+                        <div class="u-reward" v-html="rewardContent"></div>
+                    </div>
                 </div>
-                <div class="m-reward">
-                    <!-- <span>奖励：</span> -->
-                    <div class="u-reward" v-html="rewardContent"></div>
-                </div>
-                <!-- <div class="m-rewards" v-if="data?.RewdItem?.split(';')?.length">
-                    奖励：
-                    <item_icon
-                        :item_id="String(item)"
-                        :size="16"
-                        v-for="(item, i) in data.RewdItem.split(';')"
-                        :key="i"
-                    ></item_icon>
-                </div> -->
+                <img class="u-right-icon" src="@/assets/img/jx3box_qqbot_adventure.svg" alt="" />
             </div>
             <div class="m-robot-item m-robot__adventure-condition">
                 <img class="u-pvx-logo" :src="imgUrl" />
@@ -163,6 +158,16 @@ export default {
         },
         isPerfect() {
             return !!this.data?.bPerfect;
+        },
+        robotIcon() {
+            let typeIcon = "normal"; // 普通奇遇
+            if (this.isPerfect) {
+                typeIcon = "perfect"; // 绝世奇遇
+            }
+            if (this.data?.nClassify === 1) {
+                typeIcon = "pet"; // 宠物奇遇
+            }
+            return typeIcon;
         },
         robotTitle() {
             let titlePrefix = "奇遇";
@@ -264,7 +269,11 @@ export default {
 <style lang="less">
 @import "~@/assets/css/adventure/single.less";
 .m-robot__adventure-header {
-    padding: 12px;
+    .flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 20px 12px 12px;
     width: 100%;
     min-height: 75px;
     opacity: 1;
@@ -278,22 +287,18 @@ export default {
 
         border: 1px solid rgba(255, 195, 0, 1);
     }
+    .m-left {
+        flex: 1;
+    }
+    .m-title {
+        .flex;
+        align-items: center;
+        gap: 5px;
+    }
     .u-title {
         font-size: 20px;
         .bold;
         color: #fff;
-    }
-    .m-rewards {
-        .flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 5px;
-        margin-top: 4px;
-        color: rgba(255, 235, 59, 1);
-        font-size: 12px;
-        .u-item .u-item-name {
-            font-size: 12px;
-        }
     }
     .m-reward {
         margin-top: 4px;
@@ -303,6 +308,7 @@ export default {
         gap: 4px;
         font-size: 12px;
         color: #ffeb3b;
+        width: 100%;
         span {
             flex: none;
         }
@@ -311,7 +317,7 @@ export default {
             .flex;
             align-items: center;
             flex-wrap: wrap;
-            width: 100%;
+            width: 460px;
             & > p:first-child {
                 .none;
             }
@@ -336,7 +342,7 @@ export default {
             color: #ffeb3b !important;
             font-size: 12px !important;
             white-space: pre-wrap;
-            max-width: 94%;
+            max-width: 460px;
             display: inline-block;
         }
         div {

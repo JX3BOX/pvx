@@ -583,7 +583,7 @@ export default {
             });
         },
         getLink,
-        splitText(text, ratios = [3, 3.5, 3.5]) {
+        splitText(text, ratios = [3.2, 3.4, 3.4]) {
             const segments = [];
             const totalLength = text.length;
 
@@ -823,7 +823,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 12px 12px 12px 12px;
+    padding: 12px 0;
     color: rgba(69, 41, 30, 1);
     .u-title {
         font-size: 16px;
@@ -838,7 +838,7 @@ export default {
         grid-template-columns: repeat(3, 1fr);
     }
     .u-content {
-        padding: 0 20px;
+        padding: 0 12px;
         box-sizing: border-box;
         font-size: 10px;
         &:nth-child(2) {
