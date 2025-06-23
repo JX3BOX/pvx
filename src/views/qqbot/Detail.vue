@@ -1,15 +1,15 @@
 <template>
-    <div class="p-qqrobot-pvx-detail">
+    <div v-if="!isTreasure" class="p-qqrobot-pvx-detail">
         <div class="m-pvx__container">
             <AdventureSingle v-if="type === 'adventure'" :is-robot="true" :source-id="id"></AdventureSingle>
             <PetSingle v-if="type === 'pet'" :is-robot="true" :source-id="id"></PetSingle>
             <HorseSingle v-if="type === 'horse'" :is-robot="true" :source-id="id"></HorseSingle>
             <ReputationSingle v-if="type === 'reputation'" :is-robot="true" :source-id="id"></ReputationSingle>
             <BookSingle v-if="type === 'book'" :is-robot="true" :source-id="id"></BookSingle>
-
             <RobotBottom :type="type" :id="id"></RobotBottom>
         </div>
     </div>
+    <Treasure v-else></Treasure>
 </template>
 
 <script>
@@ -19,6 +19,7 @@ import HorseSingle from "@/views/horse/HorseSingle.vue";
 import ReputationSingle from "@/views/reputation/Single.vue";
 import BookSingle from "@/views/book/Single.vue";
 import RobotBottom from "./Bottom.vue";
+import Treasure from "./Treasure.vue";
 export default {
     name: "QQRobotPvxDetail",
     components: {
@@ -28,6 +29,7 @@ export default {
         ReputationSingle,
         BookSingle,
         RobotBottom,
+        Treasure,
     },
     computed: {
         type() {
@@ -35,6 +37,9 @@ export default {
         },
         id() {
             return this.$route.query.id || "";
+        },
+        isTreasure() {
+            return this.type === "treasure";
         },
     },
     mounted() {},
