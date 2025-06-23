@@ -13,12 +13,12 @@ export function getUserInfo() {
 
 // 获取用户角色
 export function getUserRoles() {
-    return $team({ proxy: true }).get(`api/team/my-game-roles?nopage`);
+    return $team().get(`api/team/my-game-roles?nopage`);
 }
 
 // 获取角色的成就状态
 export function getRoleGameAchievements(jx3id) {
-    return $next({ proxy: true }).get(`/api/next2/user-achievements`, {
+    return $next().get(`/api/next2/user-achievements`, {
         params: {
             jx3id,
         },
@@ -27,7 +27,7 @@ export function getRoleGameAchievements(jx3id) {
 
 // 根据服务器和角色名获取角色成就
 export function getRoleGameAchievementsByRoleAndServer(params) {
-    return $next({ proxy: true }).get(`/api/next2/user-achievements/by-role-and-server`, {
+    return $next().get(`/api/next2/user-achievements/by-role-and-server`, {
         params,
     });
 }
