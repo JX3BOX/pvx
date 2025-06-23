@@ -48,6 +48,7 @@ export default {
             currentCamp: "hq",
             isOver: false,
             imgRoot: __imgPath + "adventure/",
+            mount: "",
         };
     },
     computed: {
@@ -69,7 +70,7 @@ export default {
         roleInfo() {
             return {
                 name: this.role,
-                mount: "",
+                mount: this.mount || "",
             };
         },
     },
@@ -79,7 +80,9 @@ export default {
             deep: true,
             handler(params) {
                 getRoleGameAchievementsByRoleAndServer(params).then((res) => {
-                    const userJx3Id = res.data?.data?.jx3id || "";
+                    const data = res.data?.data || {};
+                    const userJx3Id = data.jx3id || "";
+                    this.mount = data.mount || "";
                     if (userJx3Id) {
                         treasureCommon(userJx3Id).then((res) => {
                             if (this.isLandscape) {
