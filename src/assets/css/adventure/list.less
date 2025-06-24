@@ -268,6 +268,101 @@
         text-align: center;
         padding-top: 20px;
     }
+    .m-base {
+        .w(100%);
+    }
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
+
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            gap: 0.5rem;
+            //.w(7.5rem);
+            flex: 1;
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+            .u-icon {
+                .size(1.25rem, 1.25rem);
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
+                }
+            }
+        }
+    }
+
+    .p-adventure-drawer-type {
+        .u-drawer-title {
+            .fz(18px,20px);
+            .bold();
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .m-drawer-content {
+            .mt(12px);
+            display: flex;
+            gap: 8px;
+            .m-type-item {
+                flex: 1;
+                padding: 16px 0;
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                .u-type-icon {
+                    display: block;
+                    margin: 0 auto;
+                    .size(60px,60px);
+                    svg,
+                    path {
+                        fill: rgba(255, 255, 255, 0.8);
+                        stroke: rgba(255, 255, 255, 0.8);
+                    }
+                }
+
+                .u-type-name {
+                    .mt(8px);
+                    .fz(14px,20px);
+                    .bold();
+                    text-align: center;
+                    // color: #000;
+                    color: rgba(255, 255, 255, 0.6);
+                }
+
+                &.is-active {
+                    background-color: #fedaa3;
+
+                    .u-type-icon {
+                        svg,
+                        path {
+                            fill: #24292e;
+                            stroke: #24292e;
+                        }
+                    }
+
+                    .u-type-name {
+                        color: #000;
+                    }
+                }
+            }
+        }
+
+        .m-search-input {
+            .mt(12px);
+            .u-input {
+                .fz(14px,20px);
+                width: 100%;
+                box-sizing: border-box;
+                background-color: transparent;
+                color: #fedaa3;
+                background-color: rgba(255, 255, 255, 0.1);
+                border: none;
+                padding: 12px;
+                border-radius: 6px;
+            }
+        }
+    }
 }
 @media (prefers-color-scheme: dark) {
     .v-miniprogram {
@@ -324,64 +419,6 @@
                 .u-name {
                     color: @Brand-2-dark;
                 }
-            }
-        }
-    }
-}
-// TODO 调试用，可删除
-.dark.v-miniprogram {
-    &::after {
-        background-color: #000;
-    }
-
-    .m-type-list {
-        color: @black-40-dark;
-        background-color: #000;
-
-        .u-type-item {
-            &.is-active {
-                color: @black-100-dark;
-                &::after {
-                    background-color: @black-100-dark;
-                }
-            }
-        }
-    }
-    .m-adventure-list {
-        .u-all-type {
-            .u-title {
-                color: @black-80-dark;
-            }
-        }
-        .m-card-banner-list {
-            .m-card-banner-list_header {
-                .u-title {
-                    color: @black-80-dark;
-                }
-            }
-            .m-card-banner-list_box {
-                .m-cardlist-items {
-                    .m-cardlist-item {
-                        background-color: transparent;
-                        border-color: transparent;
-                        .m-adventure-item {
-                            background-color: @brand4;
-                            border-color: transparent;
-                            .u-name {
-                                color: @Brand-2-dark;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    .m-face-list--all {
-        .m-adventure-item {
-            background-color: @brand4;
-            border-color: transparent;
-            .u-name {
-                color: @Brand-2-dark;
             }
         }
     }

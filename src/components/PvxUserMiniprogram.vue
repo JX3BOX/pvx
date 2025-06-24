@@ -3,7 +3,7 @@
     <div class="w-pvx-user__miniprogram">
         <div v-if="isMiniProgram && name == '奇遇'" class="u-adventure-tips">← 左右滑动可以查看奇遇流程故事 →</div>
         <!--攻略-->
-        <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
+        <div id="mini-wiki-post-panel" class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
                 <template slot="head-title">
                     <img class="u-icon" svg-inline src="@/assets/img/item.svg" />
@@ -88,7 +88,7 @@
             :client="client"
         /> -->
         <!-- 百科评论 -->
-        <WikiComments v-if="!isFromSeasun" :type="type" :source-id="String(id)" />
+        <WikiComments id="mini-wiki-comments" v-if="!isFromSeasun" :type="type" :source-id="String(id)" />
     </div>
 </template>
 
