@@ -7,9 +7,9 @@
 
         <div class="m-search" :class="{ 'search-bottom': isFirstSearch }">
             <div
-                class="m-icon"
+                class="m-icon active"
                 :class="{
-                    active: isFirstSearch || inputFocus || searchVal.length > 0,
+                    // active: isFirstSearch || inputFocus || searchVal.length > 0,
                 }"
             >
                 <img class="u-icon" src="@/assets/img/exam/mobile/search.svg" svg-inline />
@@ -21,8 +21,8 @@
                 @focus="inputFocus = true"
                 @blur="inputFocus = false"
                 type="text"
-                placeholder="输入2个关键词搜索"
-                @input="searchEvent"
+                :placeholder="inputFocus ? '' : '输入2个关键词搜索'"
+                @keyup.enter="searchEvent"
                 v-model="searchVal"
             />
             <i v-if="reqLoading" class="el-icon-loading"></i>
@@ -195,9 +195,6 @@ export default {
         &.search-bottom {
             bottom: 30px;
             background-color: #24292e;
-            .u-input {
-                text-align: left;
-            }
         }
 
         .m-icon {
@@ -235,7 +232,7 @@ export default {
             border: none;
             font-size: 14px;
             line-height: 20px;
-            text-align: center;
+            text-align: left;
             &::placeholder {
                 color: #fedaa3;
             }
