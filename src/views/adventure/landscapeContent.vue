@@ -34,6 +34,11 @@
                                     class="u-qy__img"
                                     :src="getCdnImgUrl(`pt/${item.dwID}_er.png`)"
                                 />
+                                <img
+                                    v-show="!currentCamp"
+                                    class="u-qy__img"
+                                    :src="getCdnImgUrl(`pt/${item.dwID}.png`)"
+                                />
                             </template>
                             <el-image v-else class="u-qy__img" :src="getCdnImgUrl(`pt/${item.dwID}.png`)">
                                 <el-image slot="error" class="u-qy__img" :src="getCdnImgUrl(`pt/default.png`)">
