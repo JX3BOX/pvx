@@ -90,6 +90,11 @@
                                                 class="u-qy__img"
                                                 :src="getCdnImgUrl(`pt/${item.dwID}_er.png`)"
                                             />
+                                            <img
+                                                v-show="!currentCamp"
+                                                class="u-qy__img"
+                                                :src="getCdnImgUrl(`pt/${item.dwID}.png`)"
+                                            />
                                         </template>
                                         <el-image v-else class="u-qy__img" :src="getCdnImgUrl(`pt/${item.dwID}.png`)">
                                             <el-image
@@ -223,7 +228,7 @@ export default {
         roleList: [],
         noRole: false,
         currentRole: "",
-        currentCamp: "hq",
+        currentCamp: "",
         roleInfo: {},
         isLogin: User.isLogin(),
         virtualRole: {
@@ -262,8 +267,8 @@ export default {
         // isphone
         const isPhone = window.innerWidth < 768;
         if (isPhone) {
-            this.$router.push({name: "portrait"});
-            return
+            this.$router.push({ name: "portrait" });
+            return;
         }
         getUserRoles().then((res) => {
             if (res.data.data.list.length) {
