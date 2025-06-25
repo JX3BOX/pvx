@@ -200,8 +200,12 @@
     }
 }
 
+@black-80: rgba(28, 28, 28, 0.8);
+@black-80-dark: rgba(255, 255, 255, 0.8);
 @black-100: #1c1c1c;
 @black-100-dark: #ffffff;
+@Brand4: #ffffff;
+@Brand4-dark: #282828;
 .v-miniprogram {
     .m-main {
         padding-top: 0;
@@ -248,6 +252,117 @@
             display: none;
         }
     }
+
+    .m-base {
+        .w(100%);
+    }
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
+
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            gap: 0.5rem;
+            //.w(7.5rem);
+            flex: 1;
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+            .u-icon {
+                .size(1.25rem, 1.25rem);
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
+                }
+            }
+        }
+    }
+
+    .p-adventure-drawer {
+        .u-drawer-title {
+            .fz(18px,28px);
+            .bold;
+            color: #fedaa3;
+        }
+        .m-drawer-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            .mt(16px);
+            .u-nav-item {
+                .fz(14px,20px);
+                padding: 12px 20px;
+                border-radius: 12px;
+                background-color: rgba(255, 255, 255, 0.05);
+                color: white;
+                &.is-active {
+                    color: #32ade6;
+                }
+            }
+        }
+    }
+
+    // task
+    .m-task-container {
+        display: flex;
+        overflow-x: scroll;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 20px;
+        user-select: none;
+        flex-grow: 1;
+
+        .m-task-item-box {
+            .size(240px, 460px);
+            flex-shrink: 0;
+            box-sizing: border-box;
+            padding: 20px;
+            background-color: @Brand4;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            color: @black-80;
+
+            .u-task-item-img {
+                .size(160px);
+            }
+            .u-task-item-name {
+                .bold;
+                text-align: center;
+            }
+        }
+        .m-task-header {
+            justify-content: center;
+            align-items: center;
+            .u-task-name {
+                .fz(16px,80px);
+                .mt(12px);
+            }
+        }
+        .m-task-item {
+            .m-task-icon {
+                display: block;
+                margin: 0 auto;
+            }
+            .m-task-content {
+                .mt(12px);
+                flex: 1;
+                overflow-y: scroll;
+                &::-webkit-scrollbar {
+                    display: none;
+                }
+                .m-task-goal {
+                    .fz(14px,20px);
+                }
+                .u-task-desc {
+                    .mt(12px);
+                    .fz(12px,18px);
+                }
+            }
+        }
+    }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -265,21 +380,13 @@
                 display: none;
             }
         }
-    }
-}
-// 调试用，可删除
-.dark.v-miniprogram {
-    &::after {
-        background-color: #000;
-    }
-    .m-adventure-header {
-        background-color: #000;
-        .m-adventure-title {
-            .fz(16px,48px);
-            color: @black-100-dark;
-        }
-        .m-trigger-links {
-            display: none;
+
+        // task
+        .m-task-container {
+            .m-task-item-box {
+                background-color: @Brand4-dark;
+                color: @black-80-dark;
+            }
         }
     }
 }

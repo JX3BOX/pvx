@@ -94,7 +94,7 @@ export default {
         roleList: [],
         noRole: false,
         currentRole: "",
-        currentCamp: "hq",
+        currentCamp: "",
         roleInfo: {},
         isLogin: User.isLogin(),
         virtualRole: {

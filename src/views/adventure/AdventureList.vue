@@ -1,8 +1,7 @@
 <template>
     <div class="p-adventure-List p-common-list" v-loading="loading" ref="listRef">
-        <PvxSuspension v-if="isMiniProgram" isType="list" />
         <AdventureTabs :active="active" :body_types="list" @setActive="setActive" @change="onSearch" />
-        <div class="m-type-list">
+        <!-- <div class="m-type-list">
             <div
                 class="u-type-item"
                 :class="{
@@ -14,7 +13,7 @@
             >
                 {{ item.label }}
             </div>
-        </div>
+        </div> -->
         <template v-if="active === 'all'">
             <div
                 v-for="(item, index) in list"
@@ -86,6 +85,72 @@
         <div class="u-archive-alert" v-if="noList || (subList && !subList.length)">
             <el-alert title="没有对应的奇遇，请重新查找" type="info" center show-icon />
         </div>
+
+        <SuspendCommon
+            :btnOptions="{ showHome: true }"
+            :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }"
+            v-if="isMiniProgram"
+        >
+            <template #default>
+                <div class="m-suspend-btn">
+                    <div class="u-btn-item line" @click="showTypeForm = true">
+                        <img class="u-icon" src="@/assets/img/adventure/switch_icon.svg" />
+                        <span>{{ typeName }}</span>
+                    </div>
+                    <div class="u-btn-item" @click="showSearchForm = true">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/search.svg" svg-inline />
+                        <span>搜索</span>
+                    </div>
+                </div>
+            </template>
+        </SuspendCommon>
+
+        <!-- 奇遇切换 -->
+        <el-drawer
+            :visible.sync="showTypeForm"
+            direction="btt"
+            :with-header="false"
+            custom-class="u-drawer"
+            :modal-append-to-body="false"
+            append-to-body
+            class="p-drawer-suspend p-adventure-drawer-type"
+        >
+            <div class="u-drawer-title">类型</div>
+            <div class="m-drawer-content">
+                <div class="m-type-item" :class="{ 'is-active': active === 'all' }" @click="setActive('all')">
+                    <img class="u-type-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
+                    <div class="u-type-name">全部</div>
+                </div>
+                <div class="m-type-item" :class="{ 'is-active': active === 'perfect' }" @click="setActive('perfect')">
+                    <img class="u-type-icon" src="@/assets/img/adventure/perfect.svg" svg-inline />
+                    <div class="u-type-name">绝世</div>
+                </div>
+                <div class="m-type-item" :class="{ 'is-active': active === 'normal' }" @click="setActive('normal')">
+                    <img class="u-type-icon" src="@/assets/img/adventure/normal.svg" svg-inline />
+                    <div class="u-type-name">普通</div>
+                </div>
+                <div class="m-type-item" :class="{ 'is-active': active === 'pet' }" @click="setActive('pet')">
+                    <img class="u-type-icon" src="@/assets/img/adventure/pet.svg" svg-inline />
+                    <div class="u-type-name">宠物</div>
+                </div>
+            </div>
+        </el-drawer>
+
+        <!-- 奇遇搜索 -->
+        <el-drawer
+            :visible.sync="showSearchForm"
+            direction="btt"
+            :with-header="false"
+            custom-class="u-drawer"
+            :modal-append-to-body="false"
+            append-to-body
+            class="p-drawer-suspend p-adventure-drawer-type"
+        >
+            <div class="u-drawer-title">搜索</div>
+            <div class="m-search-input">
+                <input type="text" class="u-input" placeholder="请输入搜索内容" @input="onMiniSearch" />
+            </div>
+        </el-drawer>
     </div>
 </template>
 
@@ -98,12 +163,11 @@ import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import dayjs from "@/utils/day";
-
-import PvxSuspension from "@/components/PvxSuspension.vue";
+import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 export default {
     name: "adventureList",
     props: [],
-    components: { PvxSuspension, CardBannerList, AdventureTabs, AdventureItem },
+    components: { CardBannerList, AdventureTabs, AdventureItem, SuspendCommon },
     data: function () {
         return {
             loading: false,
@@ -157,6 +221,9 @@ export default {
             },
 
             isMiniProgram: isMiniProgram(),
+
+            showTypeForm: false,
+            showSearchForm: false,
         };
     },
     computed: {
@@ -208,6 +275,7 @@ export default {
         // 设置当前tab
         setActive(val) {
             this.active = val;
+            this.showTypeForm = false;
             document.documentElement.scrollTop = 0;
         },
         // 加载数据
@@ -272,6 +340,13 @@ export default {
         onSearch(params) {
             this.page = 1;
             this.tabsData = params;
+        },
+        onMiniSearch(event) {
+            this.page = 1;
+            this.tabsData = {
+                name: event.target.value,
+                type: this.active,
+            };
         },
         // 按宽度显示个数
         showCount() {

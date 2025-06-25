@@ -1,14 +1,46 @@
 <template>
     <div class="p-adventure-single" v-if="id" v-loading="loading">
         <template v-if="!isRobot">
-            <!-- TODO需更换参数 -->
-            <PvxSuspension
-                isType="single"
-                type="adventure"
-                :id="id"
-                :title="title"
-                :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }"
-            />
+            <SuspendCommon
+                :btnOptions="{ showHome: true }"
+                :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }"
+                v-if="isMiniProgram"
+            >
+                <template #default>
+                    <div class="m-suspend-btn">
+                        <div class="u-btn-item" @click="showCatalogDrawer = true">
+                            <img class="u-icon" src="@/assets/img/adventure/catalog_icon.svg" />
+                            <span>导航目录</span>
+                        </div>
+                    </div>
+                </template>
+            </SuspendCommon>
+
+            <!-- 导航目录 -->
+            <el-drawer
+                :visible.sync="showCatalogDrawer"
+                direction="btt"
+                :with-header="false"
+                custom-class="u-drawer"
+                :modal-append-to-body="false"
+                append-to-body
+                class="p-drawer-suspend p-adventure-drawer"
+            >
+                <div class="u-drawer-title">导航</div>
+                <div class="m-drawer-nav">
+                    <div
+                        class="u-nav-item"
+                        v-for="(item, index) in drawerNav"
+                        :key="index"
+                        :class="drawerNavCurrentId === item.id ? 'is-active' : ''"
+                        v-show="item.show"
+                        @click="drawerNavCurrentIdHref(item.id)"
+                    >
+                        {{ item.label }}
+                    </div>
+                </div>
+            </el-drawer>
+
             <div class="m-adventure-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <PvxSingleAdminDrop></PvxSingleAdminDrop>
@@ -112,7 +144,7 @@ import Serendipity from "@/components/common/serendipity.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
-import PvxSuspension from "@/components/PvxSuspension.vue";
+import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
@@ -124,7 +156,7 @@ export default {
         Serendipity,
         PvxUser,
         PvxUserMiniprogram,
-        PvxSuspension,
+        SuspendCommon,
         PvxSingleAdminDrop,
         // item_icon,
     },
@@ -144,6 +176,27 @@ export default {
             rewardContent: "",
             camp: 1,
             force: 2,
+
+            showCatalogDrawer: false,
+
+            drawerNav: [
+                {
+                    label: "奇遇故事",
+                    id: "mini-task-container",
+                    show: true,
+                },
+                {
+                    label: "攻略",
+                    id: "mini-wiki-post-panel",
+                    show: true,
+                },
+                {
+                    label: "评论",
+                    id: "mini-wiki-comments",
+                    show: true,
+                },
+            ],
+            drawerNavCurrentId: "mini-task-container",
         };
     },
     computed: {
@@ -261,8 +314,36 @@ export default {
         goSearch() {
             this.$router.push({ name: "list", params: { search: this.search } });
         },
+        drawerNavCurrentIdHref(id) {
+            // this.drawerNavCurrentId = id;
+            let nav = document.getElementById(id);
+            if (nav) {
+                nav.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+            }
+        },
     },
-    mounted: function () {},
+    mounted: function () {
+        if (!document.getElementById("mini-wiki-comments")) {
+            this.drawerNav[2].show = false;
+        }
+
+        window.addEventListener("scroll", () => {
+            const navElements = this.drawerNav.map((item) => document.getElementById(item.id)).filter(Boolean);
+            for (const nav of navElements) {
+                const rect = nav.getBoundingClientRect();
+                if (rect.top <= 100 && rect.bottom >= 100) {
+                    this.drawerNavCurrentId = nav.id;
+                    break;
+                }
+            }
+        });
+    },
+    destroyed() {
+        window.removeEventListener("scroll");
+    },
 };
 </script>
 
