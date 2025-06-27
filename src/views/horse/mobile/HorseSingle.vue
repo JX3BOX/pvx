@@ -57,7 +57,7 @@
                 </div>
             </div>
     <!--        属性模块-->
-            <div class="m-box m-attrs">
+            <div class="m-box m-attrs" v-if="basicAttrs.length">
                 <div class="u-title">属性</div>
                 <div class="u-attrs">
                     <div class="u-attr-item" v-for="attr in basicAttrs" :key="attr.id">
@@ -80,7 +80,7 @@
                     </div>
                 </div>
             </div>
-            <div class="m-box m-attrs">
+            <div class="m-box m-attrs" v-if="magicAttrs.length">
                 <div class="u-title">特殊属性</div>
                 <div class="u-attrs">
                     <div class="u-attr-item" v-for="(attr, index) in magicAttrs" :key="index">
@@ -105,7 +105,7 @@
             </div>
         </div>
 <!--        同类坐骑-->
-        <div class="m-same-horses">
+        <div class="m-same-horses"  v-if="sameList.length">
             <div class="m-title">同类坐骑</div>
             <div class="m-horse-card">
                 <div class="u-item" v-for="item in sameList" :key="item?.ID" @click="openOther(item)">
@@ -115,7 +115,7 @@
                 </div>
             </div>
         </div>
-        <PvxUserMiniprogram :id="id" name="坐骑" type="item"></PvxUserMiniprogram>
+        <div> <PvxUserMiniprogram :id="id" name="坐骑" type="item"></PvxUserMiniprogram></div>
     </div>
 </template>
 <script>
