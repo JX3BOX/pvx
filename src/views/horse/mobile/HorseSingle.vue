@@ -51,7 +51,7 @@
                     <div class="u-title">捕获地图</div>
                     <div class="u-text">{{ originDatas }}</div>
                 </div>
-                <div class="u-item">
+                <div class="u-item"  v-if="type !== '2'">
                     <div class="u-title">饲料</div>
                     <div class="u-text">{{ feedName }}</div>
                 </div>

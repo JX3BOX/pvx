@@ -67,7 +67,7 @@
     <!--        普通坐骑-->
             <div class="m-title">普通坐骑</div>
             <div class="m-horse-card">
-                <div class="u-item" v-for="item in typeList?.[1]?.list" :key="item?.ID" @click="openOther(item)">
+                <div class="u-item" v-for="item in typeList?.[1]?.list" :key="item?.ID" @click="openOther(item,0)">
                     <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
                     <div class="u-name">
                         <scrollingText :showText="item.Name"/>
@@ -78,7 +78,7 @@
     <!--        马具-->
             <div class="m-title">马具</div>
             <div class="m-harness-card">
-                <div class="u-harness-item"  v-for="(item) in typeList?.[3]?.list" :key="item?.ID"  @click="openOther(item)">
+                <div class="u-harness-item"  v-for="(item) in typeList?.[3]?.list" :key="item?.ID"  @click="openOther(item,2)">
 <!--                    <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />-->
                     <item-icon  :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true" ></item-icon>
                     <div class="u-info">
@@ -93,7 +93,7 @@
     <!--        奇趣坐骑-->
             <div class="m-title">奇趣坐骑</div>
             <div class="m-horse-card">
-                <div class="u-item" v-for="item in typeList?.[2]?.list" :key="item?.ID"  @click="openOther(item)">
+                <div class="u-item" v-for="item in typeList?.[2]?.list" :key="item?.ID"  @click="openOther(item,1)">
                     <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
                     <div class="u-name"><scrollingText :showText="item.Name"/></div>
                     <div class="u-id">ID：{{ item.ID }}</div>
@@ -103,7 +103,7 @@
         <div class="m-list" v-else>
 <!--        坐骑类列表-->
         <div class="m-horse-card" v-if="showHorse">
-            <div class="u-item" v-for="item in listData" :key="'list'+item.ID"  @click="openOther(item)">
+            <div class="u-item" v-for="item in listData" :key="'list'+item.ID"  @click="openOther(item,listQueryParams.type)">
                 <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
                 <div class="u-name">
                     <scrollingText :showText="item.Name"/>
@@ -113,7 +113,7 @@
         </div>
 <!--        马具列表-->
         <div class="m-harness-card" v-else>
-            <div class="u-harness-item"  v-for="item in listData" :key="'list'+item.ID"  @click="openOther(item)">
+            <div class="u-harness-item"  v-for="item in listData" :key="'list'+item.ID"  @click="openOther(item,1)">
                 <item-icon  :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true" ></item-icon>
                 <div class="u-info">
                     <div class="u-name"><scrollingText :showText="item.Name"/></div>
@@ -222,8 +222,8 @@ export default {
                 return `${__cdn}/design/horse/${client}/${item.ID}.png`
             }
         },
-        openOther(item){
-            wxNewPage(`/horse/${item.ItemID}?type=${this.type}`)
+        openOther(item,type){
+            wxNewPage(`/horse/${item.ItemID}?type=${type}`)
         },
         search(){
             wx.miniProgram.navigateTo({ url: `/pages/search/search-detail/search-detail?app=坐骑&filter_name=pvxhorse` });
