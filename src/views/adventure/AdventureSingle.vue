@@ -3,7 +3,7 @@
         <template v-if="!isRobot">
             <SuspendCommon
                 :btnOptions="{ showHome: true }"
-                :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }"
+                :drawerOptions="{ hideType: hideType }"
                 v-if="isMiniProgram"
             >
                 <template #default>
@@ -60,6 +60,7 @@
                         <i class="el-icon-trophy"></i>
                         成就信息
                     </a>
+                    <PvxRobotTip v-if="!isRobot" type-name="奇遇" :reply="title"></PvxRobotTip>
                 </div>
             </div>
             <div class="m-adventure-content">
@@ -148,6 +149,7 @@ import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {
     name: "adventureSingle",
     props: ["isRobot", "sourceId"],
@@ -158,10 +160,12 @@ export default {
         PvxUserMiniprogram,
         SuspendCommon,
         PvxSingleAdminDrop,
+        PvxRobotTip,
         // item_icon,
     },
     data: function () {
         return {
+            hideType: ["collect", "rss", "laterOn", "pin", "user", "report"],
             type: "adventure",
             achieve_id: "",
             data: "",

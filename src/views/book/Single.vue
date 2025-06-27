@@ -3,7 +3,10 @@
         <template v-if="!isRobot">
             <div class="back-wrap">
                 <el-button @click="goBack">返回列表</el-button>
-                <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                <div class="u-back-right">
+                    <PvxRobotTip v-if="!isRobot" type-name="书籍" :reply="book.Name"></PvxRobotTip>
+                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                </div>
             </div>
             <div v-if="book" class="book-single-content" v-loading="loading">
                 <div class="book-header">
@@ -287,6 +290,7 @@ import ItemIcon from "@/components/book/common/item_icon.vue";
 import BookCard from "@/components/book/BookCard";
 import PvxUser from "@/components/PvxUser.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 
 import bookProfession from "@/assets/data/book_profession.json";
 // 碑铭坐标json
@@ -307,7 +311,7 @@ import { isPhone } from "@/utils/index";
 export default {
     name: "bookSingle",
     props: ["isRobot", "sourceId"],
-    components: { Jx3boxMap, BookCard, ItemIcon, PvxUser, PvxSingleAdminDrop },
+    components: { Jx3boxMap, BookCard, ItemIcon, PvxUser, PvxSingleAdminDrop, PvxRobotTip },
     data() {
         return {
             compatible: false,

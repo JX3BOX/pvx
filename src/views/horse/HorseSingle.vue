@@ -3,7 +3,14 @@
         <template v-if="!isRobot">
             <div class="back-wrap">
                 <el-button @click="goBack">返回列表</el-button>
-                <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                <div class="u-back-right">
+                    <PvxRobotTip
+                        v-if="!isRobot"
+                        :type-name="type == 2 ? '马具' : '坐骑'"
+                        :reply="item.Name"
+                    ></PvxRobotTip>
+                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                </div>
             </div>
             <div class="horse-single-content" v-loading="loading">
                 <!-- 主要信息 -->
@@ -199,6 +206,7 @@ import HorseCard from "@/components/horse/HorseCard";
 import HorseMap from "@/components/horse/HorseMap.vue";
 import PvxUser from "@/components/PvxUser.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";
@@ -207,7 +215,7 @@ import { __imgPath, __dataPath, __cdn } from "@jx3box/jx3box-common/data/jx3box.
 export default {
     name: "Single",
     props: ["isRobot", "sourceId"],
-    components: { HorseCard, HorseMap, PvxUser, ItemIcon, PvxSingleAdminDrop },
+    components: { HorseCard, HorseMap, PvxUser, ItemIcon, PvxSingleAdminDrop, PvxRobotTip },
     data() {
         return {
             loading: false,

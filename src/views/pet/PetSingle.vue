@@ -3,7 +3,10 @@
         <template v-if="!isRobot">
             <div class="m-pet-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
-                <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                <div class="u-back-right">
+                    <PvxRobotTip v-if="!isRobot" type-name="宠物" :reply="pet.Name"></PvxRobotTip>
+                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                </div>
             </div>
 
             <PublicNotice bckey="pet_ac" />
@@ -221,6 +224,7 @@ import dayjs from "@/plugins/day";
 import PetMap from "@/components/pet/PetMap.vue";
 // import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {
     name: "PetSingle",
     props: ["isRobot", "sourceId"],
@@ -233,6 +237,7 @@ export default {
         PvxUser,
         PublicNotice,
         PvxSingleAdminDrop,
+        PvxRobotTip,
     },
     data: function () {
         return {

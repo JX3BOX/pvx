@@ -4,7 +4,10 @@
             <div class="m-reputation-single">
                 <div class="back-wrap">
                     <el-button @click="goBack">返回列表</el-button>
-                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                    <div class="u-back-right">
+                        <PvxRobotTip v-if="!isRobot" type-name="声望" :reply="reputation.szName"></PvxRobotTip>
+                        <PvxSingleAdminDrop></PvxSingleAdminDrop>
+                    </div>
                 </div>
                 <div class="m-reputation-content" v-if="reputation">
                     <div class="info-wrapper">
@@ -458,6 +461,7 @@ import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 
 import { getInfo } from "@/service/reputation";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 
 export default {
     name: "reputationSingle",
@@ -469,6 +473,7 @@ export default {
         PvxUserMiniprogram,
         SuspendCommon,
         PvxSingleAdminDrop,
+        PvxRobotTip,
     },
     data() {
         return {
