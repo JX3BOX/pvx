@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { getRoleGameAchievementsByRoleAndServer } from "@/service/adventure/treasure";
+import { getRoleGameAchievementsByRoleAndServer, getUserRoles } from "@/service/adventure/treasure";
 import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import treasureCommon from "@/assets/js/treasure.js";
 import landscapeContent from "@/views/adventure/landscapeContent.vue";
@@ -49,6 +49,7 @@ export default {
             isOver: false,
             imgRoot: __imgPath + "adventure/",
             mount: "",
+            defaultRole: "",
         };
     },
     computed: {
@@ -69,7 +70,7 @@ export default {
         },
         roleInfo() {
             return {
-                name: this.role,
+                name: this.role || this.defaultRole,
                 mount: this.mount || "",
             };
         },
@@ -79,41 +80,75 @@ export default {
             immediate: true,
             deep: true,
             handler(params) {
-                getRoleGameAchievementsByRoleAndServer(params).then((res) => {
-                    const data = res.data?.data || {};
-                    const userJx3Id = data.jx3id || "";
-                    this.mount = data.mount || "";
-                    if (userJx3Id) {
-                        treasureCommon(userJx3Id).then((res) => {
-                            if (this.isLandscape) {
-                                this.isSync = !!userJx3Id; // 是否在游戏中同步
-                                res.pet = this.splitArrayIntoChunks(res.pet, 5);
-                                res.normal = this.splitArrayIntoChunks(res.normal, 3);
-                                this.userAchievement = res;
-                                this.$nextTick((_) => {
-                                    this.addClass = false;
-                                    this.reelAddClass = "";
-                                    this.isOver = false;
-                                    setTimeout(() => {
-                                        this.start();
-                                    }, 500);
-                                });
+                if (params.role && params.server) {
+                    this.getRoleGameAchievements(params);
+                } else {
+                    getUserRoles()
+                        .then((res) => {
+                            if (res.data.data.list.length) {
+                                const roleList =
+                                    res.data?.data?.list.filter((item) => {
+                                        return !!item.player_id;
+                                    }) || [];
+                                if (roleList.length) {
+                                    this.defaultRole = roleList[0].name;
+                                    const params = {
+                                        role: roleList[0].name,
+                                        server: roleList[0].server,
+                                    };
+                                    this.getRoleGameAchievements(params);
+                                }
                             } else {
-                                this.isSync = !!userJx3Id; // 是否在游戏中同步
-                                this.userAchievement = res;
-                                this.addClass = false;
-                                this.isOver = false;
-                                this.$nextTick((_) => {
-                                    this.start();
-                                });
+                                this.$message.error("未获取到角色信息");
                             }
+                        })
+                        .catch((err) => {
+                            console.error("获取角色信息失败", err);
+                            this.$message.error("获取角色信息失败，请稍后再试");
                         });
-                    }
-                });
+                }
             },
         },
     },
     methods: {
+        getRoleGameAchievements(params) {
+            getRoleGameAchievementsByRoleAndServer(params).then((res) => {
+                const data = res.data?.data || {};
+                const userJx3Id = data.jx3id || "";
+                this.mount = data.mount || "";
+                if (userJx3Id) {
+                    this.getData(userJx3Id);
+                } else {
+                    console.log("未获取到jx3id");
+                    this.$message.warning("请先在游戏中同步数据");
+                }
+            });
+        },
+        getData(userJx3Id) {
+            treasureCommon(userJx3Id).then((res) => {
+                if (this.isLandscape) {
+                    this.isSync = !!userJx3Id; // 是否在游戏中同步
+                    res.pet = this.splitArrayIntoChunks(res.pet, 5);
+                    res.normal = this.splitArrayIntoChunks(res.normal, 3);
+                    this.userAchievement = res;
+                    this.$nextTick((_) => {
+                        this.addClass = false;
+                        this.reelAddClass = "";
+                        this.isOver = false;
+
+                        this.start();
+                    });
+                } else {
+                    this.isSync = !!userJx3Id; // 是否在游戏中同步
+                    this.userAchievement = res;
+                    this.addClass = false;
+                    this.isOver = false;
+                    this.$nextTick((_) => {
+                        this.start();
+                    });
+                }
+            });
+        },
         start() {
             this.addClass = true;
             this.reelAddClass = "start";
@@ -122,7 +157,7 @@ export default {
                 this.addClass = false;
                 this.reelAddClass = "";
                 window.__READY__ = true;
-            }, 3000);
+            }, 500);
             window.addEventListener("resize", this.handleScreenWidthChange);
             window.addEventListener("load", this.handleScreenWidthChange);
             this.handleScreenWidthChange();
