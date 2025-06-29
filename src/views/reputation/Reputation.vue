@@ -38,13 +38,21 @@ export default {
 .c-header-inner {
     height: 100%;
     .c-header-search {
-        .u-text {
-            position: absolute;
-            left: 0;
-            top: 0;
+        height: 100%;
+        margin: 0;
+        .c-search {
+            height: 100%;
+        }
+        .u-form {
+            .flex;
+            align-items: center;
+            height: 100%;
         }
         .u-btn {
-            top: -7px;
+            top: calc(50% - 10px);
+            .flex;
+            align-items: center;
+            justify-content: center;
         }
     }
 }
