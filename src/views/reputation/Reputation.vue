@@ -34,3 +34,18 @@ export default {
 @import "~@/assets/css/reputation/reputation_miniprogram.less";
 @import "~@/assets/css/miniprogram.less";
 </style>
+<style lang="less">
+.c-header-inner {
+    height: 100%;
+    .c-header-search {
+        .u-text {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .u-btn {
+            top: -7px;
+        }
+    }
+}
+</style>
