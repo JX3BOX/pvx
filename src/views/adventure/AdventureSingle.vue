@@ -106,7 +106,7 @@
                         <div class="u-title">触发前置</div>
                         <span>（需全部满足）</span>
                     </div>
-                    <div class="m-content">
+                    <div class="m-pvx-adventure-content">
                         <div class="u-content" v-html="conditionContent"></div>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                     <div class="u-title">触发方式</div>
                     <span>（完成任一均有可能触发奇遇）</span>
                 </div>
-                <div class="m-content">
+                <div class="m-pvx-adventure-content">
                     <div class="u-content" v-html="methodContent"></div>
                 </div>
             </div>
@@ -127,7 +127,7 @@
                     <div class="u-title">奇遇流程</div>
                     <span>（以魔盒在线版本为准）</span>
                 </div>
-                <div class="m-content">
+                <div class="m-pvx-adventure-content">
                     <div class="u-content" v-html="processContent"></div>
                 </div>
             </div>
@@ -489,7 +489,7 @@ export default {
         color: #ffc300;
         font-weight: 700;
     }
-    .m-content {
+    .m-pvx-adventure-content {
         margin-top: 10px;
         border-radius: 4px;
         background: linear-gradient(to top, #383838 0%, #000000 100%);

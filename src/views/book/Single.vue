@@ -254,7 +254,7 @@
                 </div>
             </div>
             <div class="m-robot__book-content">
-                <div class="m-content">
+                <div class="m-pvx-book-content">
                     <div class="u-content" v-for="(item, i) in contentList" :key="i">
                         <div class="u-title" v-if="!i">《{{ book.Name }}》</div>
                         <div v-html="item"></div>
@@ -835,7 +835,7 @@ export default {
         text-align: center;
         margin-bottom: 10px;
     }
-    .m-content {
+    .m-pvx-book-content {
         display: grid;
         align-items: flex-start;
         justify-content: center;

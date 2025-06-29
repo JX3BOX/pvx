@@ -168,8 +168,8 @@
                         {{ robotTitle }}
                     </div>
                     <div class="m-meta">
-                        <div class="u-meta">{{ reputation.szMapNames?.[0] }}</div>
-                        <div class="u-meta">{{ reputation.GroupName }}</div>
+                        <div v-if="reputation.szMapNames?.[0]" class="u-meta">{{ reputation.szMapNames?.[0] }}</div>
+                        <div v-if="reputation.GroupName" class="u-meta">{{ reputation.GroupName }}</div>
                         <div class="u-meta">ID: {{ id }}</div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@
             </div>
             <div class="m-pvx__item m-robot__reputation-info">
                 <div class="u-reputation-logo">
-                    <img v-if="getIcon(reputation.szIconPath)" width="28" :src="getIcon(reputation.szIconPath)" />
+                    <img v-if="getBotIcon(reputation.szIconPath)" width="28" :src="getBotIcon(reputation.szIconPath)" />
                 </div>
                 <div class="u-intro" v-html="reputation.szDesc"></div>
             </div>
@@ -256,7 +256,7 @@
             <SuspendCommon
                 :btnOptions="{ showHome: true }"
                 :drawerOptions="{
-                    hideType: ['report', 'rss', 'search', 'user'],
+                    hideType: hideType,
                     title: reputation.szName,
                     postType: 'reputation',
                     id: id,
@@ -477,6 +477,7 @@ export default {
     },
     data() {
         return {
+            hideType: ["report", "rss", "search", "user"],
             compatible: false,
             is_empty: true,
 
@@ -585,6 +586,17 @@ export default {
             const path = "reputation/reputation/std/" + type + "/";
             if (iconName) {
                 return __imgPath + path + iconName.toLowerCase() + ".png";
+            } else {
+                return "";
+            }
+        },
+        getBotIcon(iconPath) {
+            const rPath = iconPath ? iconPath.replace(/\//g, "\\") : "";
+            const iconName = rPath
+                ? rPath.split("\\")[rPath.split("\\").length - 1].toLowerCase().split(".tga")[0]
+                : "";
+            if (iconName) {
+                return __imgPath + "reputation/reputation/std/icon/" + iconName + ".png";
             } else {
                 return "";
             }
@@ -740,6 +752,16 @@ export default {
     margin-top: 10px;
     .flex;
     gap: 12px;
+    .u-reputation-logo {
+        flex: none;
+        width: 28px;
+        height: 28px;
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
 }
 .m-robot__reputation-reward {
     margin-top: 10px;

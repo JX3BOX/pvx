@@ -487,6 +487,7 @@ export default {
 }
 .m-robot__horse-info {
     .flex;
+    justify-content: space-between;
     gap: 10px;
     margin-top: 12px;
     .m-left {
@@ -511,12 +512,12 @@ export default {
         }
     }
     .m-right {
-        flex: none;
+        flex: 1;
         display: grid;
         gap: 10px;
         grid-template-columns: repeat(2, 1fr);
         .m-attr {
-            width: 186px;
+            min-width: 186px;
             .u-title {
                 font-size: 12px;
             }

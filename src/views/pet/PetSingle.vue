@@ -159,7 +159,7 @@
                 </div>
             </div>
             <!-- 交互技能 -->
-            <div class="m-pvx__item m-robot__pet-skill">
+            <!-- <div class="m-pvx__item m-robot__pet-skill">
                 <div class="u-title">交互技能</div>
                 <div class="m-skills">
                     <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
@@ -170,7 +170,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- 宠物羁绊 -->
             <template v-if="medalList && medalList.length">
                 <div class="m-pvx__item m-robot-pet__fetters" v-for="item in medalList" :key="item.ID">
