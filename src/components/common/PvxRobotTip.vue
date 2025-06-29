@@ -45,8 +45,8 @@ export default {
         gap: 10px;
     }
     .u-logo {
-        width: 41px;
-        height: 41px;
+        width: 30px;
+        height: 30px;
     }
     .u-icon {
         .size(14px);
@@ -56,7 +56,7 @@ export default {
         width: 375px;
         box-sizing: border-box;
         background: #24292e;
-        padding: 0 40px;
+        padding: 0 30px;
         .r(100px);
         font-size: 14px;
         font-weight: 700;
