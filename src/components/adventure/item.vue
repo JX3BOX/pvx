@@ -67,7 +67,7 @@ export default {
             const client = this.client; // 图片使用正式服
             const [, tga] = this.item.szOpenPath?.toLowerCase().match(/\\([^\\]+?)\.uitex/i);
             const filename = `${tga}_${this.item.nOpenFrame}`;
-            console.log("tga", this.item.szOpenPath?.toLowerCase(), tga, filename);
+            // console.log("tga", this.item.szOpenPath?.toLowerCase(), tga, filename);
             return this.__imgRoot + `image_ui/${client}/${filename}.png`;
         },
         titleStyle: function () {

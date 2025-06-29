@@ -86,11 +86,7 @@
             <el-alert title="没有对应的奇遇，请重新查找" type="info" center show-icon />
         </div>
 
-        <SuspendCommon
-            :btnOptions="{ showHome: true }"
-            :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }"
-            v-if="isMiniProgram"
-        >
+        <SuspendCommon :btnOptions="{ showHome: true }" :drawerOptions="{ hideType: hideType }" v-if="isMiniProgram">
             <template #default>
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="showTypeForm = true">
@@ -170,6 +166,7 @@ export default {
     components: { CardBannerList, AdventureTabs, AdventureItem, SuspendCommon },
     data: function () {
         return {
+            hideType: ["collect", "rss", "laterOn", "pin", "user", "report"],
             loading: false,
             tabsData: {},
             list: [

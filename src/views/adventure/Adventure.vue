@@ -41,4 +41,17 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/miniprogram.less";
+.c-header-inner {
+    height: 100%;
+    .c-header-search {
+        .u-text {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .u-btn {
+            top: -7px;
+        }
+    }
+}
 </style>
