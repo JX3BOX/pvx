@@ -16,6 +16,11 @@ export function getUserRoles() {
     return $team().get(`api/team/my-game-roles?nopage`);
 }
 
+// 刷新奇遇卷轴生成任务
+export function refreshAchievementsTask(data) {
+    return $next().post(`/api/next2/picture-task/refresh/role-achievenments`, data);
+}
+
 // 获取角色的成就状态
 export function getRoleGameAchievements(jx3id) {
     return $next().get(`/api/next2/user-achievements`, {

@@ -48,6 +48,10 @@
                     <el-option value="hq" label="浩气盟阵营"> </el-option>
                     <el-option value="er" label="恶人谷阵营"> </el-option>
                 </el-select>
+                <el-button class="u-refresh" @click="onRefresh">
+                    <i class="el-icon-refresh"></i>
+                    刷新卷轴
+                </el-button>
             </div>
             <div id="capture" ref="capture">
                 <landscapeContent
@@ -73,7 +77,7 @@
 </template>
 
 <script>
-import { getUserRoles } from "@/service/adventure/treasure.js";
+import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import treasureCommon from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
@@ -153,6 +157,15 @@ export default {
         });
     },
     methods: {
+        onRefresh() {
+            refreshAchievementsTask({
+                mode: "landscape",
+                role: this.currentRole.name,
+                server: this.currentRole.server,
+            }).then(() => {
+                this.$message.success("刷新卷轴成功");
+            });
+        },
         async saveAsImage() {
             try {
                 let oldZoom = this.contentZoom;
