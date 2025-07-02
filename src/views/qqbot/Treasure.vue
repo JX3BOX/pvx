@@ -75,6 +75,9 @@ export default {
             };
         },
     },
+    created() {
+        document.title = "奇遇珍卷 - JX3BOX";
+    },
     watch: {
         params: {
             immediate: true,
