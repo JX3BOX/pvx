@@ -76,7 +76,7 @@ export default {
         },
     },
     created() {
-        documentation.title = "奇遇珍卷 - JX3BOX";
+        document.title = "奇遇珍卷 - JX3BOX";
     },
     watch: {
         params: {
