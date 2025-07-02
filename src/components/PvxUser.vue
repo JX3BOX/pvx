@@ -122,9 +122,6 @@ export default {
             },
             compatible: false,
             is_empty: true,
-
-            imageCount: 0,
-            loadedCount: 0,
         };
     },
     watch: {
@@ -185,44 +182,7 @@ export default {
         },
     },
     mounted() {},
-    beforeUnmount() {
-        window.removeEventListener("load", this.initImageLoader);
-    },
     methods: {
-        initImageLoader() {
-            // 在DOM更新后获取所有图片
-            this.$nextTick(() => {
-                const images = document.querySelectorAll("img");
-                this.imageCount = images.length;
-
-                if (this.imageCount === 0) {
-                    this.setGlobalReady();
-                    return;
-                }
-
-                images.forEach((img) => {
-                    // 检查图片是否已经缓存
-                    if (img.complete) {
-                        this.handleImageLoad();
-                    } else {
-                        img.addEventListener("load", this.handleImageLoad);
-                        img.addEventListener("error", this.handleImageLoad);
-                    }
-                });
-            });
-        },
-        handleImageLoad() {
-            this.loadedCount++;
-
-            // 所有图片加载完成
-            if (this.loadedCount === this.imageCount) {
-                this.setGlobalReady();
-            }
-        },
-        setGlobalReady() {
-            window.__READY__ = true;
-            console.log("全局状态设置成功: __READY__ =", window.__READY__);
-        },
         getLink,
         //百科相关
         loadData: async function () {
@@ -239,8 +199,9 @@ export default {
                     this.compatible = compatible;
                 });
                 // 请注意，为防止QQBOT无法抓取完全，请不要删除
-                // 数据加载后启动图片检测
-                this.initImageLoader();
+                setTimeout(() => {
+                    window.__READY__ = true;
+                }, 500);
             }
             this.triggerStat();
         },

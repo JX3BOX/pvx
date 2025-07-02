@@ -128,7 +128,7 @@
                     <span>（以魔盒在线版本为准）</span>
                 </div>
                 <div class="m-pvx-adventure-content">
-                    <div class="u-content" v-html="processContent"></div>
+                    <div class="u-content" id="adventureProcessContent" v-html="processContent"></div>
                 </div>
             </div>
         </template>
@@ -203,7 +203,9 @@ export default {
             drawerNavCurrentId: "mini-task-container",
 
             imageCount: 0,
-            loadedCount: 0,
+            loadedImageCount: 0,
+            images: [],
+            imagesLoaded: false,
         };
     },
     computed: {
@@ -278,7 +280,14 @@ export default {
         initImageLoader() {
             // 在DOM更新后获取所有图片
             this.$nextTick(() => {
-                const images = document.querySelectorAll("img");
+                const container = document.getElementById("adventureProcessContent");
+                if (!container) {
+                    this.setGlobalReady();
+                    return;
+                }
+
+                const images = container.querySelectorAll("img");
+                this.images = images;
                 this.imageCount = images.length;
 
                 if (this.imageCount === 0) {
@@ -286,28 +295,89 @@ export default {
                     return;
                 }
 
-                images.forEach((img) => {
-                    // 检查图片是否已经缓存
-                    if (img.complete) {
-                        this.handleImageLoad();
-                    } else {
-                        img.addEventListener("load", this.handleImageLoad);
-                        img.addEventListener("error", this.handleImageLoad);
-                    }
-                });
+                // 手动预加载所有图片
+                this.preloadAllImages(images);
             });
         },
-        handleImageLoad() {
-            this.loadedCount++;
 
-            // 所有图片加载完成
-            if (this.loadedCount === this.imageCount) {
+        // 手动预加载所有图片
+        preloadAllImages(images) {
+            let loadedInThisBatch = 0;
+            let totalProcessed = 0;
+            Array.from(images).forEach((img, index) => {
+                // 记录原始src
+                const originalSrc = img.src;
+
+                // 如果图片未加载
+                if (!img.complete) {
+                    // 创建一个Image对象来预加载
+                    const tempImg = new Image();
+
+                    tempImg.onload = () => {
+                        loadedInThisBatch++;
+
+                        // 在临时图片加载完成后，设置原始图片的src
+                        img.src = originalSrc;
+
+                        // 检查是否所有图片都已处理
+                        this.checkImageLoadCompletion(images, loadedInThisBatch);
+                    };
+
+                    tempImg.onerror = () => {
+                        console.error(`图片加载失败: ${originalSrc}`);
+                        totalProcessed++;
+
+                        // 即使加载失败，也要设置原始图片的src
+                        img.src = originalSrc;
+
+                        // 标记原始图片为已加载（错误情况）
+                        this.handleImageLoad();
+                    };
+
+                    // 开始预加载
+                    tempImg.src = originalSrc;
+                } else {
+                    // 图片已经加载完成
+                    this.handleImageLoad();
+                    totalProcessed++;
+                }
+            });
+        },
+
+        // 检查图片加载状态
+        checkImageLoadCompletion(images, loadedCount) {
+            if (images.length === this.loadedImageCount) {
+                this.setGlobalReady();
+                return;
+            }
+
+            // 设置超时检查，防止意外情况
+            setTimeout(() => {
+                const allLoaded = Array.from(images).every((img) => img.complete);
+
+                if (allLoaded) {
+                    this.setGlobalReady();
+                } else if (this.loadedImageCount === images.length) {
+                    this.setGlobalReady();
+                }
+            }, 3000);
+        },
+
+        // 判断是否全部完成
+        handleImageLoad() {
+            this.loadedImageCount++;
+            if (this.loadedImageCount === this.imageCount) {
                 this.setGlobalReady();
             }
         },
+
+        // 设置全局就绪状态
         setGlobalReady() {
+            if (this.imagesLoaded) return; // 避免重复设置
+
+            this.imagesLoaded = true;
             window.__READY__ = true;
-            console.log("全局状态设置成功: __READY__ =", window.__READY__);
+            console.log("全局状态设置成功: __READY__ = ", window.__READY__);
         },
         getLink,
         goBack() {
@@ -330,8 +400,10 @@ export default {
                     this.processContent = (contentList?.[2] || "").replaceAll("&nbsp;", "");
                     this.rewardContent = (contentList?.[3] || "").replaceAll("&nbsp;", "");
                 });
-                // 数据加载后启动图片检测
-                this.initImageLoader();
+                if (this.isRobot) {
+                    // 数据加载后启动奇遇流程中的图片检测
+                    this.initImageLoader();
+                }
             }
         },
         getData() {
