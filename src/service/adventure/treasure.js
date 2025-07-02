@@ -18,7 +18,7 @@ export function getUserRoles() {
 
 // 刷新奇遇卷轴生成任务
 export function refreshAchievementsTask(data) {
-    return $next().post(`/api/next2/picture-task/refresh/role-achievenments`, data);
+    return $next().post(`/api/next2/qqbot/picture-task/refresh/role-achievements`, data);
 }
 
 // 获取角色的成就状态
