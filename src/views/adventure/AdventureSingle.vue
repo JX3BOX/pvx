@@ -201,6 +201,9 @@ export default {
                 },
             ],
             drawerNavCurrentId: "mini-task-container",
+
+            imageCount: 0,
+            loadedCount: 0,
         };
     },
     computed: {
@@ -268,7 +271,44 @@ export default {
             },
         },
     },
+    beforeUnmount() {
+        window.removeEventListener("load", this.initImageLoader);
+    },
     methods: {
+        initImageLoader() {
+            // 在DOM更新后获取所有图片
+            this.$nextTick(() => {
+                const images = document.querySelectorAll("img");
+                this.imageCount = images.length;
+
+                if (this.imageCount === 0) {
+                    this.setGlobalReady();
+                    return;
+                }
+
+                images.forEach((img) => {
+                    // 检查图片是否已经缓存
+                    if (img.complete) {
+                        this.handleImageLoad();
+                    } else {
+                        img.addEventListener("load", this.handleImageLoad);
+                        img.addEventListener("error", this.handleImageLoad);
+                    }
+                });
+            });
+        },
+        handleImageLoad() {
+            this.loadedCount++;
+
+            // 所有图片加载完成
+            if (this.loadedCount === this.imageCount) {
+                this.setGlobalReady();
+            }
+        },
+        setGlobalReady() {
+            window.__READY__ = true;
+            console.log("全局状态设置成功: __READY__ =", window.__READY__);
+        },
         getLink,
         goBack() {
             this.$router.push({ name: "list" });
@@ -290,8 +330,8 @@ export default {
                     this.processContent = (contentList?.[2] || "").replaceAll("&nbsp;", "");
                     this.rewardContent = (contentList?.[3] || "").replaceAll("&nbsp;", "");
                 });
-                // TEST:请注意，为防止QQBOT无法抓取完全，请不要删除本行
-                window.__READY__ = true;
+                // 数据加载后启动图片检测
+                this.initImageLoader();
             }
         },
         getData() {
@@ -328,13 +368,7 @@ export default {
                 });
             }
         },
-    },
-    mounted: function () {
-        if (!document.getElementById("mini-wiki-comments")) {
-            this.drawerNav[2].show = false;
-        }
-
-        window.addEventListener("scroll", () => {
+        handleScroll() {
             const navElements = this.drawerNav.map((item) => document.getElementById(item.id)).filter(Boolean);
             for (const nav of navElements) {
                 const rect = nav.getBoundingClientRect();
@@ -343,10 +377,17 @@ export default {
                     break;
                 }
             }
-        });
+        },
+    },
+    mounted: function () {
+        if (!document.getElementById("mini-wiki-comments")) {
+            this.drawerNav[2].show = false;
+        }
+
+        window.addEventListener("scroll", this.handleScroll);
     },
     destroyed() {
-        window.removeEventListener("scroll");
+        window.removeEventListener("scroll", this.handleScroll);
     },
 };
 </script>
