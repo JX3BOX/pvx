@@ -15,7 +15,7 @@ module.exports = {
             filename: "index.html",
         },
         adventure: {
-            title: "奇遇大全 - JX3BOX",
+            title: "奇遇大全",
             entry: "src/pages/adventure/index.js",
             template: "public/index.html",
             filename: "adventure/index.html",
