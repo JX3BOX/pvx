@@ -15,10 +15,6 @@
         </SuspendCommon>
         <div class="m-info-main">
             <div class="u-top-box">
-                <div class="u-info">
-                    <div class="u-name">{{ item.Name }}</div>
-                    <div class="u-id">ID：{{ item.ID }}</div>
-                </div>
                 <div class="u-img">
                     <img v-if="type !== 2" :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-image" />
 
@@ -31,6 +27,11 @@
                         :onlyIcon="true"
                     ></item-icon>
                 </div>
+                <div class="u-info">
+                    <div class="u-name">{{ item.Name }}</div>
+                    <div class="u-id">ID：{{ item.ID }}</div>
+                </div>
+
             </div>
     <!--        分类-->
             <div class="m-box m-types">
@@ -108,12 +109,13 @@
         <div class="m-same-horses"  v-if="sameList.length">
             <div class="m-title">同类坐骑</div>
             <div class="m-horse-card">
-                <div class="u-item" v-for="item in sameList" :key="item?.ID" @click="openOther(item)">
+                <div class="u-item" v-for="item in sameListInit" :key="item?.ID" @click="openOther(item)">
                     <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
                     <div class="u-name">{{ item.Name }}</div>
                     <div class="u-id">ID：{{ item.ID }}</div>
                 </div>
             </div>
+            <div class="u-more" v-show="sameList.length>3&& !showMore" @click="showMore=true">加载更多</div>
         </div>
         <div> <PvxUserMiniprogram :id="id" name="坐骑" type="item"></PvxUserMiniprogram></div>
     </div>
@@ -141,6 +143,7 @@ export default {
             sameLoading: false,
             item: {},
             sameList: [],
+            showMore:false
         };
     },
     computed: {
@@ -161,9 +164,10 @@ export default {
                         arr.push(horseSites[mapId].mapName);
                     });
                 }
+                if(!arr.length) return '无'
                 return arr.join("/");
             } else {
-                return '-';
+                return '无';
             }
         },
         id() {
@@ -265,6 +269,11 @@ export default {
             }
             return type;
         },
+        sameListInit() {
+            if(this.showMore) return this.sameList;
+            if(this.sameList.length>3)return this.sameList.slice(0,3);
+            return this.sameList;
+        }
     },
     watch: {
         id: {
@@ -298,6 +307,7 @@ export default {
                     this.loading = false;
                     this.item = res.data || {};
                     let name = res.data.Name;
+                    document.title=name;
                     if (this.typeName === "普通坐骑") {
                         name = res.data.Name.split("·")[0];
                     }
@@ -401,7 +411,8 @@ export default {
         box-sizing: border-box;
         .u-top-box{
             .flex;
-            justify-content: space-between;
+            //justify-content: space-between;
+            gap:0.5rem;
             .mb(1rem);
             .u-name{
                 color:@fontColor;
@@ -452,6 +463,9 @@ export default {
                     .r(0.25rem);
                     background: #D9D9D9;
                 }
+                .u-attr-icon{
+                    .r(0.25rem);
+                }
             }
         }
     }
@@ -467,8 +481,8 @@ export default {
         .m-horse-card{
             .flex;
             gap:0.75rem;
-            .mb(1.5rem);
-            overflow-x:auto;
+            .mb(1rem);
+            flex-wrap: wrap;
             .u-item{
                 padding: 0.5rem;
                 box-sizing: border-box;
@@ -484,6 +498,7 @@ export default {
                     border-radius: 0.25rem;
                     background: #AAA;
                     .mb(0.5rem);
+                    border: 1px solid #ff2dff;
                 }
                 .u-name{
                     color: @fontColor;
@@ -498,6 +513,13 @@ export default {
                     .bold(400);
                 }
             }
+        }
+        .u-more{
+            color: @fontColor-40;
+            .fz(0.75rem,1.125rem);
+            .bold(400);
+            .x;
+
         }
     }
 }
@@ -536,6 +558,9 @@ export default {
                         color:@fontColor-40-dark;
                     }
                 }
+            }
+            .u-more{
+                color: @fontColor-40-dark;
             }
         }
     }

@@ -26,6 +26,9 @@
                         全部
                     </div>
                     <div class="u-cut-box" >
+<!--                        <div class="u-cut-item" :class="{'is-active':listQueryParams.type===''}" @click="cutChange('')">-->
+<!--                            全部-->
+<!--                        </div>-->
                         <div class="u-cut-item" v-for="(item, index) in typeList.slice(1)" :key="index"
                              :class="{ 'is-active': listQueryParams.type === item.type }" @click="cutChange(item.type)">
                             {{ item.name }}
@@ -356,7 +359,7 @@ export default {
                         let params={
                             page:1,
                             type:item.type,
-                            per:item.type==2?4:6
+                            per:item.type==2?6:9
                         }
                         this.loadList(params, item.type);
                     }
@@ -548,7 +551,7 @@ export default {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                border: 1px solid #000;
+                //border: 1px solid #000;
                 &.active {
                     color: #24292E;
                     background: #FEDAA3;
@@ -645,6 +648,7 @@ export default {
                 border-radius: 0.25rem;
                 background: #AAA;
                 .mb(0.5rem);
+                border: 1px solid #ff2dff;
             }
             .u-name{
                 color: @fontColor;
