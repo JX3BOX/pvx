@@ -14,6 +14,7 @@
             "value": 1,
             "name": "普通坐骑",
             "label": "普通坐骑",
+            "mobile_label": "马匹",
             "page": 1,
             "pages": 1,
             "list": []
@@ -23,6 +24,7 @@
             "value": 2,
             "name": "奇趣坐骑",
             "label": "奇趣坐骑",
+            "mobile_label": "奇趣",
             "page": 1,
             "pages": 1,
             "list": []
@@ -32,6 +34,7 @@
             "value": 3,
             "name": "马具",
             "label": "马具",
+            "mobile_label": "马具",
             "page": 1,
             "pages": 1,
             "list": []

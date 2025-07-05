@@ -22,16 +22,14 @@
             <!--类型区域-->
             <transition :name="cutShowTra?'slide-up':''" >
                 <div class="m-cut" v-show="cutShow">
-                    <div class="u-cut-all" :class="{'is-active':listQueryParams.type===''}" @click="cutChange('')">
-                        全部
-                    </div>
+
                     <div class="u-cut-box" >
-<!--                        <div class="u-cut-item" :class="{'is-active':listQueryParams.type===''}" @click="cutChange('')">-->
-<!--                            全部-->
-<!--                        </div>-->
+                        <div class="u-cut-item" :class="{'is-active':listQueryParams.type===''}" @click="cutChange('')">
+                            全部
+                        </div>
                         <div class="u-cut-item" v-for="(item, index) in typeList.slice(1)" :key="index"
                              :class="{ 'is-active': listQueryParams.type === item.type }" @click="cutChange(item.type)">
-                            {{ item.name }}
+                            {{ item.mobile_label }}
                         </div>
                     </div>
                     <div class="u-cut-btn">
