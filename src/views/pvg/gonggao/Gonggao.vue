@@ -118,4 +118,9 @@ export default {
         .pt(20px);
     }
 }
+.v-miniprogram{
+    .p-gonggao{
+        padding-top:0;
+    }
+}
 </style>
