@@ -25,10 +25,14 @@
 
                     <div class="u-cut-box" >
                         <div class="u-cut-item" :class="{'is-active':listQueryParams.type===''}" @click="cutChange('')">
+                            <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
                             全部
                         </div>
                         <div class="u-cut-item" v-for="(item, index) in typeList.slice(1)" :key="index"
                              :class="{ 'is-active': listQueryParams.type === item.type }" @click="cutChange(item.type)">
+                            <img src="@/assets/img/house/mj.svg" svg-inline v-show="item.type==2"/>
+                            <img src="@/assets/img/house/mp.svg" svg-inline v-show="item.type==0"/>
+                            <img src="@/assets/img/house/qq.svg" svg-inline v-show="item.type==1"/>
                             {{ item.mobile_label }}
                         </div>
                     </div>
@@ -111,6 +115,7 @@
                 </div>
                 <div class="u-id">ID：{{ item.ID }}</div>
             </div>
+            <img src="@/assets/img/empty.png" v-show="!listData.length">
         </div>
 <!--        马具列表-->
         <div class="m-harness-card" v-else>
@@ -121,6 +126,7 @@
                     <div class="u-id">ID：{{ item.ID }}</div>
                 </div>
             </div>
+            <img src="@/assets/img/empty.png"  v-show="!listData.length">
         </div>
         </div>
     </div>
@@ -438,11 +444,9 @@ export default {
                 padding: 0.75rem;
                 box-sizing: border-box;
                 .r(0.75rem);
-                .u-icon{
-                    svg, path {
-                        fill: @fontColor-dark2;
-                        stroke: @fontColor-dark2;
-                    }
+                svg, path {
+                    fill: @fontColor-dark2;
+                    stroke: @fontColor-dark2;
                 }
 
                 &.is-active {
