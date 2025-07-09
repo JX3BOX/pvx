@@ -83,8 +83,6 @@
 </template>
 
 <script>
-
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import getData from "@/assets/js/treasure.js";
@@ -141,15 +139,9 @@ export default {
         },
     },
     created() {
-        if(isMiniProgram()){
-            let metas = document.getElementsByTagName('meta');
-            for (let i = 0; i < metas.length; i++) {
-                if (metas[i].getAttribute("name") == "viewport") {
-                    // 删除找到的viewport标签
-                    metas[i].parentNode.removeChild(metas[i]);
-                    break; // 找到后退出循环
-                }
-            }
+        if(/iPhone|iPad|iPod/i.test(navigator.userAgent)){
+            let metaViewport = document.querySelector('meta[name="viewport"]');
+            metaViewport.setAttribute('content', 'user-scalable=no');
         }
     },
     mounted() {
