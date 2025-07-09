@@ -1,24 +1,24 @@
 <template>
     <div class="m-body">
-        <template v-if="!isLogin">
-            <div class="u-bind_role">
-                <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="u-btn el-button el-button--primary" :href="login_url"
-                        >前往登录 <i class="el-icon-arrow-right"></i
-                    ></a>
-                </el-empty>
-            </div>
-        </template>
-        <template v-else-if="noRole">
-            <div class="u-bind_role">
-                <el-empty description="当前暂未绑定角色" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="u-btn el-button el-button--primary" href="/team/role/bind"
-                        >前往绑定 <i class="el-icon-arrow-right"></i
-                    ></a>
-                </el-empty>
-            </div>
-        </template>
-        <template v-else>
+<!--        <template v-if="!isLogin">-->
+<!--            <div class="u-bind_role">-->
+<!--                <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">-->
+<!--                    <a class="u-btn el-button el-button&#45;&#45;primary" :href="login_url"-->
+<!--                        >前往登录 <i class="el-icon-arrow-right"></i-->
+<!--                    ></a>-->
+<!--                </el-empty>-->
+<!--            </div>-->
+<!--        </template>-->
+<!--        <template v-else-if="noRole">-->
+<!--            <div class="u-bind_role">-->
+<!--                <el-empty description="当前暂未绑定角色" :image="__imgPath + `/img/common/empty.png`" :image-size="200">-->
+<!--                    <a class="u-btn el-button el-button&#45;&#45;primary" href="/team/role/bind"-->
+<!--                        >前往绑定 <i class="el-icon-arrow-right"></i-->
+<!--                    ></a>-->
+<!--                </el-empty>-->
+<!--            </div>-->
+<!--        </template>-->
+        <template >
             <div class="m-related-roles">
                 <el-select
                     v-model="currentRole"
@@ -83,6 +83,8 @@
 </template>
 
 <script>
+
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import getData from "@/assets/js/treasure.js";
@@ -137,6 +139,18 @@ export default {
                 this.currentRole = virtualRole;
             },
         },
+    },
+    created() {
+        if(isMiniProgram()){
+            let metas = document.getElementsByTagName('meta');
+            for (let i = 0; i < metas.length; i++) {
+                if (metas[i].getAttribute("name") == "viewport") {
+                    // 删除找到的viewport标签
+                    metas[i].parentNode.removeChild(metas[i]);
+                    break; // 找到后退出循环
+                }
+            }
+        }
     },
     mounted() {
         getUserRoles().then((res) => {
