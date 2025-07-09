@@ -1,24 +1,24 @@
 <template>
     <div class="m-body">
-<!--        <template v-if="!isLogin">-->
-<!--            <div class="u-bind_role">-->
-<!--                <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">-->
-<!--                    <a class="u-btn el-button el-button&#45;&#45;primary" :href="login_url"-->
-<!--                        >前往登录 <i class="el-icon-arrow-right"></i-->
-<!--                    ></a>-->
-<!--                </el-empty>-->
-<!--            </div>-->
-<!--        </template>-->
-<!--        <template v-else-if="noRole">-->
-<!--            <div class="u-bind_role">-->
-<!--                <el-empty description="当前暂未绑定角色" :image="__imgPath + `/img/common/empty.png`" :image-size="200">-->
-<!--                    <a class="u-btn el-button el-button&#45;&#45;primary" href="/team/role/bind"-->
-<!--                        >前往绑定 <i class="el-icon-arrow-right"></i-->
-<!--                    ></a>-->
-<!--                </el-empty>-->
-<!--            </div>-->
-<!--        </template>-->
-        <template >
+        <template v-if="!isLogin">
+            <div class="u-bind_role">
+                <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
+                    <a class="u-btn el-button el-button--primary" :href="login_url"
+                        >前往登录 <i class="el-icon-arrow-right"></i
+                    ></a>
+                </el-empty>
+            </div>
+        </template>
+        <template v-else-if="noRole">
+            <div class="u-bind_role">
+                <el-empty description="当前暂未绑定角色" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
+                    <a class="u-btn el-button el-button--primary" href="/team/role/bind"
+                        >前往绑定 <i class="el-icon-arrow-right"></i
+                    ></a>
+                </el-empty>
+            </div>
+        </template>
+        <template v-else>
             <div class="m-related-roles">
                 <el-select
                     v-model="currentRole"
