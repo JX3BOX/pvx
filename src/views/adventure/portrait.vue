@@ -147,6 +147,10 @@ export default {
                 el.style.removeProperty("font-size");
                 el.style.fontSize = "16px";
             }
+
+            let metaViewport = document.querySelector('meta[name="viewport"]');
+            metaViewport.setAttribute("content", "");
+            metaViewport.remove();
         }
     },
     mounted() {
