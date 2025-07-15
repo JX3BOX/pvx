@@ -33,6 +33,7 @@ import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
 import treasureCommon from "@/assets/js/treasure.js";
 import landscapeContent from "@/views/adventure/landscapeContent.vue";
 import portraitContent from "@/views/adventure/portraitContent.vue";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "QQBotTreasure",
     components: {
@@ -50,6 +51,7 @@ export default {
             imgRoot: __imgPath + "adventure/",
             mount: "",
             defaultRole: "",
+            isMiniProgram: isMiniProgram(),
         };
     },
     computed: {
@@ -77,6 +79,11 @@ export default {
     },
     created() {
         document.title = "奇遇珍卷 - JX3BOX";
+
+        if (this.isMiniProgram && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            document.body.style.removeProperty("font-size");
+            document.body.style.fontSize = "16px";
+        }
     },
     watch: {
         params: {
