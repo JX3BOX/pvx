@@ -134,6 +134,7 @@
 <script>
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import { __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "landscapeContent",
     props: {
@@ -167,7 +168,22 @@ export default {
         },
     },
     data() {
-        return {};
+        return {
+            isMiniProgram: isMiniProgram(),
+        };
+    },
+    created() {
+        if (this.isMiniProgram && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            const elements = document.getElementsByClassName("v-miniprogram");
+            for (let el of elements) {
+                el.style.removeProperty("font-size");
+                el.style.fontSize = "16px";
+            }
+
+            let metaViewport = document.querySelector('meta[name="viewport"]');
+            metaViewport.setAttribute("content", "");
+            metaViewport.remove();
+        }
     },
     methods: {
         showSchoolIcon,
