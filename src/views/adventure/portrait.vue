@@ -145,7 +145,14 @@ export default {
             const elements = document.getElementsByClassName("v-miniprogram");
             for (let el of elements) {
                 el.style.removeProperty("font-size");
+                setTimeout(() => {
+                    el.style.fontSize = "100px";
+                }, 10000);
             }
+
+            let metaViewport = document.querySelector('meta[name="viewport"]');
+            metaViewport.setAttribute("content", "");
+            metaViewport.remove();
         }
     },
     mounted() {
