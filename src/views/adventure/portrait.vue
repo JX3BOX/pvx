@@ -145,12 +145,7 @@ export default {
             const elements = document.getElementsByClassName("v-miniprogram");
             for (let el of elements) {
                 el.style.removeProperty("font-size");
-                setTimeout(() => {
-                    el.style.fontSize = "16px";
-                    setTimeout(() => {
-                        el.style.fontSize = "10px";
-                    }, 10000);
-                }, 10000);
+                el.style.fontSize = "16px";
             }
 
             let metaViewport = document.querySelector('meta[name="viewport"]');
