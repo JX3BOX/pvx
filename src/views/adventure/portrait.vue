@@ -146,7 +146,10 @@ export default {
             for (let el of elements) {
                 el.style.removeProperty("font-size");
                 setTimeout(() => {
-                    el.style.fontSize = "100px";
+                    el.style.fontSize = "16px";
+                    setTimeout(() => {
+                        el.style.fontSize = "10px";
+                    }, 10000);
                 }, 10000);
             }
 
