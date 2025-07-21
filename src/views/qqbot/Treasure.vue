@@ -86,8 +86,8 @@ export default {
         }
 
         let metaViewport = document.querySelector('meta[name="viewport"]');
-        metaViewport.setAttribute("content", "");
-        metaViewport.remove();
+        metaViewport?.setAttribute("content", "");
+        metaViewport?.remove();
     },
     watch: {
         params: {
@@ -113,11 +113,23 @@ export default {
                                     this.getRoleGameAchievements(params);
                                 }
                             } else {
+                                window.__DATA_READY__ = false;
+                                console.log(
+                                    "未获取到角色信息,",
+                                    "已设置window.__DATA_READY__ = ",
+                                    window.__DATA_READY__
+                                );
                                 this.$message.error("未获取到角色信息");
                             }
                         })
                         .catch((err) => {
-                            console.error("获取角色信息失败", err);
+                            window.__DATA_READY__ = false;
+                            console.log(
+                                "获取角色信息失败",
+                                err,
+                                "已设置window.__DATA_READY__ = ",
+                                window.__DATA_READY__
+                            );
                             this.$message.error("获取角色信息失败，请稍后再试");
                         });
                 }
@@ -133,46 +145,40 @@ export default {
                 if (userJx3Id) {
                     this.getData(userJx3Id);
                 } else {
-                    window.__DATA_READY__ = true;
-                    console.log("未获取到jx3id, ", "已设置window.__DATA_READY__ = ", window.__DATA_READY__);
+                    // 没有userJx3Id设置全局变量__DATA_READY__为false
+                    window.__DATA_READY__ = false;
+                    console.log("未获取到jx3id", "已设置window.__DATA_READY__ = ", window.__DATA_READY__);
                     this.$message.warning("请先在游戏中同步数据");
                 }
             });
         },
         getData(userJx3Id) {
-            treasureCommon(userJx3Id)
-                .then((res) => {
-                    if (this.isLandscape) {
-                        this.isSync = !!userJx3Id; // 是否在游戏中同步
-                        res.pet = this.splitArrayIntoChunks(res.pet, 5);
-                        res.normal = this.splitArrayIntoChunks(res.normal, 3);
-                        this.userAchievement = res;
-                        this.$nextTick((_) => {
-                            this.addClass = false;
-                            this.reelAddClass = "";
-                            this.isOver = false;
-
-                            this.start();
-                        });
-                    } else {
-                        this.isSync = !!userJx3Id; // 是否在游戏中同步
-                        this.userAchievement = res;
+            treasureCommon(userJx3Id).then((res) => {
+                // 获取到数据设置全局变量__DATA_READY__
+                window.__DATA_READY__ = true;
+                console.log("已获取到jx3id = ", userJx3Id, "已设置window.__DATA_READY__ = ", window.__DATA_READY__);
+                if (this.isLandscape) {
+                    this.isSync = !!userJx3Id; // 是否在游戏中同步
+                    res.pet = this.splitArrayIntoChunks(res.pet, 5);
+                    res.normal = this.splitArrayIntoChunks(res.normal, 3);
+                    this.userAchievement = res;
+                    this.$nextTick((_) => {
                         this.addClass = false;
+                        this.reelAddClass = "";
                         this.isOver = false;
-                        this.$nextTick((_) => {
-                            this.start();
-                        });
-                    }
-                })
-                .catch(() => {
-                    window.__DATA_READY__ = true;
-                    console.log(
-                        "已获取到jx3id = ",
-                        userJx3Id,
-                        "请求失败，已设置window.__DATA_READY__ = ",
-                        window.__DATA_READY__
-                    );
-                });
+
+                        this.start();
+                    });
+                } else {
+                    this.isSync = !!userJx3Id; // 是否在游戏中同步
+                    this.userAchievement = res;
+                    this.addClass = false;
+                    this.isOver = false;
+                    this.$nextTick((_) => {
+                        this.start();
+                    });
+                }
+            });
         },
         start() {
             this.addClass = true;
