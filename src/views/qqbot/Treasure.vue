@@ -133,35 +133,46 @@ export default {
                 if (userJx3Id) {
                     this.getData(userJx3Id);
                 } else {
-                    console.log("未获取到jx3id");
+                    window.__DATA_READY__ = true;
+                    console.log("未获取到jx3id, ", "已设置window.__DATA_READY__ = ", window.__DATA_READY__);
                     this.$message.warning("请先在游戏中同步数据");
                 }
             });
         },
         getData(userJx3Id) {
-            treasureCommon(userJx3Id).then((res) => {
-                if (this.isLandscape) {
-                    this.isSync = !!userJx3Id; // 是否在游戏中同步
-                    res.pet = this.splitArrayIntoChunks(res.pet, 5);
-                    res.normal = this.splitArrayIntoChunks(res.normal, 3);
-                    this.userAchievement = res;
-                    this.$nextTick((_) => {
-                        this.addClass = false;
-                        this.reelAddClass = "";
-                        this.isOver = false;
+            treasureCommon(userJx3Id)
+                .then((res) => {
+                    if (this.isLandscape) {
+                        this.isSync = !!userJx3Id; // 是否在游戏中同步
+                        res.pet = this.splitArrayIntoChunks(res.pet, 5);
+                        res.normal = this.splitArrayIntoChunks(res.normal, 3);
+                        this.userAchievement = res;
+                        this.$nextTick((_) => {
+                            this.addClass = false;
+                            this.reelAddClass = "";
+                            this.isOver = false;
 
-                        this.start();
-                    });
-                } else {
-                    this.isSync = !!userJx3Id; // 是否在游戏中同步
-                    this.userAchievement = res;
-                    this.addClass = false;
-                    this.isOver = false;
-                    this.$nextTick((_) => {
-                        this.start();
-                    });
-                }
-            });
+                            this.start();
+                        });
+                    } else {
+                        this.isSync = !!userJx3Id; // 是否在游戏中同步
+                        this.userAchievement = res;
+                        this.addClass = false;
+                        this.isOver = false;
+                        this.$nextTick((_) => {
+                            this.start();
+                        });
+                    }
+                })
+                .catch(() => {
+                    window.__DATA_READY__ = true;
+                    console.log(
+                        "已获取到jx3id = ",
+                        userJx3Id,
+                        "请求失败，已设置window.__DATA_READY__ = ",
+                        window.__DATA_READY__
+                    );
+                });
         },
         start() {
             this.addClass = true;
