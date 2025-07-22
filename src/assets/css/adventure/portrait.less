@@ -181,26 +181,26 @@
             bottom: 36px;
             width: 579px;
         }
-        .m-world-count {
+    }
+    .m-world-count {
+        position: absolute;
+        top: 82px;
+        left: -23px;
+        .u-count__img {
+            width: 184px;
+        }
+        .m-count-info {
             position: absolute;
-            top: 82px;
-            left: -23px;
-            .u-count__img {
-                width: 184px;
-            }
-            .m-count-info {
-                position: absolute;
-                top: 7px;
-                right: 10px;
-                font-size: 1.125rem;
-                font-weight: bold;
-                color: #995115;
-                text-align: center;
-                opacity: 0.5;
-                line-height: 1;
-                //-webkit-text-size-adjust: 100% !important;
-                //text-size-adjust: 100% !important;
-            }
+            top: 7px;
+            right: 10px;
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #995115;
+            text-align: center;
+            opacity: 0.5;
+            line-height: 1;
+            //-webkit-text-size-adjust: 100% !important;
+            //text-size-adjust: 100% !important;
         }
     }
     .m-world-item {
@@ -585,13 +585,37 @@
 }
 
 .is-ios {
+    .m-world-count {
+        .flex;
+        align-items: center;
+
+        .m-count-info {
+            top: unset;
+            right: -5px;
+            font-size: 1rem;
+            font-size: normal;
+        }
+    }
     .m-portrait-content {
+        .m-introduce {
+            .m-info {
+                .u-producer__text {
+                    .pr;
+                    right: 30px;
+                }
+            }
+
+            .m-user {
+                font-size: 1rem !important;
+                font-weight: normal;
+            }
+        }
         .m-world-item {
             .u-item__text {
                 top: 50%;
                 left: 50%;
                 transform: scale(0.5) translate(-100%, -100%);
-                line-height: 24px;
+                line-height: 30px;
             }
         }
 
@@ -601,7 +625,7 @@
                     top: 50%;
                     left: 50%;
                     transform: scale(0.5) translate(-100%, -100%);
-                    line-height: 24px;
+                    line-height: 30px;
                 }
             }
             .m-qy-count {
@@ -609,9 +633,10 @@
                 align-items: center;
 
                 .m-count-info {
-                    top: 0;
+                    top: unset;
                     right: -5px;
                     font-size: 1rem;
+                    font-weight: normal;
                 }
             }
         }
