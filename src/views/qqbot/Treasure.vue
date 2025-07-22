@@ -83,6 +83,7 @@ export default {
         if (this.isMiniProgram && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
             document.documentElement.style.removeProperty("font-size");
             document.documentElement.style.fontSize = "16px";
+            document.documentElement.classList.add("is-ios");
         }
 
         let metaViewport = document.querySelector('meta[name="viewport"]');
