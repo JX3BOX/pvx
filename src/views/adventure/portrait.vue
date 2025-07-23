@@ -59,9 +59,16 @@
                     <el-option value="hq" label="浩气盟阵营"> </el-option>
                     <el-option value="er" label="恶人谷阵营"> </el-option>
                 </el-select>
-                <el-button class="u-refresh" size="small" @click="onRefresh">
-                    <i class="el-icon-refresh"></i>刷新卷轴</el-button
-                >
+                <div class="u-action">
+                    <el-tooltip content="刷新QQ机器人等渠道快照图片">
+                        <el-button class="u-refresh" size="small" @click="onRefresh">
+                            <i class="el-icon-refresh"></i>刷新卷轴</el-button
+                        >
+                    </el-tooltip>
+                    <el-button class="u-role-setting" size="small" @click="onRoleSet">
+                        <i class="el-icon-setting"></i>角色管理</el-button
+                    >
+                </div>
             </div>
 
             <div id="capture" ref="capture" v-if="!noRole">
@@ -88,7 +95,7 @@ import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import getData from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
-import { __Links, __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Links, __cdn, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
 import portraitContent from "./portraitContent.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
@@ -162,7 +169,7 @@ export default {
                         return !!item.player_id;
                     }) || [];
                 if (this.roleList.length) {
-                    this.currentRole = this.roleList[0];
+                    this.currentRole = this.roleList.find((item) => item.is_default_role) || this.roleList[0];
                 }
             } else {
                 this.noRole = true;
@@ -171,6 +178,9 @@ export default {
         });
     },
     methods: {
+        onRoleSet() {
+            window.open(`${__Root}dashboard/role`, "_blank");
+        },
         onRefresh() {
             refreshAchievementsTask({
                 mode: "portrait",
