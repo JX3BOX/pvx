@@ -75,7 +75,7 @@
         </div>
         <div class="m-list" v-else>
             <div class="m-horse-card">
-                <div class="u-item" v-for="item in list" :key="'list'+item.ID"  @click="openOther(item2)">
+                <div class="u-item" v-for="item in list" :key="'list'+item.ID"  @click="openOther(item)">
                     <img :src="formatImg(item.Path)"   class="u-img" />
                     <div class="u-name">
                         {{item.szName}}
@@ -428,7 +428,7 @@ export default {
                 })
                 .finally(() => {
                     this.loading = false;
-                    
+
                 });
         },
         setFurniture(res) {
