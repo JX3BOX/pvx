@@ -1306,7 +1306,6 @@ export default {
                         resolve();
                     });
                 });
-
                 const element = this.$refs.capture; // 获取需要保存为图片的元素
                 const canvas = await html2canvas(element, {
                     allowTaint: true,
