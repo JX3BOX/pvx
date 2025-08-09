@@ -693,7 +693,7 @@ export default {
 //@media screen and (width: 414px)
 @media (prefers-color-scheme: dark)
 {
-    .p-horse_mobile{
+    .p-furniture_mobile{
         background-color: #000;
         .m-title{
             color:@fontColor-dark2;
