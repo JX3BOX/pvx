@@ -14,7 +14,9 @@
             <template #default>
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="doFav">
-                        <img class="u-icon" :class={active:favorite} src="@/assets/img/pvxsuspension/collect.svg" svg-inline />
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/collect_active.svg" svg-inline v-if="favorite" />
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/collect.svg" svg-inline v-else />
+
                        收藏
                     </div>
                 </div>
@@ -172,6 +174,7 @@ export default {
     created() {
         this.getCategory();
         this.getData();
+
         if (this.login && this.id) this.hasFav();
     },
     methods: {
@@ -188,10 +191,12 @@ export default {
         hasFav: function () {
             hasFav(this.type, this.id).then((res) => {
                 this.favorite = res.id || false;
+
             });
         },
         addFav: function () {
             addFav(this.type, this.id, this.setData.szName).then((res) => {
+
                 this.favorite = res.id;
             });
         },
@@ -331,12 +336,7 @@ export default {
             }
             .u-icon{
                 .size(1.25rem, 1.25rem);
-                &.active{
-                    svg, path {
-                        fill: #FEDAA3;
-                        stroke: #FEDAA3;
-                    }
-                }
+
 
             }
         }
