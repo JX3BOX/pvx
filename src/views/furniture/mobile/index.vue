@@ -428,12 +428,7 @@ export default {
                 })
                 .finally(() => {
                     this.loading = false;
-                    this.$nextTick(()=>{
-                        this.$refs.furnitureRef.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-                    })
+                    
                 });
         },
         setFurniture(res) {
