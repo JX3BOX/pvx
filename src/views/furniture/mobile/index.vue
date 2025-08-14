@@ -5,7 +5,7 @@
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
-                    <div class="u-btn-item line" @click="showForm=true">
+                    <div class="u-btn-item line" @click="switchClick">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline />
                         {{ switchTitle}}
                     </div>
@@ -17,43 +17,46 @@
                    :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
             <!--                筛选区域-->
             <div class="m-filtrate">
-                <div class="u-filtrate-content">
-                <div class="u-filtrate-title">类型</div>
-                <div class="u-box">
-                    <div class="u-item top" :class="{active:queryType==1}" @click="queryType=1">庐园广记</div>
-                    <div class="u-item top" :class="{active:queryType==2}" @click="queryType=2">家具</div>
-                </div>
-<!--                庐园广记分类-->
-                <div v-if="queryType===1">
-                    <div class="u-filtrate-title">分类</div>
-                    <div class="u-box" >
-                        <div class="u-item" :class="{'active':item.nDlcID==version}"  v-for="(item,index) in versions" :key="index" @click="versionChange(item.nDlcID)">
-                            {{ item.name?.split('(')?.[0] }}</div>
+                <div class="u-filtrate-content" ref="filteateContent" @scroll="handleFilteateScroll">
+                    <div class="u-filtrate-title">类型</div>
+                    <div class="u-box">
+                        <div class="u-item top" :class="{active:queryType==1}" @click="queryType=1">庐园广记</div>
+                        <div class="u-item top" :class="{active:queryType==2}" @click="queryType=2">家具</div>
+                    </div>
+                    <!--                庐园广记分类-->
+                    <div v-if="queryType===1">
+                        <div class="u-filtrate-title">分类</div>
+                        <div class="u-box" >
+                            <div class="u-item" :class="{'active':item.nDlcID==version}"  v-for="(item,index) in versions" :key="index" @click="versionChange(item.nDlcID)">
+                                {{ item.name?.split('(')?.[0] }}</div>
+                        </div>
+                    </div>
+                    <!--                家具分类-->
+                    <div v-else>
+                        <div v-for="(item,index) in searchProps" :key="index">
+                            <div class="u-filtrate-title">{{ item.name }}</div>
+                            <div class="u-box" >
+                                <div class="u-item" :class="{'active':getActiveStatus(item,item2)}"  v-for="(item2,index2) in item.options" :key="index2" @click="setSearchParams(item.key=='nCatag1Index'?item.key:item2.paramsKey,item2)">
+                                    {{ item.key=='nCatag1Index'?item2.name:item2.value }}</div>
+                            </div>
+                            <!--                        如果是分类显示次级分类-->
+                            <template v-if="item.key=='nCatag1Index'">
+                                <div class="u-filtrate-title">次级分类</div>
+                                <div class="u-box" >
+                                    <div class="u-item" :class="{active:queryParams.nCatag2Index==item2.nCatag2Index}" v-for="(item2,index2) in item.options[Number(queryParams.nCatag1Index)- 1]?.children||[]" :key="index2" @click="setSearchParams('nCatag2Index',item2)">
+                                        {{ item2.szName }}</div>
+                                </div>
+                            </template>
+                        </div>
+
                     </div>
                 </div>
-<!--                家具分类-->
-                <div v-else>
-                    <div v-for="(item,index) in searchProps" :key="index">
-                        <div class="u-filtrate-title">{{ item.name }}</div>
-                        <div class="u-box" >
-                            <div class="u-item" :class="{'active':getActiveStatus(item,item2)}"  v-for="(item2,index2) in item.options" :key="index2" @click="setSearchParams(item.key=='nCatag1Index'?item.key:item2.paramsKey,item2)">
-                                {{ item.key=='nCatag1Index'?item2.name:item2.value }}</div>
-                        </div>
-<!--                        如果是分类显示次级分类-->
-                        <template v-if="item.key=='nCatag1Index'">
-                            <div class="u-filtrate-title">次级分类</div>
-                            <div class="u-box" >
-                                <div class="u-item" :class="{active:queryParams.nCatag2Index==item2.nCatag2Index}" v-for="(item2,index2) in item.options[Number(queryParams.nCatag1Index)- 1]?.children||[]" :key="index2" @click="setSearchParams('nCatag2Index',item2)">
-                                    {{ item2.szName }}</div>
-                            </div>
-                        </template>
+                <div class="u-btn" :class="{' u-btn-shadow':isShadow}">
+                    <div class="u-btn-box ">
+                        <div class="u-report-btn" @click="reloadQuery">重置</div>
+                        <div class="u-confirm-btn" :class="{active:confirmBtn}" @click="submitBtn">确定</div>
                     </div>
 
-                </div>
-                </div>
-                <div class="u-btn">
-                    <div class="u-report-btn" @click="reloadQuery">重置</div>
-                    <div class="u-confirm-btn" :class="{active:confirmBtn}" @click="submitBtn">确定</div>
                 </div>
             </div>
         </el-drawer>
@@ -213,7 +216,8 @@ export default {
             ],
             version: 7,
             queryType:1, //1 version  2 家具
-            queryType_bak:1
+            queryType_bak:1,
+            isShadow:false //是否显示阴影
         };
     },
     filters: {
@@ -229,12 +233,19 @@ export default {
     watch: {
         queryType:{
             handler:function(val){
+                this.$nextTick(()=>{
+                    if(this.$refs.filteateContent.offsetHeight==this.$refs.filteateContent.scrollHeight){
+                        this.isShadow=false
+                    }else{
+                        this.isShadow=true;
+                    }
 
+                })
             }
         },
         queryParams:{
             handler:function(val){
-               this.confirmBtn=true
+                this.confirmBtn=true
             }
         }
         // list: {
@@ -259,11 +270,24 @@ export default {
             if (this.loading || this.isFinish) return;
             if (target.scrollHeight - target.scrollTop - 60 < target.clientHeight) {
                 this.queryParams.page++;
-                let params=cloneDeep(this.queryParams)
+
                 this.showForm = false;
                 this.getData()
             }
 
+        },
+        switchClick(){
+            this.showForm=true
+        },
+        //筛选器滚动事件
+        handleFilteateScroll(event){
+            const { target } = event;
+            if (target.scrollHeight - target.scrollTop - target.offsetHeight   < 10){
+                this.isShadow=false
+            }else{
+                this.isShadow=true;
+            }
+            console.log(this.isShadow)
         },
         formatImg(link) {
             if (!link) return;
@@ -483,13 +507,13 @@ export default {
     }
 
     //筛选切换
-   .m-filtrate {
+    .m-filtrate {
         padding: 0.75rem;
         box-sizing: border-box;
-       .u-filtrate-content{
-           height: 40vh;
-           overflow-y: auto;
-       }
+        .u-filtrate-content{
+            height: 45vh;
+            overflow-y: auto;
+        }
         .u-filtrate-title {
             .mb(0.75rem);
             color: rgba(255, 255, 255, 0.60);
@@ -536,11 +560,28 @@ export default {
         }
 
         .u-btn {
-            .flex;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            gap: 1.25rem;
+            position: relative;
 
+            &.u-btn-shadow{
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: -1.5rem;
+                    left: 0;
+                    width: 100%;
+                    height:1.5rem; /* 阴影高度 */
+                    background: linear-gradient(180deg,  rgba(36, 41, 46, 0.00) 0%, #24292E 73.94%);
+                    background-size: 200% 100%;
+                    animation: gradient-animation 3s linear infinite;
+                }
+            }
+            .u-btn-box{
+                .flex;
+                .fz(1rem, 1.5rem);
+                .bold(700);
+                gap: 1.25rem;
+
+            }
             .u-report-btn {
                 padding: 0.75rem 1rem;
                 box-sizing: border-box;
