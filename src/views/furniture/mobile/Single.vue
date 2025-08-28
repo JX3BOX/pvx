@@ -65,7 +65,7 @@
         </div>
         <!--        其他列表-->
         <div class="m-same-horses"   v-if="has_extend && setData">
-            <div class="m-title">套组 ·{{ setData.szName }}</div>
+            <div class="m-title">套组 · {{ setData.szName }}</div>
             <div class="m-horse-card">
                 <div class="u-item" v-for="item in other_list" :key="item?.ID" @click="openOther(item)">
                     <img :src="formatImg(item.Path)"  class="u-img" />

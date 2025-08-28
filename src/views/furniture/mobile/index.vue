@@ -287,7 +287,7 @@ export default {
             }else{
                 this.isShadow=true;
             }
-            console.log(this.isShadow)
+
         },
         formatImg(link) {
             if (!link) return;
