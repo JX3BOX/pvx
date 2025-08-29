@@ -77,6 +77,7 @@
                         <div class="u-cover" :style="{'background':getBookCoverColor()}">
                             <div class="u-book-name">
                                 <div class="u-text">
+                                    {{item2.Name}}
                                     <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
                                         {{item2.Name}}
                                     </div>
