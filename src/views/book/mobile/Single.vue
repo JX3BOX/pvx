@@ -50,13 +50,24 @@
             <div class="m-box m-other">
                 <div class="m-title">书籍信息</div>
                 <div class="u-other-box">
-                    <div class="u-item">
+                    <div class="u-item"  v-if="!['其它', '碑铭'].includes(getOrigin(book))">
                         <div class="u-title">来源</div>
-                        <div class="u-text"><span v-if="getOrigin(book) === '碑铭'" class="book-special"
-                        >{{ getOrigin(book) }}
-                                  </span>
-                            <span v-else>{{ getOrigin(book) }}</span></div>
+                        <div class="u-text">
+                            <span :class="getOrigin(book) !== '其它' && 'book-special'">{{ getOrigin(book) }}</span>
+                        </div>
                     </div>
+
+                    <div class="u-item" v-else>
+                        <div class="u-title">来源</div>
+                        <div class="u-text">
+                           <span v-if="getOrigin(book) === '碑铭'" class="book-special"
+                           >{{ getOrigin(book) }}
+                            </span>
+                            <!-- 其它 -->
+                            <span v-else>{{ getOrigin(book) }}</span>
+                        </div>
+                    </div>
+
                     <div class="u-item" >
                         <div class="u-title">所属套书</div>
                         <div class="u-text">{{
@@ -535,112 +546,160 @@ export default {
             }
         }
     }
-}
+    .m-other-list{
+        .mt(1.25rem);
+        .mb(1.25rem);
+        .u-more{
+            color: @fontcolor-40;
+            .fz(0.75rem,1.125rem);
+            .bold(400);
+            .x;
+        }
+        .m-title{
+            color: @fontColor;
+            .fz(1rem,1.5rem);
+            .bold(700);
+            .mb(0.5rem);
+        }
 
-.m-other-list{
-    .mt(1.25rem);
-    .mb(1.25rem);
-    .u-more{
-        color: @fontcolor-40;
-        .fz(0.75rem,1.125rem);
-        .bold(400);
-        .x;
-    }
-    .m-title{
-        color: @fontColor;
-        .fz(1rem,1.5rem);
-        .bold(700);
-        .mb(0.5rem);
-    }
+        .u-item{
+            .mb(0.75rem)
+        }
+        .u-list{
+            .flex;
+            flex-wrap: wrap;
+            gap:0.75rem;
 
-    .u-item{
-        .mb(0.75rem)
-    }
-    .u-list{
-        .flex;
-        flex-wrap: wrap;
-        gap:0.75rem;
-
-        .u-book-item{
-            .w(calc(calc(100% - 1.5rem) / 3));
-            flex-shrink: 0;
-            .u-name{
-                color: @fontColor;
-                .fz(0.875rem,1.25rem);
-                .bold(700);
-                font-style: normal;
-                .mt(0.5rem);
-            }
-            .u-desc{
-                color:@fontcolor-40;
-                .fz(0.625rem,0.938rem);
-                font-style: normal;
-                .bold(400);
-            }
-            .u-cover{
-                border-radius: 4px;
-                background: #324148;
-                overflow: hidden;
-                .pr;
-                .w(100%);
-                aspect-ratio: 312/335;
-
-            }
-            .u-book-name{
-                background: url("../../../assets/img/book/title.png") center center no-repeat;
-                background-size: contain;
-                margin: 0.5rem;
-                height: calc(100% - 1rem);
-                padding: 0.5rem;
-                box-sizing: border-box;
-                overflow: hidden;
-                .dbi;
-                .u-text{
-                    .h(100%);
+            .u-book-item{
+                .w(calc(calc(100% - 1.5rem) / 3));
+                flex-shrink: 0;
+                .u-name{
+                    color: @fontColor;
+                    .fz(0.875rem,1.25rem);
+                    .bold(700);
+                    font-style: normal;
+                    .mt(0.5rem);
+                }
+                .u-desc{
+                    color:@fontcolor-40;
+                    .fz(0.625rem,0.938rem);
+                    font-style: normal;
+                    .bold(400);
+                }
+                .u-cover{
+                    border-radius: 4px;
+                    background: #324148;
                     overflow: hidden;
-                    .u-name{
-                        .fz(0.875rem);
-                        .bold(600);
-                        color:#000;
-                        writing-mode: vertical-lr;
-                        text-orientation: upright;
-                        white-space: nowrap;
-                        position: relative;
-                        word-break: break-all;
-                        .flex;
-                        align-items: center;
-                        justify-content: center;
-                        &.scroll{
+                    .pr;
+                    .w(100%);
+                    aspect-ratio: 312/335;
 
-                            /* 动画设置 */
-                            animation: verticalScroll 10s ease-in-out infinite;
+                }
+                .u-book-name{
+                    background: url("../../../assets/img/book/title.png") center center no-repeat;
+                    background-size: contain;
+                    margin: 0.5rem;
+                    height: calc(100% - 1rem);
+                    padding: 0.5rem;
+                    box-sizing: border-box;
+                    overflow: hidden;
+                    .dbi;
+                    .u-text{
+                        .h(100%);
+                        overflow: hidden;
+                        .u-name{
+                            .fz(0.875rem);
+                            .bold(600);
+                            color:#000;
+                            writing-mode: vertical-lr;
+                            text-orientation: upright;
+                            white-space: nowrap;
+                            position: relative;
+                            word-break: break-all;
+                            .flex;
+                            align-items: center;
+                            justify-content: center;
+                            &.scroll{
+
+                                /* 动画设置 */
+                                animation: verticalScroll 10s ease-in-out infinite;
+                            }
+                        }
+
+                    }
+                    @keyframes verticalScroll {
+                        0% {
+                            transform: translateY(0);
+                        }
+                        50% {
+                            transform: translateY(-100%);
+                        }
+                        100% {
+                            transform: translateY(0);
                         }
                     }
-
                 }
-                @keyframes verticalScroll {
-                    0% {
-                        transform: translateY(0);
-                    }
-                    50% {
-                        transform: translateY(-100%);
-                    }
-                    100% {
-                        transform: translateY(0);
+                .u-book-line{
+                    .h(100%);
+                    .pa;
+                    .rt(0);
+                    img{
+                        .h(100%);
+                        object-fit: contain;
                     }
                 }
             }
-            .u-book-line{
-                .h(100%);
-                .pa;
-                .rt(0);
-                img{
-                    .h(100%);
-                    object-fit: contain;
+
+        }
+    }
+}
+
+
+@media (prefers-color-scheme: dark){
+    .p-book-single-mobile{
+        background-color: #000;
+
+        .m-info-main{
+            .m-box{
+                background: #282828;
+                .m-title{
+                    color:@fontcolor-80-dark;
+                }
+                .u-box{
+                    &::before{
+                    background: linear-gradient(0deg, #282828 0%, rgba(40, 40, 40, 0.00) 181.45%);
+                    }
+                }
+                .u-content{
+                    color:@fontcolor-80-dark;
+                }
+
+                .u-item{
+                    .u-title{
+                        color:@fontcolor-40-dark !important;
+                    }
+                    .u-text{
+                        color:@fontcolor-80-dark !important;
+                    }
                 }
             }
         }
-
+        .m-other-list{
+            .m-title{
+                color:@fontcolor-80-dark;
+            }
+            .u-item{
+                .u-list{
+                    .u-name{
+                        color:@fontcolor-40-dark;
+                    }
+                    .u-desc{
+                        color:@fontcolor-80-dark !important;
+                    }
+                }
+            }
+        }
     }
+
 }
 </style>

@@ -494,6 +494,26 @@ export default {
             }
         }
     }
+}
+@media (prefers-color-scheme: dark){
+    .p-mobile-book{
+        background-color: #000;
+        .m-title{
+            color:@fontColor-dark2;
+        }
+        .u-item{
+            .u-list{
+                .u-book-item{
+                    .u-name{
+                        color:@fontColor-dark3;
+                    }
+                    .u-desc{
+                        color:@fontColor-dark2 ;
+                    }
+                }
 
+            }
+        }
+    }
 }
 </style>
