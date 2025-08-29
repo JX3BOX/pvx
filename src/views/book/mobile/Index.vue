@@ -55,7 +55,7 @@
                         <div class="u-cover">
                             <div class="u-book-name">
                                 <div class="u-text">
-                                   <div class="u-name"  :class="{scroll:item2.Name.length>5}">
+                                   <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
                                        {{item2.Name}}
                                    </div>
                                 </div>
@@ -77,7 +77,7 @@
                         <div class="u-cover">
                             <div class="u-book-name">
                                 <div class="u-text">
-                                    <div class="u-name"  :class="{scroll:item2.Name.length>5}">
+                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
                                         {{item2.Name}}
                                     </div>
                                 </div>
@@ -449,7 +449,7 @@ export default {
                     .u-text{
                         .h(100%);
                         overflow: hidden;
-                       .u-name{
+                       .u-name-vertical{
                            .fz(0.875rem);
                            .bold(600);
 
