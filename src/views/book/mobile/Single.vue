@@ -623,8 +623,9 @@ export default {
                             writing-mode: vertical-lr;
                             text-orientation: upright;
                             white-space: nowrap;
-                            position: relative;
+                            //position: relative;
                             word-break: break-all;
+                            .w(0.875rem);
                             .flex;
                             align-items: center;
                             justify-content: center;

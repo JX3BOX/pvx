@@ -77,7 +77,6 @@
                         <div class="u-cover" :style="{'background':getBookCoverColor()}">
                             <div class="u-book-name">
                                 <div class="u-text">
-                                    {{item2.Name}}
                                     <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
                                         {{item2.Name}}
                                     </div>
@@ -468,11 +467,15 @@ export default {
                            writing-mode: vertical-lr;
                            text-orientation: upright;
                            white-space: nowrap;
-                           position: relative;
+
                            word-break: break-all;
+                           .w(0.875rem);
                            .flex;
+                           //flex-wrap: wrap;
                            align-items: center;
                            justify-content: center;
+                           //align-content: center;
+                           //text-align: center;
                            &.scroll{
                                /* 动画设置 */
                                animation: verticalScroll 10s ease-in-out infinite;
