@@ -124,7 +124,7 @@
             </div>
             <div class="u-item" >
                 <div class="u-list" >
-                    <div class="u-book-item" v-for="(item2,index) in showMore?bookList:bookList.slice(0,3)" :key="index" @click="openOther(item2.ID)">
+                    <div class="u-book-item" v-for="(item2,index) in showMore?bookList:bookList.slice(0,3)" :key="index" @click="openOther(item2)">
                         <div class="u-cover">
                             <div class="u-book-name">
                                 <div class="u-text">
@@ -220,7 +220,7 @@ export default {
     methods: {
         iconLink,
         openOther(item){
-            wxNewPage(`/book/${item.ID}`)
+            wxNewPage(`/book/${item.idKey}`)
         },
 
         handleFilteateScroll(event) {

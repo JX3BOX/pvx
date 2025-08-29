@@ -51,7 +51,7 @@
                     {{item.label}}
                 </div>
                 <div class="u-list" >
-                    <div class="u-book-item" v-for="(item2,index2) in item.list" :key="'book'+index2">
+                    <div class="u-book-item" v-for="(item2,index2) in item.list" :key="'book'+index2" @click="openOther(item2)">
                         <div class="u-cover">
                             <div class="u-book-name">
                                 <div class="u-text">
@@ -73,7 +73,7 @@
         <div class="m-list" v-else>
             <div class="u-item" >
                 <div class="u-list">
-                    <div class="u-book-item" v-for="(item2,index) in list" :key="index" @click="openOther(item)">
+                    <div class="u-book-item" v-for="(item2,index) in list" :key="index" @click="openOther(item2)">
                         <div class="u-cover">
                             <div class="u-book-name">
                                 <div class="u-text">
@@ -167,7 +167,8 @@ export default {
     },
     methods: {
         openOther(item){
-            wxNewPage(`/book/${item.ID}`)
+            console.log(item)
+            wxNewPage(`/book/${item.idKey}`)
         },
         // 加载更多处理
         handleScroll(event){
