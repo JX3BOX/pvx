@@ -54,8 +54,10 @@
                     <div class="u-book-item" v-for="(item2,index2) in item.list" :key="'book'+index2">
                         <div class="u-cover">
                             <div class="u-book-name">
-                                <div class="u-text" :class="{scroll:item2.Name.length>5}">
-                                    {{item2.Name}}
+                                <div class="u-text">
+                                   <div class="u-name"  :class="{scroll:item2.Name.length>5}">
+                                       {{item2.Name}}
+                                   </div>
                                 </div>
                             </div>
                             <div class="u-book-line">
@@ -74,8 +76,10 @@
                     <div class="u-book-item" v-for="(item2,index) in list" :key="index" @click="openOther(item)">
                         <div class="u-cover">
                             <div class="u-book-name">
-                                <div class="u-text" :class="{scroll:item2.Name.length>5}">
-                                    {{item2.Name}}
+                                <div class="u-text">
+                                    <div class="u-name"  :class="{scroll:item2.Name.length>5}">
+                                        {{item2.Name}}
+                                    </div>
                                 </div>
                             </div>
                             <div class="u-book-line">
@@ -443,21 +447,26 @@ export default {
                     overflow: hidden;
                     .dbi;
                     .u-text{
-                        .fz(0.875rem);
-                        .bold(600);
-                        color:#000;
-                        writing-mode: vertical-lr;
-                        text-orientation: upright;
-                        white-space: nowrap;
-                        position: relative;
-                        word-break: break-all;
-                        .flex;
-                        align-items: center;
-                        justify-content: center;
-                    .h(100%);
-                       &.scroll{
-                           /* 动画设置 */
-                           animation: verticalScroll 10s ease-in-out infinite;
+                        .h(100%);
+                        overflow: hidden;
+                       .u-name{
+                           .fz(0.875rem);
+                           .bold(600);
+
+                           color:#000;
+                           writing-mode: vertical-lr;
+                           text-orientation: upright;
+                           white-space: nowrap;
+                           position: relative;
+                           word-break: break-all;
+                           .flex;
+                           align-items: center;
+                           justify-content: center;
+                           &.scroll{
+
+                               /* 动画设置 */
+                               animation: verticalScroll 10s ease-in-out infinite;
+                           }
                        }
 
                     }
@@ -471,7 +480,7 @@ export default {
                         100% {
                             transform: translateY(0);
                         }
-                        }
+                    }
                 }
                 .u-book-line{
                     .h(100%);

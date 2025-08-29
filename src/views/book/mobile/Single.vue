@@ -116,8 +116,10 @@
                     <div class="u-book-item" v-for="(item2,index) in showMore?bookList:bookList.slice(0,3)" :key="index" @click="openOther(item2.ID)">
                         <div class="u-cover">
                             <div class="u-book-name">
-                                <div class="u-text" :class="{scroll:item2.Name.length>5}">
-                                    {{item2.Name}}
+                                <div class="u-text">
+                                    <div class="u-name"  :class="{scroll:item2.Name.length>5}">
+                                        {{item2.Name}}
+                                    </div>
                                 </div>
                             </div>
                             <div class="u-book-line">
@@ -218,7 +220,6 @@ export default {
             } else {
                 this.isShadow = true;
             }
-            console.log(this.isShadow);
         },
         doFav: function () {
             if (this.login) {
@@ -228,12 +229,12 @@ export default {
             }
         },
         hasFav: function () {
-            hasFav(this.type, this.id).then((res) => {
+            hasFav(this.type, this.idKey).then((res) => {
                 this.favorite = res.id || false;
             });
         },
         addFav: function () {
-            addFav(this.type, this.id, this.setData.szName).then((res) => {
+            addFav(this.type, this.idKey, this.book.Name).then((res) => {
                 this.favorite = res.id;
             });
         },
@@ -354,7 +355,7 @@ export default {
                         }
                     }
                     this.book = data;
-                    console.log(this.book);
+
                     // 获取套书列表
                     this.getBookList(data.BookName);
                 })
@@ -381,6 +382,7 @@ export default {
         getLink,
     },
     mounted() {
+        this.hasFav()
         this.getData();
     },
     computed: {
@@ -594,21 +596,25 @@ export default {
                 overflow: hidden;
                 .dbi;
                 .u-text{
-                    .fz(0.875rem);
-                    .bold(600);
-                    color:#000;
-                    writing-mode: vertical-lr;
-                    text-orientation: upright;
-                    white-space: nowrap;
-                    position: relative;
-                    word-break: break-all;
-                    .flex;
-                    align-items: center;
-                    justify-content: center;
                     .h(100%);
-                    &.scroll{
-                        /* 动画设置 */
-                        animation: verticalScroll 10s ease-in-out infinite;
+                    overflow: hidden;
+                    .u-name{
+                        .fz(0.875rem);
+                        .bold(600);
+                        color:#000;
+                        writing-mode: vertical-lr;
+                        text-orientation: upright;
+                        white-space: nowrap;
+                        position: relative;
+                        word-break: break-all;
+                        .flex;
+                        align-items: center;
+                        justify-content: center;
+                        &.scroll{
+
+                            /* 动画设置 */
+                            animation: verticalScroll 10s ease-in-out infinite;
+                        }
                     }
 
                 }
