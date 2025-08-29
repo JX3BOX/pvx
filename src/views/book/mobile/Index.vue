@@ -51,8 +51,8 @@
                     {{item.label}}
                 </div>
                 <div class="u-list" >
-                    <div class="u-book-item" v-for="(item2,index2) in item.list" :key="'book'+index2" @click="openOther(item2)">
-                        <div class="u-cover">
+                    <div class="u-book-item" v-for="(item2,index2) in item.list" :key="'book'+index2" @click="openOther(item2,item.bgColod)">
+                        <div class="u-cover" :style="{'background':item.bgColod}">
                             <div class="u-book-name">
                                 <div class="u-text">
                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
@@ -74,7 +74,7 @@
             <div class="u-item" >
                 <div class="u-list">
                     <div class="u-book-item" v-for="(item2,index) in list" :key="index" @click="openOther(item2)">
-                        <div class="u-cover">
+                        <div class="u-cover" :style="{'background':getBookCoverColor()}">
                             <div class="u-book-name">
                                 <div class="u-text">
                                     <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
@@ -109,13 +109,14 @@ export default {
         return {
             loading: false,
             tabs:[
-                {id:11,label:'杂集'},
-                {id:10,label:'道学'},
-                {id:9,label:'佛学'},
+                {id:11,label:'杂集',bgColod:'#324148'},
+                {id:10,label:'道学',bgColod:'#194372'},
+                {id:9,label:'佛学',bgColod:'#947d2e'},
             ],
             allList: [
                 {
                     label: "杂集",
+                    bgColod:'#324148',
                     total: 0,
                     list: [],
                     params:{
@@ -124,6 +125,7 @@ export default {
                 },
                 {
                     label: "道学",
+                    bgColod:'#194372',
                     total: 0,
                     list: [],
                     params:{
@@ -133,6 +135,7 @@ export default {
                 {
 
                     label: "佛学",
+                    bgColod:'#947d2e',
                     total: 0,
                     list: [],
                     params:{
@@ -166,8 +169,11 @@ export default {
         },
     },
     methods: {
-        openOther(item){
-            console.log(item)
+        getBookCoverColor(){
+            if(this.active==-1) return ;
+            return this.tabs.filter(e=>e.id==this.active)[0].bgColod
+        },
+        openOther(item,bgColor){
             wxNewPage(`/book/${item.idKey}`)
         },
         // 加载更多处理
@@ -433,20 +439,23 @@ export default {
                     border-radius: 4px;
                     background: #324148;
                     overflow: hidden;
-                    .pr;
+
                     .w(100%);
                     aspect-ratio: 312/335;
-
+                    .flex;
+                    justify-content: space-between;
                 }
                 .u-book-name{
                     background: url("../../../assets/img/book/title.png") center center no-repeat;
-                    background-size: contain;
+                    background-size: 100% 100%;
                     margin: 0.5rem;
                     height: calc(100% - 1rem);
                     padding: 0.5rem;
                     box-sizing: border-box;
                     overflow: hidden;
-                    .dbi;
+                    //.pa;
+                    //.lt(0);
+                    //.dbi;
                     .u-text{
                         .h(100%);
                         overflow: hidden;
@@ -464,7 +473,6 @@ export default {
                            align-items: center;
                            justify-content: center;
                            &.scroll{
-
                                /* 动画设置 */
                                animation: verticalScroll 10s ease-in-out infinite;
                            }
@@ -485,8 +493,8 @@ export default {
                 }
                 .u-book-line{
                     .h(100%);
-                    .pa;
-                    .rt(0);
+                    //.pa;
+                    //.rt(0);
                     img{
                         .h(100%);
                         object-fit: contain;

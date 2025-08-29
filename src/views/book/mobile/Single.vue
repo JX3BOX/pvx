@@ -125,7 +125,7 @@
             <div class="u-item" >
                 <div class="u-list" >
                     <div class="u-book-item" v-for="(item2,index) in showMore?bookList:bookList.slice(0,3)" :key="index" @click="openOther(item2)">
-                        <div class="u-cover">
+                        <div class="u-cover" :style="{'background':getBookCoverColor()}">
                             <div class="u-book-name">
                                 <div class="u-text">
                                     <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
@@ -215,6 +215,11 @@ export default {
                 10: "道学",
                 9: "佛学",
             },
+            tabs:[
+                {id:11,label:'杂集',bgColod:'#324148'},
+                {id:10,label:'道学',bgColod:'#194372'},
+                {id:9,label:'佛学',bgColod:'#947d2e'},
+            ],
         };
     },
     methods: {
@@ -222,7 +227,10 @@ export default {
         openOther(item){
             wxNewPage(`/book/${item.idKey}`)
         },
-
+        getBookCoverColor(){
+            if(!this.book.ExtendProfessionID1) return '#324148'
+            return this.tabs.filter(e=>e.id==this.book.ExtendProfessionID1)[0].bgColod
+        },
         handleFilteateScroll(event) {
             const { target } = event;
             this.contentScrollTop = target.scrollTop;
@@ -593,7 +601,8 @@ export default {
                     .pr;
                     .w(100%);
                     aspect-ratio: 312/335;
-
+                    .flex;
+                    justify-content: space-between;
                 }
                 .u-book-name{
                     background: url("../../../assets/img/book/title.png") center center no-repeat;
@@ -603,7 +612,7 @@ export default {
                     padding: 0.5rem;
                     box-sizing: border-box;
                     overflow: hidden;
-                    .dbi;
+                    //.dbi;
                     .u-text{
                         .h(100%);
                         overflow: hidden;
@@ -641,8 +650,8 @@ export default {
                 }
                 .u-book-line{
                     .h(100%);
-                    .pa;
-                    .rt(0);
+                    //.pa;
+                    //.rt(0);
                     img{
                         .h(100%);
                         object-fit: contain;
