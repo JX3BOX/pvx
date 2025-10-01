@@ -223,7 +223,7 @@ import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import dayjs from "@/plugins/day";
 import PetMap from "@/components/pet/PetMap.vue";
 // import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {
     name: "PetSingle",

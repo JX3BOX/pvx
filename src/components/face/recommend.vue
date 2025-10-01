@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box";
+import { __imgPath } from "@/utils/config";
 import User from "@jx3box/jx3box-common/js/user";
 import { setPost } from "@/service/face";
 import { showAvatar, authorLink, getThumbnail, resolveImagePath } from "@jx3box/jx3box-common/js/utils";

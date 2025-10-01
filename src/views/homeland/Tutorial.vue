@@ -44,7 +44,7 @@
 <script>
 import { getHomelandLevelUp, getHomelandGame } from "@/service/homeland.js";
 import { getMenu } from "@jx3box/jx3box-common/js/api_misc";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 export default {
 	name: "Tutorial",
 	props: [],

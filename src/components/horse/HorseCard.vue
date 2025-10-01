@@ -27,7 +27,7 @@
 <script>
 import { isPhone } from "@/utils/index";
 import ItemIcon from "../common/item_icon.vue";
-import { __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __cdn } from "@/utils/config";
 export default {
     props: {
         item: {

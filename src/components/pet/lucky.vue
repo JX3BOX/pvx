@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { __cdn } from "@jx3box/jx3box-common/data/jx3box";
+import { __cdn } from "@/utils/config";
 import {resolveImagePath} from '@jx3box/jx3box-common/js/utils'
 export default {
     name: "luckyItem",

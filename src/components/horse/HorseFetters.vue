@@ -32,7 +32,7 @@
     </div>
 </template>
 <script>
-import { __iconPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __iconPath } from "@/utils/config";
 import { iconLink, extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import Item from "@jx3box/jx3box-editor/src/Item";
 export default {

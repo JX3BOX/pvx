@@ -1,5 +1,5 @@
 import { $node, $cms, $next } from "@jx3box/jx3box-common/js/https";
-import { __dataPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __dataPath } from "@/utils/config";
 import axios from "axios";
 const $n = $node();
 

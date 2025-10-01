@@ -1,5 +1,5 @@
 import { $node, axios, $team } from "@jx3box/jx3box-common/js/https";
-import { __dataPath } from "@jx3box/jx3box-common/data/jx3box";
+import { __dataPath } from "@/utils/config";
 
 // 获取奇遇列表
 function getAdventures(params) {

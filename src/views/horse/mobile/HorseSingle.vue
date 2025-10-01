@@ -126,7 +126,7 @@ import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 import ItemIcon from "@/components/common/item_icon.vue";
 import { getHorse, getHorses } from "@/service/horse";
 import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
-import { __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __cdn } from "@/utils/config";
 import  { wxNewPage } from "@/utils/minprogram";
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";

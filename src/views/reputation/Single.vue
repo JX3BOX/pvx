@@ -458,7 +458,7 @@ import paths from "@/assets/data/reputation_exchange_path.json";
 import levelList from "@/assets/data/reputation_level.json";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 
 import { getInfo } from "@/service/reputation";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";

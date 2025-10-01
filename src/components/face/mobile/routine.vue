@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box";
+import { __imgPath } from "@/utils/config";
 import { getThumbnail } from "@jx3box/jx3box-common/js/utils";
 import  { wxNewPage } from "@/utils/minprogram";
 export default {

@@ -138,7 +138,7 @@ import { omit, cloneDeep, concat } from "lodash";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import ItemIcon from "@/components/common/item_icon.vue";
 import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
-import { __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __cdn } from "@/utils/config";
 import scrollingText from "@/components/horse/mobile/scrollingText.vue";
 import { wxNewPage } from "@/utils/minprogram";
 import wx from "weixin-js-sdk";

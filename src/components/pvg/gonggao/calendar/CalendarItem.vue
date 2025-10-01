@@ -57,7 +57,7 @@
 
 <script>
 import { resolveImagePath, getThumbnail } from "@jx3box/jx3box-common/js/utils";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import dayjs from "@/utils/day";
 export default {
     name: "calendar-item",

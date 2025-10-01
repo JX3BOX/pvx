@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import  { wxNewPage } from "@/utils/minprogram";
 export default {

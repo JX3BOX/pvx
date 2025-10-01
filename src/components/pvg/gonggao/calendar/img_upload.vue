@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { __cms } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __cms } from "@/utils/config";
 const API_Root = process.env.NODE_ENV === "production" ? __cms : "/";
 const API = API_Root + "api/cms/upload";
 import { showBanner } from "@jx3box/jx3box-common/js/utils";

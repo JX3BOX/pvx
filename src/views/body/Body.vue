@@ -10,7 +10,7 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
-import { __OriginRoot } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __OriginRoot } from "@/utils/config";
 export default {
     name: "Body",
     components: { Nav },

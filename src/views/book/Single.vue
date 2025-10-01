@@ -301,7 +301,7 @@ import bookMapInfoOrigin from "@/assets/data/stele_origin_fwd.json";
 import maps_std from "@jx3box/jx3box-data/data/fb/fb_map.json";
 import maps_orgin from "@jx3box/jx3box-data/data/fb/fb_map_origin.json";
 
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 

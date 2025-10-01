@@ -31,7 +31,7 @@
 
 <script>
 import homeland_maps from "@/assets/data/homeland_maps.json";
-import { __imgPath, __ossRoot } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath, __ossRoot } from "@/utils/config";
 import { resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 import { getHomelandCoord } from "@/service/homeland.js";
 import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";

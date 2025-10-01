@@ -39,7 +39,7 @@
 import { keyBy } from "lodash";
 import { getManufactureItem, getItemMerges } from "@/service/manufacture/manufacture";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import RecipeDetail from "@/components/manufacture/RecipeDetail.vue";
 
 export default {

@@ -33,7 +33,7 @@
 // }
 import Nav from "@/components/Nav.vue";
 import { getAppIcon } from "@jx3box/jx3box-common/js/utils";
-import { __imgPath, __dataPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath, __dataPath } from "@/utils/config";
 export default {
     name: "App",
     props: [],

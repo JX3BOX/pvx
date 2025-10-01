@@ -17,7 +17,7 @@
 <script>
 import Bodydat from "@jx3box/jx3box-facedat/src/Bodydat";
 import Upload from "@jx3box/jx3box-facedat/src/Upload";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 export default {
     name: "BodyDataParse",
     data: function () {

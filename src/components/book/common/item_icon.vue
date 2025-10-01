@@ -47,7 +47,7 @@
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { get_item } from "@jx3box/jx3box-editor/service/item";
 import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 
 export default {
     name: "ItemIcon",

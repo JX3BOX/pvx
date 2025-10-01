@@ -32,7 +32,7 @@
 <script>
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { get_item } from "@/service/manufacture/item.js";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 
 export default {

@@ -29,7 +29,7 @@
 
 <script>
 import { getRoleGameAchievementsByRoleAndServer, getUserRoles } from "@/service/adventure/treasure";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import treasureCommon from "@/assets/js/treasure.js";
 import landscapeContent from "@/views/adventure/landscapeContent.vue";
 import portraitContent from "@/views/adventure/portraitContent.vue";

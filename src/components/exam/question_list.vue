@@ -43,7 +43,7 @@
     </div>
 </template>
 <script>
-import { __clients } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients } from "@/utils/config";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "QuestionList",

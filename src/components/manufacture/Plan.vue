@@ -63,7 +63,7 @@ import { ts2str } from "@jx3box/jx3box-common/js/utils";
 import itemIcon from "./ItemIcon.vue";
 import Equip from "./Equip.vue";
 import Bus from "@/store/bus.js";
-import { __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Root } from "@/utils/config";
 export default {
     name: "Plan",
     props: ["planId", "visible"],

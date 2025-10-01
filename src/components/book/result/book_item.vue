@@ -20,7 +20,7 @@
 
 <script>
 import ItemIcon from "../common/item_icon.vue";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import bookProfession from "@/assets/data/book_profession.json";
 import bookMapInfoStd from "@/assets/data/stele_std_fwd.json";
 import bookMapInfoOrigin from "@/assets/data/stele_origin_fwd.json";

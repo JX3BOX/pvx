@@ -45,7 +45,7 @@ import ImperialExamList from "@/components/exam/imperial_exam_list.vue";
 import PaperList from "@/components/exam/paper_list.vue";
 import QuestionList from "@/components/exam/question_list.vue";
 import tags from "@/assets/data/exam_tags.json";
-import { __clients, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients, __Root } from "@/utils/config";
 import { cloneDeep } from "lodash";
 import { deleteNull } from "@/utils/index";
 import User from "@jx3box/jx3box-common/js/user";

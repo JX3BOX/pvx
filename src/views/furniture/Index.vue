@@ -97,7 +97,7 @@ import PvxSearch from "@/components/PvxSearch.vue";
 import furnitureSet from "@/components/furniture/furniture_set.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
 
-import { __imgPath, __dataPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath, __dataPath } from "@/utils/config";
 import { getFurnitureCategory, getFurnitureMatch } from "@/service/homeland.js";
 import { getFurniture, getFurnitureSet } from "@/service/furniture.js";
 import { deleteNull, isPhone } from "@/utils/index";

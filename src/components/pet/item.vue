@@ -27,7 +27,7 @@
 
 <script>
 import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
-import { __iconPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __iconPath } from "@/utils/config";
 export default {
     props: {
         petObject: {},
@@ -38,7 +38,7 @@ export default {
     },
 
     computed: {
-        client() { 
+        client() {
             return this.$store.state.client;
         },
     },

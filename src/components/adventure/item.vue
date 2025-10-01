@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import forceid from "@jx3box/jx3box-data/data/xf/forceid.json";
 export default {
     name: "item",

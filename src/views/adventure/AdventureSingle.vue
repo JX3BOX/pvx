@@ -146,7 +146,7 @@ import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";

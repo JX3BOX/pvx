@@ -16,7 +16,7 @@
 
 </template>
 <script>
-import { __imgPath, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath, __Root } from "@/utils/config";
 import { getCalendarRank, getRankDate } from "@/service/pvg/calendar.js";
 export default {
     name: "calendarRank",

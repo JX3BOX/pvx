@@ -70,7 +70,7 @@
 
 <script>
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box";
+import { __imgPath } from "@/utils/config";
 import CommonToolbar from "@/components/common/toolbar.vue";
 import { debounce } from "lodash";
 export default {

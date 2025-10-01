@@ -89,7 +89,7 @@ import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import treasureCommon from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
-import { __Links, __cdn, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Links, __cdn, __Root } from "@/utils/config";
 import landscapeContent from "./landscapeContent.vue";
 export default {
     name: "landscape",

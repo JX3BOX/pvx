@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { __Root, __OriginRoot } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Root, __OriginRoot } from "@/utils/config";
 import QrcodeVue from "qrcode.vue";
 export default {
     name: "PvxRobotBottom",

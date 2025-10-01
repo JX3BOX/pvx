@@ -226,7 +226,7 @@
         __clients,
         __imgPath,
         __Root
-    } from "@jx3box/jx3box-common/data/jx3box.json";
+    } from "@/utils/config";
 
     import dayjs from "@/utils/day";
     import faceItem from "@/components/face/item";

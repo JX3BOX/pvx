@@ -1,5 +1,5 @@
 import { $node, $cms } from "@jx3box/jx3box-common/js/https";
-import { __dataPath, __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __dataPath, __imgPath } from "@/utils/config";
 import axios from "axios";
 // const $ = axios.create({
 //     baseURL : 'http://localhost:9002/'

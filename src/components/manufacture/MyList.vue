@@ -41,7 +41,7 @@
 
 <script>
 import { getPlan, getPlans, batchDeletePlan, getPlansByIds } from "@/service/manufacture/plan";
-import { __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Root } from "@/utils/config";
 import User from "@jx3box/jx3box-common/js/user";
 import { showTime } from "@/utils/moment";
 

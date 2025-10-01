@@ -37,7 +37,7 @@
     </div>
 </template>
 <script>
-import { __clients } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients } from "@/utils/config";
 export default {
     name: "PaperList",
     props: ["data"],

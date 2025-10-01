@@ -133,9 +133,9 @@
 <script>
 // import Article from "@jx3box/jx3box-editor/src/Article.vue";
 import { authorLink, showAvatar, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
-import { __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __Root } from "@/utils/config";
 import tags from "@/assets/data/exam_tags.json";
-import { __clients } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients } from "@/utils/config";
 export default {
     name: "Card",
     props: ["item", "answer", "index", "isSubmitted", "fromQuestion"],

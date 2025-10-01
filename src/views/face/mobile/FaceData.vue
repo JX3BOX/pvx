@@ -11,7 +11,7 @@
 
 <script>
 import _ from "lodash";
-import { __ossMirror, __iconPath, __ossRoot } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __ossMirror, __iconPath, __ossRoot } from "@/utils/config";
 import fixOldData from "@jx3box/jx3box-facedat/src/fixOldData.js";
 import decal_default from "@jx3box/jx3box-facedat/assets/data/face/decal_default.json";
 

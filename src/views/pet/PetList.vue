@@ -74,7 +74,7 @@ import { isPhone } from "@/utils/index";
 import Type from "@/assets/data/pet_type.json";
 import Source from "@/assets/data/pet_source.json";
 
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import { getPets, getPetLucky, getSliders, getMapList } from "@/service/pet";
 
 import dayjs from "@/plugins/day";

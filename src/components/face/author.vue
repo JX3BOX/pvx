@@ -35,7 +35,7 @@
 </template>
 <script>
 import { getUserInfo, getDecoration, getDecorationJson } from "@/service/face";
-import { __userLevelColor, __imgPath } from "@jx3box/jx3box-common/data/jx3box";
+import { __userLevelColor, __imgPath } from "@/utils/config";
 import User from "@jx3box/jx3box-common/js/user";
 const DECORATION_JSON = "decoration_json_face";
 const DECORATION_KEY = "decoration_me_face";
@@ -94,7 +94,7 @@ export default {
             let decoration_local = sessionStorage.getItem(DECORATION_KEY + this.uid);
             if (decoration_local) {
                 const decoration = JSON.parse(decoration_local);
-                this.userDefinedStyle = decoration ? decoration : {}; 
+                this.userDefinedStyle = decoration ? decoration : {};
                 return;
             }
             await getDecoration({ using: 1, user_id: this.uid, type: "homebg" }).then((res) => {

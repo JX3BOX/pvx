@@ -139,7 +139,7 @@ import horseSites from "@/assets/data/horse_sites.json";
 import horseBroadcast from "@/assets/data/horse_broadcast.json";
 import { getGameReporter, getChituHorse } from "@/service/pvg/gonggao";
 import dayjs from "@/utils/day";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 export default {
     name: "WorldHorse",
     data() {

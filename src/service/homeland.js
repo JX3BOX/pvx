@@ -1,5 +1,5 @@
 import axios from "axios";
-import { __dataPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __dataPath } from "@/utils/config";
 import { $team, $cms } from '@jx3box/jx3box-common/js/https';
 
 const $ = axios.create({

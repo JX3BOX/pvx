@@ -52,7 +52,7 @@
 <script>
 import { showAvatar, authorLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user.js";
-import { __clients } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients } from "@/utils/config";
 export default {
     name: "CalendarDetailItem",
     props: ["type", "data"],

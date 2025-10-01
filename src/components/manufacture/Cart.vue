@@ -231,7 +231,7 @@
 <script>
 import { addMyPlan, updatePlan, deletePlan } from "@/service/manufacture/plan";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 import { showTime } from "@/utils/moment";
 
 import Item from "@jx3box/jx3box-editor/src/Item.vue";

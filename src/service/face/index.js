@@ -1,6 +1,6 @@
 import { $next, $pay, $cms } from "@jx3box/jx3box-common/js/https";
 import axios from "axios";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 /**
  * 获取捏脸列表
  * @param {*} params 参数

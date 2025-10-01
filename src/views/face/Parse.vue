@@ -17,7 +17,7 @@
 <script>
 import Facedat from "@jx3box/jx3box-facedat/src/Facedat";
 import Upload from "@jx3box/jx3box-facedat/src/Upload";
-import { __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __imgPath } from "@/utils/config";
 export default {
     name: "FacedataParse",
     props: [],

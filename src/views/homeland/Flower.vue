@@ -105,7 +105,7 @@ import servers from "@jx3box/jx3box-data/data/server/flower_server.json";
 import colors from "@/assets/data/flower_colors.json";
 import flowers from "@/assets/data/flowers.json";
 import items from "@/assets/data/flower_items.json";
-import { __iconPath, __ossRoot, __imgPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __iconPath, __ossRoot, __imgPath } from "@/utils/config";
 // 繁體
 import traditional_servers from "@jx3box/jx3box-data/data/server/server_international.json";
 import dict from "@/assets/data/flower_dict.json";

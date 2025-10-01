@@ -134,7 +134,7 @@ import { getOneBodyInfo, getRandomBody } from "@/service/body";
 import { getFans, getUserInfo } from "@/service/face/author";
 import { showAvatar, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 import { subscribeAuthor, unsubscribeAuthor } from "@jx3box/jx3box-common/js/rss.js";
-import { __clients, __imgPath, __Root } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients, __imgPath, __Root } from "@/utils/config";
 import { bodyMap } from "@jx3box/jx3box-data/data/role/body.json";
 export default {
     components: { routine_other,SuspendCommon },

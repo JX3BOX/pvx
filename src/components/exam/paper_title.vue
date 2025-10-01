@@ -39,7 +39,7 @@
 </template>
 <script>
 import { authorLink } from "@jx3box/jx3box-common/js/utils";
-import { __clients } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __clients } from "@/utils/config";
 import { getStat, checkPaper } from "@/service/exam.js";
 import User from "@jx3box/jx3box-common/js/user";
 import { showTime } from "@jx3box/jx3box-common/js/moment";

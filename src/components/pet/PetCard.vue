@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { __iconPath } from "@jx3box/jx3box-common/data/jx3box.json";
+import { __iconPath } from "@/utils/config";
 export default {
     props: {
         petObject: {},
