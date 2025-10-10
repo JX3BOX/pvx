@@ -128,9 +128,10 @@
                         <div class="u-cover" :style="{'background':getBookCoverColor()}">
                             <div class="u-book-name">
                                 <div class="u-text">
-                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">
-                                        {{item2.Name}}
-                                    </div>
+<!--                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">-->
+<!--                                        {{item2.Name}}-->
+<!--                                    </div>-->
+                                    {{item2.Name.length>5?(item2.Name.match(/[\u4e00-\u9fa5]/g) || []).slice(0, 5).join(''):item2.Name}}
                                 </div>
                             </div>
                             <div class="u-book-line">
@@ -616,25 +617,37 @@ export default {
                     .u-text{
                         .h(100%);
                         overflow: hidden;
-                        .u-name-vertical{
-                            .fz(0.875rem);
-                            .bold(600);
-                            color:#000;
-                            writing-mode: vertical-lr;
-                            text-orientation: upright;
-                            white-space: nowrap;
-                            //position: relative;
-                            word-break: break-all;
-                            .w(0.875rem);
-                            .flex;
-                            align-items: center;
-                            justify-content: center;
-                            &.scroll{
+                        display: flex;
 
-                                /* 动画设置 */
-                                animation: verticalScroll 10s ease-in-out infinite;
-                            }
-                        }
+                        .fz(0.875rem);
+                        .bold(600);
+                        writing-mode: vertical-lr;
+                        text-orientation: upright;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        word-break: break-all;
+                        align-items: center; /* 水平居中 */
+                        justify-content: center; /* 垂直居中 */
+                        letter-spacing: 0.2rem;
+                        //.u-name-vertical{
+                        //    .fz(0.875rem);
+                        //    .bold(600);
+                        //    color:#000;
+                        //    writing-mode: vertical-lr;
+                        //    text-orientation: upright;
+                        //    white-space: nowrap;
+                        //    //position: relative;
+                        //    word-break: break-all;
+                        //    .w(0.875rem);
+                        //    .flex;
+                        //    align-items: center;
+                        //    justify-content: center;
+                        //    //&.scroll{
+                        //    //
+                        //    //    /* 动画设置 */
+                        //    //    animation: verticalScroll 10s ease-in-out infinite;
+                        //    //}
+                        //}
 
                     }
                     @keyframes verticalScroll {
