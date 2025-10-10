@@ -248,13 +248,6 @@ export default {
                 this.confirmBtn=true
             }
         }
-        // list: {
-        //     immediate: true,
-        //     handler: function (_list) {
-        //         let list= cloneDeep(_list);
-        //         this.typeList = list
-        //     },
-        // },
     },
     created() {
         this.getFurnitureSet();

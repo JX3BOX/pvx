@@ -3,9 +3,9 @@
         <template v-if="!isLogin">
             <div class="u-bind_role">
                 <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="u-btn el-button el-button--primary" :href="login_url"
+                    <div class="u-btn el-button el-button--primary" @click="goLogin"
                         >前往登录 <i class="el-icon-arrow-right"></i
-                    ></a>
+                    ></div>
                 </el-empty>
             </div>
         </template>
@@ -98,6 +98,7 @@ import html2canvas from "html2canvas";
 import { __Links, __cdn, __Root } from "@/utils/config";
 import portraitContent from "./portraitContent.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { wxNewPage } from '@/utils/minprogram';
 export default {
     name: "portrait",
     inject: ["__imgRoot", "__imgPath"],
@@ -178,6 +179,9 @@ export default {
         });
     },
     methods: {
+        goLogin() {
+            wxNewPage(this.login_url);
+        },
         onRoleSet() {
             window.open(`${__Root}dashboard/role`, "_blank");
         },

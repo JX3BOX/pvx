@@ -26,7 +26,7 @@ function getSystemGoodsData(params) {
 // }
 // post 此处url最后要加/，不然会报错 301 Moved Permanently
 function getServerPriceData(data) {
-    return $next().post("api/auction/", data);
+    return $next().post("/api/auction/", data);
 }
 
 // 获取用户信息
