@@ -156,12 +156,15 @@ export default {
                 el.style.fontSize = "16px";
             }
 
-            let metaViewport = document.querySelector('meta[name="viewport"]');
-            metaViewport.setAttribute("content", "");
-            metaViewport.remove();
+            // 这段代码会让webview在小程序里面 页面比例不正确
+            // 需要重新评估一下原来问题的解决方式 不要这么粗暴改viewport啊
+            // let metaViewport = document.querySelector('meta[name="viewport"]');
+            // metaViewport.setAttribute("content", "");
+            // metaViewport.remove();
         }
     },
     mounted() {
+        // 输出ua
         getUserRoles().then((res) => {
             if (res.data.data.list.length) {
                 this.noRole = false;
