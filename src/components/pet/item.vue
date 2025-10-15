@@ -3,7 +3,7 @@
         class="m-pet-item"
         :to="'/' + petObject.Index"
         :class="getFrameClass(petObject.Quality)"
-        target="_blank"
+        :target="isPhone ? '_self' : '_blank'"
     >
         <div class="m-info">
             <el-image class="u-icon" :src="iconLink(petObject.IconID, client)" fit="fit"></el-image>
@@ -34,7 +34,9 @@ export default {
     },
 
     data: function () {
-        return {};
+        return {
+            isPhone: window.innerWidth <= 768,
+        };
     },
 
     computed: {

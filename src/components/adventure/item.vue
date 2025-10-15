@@ -1,5 +1,5 @@
 <template>
-    <a class="m-adventure-item" :href="`/adventure/${item.dwID}`" target="_blank">
+    <a class="m-adventure-item" :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'">
         <!-- @click="getLink(item.dwID)" -->
         <img class="u-default" :src="defaultImg" />
         <img class="u-title" :src="titleImg" :style="titleStyle" />
@@ -45,6 +45,7 @@ export default {
         forceid,
         camp: 1,
         force: 2,
+        isPhone: window.innerWidth <= 768,
     }),
     computed: {
         link: function () {

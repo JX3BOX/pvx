@@ -1,6 +1,6 @@
 <template>
     <div class="m-luckey-item">
-        <a class="u-pet" :href="getPetLink(item)" target="_blank">
+        <a class="u-pet" :href="getPetLink(item)" :target="isPhone ? '_self' : '_blank'">
             <i class="u-img">
                 <img class="u-pic" :src="imgPath" loading="lazy" @error="onError" />
             </i>
@@ -15,7 +15,10 @@ export default {
     name: "luckyItem",
     props: ["item"],
     data: function () {
-        return {};
+        return {
+
+            isPhone: window.innerWidth <= 768,
+        };
     },
     computed: {
         imgPath() {

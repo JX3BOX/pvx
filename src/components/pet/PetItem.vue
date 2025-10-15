@@ -1,5 +1,5 @@
 <template>
-	<router-link class="m-pet-item" :to="'/' + petObject.Index">
+	<router-link class="m-pet-item" :to="'/' + petObject.Index" :target="isPhone ? '_self' : '_blank'">
 		<!--  @click="getLink(petObject.Index)" -->
 		<!--宠物卡片图-->
 		<img :src="getImgSrc(petObject.BgPath)" class="u-image" @error="replaceByDefault" />
@@ -28,7 +28,9 @@ export default {
 	},
 	inject: ["__imgRoot"],
 	data: function () {
-		return {};
+		return {
+            isPhone: window.innerWidth <= 768,
+        };
 	},
 	computed: {
 		client: function () {
