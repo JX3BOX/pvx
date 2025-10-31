@@ -224,7 +224,7 @@ export default {
 
             this.list = combineList.slice(0, this.showNum);
         },
-        // 处理披风会
+        // 处理披风会/穹野卫
         getPi(date) {
             // 3小时循环事件
             // 当前时间

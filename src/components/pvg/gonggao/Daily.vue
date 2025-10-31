@@ -19,6 +19,7 @@
                     <el-dropdown>
                         <span class="el-dropdown-link"> 切换<i class="el-icon-arrow-down el-icon--right"></i> </span>
                         <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item @click.native="changeCelebrity(3)">穹野卫</el-dropdown-item>
                             <el-dropdown-item @click.native="changeCelebrity(2)">披风会</el-dropdown-item>
                             <el-dropdown-item @click.native="changeCelebrity(1)">云从社</el-dropdown-item>
                             <el-dropdown-item @click.native="changeCelebrity(0)">楚天社</el-dropdown-item>
@@ -91,11 +92,12 @@ export default {
     },
     data() {
         return {
-            currentCelebrity: 2, // 楚天社0 云从社1 披风会 2
+            currentCelebrity: 3, // 楚天社0 云从社1 披风会 2
             celebrityMap: {
                 0: "楚天社",
                 1: "云从社",
                 2: "披风会",
+                3: "穹野卫",
             },
             currentFurniture: {},
             nextFurniture: {},
