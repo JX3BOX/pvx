@@ -42,7 +42,7 @@
                     <div class="u-header">
                         <img
                             class="u-icon"
-                            :src="iconLink(item.item.item_info.IconID)"
+                            :src="iconLink(item.item.item_info.IconID, client)"
                             :alt="item.item.item_info.Name"
                         />
                         <div class="u-name">{{ item.item.item_info.Name }}</div>
@@ -58,7 +58,7 @@
                         <div class="m-material-item" v-for="(material, k) in item.materials" :key="k">
                             <img
                                 class="u-icon"
-                                :src="iconLink(material.item.item_info.IconID)"
+                                :src="iconLink(material.item.item_info.IconID, client)"
                                 :alt="material.item.item_info.Name"
                             />
                             <div class="u-name">{{ material.item.item_info.Name }}</div>
@@ -173,6 +173,9 @@ export default {
             return sumBy(this.cartList, (item) => {
                 return this.calcItemProfit(item);
             });
+        },
+        client() {
+            return this.$store.state.client;
         },
     },
     methods: {

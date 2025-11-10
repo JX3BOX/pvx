@@ -35,7 +35,7 @@
         <div class="m-materials" v-if="recipe.materials && recipe.materials.length">
             <div class="m-material-list">
                 <div class="m-material-item" v-for="(material, index) in recipe.materials" :key="index">
-                    <img class="u-icon" :src="iconLink(material.item.item_info?.IconID)" alt="" />
+                    <img class="u-icon" :src="iconLink(material.item.item_info?.IconID, client)" alt="" />
                     <div class="u-section-1">
                         <div class="u-name">{{ material.item.item_info?.Name }} x{{ material.count }}</div>
                         <div class="u-price">
@@ -106,6 +106,9 @@ export default {
             );
             return price - sum(materials_price);
         },
+        client() {
+            return this.$store.state.client;
+        }
     },
     methods: {
         iconLink, // 描述过滤

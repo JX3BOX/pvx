@@ -1,6 +1,6 @@
 <template>
     <div class="m-recipe-title">
-        <img class="u-icon" :src="iconLink(recipe.IconID)" alt="" />
+        <img class="u-icon" :src="iconLink(recipe.IconID, client)" alt="" />
         <div class="u-name">{{ recipe.Name }}</div>
         <div class="u-meta">
             <span v-if="recipe.nLevel"> 需求等级：{{ recipe.nLevel }} </span>
@@ -18,6 +18,11 @@ export default {
     name: "RecipeDetailTitle",
     props: { recipe: { type: Object, default: () => ({}) } },
     methods: { iconLink },
+    computed: {
+        client() {
+            return this.$store.state.client;
+        },
+    },
 };
 </script>
 

@@ -14,7 +14,7 @@
                                 <Item :item_id="row.id" />
                                 <img
                                     slot="reference"
-                                    :src="iconLink(row.item.item_info.IconID)"
+                                    :src="iconLink(row.item.item_info.IconID, client)"
                                     :alt="row.item.item_info.Name"
                                     style="cursor: pointer"
                                 />
@@ -50,6 +50,11 @@ export default {
     name: "CartMaterials",
     components: { GamePrice, Item },
     props: ["materials"],
+    computed: {
+        client() {
+            return this.$store.state.client;
+        }
+    },
     data: function () {
         return {
             visible: false,

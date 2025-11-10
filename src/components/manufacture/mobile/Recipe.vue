@@ -23,7 +23,7 @@
                         :key="index"
                         @click="$emit('go-recipe', { recipe_type: craftType.key, recipe_id: recipe.ID })"
                     >
-                        <img class="u-icon" :src="iconLink(recipe.IconID)" alt="" />
+                        <img class="u-icon" :src="iconLink(recipe.IconID, client)" alt="" />
                         {{ recipe.Name }}
                     </div>
                 </div>
@@ -73,6 +73,9 @@ export default {
 
             return Object.values(tree).filter((subtype) => subtype.recipes.length > 0);
         },
+        client() {
+            return this.$store.state.client;
+        }
     },
     methods: {
         iconLink,

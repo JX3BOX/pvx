@@ -18,7 +18,7 @@
                             opacity: recipe.Quality == 5 ? 0.9 : 1,
                         }"
                     ></div>
-                    <img :src="iconLink(recipe.IconID)" :alt="recipe.Name" />
+                    <img :src="iconLink(recipe.IconID, client)" :alt="recipe.Name" />
                 </div>
             </el-popover>
 
@@ -70,7 +70,7 @@
                                 opacity: material.item.Quality == 5 ? 0.9 : 1,
                             }"
                         ></div>
-                        <img :src="iconLink(material.item.item_info.IconID)" :alt="material.item.item_info.Name" />
+                        <img :src="iconLink(material.item.item_info.IconID, client)" :alt="material.item.item_info.Name" />
                     </div>
                 </el-popover>
 

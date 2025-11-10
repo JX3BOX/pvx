@@ -31,7 +31,7 @@
                                 ></div>
                                 <img
                                     class="u-img"
-                                    :src="iconLink(item.item.item_info.IconID)"
+                                    :src="iconLink(item.item.item_info.IconID, client)"
                                     :alt="item.item.item_info.Name"
                                 />
                                 <span class="u-title" :class="`u-quality--${item.item.Quality}`">{{
@@ -68,7 +68,7 @@
                                             <Item :item_id="material.item_id" />
                                             <img
                                                 slot="reference"
-                                                :src="iconLink(material.item.item_info.IconID)"
+                                                :src="iconLink(material.item.item_info.IconID, client)"
                                                 :alt="material.item.item_info.Name"
                                                 style="cursor: pointer"
                                             />
@@ -298,6 +298,9 @@ export default {
                     return acc.concat(cur);
                 }, []);
         },
+        client() {
+            return this.$store.state.client;
+        }
     },
 
     methods: {

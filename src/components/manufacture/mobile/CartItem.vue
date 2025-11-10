@@ -34,7 +34,7 @@
             <div class="m-materials" v-if="item.materials && item.materials.length">
                 <div class="m-material-list">
                     <div class="m-material-item" v-for="(material, index) in item.materials" :key="index">
-                        <img class="u-icon" :src="iconLink(material.item.item_info?.IconID)" alt="" />
+                        <img class="u-icon" :src="iconLink(material.item.item_info?.IconID, client)" alt="" />
                         <div class="u-section-1">
                             <div class="u-name">{{ material.item.item_info?.Name }} x{{ material.count }}</div>
                             <div class="u-price">
@@ -64,7 +64,7 @@
                     </div>
                 </div>
             </div>
-            <div class="m-save-button" @click="visible=false">确定</div>
+            <div class="m-save-button" @click="visible = false">确定</div>
         </div>
         <PriceUpdateDrawerVue ref="price-update"></PriceUpdateDrawerVue>
     </el-drawer>
@@ -83,7 +83,11 @@ export default {
         item: {},
         visible: false,
     }),
-    computed: {},
+    computed: {
+        client() {
+            return this.$store.state.client;
+        },
+    },
     methods: {
         iconLink,
         open(item) {
