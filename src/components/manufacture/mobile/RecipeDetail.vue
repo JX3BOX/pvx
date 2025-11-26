@@ -170,7 +170,8 @@ export default {
         .u-add-cart {
             .r(8px);
             height: 18px;
-            padding: 8px 20px;
+            padding: 8px;
+            width: 56px;
             text-align: center;
 
             background: var(--Primary-Brand-2);
