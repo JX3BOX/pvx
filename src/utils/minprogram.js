@@ -1,4 +1,5 @@
 import wx from "weixin-js-sdk";
+import { __Links, __cdn, __Root } from "@/utils/config";
 
 export function isInMiniprogramWebview() {
     return window && window.__wxjs_environment === "miniprogram";
@@ -28,5 +29,16 @@ export function wxNewPage(target) {
 
     wx.miniProgram.navigateTo({
         url,
+    });
+}
+
+export function wxGoLogin() {
+    if (!isInMiniprogramWebview()) {
+        // 不在小程序中的时候回退操作使用location跳转
+        const login_url = __Links.account.login + "?redirect=" + location.href;
+        location.href = login_url;
+    }
+    wx.miniProgram.navigateTo({
+        url: `/pages/login/index?redirect=/pages/webview/webview&query=${JSON.stringify({ path: location.pathname })}`,
     });
 }

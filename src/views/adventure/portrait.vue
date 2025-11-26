@@ -3,9 +3,9 @@
         <template v-if="!isLogin">
             <div class="u-bind_role">
                 <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <div class="u-btn el-button el-button--primary" @click="goLogin"
-                        >前往登录 <i class="el-icon-arrow-right"></i
-                    ></div>
+                    <div class="u-btn el-button el-button--primary" @click="goLogin">
+                        前往登录 <i class="el-icon-arrow-right"></i>
+                    </div>
                 </el-empty>
             </div>
         </template>
@@ -95,10 +95,10 @@ import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import getData from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
-import { __Links, __cdn, __Root } from "@/utils/config";
+import {  __cdn, __Root } from "@/utils/config";
 import portraitContent from "./portraitContent.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
-import { wxNewPage } from '@/utils/minprogram';
+import { wxGoLogin } from "@/utils/minprogram";
 export default {
     name: "portrait",
     inject: ["__imgRoot", "__imgPath"],
@@ -122,7 +122,6 @@ export default {
             ID: ~~User.getInfo().uid,
         },
         isSync: false,
-        login_url: __Links.account.login + "?redirect=" + location.href,
         isMiniProgram: isMiniProgram(),
     }),
     computed: {
@@ -183,7 +182,7 @@ export default {
     },
     methods: {
         goLogin() {
-            wxNewPage(this.login_url);
+            wxGoLogin();
         },
         onRoleSet() {
             window.open(`${__Root}dashboard/role`, "_blank");
