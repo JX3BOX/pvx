@@ -5,7 +5,7 @@
             <a v-if="data.id && canManage" class="u-edit" :href="editLink('question', data.id)">
                 <i class="el-icon-edit-outline"></i><span>编辑</span>
             </a>
-        </div> 
+        </div>
         <!-- <SingleTitle :item="data" type="question" /> -->
         <SingleCard
             :fromQuestion="true"
@@ -21,7 +21,7 @@
         <Thx
             class="m-thx"
             :postId="id"
-            postType="question"
+            postType="pvx"
             :postTitle="title"
             :userId="user_id"
             :adminBoxcoinEnable="true"

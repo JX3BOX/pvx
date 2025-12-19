@@ -31,7 +31,7 @@
             <Thx
                 class="m-thx"
                 :postId="id"
-                postType="paper"
+                postType="pvx"
                 :postTitle="title"
                 :userId="user_id"
                 :adminBoxcoinEnable="true"

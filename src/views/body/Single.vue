@@ -180,7 +180,7 @@
         <Thx
             class="m-thx m-single-content-box"
             :postId="id"
-            postType="body"
+            postType="pvx"
             :postTitle="post.title || '无标题'"
             :userId="post.user_id"
             :adminBoxcoinEnable="post.status == 1"

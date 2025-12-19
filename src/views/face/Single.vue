@@ -172,7 +172,7 @@
             </div>
         </div>
         <!-- 点赞 -->
-        <Thx class="m-thx m-single-content-box" :postId="id" postType="face" :postTitle="post.title || '无标题'"
+        <Thx class="m-thx m-single-content-box" :postId="id" postType="pvx" :postTitle="post.title || '无标题'"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
             :client="post.client" />
         <!-- 评论 -->

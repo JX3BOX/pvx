@@ -62,7 +62,7 @@
 
         <Thx
             :postId="id"
-            postType="calendar"
+            postType="pvx"
             :postTitle="favTitle"
             :userId="author"
             :adminBoxcoinEnable="true"
