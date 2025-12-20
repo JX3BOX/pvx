@@ -65,7 +65,7 @@
             postType="pvx"
             :postTitle="favTitle"
             :userId="author"
-            :adminBoxcoinEnable="true"
+            :adminBoxcoinEnable="false"
             :userBoxcoinEnable="true"
         />
 

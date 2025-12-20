@@ -59,7 +59,7 @@
             <Thx
                 class="m-thx"
                 :postId="id"
-                :postType="type"
+                postType="wiki"
                 :postTitle="wiki_post.source.Name"
                 :userId="author_id"
                 :adminBoxcoinEnable="false"
