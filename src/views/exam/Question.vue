@@ -24,7 +24,7 @@
             postType="question"
             :postTitle="title"
             :userId="user_id"
-            :adminBoxcoinEnable="true"
+            :adminBoxcoinEnable="false"
             :userBoxcoinEnable="true"
             :client="client"
         />
