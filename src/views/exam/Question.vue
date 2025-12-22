@@ -21,7 +21,7 @@
         <Thx
             class="m-thx"
             :postId="id"
-            postType="pvx"
+            postType="question"
             :postTitle="title"
             :userId="user_id"
             :adminBoxcoinEnable="true"
