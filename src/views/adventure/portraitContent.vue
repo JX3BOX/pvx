@@ -39,21 +39,21 @@
                         {{ userAchievement.perfectNowNum + "/" + userAchievement.perfectAllNum }}
                     </div>
                 </div>
-                <div
-                    class="m-world-item"
-                    v-for="(item, index) in userAchievement.perfect"
-                    :key="index"
-                    :class="item.hasClass"
-                    :style="{
-                        zIndex: item.zIndex,
-                    }"
-                >
-                    <img class="u-item__img" :src="getCdnImgUrl(`world/${item.dwID}${item.isAct ? '_act' : ''}.png`)" />
-                    <div class="m-item__text">
+                <template v-for="(item, index) in userAchievement.perfect">
+                    <img
+                        :key="`img-${item.dwID}-${index}`"
+                        class="u-item__img"
+                        :class="item.hasClass"
+                        :style="{
+                            zIndex: item.zIndex,
+                        }"
+                        :src="getCdnImgUrl(`world/${item.dwID}${item.isAct ? '_act' : ''}.png`)"
+                    />
+                    <div class="m-item__text" :class="item.hasClass" :key="`text-${item.dwID}-${index}`">
                         <img class="u-item__bg" :src="getCdnImgUrl(`world/text_bg${item.isAct ? '_act' : ''}.png`)" />
                         <span class="u-item__text">{{ item.szName }}</span>
                     </div>
-                </div>
+                </template>
             </div>
             <!-- 普通奇遇 -->
             <div class="m-qy-box">
