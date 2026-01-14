@@ -11,11 +11,11 @@
         "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common-ui@latest @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-emotion@latest @jx3box/jx3box-comment-ui@latest @jx3box/jx3box-editor@latest @jx3box/jx3box-map@latest"
     },
     "dependencies": {
-        "@jx3box/jx3box-comment-ui": "^2.0.8",
+        "@jx3box/jx3box-comment-ui": "^2.0.9",
         "@jx3box/jx3box-common": "^8.7.4",
-        "@jx3box/jx3box-common-ui": "^9.5.15",
+        "@jx3box/jx3box-common-ui": "^9.5.20",
         "@jx3box/jx3box-data": "^3.9.2",
-        "@jx3box/jx3box-editor": "^2.2.41",
+        "@jx3box/jx3box-editor": "^2.2.44",
         "@jx3box/jx3box-emotion": "^1.2.14",
         "@jx3box/jx3box-facedat": "^2.6.2",
         "@jx3box/jx3box-fe-proxy": "^1.0.1",
