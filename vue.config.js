@@ -150,6 +150,7 @@ module.exports = {
         "entities",
         "parse5",
         "parse5-htmlparser2-tree-adapter",
+        "@jx3box/jx3box-editor"
     ],
     chainWebpack: (config) => {
         //💘 html-webpack-plugin ~

@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 Vue.use(VueRouter);
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 const VueRouterPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(to) {
     return VueRouterPush.call(this, to).catch((err) => err);
@@ -14,7 +14,7 @@ const routes = [
     {
         name: "furniture",
         path: "/",
-        component: isMiniProgram() ? furnitureListMobile : furnitureList,
+        component: isMiniProgram() || isApp() ? furnitureListMobile : furnitureList,
         meta: {
             sidebar: false,
         },
@@ -22,7 +22,7 @@ const routes = [
     {
         name: "single",
         path: "/:id(\\d+)",
-        component:isMiniProgram() ?furnitureSingleMobile:furnitureSingle,
+        component:isMiniProgram() || isApp() ?furnitureSingleMobile:furnitureSingle,
     },
 ];
 

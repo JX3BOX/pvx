@@ -157,7 +157,7 @@ import AdventureItem from "@/components/adventure/item.vue";
 import { getAdventures } from "@/service/adventure/adventure";
 import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import dayjs from "@/utils/day";
 import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 export default {
@@ -217,7 +217,7 @@ export default {
                 height: "224",
             },
 
-            isMiniProgram: isMiniProgram(),
+            isMiniProgram: isMiniProgram() || isApp(),
 
             showTypeForm: false,
             showSearchForm: false,

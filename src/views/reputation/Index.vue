@@ -1,7 +1,7 @@
 <template>
     <div class="reputation-container" v-loading="loading">
         <SuspendCommon :btnOptions="{showHome:true}"
-                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" v-if="isMiniProgram()">
+                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" v-if="isMiniProgram">
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 import CommonToolbar from "@/components/common/toolbar.vue";
 import ReputationItem from "@/components/reputation/ReputationItem.vue";
@@ -94,7 +94,8 @@ export default {
 
             showForm:false,
             versionLabel:"版本",
-            intervalId:null
+            intervalId:null,
+            isMiniProgram: isMiniProgram() || isApp(), // 是否在微信/APP小程序中
         };
     },
     computed: {
@@ -133,7 +134,6 @@ export default {
         },
     },
     methods: {
-        isMiniProgram,
         versionLabelChange(){
             clearInterval(this.intervalId);
             //定时切换名称
@@ -206,7 +206,7 @@ export default {
                                 };
                             });
                             this.versionList = filterList;
-                            if(this.isMiniProgram()){
+                            if(this.isMiniProgram){
                                 this.dlc=this.versionList?.[0]?.value;
                                 this.versionLabelChange()
                             }

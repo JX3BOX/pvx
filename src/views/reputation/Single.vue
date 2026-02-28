@@ -456,7 +456,7 @@ import ItemIcon from "@/components/common/item_icon.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import paths from "@/assets/data/reputation_exchange_path.json";
 import levelList from "@/assets/data/reputation_level.json";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 import { __imgPath } from "@/utils/config";
 
@@ -550,7 +550,7 @@ export default {
             return this.$store.state.client;
         },
         isMiniProgram() {
-            return isMiniProgram();
+            return isMiniProgram() || isApp();
         },
         robotTitle() {
             return `声望 · ${this.reputation?.szName || ""}`;

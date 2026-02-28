@@ -19,7 +19,7 @@
 
 <script>
 import { __imgPath } from "@/utils/config";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import  { wxNewPage } from "@/utils/minprogram";
 export default {
     name: "ReputationItem",
@@ -32,7 +32,7 @@ export default {
     methods: {
         go(id) {
             // this.$router.push({ path: `/${id}` });
-            if(isMiniProgram()){
+            if(isMiniProgram() || isApp()){
                 wxNewPage(`/reputation/${id}`);
             }else{
                 window.open(`/reputation/${id}`, "_self");

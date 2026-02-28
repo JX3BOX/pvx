@@ -102,7 +102,7 @@ import WikiPanel from "@jx3box/jx3box-common-ui/src/wiki/WikiPanel";
 import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
 
 import { publishLink, ts2str, getLink } from "@jx3box/jx3box-common/js/utils";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 export default {
     name: "PvxUser",
@@ -139,7 +139,7 @@ export default {
             is_empty: true,
             versionVisible: false,
             versions: [],
-            isMiniProgram: isMiniProgram(),
+            isMiniProgram: isMiniProgram() || isApp(),
         };
     },
     watch: {
@@ -220,7 +220,7 @@ export default {
         },
         // 西山居的页面不展示评论
         isFromSeasun() {
-            return this.isMiniProgram && this.$route.fullPath?.indexOf("_from=seasun") > -1;
+            return isMiniProgram() && this.$route.fullPath?.indexOf("_from=seasun") > -1;
         },
     },
     methods: {

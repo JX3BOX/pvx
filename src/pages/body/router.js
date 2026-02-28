@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 Vue.use(VueRouter);
 
 const List = () => import("@/views/body/List.vue");
@@ -11,8 +11,8 @@ const singleMobile = () => import("@/views/body/mobile/Single.vue");
 const BodydatMobile = () => import("@/views/body/mobile/Bodydat.vue");
 
 const routes = [
-    { name: "list", path: "/", component: isMiniProgram() ? listMobile : List },
-    { name: "single", path: "/:id(\\d+)", component: isMiniProgram() ? singleMobile : Single },
+    { name: "list", path: "/", component: isMiniProgram() || isApp() ? listMobile : List },
+    { name: "single", path: "/:id(\\d+)", component: isMiniProgram() || isApp() ? singleMobile : Single },
     { name: "bodydata", path: "/bodydata", component: Data },
     { name: "bodydatMobile", path: "/BodydatMobile", component: BodydatMobile },
 ];

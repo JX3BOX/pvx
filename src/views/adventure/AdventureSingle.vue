@@ -144,7 +144,7 @@ import task from "@/components/adventure/task.vue";
 import Serendipity from "@/components/common/serendipity.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
 import { __imgPath } from "@/utils/config";
 import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
@@ -173,7 +173,7 @@ export default {
             isPet: true,
             loading: false,
             search: "",
-            isMiniProgram: isMiniProgram(),
+            isMiniProgram: isMiniProgram() || isApp(),
             conditionContent: "",
             methodContent: "",
             processContent: "",

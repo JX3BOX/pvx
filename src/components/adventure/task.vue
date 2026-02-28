@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { getAdventureTask } from "@/service/adventure/adventure";
 import { extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import { isPhone } from "@/utils/index";
@@ -64,7 +64,7 @@ export default {
             task: [],
             isUpdate: false,
             school: "2",
-            isMiniProgram: isMiniProgram(),
+            isMiniProgram: isMiniProgram() || isApp(),
         };
     },
     computed: {

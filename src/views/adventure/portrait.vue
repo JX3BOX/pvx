@@ -97,7 +97,7 @@ import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
 import {  __cdn, __Root } from "@/utils/config";
 import portraitContent from "./portraitContent.vue";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { wxGoLogin } from "@/utils/minprogram";
 export default {
     name: "portrait",
@@ -122,7 +122,7 @@ export default {
             ID: ~~User.getInfo().uid,
         },
         isSync: false,
-        isMiniProgram: isMiniProgram(),
+        isMiniProgram: isMiniProgram() || isApp(),
     }),
     computed: {
         client: function () {

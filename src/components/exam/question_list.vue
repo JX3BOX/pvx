@@ -44,13 +44,13 @@
 </template>
 <script>
 import { __clients } from "@/utils/config";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "QuestionList",
     props: ["data"],
     components: {},
     data: function () {
-        return { clients: __clients, isMiniProgram: isMiniProgram() };
+        return { clients: __clients, isMiniProgram: isMiniProgram() || isApp() };
     },
     computed: {
         client: function () {

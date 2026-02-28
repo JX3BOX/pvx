@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 Vue.use(VueRouter);
 
 const VueRouterPush = VueRouter.prototype.push;
@@ -14,8 +14,8 @@ const Single = () => import("@/views/horse/HorseSingle.vue");
 const IndexMobile = () => import("@/views/horse/mobile/Index.vue");
 const SingleMobile = () => import("@/views/horse/mobile/HorseSingle.vue");
 const routes = [
-    { name: "index", path: "/", component:  isMiniProgram() ?IndexMobile:Index },
-    { name: "single", path: "/:id([0-9]_\\d+)", component: isMiniProgram() ?SingleMobile:Single },
+    { name: "index", path: "/", component:  isMiniProgram() || isApp() ? IndexMobile : Index },
+    { name: "single", path: "/:id([0-9]_\\d+)", component: isMiniProgram() || isApp() ? SingleMobile : Single },
 ];
 
 const router = new VueRouter({

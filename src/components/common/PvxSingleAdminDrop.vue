@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";
 import { refreshQQBotImage } from "@/service/pvx";
 export default {
@@ -23,7 +23,7 @@ export default {
     },
     computed: {
         showAdmin() {
-            return !isMiniProgram() && User.isAdmin();
+            return !(isMiniProgram() || isApp()) && User.isAdmin();
         },
     },
     methods: {

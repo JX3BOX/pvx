@@ -48,8 +48,6 @@ import tags from "@/assets/data/exam_tags.json";
 import { __clients, __Root } from "@/utils/config";
 import { cloneDeep } from "lodash";
 import { deleteNull } from "@/utils/index";
-import User from "@jx3box/jx3box-common/js/user";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "ExamList",
     components: {
@@ -119,7 +117,6 @@ export default {
                 type: ~~this.$route.params.type || 1,
             },
             data: [],
-            isMiniProgram: isMiniProgram(),
         };
     },
     computed: {

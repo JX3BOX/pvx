@@ -33,7 +33,7 @@ import { __imgPath } from "@/utils/config";
 import treasureCommon from "@/assets/js/treasure.js";
 import landscapeContent from "@/views/adventure/landscapeContent.vue";
 import portraitContent from "@/views/adventure/portraitContent.vue";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "QQBotTreasure",
     components: {
@@ -51,7 +51,7 @@ export default {
             imgRoot: __imgPath + "adventure/",
             mount: "",
             defaultRole: "",
-            isMiniProgram: isMiniProgram(),
+            isMiniProgram: isMiniProgram() || isApp(), // 是否在微信/APP小程序中
         };
     },
     computed: {
