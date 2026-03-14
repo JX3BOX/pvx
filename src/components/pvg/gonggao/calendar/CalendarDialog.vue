@@ -69,8 +69,8 @@
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="参考资料">
-                    <template v-for="(item, index) in form.link">
-                        <div class="m-links" :key="item.id || index">
+                    <template v-for="(item, index) in form.link" :key="item.id || index">
+                        <div class="m-links">
                             <el-input class="u-link-item" v-model="item.label" placeholder="请输入标题"></el-input>
                             <el-input class="u-link-item" v-model="item.url" placeholder="请输入链接"></el-input>
                             <el-button

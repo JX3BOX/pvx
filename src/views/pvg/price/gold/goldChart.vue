@@ -285,7 +285,7 @@ export default {
 <style lang="less">
 .m-price-chart-box {
     .flex;
-    flex-direction: column; 
+    flex-direction: column;
     gap: 20px;
     .legends {
         .flex;
@@ -295,7 +295,7 @@ export default {
         overflow-y: hidden;
         gap: 20px;
         .legends-item {
-            .flex; 
+            .flex;
             .size(348px,98px);
             .r(10px);
             user-select: none;

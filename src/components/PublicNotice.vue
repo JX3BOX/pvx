@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { getBreadcrumb } from "@jx3box/jx3box-common/js/api_misc";
+import { getBreadcrumb } from "@jx3box/jx3box-common/js/system";
 export default {
     name: "PublicNotice",
     props: ["bckey"],

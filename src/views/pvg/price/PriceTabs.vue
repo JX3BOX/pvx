@@ -1,7 +1,7 @@
 <template>
     <div class="m-price-tabs m-common-tabs">
-        <template v-for="(tab, index) in tabs">
-            <div :key="index" class="u-tab" @click="changeTab(tab)" :class="{ active: params.currentTab == tab.value }">
+        <template v-for="(tab, index) in tabs" :key="index">
+            <div class="u-tab" @click="changeTab(tab)" :class="{ active: params.currentTab == tab.value }">
                 {{ tab.label }}
             </div>
         </template>

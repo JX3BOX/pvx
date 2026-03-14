@@ -42,7 +42,7 @@ import {
 import myGoodList from "../goods/myGoodList.vue";
 import myGoodsDialog from "../goods/myGoodsDialog.vue";
 import User from "@jx3box/jx3box-common/js/user";
-import { getBreadcrumb } from "@jx3box/jx3box-common/js/api_misc";
+import { getBreadcrumb } from "@jx3box/jx3box-common/js/system";
 export default {
     props: {
         server: {},

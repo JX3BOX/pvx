@@ -13,18 +13,17 @@
             </el-input>
         </div>
         <div class="reputation-list">
-            <template v-if="dlc||keyword" >
+            <template v-if="dlc || keyword">
                 <div class="reputation-show-list" v-for="item in showList" :key="item.value">
-                    <div class="u-title" >{{ item.label }}</div>
+                    <div class="u-title">{{ item.label }}</div>
                     <div class="u-list">
                         <reputation-item :item="item" v-for="item in item.list" :key="item.dwForceID"></reputation-item>
                     </div>
                 </div>
             </template>
-            <template v-else >
+            <template v-else>
                 <reputation-item :item="item" v-for="item in newsList" :key="item.dwForceID"></reputation-item>
             </template>
-
         </div>
     </div>
 </template>
@@ -32,13 +31,13 @@
 <script>
 import { getList, getMenus } from "@/service/reputation";
 import ReputationItem from "@/components/reputation/ReputationItem.vue";
-import { getBreadcrumb } from "@jx3box/jx3box-common/js/api_misc";
+import { getBreadcrumb } from "@jx3box/jx3box-common/js/system";
 import maps_std from "@jx3box/jx3box-data/data/fb/fb_map.json";
 import maps_origin from "@jx3box/jx3box-data/data/fb/fb_map_origin.json";
 import { cloneDeep } from "lodash";
 export default {
     components: {
-        ReputationItem
+        ReputationItem,
     },
     data() {
         return {
@@ -65,11 +64,11 @@ export default {
         },
         showList() {
             let list = cloneDeep(this.versionList);
-            console.log(list)
-            console.log(this.dlc)
+            console.log(list);
+            console.log(this.dlc);
             if (this.dlc) {
                 list = list.filter((item) => item.value === Number(this.dlc));
-                console.log("筛选",list)
+                console.log("筛选", list);
             }
             if (this.keyword) {
                 const keyword = this.keyword.trim();
@@ -85,10 +84,8 @@ export default {
             return list;
         },
     },
-    watch: {
-
-    },
-    created() { },
+    watch: {},
+    created() {},
     mounted() {
         this.loadData();
     },
@@ -151,7 +148,7 @@ export default {
 .m-pvx-reputation-search {
     height: 100%;
     background: #f9f9f9;
-    .u-search{
+    .u-search {
         .mt(15px);
     }
     .u-select {
@@ -169,10 +166,8 @@ export default {
 
             .u-text {
                 .fz(16px);
-
             }
         }
-
     }
 
     .reputation-list {
@@ -188,15 +183,15 @@ export default {
             width: 0;
             height: 0;
         }
-        .reputation-title{
+        .reputation-title {
             .fz(16px);
         }
-        .reputation-show-list{
-           .w(100%);
-            .u-title{
+        .reputation-show-list {
+            .w(100%);
+            .u-title {
                 .fz(16px);
             }
-            .u-list{
+            .u-list {
                 .mt(10px);
                 .flex;
                 flex-direction: column;
@@ -216,18 +211,18 @@ export default {
             background: #000000;
         }
     }
-    .m-pvx-reputation-search{
-        .u-search{
+    .m-pvx-reputation-search {
+        .u-search {
             background: #000000;
         }
-        .reputation-list{
-           background: #000000;
-            .reputation-show-list{
-                .u-title{
+        .reputation-list {
+            background: #000000;
+            .reputation-show-list {
+                .u-title {
                     color: #ffffff;
                 }
-                .u-list{
-                   background: #000000;
+                .u-list {
+                    background: #000000;
                 }
             }
         }

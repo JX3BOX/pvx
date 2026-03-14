@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <Header></Header>
+        <CommonHeader></CommonHeader>
         <!-- <Breadcrumb name="家具大全" slug="furniture" root="/furniture" :feedbackEnable="true" :crumbEnable="false">
             <img slot="logo" svg-inline :src="getAppIcon('furniture')" />
         </Breadcrumb> -->

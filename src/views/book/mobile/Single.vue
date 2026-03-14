@@ -50,7 +50,7 @@
             <div class="m-box m-other">
                 <div class="m-title">书籍信息</div>
                 <div class="u-other-box">
-                    <div class="u-item"  v-if="!['其它', '碑铭'].includes(getOrigin(book))">
+                    <div class="u-item" v-if="!['其它', '碑铭'].includes(getOrigin(book))">
                         <div class="u-title">来源</div>
                         <div class="u-text">
                             <span :class="getOrigin(book) !== '其它' && 'book-special'">{{ getOrigin(book) }}</span>
@@ -60,25 +60,23 @@
                     <div class="u-item" v-else>
                         <div class="u-title">来源</div>
                         <div class="u-text">
-                           <span v-if="getOrigin(book) === '碑铭'" class="book-special"
-                           >{{ getOrigin(book) }}
-                            </span>
+                            <span v-if="getOrigin(book) === '碑铭'" class="book-special">{{ getOrigin(book) }} </span>
                             <!-- 其它 -->
                             <span v-else>{{ getOrigin(book) }}</span>
                         </div>
                     </div>
 
-                    <div class="u-item" >
+                    <div class="u-item">
                         <div class="u-title">所属套书</div>
-                        <div class="u-text">{{
-                                "【" + getProfessionType(book.ExtendProfessionID1) + "】" + book.BookName
-                            }}</div>
+                        <div class="u-text">
+                            {{ "【" + getProfessionType(book.ExtendProfessionID1) + "】" + book.BookName }}
+                        </div>
                     </div>
-<!--                    <div class="u-item" >-->
-<!--                        <div class="u-title">类型</div>-->
-<!--                        <div class="u-text">{{ book.MaxAmountPerLand }}</div>-->
-<!--                    </div>-->
-                    <div class="u-item" >
+                    <!--                    <div class="u-item" >-->
+                    <!--                        <div class="u-title">类型</div>-->
+                    <!--                        <div class="u-text">{{ book.MaxAmountPerLand }}</div>-->
+                    <!--                    </div>-->
+                    <div class="u-item">
                         <div class="u-title">阅读等级</div>
                         <div class="u-text">{{ book.RequireLevel }}</div>
                     </div>
@@ -89,19 +87,19 @@
                         <div class="u-title">角色等级</div>
                         <div class="u-text">{{ book.copy?.RequirePlayerLevel }}</div>
                     </div>
-                    <div class="u-item" >
+                    <div class="u-item">
                         <div class="u-title">阅读等级</div>
                         <div class="u-text">{{ book.copy?.RequireLevel }}</div>
                     </div>
-                    <div class="u-item" >
+                    <div class="u-item">
                         <div class="u-title">{{ getProfessionType(book.ExtendProfessionID1) }}等级</div>
                         <div class="u-text">{{ book.copy?.RequireLevelExt }}</div>
                     </div>
-                    <div class="u-item" >
+                    <div class="u-item">
                         <div class="u-title">精力消耗</div>
                         <div class="u-text">{{ book.copy?.CostVigor }}</div>
                     </div>
-                    <div class="u-item" >
+                    <div class="u-item">
                         <div class="u-title">所需材料</div>
                         <div class="u-text u-copy-list">
                             <item-icon
@@ -118,34 +116,40 @@
             </div>
         </div>
         <!--        其他列表-->
-        <div class="m-other-list" >
-            <div class="m-title">
-                套书·{{ book.BookName }}
-            </div>
-            <div class="u-item" >
-                <div class="u-list" >
-                    <div class="u-book-item" v-for="(item2,index) in showMore?bookList:bookList.slice(0,3)" :key="index" @click="openOther(item2)">
-                        <div class="u-cover" :style="{'background':getBookCoverColor()}">
+        <div class="m-other-list">
+            <div class="m-title">套书·{{ book.BookName }}</div>
+            <div class="u-item">
+                <div class="u-list">
+                    <div
+                        class="u-book-item"
+                        v-for="(item2, index) in showMore ? bookList : bookList.slice(0, 3)"
+                        :key="index"
+                        @click="openOther(item2)"
+                    >
+                        <div class="u-cover" :style="{ background: getBookCoverColor() }">
                             <div class="u-book-name">
                                 <div class="u-text">
-<!--                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">-->
-<!--                                        {{item2.Name}}-->
-<!--                                    </div>-->
-                                    {{item2.Name.length>5?(item2.Name.match(/[\u4e00-\u9fa5]/g) || []).slice(0, 5).join(''):item2.Name}}
+                                    <!--                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">-->
+                                    <!--                                        {{item2.Name}}-->
+                                    <!--                                    </div>-->
+                                    {{
+                                        item2.Name.length > 5
+                                            ? (item2.Name.match(/[\u4e00-\u9fa5]/g) || []).slice(0, 5).join("")
+                                            : item2.Name
+                                    }}
                                 </div>
                             </div>
                             <div class="u-book-line">
-                                <img src="../../../assets/img/book/line.png"/>
+                                <img src="../../../assets/img/book/line.png" />
                             </div>
                         </div>
-                        <div class="u-name"> {{item2.Name}}</div>
-                        <div class="u-desc">{{item2.Desc}}</div>
+                        <div class="u-name">{{ item2.Name }}</div>
+                        <div class="u-desc">{{ item2.Desc }}</div>
                     </div>
                 </div>
             </div>
-            <div class="u-more" v-show="bookList.length>3&& !showMore" @click="showMore=true">加载更多</div>
+            <div class="u-more" v-show="bookList.length > 3 && !showMore" @click="showMore = true">加载更多</div>
         </div>
-
 
         <!-- 攻略 -->
         <div class="m-furniture-wiki" v-if="id">
@@ -163,7 +167,7 @@
 </template>
 
 <script>
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 
 import bookProfession from "@/assets/data/book_profession.json";
 // 碑铭坐标json
@@ -176,24 +180,24 @@ import maps_orgin from "@jx3box/jx3box-data/data/fb/fb_map_origin.json";
 
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { getInfo, getList } from "@/service/book";
-import { addFav, delFav, hasFav } from "@jx3box/jx3box-common-ui/service/fav";
+import { addFav, delFav, hasFav } from "@jx3box/jx3box-ui/service/fav";
 import User from "@jx3box/jx3box-common/js/user";
 import ItemIcon from "@/components/book/common/item_icon_v2.vue";
-import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
+import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 import Wiki from "@/components/wiki/Wiki.vue";
 import { wxNewPage } from "@/utils/minprogram";
 
 export default {
     name: "bookSingle",
     props: ["isRobot", "sourceId"],
-    components: { Wiki, ItemIcon, SuspendCommon,WikiComments },
+    components: { Wiki, ItemIcon, SuspendCommon, WikiComments },
     data() {
         return {
             favorite: null,
             login: User.isLogin(),
             type: "item",
             isShadow: true, //是否显示阴影
-            showMore:false,
+            showMore: false,
 
             contentScrollTop: 0,
             compatible: false,
@@ -216,21 +220,21 @@ export default {
                 10: "道学",
                 9: "佛学",
             },
-            tabs:[
-                {id:11,label:'杂集',bgColod:'#324148'},
-                {id:10,label:'道学',bgColod:'#194372'},
-                {id:9,label:'佛学',bgColod:'#947d2e'},
+            tabs: [
+                { id: 11, label: "杂集", bgColod: "#324148" },
+                { id: 10, label: "道学", bgColod: "#194372" },
+                { id: 9, label: "佛学", bgColod: "#947d2e" },
             ],
         };
     },
     methods: {
         iconLink,
-        openOther(item){
-            wxNewPage(`/book/${item.idKey}`)
+        openOther(item) {
+            wxNewPage(`/book/${item.idKey}`);
         },
-        getBookCoverColor(){
-            if(!this.book.ExtendProfessionID1) return '#324148'
-            return this.tabs.filter(e=>e.id==this.book.ExtendProfessionID1)[0].bgColod
+        getBookCoverColor() {
+            if (!this.book.ExtendProfessionID1) return "#324148";
+            return this.tabs.filter((e) => e.id == this.book.ExtendProfessionID1)[0].bgColod;
         },
         handleFilteateScroll(event) {
             const { target } = event;
@@ -393,16 +397,13 @@ export default {
             getList(params)
                 .then((res) => {
                     this.bookList = res.data.list || [];
-
                 })
-                .finally(() => {
-
-                });
+                .finally(() => {});
         },
         getLink,
     },
     mounted() {
-        this.hasFav()
+        this.hasFav();
         this.getData();
     },
     computed: {
@@ -424,12 +425,6 @@ export default {
 </script>
 
 <style lang="less">
-@fontColor: #24292e;
-@fontColor-dark: #fedaa3;
-@fontcolor-40:rgba(28,28,28,0.40);
-@fontcolor-40-dark:rgba(255,255,255,0.40);
-@fontcolor-80:rgba(28,28,28,0.80);
-@fontcolor-80-dark:rgba(255,255,255,0.80);
 .v-miniprogram {
     .m-main {
         padding: 0;
@@ -479,17 +474,15 @@ export default {
         }
     }
     .m-info-main {
-
         .m-title {
             color: @fontcolor-80;
             .fz(1rem,1.5rem);
             .bold(700);
-            &.m-title-other{
+            &.m-title-other {
                 .mt(1rem);
             }
         }
         .u-top-content {
-
             .u-box {
                 .pr;
                 &::before {
@@ -516,86 +509,84 @@ export default {
                 }
             }
         }
-        .m-box{
+        .m-box {
             background: #fff;
             .r(0.75rem);
             padding: 1rem;
             box-sizing: border-box;
-            &.m-other{
+            &.m-other {
                 .mt(1.25rem);
-                .u-other-box{
+                .u-other-box {
                     .flex;
                     flex-wrap: wrap;
-                    gap:1rem;
-                    .u-item{
+                    gap: 1rem;
+                    .u-item {
                         .w(calc(calc(100% - 1rem) / 2));
                         flex-shrink: 0;
                         .mt(0.75rem);
-                        .u-title{
+                        .u-title {
                             color: @fontcolor-40;
                             .fz(0.75rem,1.25rem);
-                            .bold(400)
+                            .bold(400);
                         }
-                        .u-text{
+                        .u-text {
                             color: @fontcolor-80;
                             .fz(0.875rem,1.25rem);
-                            .bold(400)
+                            .bold(400);
                         }
-                        .u-copy-list{
+                        .u-copy-list {
                             .flex;
                             //gap:0.5r/em
-                            .u-item{
+                            .u-item {
                                 .w(2rem);
                             }
                         }
                     }
                 }
-
-
             }
         }
     }
-    .m-other-list{
+    .m-other-list {
         .mt(1.25rem);
         .mb(1.25rem);
-        .u-more{
+        .u-more {
             color: @fontcolor-40;
             .fz(0.75rem,1.125rem);
             .bold(400);
             .x;
         }
-        .m-title{
+        .m-title {
             color: @fontColor;
             .fz(1rem,1.5rem);
             .bold(700);
             .mb(0.5rem);
         }
 
-        .u-item{
-            .mb(0.75rem)
+        .u-item {
+            .mb(0.75rem);
         }
-        .u-list{
+        .u-list {
             .flex;
             flex-wrap: wrap;
-            gap:0.75rem;
+            gap: 0.75rem;
 
-            .u-book-item{
+            .u-book-item {
                 .w(calc(calc(100% - 1.5rem) / 3));
                 flex-shrink: 0;
-                .u-name{
+                .u-name {
                     color: @fontColor;
                     .fz(0.875rem,1.25rem);
                     .bold(700);
                     font-style: normal;
                     .mt(0.5rem);
                 }
-                .u-desc{
-                    color:@fontcolor-40;
+                .u-desc {
+                    color: @fontcolor-40;
                     .fz(0.625rem,0.938rem);
                     font-style: normal;
                     .bold(400);
                 }
-                .u-cover{
+                .u-cover {
                     border-radius: 4px;
                     background: #324148;
                     overflow: hidden;
@@ -605,7 +596,7 @@ export default {
                     .flex;
                     justify-content: space-between;
                 }
-                .u-book-name{
+                .u-book-name {
                     background: url("../../../assets/img/book/title.png") center center no-repeat;
                     background-size: contain;
                     margin: 0.5rem;
@@ -614,7 +605,7 @@ export default {
                     box-sizing: border-box;
                     overflow: hidden;
                     //.dbi;
-                    .u-text{
+                    .u-text {
                         .h(100%);
                         overflow: hidden;
                         display: flex;
@@ -648,7 +639,6 @@ export default {
                         //    //    animation: verticalScroll 10s ease-in-out infinite;
                         //    //}
                         //}
-
                     }
                     @keyframes verticalScroll {
                         0% {
@@ -662,67 +652,64 @@ export default {
                         }
                     }
                 }
-                .u-book-line{
+                .u-book-line {
                     .h(100%);
                     //.pa;
                     //.rt(0);
-                    img{
+                    img {
                         .h(100%);
                         object-fit: contain;
                     }
                 }
             }
-
         }
     }
 }
 
-
-@media (prefers-color-scheme: dark){
-    .p-book-single-mobile{
+@media (prefers-color-scheme: dark) {
+    .p-book-single-mobile {
         background-color: #000;
 
-        .m-info-main{
-            .m-box{
+        .m-info-main {
+            .m-box {
                 background: #282828;
-                .m-title{
-                    color:@fontcolor-80-dark;
+                .m-title {
+                    color: @fontcolor-80-dark;
                 }
-                .u-box{
-                    &::before{
-                    background: linear-gradient(0deg, #282828 0%, rgba(40, 40, 40, 0.00) 181.45%);
+                .u-box {
+                    &::before {
+                        background: linear-gradient(0deg, #282828 0%, rgba(40, 40, 40, 0) 181.45%);
                     }
                 }
-                .u-content{
-                    color:@fontcolor-80-dark;
+                .u-content {
+                    color: @fontcolor-80-dark;
                 }
 
-                .u-item{
-                    .u-title{
-                        color:@fontcolor-40-dark !important;
+                .u-item {
+                    .u-title {
+                        color: @fontcolor-40-dark !important;
                     }
-                    .u-text{
-                        color:@fontcolor-80-dark !important;
+                    .u-text {
+                        color: @fontcolor-80-dark !important;
                     }
                 }
             }
         }
-        .m-other-list{
-            .m-title{
-                color:@fontcolor-80-dark;
+        .m-other-list {
+            .m-title {
+                color: @fontcolor-80-dark;
             }
-            .u-item{
-                .u-list{
-                    .u-name{
-                        color:@fontcolor-40-dark;
+            .u-item {
+                .u-list {
+                    .u-name {
+                        color: @fontcolor-40-dark;
                     }
-                    .u-desc{
-                        color:@fontcolor-80-dark !important;
+                    .u-desc {
+                        color: @fontcolor-80-dark !important;
                     }
                 }
             }
         }
     }
-
 }
 </style>

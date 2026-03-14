@@ -77,7 +77,7 @@
 <script>
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { mapGetters } from "vuex";
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import RecipeDetailTitle from "./RecipeDetailTitle.vue";
 import PriceUpdateDrawer from "./PriceUpdateDrawer.vue";
 import { sum, pick } from "lodash";
@@ -108,7 +108,7 @@ export default {
         },
         client() {
             return this.$store.state.client;
-        }
+        },
     },
     methods: {
         iconLink, // 描述过滤

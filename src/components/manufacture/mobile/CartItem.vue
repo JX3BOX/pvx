@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { sumBy } from "lodash";
 import PriceUpdateDrawerVue from "./PriceUpdateDrawer.vue";

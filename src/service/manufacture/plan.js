@@ -1,4 +1,4 @@
-import { $cms, $node } from "@jx3box/jx3box-common/js/https";
+import { $cms, $node } from "@jx3box/jx3box-common/js/api";
 
 // 单个清单搜索
 export function getPlan(id) {

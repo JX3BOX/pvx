@@ -41,16 +41,16 @@
                 <div class="u-content w-100">
                     <div class="u-label">获取线索</div>
                     <div class="u-text">
-                        <template v-for="item in getPetDesc(pet.OutputDes)">
-                            <span :key="item.text">{{ cleanResourceText(item.text) }}</span>
+                        <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
+                            <span>{{ cleanResourceText(item.text) }}</span>
                         </template>
                     </div>
                 </div>
                 <div class="u-content  w-100">
                     <div class="u-label">宠物说明</div>
                     <div class="u-text">
-                        <template v-for="(item, index) in getPetDesc(pet.Desc)">
-                            <span :key="index" v-html="item.text"></span>
+                        <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
+                            <span v-html="item.text"></span>
                         </template>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import { $node, axios, $team } from "@jx3box/jx3box-common/js/https";
+import { $node, axios, $team } from "@jx3box/jx3box-common/js/api";
 import { __dataPath } from "@/utils/config";
 
 // 获取奇遇列表

@@ -1,13 +1,4 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-
-// 解决重复点击路由报错的BUG
-const originalPush = VueRouter.prototype.push;
-VueRouter.prototype.push = function push(location) {
-    return originalPush.call(this, location).catch((err) => err);
-};
-
-Vue.use(VueRouter);
+import { createPageRouter } from "@/bootstrap/router";
 
 const List = () => import("@/views/adventure/AdventureList.vue");
 const Single = () => import("@/views/adventure/AdventureSingle.vue");
@@ -22,7 +13,7 @@ const routes = [
         path: "/treasure",
         redirect: () => {
             const isMobile = window.innerWidth <= 768;
-            return isMobile ? '/treasure/portrait' : '/treasure/landscape';
+            return isMobile ? "/treasure/portrait" : "/treasure/landscape";
         },
     },
     {
@@ -43,10 +34,4 @@ const routes = [
     },
 ];
 
-const router = new VueRouter({
-    mode: "history",
-    base: "/adventure",
-    routes,
-});
-
-export default router;
+export default createPageRouter("/adventure", routes);

@@ -237,7 +237,7 @@ import { showTime } from "@/utils/moment";
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
 import PriceDetail from "@/components/manufacture/PriceDetail.vue";
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import User from "@jx3box/jx3box-common/js/user";
 import CartMaterialsVue from "./CartMaterials.vue";
 
@@ -300,7 +300,7 @@ export default {
         },
         client() {
             return this.$store.state.client;
-        }
+        },
     },
 
     methods: {

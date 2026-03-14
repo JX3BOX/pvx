@@ -89,7 +89,7 @@ import { showTime } from "@jx3box/jx3box-common/js/moment";
 import cloneDeep from "lodash/cloneDeep";
 import User from "@jx3box/jx3box-common/js/user.js";
 
-import Comment from "@jx3box/jx3box-comment-ui/src/Comment.vue";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import CalendarDialog from "@/components/pvg/gonggao/calendar/CalendarDialog";
 import CalendarDetailItem from "@/components/pvg/gonggao/calendar/CalendarDetailItem.vue";
 export default {

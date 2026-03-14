@@ -60,15 +60,15 @@
                         </div>
                         <div class="u-meta u-source">
                             <span class="u-meta-label">获取线索：</span>
-                            <template v-for="item in getPetDesc(pet.OutputDes)">
-                                <span :key="item.text">{{ cleanResourceText(item.text) }}</span>
+                            <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
+                                <span>{{ cleanResourceText(item.text) }}</span>
                             </template>
                         </div>
                         <div class="u-meta u-desc">
                             <span class="u-meta-label">宠物说明：</span>
                             <span class="u-meta-value">
-                                <template v-for="(item, index) in getPetDesc(pet.Desc)">
-                                    <span :key="index" v-html="item.text"></span>
+                                <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
+                                    <span v-html="item.text"></span>
                                 </template>
                             </span>
                         </div>
@@ -146,14 +146,14 @@
                         </div>
                         <div class="u-meta u-source">
                             <span class="u-meta-label">获取线索：</span>
-                            <template v-for="item in getPetDesc(pet.OutputDes)">
-                                <span :key="item.text">{{ cleanResourceText(item.text) }}</span>
+                            <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
+                                <span>{{ cleanResourceText(item.text) }}</span>
                             </template>
                         </div>
                     </div>
                     <div class="u-info__bottom">
-                        <template v-for="(item, index) in getPetDesc(pet.Desc)">
-                            <span :key="index" v-html="item.text"></span>
+                        <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
+                            <span v-html="item.text"></span>
                         </template>
                     </div>
                 </div>
@@ -222,7 +222,7 @@ import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 
 import dayjs from "@/plugins/day";
 import PetMap from "@/components/pet/PetMap.vue";
-// import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
+// import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 import { __imgPath } from "@/utils/config";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {

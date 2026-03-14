@@ -1,4 +1,4 @@
-import { $cms, $next, $node } from "@jx3box/jx3box-common/js/https";
+import { $cms, $next, $node } from "@jx3box/jx3box-common/js/api";
 
 function getProfile() {
     return $cms({ mute: true })
@@ -19,6 +19,5 @@ function get_item(item_id) {
     if (!item_id) return;
     return $node().get(`/item/${item_id}`);
 }
-
 
 export { getProfile, getGoodsData, get_item };

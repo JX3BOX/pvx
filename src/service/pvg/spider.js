@@ -1,4 +1,4 @@
-import { $next, $node } from "@jx3box/jx3box-common/js/https";
+import { $next, $node } from "@jx3box/jx3box-common/js/api";
 // 家园声望
 function getHomeReputation(date, server = "梦江南") {
     const params = {
@@ -8,7 +8,7 @@ function getHomeReputation(date, server = "梦江南") {
     };
     return $next().get("/api/next2/npc-shop/list", {
         params,
-    }); 
+    });
 }
 // 批量获取物品
 function getItems(ids, client = "std") {

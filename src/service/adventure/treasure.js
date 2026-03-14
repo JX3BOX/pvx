@@ -1,4 +1,4 @@
-import { $cms, $team, $next, $node } from "@jx3box/jx3box-common/js/https";
+import { $cms, $team, $next, $node } from "@jx3box/jx3box-common/js/api";
 
 const client = location.href.includes("origin") ? "origin" : "std";
 

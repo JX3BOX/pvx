@@ -1,12 +1,9 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from "vuex";
 import { getAuctionPrice, getItemsPrice, getOther, getUserInfo } from "@/service/manufacture/manufacture.js";
 import { getUserSchool } from "@/service/adventure/adventure.js";
 import { map, reduce } from "lodash";
 import { cloneDeep } from "lodash";
 import User from "@jx3box/jx3box-common/js/user";
-
-Vue.use(Vuex);
 
 let store = {
     state: {
@@ -267,4 +264,4 @@ let store = {
     },
 };
 
-export default new Vuex.Store(store);
+export default createStore(store);

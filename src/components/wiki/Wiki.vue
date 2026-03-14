@@ -50,10 +50,10 @@
 
 <script>
 import Article from "@jx3box/jx3box-editor/src/Article.vue";
-import WikiPanel from "@jx3box/jx3box-common-ui/src/wiki/WikiPanel";
-import WikiRevisions from "@jx3box/jx3box-common-ui/src/wiki/WikiRevisions";
+import WikiPanel from "@jx3box/jx3box-ui/src/wiki/WikiPanel";
+import WikiRevisions from "@jx3box/jx3box-ui/src/wiki/WikiRevisions";
 import { publishLink, ts2str } from "@jx3box/jx3box-common/js/utils";
-import { wiki } from "@jx3box/jx3box-common/js/wiki_v2";
+import { wiki } from "@jx3box/jx3box-common/js/wiki";
 export default {
     name: "Wiki",
     components: {

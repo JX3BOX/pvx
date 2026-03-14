@@ -1,4 +1,4 @@
-import { $node } from "@jx3box/jx3box-common/js/https";
+import { $node } from "@jx3box/jx3box-common/js/api";
 import axios from "axios";
 const $ = $node();
 

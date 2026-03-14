@@ -447,7 +447,7 @@
 </template>
 
 <script>
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 // import PvxSuspension from '@/components/PvxSuspension.vue';
 import PvxUser from "@/components/PvxUser.vue";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";

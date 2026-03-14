@@ -1,14 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createPageRouter } from "@/bootstrap/router";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-
-// 解决重复点击路由报错的BUG
-const originalPush = VueRouter.prototype.push;
-VueRouter.prototype.push = function push(location) {
-    return originalPush.call(this, location).catch((err) => err);
-};
-
-Vue.use(VueRouter);
 
 const Paper = () => import("@/views/exam/Paper.vue");
 const Question = () => import("@/views/exam/Question.vue");
@@ -29,27 +20,4 @@ const routes = [
     { name: "gameQuestionPublish", path: "/gameQuestionPublish/:id?", component: GameQuestionPublish },
 ];
 
-const router = new VueRouter({
-    mode: "history",
-    base: "/exam",
-    routes,
-    scrollBehavior(to, from, savedPosition) {
-        if (savedPosition) {
-            return savedPosition;
-        } else {
-            return {
-                x: 0,
-                y: 0,
-            };
-        }
-    },
-});
-
-router.beforeEach((to, from, next) => {
-    if (to.fullPath.includes("/#")) {
-        next(to.fullPath.replace("/#", ""));
-    }
-    next();
-});
-
-export default router;
+export default createPageRouter("/exam", routes);

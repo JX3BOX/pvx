@@ -4,7 +4,7 @@
             <el-button class="u-goback" size="medium" icon="el-icon-arrow-left" @click="goBack" plain
                 >返回列表</el-button
             >
-            <el-input placeholder="请输入家具名字搜索" v-model="search" class="u-input" @keyup.enter.native="goSearch">
+            <el-input placeholder="请输入家具名字搜索" v-model="search" class="u-input" @keyup.enter="goSearch">
                 <el-button slot="append" icon="el-icon-search" @click="goSearch"></el-button>
             </el-input>
             <div class="u-links">
@@ -118,7 +118,7 @@
 <script>
 import furnitureSet from "@/components/homeland/furniture_set.vue";
 import Wiki from "@/components/wiki/Wiki.vue";
-import Comment from "@jx3box/jx3box-comment-ui/src/Comment.vue";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import furnitureMaterials from "@/components/homeland/furniture_materials.vue";
 
 import { getLink } from "@jx3box/jx3box-common/js/utils";

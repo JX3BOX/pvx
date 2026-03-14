@@ -1,14 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createPageRouter } from "@/bootstrap/router";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-
-// 解决重复点击路由报错的BUG
-const originalPush = VueRouter.prototype.push;
-VueRouter.prototype.push = function push(location) {
-    return originalPush.call(this, location).catch((err) => err);
-};
-
-Vue.use(VueRouter);
 
 const routes = [
     {
@@ -18,12 +9,10 @@ const routes = [
             window.innerWidth <= 768
                 ? () => import("@/views/pvg/ManufactureMobile.vue")
                 : () => import("@/views/pvg/Manufacture.vue"),
-
         meta: {
             name: "技艺助手",
         },
     },
-
     {
         name: "price",
         path: "/price",
@@ -81,19 +70,14 @@ const routes = [
     },
 ];
 
-const router = new VueRouter({
-    mode: "history",
-    base: "/pvg",
-    routes,
-});
-
+const router = createPageRouter("/pvg", routes);
 const today = new Date();
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
     if (to.fullPath === "/gonggao/calendar") {
-        return next(`${to.fullPath}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`);
+        return `${to.fullPath}/${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
     }
-    next();
+    return true;
 });
 
 export default router;

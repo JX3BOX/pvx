@@ -142,7 +142,7 @@ export default {
     .u-border,
     .u-border-quest {
         .pa;
-        .full;
+        .size(100%);
         .z(2);
         top: 0;
         left: 0;

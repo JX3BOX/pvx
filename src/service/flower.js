@@ -1,5 +1,5 @@
 import { __spider2 } from "@/utils/config";
-import { $next } from "@jx3box/jx3box-common/js/https";
+import { $next } from "@jx3box/jx3box-common/js/api";
 import axios from "axios";
 
 function getFlower(params) {

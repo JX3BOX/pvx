@@ -469,7 +469,7 @@ export default {
             this.getGameReporter();
         }, 30 * 1000);
     },
-    beforeDestroy() {
+    beforeUnmount() {
         // 清除定时器
         clearInterval(this.timer);
         this.timer = null;

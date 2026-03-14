@@ -1,5 +1,5 @@
 import axios from "axios";
-import { $cms, $next } from "@jx3box/jx3box-common/js/https";
+import { $cms, $next } from "@jx3box/jx3box-common/js/api";
 import { __spider2 } from "@/utils/config";
 
 const $spider = axios.create({

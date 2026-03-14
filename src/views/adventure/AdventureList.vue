@@ -37,7 +37,7 @@
                             <div @click="setActive(item.value)">查看全部</div>
                         </template>
                         <template v-slot="{ item }">
-                            <AdventureItem :key="item.id" :item="item" :reporter="{ aggregate: listId(list) }" />
+                            <AdventureItem :key="item.id" :item="item" />
                         </template>
                     </CardBannerList>
                 </template>
@@ -48,12 +48,7 @@
                 <div class="u-title">{{ typeName + "奇遇" }}</div>
             </div>
             <div class="m-face-list--all" v-if="subList.length">
-                <AdventureItem
-                    v-for="item in subList"
-                    :key="item.id"
-                    :item="item"
-                    :reporter="{ aggregate: listId(subList) }"
-                />
+                <AdventureItem v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <template v-if="isMiniProgram">
                 <div class="m-get-more" v-if="hasNextPage">
@@ -159,7 +154,7 @@ import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import dayjs from "@/utils/day";
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 export default {
     name: "adventureList",
     props: [],

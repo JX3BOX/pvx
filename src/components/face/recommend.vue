@@ -1,17 +1,6 @@
 <template>
     <div class="m-recommend-item">
-        <a
-            class="u-face"
-            :href="getFaceLink(item)"
-            target="_blank"
-            v-reporter="{
-                data: {
-                    href: getFaceLink(item),
-                    ...reporter,
-                },
-                caller: 'face_index',
-            }"
-        >
+        <a class="u-face" :href="getFaceLink(item)" target="_blank">
             <i class="u-img">
                 <img class="u-pic" :src="resolveImagePath(item.img)" loading="lazy" />
             </i>
@@ -26,7 +15,7 @@ import { setPost } from "@/service/face";
 import { showAvatar, authorLink, getThumbnail, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "item",
-    props: ["item", "reporter"],
+    props: ["item"],
     data: function () {
         return {
             search: "",
@@ -98,7 +87,7 @@ export default {
         .r(4px);
     }
     .u-pic {
-        // .full;
+        // .size(100%);
         .r(4px);
         .size(100%);
         object-fit: cover;

@@ -69,3 +69,22 @@ body {
         padding: 0;
     }
 }
+
+// jx3box-ui header client switch relies on reset-like button styles
+// that are not guaranteed inside pvx. Keep the override local to pvx.
+.c-header-client {
+    .u-trigger {
+        appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+}

@@ -37,7 +37,7 @@
 <script>
 import SingleCard from "@/components/exam/single_card";
 // import SingleTitle from "@/components/exam/single_title";
-import Comment from "@jx3box/jx3box-comment-ui/src/Comment.vue";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import { getQuestion, submitQuestionAnswer } from "@/service/exam.js";
 import User from "@jx3box/jx3box-common/js/user";

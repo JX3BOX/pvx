@@ -1,4 +1,4 @@
-<template functional>
+<template>
     <div class="m-list-head list-sticky-head">
         <div>名称</div>
         <div>类型</div>

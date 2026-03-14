@@ -31,7 +31,7 @@
                         <div @click="setActive(item.value)">查看全部</div>
                     </template>
                     <template v-slot="{ item }">
-                        <faceItem :key="item.id" :item="item" :reporter="{ aggregate: listId(list) }" />
+                        <faceItem :key="item.id" :item="item" />
                     </template>
                 </CardBannerList>
             </div>
@@ -41,12 +41,7 @@
                 <div class="u-title">{{ typeName + "脸型" }}</div>
             </div>
             <div class="m-face-list--all">
-                <faceItem
-                    v-for="item in subList"
-                    :key="item.id"
-                    :item="item"
-                    :reporter="{ aggregate: listId(subList) }"
-                />
+                <faceItem v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <el-button
                 class="m-archive-more"

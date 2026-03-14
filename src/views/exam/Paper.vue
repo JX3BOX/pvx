@@ -48,7 +48,7 @@
 <script>
 import SingleCard from "@/components/exam/single_card.vue";
 import PaperTitle from "@/components/exam/paper_title.vue";
-import Comment from "@jx3box/jx3box-comment-ui/src/Comment.vue";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import { getPaper, submitAnswer, submitAnswerTrial } from "@/service/exam.js";
 import User from "@jx3box/jx3box-common/js/user";
@@ -89,7 +89,7 @@ export default {
         },
         isPractice() {
             return this.$route?.query?.mode == "practice";
-        }
+        },
     },
     methods: {
         editLink(type, id) {

@@ -1,16 +1,5 @@
 <template>
-    <a
-        :class="['m-body-item m-face-item', { onlyPic, noName }]"
-        :href="`${link}/${item.id}`"
-        target="_blank"
-        v-reporter="{
-            data: {
-                href: '/body/' + item.id,
-                ...reporter,
-            },
-            caller: 'body_index',
-        }"
-    >
+    <a :class="['m-body-item m-face-item', { onlyPic, noName }]" :href="`${link}/${item.id}`" target="_blank">
         <div class="m-img">
             <el-image class="u-pic" :src="showThumb(imgLink)" fit="cover">
                 <div slot="error" class="image-slot">
@@ -38,7 +27,7 @@
 import { showAvatar, getThumbnail } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "item",
-    props: ["item", "reporter", "onlyPic", "noName"],
+    props: ["item", "onlyPic", "noName"],
     data: function () {
         return {
             markmap: {

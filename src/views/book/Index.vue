@@ -25,7 +25,7 @@
                                 <div @click="clickTabs(item.id)" v-if="item.id !== 8">查看全部</div>
                             </template>
                             <template v-slot="{ item }">
-                                <BookCard :item="item" :reporter="{ aggregate: listId(list) }" @click="setItem(item)" />
+                                <BookCard :item="item" @click="setItem(item)" />
                             </template>
                         </CardBannerList>
                         <list-cross v-else key="recentRead" ref="recentRead" :list="item.list" :radius="10" :gap="20">
@@ -54,21 +54,11 @@
                     </div>
                     <template v-if="subList.length">
                         <div class="m-book-list--card" v-if="showType === 'card'">
-                            <BookCard
-                                v-for="item in subList"
-                                :key="item.ID + Math.random()"
-                                :item="item"
-                                :reporter="{ aggregate: listId(subList) }"
-                            />
+                            <BookCard v-for="item in subList" :key="item.ID + Math.random()" :item="item" />
                         </div>
                         <div class="m-book-list--list" v-if="showType === 'list'">
                             <ListHead></ListHead>
-                            <BookItem
-                                v-for="item in subList"
-                                :key="item.ID + Math.random()"
-                                :item="item"
-                                :reporter="{ aggregate: listId(subList) }"
-                            />
+                            <BookItem v-for="item in subList" :key="item.ID + Math.random()" :item="item" />
                         </div>
                     </template>
                     <el-button

@@ -1,17 +1,46 @@
 <template>
     <div class="m-face-list_mobile">
         <!--        <PvxSuspension isType='list' :miniprogram="{ app: '捏脸', filter_name: 'pvxface' }" />-->
-        <SuspendCommon :btnOptions="{showHome:true}"
-                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" >
+        <SuspendCommon
+            :btnOptions="{ showHome: true }"
+            :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }"
+            @search="search"
+        >
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="switchType('cutShow')">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline v-if="showActive==-1"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/man.svg" svg-inline v-if="showActive==1"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/woman.svg" svg-inline ne v-if="showActive==2"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/boy.svg" svg-inline v-if="showActive==5"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/girl.svg" svg-inline v-if="showActive==6"/>
+                        <img
+                            class="u-icon"
+                            src="@/assets/img/pvxsuspension/switch_touchbar.svg"
+                            svg-inline
+                            v-if="showActive == -1"
+                        />
+                        <img
+                            class="u-icon"
+                            src="@/assets/img/pvxsuspension/man.svg"
+                            svg-inline
+                            v-if="showActive == 1"
+                        />
+                        <img
+                            class="u-icon"
+                            src="@/assets/img/pvxsuspension/woman.svg"
+                            svg-inline
+                            ne
+                            v-if="showActive == 2"
+                        />
+                        <img
+                            class="u-icon"
+                            src="@/assets/img/pvxsuspension/boy.svg"
+                            svg-inline
+                            v-if="showActive == 5"
+                        />
+                        <img
+                            class="u-icon"
+                            src="@/assets/img/pvxsuspension/girl.svg"
+                            svg-inline
+                            v-if="showActive == 6"
+                        />
 
                         {{ habitusName }}
                     </div>
@@ -20,35 +49,67 @@
                         筛选
                     </div>
                 </div>
-
             </template>
         </SuspendCommon>
-        <el-drawer :visible.sync="showForm" direction="btt" :with-header="false" custom-class="u-drawer"
-                   :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
+        <el-drawer
+            :visible.sync="showForm"
+            direction="btt"
+            :with-header="false"
+            custom-class="u-drawer"
+            :modal-append-to-body="false"
+            append-to-body
+            class="p-drawer-suspend"
+        >
             <!--                体型区域-->
-            <transition :name="cutshowTra?'slide-up':''">
-            <div class="m-cut" v-if="cutShow">
-                <div class="u-cut-all" :class="{'is-active':showActive==-1}" @click="showActive=-1">
-                    <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline /> 全部体型
-                </div>
-                <div class="u-cut-box">
-                    <div class="u-cut-item" v-for="(item, index) in tabsData" :key="index"
-                         :class="{ 'is-active': showActive == item.value }" @click="showActive=item.value">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/man.svg" svg-inline v-if="item.value==1"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/woman.svg" svg-inline ne v-if="item.value==2"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/boy.svg" svg-inline v-if="item.value==5"/>
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/girl.svg" svg-inline v-if="item.value==6"/>
+            <transition :name="cutshowTra ? 'slide-up' : ''">
+                <div class="m-cut" v-if="cutShow">
+                    <div class="u-cut-all" :class="{ 'is-active': showActive == -1 }" @click="showActive = -1">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline /> 全部体型
+                    </div>
+                    <div class="u-cut-box">
+                        <div
+                            class="u-cut-item"
+                            v-for="(item, index) in tabsData"
+                            :key="index"
+                            :class="{ 'is-active': showActive == item.value }"
+                            @click="showActive = item.value"
+                        >
+                            <img
+                                class="u-icon"
+                                src="@/assets/img/pvxsuspension/man.svg"
+                                svg-inline
+                                v-if="item.value == 1"
+                            />
+                            <img
+                                class="u-icon"
+                                src="@/assets/img/pvxsuspension/woman.svg"
+                                svg-inline
+                                ne
+                                v-if="item.value == 2"
+                            />
+                            <img
+                                class="u-icon"
+                                src="@/assets/img/pvxsuspension/boy.svg"
+                                svg-inline
+                                v-if="item.value == 5"
+                            />
+                            <img
+                                class="u-icon"
+                                src="@/assets/img/pvxsuspension/girl.svg"
+                                svg-inline
+                                v-if="item.value == 6"
+                            />
 
-                        <span>{{ item.label }} </span>
+                            <span>{{ item.label }} </span>
+                        </div>
+                    </div>
+                    <div class="u-cut-btn">
+                        <div class="u-report-btn" @click="report()">重置</div>
+                        <div class="u-confirm-btn" :class="{ active: showHighlightConfirm }" @click="cut()">确定</div>
                     </div>
                 </div>
-                <div class="u-cut-btn">
-                    <div class="u-report-btn" @click="report()">重置</div>
-                    <div class="u-confirm-btn" :class="{active:showHighlightConfirm}" @click="cut()">确定</div>
-                </div>
-            </div>
             </transition>
-<!--            请先选择体型区域-->
+            <!--            请先选择体型区域-->
             <div class="m-no-body" v-if="noBody">
                 <div class="u-icon">
                     <img src="@/assets/img/pvxsuspension/report.svg" svg-inline />
@@ -61,29 +122,96 @@
             <div class="m-filtrate" v-if="filtrateShow">
                 <div class="u-filtrate-title">类型</div>
                 <div class="u-box">
-                    <div class="u-item all" :class="{'active':!queryFiltrateParams.is_new_face}"  @click="filtrateParams('is_new_face','')">全部</div>
-                    <div class="u-item"  :class="{'active':queryFiltrateParams.is_new_face=='1'}"  @click="filtrateParams('is_new_face','1')">写实</div>
-                    <div class="u-item"  :class="{'active':queryFiltrateParams.is_new_face=='0'}"  @click="filtrateParams('is_new_face','0')">写意</div>
+                    <div
+                        class="u-item all"
+                        :class="{ active: !queryFiltrateParams.is_new_face }"
+                        @click="filtrateParams('is_new_face', '')"
+                    >
+                        全部
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.is_new_face == '1' }"
+                        @click="filtrateParams('is_new_face', '1')"
+                    >
+                        写实
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.is_new_face == '0' }"
+                        @click="filtrateParams('is_new_face', '0')"
+                    >
+                        写意
+                    </div>
                 </div>
                 <div class="u-filtrate-title">标签</div>
                 <div class="u-box">
-                    <div class="u-item all" :class="{'active':!queryFiltrateParams.star && queryFiltrateParams.price_type==''&&!queryFiltrateParams.is_unlimited}"  @click="filtrateParams(['star','price_type','is_unlimited'],'')">全部</div>
-                    <div class="u-item" :class="{'active':queryFiltrateParams.star=='1'}"  @click="filtrateParams('star',1,queryFiltrateParams.star=='1')">精选</div>
-                    <div class="u-item"  :class="{'active':queryFiltrateParams.price_type=='0'}"  @click="filtrateParams('price_type','0',queryFiltrateParams.price_type=='0')">免费</div>
-                    <div class="u-item" :class="{'active':queryFiltrateParams.is_unlimited=='1'}"  @click="filtrateParams('is_unlimited','1',queryFiltrateParams.is_unlimited=='1')">可新建</div>
+                    <div
+                        class="u-item all"
+                        :class="{
+                            active:
+                                !queryFiltrateParams.star &&
+                                queryFiltrateParams.price_type == '' &&
+                                !queryFiltrateParams.is_unlimited,
+                        }"
+                        @click="filtrateParams(['star', 'price_type', 'is_unlimited'], '')"
+                    >
+                        全部
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.star == '1' }"
+                        @click="filtrateParams('star', 1, queryFiltrateParams.star == '1')"
+                    >
+                        精选
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.price_type == '0' }"
+                        @click="filtrateParams('price_type', '0', queryFiltrateParams.price_type == '0')"
+                    >
+                        免费
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.is_unlimited == '1' }"
+                        @click="filtrateParams('is_unlimited', '1', queryFiltrateParams.is_unlimited == '1')"
+                    >
+                        可新建
+                    </div>
                 </div>
                 <div class="u-filtrate-title">其他</div>
                 <div class="u-box">
-                    <div class="u-item all" :class="{'active':!queryFiltrateParams.filter_empty_images}"  @click="filtrateParams(['filter_empty_images','code_mode'],'')">全部</div>
-                    <div class="u-item"  :class="{'active':queryFiltrateParams.filter_empty_images}"  @click="filtrateParams('filter_empty_images','1')">只看有图</div>
-                    <div class="u-item"  :class="{'active':queryFiltrateParams.code_mode}"  @click="filtrateParams('code_mode','1')">只看捏脸码</div>
+                    <div
+                        class="u-item all"
+                        :class="{ active: !queryFiltrateParams.filter_empty_images }"
+                        @click="filtrateParams(['filter_empty_images', 'code_mode'], '')"
+                    >
+                        全部
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.filter_empty_images }"
+                        @click="filtrateParams('filter_empty_images', '1')"
+                    >
+                        只看有图
+                    </div>
+                    <div
+                        class="u-item"
+                        :class="{ active: queryFiltrateParams.code_mode }"
+                        @click="filtrateParams('code_mode', '1')"
+                    >
+                        只看捏脸码
+                    </div>
                 </div>
                 <div class="u-btn">
                     <div class="u-report-btn" @click="filtrateReport()">重置</div>
-                    <div class="u-confirm-btn" :class="{active:showFiltrateConfirm}" @click="filtrateConfirm()">确定</div>
+                    <div class="u-confirm-btn" :class="{ active: showFiltrateConfirm }" @click="filtrateConfirm()">
+                        确定
+                    </div>
                 </div>
             </div>
-<!--            </transition>-->
+            <!--            </transition>-->
         </el-drawer>
         <!--        弹出层区域-->
         <div class="u-content-all" v-if="active == -1">
@@ -101,16 +229,24 @@
         </div>
         <div class="u-content" v-else>
             <div class="u-list" id="oneList" v-loading="loadingList">
-                <routine gap="0.667rem" size="5.778rem" :isOne="true" :list="list" :total="total"
-                         :loadingList="loadingList" :isFinish="isFinish"
-                         v-if="listShow" @getMore="getMore()"></routine>
+                <routine
+                    gap="0.667rem"
+                    size="5.778rem"
+                    :isOne="true"
+                    :list="list"
+                    :total="total"
+                    :loadingList="loadingList"
+                    :isFinish="isFinish"
+                    v-if="listShow"
+                    @getMore="getMore()"
+                ></routine>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 // import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine from "@/components/face/mobile/routine.vue";
 import habitus from "@/components/face/mobile/habitus.vue";
@@ -126,14 +262,14 @@ export default {
         return {
             loading: false,
             active: -1,
-            showActive: -1,//切换弹窗内active，仅在弹窗打开时有效
-            showHighlightConfirm:false,
+            showActive: -1, //切换弹窗内active，仅在弹窗打开时有效
+            showHighlightConfirm: false,
             tabsData: [
                 // { label: "全部", value: -1, client: ["std", "origin"] },
-                { label: "成男", value: 1, client: ["std", "origin"],},
-                { label: "成女", value: 2, client: ["std", "origin"], },
-                { label: "正太", value: 5, client: ["std"], },
-                { label: "萝莉", value: 6, client: ["std", "origin"], },
+                { label: "成男", value: 1, client: ["std", "origin"] },
+                { label: "成女", value: 2, client: ["std", "origin"] },
+                { label: "正太", value: 5, client: ["std"] },
+                { label: "萝莉", value: 6, client: ["std", "origin"] },
             ],
             allList: [
                 {
@@ -187,31 +323,31 @@ export default {
 
             showForm: false,
             cutShow: false, //体型切换区域
-            cutshowTra:false,
-            noBody:false,//尚未选择体型的提示区域
+            cutshowTra: false,
+            noBody: false, //尚未选择体型的提示区域
             filtrateShow: false, //筛选切换区域
-            showFiltrateConfirm:false,
+            showFiltrateConfirm: false,
             //筛选区域参数，查询时将参数与queryParams合并
-            queryFiltrateParamsBak:{
+            queryFiltrateParamsBak: {
                 // body_type:-1,
-                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1", //是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
-                price_type:"", //价格类型，0免费1盒子币2金箔
-                is_unlimited:"", //是否可新建
+                price_type: "", //价格类型，0免费1盒子币2金箔
+                is_unlimited: "", //是否可新建
                 // is_personal_newest: 1, //小程序获取列表时是否去重作者避免刷屏，可选，默认值0 不去重; 1: 去重
-                is_new_face:"", // 0 写意 1 写实
-                code_mode:'',
+                is_new_face: "", // 0 写意 1 写实
+                code_mode: "",
             },
-            queryFiltrateParams:{
+            queryFiltrateParams: {
                 // body_type:-1,
-                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1", //是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
-                price_type:"", //价格类型，0免费1盒子币2金箔
-                is_unlimited:"", //是否可新建
+                price_type: "", //价格类型，0免费1盒子币2金箔
+                is_unlimited: "", //是否可新建
                 // is_personal_newest: 1, //小程序获取列表时是否去重作者避免刷屏，可选，默认值0 不去重; 1: 去重
-                is_new_face:"", // 0 写意 1 写实
-                code_mode:'',
-            }
+                is_new_face: "", // 0 写意 1 写实
+                code_mode: "",
+            },
         };
     },
     computed: {
@@ -219,8 +355,8 @@ export default {
             return this.$store.state.client;
         },
         habitusName() {
-            if(this.active==-1) return '体型';
-            return this.tabsData.find((e) => e.value == this.active)?.label
+            if (this.active == -1) return "体型";
+            return this.tabsData.find((e) => e.value == this.active)?.label;
         },
     },
     watch: {
@@ -232,59 +368,59 @@ export default {
         //         this.loadData();
         //     }
         // },
-        showActive(val){
-            this.showHighlightConfirm=(val!==this.active)
+        showActive(val) {
+            this.showHighlightConfirm = val !== this.active;
         },
-        queryFiltrateParams:{
+        queryFiltrateParams: {
             handler(newValue, oldValue) {
-                if(JSON.stringify(newValue)==JSON.stringify(this.queryFiltrateParamsBak)){
-                    this.showFiltrateConfirm=false
-                }else{
-                    this.showFiltrateConfirm=true;
+                if (JSON.stringify(newValue) == JSON.stringify(this.queryFiltrateParamsBak)) {
+                    this.showFiltrateConfirm = false;
+                } else {
+                    this.showFiltrateConfirm = true;
                 }
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
     mounted() {
         // this.getSliders();
         this.loadData();
     },
     methods: {
-        search(){
-            wx.miniProgram.navigateTo({ url: `/pages/search/search-detail/search-detail?app=捏脸&filter_name=pvxface` });
+        search() {
+            wx.miniProgram.navigateTo({
+                url: `/pages/search/search-detail/search-detail?app=捏脸&filter_name=pvxface`,
+            });
         },
         switchType(type) {
             if (!type) return;
-            this.cutshowTra=false;
+            this.cutshowTra = false;
             if (type == "cutShow") {
                 this.filtrateShow = false;
-                this.noBody=false;
+                this.noBody = false;
                 this.cutShow = true;
-
             } else if (type == "filtrateShow") {
-                if(this.active==-1){
-                    this.cutShow=false;
-                    this.filtrateShow = false;
-                    this.noBody=true;
-                }else{
+                if (this.active == -1) {
                     this.cutShow = false;
-                    this.noBody=false;
+                    this.filtrateShow = false;
+                    this.noBody = true;
+                } else {
+                    this.cutShow = false;
+                    this.noBody = false;
                     this.filtrateShow = true;
-                    this.queryFiltrateParams=cloneDeep(this.queryFiltrateParamsBak);
+                    this.queryFiltrateParams = cloneDeep(this.queryFiltrateParamsBak);
                 }
-
-            }else if(type=='selectBody'){
-                this.cutshowTra=true
-                this.cutShow=true;
+            } else if (type == "selectBody") {
+                this.cutshowTra = true;
+                this.cutShow = true;
                 this.filtrateShow = false;
-                this.noBody=false;
+                this.noBody = false;
             }
             this.showForm = true;
         },
         // 切换体型时操作
         cut() {
-            if(!this.showHighlightConfirm){
+            if (!this.showHighlightConfirm) {
                 this.showForm = false;
                 return;
             }
@@ -307,40 +443,40 @@ export default {
             this.cut();
         },
         //筛选
-        filtrateParams(key,value,isActive) {
+        filtrateParams(key, value, isActive) {
             // 判断key是否是数组
-            if(typeof key == "string"){
-                isActive?this.queryFiltrateParams[key] = "":this.queryFiltrateParams[key] = value;
-            }else{
-                key.forEach((e)=>{
-                    this.queryFiltrateParams[e] = value
-                })
+            if (typeof key == "string") {
+                isActive ? (this.queryFiltrateParams[key] = "") : (this.queryFiltrateParams[key] = value);
+            } else {
+                key.forEach((e) => {
+                    this.queryFiltrateParams[e] = value;
+                });
             }
         },
         //筛选确认
-        filtrateConfirm(){
-            if(!this.showFiltrateConfirm){
+        filtrateConfirm() {
+            if (!this.showFiltrateConfirm) {
                 this.showForm = false;
                 return;
             }
-            this.queryFiltrateParamsBak=cloneDeep(this.queryFiltrateParams);
+            this.queryFiltrateParamsBak = cloneDeep(this.queryFiltrateParams);
             this.queryParams.pageIndex = 1;
             this.list = [];
-            this.isFinish=false
+            this.isFinish = false;
             this.listShow = false;
             this.showForm = false;
             this.loadData();
         },
         //筛选重置,重置其他参数，body_type保持
-        filtrateReport(){
-            this.queryFiltrateParams={
+        filtrateReport() {
+            this.queryFiltrateParams = {
                 // ...this.queryFiltrateParams,
-                filter_empty_images: "1" ,//是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
+                filter_empty_images: "1", //是否过滤掉没有图片的捏脸, 0 否，1 是，不填或-1 为全部, 兼容 true=1 false=0
                 star: "", //是否推荐,-1或者不传为全部，0为非推荐，1为推荐
-                price_type:"", //价格类型，0免费1盒子币2金箔
-                is_unlimited:"", //是否可新建
-                is_new_face:"", // 0 写意 1 写实
-            }
+                price_type: "", //价格类型，0免费1盒子币2金箔
+                is_unlimited: "", //是否可新建
+                is_new_face: "", // 0 写意 1 写实
+            };
         },
         toTab(val) {
             this.active = val.body_type;
@@ -384,7 +520,7 @@ export default {
                             filter_empty_images: true,
                         },
                         index,
-                        true,
+                        true
                     );
                 });
             } else {
@@ -397,7 +533,6 @@ export default {
             if (this.isFinish) return;
             getFaceList(params)
                 .then((res) => {
-
                     const { list, page } = res.data.data;
                     const _list = this.active != -1 ? concat(this.list, list || []) : list;
                     if (body) {
@@ -430,7 +565,7 @@ export default {
 @fontColor-dark: #fff;
 @fontColor-dark2: rgba(255, 255, 255, 0.8);
 @fontColor-dark3: rgba(255, 255, 255, 0.4);
-body{
+body {
     padding: 0 !important;
 }
 .m-cut {
@@ -449,20 +584,22 @@ body{
         .flex;
         .flex(o);
         .mb(1rem);
-        .u-icon{
+        .u-icon {
             .w(1.25rem);
             .mr(0.25rem);
-            svg, path {
+            svg,
+            path {
                 fill: @fontColor-dark2;
                 stroke: @fontColor-dark2;
             }
         }
         &.is-active {
-            background: #FEDAA3;
-            color: #24292E;
-            svg, path {
-                fill: #24292E;
-                stroke: #24292E;
+            background: #fedaa3;
+            color: #24292e;
+            svg,
+            path {
+                fill: #24292e;
+                stroke: #24292e;
             }
         }
     }
@@ -484,19 +621,21 @@ body{
             padding: 0.75rem;
             box-sizing: border-box;
             .r(0.75rem);
-            .u-icon{
-                svg, path {
+            .u-icon {
+                svg,
+                path {
                     fill: @fontColor-dark2;
                     stroke: @fontColor-dark2;
                 }
             }
 
             &.is-active {
-                color: #24292E;
-                background: #FEDAA3;
-                svg, path {
-                    fill: #24292E;
-                    stroke: #24292E;
+                color: #24292e;
+                background: #fedaa3;
+                svg,
+                path {
+                    fill: #24292e;
+                    stroke: #24292e;
                 }
             }
         }
@@ -525,25 +664,25 @@ body{
             background: rgba(255, 255, 255, 0.05);
             color: @fontColor-dark3;
             .x;
-            &.active{
-                background: #FEDAA3;
-                color: #24292E;
+            &.active {
+                background: #fedaa3;
+                color: #24292e;
             }
         }
     }
 }
-.m-no-body{
+.m-no-body {
     .flex;
     .flex(o);
     flex-direction: column;
-    .u-tips{
+    .u-tips {
         color: @fontColor-dark3;
         .fz(0.875rem,1.25rem);
         .bold(700);
         .flex;
         .flex(o);
     }
-    .u-btn{
+    .u-btn {
         .flex;
         .flex(o);
         .mt(1.25rem);
@@ -551,7 +690,7 @@ body{
         gap: 0.5rem;
         align-self: stretch;
         .r(0.75rem);
-        background: rgba(255, 255, 255, 0.10);
+        background: rgba(255, 255, 255, 0.1);
         color: @fontColor-dark3;
     }
 }
@@ -562,7 +701,7 @@ body{
 
     .u-filtrate-title {
         .mb(0.75rem);
-        color: rgba(255, 255, 255, 0.60);
+        color: rgba(255, 255, 255, 0.6);
     }
 
     .u-box {
@@ -586,8 +725,8 @@ body{
             box-sizing: border-box;
 
             &.active {
-                color: #24292E;
-                background: #FEDAA3;
+                color: #24292e;
+                background: #fedaa3;
             }
         }
     }
@@ -615,16 +754,16 @@ body{
             background: rgba(255, 255, 255, 0.05);
             color: @fontColor-dark3;
             .x;
-            &.active{
-                background: #FEDAA3;
-                color: #24292E;
+            &.active {
+                background: #fedaa3;
+                color: #24292e;
             }
         }
     }
 }
 
 .m-face-list_mobile {
-    padding: .45rem 0 4.45rem 0;
+    padding: 0.45rem 0 4.45rem 0;
     box-sizing: border-box;
     .h(100vh);
     overflow: auto;
@@ -641,20 +780,20 @@ body{
             .flex(o);
             gap: 0.5rem;
             //.w(7.5rem);
-            flex:1;
+            flex: 1;
             &.line {
                 border-right: 0.5px solid rgba(254, 218, 163, 0.2);
             }
-            .u-icon{
+            .u-icon {
                 .size(1.25rem, 1.25rem);
-                svg, path {
-                    fill: #FEDAA3;
-                    stroke: #FEDAA3;
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
                 }
             }
         }
     }
-
 
     .u-card-title {
         padding: 0 1.25rem;
@@ -664,17 +803,17 @@ body{
         .fz(1rem, 1.556rem);
         .bold(700);
     }
-    .u-content-all{
-        .u-list{
-            &.body{
+    .u-content-all {
+        .u-list {
+            &.body {
                 padding: 0 1.25rem;
                 box-sizing: border-box;
             }
         }
     }
-    .u-content{
+    .u-content {
         .h(100%);
-        .u-list{
+        .u-list {
             .h(100%);
         }
     }
@@ -682,9 +821,8 @@ body{
         .mb(0.556rem);
     }
 
-     //@media screen and (width: 414px)
-    @media (prefers-color-scheme: dark)
-    {
+    //@media screen and (width: 414px)
+    @media (prefers-color-scheme: dark) {
         background-color: #000;
 
         .u-card-title {

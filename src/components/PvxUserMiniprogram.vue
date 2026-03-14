@@ -94,12 +94,12 @@
 
 <script>
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
-import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
+import { wiki } from "@jx3box/jx3box-common/js/wiki";
 
 import Article from "@jx3box/jx3box-editor/src/Article.vue";
-import WikiPanel from "@jx3box/jx3box-common-ui/src/wiki/WikiPanel";
-// import WikiRevisions from "@jx3box/jx3box-common-ui/src/wiki/WikiRevisions";
-import WikiComments from "@jx3box/jx3box-common-ui/src/wiki/WikiComments";
+import WikiPanel from "@jx3box/jx3box-ui/src/wiki/WikiPanel";
+// import WikiRevisions from "@jx3box/jx3box-ui/src/wiki/WikiRevisions";
+import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 
 import { publishLink, ts2str, getLink } from "@jx3box/jx3box-common/js/utils";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";

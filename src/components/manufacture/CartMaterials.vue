@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :visible.sync="visible" title="账单材料清单" width="520px" >
+    <el-dialog :visible.sync="visible" title="账单材料清单" width="520px">
         <div class="m-materials-list">
             <el-table :data="data" border size="mini" max-height="480px">
                 <el-table-column prop="Name" label="物品" width="180px">
@@ -43,7 +43,7 @@
 
 <script>
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 
 export default {
@@ -53,7 +53,7 @@ export default {
     computed: {
         client() {
             return this.$store.state.client;
-        }
+        },
     },
     data: function () {
         return {

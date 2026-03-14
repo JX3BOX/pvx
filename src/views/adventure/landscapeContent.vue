@@ -97,9 +97,8 @@
                     <div>{{ userAchievement.perfectAllNum }}</div>
                 </div>
             </div>
-            <template v-for="(item, index) in userAchievement.perfect">
+            <template v-for="(item, index) in userAchievement.perfect" :key="`group-${item.dwID}-${index}`">
                 <img
-                    :key="`img-${item.dwID}-${index}`"
                     class="u-item__img"
                     :class="item.hasClass"
                     :style="{
@@ -107,7 +106,7 @@
                     }"
                     :src="getCdnImgUrl(`world/${item.dwID}${item.isAct ? '_act' : ''}.png`)"
                 />
-                <div class="m-item__text" :class="item.hasClass" :key="`text-${item.dwID}-${index}`">
+                <div class="m-item__text" :class="item.hasClass">
                     <img class="u-item__bg" :src="getCdnImgUrl(`world/text_bg${item.isAct ? '_act' : ''}.png`)" />
                     <span class="u-item__text">{{ item.szName }}</span>
                 </div>

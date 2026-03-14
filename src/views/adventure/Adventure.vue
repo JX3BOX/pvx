@@ -1,6 +1,6 @@
 <template>
     <div id="app" class="p-adventure">
-        <Header></Header>
+        <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
         <Main :class="navStatusClass" :withoutRight="true">
             <div class="m-main">

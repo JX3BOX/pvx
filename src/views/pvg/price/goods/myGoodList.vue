@@ -27,7 +27,7 @@
 </template>
 <script>
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 export default {
     props: {
         data: {},
@@ -109,7 +109,7 @@ export default {
                     .m-mygoods-list-item-info {
                         flex: 1;
                         .flex;
-                        .full;
+                        .size(100%);
                         .fz(14px,1.5);
                         flex-direction: column;
                         justify-content: space-between;

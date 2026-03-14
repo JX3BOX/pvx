@@ -215,7 +215,7 @@ import {
 } from "@/service/body";
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
 import { getStat, postStat } from "@jx3box/jx3box-common/js/stat";
-import Comment from "@jx3box/jx3box-comment-ui/src/Comment.vue";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import Bodydat from "@jx3box/jx3box-facedat/src/Bodydat.vue";
 import { editLink, showAvatar, authorLink, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";

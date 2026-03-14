@@ -53,7 +53,7 @@
 <script>
 import { __imgPath } from "@/utils/config";
 import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 
 export default {
     name: "ManufacturePriceItemMobile",

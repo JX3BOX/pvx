@@ -1,4 +1,4 @@
-import { $next } from "@jx3box/jx3box-common/js/https";
+import { $next } from "@jx3box/jx3box-common/js/api";
 
 //
 function getExamPaperList(params) {
@@ -36,10 +36,7 @@ function submitAnswer(id, answers, force = false) {
 }
 
 function submitAnswerTrial(id, answers) {
-    return $next().post(
-        `/api/next2/question/user-exam-paper/${id}/i-finish-all/trial?force`,
-        answers
-    );
+    return $next().post(`/api/next2/question/user-exam-paper/${id}/i-finish-all/trial?force`, answers);
 }
 
 function submitQuestionAnswer(id, answers) {

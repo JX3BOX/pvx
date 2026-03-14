@@ -1,5 +1,4 @@
-import { $cms, $node } from "@jx3box/jx3box-common/js/https";
-
+import { $cms, $node } from "@jx3box/jx3box-common/js/api";
 
 // 获取列表
 function getItemPlans(params) {

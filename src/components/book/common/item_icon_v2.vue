@@ -14,14 +14,8 @@
         popper-class="u-item__popup"
     >
         <template slot="reference">
-            <div class="u-item__wrapper" :class="{ background: !onlyIcon, is_vertical: vertical }"  >
-                <div
-                    class="u-item-icon"
-
-                    :style="`height:${size}px; width:${size}px`"
-
-                    v-if="!onlyName"
-                >
+            <div class="u-item__wrapper" :class="{ background: !onlyIcon, is_vertical: vertical }">
+                <div class="u-item-icon" :style="`height:${size}px; width:${size}px`" v-if="!onlyName">
                     <img
                         class="u-item-icon__img"
                         :style="`height:${size}px; width:${size}px`"
@@ -45,7 +39,7 @@
 
 <script>
 import Item from "@jx3box/jx3box-editor/src/Item";
-import { get_item } from "@jx3box/jx3box-editor/service/item";
+import { get_item } from "@jx3box/jx3box-editor/src/service/item";
 import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
 import { __imgPath } from "@/utils/config";
 
@@ -172,5 +166,4 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/book/common/item_icon.less";
-
 </style>

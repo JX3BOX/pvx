@@ -65,10 +65,10 @@
                             </template>
                             <template v-slot="{ item: _item }">
                                 <template v-if="item.type !== 2">
-                                    <HorseCard :key="_item.ID" :item="_item" :reporter="{ aggregate: listId(list) }" />
+                                    <HorseCard :key="_item.ID" :item="_item" />
                                 </template>
                                 <template v-else>
-                                    <SameItem :key="_item.ID" :item="_item" :reporter="{ aggregate: listId(list) }" />
+                                    <SameItem :key="_item.ID" :item="_item" />
                                 </template>
                             </template>
                         </CardBannerList>

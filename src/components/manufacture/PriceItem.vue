@@ -44,7 +44,7 @@
     </el-popover>
 </template>
 <script>
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import { __imgPath } from "@/utils/config";
 
 export default {

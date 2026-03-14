@@ -1,4 +1,4 @@
-import { $node, $cms } from "@jx3box/jx3box-common/js/https";
+import { $node, $cms } from "@jx3box/jx3box-common/js/api";
 import { __dataPath, __imgPath } from "@/utils/config";
 import axios from "axios";
 // const $ = axios.create({

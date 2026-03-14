@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import QRcode from "@jx3box/jx3box-common-ui/src/interact/QRcode.vue";
+import QRcode from "@jx3box/jx3box-ui/src/interact/QRcode.vue";
 import itemIcon from "./ItemIcon.vue";
 import { authorLink } from "@jx3box/jx3box-common/js/utils";
 import { showTime } from "@jx3box/jx3box-common/js/moment.js";

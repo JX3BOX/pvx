@@ -1,7 +1,5 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
+import { createPageRouter } from "@/bootstrap/router";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-Vue.use(VueRouter);
 
 const List = () => import("@/views/body/List.vue");
 const Single = () => import("@/views/body/Single.vue");
@@ -17,10 +15,4 @@ const routes = [
     { name: "bodydatMobile", path: "/BodydatMobile", component: BodydatMobile },
 ];
 
-const router = new VueRouter({
-    mode: "history",
-    base: "/body",
-    routes,
-});
-
-export default router;
+export default createPageRouter("/body", routes);

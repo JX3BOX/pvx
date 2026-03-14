@@ -1,44 +1,61 @@
 <template>
     <div class="p-horse_mobile" @scroll="handleScroll">
-        <SuspendCommon :btnOptions="{showHome:true}"
-                       :drawerOptions="{hideType:['collect','rss','laterOn','pin','user','report']}"  @search="search" >
+        <SuspendCommon
+            :btnOptions="{ showHome: true }"
+            :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }"
+            @search="search"
+        >
             <template #default>
                 <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
                     <div class="u-btn-item line" @click="switchType('cutShow')">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline />
-                      切换
+                        切换
                     </div>
                     <div class="u-btn-item" @click="switchType('filtrateShow')">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/filter_disabled_touchbar.svg" svg-inline />
                         筛选
                     </div>
                 </div>
-
             </template>
         </SuspendCommon>
-        <el-drawer :visible.sync="showForm" direction="btt" :with-header="false" custom-class="u-drawer"
-                   :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
+        <el-drawer
+            :visible.sync="showForm"
+            direction="btt"
+            :with-header="false"
+            custom-class="u-drawer"
+            :modal-append-to-body="false"
+            append-to-body
+            class="p-drawer-suspend"
+        >
             <!--类型区域-->
-            <transition :name="cutShowTra?'slide-up':''" >
+            <transition :name="cutShowTra ? 'slide-up' : ''">
                 <div class="m-cut" v-show="cutShow">
-
-                    <div class="u-cut-box" >
-                        <div class="u-cut-item" :class="{'is-active':listQueryParams.type===''}" @click="cutChange('')">
+                    <div class="u-cut-box">
+                        <div
+                            class="u-cut-item"
+                            :class="{ 'is-active': listQueryParams.type === '' }"
+                            @click="cutChange('')"
+                        >
                             <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
                             全部
                         </div>
-                        <div class="u-cut-item" v-for="(item, index) in typeList.slice(1)" :key="index"
-                             :class="{ 'is-active': listQueryParams.type === item.type }" @click="cutChange(item.type)">
-                            <img src="@/assets/img/house/mj.svg" svg-inline v-show="item.type==2"/>
-                            <img src="@/assets/img/house/mp.svg" svg-inline v-show="item.type==0"/>
-                            <img src="@/assets/img/house/qq.svg" svg-inline v-show="item.type==1"/>
+                        <div
+                            class="u-cut-item"
+                            v-for="(item, index) in typeList.slice(1)"
+                            :key="index"
+                            :class="{ 'is-active': listQueryParams.type === item.type }"
+                            @click="cutChange(item.type)"
+                        >
+                            <img src="@/assets/img/house/mj.svg" svg-inline v-show="item.type == 2" />
+                            <img src="@/assets/img/house/mp.svg" svg-inline v-show="item.type == 0" />
+                            <img src="@/assets/img/house/qq.svg" svg-inline v-show="item.type == 1" />
                             {{ item.mobile_label }}
                         </div>
                     </div>
                     <div class="u-cut-btn">
                         <div class="u-report-btn" @click="filtrateReport(1)">重置</div>
-                        <div class="u-confirm-btn" :class="{active:paramsIsChange}" @click="cutConfirm()">确定</div>
+                        <div class="u-confirm-btn" :class="{ active: paramsIsChange }" @click="cutConfirm()">确定</div>
                     </div>
                 </div>
             </transition>
@@ -53,81 +70,103 @@
 
             <!--                筛选区域-->
             <div class="m-filtrate" v-if="filtrateShow">
-                <div v-for="(searchItem,index) in searchType" :key="searchItem.key">
+                <div v-for="(searchItem, index) in searchType" :key="searchItem.key">
                     <div class="u-filtrate-title">{{ searchItem.name }}</div>
                     <div class="u-box" :class="searchItem.key">
-                        <div class="u-item" :class="{'active':searchItem.checked.indexOf(item.label) !==-1}"  @click="filtrateParams(index,item.label)" v-for="item in searchItem.list" :key="item.id">
-                            {{ item.label }}</div>
+                        <div
+                            class="u-item"
+                            :class="{ active: searchItem.checked.indexOf(item.label) !== -1 }"
+                            @click="filtrateParams(index, item.label)"
+                            v-for="item in searchItem.list"
+                            :key="item.id"
+                        >
+                            {{ item.label }}
+                        </div>
                     </div>
                 </div>
 
                 <div class="u-btn">
                     <div class="u-report-btn" @click="filtrateReport()">重置</div>
-                    <div class="u-confirm-btn" :class="{active:paramsIsChange}" @click="filtrateConfirm()">确定</div>
+                    <div class="u-confirm-btn" :class="{ active: paramsIsChange }" @click="filtrateConfirm()">确定</div>
                 </div>
             </div>
         </el-drawer>
-<!--        整体首页部分-->
+        <!--        整体首页部分-->
         <div v-if="!showAll">
-    <!--        普通坐骑-->
+            <!--        普通坐骑-->
             <div class="m-title">普通坐骑</div>
             <div class="m-horse-card">
-                <div class="u-item" v-for="item in typeList?.[1]?.list" :key="item?.ID" @click="openOther(item,0)">
-                    <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
+                <div class="u-item" v-for="item in typeList?.[1]?.list" :key="item?.ID" @click="openOther(item, 0)">
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
                     <div class="u-name">
-                        <scrollingText :showText="item.Name"/>
+                        <scrollingText :showText="item.Name" />
                     </div>
                     <div class="u-id">ID：{{ item.ID }}</div>
                 </div>
             </div>
-    <!--        马具-->
+            <!--        马具-->
             <div class="m-title">马具</div>
             <div class="m-harness-card">
-                <div class="u-harness-item"  v-for="(item) in typeList?.[3]?.list" :key="item?.ID"  @click="openOther(item,2)">
-<!--                    <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />-->
-                    <item-icon  :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true" ></item-icon>
+                <div
+                    class="u-harness-item"
+                    v-for="item in typeList?.[3]?.list"
+                    :key="item?.ID"
+                    @click="openOther(item, 2)"
+                >
+                    <!--                    <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />-->
+                    <item-icon :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true"></item-icon>
                     <div class="u-info">
                         <div class="u-name">
-                            <scrollingText :showText="item.Name"/>
-<!--                            {{ item.Name }}-->
+                            <scrollingText :showText="item.Name" />
+                            <!--                            {{ item.Name }}-->
                         </div>
                         <div class="u-id">ID：{{ item.ID }}</div>
                     </div>
                 </div>
             </div>
-    <!--        奇趣坐骑-->
+            <!--        奇趣坐骑-->
             <div class="m-title">奇趣坐骑</div>
             <div class="m-horse-card">
-                <div class="u-item" v-for="item in typeList?.[2]?.list" :key="item?.ID"  @click="openOther(item,1)">
-                    <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
-                    <div class="u-name"><scrollingText :showText="item.Name"/></div>
+                <div class="u-item" v-for="item in typeList?.[2]?.list" :key="item?.ID" @click="openOther(item, 1)">
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
+                    <div class="u-name"><scrollingText :showText="item.Name" /></div>
                     <div class="u-id">ID：{{ item.ID }}</div>
                 </div>
             </div>
-            </div>
+        </div>
         <div class="m-list" v-else>
-<!--        坐骑类列表-->
-        <div class="m-horse-card" v-if="showHorse">
-            <div class="u-item" v-for="item in listData" :key="'list'+item.ID"  @click="openOther(item,listQueryParams.type)">
-                <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />
-                <div class="u-name">
-                    <scrollingText :showText="item.Name"/>
-                </div>
-                <div class="u-id">ID：{{ item.ID }}</div>
-            </div>
-            <img src="@/assets/img/empty.png" v-show="!listData.length">
-        </div>
-<!--        马具列表-->
-        <div class="m-harness-card" v-else>
-            <div class="u-harness-item"  v-for="item in listData" :key="'list'+item.ID"  @click="openOther(item,1)">
-                <item-icon  :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true" ></item-icon>
-                <div class="u-info">
-                    <div class="u-name"><scrollingText :showText="item.Name"/></div>
+            <!--        坐骑类列表-->
+            <div class="m-horse-card" v-if="showHorse">
+                <div
+                    class="u-item"
+                    v-for="item in listData"
+                    :key="'list' + item.ID"
+                    @click="openOther(item, listQueryParams.type)"
+                >
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
+                    <div class="u-name">
+                        <scrollingText :showText="item.Name" />
+                    </div>
                     <div class="u-id">ID：{{ item.ID }}</div>
                 </div>
+                <img src="@/assets/img/empty.png" v-show="!listData.length" />
             </div>
-            <img src="@/assets/img/empty.png"  v-show="!listData.length">
-        </div>
+            <!--        马具列表-->
+            <div class="m-harness-card" v-else>
+                <div
+                    class="u-harness-item"
+                    v-for="item in listData"
+                    :key="'list' + item.ID"
+                    @click="openOther(item, 1)"
+                >
+                    <item-icon :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true"></item-icon>
+                    <div class="u-info">
+                        <div class="u-name"><scrollingText :showText="item.Name" /></div>
+                        <div class="u-id">ID：{{ item.ID }}</div>
+                    </div>
+                </div>
+                <img src="@/assets/img/empty.png" v-show="!listData.length" />
+            </div>
         </div>
     </div>
 </template>
@@ -137,19 +176,19 @@ import { list, searchType, showTypes } from "@/assets/data/horse.json";
 import { omit, cloneDeep, concat } from "lodash";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import ItemIcon from "@/components/common/item_icon.vue";
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { __cdn } from "@/utils/config";
 import scrollingText from "@/components/horse/mobile/scrollingText.vue";
 import { wxNewPage } from "@/utils/minprogram";
 import wx from "weixin-js-sdk";
 export default {
     name: "HorseHome",
-    components: {ItemIcon,SuspendCommon,scrollingText },
+    components: { ItemIcon, SuspendCommon, scrollingText },
     inject: ["__imgRoot", "__imgRoot2"],
     data() {
         return {
             loading: false,
-            isFinish:false,
+            isFinish: false,
             feeds: [],
             attrs: [],
             typeList: [],
@@ -157,22 +196,21 @@ export default {
             searchType,
             showTypes,
 
-            showForm:false, // 是否显示筛选表单
-            cutShowTra:false,
-            cutShow:false,
-            filtrateShow:false,
-            noActive:false,
-            paramsIsChange:false,
-            listQueryParams:{
-                per:21,
-                page:1,
-                type:'',
-
+            showForm: false, // 是否显示筛选表单
+            cutShowTra: false,
+            cutShow: false,
+            filtrateShow: false,
+            noActive: false,
+            paramsIsChange: false,
+            listQueryParams: {
+                per: 21,
+                page: 1,
+                type: "",
             },
-            showAll:false,
-            showHorse:false,//显示坐骑类
+            showAll: false,
+            showHorse: false, //显示坐骑类
             total: 0, //总条目数
-            listData:[]
+            listData: [],
         };
     },
     computed: {
@@ -184,32 +222,31 @@ export default {
         list: {
             immediate: true,
             handler: function (_list) {
-                let list= cloneDeep(_list);
-                this.typeList = list
+                let list = cloneDeep(_list);
+                this.typeList = list;
             },
         },
     },
     created() {
         this.loadInfoData();
         this.loadData();
-        this.listQueryParams.client=this.client
+        this.listQueryParams.client = this.client;
     },
 
     methods: {
-        handleScroll(event){
-            if(!this.showAll) return;
+        handleScroll(event) {
+            if (!this.showAll) return;
             const { target } = event;
             if (this.loading || this.isFinish) return;
             if (target.scrollHeight - target.scrollTop - 60 < target.clientHeight) {
                 this.listQueryParams.page++;
-                let params=cloneDeep(this.listQueryParams)
-                params.feed=this.searchType[0].checked.join(',')
-                params.attr=this.searchType[1].checked.join(',')
+                let params = cloneDeep(this.listQueryParams);
+                params.feed = this.searchType[0].checked.join(",");
+                params.attr = this.searchType[1].checked.join(",");
                 this.showForm = false;
-                this.filtrateShow=false;
-                this.loadList(params, 'all');
+                this.filtrateShow = false;
+                this.loadList(params, "all");
             }
-
         },
         iconLink,
         replaceByDefault(e) {
@@ -226,95 +263,94 @@ export default {
                 if (img?.[1] == "default") return this.__imgRoot + `homeland/${client}` + "/default/default.png";
                 return this.__imgRoot + `homeland/${client}` + name + ".png";
             } else {
-                return `${__cdn}/design/horse/${client}/${item.ID}.png`
+                return `${__cdn}/design/horse/${client}/${item.ID}.png`;
             }
         },
-        openOther(item,type){
-            wxNewPage(`/horse/${item.ItemID}?type=${type}`)
+        openOther(item, type) {
+            wxNewPage(`/horse/${item.ItemID}?type=${type}`);
         },
-        search(){
-            wx.miniProgram.navigateTo({ url: `/pages/search/search-detail/search-detail?app=坐骑&filter_name=pvxhorse` });
+        search() {
+            wx.miniProgram.navigateTo({
+                url: `/pages/search/search-detail/search-detail?app=坐骑&filter_name=pvxhorse`,
+            });
         },
-        switchType(type){
+        switchType(type) {
             if (!type) return;
-            this.cutShowTra=false;
+            this.cutShowTra = false;
             if (type == "cutShow") {
                 this.filtrateShow = false;
-                this.noActive=false;
+                this.noActive = false;
                 this.cutShow = true;
-
             } else if (type == "filtrateShow") {
-                if(this.listQueryParams.type===''){
-                    this.cutShow=false;
-                    this.filtrateShow = false;
-                    this.noActive=true;
-                }else{
+                if (this.listQueryParams.type === "") {
                     this.cutShow = false;
-                    this.noActive=false;
+                    this.filtrateShow = false;
+                    this.noActive = true;
+                } else {
+                    this.cutShow = false;
+                    this.noActive = false;
                     this.filtrateShow = true;
                 }
-
-            }else if(type=='selectBody'){
-                this.cutShowTra=true
-                this.cutShow=true;
+            } else if (type == "selectBody") {
+                this.cutShowTra = true;
+                this.cutShow = true;
                 this.filtrateShow = false;
-                this.noActive=false;
+                this.noActive = false;
             }
             this.showForm = true;
         },
-        cutChange(type){
-            this.paramsIsChange=true
-            this.listQueryParams.type=type;
+        cutChange(type) {
+            this.paramsIsChange = true;
+            this.listQueryParams.type = type;
         },
-        filtrateParams(index,value){
-            this.paramsIsChange=true
-          // 如果包含，则执行移除操作，不包含则push进入数组this.searchType[index].checked
-            if(this.searchType[index].checked.includes(value)){
-                this.searchType[index].checked = this.searchType[index].checked.filter(item => item !== value)
-            }else{
-                this.searchType[index].checked.push(value)
+        filtrateParams(index, value) {
+            this.paramsIsChange = true;
+            // 如果包含，则执行移除操作，不包含则push进入数组this.searchType[index].checked
+            if (this.searchType[index].checked.includes(value)) {
+                this.searchType[index].checked = this.searchType[index].checked.filter((item) => item !== value);
+            } else {
+                this.searchType[index].checked.push(value);
             }
         },
-        cutConfirm(){
-            this.listQueryParams.page=1
-            this.listData=[]
-            this.paramsIsChange=false
+        cutConfirm() {
+            this.listQueryParams.page = 1;
+            this.listData = [];
+            this.paramsIsChange = false;
             // 将searchTypne内的选中全部置空
-            this.searchType.forEach(item => {
-                item.checked = []
-            })
-            let params=cloneDeep(this.listQueryParams)
-            params.type !== ''?this.showAll=true:this.showAll=false;
-           if(params.type !==''){
-               this.showAll=true;
-               params.type==2?this.showHorse=false:this.showHorse=true
-           }else{
-               this.showAll=false;
-           }
-            this.loadList(params, 'all');
-        },
-        filtrateConfirm(){
-            this.listQueryParams.page=1
-            this.listData=[]
-            let params=cloneDeep(this.listQueryParams)
-            params.feed=this.searchType[0].checked.join(',')
-            params.attr=this.searchType[1].checked.join(',')
-            this.showForm = false;
-            this.filtrateShow=false;
-            this.loadList(params, 'all');
-        },
-        filtrateReport(type){
-            if(type){
-                this.showAll=false
-                this.listQueryParams.type=""
+            this.searchType.forEach((item) => {
+                item.checked = [];
+            });
+            let params = cloneDeep(this.listQueryParams);
+            params.type !== "" ? (this.showAll = true) : (this.showAll = false);
+            if (params.type !== "") {
+                this.showAll = true;
+                params.type == 2 ? (this.showHorse = false) : (this.showHorse = true);
+            } else {
+                this.showAll = false;
             }
-            this.isFinish=false,
-            this.paramsIsChange=true
-          // 将searchTypne内的选中全部置空
-            this.searchType.forEach(item => {
-              item.checked = []
-            })
-           this.filtrateConfirm()
+            this.loadList(params, "all");
+        },
+        filtrateConfirm() {
+            this.listQueryParams.page = 1;
+            this.listData = [];
+            let params = cloneDeep(this.listQueryParams);
+            params.feed = this.searchType[0].checked.join(",");
+            params.attr = this.searchType[1].checked.join(",");
+            this.showForm = false;
+            this.filtrateShow = false;
+            this.loadList(params, "all");
+        },
+        filtrateReport(type) {
+            if (type) {
+                this.showAll = false;
+                this.listQueryParams.type = "";
+            }
+            (this.isFinish = false), (this.paramsIsChange = true);
+            // 将searchTypne内的选中全部置空
+            this.searchType.forEach((item) => {
+                item.checked = [];
+            });
+            this.filtrateConfirm();
         },
         loadInfoData() {
             getFeeds({ client: this.client }).then((res) => {
@@ -356,18 +392,17 @@ export default {
         },
 
         loadData() {
-
             if (this.listQueryParams.type === "") {
                 this.typeList.forEach((item) => {
-                    if(item.value != -1){
-                        let params={
-                            page:1,
-                            type:item.type,
-                            per:item.type==2?6:9
-                        }
+                    if (item.value != -1) {
+                        let params = {
+                            page: 1,
+                            type: item.type,
+                            per: item.type == 2 ? 6 : 9,
+                        };
                         this.loadList(params, item.type);
                     }
-                })
+                });
             }
         },
         loadList(params, key) {
@@ -377,34 +412,34 @@ export default {
                 .then((res) => {
                     const { list, total, pages, page, per } = res.data;
 
-                    if(key!='all'){
+                    if (key != "all") {
                         this.typeList[index].list = list || [];
                         this.typeList[index].page = page || 1;
                         this.typeList[index].pages = pages || 1;
-                    }else{
+                    } else {
                         this.listData = this.listData.concat(list) || [];
                         this.total = total;
-                        if(this.listQueryParams.page==pages) this.isFinish=true;
+                        if (this.listQueryParams.page == pages) this.isFinish = true;
                     }
                 })
                 .finally(() => {
                     this.loading = false;
-                    this.showForm=false
+                    this.showForm = false;
                 });
         },
-    }
+    },
 };
 </script>
 <style lang="less">
-@fontColor:rgba(28, 28, 28, 0.80);
-@fontColor40: rgba(28, 28, 28, 0.40);
+@fontcolor:rgba (28, 28, 28, 0.80);
+@fontColor40: rgba(28, 28, 28, 0.4);
 @fontColor-dark2: rgba(255, 255, 255, 0.8);
 @fontColor-dark3: rgba(255, 255, 255, 0.4);
-.v-miniprogram{
-    .m-main{
+.v-miniprogram {
+    .m-main {
         padding: 0;
     }
-    body{
+    body {
         padding: 0 !important;
     }
     .m-cut {
@@ -422,8 +457,8 @@ export default {
             .flex(o);
             .mb(1rem);
             &.is-active {
-                background: #FEDAA3;
-                color: #24292E;
+                background: #fedaa3;
+                color: #24292e;
             }
         }
 
@@ -444,17 +479,19 @@ export default {
                 padding: 0.75rem;
                 box-sizing: border-box;
                 .r(0.75rem);
-                svg, path {
+                svg,
+                path {
                     fill: @fontColor-dark2;
                     stroke: @fontColor-dark2;
                 }
 
                 &.is-active {
-                    color: #24292E;
-                    background: #FEDAA3;
-                    svg, path {
-                        fill: #24292E;
-                        stroke: #24292E;
+                    color: #24292e;
+                    background: #fedaa3;
+                    svg,
+                    path {
+                        fill: #24292e;
+                        stroke: #24292e;
                     }
                 }
             }
@@ -483,25 +520,25 @@ export default {
                 background: rgba(255, 255, 255, 0.05);
                 color: @fontColor-dark3;
                 .x;
-                &.active{
-                    background: #FEDAA3;
-                    color: #24292E;
+                &.active {
+                    background: #fedaa3;
+                    color: #24292e;
                 }
             }
         }
     }
-    .m-no-body{
+    .m-no-body {
         .flex;
         .flex(o);
         flex-direction: column;
-        .u-tips{
+        .u-tips {
             color: @fontColor-dark3;
             .fz(0.875rem,1.25rem);
             .bold(700);
             .flex;
             .flex(o);
         }
-        .u-btn{
+        .u-btn {
             .flex;
             .flex(o);
             .mt(1.25rem);
@@ -509,7 +546,7 @@ export default {
             gap: 0.5rem;
             align-self: stretch;
             .r(0.75rem);
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.1);
             color: @fontColor-dark3;
         }
     }
@@ -520,7 +557,7 @@ export default {
 
         .u-filtrate-title {
             .mb(0.75rem);
-            color: rgba(255, 255, 255, 0.60);
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .u-box {
@@ -530,11 +567,9 @@ export default {
             .mb(0.75rem);
             gap: 0.5rem;
             flex-wrap: wrap;
-            &.attr{
-
+            &.attr {
                 height: 30vh;
                 overflow-y: auto;
-
             }
             .u-item {
                 .w(calc(calc(100% - 1rem) / 3));
@@ -555,8 +590,8 @@ export default {
                 text-overflow: ellipsis;
                 //border: 1px solid #000;
                 &.active {
-                    color: #24292E;
-                    background: #FEDAA3;
+                    color: #24292e;
+                    background: #fedaa3;
                 }
             }
         }
@@ -584,19 +619,19 @@ export default {
                 background: rgba(255, 255, 255, 0.05);
                 color: @fontColor-dark3;
                 .x;
-                &.active{
-                    background: #FEDAA3;
-                    color: #24292E;
+                &.active {
+                    background: #fedaa3;
+                    color: #24292e;
                 }
             }
         }
     }
 }
 
-.p-horse_mobile{
-    background: #FAFAFA;
+.p-horse_mobile {
+    background: #fafafa;
     height: 100vh;
-    padding: .45rem 1.25rem 4.45rem 1.25rem;
+    padding: 0.45rem 1.25rem 4.45rem 1.25rem;
     box-sizing: border-box;
     overflow: auto;
     .m-base {
@@ -612,31 +647,32 @@ export default {
             .flex(o);
             gap: 0.5rem;
             //.w(7.5rem);
-            flex:1;
+            flex: 1;
             &.line {
                 border-right: 0.5px solid rgba(254, 218, 163, 0.2);
             }
-            .u-icon{
+            .u-icon {
                 .size(1.25rem, 1.25rem);
-                svg, path {
-                    fill: #FEDAA3;
-                    stroke: #FEDAA3;
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
                 }
             }
         }
     }
-    .m-title{
+    .m-title {
         color: @fontColor;
         .fz(1rem,1.5rem);
         .bold(700);
         .mb(0.5rem);
     }
-    .m-horse-card{
+    .m-horse-card {
         .flex;
-        gap:0.75rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
         .mb(1.5rem);
-        .u-item{
+        .u-item {
             padding: 0.5rem;
             box-sizing: border-box;
             .w(calc(calc(100% - 1.5rem) / 3));
@@ -645,20 +681,20 @@ export default {
             //.flex(o);
             background: #fff;
             .r(0.25rem);
-            .u-img{
+            .u-img {
                 .w(100%);
                 border-radius: 0.25rem;
-                background: #AAA;
+                background: #aaa;
                 .mb(0.5rem);
                 border: 1px solid #ff2dff;
             }
-            .u-name{
+            .u-name {
                 color: @fontColor;
                 .fz(0.875rem,1.25rem);
                 .bold(700);
                 font-style: normal;
             }
-            .u-id{
+            .u-id {
                 color: @fontColor40;
                 .fz(0.625rem,0.938rem);
                 font-style: normal;
@@ -666,27 +702,27 @@ export default {
             }
         }
     }
-    .m-harness-card{
+    .m-harness-card {
         .flex;
-        gap:0.75rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
         .mb(1.5rem);
-        .u-harness-item{
+        .u-harness-item {
             padding: 0.5rem;
             box-sizing: border-box;
             .w(calc(calc(100% - 0.75rem) / 2));
             .flex;
-            gap:0.5rem;
+            gap: 0.5rem;
             .flex(o);
             background: #fff;
             .r(0.25rem);
-            .u-info{
+            .u-info {
                 .w(calc(calc(100% - 38px) - 0.5rem));
                 .flex;
-                flex-direction:column;
+                flex-direction: column;
                 justify-content: center;
             }
-            .u-name{
+            .u-name {
                 color: @fontColor;
                 .fz(0.875rem,1.25rem);
                 .bold(700);
@@ -695,7 +731,7 @@ export default {
                 overflow: hidden;
                 white-space: nowrap;
             }
-            .u-id{
+            .u-id {
                 .mt(0.25rem);
                 color: @fontColor40;
                 .fz(0.625rem,0.938rem);
@@ -707,37 +743,34 @@ export default {
 }
 
 //@media screen and (width: 414px)
-@media (prefers-color-scheme: dark)
-{
-    .p-horse_mobile{
+@media (prefers-color-scheme: dark) {
+    .p-horse_mobile {
         background-color: #000;
-        .m-title{
-            color:@fontColor-dark2;
+        .m-title {
+            color: @fontColor-dark2;
         }
-        .m-horse-card{
-            .u-item{
+        .m-horse-card {
+            .u-item {
                 background: #282828;
-                .u-name{
-                    color:@fontColor-dark2;
+                .u-name {
+                    color: @fontColor-dark2;
                 }
-                .u-id{
-                    color:@fontColor-dark3;
+                .u-id {
+                    color: @fontColor-dark3;
                 }
             }
         }
-        .m-harness-card{
-            .u-harness-item{
+        .m-harness-card {
+            .u-harness-item {
                 background: #282828;
-                .u-name{
-                    color:@fontColor-dark2;
+                .u-name {
+                    color: @fontColor-dark2;
                 }
-                .u-id{
-                    color:@fontColor-dark3;
+                .u-id {
+                    color: @fontColor-dark3;
                 }
-
             }
         }
     }
 }
-
 </style>

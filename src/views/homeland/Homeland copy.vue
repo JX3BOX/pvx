@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <Header></Header>
+        <CommonHeader></CommonHeader>
         <Breadcrumb
             name="家园建设"
             slug="homeland"

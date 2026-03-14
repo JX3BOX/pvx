@@ -1,4 +1,4 @@
-import { $cms } from "@jx3box/jx3box-common/js/https";
+import { $cms } from "@jx3box/jx3box-common/js/api";
 
 // 创建qqbot图片任务 刷图
 export function refreshQQBotImage(data) {

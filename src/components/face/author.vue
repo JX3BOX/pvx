@@ -150,7 +150,7 @@ export default {
     }
     .m-info {
         .flex;
-        .full;
+        .size(100%);
         .pa;
         .z(2);
         align-items: center;

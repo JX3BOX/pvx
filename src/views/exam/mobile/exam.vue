@@ -55,7 +55,7 @@
 </template>
 <script>
 import { getExamByKey } from "@/service/exam.js";
-// import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+// import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 export default {
     components: {
         // SuspendCommon,

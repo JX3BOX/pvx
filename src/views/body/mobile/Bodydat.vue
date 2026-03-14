@@ -7,8 +7,8 @@
             </div>
         </div>
 
-        <template v-for="tab in Object.values(group_tabs)">
-            <div class="c-facedat-preivew" v-show="active === tab.value" :key="tab.value">
+        <template v-for="tab in Object.values(group_tabs)" :key="tab.value">
+            <div class="c-facedat-preivew" v-show="active === tab.value">
                 <div class="c-facedat-group">
                     <ul class="u-list">
                         <li v-for="(item, i) in currentGroup" :key="i">

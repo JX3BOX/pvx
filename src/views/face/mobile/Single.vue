@@ -10,28 +10,36 @@
 <template>
     <div class="p-face-detail" v-loading="loading">
         <SuspendCommon
-            :btnOptions="{showHome:true}"
+            :btnOptions="{ showHome: true }"
             :drawerOptions="{
-            hideType:['report','rss','search'],
-            author:{
-                name:post.author_name,
-                avatar:post.user_avatar,
-                author_id:post.user_id
-            },
-            title:post.title,
-            postType:'face',
-            id:id
+                hideType: ['report', 'rss', 'search'],
+                author: {
+                    name: post.author_name,
+                    avatar: post.user_avatar,
+                    author_id: post.user_id,
+                },
+                title: post.title,
+                postType: 'face',
+                id: id,
             }"
             @search="search"
-            v-if="$route.query?.disabled!='true'"
+            v-if="$route.query?.disabled != 'true'"
         >
             <template #default>
-                <div class="u-copy" @click="showFaceData=true">
+                <div class="u-copy" @click="showFaceData = true">
                     <img class="u-copy-icon" src="@/assets/img/pvxsuspension/copy_touchbar.svg" svg-inline />复制捏脸码
                 </div>
             </template>
         </SuspendCommon>
-        <el-drawer :visible.sync="showFaceData" direction="btt"  :with-header="false" custom-class="u-drawer" :modal-append-to-body="false" append-to-body class="p-drawer-suspend">
+        <el-drawer
+            :visible.sync="showFaceData"
+            direction="btt"
+            :with-header="false"
+            custom-class="u-drawer"
+            :modal-append-to-body="false"
+            append-to-body
+            class="p-drawer-suspend"
+        >
             <div class="m-face-data_copy">
                 <div class="u-copy-box" v-if="post.code_mode">
                     <div class="u-copy-top">
@@ -49,11 +57,10 @@
                     </div>
                     <div class="u-no-data-btn" @click="goToFaceDataMobile()">查看捏脸数据</div>
                 </div>
-
             </div>
         </el-drawer>
         <!--        复制捏脸码相关弹窗-->
-<!--        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" :miniprogram="{app:'捏脸',filter_name:'pvxface'}"/>-->
+        <!--        <PvxSuspension isType='single' type="face" :id="id" :title="post.title" :miniprogram="{app:'捏脸',filter_name:'pvxface'}"/>-->
         <div class="m-face-detail_top">
             <el-carousel height="550px">
                 <el-carousel-item v-for="(item, i) in previewSrcList" :key="i">
@@ -117,15 +124,14 @@
             <div class="u-author_introduce" v-if="userInfo.user_bio">{{ userInfo.user_bio }}</div>
         </div>
         <!-- 其他作品 -->
-        <div class="m-face-author_other" v-if="randomList.length >0">
+        <div class="m-face-author_other" v-if="randomList.length > 0">
             <div class="u-title">{{ post.display_name }}其他作品</div>
-<!--            <div class="u-img_item" v-if="randomList.length === 0">-->
-<!--                <img src="@/assets/img/face/mobile/empty.png" />-->
-<!--            </div>-->
+            <!--            <div class="u-img_item" v-if="randomList.length === 0">-->
+            <!--                <img src="@/assets/img/face/mobile/empty.png" />-->
+            <!--            </div>-->
 
             <div class="u-other_list">
                 <routine_other :list="randomList" :isNumber="true"></routine_other>
-
             </div>
         </div>
     </div>
@@ -133,7 +139,7 @@
 
 <script>
 import wx from "weixin-js-sdk";
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 // import PvxSuspension from '@/components/PvxSuspension.vue';
 import routine_other from "@/components/face/mobile/routine_other";
 import { getOneFaceInfo, getRandomFace } from "@/service/face";
@@ -174,16 +180,18 @@ export default {
             fans: 0,
             subscribed: false,
 
-            showFaceData:false,
+            showFaceData: false,
         };
     },
     created() {
         this.getData();
     },
-    mounted() { },
+    mounted() {},
     methods: {
-        search(){
-            wx.miniProgram.navigateTo({ url: `/pages/search/search-detail/search-detail?app=捏脸&filter_name=pvxface` });
+        search() {
+            wx.miniProgram.navigateTo({
+                url: `/pages/search/search-detail/search-detail?app=捏脸&filter_name=pvxface`,
+            });
         },
         showAvatar,
         showPic(url) {
@@ -250,7 +258,7 @@ export default {
         },
         copy() {
             navigator.clipboard.writeText(this.post.code).then(() => {
-                this.showFaceData=false
+                this.showFaceData = false;
 
                 this.$notify({
                     title: "复制成功",
@@ -281,27 +289,28 @@ export default {
 @fontColor-dark2: rgba(255, 255, 255, 0.4);
 @btnBgColor: #24292e;
 @btnBgColor-dark: #fedaa3;
-.m-face-data_copy{
+.m-face-data_copy {
     .w(100%);
 
-    .u-copy-box,.u-data-box{
+    .u-copy-box,
+    .u-data-box {
         .w(100%);
         .flex;
         .flex(o);
         flex-direction: column;
-        gap:1.25rem;
-        .u-copy-top{
+        gap: 1.25rem;
+        .u-copy-top {
             .flex;
             .flex(o);
             flex-direction: column;
         }
     }
-    .u-label{
-        color: rgba(255, 255, 255, 0.40);
+    .u-label {
+        color: rgba(255, 255, 255, 0.4);
         .fz(0.875rem,1.25rem);
         .bold(700);
     }
-    .u-number{
+    .u-number {
         .w(100%);
         .flex;
         padding: 1rem;
@@ -309,33 +318,33 @@ export default {
         gap: 0.25rem;
         align-self: stretch;
         .r(0.75rem);
-        background: #FF7991;
+        background: #ff7991;
         box-sizing: border-box;
         color: @fontBgColor;
 
         .fz(0.75rem,1.125rem);
         .bold(700);
     }
-    .u-copy-btn{
+    .u-copy-btn {
         .flex;
         .flex(o);
         padding: 0.75rem 1rem;
         gap: 0.5rem;
         align-self: stretch;
         .r(0.75rem);
-        background: #FEDAA3;
+        background: #fedaa3;
         .fz(0.875rem,1.25rem);
         .bold(700);
     }
-    .u-no-data-btn{
+    .u-no-data-btn {
         .flex;
         .flex(o);
         padding: 0.75rem 1rem;
         gap: 0.5rem;
         align-self: stretch;
         .r(0.75rem);
-        background: rgba(255, 255, 255, 0.10);
-        color: rgba(255, 255, 255, 0.40);
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.4);
         .fz(0.875rem,1.25rem);
         .bold(700);
     }
@@ -346,21 +355,22 @@ export default {
     overflow: auto;
     .pb(3.5rem);
     box-sizing: border-box;
-    .u-copy-icon{
+    .u-copy-icon {
         .size(1.5rem,1.5rem);
-        svg, path {
+        svg,
+        path {
             fill: #fedaa3;
             stroke: #fedaa3;
         }
     }
 
-    .m-base{
+    .m-base {
         .w(100%);
-        .u-copy{
+        .u-copy {
             .w(100%);
             .flex;
             .flex(o);
-            gap:0.75rem;
+            gap: 0.75rem;
         }
     }
 
@@ -377,7 +387,13 @@ export default {
                 .lt(0);
                 .dbi;
                 .z(1);
-                background: linear-gradient(180deg, #F8F8F8 0.04%,rgba(248,248,248, 0.00) 30%, rgba(248,248,248, 0.00) 70%, #FAFAFA 100%);
+                background: linear-gradient(
+                    180deg,
+                    #f8f8f8 0.04%,
+                    rgba(248, 248, 248, 0) 30%,
+                    rgba(248, 248, 248, 0) 70%,
+                    #fafafa 100%
+                );
             }
 
             img {
@@ -638,7 +654,7 @@ export default {
                 .lt(0);
                 .dbi;
                 .z(1);
-                background: linear-gradient(180deg, #FFF 0.04%, rgba(250, 250, 250, 0.00) 49.5%, #FAFAFA 99.96%);
+                background: linear-gradient(180deg, #fff 0.04%, rgba(250, 250, 250, 0) 49.5%, #fafafa 99.96%);
             }
         }
 
@@ -649,14 +665,19 @@ export default {
 
     // dark模式利用宽度模拟覆盖
     // @media screen and (width: 414px)
-    @media (prefers-color-scheme: dark)
-    {
+    @media (prefers-color-scheme: dark) {
         background-color: #000;
 
         .m-face-detail_top {
             .u-img_item {
                 &::before {
-                    background: linear-gradient(180deg, #1C1C1C 0.04%,rgba(0,0,0, 0.00) 20%, rgba(0,0,0, 0.00) 80%, #000000 100%);
+                    background: linear-gradient(
+                        180deg,
+                        #1c1c1c 0.04%,
+                        rgba(0, 0, 0, 0) 20%,
+                        rgba(0, 0, 0, 0) 80%,
+                        #000000 100%
+                    );
                 }
             }
 
@@ -748,7 +769,7 @@ export default {
 
             .u-img_item {
                 &::before {
-                    background: linear-gradient(180deg, #1C1C1C 0.04%, rgba(0, 0, 0, 0.00) 49.5%, #000 99.96%);
+                    background: linear-gradient(180deg, #1c1c1c 0.04%, rgba(0, 0, 0, 0) 49.5%, #000 99.96%);
                 }
             }
         }

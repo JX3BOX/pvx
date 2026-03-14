@@ -3,7 +3,7 @@
         <!-- @click="getLink(item.dwID)" -->
         <img class="u-default" :src="defaultImg" />
         <img class="u-title" :src="titleImg" :style="titleStyle" />
-        <span class="u-img" :style="`backgroundImage: url(${getImgUrl()})`"></span>
+        <span class="u-img" :style="{ backgroundImage: `url(${getImgUrl})` }"></span>
         <span class="u-icon"></span>
         <div v-if="item.szRewardType === 'camp'" class="u-camp-switch" @click.prevent="switchCamp">
             <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />
@@ -74,12 +74,6 @@ export default {
         titleStyle: function () {
             return {};
         },
-    },
-    methods: {
-        forceIconUrl(force) {
-            const forceName = forceid[force];
-            return `${__imgPath}image/school/${forceName}.png`;
-        },
         getImgUrl() {
             const client = this.client;
             // const client = "std"; // 怀旧服的奇遇图片先取正式服的
@@ -96,7 +90,14 @@ export default {
                 return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
             if (this.item.szRewardType === "school")
                 return `${this.__imgRoot}adventure/${client}/${tgaPath}/school_${this.force}_open.png`;
-            return defaultImg;
+
+            return this.defaultImg;
+        },
+    },
+    methods: {
+        forceIconUrl(force) {
+            const forceName = forceid[force];
+            return `${__imgPath}image/school/${forceName}.png`;
         },
         getLink(adventure_id) {
             this.$router.push({ name: "single", params: { id: adventure_id } });

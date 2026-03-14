@@ -1,4 +1,4 @@
-import { $next, $pay, $cms } from "@jx3box/jx3box-common/js/https";
+import { $next, $pay, $cms } from "@jx3box/jx3box-common/js/api";
 //收藏
 export function setCollect(id, type, post_title) {
     return $next().post(`/api/article/favorites/add/${id}/${type}`, {

@@ -145,9 +145,9 @@ import Serendipity from "@/components/common/serendipity.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-import SuspendCommon from "@jx3box/jx3box-common-ui/src/SuspendCommon";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { __imgPath } from "@/utils/config";
-import { wiki } from "@jx3box/jx3box-common/js/wiki_v2.js";
+import { wiki } from "@jx3box/jx3box-common/js/wiki";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {

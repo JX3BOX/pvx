@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <template #reference>
-                    <i class="el-icon-tickets" style="cursor: pointer;"></i>
+                    <i class="el-icon-tickets" style="cursor: pointer"></i>
                 </template>
             </el-popover>
             预计收益：</span
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import GamePrice from "@jx3box/jx3box-common-ui/src/wiki/GamePrice.vue";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
 
 export default {

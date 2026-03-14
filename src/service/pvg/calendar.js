@@ -1,4 +1,4 @@
-import { $cms, $helper } from "@jx3box/jx3box-common/js/https";
+import { $cms, $helper } from "@jx3box/jx3box-common/js/api";
 
 // 拼接年月日url
 function genUrl(params) {

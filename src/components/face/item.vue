@@ -1,10 +1,5 @@
 <template>
-    <a
-        :class="['m-face-item', { noName }]"
-        :href="`${link}/${item.id}`"
-        target="_blank"
-        v-reporter="{ data: { href: '/face/' + item.id, ...reporter }, caller: 'face_index' }"
-    >
+    <a :class="['m-face-item', { noName }]" :href="`${link}/${item.id}`" target="_blank">
         <el-image class="u-img" :src="showThumb(imgLink)" fit="cover"></el-image>
         <img v-if="item.code_mode" class="u-pinch__marker" src="@/assets/img/face/bxs_barcode.svg" alt="" />
         <div class="m-tags">
@@ -40,7 +35,7 @@ import { showAvatar, getThumbnail } from "@jx3box/jx3box-common/js/utils";
 
 export default {
     name: "faceItem",
-    props: ["item", "reporter", "noName"],
+    props: ["item", "noName"],
     data: function () {
         return {
             markmap: {
