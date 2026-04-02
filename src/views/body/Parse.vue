@@ -1,0 +1,53 @@
+<template>
+    <div class="m-bodydata">
+        <div class="m-body-parse" :class="{ on: done }">
+            <h1 class="m-body-parse-title">体型数据解析器</h1>
+            <Upload type="body" @success="handleSuccess">
+                <template #guide>
+                    <a class="u-help" href="/tool/67546" target="_blank">
+                        <el-icon><Collection /></el-icon>
+                        游戏体型导入导出指南
+                    </a>
+                </template>
+            </Upload>
+            <Bodydat class="m-body-parse-preview" :data="json" :lock="false" v-if="done" />
+        </div>
+    </div>
+</template>
+
+<script>
+import Bodydat from "./components/Bodydat.vue";
+import Upload from "@jx3box/jx3box-facedat/src/Upload";
+export default {
+    name: "BodyDataParse",
+    data: function () {
+        return {
+            data: "",
+            done: false,
+        };
+    },
+    computed: {
+        json: function () {
+            return this.data || "";
+        },
+    },
+    methods: {
+        handleSuccess: function (data) {
+            this.data = data;
+            if (data?.json) {
+                this.done = true;
+            } else {
+                this.done = false;
+            }
+        },
+    },
+    components: {
+        Bodydat,
+        Upload,
+    },
+};
+</script>
+
+<style lang="less">
+@import "~@/assets/css/face/parse.less";
+</style>

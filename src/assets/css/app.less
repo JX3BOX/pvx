@@ -1,0 +1,88 @@
+@import "common/basic.less";
+body {
+    background-color: #fff;
+}
+.m-main {
+    min-height: 100vh;
+    padding: 0 40px 20px 40px;
+    box-sizing: border-box;
+    &.m-pvg-main {
+        background-color: #f5f5f5;
+    }
+    .pr;
+}
+@media screen and(max-width:@ipad) {
+    .m-main {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .wechat-miniprogram {
+        .m-main {
+            padding-top: 0;
+        }
+
+        .m-comments {
+            .none;
+        }
+
+        .m-pet-navigation {
+            top: 0;
+            margin: 0 -20px;
+            width: 100%;
+            padding: 20px;
+        }
+    }
+}
+.p-common-list {
+    padding-top: 40px;
+}
+.m-archive-pages {
+    margin-top: 40px;
+    overflow-x: auto;
+}
+.c-main {
+    &.is-regular {
+        padding: 0;
+    }
+}
+
+// 适配小程序端
+.v-miniprogram {
+    .c-header,
+    .c-footer {
+        .none;
+    }
+    .c-main {
+        &.is-regular {
+            padding: 0;
+            margin: 0;
+        }
+    }
+
+    .m-pvx-aside {
+        .none;
+    }
+    .m-main {
+        padding: 0;
+    }
+}
+
+// jx3box-ui header client switch relies on reset-like button styles
+// that are not guaranteed inside pvx. Keep the override local to pvx.
+.c-header-client {
+    .u-trigger {
+        appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+}

@@ -1,0 +1,101 @@
+.m-calendar-single {
+    padding-top: 40px;
+
+    .m-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+}
+.m-single-title {
+    padding: 10px 0;
+    .fz(20px,32px);
+    font-weight: 300;
+    margin-bottom: 10px;
+    i {
+        .mr(5px);
+    }
+    border-bottom: 1px dashed #ddd;
+}
+.m-single-block {
+    .mb(20px);
+}
+
+.m-today-content {
+    padding: 10px;
+    white-space: pre-line;
+    .lh(1.8);
+
+    .u-client {
+        .mr(5px);
+    }
+}
+
+.m-today-meta {
+    display: flex;
+    justify-content: right;
+    font-size: 12px;
+    gap: 10px;
+
+    .u-user {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        a {
+            .underline(@color-link);
+        }
+    }
+    .u-create-time {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        color: #999;
+    }
+}
+
+.m-reference {
+    .u-null {
+        padding: 10px;
+        .x;
+        color: #999;
+        .fz(12px);
+        i {
+            .mr(3px);
+        }
+    }
+}
+.m-reference-item {
+    .u-item {
+        .db;
+        .lh(2.2);
+        border-bottom: 1px dotted #ddd;
+        &:hover {
+            background-color: @bg-light;
+        }
+    }
+    .u-link{
+        &:hover {
+            color: @pink;
+        }
+    }
+    .u-index {
+        .mr(5px);
+        .fz(13px);
+        font-family: Consolas;
+        color:#888;
+    }
+}
+
+.m-history-content {
+    .mt(30px);
+}
+.m-history-item {
+    margin-bottom: 10px;
+
+    .m-calendar-detail-item{
+        transition: 0.15s ease-in-out;
+    }
+
+    .u-time {
+        font-style: oblique;
+    }
+}

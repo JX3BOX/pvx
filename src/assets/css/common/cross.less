@@ -1,0 +1,103 @@
+.cross-wrapper {
+    position: relative;
+    width: 100%; 
+    .list {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        .item {
+            display: flex;
+            flex-grow: 0;
+            flex-shrink: 0;
+        }
+        .item:last-of-type {
+            margin-right: 0 !important;
+        }
+    }
+    .cross {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        background-color: #b3b2b2;
+        opacity: 0;
+        cursor: not-allowed;
+        z-index: 4;
+        transition: opacity ease-in-out 0.3s;
+        i {
+            font-size: 20px;
+            color: #d9d9d9;
+        }
+        &.cross-left {
+            left: 0;
+        }
+        &.cross-right {
+            right: 0;
+        }
+        &.active {
+            cursor: pointer;
+            background-color: @active-color;
+            i {
+                color: #fff;
+            }
+        }
+        &:hover {
+            opacity: 1;
+        }
+    }
+    &:hover {
+        & > .cross {
+            opacity: 0.8;
+        }
+        // & > .cross-left {
+        //     animation: toRight 0.3s;
+        // }
+        // & > .cross-right {
+        //     animation: toLeft 0.3s;
+        // }
+    }
+    &.m-share {
+        .cross.active {
+            background-color: @faceColor;
+        }
+    }
+    &.m-merchants {
+        .cross.active {
+            background-color: @priceColor;
+        }
+    }
+}
+@media screen and (max-width: @ipad) {
+    .cross-wrapper {
+        .list {
+            overflow-x: auto;
+            .scrollbar(2px);
+        }
+        &:hover {
+            & > .cross {
+                display: none;
+            }
+        }
+    }
+}
+// @keyframes toRight {
+//     0% {
+//         transform: translateX(-100%);
+//     }
+//     100% {
+//         transform: translateX(0);
+//     }
+// }
+// @keyframes toLeft {
+//     0% {
+//         transform: translateX(100%);
+//     }
+//     100% {
+//         transform: translateX(0);
+//     }
+// }

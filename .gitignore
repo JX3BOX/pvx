@@ -1,0 +1,37 @@
+.DS_Store
+.playwright-cli
+
+/node_modules/*
+/dist
+/tmp
+/src/mock
+.gitkeep
+
+package-lock.json
+yarn.lock
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.user.ini
+.nuxt
+.history
+pve
+/.trae
+/openspec
+.nvmdrc

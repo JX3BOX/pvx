@@ -1,0 +1,56 @@
+.m-calendar-rank-dialog {
+    width: 30%;
+    min-width: 560px;
+    .u-rank-title {
+        .fz(20px);
+        .bold;
+        cursor: default;
+    }
+    .m-list {
+        padding: 0;
+        margin: 0;
+        li {
+            .flex;
+            .pr;
+            .fz(16px,50px);
+            .w(80%);
+            .auto(x);
+            align-items: center;
+            list-style: none;
+            .u-avatar {
+                .size(30px);
+                .r(5px);
+                .clip;
+                .mr(10px);
+            }
+            .u-number {
+                .w(30px);
+                .mr(20px);
+                .x;
+                .bold;
+                .fz(18px);
+                img {
+                    .y;
+                    max-height: 100%;
+                    max-width: 100%;
+                }
+            }
+            .u-name {
+                .nobreak;
+                .w(260px);
+                color:#666;
+            }
+            .u-num {
+                .pa;
+                .rt(0,0);
+                b {
+                    color: #fc3c3c;
+                }
+            }
+        }
+    }
+
+    .el-dialog__body {
+        .pt(0) !important;
+    }
+}

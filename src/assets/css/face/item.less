@@ -1,0 +1,17 @@
+@import "~@/assets/css/common/face-body-mixins.less";
+
+.m-face-item {
+    .pvx-item-mixin();
+}
+
+.m-face-list--all {
+    .pvx-list-all-mixin();
+    
+    > .m-body-item {
+        max-width: 200px;
+    }
+    
+    > .m-face-item {
+        max-width: 190px;
+    }
+}

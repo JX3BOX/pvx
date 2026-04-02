@@ -1,0 +1,131 @@
+.m-layout {
+    height: calc(100vh - @header-height);
+    opacity: 1;
+    background: url(../../img/wiki/overview/bg_right_bottom.png) right bottom no-repeat,
+        url(../../img/wiki/overview/bg_left_top.png) left top no-repeat,
+        linear-gradient(152.57deg, rgba(150, 128, 87, 1) 0%, rgba(87, 75, 65, 1) 27.78%, rgba(0, 0, 0, 1) 100%);
+    background-size: 1000px, 319px, cover;
+    display: flex;
+    justify-content: center;
+    .m-left {
+        .w(180px);
+        .u-title__img {
+            .db();
+        }
+        .m-seniority {
+            .mt(46px);
+            .pr();
+            .u-img {
+                border-radius: 10px;
+                border: 0.5px solid rgba(255, 255, 255, 1);
+                .db();
+                box-sizing: border-box;
+            }
+            .u-text {
+                .pa();
+                .lb(0,28px);
+                right: 0;
+                .x();
+                .fz(12px,18px);
+                .color(#969696);
+                span {
+                    &:last-child {
+                        .color(#CCA16C);
+                        .bold();
+                    }
+                }
+            }
+        }
+    }
+    .m-right {
+        .w(960px);
+        .pt(80px);
+
+        .m-top {
+            .flex();
+            .flex(y,flex-end);
+            .m-info {
+                .lh(1);
+                flex: 1;
+                .pb(24px);
+                .m-user {
+                    .flex();
+                    .flex(y);
+                    .u-user__name {
+                        .color(#FFECCC);
+                        .fz(35px,35px);
+                        .bold();
+                    }
+                    .u-sect {
+                        .size(28px);
+                        .ml(8px);
+                    }
+                    .m-change {
+                        .flex();
+                        .flex(y);
+                        .ml(36px);
+                        .pointer();
+                        border-radius: 4px;
+                        border: 1px solid #bfb8ac;
+                        padding: 2px 4px 2px 4px;
+                        .u-text {
+                            .color(#BFB8AC);
+                            .fz(16px,24px);
+                        }
+                    }
+                }
+                .m-total {
+                    .mt(8px);
+                    background-color: #f7f7f7;
+                    padding: 12px 8px;
+                    .m-text__info {
+                        .flex();
+                        .flex(y);
+                        .pr();
+                        .fz(32px,47px);
+                        .bold();
+                        .u-text {
+                            .color(#414140);
+                        }
+                        .u-icon {
+                            .size(32px);
+                        }
+                        .u-num {
+                            .color(#B59457);
+                            .ml(8px);
+                        }
+                        .u-percent {
+                            .pa();
+                            .rt(0,50%);
+                            .color(#947e5d);
+                            .fz(24px);
+                            transform: translateY(-50%);
+                        }
+                    }
+                    .m-progress {
+                        .mt(8px);
+                        .u-progress {
+                            .h(12px);
+                            .w(80%);
+                            background: linear-gradient(90deg, #f2e9da 0%, #b59457 100%);
+                        }
+                    }
+                }
+            }
+            .m-large {
+                .size(200px);
+                .ml(48px);
+                .pt(23px);
+            }
+        }
+        .m-list {
+            .mt(18px);
+            .flex();
+            flex-wrap: wrap;
+            gap: 12px 24px;
+            .m-seniority__item {
+                .w(calc(33.3333333% - 16px));
+            }
+        }
+    }
+}

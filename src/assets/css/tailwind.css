@@ -1,0 +1,22 @@
+@config "../../../tailwind.config.js";
+@import "tailwindcss";
+
+/* Tailwind v2 的 border-opacity utilities（本项目仍在用） */
+.border-opacity-60 {
+    --tw-border-opacity: 0.6;
+}
+.border-opacity-20 {
+    --tw-border-opacity: 0.2;
+}
+
+/* Tailwind v2 的 bg-opacity utilities（本项目仍在用） */
+.bg-white {
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+}
+.bg-opacity-20 {
+    --tw-bg-opacity: 0.2;
+}
+.bg-opacity-10 {
+    --tw-bg-opacity: 0.1;
+}

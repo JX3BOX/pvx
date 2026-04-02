@@ -1,0 +1,65 @@
+@import "~@/assets/css/common/face-body-mixins.less";
+
+.m-body-item {
+    .pvx-item-mixin();
+
+    body & {
+        width: 100%;
+        height: 368px;
+
+        .m-img {
+            height: 264px;
+            width: 100%;
+        }
+
+        .u-pic {
+            .size(100%);
+        }
+
+        &.noName {
+            .h(340px);
+        }
+
+        &.onlyPic {
+            .size(160px, 264px);
+            padding: 0;
+
+            .m-op {
+                .pa;
+                .z(2);
+                .lb(0);
+                padding: 20px 10px;
+
+                .u-title {
+                    color: #fff;
+                }
+
+                .m-author {
+                    .none;
+                }
+
+                &::after {
+                    content: "";
+                    .pa;
+                    .size(160px, 264px);
+                    .lb(0);
+                    .z(-1);
+                    .r(10px);
+                    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+                }
+            }
+        }
+    }
+}
+
+.m-body-list--all {
+    .pvx-list-all-mixin();
+
+    >.m-body-item {
+        max-width: 200px;
+    }
+
+    >.m-body-item {
+        max-width: 190px;
+    }
+}

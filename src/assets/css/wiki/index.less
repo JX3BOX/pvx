@@ -1,0 +1,39 @@
+.m-achievement-main {
+    .flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    // .h(100vh);
+    height: calc(100vh - 60px);
+    margin-top: 60px;
+
+    // padding-bottom: 64px;
+    box-sizing: border-box;
+    background: url(https://cdn.jx3box.com/design/pvx/overview-bg.png),
+        linear-gradient(152.57deg, rgba(150, 128, 87, 1) 0%, rgba(87, 75, 65, 1) 27.78%, rgba(0, 0, 0, 1) 100%);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: right bottom;
+
+    &.is_mobile {
+        .pb(0);
+        align-items: flex-start;
+
+        &::after {
+            display: none;
+        }
+    }
+}
+
+.m-achievement-content {
+    margin-left: 64px;
+    height: 100%;
+    min-width: 960px;
+    .pr;
+
+    &.is_mobile {
+        margin-left: 0;
+        min-width: auto;
+    }
+}

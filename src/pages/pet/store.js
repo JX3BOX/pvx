@@ -1,0 +1,22 @@
+import { createStore } from "vuex";
+
+let store = {
+    state: {
+        client: location.href.includes("origin") ? "origin" : "std",
+        faceSingle: {},
+        isCollapse: false,
+        timezone: "Asia/Shanghai", // 时区
+    },
+    mutations: {
+        toState(state, data) {
+            Object.keys(data).forEach((item) => {
+                state[item] = data[item];
+            });
+        },
+    },
+    getters: {},
+    actions: {},
+    modules: {},
+};
+
+export default createStore(store);

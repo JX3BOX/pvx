@@ -1,0 +1,138 @@
+// 宠物羁绊
+.m-pet-fetters {
+    .mb(15px);
+    .pb(20px);
+    .r(5px);
+    .fz(14px);
+    background-color: #fafbfc;
+    border: 1px solid #eeeeee;
+    .u-header {
+        .flex;
+        .lh(28px);
+        padding: 10px 15px;
+        background-color: #f5f7fa;
+        border-bottom: 1px solid #eeeeee;
+        .u-icon {
+            .size(28px);
+            .fz(22px);
+            .mr(7px);
+            color: #0366d6;
+            fill: #0366d6;
+        }
+        span {
+            .fz(17px);
+            color: #6c645c;
+            font-weight: 300;
+        }
+        .mb(10px);
+    }
+}
+
+.m-fetters {
+    padding: 0 20px;
+}
+
+.m-fetters-title {
+    .u-title {
+        .fz(14px,2);
+        .bold;
+        color: #3d454d;
+        i {
+            .mr(7px);
+        }
+    }
+    .u-desc {
+        .fz(12px,2);
+        color: #fda522;
+        .mb(10px);
+    }
+}
+
+.m-fetters-list {
+    .flex;
+    flex-wrap: wrap;
+
+    .el-popover__reference-wrapper {
+        display: inline-block;
+        .mr(15px);
+    }
+    .u-fetter {
+        .pr;
+        .pointer;
+        display: inline-block;
+        .mb(10px);
+        .r(3px);
+        .clip;
+        width: 48px;
+
+        .u-mark {
+            color: #fff;
+            font-size: 12px;
+            line-height: 16px;
+            transform: rotate(45deg) scale(0.8);
+            position: absolute;
+            right: -20px;
+            top: 0;
+            padding: 0 15px 0 25px;
+            font-style: normal;
+            background-color: #2fcb53;
+        }
+    }
+
+    .u-fetter-icon {
+        img {
+            .size(48px);
+            .db;
+            .r(6px);
+
+            &:hover {
+                filter: brightness(110%) saturate(110%);
+            }
+        }
+
+        .db;
+        .pr;
+        &:after {
+            content: "";
+            .db;
+            .size(100%);
+            .pa;
+            .lt(0);
+            border: 2px solid transparent;
+            box-sizing: border-box;
+        }
+
+        &.u-quality-2:after {
+            border-color: #00d24b;
+        }
+        &.u-quality-3:after {
+            border-color: #007eff;
+        }
+        &.u-quality-4:after {
+            border-color: #ff2dff;
+        }
+        &.u-quality-5:after {
+            border-color: #ffa500;
+        }
+    }
+
+    .u-fetter-name {
+        .db;
+        .x;
+        .lh(24px);
+        color: @color;
+        .w(100%);
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    
+}
+
+.m-pet-pop {
+    min-width: initial;
+    padding: 0 !important;
+    box-shadow: none !important;
+    transform: translateY(-10px);
+    background:none !important;
+    border:none !important;
+}

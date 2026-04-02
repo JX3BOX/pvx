@@ -1,0 +1,122 @@
+@import "./grid_layout.less";
+
+.m-book-card {
+    //指针
+    .pointer;
+    .fz(14px);
+    border-radius: 6px;
+    border: 1px solid #eee;
+
+    background-color: @bg-light;
+
+    margin-bottom: 20px;
+    min-height: 120px;
+    text-align: center;
+
+    .grid-layout;
+
+    @media screen and (max-width: 768px) {
+        & > .u-level {
+            .none;
+        }
+
+        & > div {
+            margin-bottom: 12px;
+        }
+
+        & {
+            display: block;
+            padding: 12px 6px;
+        }
+    }
+
+    &:hover {
+        border: 1px solid @color-link;
+        background-color: #fff;
+    }
+
+    .u-map {
+        padding: 0 16px;
+    }
+
+    .u-name-icon {
+        img {
+            max-height: 76px;
+        }
+    }
+
+    .u-name {
+        .u-name-title {
+            .flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .u-name-type {
+            .size(26px);
+            .mt(-6px);
+            margin-right: 8px;
+        }
+
+        .u-name-school {
+            .size(30px);
+            .mt(-6px);
+            margin-left: 8px;
+        }
+
+        .u-name-id {
+            .fz(12px, 2);
+            color: #909399;
+            font-weight: normal;
+            display: inline-block;
+            text-align: center;
+        }
+    }
+
+    .u-target {
+        color: @color;
+        .fz(12px, 1.8);
+        text-align: left;
+        padding: 0 10px;
+    }
+
+    .u-reward {
+        width: 100%;
+        // padding: 0 16px;
+        text-align: center;
+    }
+
+    .u-reward-item {
+        .fz(12px);
+        .mt(4px);
+        .mb(4px);
+        .flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: center;
+
+        & > span {
+            .mr(4px);
+        }
+    }
+
+    .u-reward-text__container {
+        .fz(12px, 2) !important;
+        white-space: normal;
+        word-wrap: break-word;
+        max-width: 320px;
+    }
+
+    .u-reward-text {
+        .mr(10px);
+    }
+
+    .u-path {
+        &.special {
+          color: #fba524;
+        }
+    }
+}

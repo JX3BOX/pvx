@@ -1,0 +1,80 @@
+::-webkit-scrollbar {
+    background-color: lightgray;
+    border-radius: 5px;
+    width: 5px;
+    height: 10px;
+    background-clip: padding-box;
+}
+
+/*滚动条中间滑动部分*/
+::-webkit-scrollbar-thumb {
+    background-color: #a8a8a8;
+    border-radius: 5px;
+}
+
+.el-dialog__body {
+    max-height: 550px;
+    overflow-y: auto;
+    margin-right: 5px;
+}
+
+.u-form {
+    .m-date {
+        display: flex;
+        gap: 20px;
+
+        .u-date {
+            width: 160px;
+        }
+    }
+
+    .m-color-item {
+        display: flex;
+        align-items: center;
+
+        .u-color-val {
+            margin-right: 20px;
+        }
+    }
+
+    .m-style {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .u-label {
+            margin-right: 10px;
+        }
+    }
+
+    .m-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        .u-del-icon {
+            font-size: 18px;
+        }
+    }
+
+    .m-type {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .m-type-icon {
+            height: 32px;
+            .el-input-group__prepend {
+                padding: 0 2px;
+            }
+            .u-icon {
+                .db;
+                width: 30px;
+                height: 30px;
+                max-width: none;
+                border-radius: 4px;
+                box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+            }
+        }
+    }
+}

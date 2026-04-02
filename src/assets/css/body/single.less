@@ -1,0 +1,162 @@
+@import "~@/assets/css/common/face-body-mixins.less";
+
+.m-navigation {
+    .pvx-navigation-mixin();
+    
+    .m-body-btn-box {
+        .u-btn {
+            background-color: @bodyColor;
+            border-color: @bodyColor;
+        }
+    }
+}
+
+.u-body-desc-tab {
+    .pointer;
+    .fz(20px);
+    .bold;
+    margin-top: 20px;
+    
+    span {
+        margin-right: 10px;
+    }
+}
+
+.m-header {
+    .pvx-header-mixin();
+}
+
+.m-body-content {
+    .pvx-content-mixin();
+}
+
+.m-single-data {
+    .pvx-single-data-mixin();
+}
+
+.m-single-data-title {
+    .pvx-single-data-title-mixin();
+}
+
+.m-files-list {
+    .pvx-files-list-mixin();
+}
+
+.m-single-buy-box {
+    .pvx-single-buy-box-mixin();
+}
+
+.m-body-pay {
+    .pvx-pay-mixin();
+}
+
+.m-single-pics {
+    .pvx-single-pics-mixin();
+}
+
+.m-body-buy-btn {
+    .pvx-buy-btn-mixin();
+}
+
+.m-body-files-list {
+    .pvx-files-list-mixin();
+}
+
+.m-author {
+    .pvx-author-mixin();
+}
+
+.u-about-author {
+    .pvx-about-author-mixin();
+}
+
+.m-author-header {
+    .pvx-author-header-mixin();
+}
+
+.m-random-list,
+.m-pvxbody-list {
+    .pvx-random-list-mixin();
+}
+
+.m-random-list {
+    .pvx-random-list-extra-mixin();
+}
+
+.m-body-pic {
+    .pvx-pic-mixin();
+}
+
+.m-thx {
+    .pvx-thx-mixin();
+}
+
+.pvx-carousel-mixin();
+.pvx-facedat-preview-mixin();
+
+.m-desc {
+    .pvx-desc-mixin();
+}
+
+.p-body-single .m-pvxbody-list {
+    .m-body-item.m-body-item.onlyPic .m-op .m-author {
+        .flex;
+        
+        .u-name {
+            opacity: 1;
+            color: #fff;
+        }
+    }
+    
+    .m-body-item.m-body-item.onlyPic.noName .m-op .m-author {
+        .none;
+    }
+    
+    .m-body-item {
+        height: 264px;
+        
+        .m-op .u-title {
+            .break(2);
+        }
+    }
+}
+
+.p-body-single h3 {
+    .fz(28px, 1);
+    margin: 0;
+    font-weight: 700;
+    line-height: 40.54px;
+    color: rgba(36, 41, 46, 1);
+}
+
+.p-body-single .m-pvxbody-list .m-body-item {
+    background: rgba(36, 41, 46, 0.05);
+    
+    &:hover {
+        background-color: #786cbb;
+    }
+}
+
+.p-body-single .m-body-item.m-body-item {
+    width: 200px;
+}
+
+.p-body-single .m-body-item {
+    width: 190px;
+}
+
+.m-body-download {
+    .pvx-download-mixin();
+}
+
+.w-thx {
+    .pvx-w-thx-mixin();
+}
+
+.u-tips-off {
+    .pvx-tips-off-mixin();
+}
+
+.pvx-responsive-ipad-single-mixin();
+.pvx-responsive-phone-single-mixin();
+.pvx-animation-mixin();

@@ -1,0 +1,129 @@
+.m-pet-title {
+    .flex;
+    .mt(40px);
+    justify-content: space-between;
+    align-items: baseline;
+    .u-all {
+        cursor: pointer;
+        color: #a5a5a5;
+        .fz(16px,21px);
+    }
+
+    .u-title {
+        .fz(28px,42px);
+        .bold(700);
+        color: #24292e;
+    }
+}
+
+// 福缘宠物
+.m-lucky-list {
+    .flex;
+    .w(100%);
+    .scrollbar(2px);
+    padding: 10px;
+    .ml(-10px);
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    .m-luckey-item {
+        flex-shrink: 0;
+    }
+
+    .m-luckey-item:last-child {
+        .mr(0);
+    }
+}
+.p-pet-list {
+    .el-select .el-input .el-input__inner {
+        border: 2px solid #f3f4f5;
+        background: #f3f4f5;
+        color: #b0b0b0;
+    }
+    .active .el-input .el-input__inner,
+    .el-select .el-input.is-focus .el-input__inner {
+        .bold;
+        border: 2px solid #d16400;
+        background: rgba(209, 100, 0, 0.1);
+        color: #000;
+        &::placeholder {
+            color: #000;
+        }
+    }
+    .active .el-input__prefix {
+        color: #d16400;
+    }
+    .c-public-notice {
+        .mt(40px);
+    }
+}
+.m-pet-list {
+    .grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    .mt(20px);
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.m-archive-null {
+    .mt(20px);
+}
+
+.u-tabs-span {
+    display: flex;
+    align-items: center;
+    color: #949494;
+}
+.u-icon-img {
+    .size(24px);
+    .mr(6px);
+}
+.m-archive-more {
+    .mt(40px);
+    .w(100%);
+    background-color: @petColor;
+    border-color: @petColor;
+    &:hover {
+        background-color: @petColor;
+        border-color: @petColor;
+    }
+}
+
+.m-archive-pages {
+    overflow-x: auto;
+    .active {
+        background-color: @petColor !important;
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-pet {
+        .u-type {
+            .mt(20px);
+        }
+        .u-title {
+            .fz(24px);
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-pet {
+        .u-lucky-title {
+            .mt(84px);
+        }
+        .u-title {
+            .fz(24px);
+        }
+        .m-pet-tabs {
+            gap: 20px;
+            .m-common-card {
+                justify-content: flex-start;
+            }
+        }
+        .m-pet-tabs,
+        .m-lucky-list {
+            .scrollbar(2px);
+        }
+    }
+}

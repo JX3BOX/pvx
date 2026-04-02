@@ -1,0 +1,151 @@
+@import "~@/assets/css/common/face-body-mixins.less";
+
+.m-navigation {
+    .pvx-navigation-mixin();
+    
+    .m-face-btn-box {
+        .u-btn {
+            background-color: @faceColor;
+            border-color: @faceColor;
+        }
+    }
+}
+
+.m-header {
+    .pvx-header-mixin();
+}
+
+.m-face-content {
+    .pvx-content-mixin();
+}
+
+.m-single-data {
+    .pvx-single-data-mixin();
+}
+
+.m-single-data-title {
+    .pvx-single-data-title-mixin();
+}
+
+.m-files-list {
+    .pvx-files-list-mixin();
+}
+
+.m-single-buy-box {
+    .pvx-single-buy-box-mixin();
+}
+
+.m-face-pay {
+    .pvx-pay-mixin();
+}
+
+.m-single-pics {
+    .pvx-single-pics-mixin();
+}
+
+.m-face-buy-btn {
+    .pvx-buy-btn-mixin();
+}
+
+.m-face-files-list {
+    .pvx-files-list-mixin();
+}
+
+.m-author {
+    .pvx-author-mixin();
+}
+
+.u-about-author {
+    .pvx-about-author-mixin();
+}
+
+.m-author-header {
+    .pvx-author-header-mixin();
+}
+
+.m-random-list,
+.m-pvxbody-list {
+    .pvx-random-list-mixin();
+}
+
+.m-random-list {
+    .pvx-random-list-extra-mixin();
+}
+
+.m-face-pic {
+    .pvx-pic-mixin();
+}
+
+.m-thx {
+    .pvx-thx-mixin();
+}
+
+.pvx-carousel-mixin();
+.pvx-facedat-preview-mixin();
+
+.m-desc {
+    .pvx-desc-mixin();
+}
+
+.p-face-single .m-pvxbody-list {
+    .m-face-item.m-body-item.onlyPic .m-op .m-author {
+        .flex;
+        
+        .u-name {
+            opacity: 1;
+            color: #fff;
+        }
+    }
+    
+    .m-face-item.m-body-item.onlyPic.noName .m-op .m-author {
+        .none;
+    }
+    
+    .m-face-item {
+        height: 264px;
+        
+        .m-op .u-title {
+            .break(2);
+        }
+    }
+}
+
+.p-face-single h3 {
+    .fz(28px, 1);
+    margin: 0;
+    font-weight: 700;
+    line-height: 40.54px;
+    color: rgba(36, 41, 46, 1);
+}
+
+.p-face-single .m-pvxbody-list .m-face-item {
+    background: rgba(36, 41, 46, 0.05);
+    
+    &:hover {
+        background-color: #786cbb;
+    }
+}
+
+.p-face-single .m-face-item.m-body-item {
+    width: 200px;
+}
+
+.p-face-single .m-face-item {
+    width: 190px;
+}
+
+.m-face-download {
+    .pvx-download-mixin();
+}
+
+.w-thx {
+    .pvx-w-thx-mixin();
+}
+
+.u-tips-off {
+    .pvx-tips-off-mixin();
+}
+
+.pvx-responsive-ipad-single-mixin();
+.pvx-responsive-phone-single-mixin();
+.pvx-animation-mixin();

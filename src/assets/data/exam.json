@@ -1,0 +1,38 @@
+{
+    "types": {
+        "radio": "单选题",
+        "checkbox": "多选题"
+    },
+    "styles": [
+        { "label": "蓝色", "value": "default" },
+        { "label": "绿色", "value": "green" },
+        { "label": "橙色", "value": "orange" },
+        { "label": "红色", "value": "red" },
+        { "label": "紫色", "value": "purple" }
+    ],
+    "awards": [{ "label": "剑三老司机", "value": "driver" }],
+    "marks": [{ "label": "官方试卷", "value": "official" }],
+    "tags": {
+        "subject": [
+            "语文",
+            "数学",
+            "外语",
+            "信息",
+            "物理",
+            "化学",
+            "生物",
+            "政治",
+            "历史",
+            "地理",
+            "美术",
+            "音乐",
+            "体育",
+            "劳动",
+            "理综",
+            "文综"
+        ],
+        "game": ["PVE", "PVP", "PVX", "PVBB"],
+        "play": ["副本", "宠物", "家园", "奇遇", "成就", "阵营", "野外", "竞技场", "切磋", "吃鸡"],
+        "domain": ["美容", "金融", "医学", "法学"]
+    }
+}

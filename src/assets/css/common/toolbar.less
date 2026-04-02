@@ -1,0 +1,297 @@
+/**
+ * @file toolbar.less
+ * @description 通用工具栏模块样式
+ * @module m-common-toolbar
+ * @author JX3Box
+ */
+
+// ============================================
+// 变量定义
+// ============================================
+
+@toolbar-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+@toolbar-radius: 10px;
+@toolbar-height: 60px;
+@item-radius: 30px;
+@item-height: 40px;
+@color-text: #949494;
+@color-text-active: #fff;
+@color-placeholder: #b0b0b0;
+@color-input-bg: #f3f4f5;
+@color-focus: #d16400;
+
+// ============================================
+// 主模块
+// ============================================
+
+.m-common-toolbar {
+    box-sizing: border-box;
+
+    // 工具栏容器
+    .m-toolbar-tool>div {
+        .flex(y);
+        .r(@toolbar-radius);
+        min-height: @toolbar-height;
+        box-sizing: border-box;
+        box-shadow: @toolbar-shadow;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    // 工具栏盒子
+    .m-toolbar-box {
+        .flex(y);
+        .r(@toolbar-radius);
+        gap: 10px;
+        min-height: @toolbar-height;
+        padding: 0 15px;
+        box-shadow: @toolbar-shadow;
+    }
+
+    // 工具栏项目
+    .m-toolbar-item {
+        .flex;
+        gap: 10px;
+
+        &.m-toolbar-search {
+            .w(100%);
+        }
+        .u-select {
+            width: 160px;
+
+            .el-select__wrapper {
+                .r(30px);
+                .h(40px);
+                border: 2px solid #f3f4f5;
+                background: #f3f4f5;
+                color: #b0b0b0;
+                box-shadow: none;
+
+                &.is-focused {
+                    background: rgba(209, 100, 0, .1);
+                    border: 2px solid #d16400;
+                    box-shadow: none !important;
+
+                    .el-select__prefix {
+                        color: #d16400
+                    }
+                }
+            }
+
+            .el-select__input {
+                font-weight: 700;
+                color: #000;
+            }
+        }
+    }
+
+    // 通用按钮项
+    .u-item {
+        .pr;
+        .pointer;
+        .flex(o);
+        .size(100px, @item-height);
+        .fz(16px, 22px);
+        line-height: @item-height;
+        .r(@item-radius);
+        .bold;
+        flex-shrink: 0;
+        color: @color-text;
+        transition: 0.3s ease-out;
+
+        &.active,
+        &:hover {
+            color: @color-text-active;
+        }
+    }
+
+    // 搜索框
+    .u-search {
+        .w(100%);
+        min-width: 180px;
+        flex: 1;
+        .flex(y);
+    }
+
+    .u-search-input {
+        .el-input__wrapper {
+            .r(@item-radius);
+            .size(100%, @item-height);
+            border: none;
+            box-shadow: none;
+            background-color: @color-input-bg;
+            padding: 0 40px 0 20px;
+        }
+
+        .el-input__inner {
+            .fz(14px, @item-height);
+            color: #000;
+
+            &::placeholder {
+                .fz(14px);
+                color: @color-placeholder;
+            }
+        }
+    }
+
+    input[type="text"]::-webkit-input-placeholder {
+        .fz(14px);
+        color: @color-placeholder;
+    }
+
+    .u-search .el-input__suffix {
+        right: 15px;
+    }
+
+    .u-search .el-input__icon {
+        .bold;
+        color: #24292e;
+    }
+
+    // 选择器
+    .u-select .el-input__suffix {
+        .none;
+    }
+
+    .u-select input {
+        .r(@item-radius);
+    }
+
+    .el-input__prefix {
+        .lh(@item-height);
+        padding: 0 10px;
+    }
+
+    .el-input__prefix,
+    .el-input__suffix {
+        color: @color-placeholder;
+
+        &::placeholder {
+            color: @color-placeholder;
+        }
+    }
+
+    .is-focus .el-input__prefix {
+        color: @color-focus;
+    }
+
+    .el-input__inner {
+        // padding-left: 60px;
+        min-width: 158px;
+        box-sizing: border-box;
+    }
+
+    // 筛选按钮
+    .u-filter {
+        .pointer;
+        .size(@item-height);
+        .r(@item-radius);
+        background-color: #fff;
+
+        svg {
+            fill: @color-text;
+        }
+
+        &:hover {
+            i {
+                color: @color-text-active;
+            }
+
+            svg {
+                fill: @color-text-active;
+            }
+        }
+    }
+}
+
+// ============================================
+// 响应式适配 - iPad
+// ============================================
+
+@media screen and (max-width: @ipad) {
+    .m-common-toolbar {
+        .m-toolbar-tool {
+            padding: 0;
+        }
+
+        .m-toolbar-box {
+            padding: 0;
+            height: auto;
+            flex-direction: column;
+            box-shadow: none;
+            gap: 10px;
+        }
+
+        .m-toolbar-item {
+            .flex;
+            .r(@toolbar-radius);
+            .w(100%);
+            box-sizing: border-box;
+            flex-wrap: wrap;
+            padding: 10px 15px;
+            box-shadow: @toolbar-shadow;
+        }
+    }
+}
+
+// ============================================
+// 响应式适配 - Phone
+// ============================================
+
+@media screen and (max-width: @phone) {
+    .m-common-toolbar .m-toolbar-item {
+        justify-content: space-between;
+
+        .u-item:first-child {
+            .w(100%);
+        }
+
+        .u-item {
+            width: calc(50% - 10px);
+        }
+    }
+}
+
+// ============================================
+// 小程序视图适配
+// ============================================
+
+.v-miniprogram {
+    .m-common-toolbar {
+        .m-toolbar-item {
+            .flex;
+            flex-direction: column;
+        }
+
+        .m-toolbar-item__mobile {
+            .flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .u-current-item {
+            .flex(y);
+            gap: 10px;
+
+            .u-item {
+                flex-grow: 1;
+                width: 0;
+            }
+
+            .u-more {
+                .w(20px);
+            }
+        }
+
+        .u-item-options {
+            .flex;
+            flex-direction: column;
+            gap: 10px;
+
+            .u-item {
+                width: 100%;
+            }
+        }
+    }
+}
