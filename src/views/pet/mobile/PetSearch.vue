@@ -12,7 +12,7 @@
                         <template #prefix> 类别 </template>
                     </el-select>
                     <el-select v-model="params.mapId" :class="{ active: params.mapId }" class="u-select" clearable filterable>
-                        <el-option label="全部地图" value=""></el-option>
+                        <el-option label="全部" value=""></el-option>
                         <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                         <template #prefix> 地图 </template>

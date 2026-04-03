@@ -3,14 +3,14 @@
         <template v-if="isMininote" v-slot:tool>
             <div class="m-toolbar-item">
                 <el-select v-model="mapId" :class="{ active: mapId }" filterable class="u-select" clearable
-                    placeholder="全部地图">
-                    <el-option label="全部地图" value=""></el-option>
+                    placeholder="全部">
+                    <el-option label="全部" value=""></el-option>
                     <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                     <template #prefix> 地图 </template>
                 </el-select>
                 <el-select v-model="petSource" :class="{ active: petSource }" filterable class="u-select" clearable
-                    placeholder="全部来源">
+                    placeholder="全部">
                     <el-option v-for="(item, index) in Source" :key="'laiyuan' + index" :label="item.name"
                         :value="item.source">
                     </el-option>
@@ -21,14 +21,14 @@
         <template v-if="!isMininote" v-slot:append>
             <div class="m-toolbar-item">
                 <el-select v-model="mapId" :class="{ active: mapId }" filterable class="u-select" clearable
-                    placeholder="全部地图">
-                    <el-option label="全部地图" value=""></el-option>
+                    placeholder="全部">
+                    <el-option label="全部" value=""></el-option>
                     <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                     <template #prefix> 地图 </template>
                 </el-select>
                 <el-select v-model="petSource" :class="{ active: petSource }" filterable class="u-select" clearable
-                    placeholder="全部来源">
+                    placeholder="全部">
                     <el-option v-for="(item, index) in Source" :key="'laiyuan' + index" :label="item.name"
                         :value="item.source">
                     </el-option>
