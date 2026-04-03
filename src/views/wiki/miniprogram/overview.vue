@@ -197,7 +197,6 @@ export default {
         },
     },
     created() {
-        document.title = "资历宝典";
         this.getUserInfo();
     },
     methods: {

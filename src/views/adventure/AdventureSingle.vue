@@ -394,7 +394,9 @@ export default {
                 .then((res) => {
                     this.isPet = false;
                     this.data = res.data;
-                    // document.title = this.data?.szName;
+
+
+                    document.title = this.data.szName + this.$t("pages.common.appendTitle");
                 })
                 .finally(() => {
                     this.loading = false;

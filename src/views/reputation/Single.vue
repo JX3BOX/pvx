@@ -568,7 +568,7 @@ export default {
                     this.reputation = data;
 
                     if (this.isMiniProgram) {
-                        document.title = this.reputation?.szName;
+                        document.title = this.reputation?.szName + this.$t("pages.common.appendTitle")
                         this.$nextTick(() => {
                             this.stage = 0;
                         });

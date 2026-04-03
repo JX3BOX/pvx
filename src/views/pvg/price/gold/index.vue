@@ -37,7 +37,9 @@ export default {
     },
     methods: {
         serverChange() {
-            this.$refs.chart.setOption();
+            if (this.$refs.chart && this.$refs.chart.setOption) {
+                this.$refs.chart.setOption();
+            }
         },
     },
     created() {

@@ -135,7 +135,7 @@ export default {
                 let item = menuList[key];
                 if (item.sub == menuId) {
                     this.info = item;
-                    document.title = item.name;
+                    document.title = item.name + this.$t("pages.common.appendTitle");
                 }
             })
             let jx3id = this.$route.query.jx3id;

@@ -35,7 +35,7 @@
                         ><span class="u-label">试题编号</span>{{ item.id }}</a
                     >
                     <a class="u-user" :href="authorLink(item.createUserId)" target="_blank"
-                        ><span class="u-label">出题人</span>{{ item.userInfo.display_name }}</a
+                        ><span class="u-label">出题人</span>{{ item.userInfo?.display_name }}</a
                     >
                     <div v-if="fromQuestion" class="u-star">
                         <span>难度：</span>

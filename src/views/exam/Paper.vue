@@ -115,6 +115,8 @@ export default {
                         }) || [];
                     this.data = data;
 
+                    document.title = this.data.title + this.$t("pages.common.appendTitle");
+
                     this.list =
                         data?.questionDetailList?.map((item) => {
                             return {

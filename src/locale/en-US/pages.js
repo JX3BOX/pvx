@@ -228,4 +228,8 @@ export default {
             description: "Search reputations by name or keywords.",
         },
     },
+
+    common: {
+        appendTitle: " - JX3BOX",
+    }
 };

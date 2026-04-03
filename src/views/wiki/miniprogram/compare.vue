@@ -147,7 +147,6 @@ export default {
         }
     },
     created() {
-        document.title = '亲友对比'
         this.init()
     },
     mounted() {
