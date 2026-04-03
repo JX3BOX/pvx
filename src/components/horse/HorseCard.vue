@@ -66,7 +66,7 @@ export default {
     },
     methods: {
         replaceByDefault(e) {
-            e.target.src = require("../../assets/img/horse_item_bg_sm.jpg");
+            e.target.src = require("../../assets/img/horse/horse_item_bg_sm.jpg");
         },
         getLink(item) {
             const id = item.ItemID;

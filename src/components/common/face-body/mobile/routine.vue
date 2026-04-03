@@ -26,7 +26,7 @@
                 <el-image class="u-pic" :src="showImg(item)" fit="cover">
                     <template #error>
                         <div class="image-slot">
-                            <img src="@/assets/img/body_null.png" />
+                            <img src="@/assets/img/body/body_null.png" />
                         </div>
                     </template>
                 </el-image>

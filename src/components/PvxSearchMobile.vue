@@ -118,7 +118,7 @@
                         </div>
                         <template #reference>
                             <div class="filter-img" :class="filterValue && 'active'">
-                                <img svg-inline src="@/assets/img/filter.svg" fill="#949494" />
+                                <img svg-inline src="@/assets/img/common/filter.svg" fill="#949494" />
                             </div>
                         </template>
                     </el-popover>

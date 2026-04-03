@@ -359,7 +359,7 @@ export default {
             .u-img {
                 .size(2.875rem);
                 .r(0.25rem);
-                background-image: url("../../../assets/img/horse_item_bg_sm.jpg");
+                background-image: url("../../../assets/img/horse/horse_item_bg_sm.jpg");
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: cover;
@@ -429,7 +429,7 @@ export default {
 
                     .mb(0.5rem);
                     border: 1px solid #ff2dff;
-                    background-image: url("../../../assets/img/horse_item_bg_sm.jpg");
+                    background-image: url("../../../assets/img/horse/horse_item_bg_sm.jpg");
                     background-position: center;
                     background-repeat: no-repeat;
                     background-size: cover;

@@ -11,7 +11,7 @@
             </div>
             <div class="m-pvx-bottom__right">
                 <div class="m-qq">
-                    <img class="u-bottom-img" src="@/assets/img/jx3box_qqbot_bottom.svg" />
+                    <img class="u-bottom-img" src="@/assets/img/qqbot/jx3box_qqbot_bottom.svg" />
                 </div>
                 <div class="m-qrcode">
                     <qrcode-vue class="u-qrcode" :value="qrcodeUrl" :size="42" level="H"></qrcode-vue>
@@ -20,9 +20,9 @@
             </div>
         </div>
         <div class="m-pvx-bottom__bottom">
-            <img class="u-bottom-logo" src="@/assets/img/jx3box_qqbot_logo.svg" />
+            <img class="u-bottom-logo" src="@/assets/img/qqbot/jx3box_qqbot_logo.svg" />
             <span>JX3BOX</span>
-            <img class="u-bottom-logo" src="@/assets/img/jx3box_qqbot_logo.svg" />
+            <img class="u-bottom-logo" src="@/assets/img/qqbot/jx3box_qqbot_logo.svg" />
         </div>
     </div>
 </template>

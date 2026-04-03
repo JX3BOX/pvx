@@ -114,7 +114,7 @@
                     </div>
                 </div>
                 <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/jx3box_qqbot_horse.svg" />
+                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_horse.svg" />
                 </div>
             </div>
             <div class="m-robot__horse-info">
@@ -492,7 +492,7 @@ export default {
         .size(100%, 120px);
         .r(4px);
         box-sizing: border-box;
-        background: url("../../assets/img/horse_item_bg_sm.jpg") no-repeat center center;
+        background: url("../../assets/img/horse/horse_item_bg_sm.jpg") no-repeat center center;
         background-size: cover;
         transition: all 0.5s;
     }

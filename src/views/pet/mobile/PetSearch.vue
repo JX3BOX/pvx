@@ -55,7 +55,7 @@
                                             v-for="o in pet.Star"
                                             :key="o"
                                             class="u-star"
-                                            src="../../../assets/img/star.svg"
+                                            src="../../../assets/img/common/star.svg"
                                             svg-inline
                                         />
                                     </div>
@@ -83,7 +83,7 @@
                                         v-for="o in pet.Star"
                                         :key="o"
                                         class="u-star"
-                                        src="../../../assets/img/star.svg"
+                                        src="../../../assets/img/common/star.svg"
                                         svg-inline
                                     />
                                 </div>

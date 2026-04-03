@@ -9,7 +9,7 @@
             </div>
             <WikiPanel :wiki-post="wiki_post">
                 <template #head-title v-if="!isRobot">
-                    <img class="u-icon" svg-inline src="@/assets/img/item.svg" />
+                    <img class="u-icon" svg-inline src="@/assets/img/common/item.svg" />
                     <span class="u-txt">{{ name }}攻略</span>
                 </template>
                 <template #head-actions v-if="!isRobot">

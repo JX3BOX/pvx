@@ -1,7 +1,7 @@
 <template>
     <div class="c-public-notice" v-if="html">
         <div class="m-notice-content">
-            <img svg-inline :src="require('@/assets/img/notice.svg')" class="u-img" />
+            <img svg-inline :src="require('@/assets/img/pvg/notice.svg')" class="u-img" />
             <span class="m-notice-text" v-html="html"></span>
         </div>
     </div>

@@ -190,7 +190,7 @@
                     </div>
                 </div>
                 <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/jx3box_qqbot_book.svg" />
+                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_book.svg" />
                 </div>
             </div>
             <div class="m-robot__book-info">

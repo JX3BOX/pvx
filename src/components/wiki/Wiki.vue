@@ -3,7 +3,7 @@
         <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
                 <template v-slot:head-title>
-                    <img class="u-icon" svg-inline src="../../assets/img/achievement.svg" />
+                    <img class="u-icon" svg-inline src="../../assets/img/common/achievement.svg" />
                     <span class="u-txt">{{ title }}</span>
                 </template>
                 <template v-slot:head-actions>

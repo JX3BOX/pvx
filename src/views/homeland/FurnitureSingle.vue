@@ -74,7 +74,7 @@
 
         <div class="m-extend" v-if="has_extend">
             <div class="m-extend-header">
-                <img class="u-icon" svg-inline src="../../assets/img/achievement.svg" />
+                <img class="u-icon" svg-inline src="../../assets/img/common/achievement.svg" />
                 <span class="u-txt">家具信息</span>
             </div>
             <div class="m-extend-content m-extend-desc" v-if="data.szTip">

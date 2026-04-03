@@ -93,7 +93,7 @@
                     </div>
                     <div class="u-id">{{ getType(item) }}</div>
                 </div>
-                <img src="@/assets/img/empty.png" v-show="!list.length" />
+                <img src="@/assets/img/common/empty.png" v-show="!list.length" />
             </div>
         </div>
     </div>
@@ -676,7 +676,7 @@ export default {
 
                 .mb(0.5rem);
                 border: 1px solid #ff2dff;
-                background-image: url("../../../assets/img/horse_item_bg_sm.jpg");
+                background-image: url("../../../assets/img/horse/horse_item_bg_sm.jpg");
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: cover;

@@ -14,7 +14,7 @@
                 </template>
             </div>
             <div class="u-info">
-                <img class="u-icon" svg-inline src="../../assets/img/logo.svg" fill="#fff" />
+                <img class="u-icon" svg-inline src="../../assets/img/common/logo.svg" fill="#fff" />
                 <span class="u-desc" v-if="item.desc">{{ desc || "无" }}</span>
             </div>
             <div class="u-block u-author">

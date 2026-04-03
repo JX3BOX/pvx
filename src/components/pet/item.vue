@@ -14,7 +14,7 @@
                         v-for="o in petObject.Star"
                         :key="o"
                         class="u-star"
-                        src="../../assets/img/star.svg"
+                        src="../../assets/img/common/star.svg"
                         svg-inline
                     />
                 </div>

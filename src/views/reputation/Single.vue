@@ -149,7 +149,7 @@
                     </div>
                 </div>
                 <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/jx3box_qqbot_reputation.svg" />
+                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_reputation.svg" />
                 </div>
             </div>
             <div class="m-pvx__item m-robot__reputation-info">

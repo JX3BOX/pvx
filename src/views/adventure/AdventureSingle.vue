@@ -76,13 +76,13 @@
                         <div class="u-reward" v-html="rewardContent"></div>
                     </div>
                 </div>
-                <img class="u-right-icon" src="@/assets/img/jx3box_qqbot_adventure.svg" alt="" />
+                <img class="u-right-icon" src="@/assets/img/qqbot/jx3box_qqbot_adventure.svg" alt="" />
             </div>
             <div class="m-robot-item m-robot__adventure-condition">
                 <img class="u-pvx-logo" :src="imgUrl" />
                 <div class="m-condition">
                     <div class="m-title">
-                        <img src="@/assets/img/jx3box_qqbot_adventure_item.svg" alt="" />
+                        <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
                         <div class="u-title">触发前置</div>
                         <span>（需全部满足）</span>
                     </div>
@@ -93,7 +93,7 @@
             </div>
             <div class="m-robot-item m-robot__adventure-method">
                 <div class="m-title">
-                    <img src="@/assets/img/jx3box_qqbot_adventure_item.svg" alt="" />
+                    <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
                     <div class="u-title">触发方式</div>
                     <span>（完成任一均有可能触发奇遇）</span>
                 </div>
@@ -103,7 +103,7 @@
             </div>
             <div class="m-robot-item m-robot__adventure-method">
                 <div class="m-title">
-                    <img src="@/assets/img/jx3box_qqbot_adventure_item.svg" alt="" />
+                    <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
                     <div class="u-title">奇遇流程</div>
                     <span>（以魔盒在线版本为准）</span>
                 </div>

@@ -272,7 +272,7 @@ export default {
             });
         },
         replaceByDefault(e) {
-            e.target.src = require("../../../assets/img/horse_item_bg_sm.jpg");
+            e.target.src = require("../../../assets/img/horse/horse_item_bg_sm.jpg");
         },
         getHorse(id) {
             const params = {

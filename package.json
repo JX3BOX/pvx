@@ -11,7 +11,6 @@
         "build:dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 VUE_APP_PROXY_ENABLE=0 BUILD_PREVIEW=1 vue-cli-service build --mode development",
         "build:prod": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vue-cli-service build --mode production",
         "lint": "vue-cli-service lint",
-        "header": "vue-cli-service build --target lib --name newheader src/Header.vue && cp public/index.html dist/newheader.html",
         "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-ui@latest @jx3box/jx3box-editor@latest @jx3box/jx3box-facedat@latest"
     },
     "eslintConfig": {

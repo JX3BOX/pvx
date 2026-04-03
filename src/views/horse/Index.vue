@@ -23,7 +23,7 @@
                             </el-row>
                         </div>
                         <template v-slot:reference>
-                            <img svg-inline src="@/assets/img/filter.svg" @click="filter = true" />
+                            <img svg-inline src="@/assets/img/common/filter.svg" @click="filter = true" />
                         </template>
                     </el-popover>
                 </div>

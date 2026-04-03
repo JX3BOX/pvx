@@ -74,7 +74,7 @@ export default {
             return `/horse/${id}?type=${type}`;
         },
         replaceByDefault(e) {
-            e.target.src = require("../../assets/img/horse_item_bg_sm.jpg");
+            e.target.src = require("../../assets/img/horse/horse_item_bg_sm.jpg");
         },
         getImgSrc(item, isAuto = false) {
             // const client = this.client;

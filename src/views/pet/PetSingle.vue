@@ -44,7 +44,7 @@
                             v-for="count in pet.Star"
                             :key="count"
                             class="u-star"
-                            src="@/assets/img/star.svg"
+                            src="@/assets/img/common/star.svg"
                             svg-inline
                         />
                         <!-- <i class="el-icon-star-on" v-for="count in pet.Star" :key="count"></i> -->
@@ -106,7 +106,7 @@
             <!-- 宠物羁绊 -->
             <div class="m-pet-fetters" v-if="medalList && medalList.length">
                 <div class="u-header">
-                    <img class="u-icon" svg-inline src="@/assets/img/achievement.svg" />
+                    <img class="u-icon" svg-inline src="@/assets/img/common/achievement.svg" />
                     <span class="u-txt">宠物羁绊</span>
                 </div>
                 <!-- 羁绊信息 -->
@@ -133,7 +133,7 @@
                     </div>
                 </div>
                 <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/jx3box_qqbot_pet.svg" />
+                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_pet.svg" />
                 </div>
             </div>
             <div class="m-robot__pet-info">

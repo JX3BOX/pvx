@@ -6,7 +6,7 @@
         <div id="mini-wiki-post-panel" class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
                 <template #head-title>
-                    <img class="u-icon" svg-inline src="@/assets/img/item.svg" />
+                    <img class="u-icon" svg-inline src="@/assets/img/common/item.svg" />
                     <span class="u-txt">{{ name }}攻略</span>
                 </template>
                 <template #head-actions>

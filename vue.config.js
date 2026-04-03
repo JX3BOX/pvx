@@ -5,6 +5,13 @@ const pages = {
         template: "public/index.html",
         filename: "index.html",
     },
+
+    achievement: {
+        title: "资历宝典 - JX3BOX",
+        entry: "src/pages/wiki/index.js",
+        template: "public/index.html",
+        filename: "achievement/index.html",
+    },
     qqbot: {
         title: "QQRobot - JX3BOX",
         entry: "src/pages/qqbot/index.js",
@@ -25,7 +32,7 @@ const pages = {
         filename: "body/index.html",
     },
     homeland: {
-        title: "家园蓝图 - JX3BOX",
+        title: "家园蓝图",
         entry: "src/pages/homeland/index.js",
         template: "public/index.html",
         filename: "homeland/index.html",
@@ -38,19 +45,19 @@ const pages = {
         filename: "adventure/index.html",
     },
     pet: {
-        title: "宠物大全 - JX3BOX",
+        title: "宠物大全",
         entry: "src/pages/pet/index.js",
         template: "public/index.html",
         filename: "pet/index.html",
     },
     horse: {
-        title: "坐骑大全 - JX3BOX",
+        title: "坐骑大全",
         entry: "src/pages/horse/index.js",
         template: "public/index.html",
         filename: "horse/index.html",
     },
     furniture: {
-        title: "家具大全 - JX3BOX",
+        title: "家具大全",
         entry: "src/pages/furniture/index.js",
         template: "public/index.html",
         filename: "furniture/index.html",
@@ -62,11 +69,12 @@ const pages = {
         filename: "reputation/index.html",
     },
     book: {
-        title: "书籍大全 - JX3BOX",
+        title: "书籍大全",
         entry: "src/pages/book/index.js",
         template: "public/index.html",
         filename: "book/index.html",
     },
+
     exam: {
         title: "剑三考试 - JX3BOX",
         entry: "src/pages/exam/index.js",
@@ -78,12 +86,6 @@ const pages = {
         entry: "src/pages/pvg/index.js",
         template: "public/index.html",
         filename: "pvg/index.html",
-    },
-    achievement: {
-        title: "资历宝典 - JX3BOX",
-        entry: "src/pages/wiki/index.js",
-        template: "public/index.html",
-        filename: "achievement/index.html",
     },
 };
 

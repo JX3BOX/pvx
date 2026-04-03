@@ -75,7 +75,7 @@ export default {
         box-sizing: border-box;
         overflow: hidden;
         .u-image {
-            background-image: url("../../assets/img/horse_item_bg_sm.jpg");
+            background-image: url("../../assets/img/horse/horse_item_bg_sm.jpg");
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;

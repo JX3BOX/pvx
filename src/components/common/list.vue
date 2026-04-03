@@ -6,7 +6,7 @@
             :style="{ height: height + 'px' }"
             @click="update"
         >
-            <img svg-inline src="@/assets/img/replace.svg" />
+            <img svg-inline src="@/assets/img/common/replace.svg" />
         </div>
     </div>
 </template>

@@ -34,7 +34,7 @@
                         </div>
                     </div>
                     <template #reference>
-                        <img svg-inline src="@/assets/img/filter.svg" />
+                        <img svg-inline src="@/assets/img/common/filter.svg" />
                     </template>
                 </el-popover>
             </div>

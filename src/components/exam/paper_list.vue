@@ -21,7 +21,7 @@
                         </el-tag>
                     </div>
                     <div class="u-desc" :class="item.style">
-                        <img class="u-icon" svg-inline src="../../assets/img/logo.svg" />
+                        <img class="u-icon" svg-inline src="../../assets/img/common/logo.svg" />
                         <div class="u-text">{{ item.desc }}</div>
                     </div>
                     <div class="u-info">

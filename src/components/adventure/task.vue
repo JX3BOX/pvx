@@ -15,8 +15,8 @@
             </div>
         </div>
         <div class="m-adventure-task" v-else>
-            <img class="u-prefix" src="@/assets/img/adventure_bg.png" />
-            <img class="u-suffix" src="@/assets/img/adventure_bg.png" />
+            <img class="u-prefix" src="@/assets/img/adventure/adventure_bg.png" />
+            <img class="u-suffix" src="@/assets/img/adventure/adventure_bg.png" />
             <div class="u-content" id="task-box">
                 <div class="u-item u-task-name">
                     <img :src="getImg(info)" />

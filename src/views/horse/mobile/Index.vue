@@ -120,7 +120,7 @@
                     </div>
                     <div class="u-id">ID：{{ item.ID }}</div>
                 </div>
-                <img src="@/assets/img/empty.png" v-show="!listData.length" />
+                <img src="@/assets/img/common/empty.png" v-show="!listData.length" />
             </div>
             <!--        马具列表-->
             <div class="m-harness-card" v-else>
@@ -134,7 +134,7 @@
                         <div class="u-id">ID：{{ item.ID }}</div>
                     </div>
                 </div>
-                <img src="@/assets/img/empty.png" v-show="!listData.length" />
+                <img src="@/assets/img/common/empty.png" v-show="!listData.length" />
             </div>
         </div>
     </div>
@@ -220,7 +220,7 @@ export default {
         },
         iconLink,
         replaceByDefault(e) {
-            e.target.src = require("../../../assets/img/horse_item_bg_sm.jpg");
+            e.target.src = require("../../../assets/img/horse/horse_item_bg_sm.jpg");
         },
         getImgSrc(item, isAuto = false) {
             // const client = this.client;
