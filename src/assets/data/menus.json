@@ -78,6 +78,20 @@
                 "icon": "el-icon-files",
                 "key": "book",
                 "status": true
+            },
+            {
+                "path": "/codex/adventure",
+                "label": "奇遇珍卷",
+                "icon": "el-icon-files",
+                "key": "codextreature",
+                "status": true
+            },
+            {
+                "path": "/codex/achievement",
+                "label": "资历宝典",
+                "icon": "el-icon-files",
+                "key": "codexachievement",
+                "status": true
             }
         ]
     },
