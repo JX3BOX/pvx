@@ -4,7 +4,9 @@
             <div class="u-label-box">
                 <div class="u-label">渡劫方案</div>
                 <div class="u-btn-created" v-show="list.length > 0" @click="showForm = true">
-                    <LegacyIcon class="el-icon-circle-plus-outline u-add-icon" />定制方案
+                    <el-icon class="u-add-icon">
+                        <CirclePlus />
+                    </el-icon>定制方案
                 </div>
             </div>
 
@@ -100,7 +102,7 @@
             </div>
             <!-- 定制按钮 -->
             <div class="u-btn" @click="showForm = true" v-show="list.length == 0">
-                <LegacyIcon class="el-icon-circle-plus-outline u-add-icon" />
+                <el-icon class="el-icon-circle-plus-outline u-add-icon" />
                 <div>定制方案</div>
             </div>
         </div>
@@ -189,7 +191,7 @@ export default {
         getRoleGameAchievements(val) {
             getRoleGameAchievements(val?.jx3id || this.currentRole.jx3id).then((res) => {
                 val ? (this.currentRole = val) : "";
-                this.currentRole.achievements = res.data?.data?.achievements || [];
+                this.currentRole.achievements = res.data?.data?.achievements || "";
                 //计算角色总资历
                 let total = 0,
                     arr = cloneDeep(this.currentRole.achievements).split(",") || [];
@@ -338,9 +340,10 @@ export default {
             color: #e2d3b9;
             cursor: pointer;
             .fz(14px);
+            gap: 4px;
 
             .u-add-icon {
-                .fz(16px);
+                // .fz(16px);
             }
         }
 

@@ -170,6 +170,10 @@ export default {
             buttonWidth: 0,
             versions: [
                 {
+                    name: "丝路风雨(130级)",
+                    nDlcID: 8,
+                },
+                {
                     name: "横刀断浪(120级)",
                     nDlcID: 7,
                 },
@@ -182,7 +186,7 @@ export default {
                     nDlcID: 5,
                 },
             ],
-            version: 7,
+            version: 8,
         };
     },
     filters: {

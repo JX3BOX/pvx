@@ -33,7 +33,10 @@
                     </el-dropdown>
 
                     <div v-if="viewAchievementsName" class="u-overview" @click="onSeeOverview">
-                        <LegacyIcon class="el-icon-back" />{{ showList ? "返回" : "返回总览" }}
+                        <el-icon>
+                            <Back />
+                        </el-icon>
+                        {{ showList ? "返回" : "返回总览" }}
                     </div>
                 </div>
 
@@ -333,6 +336,7 @@ export default {
                 localStorage.setItem("wiki_last_sync", val.jx3id || 0);
                 this.$store.commit("SET_STATE", { key: "role", value: val });
                 const { jx3id } = val;
+                console.log(jx3id);
                 if (jx3id) {
                     this.$store.commit("SET_STATE", { key: "achievementsVirtual", value: [] });
                     this.loadRoleAchievements(jx3id);

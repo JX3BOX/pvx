@@ -197,7 +197,7 @@
                         当前方案共
                         <span>{{ leapForm.all.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
                         资历，可为你提供
-                        <span>{{ this.leapForm.diffNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
+                        <span>{{ leapForm.diffNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span>
                         资历提升，距离目标还剩
                         <span>{{ leapForm.remaining.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</span> 资历。
                     </div>
@@ -394,11 +394,22 @@ export default {
             this.customList = [];
             //根据value初始化不同内容,同时重载achievements
             if (this.isSelectType == 1) {
-                this.selectMenu(this.menuList[1], 1);
+                // 安全检查：确保 menuList 存在且有数据
+                if (this.menuList && this.menuList.length > 1) {
+                    this.selectMenu(this.menuList[1], 1);
+                } else if (this.menuList && this.menuList.length > 0) {
+                    this.selectMenu(this.menuList[0], 1);
+                }
             } else {
-                this.selectMapItem = this.mapList[0];
-                this.selectMapChildrenItem = this.selectMapItem.children[0];
-                this.getMapAchievements(this.selectMapChildrenItem.value);
+                // 安全检查：确保 mapList 存在且有数据
+                if (this.mapList && this.mapList.length > 0) {
+                    this.selectMapItem = this.mapList[0];
+                    // 安全检查：确保 children 存在且有数据
+                    if (this.selectMapItem.children && this.selectMapItem.children.length > 0) {
+                        this.selectMapChildrenItem = this.selectMapItem.children[0];
+                        this.getMapAchievements(this.selectMapChildrenItem.value);
+                    }
+                }
             }
         },
         //推荐方案查询
@@ -411,13 +422,18 @@ export default {
         selectRecommend(item) {
             this.selectRecommendItem = item;
             let info = this.getSchemePoints(this.selectRecommendItem.schema);
-            let remaining = 0;
-            if (this.leapForm.number > 0 && this.leapForm.number > info.diffNum) {
-                remaining = this.leapForm.number - info.diffNum;
-            }
+
+            // 安全获取当前角色总资历，避免 undefined 导致 NaN
+            const currentTotal = Number(this.currentRole.total) || 0;
+            const targetNumber = Number(this.leapForm.number) || 0;
+            console.log(targetNumber);
+            // 计算剩余资历：目标资历 - 当前总资历 - 可提升资历
+            // let remaining = targetNumber - currentTotal - info.diffNum;
+            let remaining = targetNumber - info.diffNum;
+
             this.leapForm.all = info.all;
             this.leapForm.diffNum = info.diffNum;
-            this.leapForm.remaining = remaining;
+            this.leapForm.remaining = remaining > 0 ? remaining : 0;
         },
         //自选-地图查询
         loadMapList() {
@@ -736,7 +752,13 @@ export default {
                 diffNum = diffNum + item.Point;
             });
             if (!data) {
-                remaining = Number(this.leapForm.number) - this.currentRole.total - diffNum;
+                // 安全获取当前角色总资历，避免 undefined 导致 NaN
+                const currentTotal = Number(this.currentRole.total) || 0;
+                const targetNumber = Number(this.leapForm.number) || 0;
+
+                // 计算剩余资历：目标资历 - 当前总资历 - 可提升资历
+                // remaining = targetNumber - currentTotal - diffNum;
+                remaining = targetNumber - diffNum;
 
                 this.leapForm.all = all;
                 this.leapForm.diffNum = diffNum;

@@ -76,7 +76,8 @@
         "vue-waterfall-rapid": "^1.0.25",
         "vuedraggable": "^4.1.0",
         "vuex": "^4.0.2",
-        "weixin-js-sdk": "^1.6.5"
+        "weixin-js-sdk": "^1.6.5",
+        "xlsx": "^0.18.5"
     },
     "devDependencies": {
         "@babel/core": "^7.12.16",

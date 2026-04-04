@@ -4,28 +4,31 @@
         <div class="m-overview-header_mobile">
             <div class="u-name">
                 <!-- 折叠侧栏按钮 -->
-                <LegacyIcon :class="!isFold ? 'el-icon-s-fold ' : 'el-icon-s-unfold'" @click="changeFold"  />&nbsp;
+                <el-icon v-show="isFold" @click="changeFold">
+                    <Expand />
+                </el-icon>
+                <el-icon v-show="!isFold" @click="changeFold">
+                    <Fold />
+                </el-icon>
             </div>
 
             <div class="u-select">
                 <el-dropdown trigger="click">
                     <div class="u-select-btn">
-                        <span
-                            >{{ currentRole.name }}
+                        <span>{{ currentRole.name }}
                             {{ currentRole.server && "·" }}
-                            {{ currentRole.server }}</span
-                        >
+                            {{ currentRole.server }}</span>
                         <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" width="16px" height="16px" />
                     </div>
                     <template #dropdown>
-                    <el-dropdown-menu>
-                        <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                            <div @click="onChangeRole(role)" class="m-role-item">
-                                <span>{{ role.name }}</span>
-                                <span>{{ role.server }}</span>
-                            </div>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
+                        <el-dropdown-menu>
+                            <el-dropdown-item v-for="role in roleList" :key="role.ID">
+                                <div @click="onChangeRole(role)" class="m-role-item">
+                                    <span>{{ role.name }}</span>
+                                    <span>{{ role.server }}</span>
+                                </div>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
                     </template>
                 </el-dropdown>
             </div>
@@ -38,16 +41,10 @@
             <div v-for="(item, index) in mapList" :key="index">
                 <ul class="u-zl-item" v-if="item.show">
                     <div class="u-zl-item_title">{{ item.label }}</div>
-                    <div
-                        v-for="(item2, index2) in item.children"
-                        :key="index2"
-                        @click.stop="changeDetailMenu(item2, 2)"
-                    >
-                        <li
-                            class="u-zl-item_children"
-                            v-if="item2.show"
-                            :class="{ active: detailSelectMenu == item2.id }"
-                        >
+                    <div v-for="(item2, index2) in item.children" :key="index2"
+                        @click.stop="changeDetailMenu(item2, 2)">
+                        <li class="u-zl-item_children" v-if="item2.show"
+                            :class="{ active: detailSelectMenu == item2.id }">
                             {{ item2.label }}
                         </li>
                     </div>
@@ -61,16 +58,10 @@
             <div v-for="(item, index) in menuList" :key="index" @click="changeDetailMenu(item, 1)">
                 <ul class="u-zl-item" v-if="item.show" :class="{ active: detailSelectMenu == item.id }">
                     <div class="u-zl-item_title">{{ item.name }}</div>
-                    <div
-                        v-for="(item2, index2) in item.children"
-                        :key="index2"
-                        @click.stop="changeDetailMenu(item2, 2)"
-                    >
-                        <li
-                            class="u-zl-item_children"
-                            v-if="item2.show"
-                            :class="{ active: detailSelectMenu == item2.id }"
-                        >
+                    <div v-for="(item2, index2) in item.children" :key="index2"
+                        @click.stop="changeDetailMenu(item2, 2)">
+                        <li class="u-zl-item_children" v-if="item2.show"
+                            :class="{ active: detailSelectMenu == item2.id }">
                             {{ item2.name }}
                         </li>
                     </div>
@@ -79,16 +70,9 @@
         </div>
         <!-- 列表主要位置，左侧收缩后展开为最宽调整p-leap-mobile类包裹的宽度 -->
         <div class="m-leap-main" v-if="!isDetail">
-            <el-table
-                :data="list"
-                style="width: 100%; max-height: calc(100vh - 85px)"
-                height="100%"
-                stripe
-                row-class-name="u-table-row"
-                cell-class-name="u-table-cell"
-                header-row-class-name="u-table-header_row"
-                header-cell-class-name="u-table-header_cell"
-            >
+            <el-table :data="list" style="width: 100%; max-height: calc(100vh - 85px)" height="100%" stripe
+                row-class-name="u-table-row" cell-class-name="u-table-cell" header-row-class-name="u-table-header_row"
+                header-cell-class-name="u-table-header_cell">
                 <el-table-column prop="title" label="方案名称" width="160">
                     <template #default="scope">
                         <router-link target="_blank" :to="{ name: 'leap', query: { id: scope.row.id } }">
@@ -107,38 +91,24 @@
                 </el-table-column>
             </el-table>
             <div class="u-page">
-                <el-pagination
-                    background
-                    hide-on-single-page
-                    layout="prev, pager, next"
-                    :page-size="queryParams.per"
-                    :total="pageTotal"
-                    @current-change="pageChange"
-                >
+                <el-pagination background hide-on-single-page layout="prev, pager, next" :page-size="queryParams.per"
+                    :total="pageTotal" @current-change="pageChange">
                 </el-pagination>
             </div>
         </div>
         <!-- 详情界面 -->
         <div class="m-leap-detail" v-else>
-            <el-table
-                :data="detail.achievements || []"
-                style="width: 100%"
-                stripe
-                height="100%"
-                row-class-name="u-table-row"
-                cell-class-name="u-table-cell"
-                header-row-class-name="u-table-header_row"
-                header-cell-class-name="u-table-header_cell"
-                v-loading="loading"
-            >
+            <el-table :data="detail.achievements || []" style="width: 100%" stripe height="100%"
+                row-class-name="u-table-row" cell-class-name="u-table-cell" header-row-class-name="u-table-header_row"
+                header-cell-class-name="u-table-header_cell" v-loading="loading">
                 <el-table-column prop="Name" label="成就名称">
                     <template #default="scope">
                         <a :href="getLink('achievement', scope.row.ID)" target="_blank">
                             <div class="u-achievement-name">
                                 <img class="u-icon" :src="iconLink(scope.row?.IconID)" />
                                 <span>{{ scope.row.Name }}</span>
-                            </div></a
-                        >
+                            </div>
+                        </a>
                     </template>
                 </el-table-column>
                 <el-table-column label="资历点数" width="100">
@@ -170,7 +140,8 @@
                     <template #default="scope">
                         <el-popover placement="right" width="400" trigger="click" v-if="scope.row.item">
                             <div><jx3-item :item="scope.row.item" /></div>
-                            <template #reference><img class="u-icon" :src="iconLink(scope.row.item?.IconID)" /></template>
+                            <template #reference><img class="u-icon"
+                                    :src="iconLink(scope.row.item?.IconID)" /></template>
                         </el-popover>
                     </template>
                 </el-table-column>
@@ -227,7 +198,7 @@ export default {
     created() {
         this.loadUserRoles();
     },
-    mounted() {},
+    mounted() { },
     methods: {
         changeFold() {
             this.isFold = !this.isFold;
@@ -508,9 +479,11 @@ export default {
 .p-leap-mobile {
     height: calc(100vh - 104px);
     width: calc(100vw - 137px);
+
     &.fold {
         width: 100vw;
     }
+
     .m-overview-header_mobile {
         position: fixed;
         .z(21);
@@ -524,15 +497,17 @@ export default {
         .flex;
         align-items: center;
         justify-content: space-between;
+
         .u-name {
-            .fz(16px,24px);
+            .fz(16px, 24px);
             .bold(400);
             color: rgba(181, 148, 87, 1);
             .flex;
             .flex(o);
         }
+
         .u-toggle-btn {
-            .size(60px,18px);
+            .size(60px, 18px);
             .r(4px);
             border: 1px solid #bfb8ac;
             .flex;
@@ -541,12 +516,15 @@ export default {
             .bold(400);
             color: rgba(191, 184, 172, 1);
         }
+
         .u-select {
             border: 1px solid #bfb8ac;
             padding: 0 4px;
             .r(4px);
-
+            .flex;
+            .flex(o);
             box-sizing: border-box;
+
             .u-select-btn {
                 .flex;
                 .flex(o);
@@ -555,14 +533,17 @@ export default {
                 color: rgba(191, 184, 172, 1);
             }
         }
+
         .u-add-btn {
             .size(24px);
             color: #e2d3b9;
+
             .u-add-icon {
                 .fz(24px);
             }
         }
     }
+
     // 成就分类
     .m-achievement-tab {
         position: fixed;
@@ -574,21 +555,25 @@ export default {
         background: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
         padding: 0 14px;
         box-sizing: border-box;
+
         .u-zl-item {
             color: #ffeccc;
             padding: 0;
             list-style-type: none;
+
             &.active {
                 .u-zl-item_title {
                     color: #fff;
                     background: #3d342a;
                 }
             }
+
             .u-zl-item_title {
                 .fz(14px);
                 padding: 4px;
                 .bold(700);
             }
+
             .u-zl-item_children {
                 .bold(400);
                 .fz(12px);
@@ -597,13 +582,15 @@ export default {
                 margin: 4px 0;
                 padding: 4px 0 4px 10px;
                 .pr;
+
                 &.active {
                     background: #3d342a;
                     color: #fff;
+
                     &::before {
                         content: "";
                         .ps;
-                        .lt(0,50%);
+                        .lt(0, 50%);
                         .size(4px);
                         transform: translateY(-50%);
                         background-color: #fff;
@@ -614,21 +601,25 @@ export default {
             }
         }
     }
+
     .m-leap-main,
     .m-leap-detail {
         .pt(40px);
-        .size(100%,calc(100% - 40px));
+        .size(100%, calc(100% - 40px));
         .mb(8px);
+
         .el-table {
             &::before {
                 height: 0;
             }
         }
+
         .el-table,
         .u-table-header_row,
         .u-table-header_cell {
             background-color: transparent;
         }
+
         .el-table__fixed::before {
             background-color: transparent;
         }
@@ -637,22 +628,28 @@ export default {
             .x;
             color: rgba(245, 224, 201, 1);
         }
+
         .u-table-cell {
             .x;
             color: rgba(112, 83, 45, 1);
+
             a {
                 color: rgba(112, 83, 45, 1);
             }
         }
+
         .u-table-row {
+
             //奇偶选择器
             &:nth-child(odd) {
                 background: #ebe5df;
             }
+
             &:nth-child(even) {
                 background: #fff;
             }
         }
+
         .u-page {
             .mt(6px);
             text-align: right;
@@ -663,39 +660,46 @@ export default {
             }
         }
     }
+
     .m-leap-detail {
         .u-table-header_row {
             .gutter {
                 display: none !important;
             }
         }
+
         .u-achievement-name {
             .flex;
             flex-direction: column;
             align-items: center;
+
             span {
                 color: #70532d;
             }
         }
+
         .u-icon {
             .size(24px);
-            .mr(4px );
+            .mr(4px);
         }
+
         .u-process-box {
             background-color: #574938;
             .h(18px);
             .pr;
+
             .u-process-text {
                 .pa;
                 .lt(0);
-                .size(100%,100%);
+                .size(100%, 100%);
                 color: #fff;
-                .fz(16px,18px);
+                .fz(16px, 18px);
 
                 .x;
                 .bold(700);
                 z-index: 3;
             }
+
             .u-process-item {
                 .h(100%);
 

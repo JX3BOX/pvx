@@ -5,51 +5,37 @@
             <div class="u-name">
                 <!-- 折叠侧栏按钮 -->
                 <!-- el-icon-s-fold -->
-                <LegacyIcon :class="!isFold ? 'el-icon-s-fold ' : 'el-icon-s-unfold'" @click="changeFold"  />&nbsp;
+                <el-icon v-show="isFold" @click="changeFold">
+                    <Expand />
+                </el-icon>
+                <el-icon v-show="!isFold" @click="changeFold">
+                    <Fold />
+                </el-icon>
             </div>
 
             <div class="u-select">
-                <el-select
-                    v-model="selectTab"
-                    placeholder="请选择"
-                    multiple
-                    collapse-tags
-                    clearable
-                    @change="selectTabChange"
-                >
-                    <el-option
-                        v-for="item in selectOptions"
-                        :key="item.type"
-                        :label="item.name"
-                        :value="item.type"
-                        :disabled="isSelectDisabled(item.type)"
-                    >
+                <el-select v-model="selectTab" placeholder="请选择" multiple collapse-tags clearable
+                    @change="selectTabChange">
+                    <el-option v-for="item in selectOptions" :key="item.type" :label="item.name" :value="item.type"
+                        :disabled="isSelectDisabled(item.type)">
                     </el-option>
                 </el-select>
             </div>
         </div>
         <!--成就分类 -->
         <div class="m-achievement-tab" v-show="!isFold">
-            <ul
-                class="u-zl-item"
+            <ul class="u-zl-item"
                 :class="{ active: item.sub == activeIndex, show: item.sub == activeIndex && !activeShow }"
-                v-for="(item, index) in menuList"
-                :key="index"
-                @click="setActiveIndex(item.sub)"
-            >
+                v-for="(item, index) in menuList" :key="index" @click="setActiveIndex(item.sub)">
                 <div class="u-zl-item_title">
-                    {{ item.name }}&nbsp;<LegacyIcon
+                    {{ item.name }}&nbsp;
+                    <el-icon
                         :class="item.sub == activeIndex && activeShow ? 'el-icon-caret-top' : 'el-icon-caret-bottom'"
-                        @click.stop="setActiveShow(item.sub)"
-                     />
+                        @click.stop="setActiveShow(item.sub)" />
                 </div>
-                <li
-                    class="u-zl-item_children"
-                    :class="{ active: item2.detail == activeIndexChildren }"
-                    v-for="(item2, index2) in item.children"
-                    :key="index2"
-                    @click.stop="setActiveIndex(item.sub, item2.detail)"
-                >
+                <li class="u-zl-item_children" :class="{ active: item2.detail == activeIndexChildren }"
+                    v-for="(item2, index2) in item.children" :key="index2"
+                    @click.stop="setActiveIndex(item.sub, item2.detail)">
                     {{ item2.name }}
                 </li>
             </ul>
@@ -68,16 +54,16 @@
                         <el-dropdown trigger="click">
                             <div class="u-name">{{ item.name.slice(0, 1) }}</div>
                             <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item>
-                                    <div @click="delRole(item, index)">删除</div>
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item>
+                                        <div @click="delRole(item, index)">删除</div>
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </div>
                     <div class="u-table_label add" @click="addRole">
-                        <LegacyIcon class="el-icon-circle-plus-outline u-add-icon" />
+                        <el-icon class="el-icon-circle-plus-outline u-add-icon" />
                     </div>
                 </div>
                 <div class="u-zl_cell" :style="'max-width:' + (contrastKith.length + 1) * 60 + 120 + 'px'">
@@ -89,7 +75,7 @@
                     <div class="u-zl-list" v-for="(item, index) in contrastKith" :key="index">
                         <div class="u-zl-list_item kith" v-for="(item2, index2) in item.achievements" :key="index2">
                             <div class="u-self-checked" :class="{ finish: item2.value != '-1' }">
-                                <LegacyIcon class="el-icon-check"  />
+                                <el-icon v-if="item2.value != '-1'"><Select color="#000000" /></el-icon>
                             </div>
                         </div>
                     </div>
@@ -100,46 +86,36 @@
             </div>
         </div>
         <!-- 添加角色弹窗 -->
-        <el-dialog v-model="showAddRole" title="添加角色" width="400px" draggable :close-on-click-modal="false">
+        <el-dialog v-model="showAddRole" title="添加角色" width="90vw" draggable :close-on-click-modal="false">
             <el-form :model="kithForm" :rules="rules" ref="roleRef">
                 <el-form-item label="角色类型" prop="roleType">
-                    <el-radio-group
-                        v-model="kithForm.roleType"
-                        @input="
-                            kithForm.userId = '';
-                            kithForm.jx3Id = '';
-                        "
-                    >
+                    <el-radio-group v-model="kithForm.roleType" @input="
+                        kithForm.userId = '';
+                    kithForm.jx3Id = '';
+                    ">
                         <el-radio label="1">自身</el-radio>
                         <el-radio label="2">亲友</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="我的亲友" prop="uid" v-if="kithForm.roleType == 2">
                     <el-select v-model="kithForm.uid" placeholder="请选择" @change="getKithRolesList">
-                        <el-option
-                            :label="item?.kith_info?.display_name || '-'"
-                            :value="item.kith_id"
-                            v-for="(item, index) in myKith"
-                            :key="index"
-                        ></el-option>
+                        <el-option :label="item?.kith_info?.display_name || '-'" :value="item.kith_id"
+                            v-for="(item, index) in myKith" :key="index"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="对应角色" prop="jx3Id">
                     <el-select v-model="kithForm.jx3Id" placeholder="请选择对应角色" @change="setRoleInfo">
-                        <el-option
-                            :label="item.name"
-                            :value="item.jx3id"
+                        <el-option :label="item.name" :value="item.jx3id"
                             v-for="(item, index) in kithForm.roleType == 1 ? roleList : myKithRoles"
-                            :key="index"
-                        ></el-option>
+                            :key="index"></el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
             <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="showAddRole = false">取 消</el-button>
-                <el-button type="primary" @click="addRoleConfirm">确 定</el-button>
-            </div>
+                <div class="dialog-footer">
+                    <el-button @click="showAddRole = false">取 消</el-button>
+                    <el-button type="primary" @click="addRoleConfirm">确 定</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>
@@ -193,7 +169,7 @@ export default {
     created() {
         this.loadUserRoles();
     },
-    mounted() {},
+    mounted() { },
     methods: {
         changeFold() {
             this.isFold = !this.isFold;
@@ -501,9 +477,11 @@ export default {
 .p-compare-mobile {
     height: calc(100vh - 104px);
     width: calc(100vw - 137px);
+
     &.fold {
         width: 100vw;
     }
+
     // padding-top: 40px;
     .m-overview-header_mobile {
         position: fixed;
@@ -518,15 +496,17 @@ export default {
         .flex;
         align-items: center;
         justify-content: space-between;
+
         .u-name {
-            .fz(16px,24px);
+            .fz(16px, 24px);
             .bold(400);
             color: rgba(181, 148, 87, 1);
             .flex;
             .flex(o);
         }
+
         .u-toggle-btn {
-            .size(60px,18px);
+            .size(60px, 18px);
             .r(4px);
             border: 1px solid #bfb8ac;
             .flex;
@@ -535,25 +515,33 @@ export default {
             .bold(400);
             color: rgba(191, 184, 172, 1);
         }
+
         .u-select {
             // border: 1px solid #bfb8ac;
             .h(32px);
             box-sizing: border-box;
             min-width: 140px;
+            .flex;
+            .flex(o);
+
             .el-select {
                 .h(100%);
+
                 :deep(.el-input),
                 :deep(.el-input__inner) {
                     .h(100%);
                 }
+
                 :deep(.el-input__suffix) {
                     .flex;
                     .flex(o);
                 }
+
                 :deep(.el-select__tags) {
                     max-width: 100% !important;
                 }
             }
+
             .u-select-btn {
                 .flex;
                 .flex(o);
@@ -562,14 +550,17 @@ export default {
                 color: rgba(191, 184, 172, 1);
             }
         }
+
         .u-add-btn {
             .size(24px);
             color: #e2d3b9;
+
             .u-add-icon {
                 .fz(24px);
             }
         }
     }
+
     // 成就分类
     .m-achievement-tab {
         position: fixed;
@@ -581,30 +572,36 @@ export default {
         background: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
         padding: 0 14px;
         box-sizing: border-box;
+
         .u-zl-item {
             color: #ffeccc;
             padding: 0;
+
             &.active {
                 .u-zl-item_title {
                     color: #fff;
                     background: #3d342a;
                 }
+
                 .u-zl-item_children {
                     transition: display 0.5s ease-out;
                     display: block;
                 }
             }
+
             &.show {
                 .u-zl-item_children {
                     display: none;
                     transition: display 0.5s ease-out;
                 }
             }
+
             .u-zl-item_title {
                 .fz(14px);
                 padding: 4px;
                 .bold(700);
             }
+
             .u-zl-item_children {
                 .bold(400);
                 .fz(12px);
@@ -612,13 +609,15 @@ export default {
                 color: rgba(255, 236, 204, 1);
                 padding: 4px 0 4px 10px;
                 .pr;
+
                 &.active {
                     background: #3d342a;
                     color: #fff;
+
                     &::before {
                         content: "";
                         .ps;
-                        .lt(0,50%);
+                        .lt(0, 50%);
                         .size(4px);
                         transform: translateY(-50%);
                         background-color: #fff;
@@ -629,10 +628,12 @@ export default {
             }
         }
     }
+
     .m-compare-main {
-        .size(100%,100%);
+        .size(100%, 100%);
         .pt(40px);
         .flex;
+
         .u-zl-box {
             .h(100%);
             max-width: 642px;
@@ -641,6 +642,7 @@ export default {
             .fz(14px);
             .bold(400);
         }
+
         // 表格顶部
         .u-zl_table {
             .flex;
@@ -648,6 +650,7 @@ export default {
             position: sticky;
             top: 0;
             .z(3);
+
             .u-table_label {
                 // .size(120px,50px);
                 .h(50px);
@@ -658,6 +661,7 @@ export default {
                 color: #ffeccc;
                 .flex;
                 .flex(o);
+
                 .u-name {
                     color: #fff;
                     .size(28px);
@@ -675,25 +679,30 @@ export default {
                     white-space: nowrap;
                     justify-content: center;
                 }
+
                 &.add {
                     .fz(24px);
                 }
+
                 &.ps {
                     .w(120px);
                     position: sticky;
                     left: 0;
                     .z(2);
+
                     .u-compare-title {
                         .fz(20px);
                         color: #fff;
                         mask-image: linear-gradient(180deg, rgba(255, 255, 255, 1) 43.06%, rgba(255, 255, 255, 0) 100%);
                     }
                 }
+
                 i {
                     cursor: pointer;
                 }
             }
         }
+
         .u-zl_cell {
             .h(calc(100% - 50px));
             .flex;
@@ -701,21 +710,24 @@ export default {
         }
 
         .u-zl-list {
-            .size(60px,100%);
+            .size(60px, 100%);
             flex-shrink: 0;
+
             &.ps {
                 .w(120px);
                 position: sticky;
                 left: 0;
 
                 .z(2);
+
                 .u-zl-list_item {
                     .pl(12px);
                     align-items: center;
                 }
             }
-            &.add {
-            }
+
+            &.add {}
+
             .u-zl-list_item {
                 color: #ffeccc;
                 .w(100%);
@@ -725,9 +737,11 @@ export default {
                 &:nth-child(odd) {
                     background: #ebe5df;
                 }
+
                 &:nth-child(even) {
                     background: #fff;
                 }
+
                 &.kith {
                     .flex(o);
                 }
@@ -737,17 +751,11 @@ export default {
                     background: #fff;
                     border: 1px solid #6e6e6d;
                     .r(4px);
-                    i {
-                        .fz(24px);
-                        .bold(600);
-                        color: #000;
-                        display: none;
-                    }
+                    .flex;
+                    .flex(o);
+
                     &.finish {
                         background: linear-gradient(180deg, rgba(181, 148, 87, 1) 0%, rgba(227, 211, 191, 1) 100%);
-                        i {
-                            display: block;
-                        }
                     }
                 }
             }
