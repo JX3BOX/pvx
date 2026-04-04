@@ -1,5 +1,5 @@
 <template>
-    <aside class="m-pvx-aside" :class="navStatusClass" v-show="active !== 'pvx'">
+    <aside class="m-pvx-aside" :class="navStatusClass" v-show="active !== 'pvx' || forceShow">
         <div :class="`m-pvx-box ${navStatus ? 'open' : 'close'}`" @mouseleave="toLeft">
             <template v-if="navStatus">
                 <div class="u-home-wrap" :class="active === 'pvx' && 'is-active'">
@@ -56,7 +56,12 @@ import { compact } from "lodash";
 import menus from "@/assets/data/menus.json";
 export default {
     name: "Nav_V5",
-    props: [],
+    props: {
+        forceShow: {
+            type: Boolean,
+            default: false,
+        },
+    },
     components: {},
     data: function () {
         return {

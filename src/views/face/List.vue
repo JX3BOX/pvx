@@ -6,7 +6,7 @@
         <template v-if="active === -1">
             <div v-for="(item, index) in list" :key="'l' + index" class="m-face-box"
                 :class="{ none: !item.list.length }">
-                <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="190"
+                <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190"
                     :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
                     <template v-slot:title>
                         <div>{{ item.label + "脸型" }}</div>
@@ -110,7 +110,7 @@ export default {
             return tab && tab.pages > 1 && this.page < tab.pages;
         },
         alertTitle: function () {
-            if (this.title) return "没找到对应的捏脸，请重新选择条件或关键词搜索";
+            if (this.tabsData.title) return "没找到对应的捏脸，请重新选择条件或关键词搜索";
             return "没有找到相关的捏脸";
         },
         subList() {
@@ -233,6 +233,8 @@ export default {
         handleFaceTabChange: function (data) {
             this.page = 1;
             this.tabsData = data;
+            // 重置 Tab 切换标志，确保筛选条件变化时能正常触发加载
+            this.isTabSwitching = false;
         },
         // 页面宽度变化时重新计算每页显示数量（带防抖，避免频繁触发）
         showCount: debounce(function () {

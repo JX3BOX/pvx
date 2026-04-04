@@ -1,6 +1,7 @@
 <template>
+    <CommonNav :force-show="true"></CommonNav>
     <div class="m-body">
-        <a class="u-go_back" href="/adventure">返回主页</a>
+        <!-- <a class="u-go_back" href="/adventure">返回主页</a> -->
         <template v-if="!isLogin">
             <div class="u-bind_role">
                 <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
@@ -91,11 +92,13 @@ import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
 import { __Links, __cdn, __Root } from "@/utils/config";
 import landscapeContent from "./landscapeContent.vue";
+import CommonNav from "@/components/Nav_v5.vue";
 export default {
     name: "landscape",
     inject: ["__imgRoot", "__imgPath"],
     components: {
         landscapeContent,
+        CommonNav,
     },
     data: () => ({
         addClass: false,

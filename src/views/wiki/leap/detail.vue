@@ -146,7 +146,6 @@ export default {
         currentRole: {
             deep: true,
             handler(val, old) {
-                console.log(val, old);
                 this.getSchemaDetail();
             },
         },

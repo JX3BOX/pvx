@@ -6,9 +6,9 @@
                     <div class="m-face-filter m-common-filter">
                         <div class="u-filter-item">
                             <el-radio-group v-model="is_new_face" v-if="client === 'std'">
-                                <el-radio-button class="u-filter" :label="-1">全部</el-radio-button>
-                                <el-radio-button class="u-filter" :label="1">写实</el-radio-button>
-                                <el-radio-button class="u-filter" :label="0">写意</el-radio-button>
+                                <el-radio-button class="u-filter" :value="-1">全部</el-radio-button>
+                                <el-radio-button class="u-filter" :value="1">写实</el-radio-button>
+                                <el-radio-button class="u-filter" :value="0">写意</el-radio-button>
                             </el-radio-group>
                         </div>
 
@@ -22,14 +22,14 @@
                         </div>
                         <div class="u-filter-item">
                             <el-radio-group v-model="filter_empty_images">
-                                <el-radio-button class="u-filter" :label="0">全部</el-radio-button>
-                                <el-radio-button class="u-filter" :label="1">有图</el-radio-button>
+                                <el-radio-button class="u-filter" :value="0">全部</el-radio-button>
+                                <el-radio-button class="u-filter" :value="1">有图</el-radio-button>
                             </el-radio-group>
                         </div>
                         <div class="u-filter-item">
                             <el-radio-group v-model="code_mode">
-                                <el-radio-button class="u-filter" label="">全部</el-radio-button>
-                                <el-radio-button class="u-filter" :label="1">捏脸码</el-radio-button>
+                                <el-radio-button class="u-filter" value="">全部</el-radio-button>
+                                <el-radio-button class="u-filter" :value="1">捏脸码</el-radio-button>
                             </el-radio-group>
                         </div>
                     </div>

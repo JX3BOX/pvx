@@ -333,7 +333,6 @@ export default {
                 localStorage.setItem("wiki_last_sync", val.jx3id || 0);
                 this.$store.commit("SET_STATE", { key: "role", value: val });
                 const { jx3id } = val;
-                console.log(jx3id);
                 if (jx3id) {
                     this.$store.commit("SET_STATE", { key: "achievementsVirtual", value: [] });
                     this.loadRoleAchievements(jx3id);

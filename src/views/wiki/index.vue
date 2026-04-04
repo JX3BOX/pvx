@@ -4,6 +4,7 @@
             <router-view></router-view>
         </div>
         <div v-else>
+            <CommonNav :forceShow="true"></CommonNav>
             <CommonHeader></CommonHeader>
             <div class="m-achievement-main" :class="{ is_mobile: mobile }">
                 <SideBar v-if="!is_fold" />
@@ -20,9 +21,10 @@
 import CommonHeader from "@jx3box/jx3box-ui/src/CommonHeader.vue";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SideBar from "@/components/wiki/sidebar.vue";
+import CommonNav from "@/components/Nav_v5.vue"
 export default {
     name: "WikiAchievementIndex",
-    components: { SideBar, CommonHeader },
+    components: { SideBar, CommonHeader, CommonNav },
     data() {
         return {
             is_fold: false,
