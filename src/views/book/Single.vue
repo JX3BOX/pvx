@@ -523,6 +523,7 @@ export default {
             })
                 .then((res) => {
                     const data = res.data;
+                    document.title = `${data.Name} ${this.$t("pages.common.appendTitle")}`;
                     data.contentInfo = data.contents.map((item) => item.content.replace(/\\n/g, "<br>")).join("<br>");
                     if (data.DoodadTemplateID && this.bookMapInfo[data.DoodadTemplateID]) {
                         this.bookMapSite = this.bookMapInfo[data.DoodadTemplateID];

@@ -566,9 +566,8 @@ export default {
                         data.hiddenMap = true;
                     }
                     this.reputation = data;
-
+                    document.title = this.reputation?.szName + this.$t("pages.common.appendTitle")
                     if (this.isMiniProgram) {
-                        document.title = this.reputation?.szName + this.$t("pages.common.appendTitle")
                         this.$nextTick(() => {
                             this.stage = 0;
                         });

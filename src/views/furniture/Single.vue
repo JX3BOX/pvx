@@ -181,6 +181,8 @@ export default {
                 .then((res) => {
                     this.data = res.data;
 
+                    document.title = `${this.data.szName} ${this.$t("pages.common.appendTitle")}`;
+
                     // 发送统计
                     postStat(this.type, this.id);
                 })

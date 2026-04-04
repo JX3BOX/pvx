@@ -55,7 +55,7 @@
 import { compact } from "lodash";
 import menus from "@/assets/data/menus.json";
 export default {
-    name: "Nav_V4",
+    name: "Nav_V5",
     props: [],
     components: {},
     data: function () {
