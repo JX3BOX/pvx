@@ -366,6 +366,8 @@ export default {
                     if (this.type !== "2" && name) {
                         this.getSameHorses(name);
                     }
+
+                    document.title = `${this.item?.Name}` + this.$t("pages.common.appendTitle");
                 })
                 .finally(() => {
                     this.loading = false;

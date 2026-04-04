@@ -326,6 +326,8 @@ export default {
                     this.loadPetSkills(res.data.__skills);
                     this.getShopInfo();
                     this.getPetMedal();
+
+                    document.title = `${this.pet.Name}` + this.$t("pages.common.appendTitle");
                 })
                 .finally(() => {
                     this.loading = false;
