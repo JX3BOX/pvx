@@ -196,7 +196,7 @@ export default {
                 getOneBodyInfo(this.id)
                     .then((res) => {
                         this.post = res.data.data;
-                        document.title = this.post.title;
+                        document.title = this.post.title + this.$t("pages.common.appendTitle");
                         //获取作者作品 和 系统推荐作品
                         this.getRandombodyList();
                         this.getUserInfo();

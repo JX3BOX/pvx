@@ -2,7 +2,7 @@
     <div class="p-body-single" v-loading="loading" ref="singleRef">
         <!-- 导航区域 - 使用公共组件 -->
         <SingleNavigation type="body" @go-back="goBack" />
-        
+
         <!-- 头部信息 - 使用公共组件 -->
         <SingleHeader
             :post="post"
@@ -10,14 +10,14 @@
             :canEdit="canEdit"
             :topicText="topicText"
         />
-        
+
         <div class="m-body-content">
             <!-- 图片轮播 - 使用公共组件 -->
             <SingleCarousel
                 :imageList="previewSrcList"
                 type="body"
             />
-            
+
             <!-- 右侧购买/下载区域 - 使用公共组件 -->
             <SinglePaySection
                 :post="post"
@@ -30,7 +30,7 @@
                 @download-file="handleDownloadFile"
             />
         </div>
-        
+
         <!-- 数据分析区域 -->
         <div class="m-single-data">
             <span class="m-single-data-title">独家数据分析</span>
@@ -45,24 +45,24 @@
                 <div class="u-body-buy-tip">数据分析将在购买后解锁</div>
             </div>
         </div>
-        
+
         <div class="m-body-download" v-if="has_buy && bodydata">
             <div class="m-body-buy-btn" @click="downloadAll">
                 <div class="u-buy"><img :src="iconDownload" alt="" />下载数据</div>
             </div>
         </div>
-        
+
         <div class="u-about-author">关于作者</div>
         <authorItem :uid="post.user_id" />
-        
+
         <!-- 随机推荐列表 - 使用公共组件 -->
         <SingleRandomList :list="randomList" type="body" />
-        
+
         <!-- 点赞 -->
         <Thx class="m-thx m-single-content-box" :postId="id" postType="body" :postTitle="post.title || '无标题'"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
             :client="post.client" />
-        
+
         <!-- 评论 -->
         <div class="m-comments m-single-content-box">
             <el-divider content-position="left">讨论</el-divider>
@@ -75,7 +75,7 @@
 /**
  * Single.vue - 体型数据详情页
  * 主要功能：展示体型数据详情、图片预览、购买/下载、评论等
- * 
+ *
  * 重构说明：
  * - 引入 SingleNavigation 公共组件替换导航区域
  * - 引入 SingleHeader 公共组件替换头部信息
@@ -192,7 +192,6 @@ export default {
     },
     methods: {
         goBack() {
-            document.title = "捏体分享 - JX3BOX";
             this.$router.push({ name: "list" });
         },
         getData() {
@@ -201,7 +200,7 @@ export default {
                 getOneBodyInfo(this.id)
                     .then((res) => {
                         this.post = this.$store.state.bodySingle = res.data.data;
-                        document.title = this.post.title;
+                        document.title = this.post.title + this.$t("pages.common.appendTitle");
 
                         this.getAccessoryList();
                         this.getRandomBodyList();

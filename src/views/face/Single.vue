@@ -76,7 +76,7 @@
 /**
  * Single.vue - 脸型数据详情页
  * 主要功能：展示脸型数据详情、图片预览、购买/下载、评论等
- * 
+ *
  * 重构说明：
  * - 引入 SingleNavigation 公共组件替换导航区域
  * - 引入 SingleHeader 公共组件替换头部信息
@@ -215,7 +215,6 @@ export default {
     },
     methods: {
         goBack() {
-            document.title = "捏脸分享 - JX3BOX";
             this.$router.push({ name: "list" });
         },
         getData() {
@@ -224,7 +223,7 @@ export default {
                 getOneFaceInfo(this.id)
                     .then((res) => {
                         this.post = this.$store.state.faceSingle = res.data.data;
-                        document.title = this.post.title;
+                        document.title = this.post.title + this.$t("pages.common.appendTitle");
 
                         this.getAccessoryList();
                         this.getRandomFaceList();

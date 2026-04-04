@@ -23,7 +23,7 @@ import { publishLink } from "@jx3box/jx3box-common/js/utils";
  * SingleNavigation - 详情页导航组件
  * 用于脸型/体型详情页顶部导航区域
  * 包含返回列表、发布按钮、管理按钮
- * 
+ *
  * 样式说明：
  * - 组件使用原有类名 m-navigation、m-body-btn-box/m-face-btn-box 等
  * - 样式由页面引入的 less 文件控制（body/single.less 或 face/single.less）
@@ -64,8 +64,6 @@ export default {
     methods: {
         // 返回列表操作
         handleGoBack() {
-            // 更新页面标题
-            document.title = this.type === "face" ? "捏脸分享 - JX3BOX" : "捏体分享 - JX3BOX";
             // 跳转到列表页
             this.$router.push({ name: "list" });
         },

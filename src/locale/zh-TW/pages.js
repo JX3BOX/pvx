@@ -225,4 +225,8 @@ export default {
             description: "按名稱或關鍵字搜尋聲望。",
         },
     },
+
+    common: {
+        appendTitle: " - 劍網3魔盒（JX3BOX）",
+    }
 };

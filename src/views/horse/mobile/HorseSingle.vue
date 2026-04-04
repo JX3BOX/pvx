@@ -288,7 +288,7 @@ export default {
                     this.loading = false;
                     this.item = res.data || {};
                     let name = res.data.Name;
-                    document.title = name;
+                    document.title = name + this.$t("pages.common.appendTitle");
                     if (this.typeName === "普通坐骑") {
                         name = res.data.Name.split("·")[0];
                     }

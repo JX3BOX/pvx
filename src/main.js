@@ -1,6 +1,6 @@
 // 1.Create APP
 import { createApp } from "vue";
-import App from "./App.vue";
+import App from "./Root.vue";
 const app = createApp(App);
 
 // 2.Router

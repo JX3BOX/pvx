@@ -264,4 +264,7 @@ export default {
         },
     },
 
+    common: {
+        appendTitle: " - 剑网3魔盒（JX3BOX）",
+    }
 };

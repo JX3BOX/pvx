@@ -78,8 +78,6 @@ export default {
         },
     },
     created() {
-        document.title = "奇遇珍卷 - JX3BOX";
-
         if (this.isMiniProgram && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
             document.documentElement.style.removeProperty("font-size");
             document.documentElement.style.fontSize = "16px";

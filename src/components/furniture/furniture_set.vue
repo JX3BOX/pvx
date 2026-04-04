@@ -1,6 +1,6 @@
 <template>
     <div class="m-furniture-set">
-        <router-link class="u-item" :class="quality(data.Quality)" :to="`/${data.dwID}`">
+        <router-link class="u-item" :class="quality(data.Quality)" :to="`/${data.dwID}`" target="_blank">
             <div class="u-image">
                 <img class="u-pic" :src="formatImg(data.Path)" />
             </div>

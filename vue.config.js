@@ -1,4 +1,5 @@
 const pages = {
+    // 含首页、奇遇珍卷、资历宝典
     index: {
         title: "休闲栏目",
         entry: "src/main.js",
@@ -6,12 +7,6 @@ const pages = {
         filename: "index.html",
     },
 
-    achievement: {
-        title: "资历宝典 - JX3BOX",
-        entry: "src/pages/wiki/index.js",
-        template: "public/index.html",
-        filename: "achievement/index.html",
-    },
     qqbot: {
         title: "QQRobot - JX3BOX",
         entry: "src/pages/qqbot/index.js",

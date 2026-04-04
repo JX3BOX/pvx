@@ -225,4 +225,8 @@ export default {
             description: "Tìm danh vọng theo tên hoặc từ khóa.",
         },
     },
+
+    common: {
+        appendTitle: " - JX3BOX",
+    }
 };

@@ -57,9 +57,21 @@ export default {
         currentDataList() {
             const server = this.server; // 当前服务器
             const channelMap = this.goldPriceData[server];
+
+            // 防御性检查：确保 channelMap 存在
+            if (!channelMap) {
+                return [];
+            }
+
             let list = [];
             for (const key in channelMap) {
                 const data = channelMap[key];
+
+                // 防御性检查：确保数据数组存在且长度足够
+                if (!Array.isArray(data) || data.length < 3) {
+                    continue;
+                }
+
                 const lastDay = data[data.length - 1].average.toFixed(2);
                 const yesterday = data[data.length - 2].average.toFixed(2);
                 const beforeYesterday = data[data.length - 3].average.toFixed(2);
@@ -84,16 +96,51 @@ export default {
             this.loading = true;
             getGoldPriceData()
                 .then((res) => {
-                    this.goldPriceData = res.data;
+                    if (res.data && typeof res.data === 'object') {
+                        this.goldPriceData = res.data;
+                    } else {
+                        console.error('获取金价数据失败：数据格式不正确');
+                        this.goldPriceData = {};
+                    }
+                })
+                .catch((error) => {
+                    console.error('获取金价数据失败：', error);
+                    this.goldPriceData = {};
                 })
                 .finally(() => {
                     this.loading = false;
-                    this.initChart();
-                    this.setOption();
+                    this.$nextTick(() => {
+                        // 只在图表未初始化时初始化
+                        if (!this.myChart) {
+                            this.initChart();
+                        }
+                        this.setOption();
+                    });
                 });
         },
         // 初始化自适应图表
         initChart() {
+            // 如果已经初始化过，则清理后重新初始化
+            if (this.myChart) {
+                this.myChart.dispose();
+                this.myChart = null;
+            }
+
+            // 确保 DOM 元素存在
+            if (!this.$refs.chart || !this.$refs.chartBox) {
+                return;
+            }
+
+            // 清理旧的监听器
+            if (this.resizeObserver) {
+                this.resizeObserver.disconnect();
+                this.resizeObserver = null;
+            }
+            if (this.resizeHandle) {
+                window.removeEventListener("resize", this.resizeHandle);
+                this.resizeHandle = null;
+            }
+
             // 创建实例
             this.myChart = echarts.init(this.$refs.chart);
             const myDiv = this.$refs.chartBox;
@@ -112,12 +159,20 @@ export default {
         },
         // 防抖
         chartResize() {
+            if (!this.myChart) return;
             clearTimeout(timer);
             timer = setTimeout(() => {
-                this.myChart.resize();
+                if (this.myChart) {
+                    try {
+                        this.myChart.resize();
+                    } catch (e) {
+                        console.error('图表resize失败：', e);
+                    }
+                }
             }, 100);
         },
         heightLight(index) {
+            if (!this.myChart) return;
             clearTimeout(timer);
             this.myChart.dispatchAction({
                 type: "highlight",
@@ -126,35 +181,57 @@ export default {
         },
         // 取消高亮
         blur(index) {
+            if (!this.myChart) return;
             timer = setTimeout(() => {
-                this.myChart.dispatchAction({
-                    type: "downplay",
-                    seriesIndex: index,
-                });
+                if (this.myChart) {
+                    this.myChart.dispatchAction({
+                        type: "downplay",
+                        seriesIndex: index,
+                    });
+                }
             }, 100);
         },
         // 设置图表数据
         setOption() {
-            const series = [];
             const data = this.currentDataList;
+
+            // 防御性检查：如果没有数据或图表未初始化，则不执行
+            if (!this.myChart || !data || data.length === 0) {
+                return;
+            }
+
+            const series = [];
             const dates = []; // 日期集合
             let minV = Infinity;
             let maxV = -Infinity;
-            for (const channel in data) {
-                const list = data[channel].data || [];
-                const key = data[channel].key;
+
+            // 使用 forEach 而不是 for...in 来遍历数组
+            data.forEach((channelData) => {
+                const list = channelData.data || [];
+                const key = channelData.key;
+
+                // 跳过空数据
+                if (!list || list.length === 0 || !key) {
+                    return;
+                }
+
                 const seriesData = list.map((item) => {
+                    // 防御性检查
+                    if (!item || typeof item.average !== 'number') {
+                        return null;
+                    }
+
                     const value = item.average.toFixed(2);
                     if (value >= maxV) maxV = value;
                     if (value <= minV) minV = value;
-                    const date = item.date.substring(5);
+                    const date = item.date ? item.date.substring(5) : '';
                     dates.push(date);
                     return {
                         value: value,
-                        name: date, //
+                        name: date,
                         color: this.colorMap[key],
                     };
-                });
+                }).filter(item => item !== null); // 过滤掉无效数据
 
                 series.push({
                     name: key,
@@ -213,7 +290,16 @@ export default {
                         ],
                     },
                 });
+            });
+
+            // 如果没有有效的 series 数据，不执行后续操作
+            if (series.length === 0) {
+                return;
             }
+
+            // 处理边界值
+            if (!isFinite(minV)) minV = 0;
+            if (!isFinite(maxV)) maxV = 100;
             minV = ~~(minV / 10) * 10;
             maxV = (~~(maxV / 10) + 1) * 10;
 
@@ -255,20 +341,29 @@ export default {
                         },
                     },
                     formatter: (params) => {
-                        let str = `<span>${params[0].axisValue}</span><br/>`;
+                        if (!params || params.length === 0) return '';
+                        let str = `<span>${params[0].axisValue || ''}</span><br/>`;
                         str += `<span>服务器: ${this.server}</span><br/>`;
                         params.forEach((item) => {
-                            let marker = this.getMarker(item.data.color);
-                            str += `${marker} <span style="display:inline-block;width:50px">${item.seriesName}</span>: ${item.value}<br/>`;
+                            if (item && item.data) {
+                                let marker = this.getMarker(item.data.color);
+                                str += `${marker} <span style="display:inline-block;width:50px">${item.seriesName || ''}</span>: ${item.value || ''}<br/>`;
+                            }
                         });
                         return str;
                     },
                 },
                 series,
             };
-            this.myChart.resize();
 
-            this.myChart.setOption(option, true);
+            try {
+                this.myChart.setOption(option, true);
+            } catch (error) {
+                console.error('设置图表选项失败：', error);
+                // 设置失败时销毁图表，防止后续 resize 在损坏状态下触发错误
+                this.myChart.dispose();
+                this.myChart = null;
+            }
         },
         // get marker
         getMarker(color) {
