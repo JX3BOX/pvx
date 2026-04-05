@@ -8,6 +8,7 @@
             </div>
             <PvxBacktop color="#fff" bgColor="#6b52ff"></PvxBacktop>
         </Main>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 

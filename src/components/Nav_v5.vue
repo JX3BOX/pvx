@@ -89,6 +89,11 @@ export default {
             if (str === "pvg") str = arr[1];
             if (str === "homeland") str = "blueprint";
             // if (str === "body") str = "exterior";
+            // 处理 /pvx/codex/* 路径
+            if (str === "pvx" && arr[1] === "codex") {
+                if (arr[2] === "adventure") str = "codextreature";
+                if (arr[2] === "achievement") str = "codexachievement";
+            }
             return str;
         },
         client() {
