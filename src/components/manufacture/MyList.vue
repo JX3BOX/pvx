@@ -2,21 +2,23 @@
     <div class="m-myList">
         <div class="m-manufacture-title m-manufacture-title-plans">
             <span class="u-title">我的账单</span>
-            <el-checkbox v-model="selectMode" label="选择模式" border></el-checkbox>
-            <el-dropdown trigger="click" @command="handleCommand">
-                <el-button class="u-del" plain type="info" size="small">
-                    <el-icon><Setting /></el-icon>
-                </el-button>
-                <template #dropdown>
-                    <el-dropdown-menu>
-                        <el-dropdown-item command="cancel-select">取消选中</el-dropdown-item>
-                        <el-dropdown-item command="select-all">全部选中</el-dropdown-item>
-                        <el-dropdown-item command="select-yesterday">选中昨日及以前所有账单</el-dropdown-item>
-                        <el-dropdown-item command="delete-select">删除选中账单</el-dropdown-item>
-                        <el-dropdown-item command="merge-select">合并选中账单</el-dropdown-item>
-                    </el-dropdown-menu>
-                </template>
-            </el-dropdown>
+            <span class="u-op">
+                <el-checkbox v-model="selectMode" label="批量选择"></el-checkbox>
+                <el-dropdown trigger="click" @command="handleCommand">
+                    <el-button plain size="small" link>
+                        <el-icon class="u-del"><Setting /></el-icon>
+                    </el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item command="cancel-select">取消选中</el-dropdown-item>
+                            <el-dropdown-item command="select-all">全部选中</el-dropdown-item>
+                            <el-dropdown-item command="select-yesterday">选中昨日及以前所有账单</el-dropdown-item>
+                            <el-dropdown-item command="delete-select">删除选中账单</el-dropdown-item>
+                            <el-dropdown-item command="merge-select">合并选中账单</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+            </span>
         </div>
         <div class="m-box">
             <template v-if="isLogin">
@@ -153,9 +155,6 @@ export default {
 
 <style lang="less">
 .m-myList {
-    .w(100%);
-    min-width: 300px;
-    max-width: 420px;
     .m-box {
         .flex;
         .pr(10px);
@@ -173,10 +172,11 @@ export default {
             .color( #24292e,#07ad36);
             .lh(30px);
             .r(10px);
-            padding: 0 20px;
+            padding: 5px 20px;
             background: #fff;
 
             .u-title {
+                .fz(13px);
                 .db;
                 .nobreak;
                 flex-grow: 1;
@@ -186,7 +186,7 @@ export default {
 
                 .u-meta {
                     display: inline;
-                    .fz(10px, 10px);
+                    .fz(10px, 1.2);
                     .mb(6px);
                     .color(#999);
                     .pointer;

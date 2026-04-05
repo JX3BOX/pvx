@@ -6,8 +6,8 @@
             </el-button>
             <template #dropdown>
                 <el-dropdown-menu>
-                    <el-dropdown-item icon="el-icon-refresh" command="pictureTask">
-                        <span>刷图</span>
+                    <el-dropdown-item command="pictureTask">
+                        <span><el-icon><Refresh /></el-icon>刷图</span>
                     </el-dropdown-item>
                 </el-dropdown-menu>
             </template>

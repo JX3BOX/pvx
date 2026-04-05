@@ -37,11 +37,15 @@
                         经验值: <b>{{ recipe.Exp }}</b>
                     </span>
                 </div>
+                <template v-if="recipe.szTip">
+                    <span class="u-desc" v-for="text in textFilter(recipe.szTip)" :key="text">{{ text }}</span>
+                </template>
             </div>
         </div>
 
         <div class="u-price" v-if="client == 'std'">
-            [{{ server }}] 昨日平均价格:
+            <!-- [{{ server }}]  -->
+            昨日平均价格:
             <PriceItem
                 :server="server"
                 :name="recipe.Name"
@@ -50,9 +54,6 @@
             />
         </div>
 
-        <template v-if="recipe.szTip">
-            <span class="u-desc" v-for="text in textFilter(recipe.szTip)" :key="text">{{ text }}</span>
-        </template>
         <div class="u-children" v-if="recipe.materials && recipe.materials.length">
             <el-divider content-position="left">合成所需材料</el-divider>
             <div class="u-child" v-for="(material, index) in recipe.materials" :key="index">
@@ -87,7 +88,7 @@
                         <span class="u-num"> 数量： {{ material.count || 1 }} </span>
                     </div>
                     <div class="u-price">
-                        {{ getPriceType(get_price(server, material.item_id)) }}
+                        <span v-html="getPriceType(get_price(server, material.item_id))"></span>
                         <PriceItem
                             :server="server"
                             :name="material.item.item_info.Name"
@@ -182,11 +183,11 @@ export default {
 
         getPriceType(price) {
             if (price.from == "custom") {
-                return "[自定义价格] 单价:";
+                return "<em>[自定义价格]</em> 单价:";
             } else if (price.from == "npc") {
-                return "[NPC出售] 单价:";
+                return "<em>[NPC出售]</em> 单价:";
             } else {
-                return `[${this.server}] 昨日平均单价:`;
+                return `<em>[${this.server}]</em> 昨日平均单价:`;
             }
         },
 

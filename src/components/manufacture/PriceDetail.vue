@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <template #reference>
-                    <i class="el-icon-tickets" style="cursor: pointer"></i>
+                    <i class="el-icon-coin" style="cursor: pointer"></i>
                 </template>
             </el-popover>
             预计收益：</span

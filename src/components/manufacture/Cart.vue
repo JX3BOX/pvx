@@ -11,7 +11,7 @@
                 plain
                 type="info"
                 size="mini"
-                icon="el-icon-delete"
+                icon="Delete"
                 @click="onRemove()"
             >
             </el-button>
@@ -49,10 +49,16 @@
 
                         <div class="u-info">
                             <el-divider content-position="left" v-if="!item.fold">
-                                [ {{ item.server }} ] - <i class="el-icon-box"></i> 材料成本统计
-                                <el-button class="u-price-mode-switch" type="text" @click="switchPriceMode(item)">
+                                材料成本统计
+                                <el-button
+                                    class="u-price-mode-switch"
+                                    link
+                                    @click="switchPriceMode(item)"
+                                    size="small"
+                                    type="primary"
+                                >
                                     <i class="el-icon-sort"></i>
-                                    {{ item.priceMode == "single" ? "单价" : "总价" }}
+                                    <span>{{ item.priceMode == "single" ? "单价" : "总价" }}</span>
                                 </el-button>
                             </el-divider>
                             <!-- 材料列表 -->
@@ -76,45 +82,46 @@
                                         </el-popover>
 
                                         <span>
-                                            <span :class="`u-quality--${material.item.Quality}`">{{
+                                            <span :class="`u-quality--${material.item.Quality} u-name`">{{
                                                 material.item.item_info.Name
                                             }}</span>
-                                            x
+                                            ×
                                             <b>{{ material.count * item.count }}</b>
                                         </span>
                                     </div>
 
-                                    <!-- 手搓/购买 模式切换 -->
-                                    <template v-if="canMake(material)">
-                                        <el-tooltip
-                                            effect="dark"
-                                            :content="material.make ? '改为购买' : '改为手搓'"
-                                            placement="bottom"
-                                        >
-                                            <i
-                                                class="u-button el-icon-scissors"
-                                                :class="{ 'is-active': material.make }"
-                                                @click="onSwitchMaterialSource(item, material)"
-                                            ></i>
-                                        </el-tooltip>
-                                    </template>
-                                    <PriceItem
-                                        v-if="!material.make"
-                                        class="u-price-num"
-                                        :count="item.priceMode == 'single' ? 1 : material.count * item.count"
-                                        :price="material.price_unit"
-                                        :origin_price="material.price_unit_origin"
-                                        :name="material.item.item_info.Name"
-                                        type="cart"
-                                        @update_price="material.price_unit = $event"
-                                    />
-
-                                    <GamePrice
-                                        v-else
-                                        class="u-price-num"
-                                        :class="{ 'is-make': material.make }"
-                                        :price="material.price_unit * material.count * item.count"
-                                    ></GamePrice>
+                                    <span class="u-op">
+                                        <!-- 手搓/购买 模式切换 -->
+                                        <template v-if="canMake(material)">
+                                            <el-tooltip
+                                                effect="dark"
+                                                :content="material.make ? '改为购买' : '改为手搓'"
+                                                placement="bottom"
+                                            >
+                                                <i
+                                                    class="u-button el-icon-scissors u-handmade"
+                                                    :class="{ 'is-active': material.make }"
+                                                    @click="onSwitchMaterialSource(item, material)"
+                                                ></i>
+                                            </el-tooltip>
+                                        </template>
+                                        <PriceItem
+                                            v-if="!material.make"
+                                            class="u-price-num"
+                                            :count="item.priceMode == 'single' ? 1 : material.count * item.count"
+                                            :price="material.price_unit"
+                                            :origin_price="material.price_unit_origin"
+                                            :name="material.item.item_info.Name"
+                                            type="cart"
+                                            @update_price="material.price_unit = $event"
+                                        />
+                                        <GamePrice
+                                            v-else
+                                            class="u-price-num"
+                                            :class="{ 'is-make': material.make }"
+                                            :price="material.price_unit * material.count * item.count"
+                                        ></GamePrice>
+                                    </span>
                                 </div>
                             </div>
                             <!-- 底部 -->
@@ -193,25 +200,23 @@
                     </div>
                 </div>
                 <div class="m-actions">
-                    <el-button
+                    <!-- <el-button
                         class="u-delete"
                         type="info"
                         size="small"
                         @click="onDeletePlan()"
                         v-if="plan.id"
                         :loading="loading"
+                        icon="Delete"
                     >
-                        <el-icon><Delete /></el-icon>
                         删除账单
-                    </el-button>
+                    </el-button> -->
 
-                    <el-button type="success" size="small" @click="onSavePlan()" v-if="plan.id" :loading="loading">
-                        <el-icon><DocumentChecked /></el-icon>
+                    <el-button type="success" size="small" @click="onSavePlan()" v-if="plan.id" :loading="loading" icon="DocumentAdd">
                         另存为
                     </el-button>
 
-                    <el-button type="success" size="small" @click="onSavePlan(plan)" :loading="loading">
-                        <el-icon><DocumentChecked /></el-icon>
+                    <el-button type="success" size="small" @click="onSavePlan(plan)" :loading="loading" icon="Check">
                         保存
                     </el-button>
                 </div>
@@ -542,10 +547,8 @@ export default {
     color: #f56c6c;
 }
 .m-manufacture-title {
+    .w(420px);
     justify-content: space-between;
-    .u-del {
-        .mr(10px);
-    }
     .u-title {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -553,6 +556,13 @@ export default {
 
         flex-grow: 1;
         width: 0;
+    }
+    .u-del{
+        border:none;
+        &:hover{
+            background-color:#999;
+            border:none;
+        }
     }
 }
 .m-cart-list .m-item:first-of-type .u-header {
@@ -575,7 +585,11 @@ export default {
         display: flex;
         align-items: center;
         flex-grow: 1;
-        gap: 8px;
+        // gap: 8px;
+
+        .u-img {
+            .r(3px);
+        }
     }
     .u-header {
         display: flex;

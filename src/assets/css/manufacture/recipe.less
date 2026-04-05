@@ -1,8 +1,5 @@
 .m-recipe-detail {
-    .flex;
     .w(100%);
-    gap: 20px;
-    flex-direction: column;
     padding: 20px 15px;
     .m-item {
         .flex;
@@ -11,16 +8,18 @@
         color: #000;
         align-items: center;
         .u-name {
-            .fz(20px,32px);
+            .fz(14px,24px);
             .bold;
+            .smooth;
         }
-        .m-text {
-            .flex;
-            flex-direction: column;
-            gap: 10px;
+        .u-info{
+            .flex(y);
+            gap:10px;
+            .fz(12px);
         }
-        .u-info span {
-            .mr(10px);
+        .u-desc{
+            .fz(10px);
+            color:#999;
         }
     }
 
@@ -53,17 +52,20 @@
     }
 
     .u-price {
+        .x(right);
         .fz(12px);
         .mt(10px);
         opacity: 0.9;
         .u-price-num,
         .u-null {
-            .bold;
             color: #c00;
-        }
-        .u-null {
             .ml(10px);
-            color: #d00;
+            .fz(12px);
+            .bold;
+        }
+        em{
+            color:@v4tip;
+            font-style: normal;
         }
     }
     .u-desc {
@@ -93,8 +95,9 @@
             flex-direction: column;
             .u-name {
                 .flex;
-                .fz(16px,1.2);
+                .fz(14px,1.2);
                 .bold;
+                .smooth;
                 align-items: baseline;
                 .u-num {
                     .fz(12px);
@@ -103,6 +106,7 @@
                 }
             }
         }
+        .u-price{}
     }
     .m-add {
         .flex;

@@ -1,6 +1,10 @@
 .m-manufacture {
     .pt(40px);
 }
+@manufacture-cart-width:420px;
+.m-manufacture-cart{
+    .w(@manufacture-cart-width);
+}
 .m-manufacture-title {
     .u-del {
         .fz(16px);
@@ -19,17 +23,31 @@
     .pr(10px);
     gap: 6px;
     align-items: center;
-    .el-checkbox {
-        background: #fff;
-        border: 1px solid #fff;
-    }
     .u-title {
         flex-grow: 1;
     }
+    .u-op{
+        background: #fff;
+        .r(6px);
+        padding:0 10px;
+        .flex(y);
+
+        .el-checkbox__label{
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        .u-del{
+            margin-left: 5px;
+            &:hover{
+                background:none;
+            }
+        }
+    }
 }
 .m-cart-body {
+    .w(100%);
     .flex;
-    .w(420px);
     .r(10px);
     height: calc(100vh - 294px);
     gap: 20px;
@@ -38,8 +56,6 @@
     box-sizing: border-box;
     min-height: 700px;
     .m-cart-scroll {
-        .pr(10px);
-        width: calc(100% - 10px);
         overflow: auto;
         flex-grow: 1;
         height: 0;
@@ -85,6 +101,7 @@
             .u-title {
                 .fz(14px,24px);
                 .bold;
+                .smooth;
             }
             .u-del {
                 background: #fff;
@@ -92,6 +109,11 @@
                 &:hover {
                     background: #07ad36;
                     border: 1px solid #07ad36;
+                }
+            }
+            .u-price{
+                .u-value{
+                    .bold;
                 }
             }
         }
@@ -105,32 +127,41 @@
                 .fz(12px);
                 .pl(10px);
                 .pr(10px);
+                font-weight: normal;
+                .smooth;
             }
             .u-children {
-                .ml(1em);
-                .pt(10px);
+                padding:10px 0;
             }
             .u-child {
                 .flex;
+                justify-content: space-between;
                 gap: 10px;
                 align-items: center;
-                .mb(5px);
+                .mb(8px);
                 &:hover {
                     background-color: @bg-gray;
                 }
-                .el-icon-scissors {
+                .u-handmade {
                     .pointer;
+                    .fz(12px);
+                    color: @v4primary;
+                    margin-right: 5px;
 
                     &.is-active {
-                        color: #5b9cf8;
                         .bold;
                     }
+                }
+                .u-name{
+                    font-weight: bold;
+                    .smooth;
                 }
                 .u-img {
                     .flex;
                     align-items: center;
                     img {
                         .size(24px);
+                        .r(3px);
                     }
                     span {
                         .fz(12px);
@@ -147,6 +178,9 @@
                 }
                 .c-game-price {
                     .fz(12px);
+                    .u-value{
+                        font-weight: bold;
+                    }
                 }
             }
             .u-item-num {
@@ -172,8 +206,8 @@
     }
     .m-all {
         display: flex;
-        padding: 10px 0;
         justify-content: space-between;
+        margin-bottom: 5px;
 
         .u-label {
             .bold;
@@ -193,7 +227,6 @@
     }
 }
 .m-stat {
-    .w(calc(100% - 10px));
     .r(10px);
     box-sizing: border-box;
     background-color: #fff;

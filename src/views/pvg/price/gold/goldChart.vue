@@ -396,14 +396,14 @@ export default {
     gap: 20px;
     .legends {
         .flex;
-        .size(100%,108px);
-        .scrollbar(2px);
+        .w(100%);
+        .scrollbar();
         overflow-x: auto;
         overflow-y: hidden;
-        gap: 20px;
+        gap:20px;
         .legends-item {
             .flex;
-            .size(348px,98px);
+            .w(348px);
             .r(10px);
             user-select: none;
             flex-shrink: 0;
@@ -416,28 +416,32 @@ export default {
                 background: #fff;
             }
             .item-title {
-                .bold;
-                .fz(24px);
+                font-weight: 900;
+                .fz(22px);
+                // .smooth;
                 color: #fff;
-                font-family: "Microsoft YaHei";
+                padding:0 8px;
             }
             .item-data {
                 .flex;
                 flex-direction: row;
                 justify-content: space-between;
+                padding:0 10px;
                 & > div {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
                     width: 48px;
-                    height: 34px;
-                    .data-value,
-                    .data-label {
-                        color: #fff;
-                        font-family: "Microsoft YaHei";
+
+                    color: #fff;
+                    .data-value{
                         font-size: 14px;
                         font-weight: bold;
-                        line-height: 18px;
+                        line-height: 1.3;
+                    }
+                    .data-label{
+                        font-size: 12px;
+                        font-weight: normal;
                     }
                 }
             }
