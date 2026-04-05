@@ -158,7 +158,7 @@ export default {
             this.$router.push({ name: "portrait" });
             return;
         }
-        getUserRoles().then((res) => {
+        this.isLogin && getUserRoles().then((res) => {
             if (res.data.data.list.length) {
                 this.noRole = false;
                 this.roleList =

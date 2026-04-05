@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model:visible="visible" title="账单材料清单" width="520px">
+    <el-dialog v-model="visible" title="账单材料清单" width="520px">
         <div class="m-materials-list">
             <el-table :data="data" border size="mini" max-height="480px">
                 <el-table-column prop="Name" label="物品" width="180px">

@@ -266,7 +266,7 @@
         <!-- 碑铭信息 -->
         <el-dialog
             title="碑铭位置"
-            v-model:visible="dialogVisible"
+            v-model="dialogVisible"
             :width="isPhone() ? '90%' : '38%'"
             center
             destroy-on-close

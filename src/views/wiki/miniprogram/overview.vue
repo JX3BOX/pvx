@@ -97,7 +97,7 @@
             </div>
         </div>
         <!-- 角色列表 -->
-        <RoleListVue v-model:visible="drawerVisible" :roles="roleList" :currentRole="currentRole"
+        <RoleListVue v-model="drawerVisible" :roles="roleList" :currentRole="currentRole"
             @confirmSelection="handleConfirmSelection">
         </RoleListVue>
     </div>

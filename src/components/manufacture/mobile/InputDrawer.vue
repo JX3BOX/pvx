@@ -1,7 +1,7 @@
 <template>
     <el-drawer
         :with-header="false"
-        v-model:visible="visible"
+        v-model="visible"
         direction="btt"
         wrapper-closable
         append-to-body

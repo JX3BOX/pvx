@@ -107,7 +107,7 @@
         </el-drawer>
         <!-- 详细信息弹窗 -->
         <achievement_detail ref="achievementDetail" v-if="achievementDetailVisible"
-            v-model:visible="achievementDetailVisible" v-model:current="current">
+            v-model="achievementDetailVisible" v-model:current="current">
         </achievement_detail>
     </div>
 </template>

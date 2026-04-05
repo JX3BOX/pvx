@@ -23,7 +23,7 @@
                 </template>
                 <template v-if="item.type === 'filter' && item.options.length">
                     <el-popover ref="popover" :placement="isPhone() ? 'right' : 'bottom'" :width="!isPhone() && 420"
-                        trigger="click" v-model:visible="filterValue">
+                        trigger="click" v-model="filterValue">
                         <div class="filter-content">
                             <div class="filter-item" v-for="fItem in item.options" :key="fItem.key">
                                 <el-select v-if="fItem.type === 'select'" :id="fItem.remote" class="select-wrapper"

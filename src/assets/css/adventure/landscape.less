@@ -662,51 +662,17 @@
             color: #112d24;
         }
     }
-}
-.u-go_back {
-    .pa();
-    .db();
-    top: 40px;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
-    background-color: #24292e;
-    padding: 0 18px;
-    .fz(16px,40px);
-    .bold();
-    .r(30px);
-    .color(white);
-}
-.m-related-roles {
-    .fz(12px);
-    .r(10px);
-    background-color: white;
-    padding: 10px 15px;
-    // .pa();
-    // left: 50%;
-    // top: 30px;
-    // transform: translateX(-50%);
-    width: max-content;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
-    .el-select {
-        width: 258px;
-        border: none;
-        background-color: rgba(243, 244, 245, 0.96);
-        line-height: 40px;
-        height: 40px;
-        .r(30px);
-        .color(white);
-    }
     .m-related-roles {
         .fz(12px);
         .r(10px);
         background-color: white;
         padding: 10px 15px;
-        .pa();
-        left: 50%;
-        top: 30px;
-        transform: translateX(-50%);
+        // .pa();
+        // left: 50%;
+        // top: 30px;
+        // transform: translateX(-50%);
+        width: max-content;
+        margin: 0 auto;
         display: flex;
         align-items: center;
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
@@ -717,92 +683,114 @@
             line-height: 40px;
             height: 40px;
             .r(30px);
-            .el-select__wrapper {
-                height: 40px;
-                .fz(16px, 40px);
-                .bold();
-                background-color: transparent;
-                box-shadow: none;
-            }
-            .el-select__caret {
-                color: black;
-                .fz(16px);
-            }
-            &:not(:first-child) {
-                margin-left: 10px;
-            }
+            .color(white);
         }
-        .u-tip {
-            .mb(10px);
-            i {
-                .fz(16px);
-                .mr(3px);
-            }
-            a {
-                padding: 0 2px;
-                box-shadow: 0 1px 0 @color-link;
-            }
-        }
-        .el-input__prefix {
-            left: 1px;
-            top: 1px;
-            .r(5px);
-        }
-        .u-prefix {
-            .db;
-            .h(30px);
-            .lh(30px);
-
-            background-color: #f5f7fa;
-            color: #909399;
-
-            border-right: 1px solid #dcdfe6;
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-
-            padding: 0 10px;
-            white-space: nowrap;
-        }
-        .el-input--prefix .el-input__inner {
-            padding-left: 85px;
-        }
-        .u-refresh {
-            margin-left: 20px;
-        }
-        .el-button span {
-            .flex(y);
-            gap: 3px;
-        }
-    }
-
-    .m-related-roles-options {
-        .u-role {
-            display: flex;
-            justify-content: space-between;
-        }
-        .u-role-name {
-            .flex;
-            align-items: center;
-        }
-        .u-role-icon {
-            .size(20px);
-            .y;
-            .mr(3px);
-            .r(50%);
-        }
-        .u-role-server {
-            color: #999;
-            .fz(12px);
-        }
-    }
-    @media screen and (max-width: 720px) {
         .m-related-roles {
-            .ps();
-            transform: none;
-        }
-    }
+            .fz(12px);
+            .r(10px);
+            background-color: white;
+            padding: 10px 15px;
+            .pa();
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+            .el-select {
+                width: 258px;
+                border: none;
+                background-color: rgba(243, 244, 245, 0.96);
+                line-height: 40px;
+                height: 40px;
+                .r(30px);
+                .el-select__wrapper {
+                    height: 40px;
+                    .fz(16px, 40px);
+                    .bold();
+                    background-color: transparent;
+                    box-shadow: none;
+                }
+                .el-select__caret {
+                    color: black;
+                    .fz(16px);
+                }
+                &:not(:first-child) {
+                    margin-left: 10px;
+                }
+            }
+            .u-tip {
+                .mb(10px);
+                i {
+                    .fz(16px);
+                    .mr(3px);
+                }
+                a {
+                    padding: 0 2px;
+                    box-shadow: 0 1px 0 @color-link;
+                }
+            }
+            .el-input__prefix {
+                left: 1px;
+                top: 1px;
+                .r(5px);
+            }
+            .u-prefix {
+                .db;
+                .h(30px);
+                .lh(30px);
 
-    .m-treasure-footer {
-        .x;
+                background-color: #f5f7fa;
+                color: #909399;
+
+                border-right: 1px solid #dcdfe6;
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+
+                padding: 0 10px;
+                white-space: nowrap;
+            }
+            .el-input--prefix .el-input__inner {
+                padding-left: 85px;
+            }
+            .u-refresh {
+                margin-left: 20px;
+            }
+            .el-button span {
+                .flex(y);
+                gap: 3px;
+            }
+        }
+
+        .m-related-roles-options {
+            .u-role {
+                display: flex;
+                justify-content: space-between;
+            }
+            .u-role-name {
+                .flex;
+                align-items: center;
+            }
+            .u-role-icon {
+                .size(20px);
+                .y;
+                .mr(3px);
+                .r(50%);
+            }
+            .u-role-server {
+                color: #999;
+                .fz(12px);
+            }
+        }
+        @media screen and (max-width: 720px) {
+            .m-related-roles {
+                .ps();
+                transform: none;
+            }
+        }
+
+        .m-treasure-footer {
+            .x;
+        }
     }
 }
