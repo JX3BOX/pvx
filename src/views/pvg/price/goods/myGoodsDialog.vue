@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="设置关注清单" v-model:visible="dialogVisible" width="50%" @close="$emit('close')">
+    <el-dialog title="设置关注清单" v-model="dialogVisible" width="50%" @close="$emit('close')">
         <div class="m-price-goods-mygoods" v-loading="loading">
             <template v-if="myPlanList.length">
                 <div

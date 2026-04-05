@@ -1,5 +1,5 @@
 <template>
-    <el-dialog custom-class="m-calendar-rank-dialog" v-model:visible="show" center :before-close="handleClose">
+    <el-dialog custom-class="m-calendar-rank-dialog" v-model="show" center :before-close="handleClose">
         <template #title>
             <span class="u-rank-title"><i class="el-icon-s-data"></i> 剑三日历贡献排行榜 </span>
         </template>

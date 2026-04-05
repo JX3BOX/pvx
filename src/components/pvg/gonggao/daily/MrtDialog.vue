@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="美人图查询" v-model:visible="show" width="90%" custom-class="m-mrt-dialog" @close="close">
+    <el-dialog title="美人图查询" v-model="show" width="90%" custom-class="m-mrt-dialog" @close="close">
         <div class="m-toolbar">
             <el-select v-model="server" filterable>
                 <template #prefix>

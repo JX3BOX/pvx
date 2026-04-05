@@ -3,16 +3,16 @@
         <PriceTabs v-model:params="params" @changeTab="changeTab"></PriceTabs>
         <overview v-if="params.currentTab == ''" />
         <gold v-if="params.currentTab == 'gold'" />
-        <!-- <goods v-if="params.currentTab == 'goods'" :keywords="params.keywords" /> -->
+        <goods v-if="params.currentTab == 'goods'" :keywords="params.keywords" />
     </div>
 </template>
 <script>
 import PriceTabs from "./PriceTabs.vue";
 import overview from "./overview/index.vue";
 import gold from "./gold/index.vue";
-// import goods from "./goods/index.vue";
+import goods from "./goods/index.vue";
 export default {
-    components: { PriceTabs, overview, gold /*, goods */ },
+    components: { PriceTabs, overview, gold, goods },
     data() {
         return {
             params: {

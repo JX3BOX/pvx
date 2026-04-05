@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :title="plan.title" v-model:visible="show" custom-class="m-plan-dialog" @close="close">
+    <el-dialog :title="plan.title" v-model="show" custom-class="m-plan-dialog" @close="close">
         <div class="m-dialog-content" v-loading="loading">
             <!-- 内容备注 -->
             <div class="m-plan-description">

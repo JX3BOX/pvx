@@ -2,7 +2,6 @@
     <CommonNav :force-show="true"></CommonNav>
     <CommonHeader></CommonHeader>
     <div class="m-body">
-        <!-- <a class="u-go_back" href="/adventure">返回主页</a> -->
         <template v-if="!isLogin">
             <div class="u-bind_role">
                 <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
