@@ -1,87 +1,93 @@
 <template>
     <CommonNav :force-show="true"></CommonNav>
     <CommonHeader></CommonHeader>
-    <div class="m-body">
-        <!-- <a class="u-go_back" href="/adventure">返回主页</a> -->
-        <template v-if="!isLogin">
-            <div class="u-bind_role">
-                <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="el-button el-button--primary" :href="login_url"
-                        >前往登录 <i class="el-icon-arrow-right"></i
-                    ></a>
-                </el-empty>
-            </div>
-        </template>
-        <template v-else-if="noRole">
-            <div class="u-bind_role">
-                <el-empty description="当前暂未绑定角色" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                    <a class="el-button el-button--primary" href="/team/role/bind"
-                        >前往绑定 <i class="el-icon-arrow-right"></i
-                    ></a>
-                </el-empty>
-            </div>
-        </template>
-        <template v-else>
-            <div class="m-related-roles">
-                <el-select
-                    v-model="currentRole"
-                    value-key="ID"
-                    placeholder="请选择当前角色"
-                    :disabled="!isLogin"
-                    popper-class="m-related-roles-options"
-                    size="small"
-                >
-                    <el-option v-for="role in roleList" :key="role.ID" :value="role" :label="role.name">
-                        <span class="u-role">
-                            <span class="u-role-name"
-                                ><img class="u-role-icon" :src="showSchoolIcon(role.mount)" />{{ role.name }}</span
-                            >
-                            <span class="u-role-server">{{ role.server }}</span>
-                        </span>
-                    </el-option>
-                </el-select>
+    <div class="p-adventure-treasure-landscape">
+        <div class="m-body">
+            <!-- <a class="u-go_back" href="/adventure">返回主页</a> -->
+            <template v-if="!isLogin">
+                <div class="u-bind_role">
+                    <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
+                        <a class="el-button el-button--primary el-button--large" :href="login_url"
+                            >前往登录 <i class="el-icon-arrow-right"></i
+                        ></a>
+                    </el-empty>
+                </div>
+            </template>
+            <template v-else-if="noRole">
+                <div class="u-bind_role">
+                    <el-empty
+                        description="当前暂未绑定角色"
+                        :image="__imgPath + `/img/common/empty.png`"
+                        :image-size="200"
+                    >
+                        <a class="el-button el-button--primary" href="/team/role/bind"
+                            >前往绑定 <i class="el-icon-arrow-right"></i
+                        ></a>
+                    </el-empty>
+                </div>
+            </template>
+            <template v-else>
+                <div class="m-related-roles">
+                    <el-select
+                        v-model="currentRole"
+                        value-key="ID"
+                        placeholder="请选择当前角色"
+                        :disabled="!isLogin"
+                        popper-class="m-related-roles-options"
+                        size="small"
+                    >
+                        <el-option v-for="role in roleList" :key="role.ID" :value="role" :label="role.name">
+                            <span class="u-role">
+                                <span class="u-role-name"
+                                    ><img class="u-role-icon" :src="showSchoolIcon(role.mount)" />{{ role.name }}</span
+                                >
+                                <span class="u-role-server">{{ role.server }}</span>
+                            </span>
+                        </el-option>
+                    </el-select>
 
-                <el-select
-                    v-model="currentCamp"
-                    placeholder="请选择阵营"
-                    popper-class="m-related-roles-options"
-                    size="small"
-                >
-                    <el-option value="hq" label="浩气盟阵营"> </el-option>
-                    <el-option value="er" label="恶人谷阵营"> </el-option>
-                </el-select>
-                <el-tooltip content="刷新QQ机器人等渠道快照图片">
-                    <el-button class="u-refresh" @click="onRefresh">
-                        <i class="el-icon-refresh"></i>
-                        刷新卷轴
+                    <el-select
+                        v-model="currentCamp"
+                        placeholder="请选择阵营"
+                        popper-class="m-related-roles-options"
+                        size="small"
+                    >
+                        <el-option value="hq" label="浩气盟阵营"> </el-option>
+                        <el-option value="er" label="恶人谷阵营"> </el-option>
+                    </el-select>
+                    <el-tooltip content="刷新QQ机器人等渠道快照图片">
+                        <el-button class="u-refresh" @click="onRefresh">
+                            <i class="el-icon-refresh"></i>
+                            刷新卷轴
+                        </el-button>
+                    </el-tooltip>
+
+                    <el-button class="u-role-setting" @click="onRoleSet">
+                        <i class="el-icon-setting"></i>
+                        角色管理
                     </el-button>
-                </el-tooltip>
+                </div>
+                <div id="capture" ref="capture">
+                    <landscapeContent
+                        :__img-root="__imgRoot"
+                        :user-achievement="userAchievement"
+                        :role-info="roleInfo"
+                        :add-class="addClass"
+                        :is-over="isOver"
+                        :content-zoom="contentZoom"
+                        :current-camp="currentCamp"
+                        :reel-add-class="reelAddClass"
+                    ></landscapeContent>
+                </div>
 
-                <el-button class="u-role-setting" @click="onRoleSet">
-                    <i class="el-icon-setting"></i>
-                    角色管理
-                </el-button>
-            </div>
-            <div id="capture" ref="capture">
-                <landscapeContent
-                    :__img-root="__imgRoot"
-                    :user-achievement="userAchievement"
-                    :role-info="roleInfo"
-                    :add-class="addClass"
-                    :is-over="isOver"
-                    :content-zoom="contentZoom"
-                    :current-camp="currentCamp"
-                    :reel-add-class="reelAddClass"
-                ></landscapeContent>
-            </div>
-
-            <div class="m-treasure-footer">
-                <a class="u-btn m-hide el-button el-button--primary" href="/tool/74559" target="_blank">同步数据</a>
-                <button v-if="isOver" @click="saveAsImage" class="u-btn m-hide el-button el-button--primary">
-                    保存图片
-                </button>
-            </div>
-        </template>
+                <div class="m-treasure-footer">
+                    <a class="u-btn m-hide el-button el-button--primary" href="/tool/74559" target="_blank">同步数据</a>
+                    <button v-if="isOver" @click="saveAsImage" class="u-btn m-hide el-button el-button--primary">
+                        保存图片
+                    </button>
+                </div>
+            </template>
+        </div>
     </div>
     <CommonFooter></CommonFooter>
 </template>
