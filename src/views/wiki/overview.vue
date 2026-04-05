@@ -4,12 +4,17 @@
             <!-- 资历、选中用户信息 -->
             <div class="m-header-info">
                 <!-- 用户信息展示 -->
-                <div :style="{
-                    opacity: currentRole ? 1 : 0.5,
-                }" class="m-info-user">
-                    <span class="u-name">{{ currentRole?.name }}
+                <div
+                    :style="{
+                        opacity: currentRole ? 1 : 0.5,
+                    }"
+                    class="m-info-user"
+                >
+                    <span class="u-name"
+                        >{{ currentRole?.name }}
                         {{ currentRole?.server && "·" }}
-                        {{ currentRole?.server }}</span>
+                        {{ currentRole?.server }}</span
+                    >
                     <img width="30" height="30" :src="showSchoolIcon(currentRole?.mount)" alt="jx3logo" />
                     <el-dropdown trigger="click">
                         <div class="u-toggle-btn">
@@ -21,9 +26,13 @@
                         <template #dropdown>
                             <el-dropdown-menu class="m-role-dropdown">
                                 <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                                    <div @click="onChangeRole(role)" class="m-role-item" :class="{
-                                        active: role.jx3id === currentRole.jx3id,
-                                    }">
+                                    <div
+                                        @click="onChangeRole(role)"
+                                        class="m-role-item"
+                                        :class="{
+                                            active: role.jx3id === currentRole.jx3id,
+                                        }"
+                                    >
                                         <span>{{ role.name }}</span>
                                         <span>{{ role.server }}</span>
                                     </div>
@@ -51,16 +60,23 @@
                         <div class="u-rate">{{ totalProgress }}%</div>
                     </div>
                     <div class="m-info-zl__progress">
-                        <div class="u-active-progress" :style="{
-                            width: `${totalProgress}%`,
-                            background: getCurrentProgressBg(totalProgress),
-                        }"></div>
+                        <div
+                            class="u-active-progress"
+                            :style="{
+                                width: `${totalProgress}%`,
+                                background: getCurrentProgressBg(totalProgress),
+                            }"
+                        ></div>
                     </div>
                 </div>
             </div>
             <div class="m-info-avatar" v-if="viewAchievementsName && !showList">
-                <img class="u-achievement-icon" height="70"
-                    :src="require(`@/assets/img/wiki/overview/title/${viewAchievementsName}.png`)" alt="" />
+                <img
+                    class="u-achievement-icon"
+                    height="70"
+                    :src="require(`@/assets/img/wiki/overview/title/${viewAchievementsName}.png`)"
+                    alt=""
+                />
             </div>
             <!-- 头像 -->
             <div v-else class="m-info-avatar">
@@ -93,9 +109,13 @@
                         </div>
                     </el-dropdown-item> -->
                         <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                            <div @click="onChangeRole(role)" class="m-role-item" :class="{
-                                active: role.jx3id === currentRole.jx3id,
-                            }">
+                            <div
+                                @click="onChangeRole(role)"
+                                class="m-role-item"
+                                :class="{
+                                    active: role.jx3id === currentRole.jx3id,
+                                }"
+                            >
                                 <span>{{ role.name }}·</span>
                                 <span>{{ role.server }}</span>
                             </div>
@@ -105,22 +125,32 @@
             </el-dropdown>
         </div>
         <!-- 移动端查看总览位置 -->
-        <div ref="overviewList" class="m-overview-main" :class="{ is_mobile: mobile, isScroll }"
-            @scroll="overviewListScroll" v-if="!showList">
+        <div
+            ref="overviewList"
+            class="m-overview-main"
+            :class="{ is_mobile: mobile, isScroll }"
+            @scroll="overviewListScroll"
+            v-if="!showList"
+        >
             <!-- 移动端资历总览 -->
             <div class="m-info-zl" v-if="mobile">
                 <div class="m-info-zl__info" v-if="!isScroll">
-                    <span class="u-title">{{ viewAchievementsName || "总" }}资历：<span class="u-number">{{
-                        ownPointsCount
-                    }}</span></span>
+                    <span class="u-title"
+                        >{{ viewAchievementsName || "总" }}资历：<span class="u-number">{{
+                            ownPointsCount
+                        }}</span></span
+                    >
 
                     <span class="u-rate">{{ totalProgress }}%</span>
                 </div>
                 <div class="m-info-zl__progress">
-                    <div class="u-active-progress" :style="{
-                        width: `${totalProgress}%`,
-                        background: getCurrentProgressBg(totalProgress),
-                    }"></div>
+                    <div
+                        class="u-active-progress"
+                        :style="{
+                            width: `${totalProgress}%`,
+                            background: getCurrentProgressBg(totalProgress),
+                        }"
+                    ></div>
                 </div>
             </div>
             <!-- item -->
@@ -136,13 +166,21 @@
                         <div class="m-count-box">
                             <div class="m-count-inner">
                                 <div class="u-item">
-                                    <img width="14" height="14" src="@/assets/img/wiki/overview/cj-logo.svg"
-                                        alt="成就logo" />
+                                    <img
+                                        width="14"
+                                        height="14"
+                                        src="@/assets/img/wiki/overview/cj-logo.svg"
+                                        alt="成就logo"
+                                    />
                                     <span>{{ item.ownAchievements.length }}/{{ item.allAchievements.length }}</span>
                                 </div>
                                 <div class="u-item">
-                                    <img width="14" height="14" src="@/assets/img/wiki/overview/zl-logo.svg"
-                                        alt="资历logo" />
+                                    <img
+                                        width="14"
+                                        height="14"
+                                        src="@/assets/img/wiki/overview/zl-logo.svg"
+                                        alt="资历logo"
+                                    />
                                     <span>{{ item.ownPoints }}/{{ item.allPoints }}</span>
                                 </div>
                             </div>
@@ -153,18 +191,29 @@
                         <img height="70" :src="require(`@/assets/img/wiki/overview/item/${item.name}.png`)" alt="" />
                     </div>
                     <!-- 进度展示 -->
-                    <div class="u-progress" :style="{
-                        width: `${getCurrentProgress(item.ownPoints, item.allPoints)}%`,
-                        background: getCurrentProgressBg(item.ownPoints, item.allPoints),
-                    }"></div>
+                    <div
+                        class="u-progress"
+                        :style="{
+                            width: `${getCurrentProgress(item.ownPoints, item.allPoints)}%`,
+                            background: getCurrentProgressBg(item.ownPoints, item.allPoints),
+                        }"
+                    ></div>
                 </div>
             </div>
         </div>
         <!-- 最下级list -->
         <div class="m-cj-list" v-else>
-            <el-table :data="achievements_list || []" style="width: 100%" stripe height="100%"
-                row-class-name="u-table-row" cell-class-name="u-table-cell" header-row-class-name="u-table-header_row"
-                header-cell-class-name="u-table-header_cell" v-loading="loading">
+            <el-table
+                :data="achievements_list || []"
+                style="width: 100%"
+                stripe
+                height="100%"
+                row-class-name="u-table-row"
+                cell-class-name="u-table-cell"
+                header-row-class-name="u-table-header_row"
+                header-cell-class-name="u-table-header_cell"
+                v-loading="loading"
+            >
                 <el-table-column prop="Name" label="成就名称">
                     <template #default="scope">
                         <a :href="getLink('achievement', scope.row.ID)" target="_blank">
@@ -185,7 +234,8 @@
                     <template #default="scope">
                         <el-tag :type="scope.row.isCompleted == false ? 'danger' : 'success'">{{
                             scope.row.isCompleted == false ? "未完成" : "已完成"
-                        }}</el-tag></template>
+                        }}</el-tag></template
+                    >
                 </el-table-column>
                 <el-table-column label="奖励" width="100">
                     <template #default="scope">
@@ -201,16 +251,20 @@
         </div>
         <div class="m-zl-info_bottom" v-if="isScroll">
             <div class="m-box_bottom">
-                <span class="u-title">{{ viewAchievementsName || "总" }}资历： <span
-                        class="u-number">{{ ownPointsCount }}</span></span>
+                <span class="u-title"
+                    >{{ viewAchievementsName || "总" }}资历： <span class="u-number">{{ ownPointsCount }}</span></span
+                >
 
                 <span class="u-rate">{{ totalProgress }}%</span>
             </div>
             <div class="m-info-zl__progress">
-                <div class="u-active-progress" :style="{
-                    width: `${totalProgress}%`,
-                    background: getCurrentProgressBg(totalProgress),
-                }"></div>
+                <div
+                    class="u-active-progress"
+                    :style="{
+                        width: `${totalProgress}%`,
+                        background: getCurrentProgressBg(totalProgress),
+                    }"
+                ></div>
             </div>
         </div>
     </div>
@@ -358,7 +412,7 @@ export default {
             try {
                 let item = JSON.parse(sessionStorage.getItem(key));
                 return item?.IconID ? this.iconLink(item.IconID) : "";
-            } catch (error) { }
+            } catch (error) {}
         },
         overviewListScroll($event) {
             if (!this.mobile) return;
@@ -449,7 +503,6 @@ export default {
         },
         loadData() {
             this.getList();
-
         },
         getRenderList(data) {
             data = data ? data : this.achievementData;
@@ -661,7 +714,7 @@ export default {
                     gap: 4px;
                     cursor: pointer;
 
-                    >div {
+                    > div {
                         .flex;
                         align-items: center;
 
@@ -696,7 +749,7 @@ export default {
                     justify-content: space-between;
                     align-items: center;
 
-                    >div {
+                    > div {
                         .flex;
                         align-items: center;
                     }
@@ -736,17 +789,17 @@ export default {
         }
 
         .m-info-avatar {
-            max-width: 205px;
-            width: 205px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
             position: relative;
 
             .u-avatar-border {
-                width: 100%;
-                height: 100%;
+                width: 240px;
+                height: 240px;
                 position: absolute;
-                left: 0;
-                top: 0;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
                 z-index: 2;
             }
 
@@ -765,9 +818,10 @@ export default {
             .u-avatar-img {
                 position: absolute;
                 z-index: 1;
-                width: 175px;
-                height: 175px;
+                width: 160px;
+                height: 160px;
                 border-radius: 100%;
+                background-color: #fff;
                 overflow: hidden;
                 left: 50%;
                 top: 50%;
@@ -1060,7 +1114,7 @@ export default {
         .u-table-header_cell {
             background-color: transparent;
 
-            .el-table__body tr:hover>td {
+            .el-table__body tr:hover > td {
                 background-color: #f3f0ed;
             }
         }
@@ -1094,7 +1148,6 @@ export default {
         }
 
         .u-table-row {
-
             //奇偶选择器
             &:nth-child(odd) {
                 background: #ebe5df;
@@ -1208,7 +1261,6 @@ export default {
 }
 
 .v-miniprogram {
-
     // 资历宝典
     .m-achievement-content {
         width: 100%;
@@ -1246,4 +1298,5 @@ export default {
     }
 }
 
-// @import "../../assets/css/miniprogram.less";</style>
+// @import "../../assets/css/miniprogram.less";
+</style>

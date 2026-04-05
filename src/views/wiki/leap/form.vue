@@ -873,6 +873,8 @@ export default {
                     background: #544c41;
                     color: #fff;
                     height: 24px;
+                    padding:0 5px;
+                    .r(3px);
                 }
 
                 .el-input__wrapper {
