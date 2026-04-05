@@ -34,7 +34,6 @@
                         placeholder="请选择当前角色"
                         :disabled="!isLogin"
                         popper-class="m-related-roles-options"
-                        size="small"
                     >
                         <el-option v-for="role in roleList" :key="role.ID" :value="role" :label="role.name">
                             <span class="u-role">
@@ -50,7 +49,6 @@
                         v-model="currentCamp"
                         placeholder="请选择阵营"
                         popper-class="m-related-roles-options"
-                        size="small"
                     >
                         <el-option value="hq" label="浩气盟阵营"> </el-option>
                         <el-option value="er" label="恶人谷阵营"> </el-option>

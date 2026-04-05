@@ -7,13 +7,6 @@ const pages = {
         filename: "index.html",
     },
 
-    qqbot: {
-        title: "QQRobot - JX3BOX",
-        entry: "src/pages/qqbot/index.js",
-        template: "public/index.html",
-        filename: "qqbot/index.html",
-    },
-
     face: {
         title: "捏脸数据",
         entry: "src/pages/face/index.js",
