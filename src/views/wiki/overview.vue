@@ -736,8 +736,7 @@ export default {
         }
 
         .m-info-avatar {
-            max-width: 205px;
-            width: 205px;
+            width: 200px;
             height: 200px;
             position: relative;
 
@@ -765,8 +764,8 @@ export default {
             .u-avatar-img {
                 position: absolute;
                 z-index: 1;
-                width: 175px;
-                height: 175px;
+                width: 150px;
+                height: 150px;
                 border-radius: 100%;
                 overflow: hidden;
                 left: 50%;

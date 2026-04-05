@@ -1,5 +1,6 @@
 <template>
     <CommonNav :force-show="true"></CommonNav>
+    <CommonHeader></CommonHeader>
     <div class="m-body">
         <!-- <a class="u-go_back" href="/adventure">返回主页</a> -->
         <template v-if="!isLogin">
@@ -82,6 +83,8 @@
             </div>
         </template>
     </div>
+    <CommonFooter></CommonFooter>
+
 </template>
 
 <script>
