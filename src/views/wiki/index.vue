@@ -12,7 +12,7 @@
                     <router-view></router-view>
                 </div>
             </div>
-
+            <CommonFooter></CommonFooter>
         </div>
     </div>
 </template>

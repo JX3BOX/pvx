@@ -11,6 +11,7 @@
                 </router-view>
             </div>
         </Main>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 

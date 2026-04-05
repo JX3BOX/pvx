@@ -15,6 +15,7 @@
             </div>
             <!-- <Footer></Footer> -->
         </Main>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 

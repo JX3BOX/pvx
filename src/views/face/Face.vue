@@ -5,6 +5,7 @@
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
             <div class="m-main"><router-view></router-view></div>
         </Main>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 
