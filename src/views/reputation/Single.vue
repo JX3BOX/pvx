@@ -1,9 +1,12 @@
 <template>
     <div class="m-reputation-wrapper m-single-wrapper">
+        <template v-if="!isRobot">
             <div class="m-reputation-single">
                 <div class="back-wrap">
                     <div class="u-goback" @click="goBack">返回列表</div>
                     <div class="u-back-right">
+                        <PvxRobotTip v-if="!isRobot" type-name="声望" :reply="reputation.szName"></PvxRobotTip>
+                        <PvxSingleAdminDrop></PvxSingleAdminDrop>
                     </div>
                 </div>
                 <div class="m-reputation-content" v-if="reputation">
@@ -132,6 +135,84 @@
                 <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
                 <pvx-user :id="achievement_id" name="声望" type="achievement"></pvx-user>
             </div>
+        </template>
+        <template v-else>
+            <div class="m-pvx__item m-robot__reputation-header">
+                <div class="m-title">
+                    <div class="u-title" :class="`u-title__level-${reputation.Quality}`">
+                        {{ robotTitle }}
+                    </div>
+                    <div class="m-meta">
+                        <div v-if="reputation.szMapNames?.[0]" class="u-meta">{{ reputation.szMapNames?.[0] }}</div>
+                        <div v-if="reputation.GroupName" class="u-meta">{{ reputation.GroupName }}</div>
+                        <div class="u-meta">ID: {{ id }}</div>
+                    </div>
+                </div>
+                <div class="u-right">
+                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_reputation.svg" />
+                </div>
+            </div>
+            <div class="m-pvx__item m-robot__reputation-info">
+                <div class="u-reputation-logo">
+                    <img v-if="getBotIcon(reputation.szIconPath)" width="28" :src="getBotIcon(reputation.szIconPath)" />
+                </div>
+                <div class="u-intro" v-html="reputation.szDesc"></div>
+            </div>
+            <div v-if="showPath" class="m-robot__reputation-reward">
+                <div class="m-title">
+                    <div class="u-title">声望奖励</div>
+                    <span class="u-up">{{
+                        getPath(reputation.szName) || "无法使用遗失的尊敬来提高该声望等级进度"
+                    }}</span>
+                </div>
+                <div class="m-pvx__item reward-content">
+                    <div class="reward-desc-list">
+                        <div class="m-pvx__item item" :class="{ active: stage === index }"
+                            v-for="(item, index) in reputation.gainList" :key="index" @click="stage = index">
+                            <div class="from-to">
+                                {{ item.to }}
+                            </div>
+                            <div class="desc">
+                                <div class="desc-title">提升方式：</div>
+                                <div class="desc-content">{{ item.desc }}</div>
+                            </div>
+                            <div class="m-reward">
+                                <div class="desc-title">阶段奖励：</div>
+                                <div v-if="reputation?.RewardItems?.[item?.toID]?.length" class="list">
+                                    <item-icon v-for="reward in reputation?.RewardItems?.[item?.toID]" :key="reward"
+                                        :item_id="reward" class="u-item-icon" :onlyName="true"></item-icon>
+                                </div>
+                                <div v-else class="no-data">无</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="m-pvx__item m-robot__reputation-servant">
+                <div class="img-wrap">
+                    <img v-if="reputation.servant && reputation.servant.szImagePath"
+                        :src="getIcon(reputation.servant.szImagePath, 'partner')" @error="replaceByDefault" />
+                    <!-- 默认图片 -->
+                    <img v-else src="@/assets/img/reputation/sw-null.jpg" />
+                </div>
+                <div class="detail-wrap" v-if="reputation.servant">
+                    <div class="sub-title sub-name">
+                        {{ reputation.servant && reputation.servant.szNpcName }}
+                    </div>
+
+                    <div class="sub-title u-zf">
+                        知交祝福
+                        <span>{{ reputation.servant.szBuffName }}</span>
+                        {{ reputation.servant.szBuffDesc?.replace("。", "") }}
+                    </div>
+                    <div class="u-desc" v-html="reputation.servant.szDescBrief"></div>
+                    <div class="u-desc" v-html="reputation.servant.szDescPersonality.replace(/\\n/g, '<br>')"></div>
+                </div>
+            </div>
+            <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
+            <pvx-user :id="achievement_id" name="声望" type="achievement" :isRobot="isRobot"></pvx-user>
+        </template>
         <!-- 小程序 -->
         <div class="m-reputation-single__miniprogram">
             <SuspendCommon :btnOptions="{ showHome: true }" :drawerOptions="{
@@ -289,6 +370,7 @@ import PvxUser from "@/components/PvxUser.vue";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import reputationMap from "@/components/reputation/ReputationMap.vue";
 import ItemIcon from "@/components/common/item_icon.vue";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import paths from "@/assets/data/reputation_exchange_path.json";
 import levelList from "@/assets/data/reputation_level.json";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
@@ -296,16 +378,19 @@ import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { __imgPath } from "@/utils/config";
 
 import { getInfo } from "@/service/reputation";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 
 export default {
     name: "reputationSingle",
-    props: ["sourceId"],
+    props: ["isRobot", "sourceId"],
     components: {
         reputationMap,
         ItemIcon,
         PvxUser,
         PvxUserMiniprogram,
         SuspendCommon,
+        PvxSingleAdminDrop,
+        PvxRobotTip,
     },
     data() {
         return {

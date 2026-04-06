@@ -1,9 +1,12 @@
 <template>
     <div class="horse-single-wrapper m-single-wrapper">
+        <template v-if="!isRobot">
             <div class="back-wrap">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <!-- <el-button @click="goBack">返回列表</el-button> -->
                 <div class="u-back-right">
+                    <PvxRobotTip v-if="!isRobot" :type-name="type == 2 ? '马具' : '坐骑'" :reply="item.Name"></PvxRobotTip>
+                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
             </div>
             <div class="horse-single-content" v-loading="loading">
@@ -98,14 +101,81 @@
                     </div>
                 </div>
             </div>
+        </template>
+        <template v-else>
+            <div class="m-pvx__item m-robot__horse-header">
+                <div class="m-title">
+                    <div class="u-title" :class="`u-title__level-${item.Quality}`">
+                        {{ robotTitle }}
+                    </div>
+                    <div class="m-meta">
+                        <div class="u-meta">{{ displayType }}</div>
+                        <div class="u-meta">品质: {{ item.Level }}</div>
+                    </div>
+                </div>
+                <div class="u-right">
+                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_horse.svg" />
+                </div>
+            </div>
+            <div class="m-robot__horse-info">
+                <div class="m-left">
+                    <div class="img-wrap">
+                        <el-image v-if="item.SubType === 15" :src="getCdnImgUrl(item.ID)" class="u-image"> </el-image>
+                        <item-icon v-else class="u-image" :item_id="String(item.ItemID)" :isLink="false" :size="150"
+                            :onlyIcon="true"></item-icon>
+                    </div>
+                    <div class="m-pvx__item m-id">
+                        <div class="u-id">ID: {{ item.ID }}</div>
+                        <div class="u-meta" v-if="type !== '2'">跑速: {{ speedName }}</div>
+                        <div class="u-meta" v-if="type !== '2'">饲料: {{ feedName }}</div>
+                    </div>
+                </div>
+                <div class="m-right">
+                    <div class="m-pvx__item m-attr m-basic-attr">
+                        <div class="u-title">基础属性</div>
+
+                        <div v-if="basicAttrs.length" class="u-list">
+                            <div class="u-attr" v-for="attr in basicAttrs" :key="attr.id">
+                                <img class="u-attr-icon" style="cursor: default" :src="attr.iconUrl" :alt="attr.name" />
+                                <div class="u-attr-info">
+                                    <div class="u-attr-name" v-if="attr.name">
+                                        {{ (attr.name || "") + (Number(attr.level) ? attr.level + "级" : "") }}
+                                    </div>
+                                    <div class="u-attr-desc">{{ attr.desc }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="no-data">无</div>
+                    </div>
+                    <div class="m-pvx__item m-attr m-special-attr">
+                        <div class="u-title">特殊属性</div>
+
+                        <div class="title">特殊属性</div>
+                        <div v-if="magicAttrs.length" class="u-list">
+                            <div class="u-attr" v-for="(attr, index) in magicAttrs" :key="index">
+                                <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
+
+                                <div class="u-attr-info">
+                                    <div class="u-attr-name" v-if="attr.name">
+                                        {{ (attr.name || "") + (Number(attr.level) ? attr.level + "级" : "") }}
+                                    </div>
+                                    <div class="u-attr-desc">{{ attr.desc }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="no-data">无</div>
+                    </div>
+                </div>
+            </div>
+        </template>
         <!-- 捕获地图 -->
-        <div v-if="originDatas.length" class="catch-container">
+        <div v-if="originDatas.length" class="catch-container" :class="isRobot ? 'is-robot' : ''">
             <div class="title">捕获地图</div>
             <!-- 地图组件 -->
             <horse-map :name="item.Name" :list="originDatas" />
         </div>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="id" name="坐骑" type="item"></pvx-user>
+        <pvx-user :id="id" name="坐骑" type="item" :isRobot="isRobot"></pvx-user>
     </div>
 </template>
 
@@ -116,6 +186,8 @@ import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
 import HorseCard from "@/components/horse/HorseCard";
 import HorseMap from "@/components/horse/HorseMap.vue";
 import PvxUser from "@/components/PvxUser.vue";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";
@@ -123,8 +195,8 @@ import { __imgPath, __dataPath, __cdn } from "@/utils/config";
 
 export default {
     name: "Single",
-    props: ["sourceId"],
-    components: { HorseCard, HorseMap, PvxUser, ItemIcon },
+    props: ["isRobot", "sourceId"],
+    components: { HorseCard, HorseMap, PvxUser, ItemIcon, PvxSingleAdminDrop, PvxRobotTip },
     data() {
         return {
             loading: false,
@@ -234,7 +306,7 @@ export default {
                 const end = item.Feed.FeedTip.indexOf("】");
                 feed = item.Feed.FeedTip.slice(start, end + 1);
             }
-            return feed;
+            return this.isRobot ? feed.replace("【", "").replace("】", "") : feed;
         },
         speedName() {
             const item = this.item;

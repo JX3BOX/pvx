@@ -2,9 +2,9 @@ export default {
     index: {
         title: "Leisure",
         keywords:
-            "JX3BOX leisure,JX3 leisure,adventure list,reputation list,book list,exam,face data,body data,pet list,furniture list,horse list,homeland blueprints",
+            "JX3BOX leisure,JX3 leisure,adventure list,reputation list,book list,exam,face data,body data,pet list,furniture list,horse list,homeland blueprints,QQBot",
         description:
-            "JX3BOX leisure hub for casual gameplay and data lookup, covering adventures, business, reputation, books, exams, face data, body data, pets, furniture, mounts and homeland blueprints.",
+            "JX3BOX leisure hub for casual gameplay and data lookup, covering adventures, business, reputation, books, exams, face data, body data, pets, furniture, mounts, homeland blueprints and QQBot.",
     },
     adventure: {
         title: "Adventure List",
@@ -204,6 +204,13 @@ export default {
                 keywords: "JX3 calendar detail,JX3BOX",
                 description: "Single calendar entry detail.",
             },
+        },
+    },
+    qqbot: {
+        pvx: {
+            title: "QQBot PVX",
+            keywords: "JX3 QQBot,PVX,JX3BOX",
+            description: "QQBot PVX feature detail page.",
         },
     },
     reputation: {

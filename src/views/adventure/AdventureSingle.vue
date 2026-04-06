@@ -1,5 +1,6 @@
 <template>
     <div class="p-adventure-single" v-if="id" v-loading="loading">
+        <template v-if="!isRobot">
             <SuspendCommon :btnOptions="{ showHome: true }" :drawerOptions="{ hideType: hideType }"
                 v-if="isMiniProgram">
                 <template #default>
@@ -27,6 +28,7 @@
 
             <div class="m-adventure-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
+                <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 <!-- <el-input
                 placeholder="请输入奇遇或宠物名字搜索"
                 v-model="search"
@@ -43,6 +45,7 @@
                         <i class="el-icon-trophy"></i>
                         成就信息
                     </a>
+                    <PvxRobotTip v-if="!isRobot" type-name="奇遇" :reply="title"></PvxRobotTip>
                 </div>
             </div>
             <div class="m-adventure-content">
@@ -52,14 +55,63 @@
             <PvxUserMiniprogram v-if="isMiniProgram" :id="achieve_id" name="奇遇" type="achievement">
             </PvxUserMiniprogram>
             <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-            <pvx-user :id="achieve_id" name="奇遇" type="achievement"
+            <pvx-user :id="achieve_id" name="奇遇" type="achievement" :isRobot="isRobot"
                 v-if="achieve_id && !isMiniProgram">
-                <template #serendipity>
+                <template #serendipity v-if="!isRobot">
                     <div class="m-adventure-serendipity">
                         <Serendipity :title="title" />
                     </div>
                 </template>
             </pvx-user>
+        </template>
+        <template v-else>
+            <div class="m-robot__adventure-header is-perfect">
+                <div class="m-left">
+                    <div class="m-title">
+                        <img :src="require(`@/assets/img/jx3box_qqbot_adventure_${robotIcon}.svg`)" />
+                        <div class="u-title">{{ robotTitle }}</div>
+                    </div>
+                    <div class="m-reward">
+                        <!-- <span>奖励：</span> -->
+                        <div class="u-reward" v-html="rewardContent"></div>
+                    </div>
+                </div>
+                <img class="u-right-icon" src="@/assets/img/qqbot/jx3box_qqbot_adventure.svg" alt="" />
+            </div>
+            <div class="m-robot-item m-robot__adventure-condition">
+                <img class="u-pvx-logo" :src="imgUrl" />
+                <div class="m-condition">
+                    <div class="m-title">
+                        <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
+                        <div class="u-title">触发前置</div>
+                        <span>（需全部满足）</span>
+                    </div>
+                    <div class="m-pvx-adventure-content">
+                        <div class="u-content" v-html="conditionContent"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="m-robot-item m-robot__adventure-method">
+                <div class="m-title">
+                    <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
+                    <div class="u-title">触发方式</div>
+                    <span>（完成任一均有可能触发奇遇）</span>
+                </div>
+                <div class="m-pvx-adventure-content">
+                    <div class="u-content" v-html="methodContent"></div>
+                </div>
+            </div>
+            <div class="m-robot-item m-robot__adventure-method">
+                <div class="m-title">
+                    <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
+                    <div class="u-title">奇遇流程</div>
+                    <span>（以魔盒在线版本为准）</span>
+                </div>
+                <div class="m-pvx-adventure-content">
+                    <div class="u-content" id="adventureProcessContent" v-html="processContent"></div>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -76,15 +128,19 @@ import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { __imgPath } from "@/utils/config";
 import { wiki } from "@jx3box/jx3box-common/js/wiki";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {
     name: "adventureSingle",
-    props: ["sourceId"],
+    props: ["isRobot", "sourceId"],
     components: {
         task,
         Serendipity,
         PvxUser,
         PvxUserMiniprogram,
         SuspendCommon,
+        PvxSingleAdminDrop,
+        PvxRobotTip,
         // item_icon,
     },
     data: function () {
@@ -324,7 +380,10 @@ export default {
                     this.processContent = (contentList?.[2] || "").replaceAll("&nbsp;", "");
                     this.rewardContent = (contentList?.[3] || "").replaceAll("&nbsp;", "");
                 });
-                
+                if (this.isRobot) {
+                    // 数据加载后启动奇遇流程中的图片检测
+                    this.initImageLoader();
+                }
             }
         },
         getData() {

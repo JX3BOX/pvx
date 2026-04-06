@@ -53,6 +53,13 @@
                         <el-option value="hq" label="浩气盟阵营"> </el-option>
                         <el-option value="er" label="恶人谷阵营"> </el-option>
                     </el-select>
+                    <el-tooltip content="刷新QQ机器人等渠道快照图片">
+                        <el-button class="u-refresh" @click="onRefresh">
+                            <i class="el-icon-refresh"></i>
+                            刷新卷轴
+                        </el-button>
+                    </el-tooltip>
+
                     <el-button class="u-role-setting" @click="onRoleSet">
                         <i class="el-icon-setting"></i>
                         角色管理
@@ -84,7 +91,7 @@
 </template>
 
 <script>
-import { getUserRoles } from "@/service/adventure/treasure.js";
+import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import treasureCommon from "@/assets/js/treasure.js";
 import User from "@jx3box/jx3box-common/js/user";
@@ -168,6 +175,15 @@ export default {
     methods: {
         onRoleSet() {
             window.open(`${__Root}dashboard/role`, "_blank");
+        },
+        onRefresh() {
+            refreshAchievementsTask({
+                mode: "landscape",
+                role: this.currentRole.name,
+                server: this.currentRole.server,
+            }).then(() => {
+                this.$message.success("刷新卷轴成功");
+            });
         },
         async saveAsImage() {
             try {

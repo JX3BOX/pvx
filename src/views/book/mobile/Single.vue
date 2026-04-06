@@ -189,7 +189,7 @@ import { wxNewPage } from "@/utils/minprogram";
 
 export default {
     name: "bookSingle",
-    props: ["sourceId"],
+    props: ["isRobot", "sourceId"],
     components: { Wiki, ItemIcon, SuspendCommon, WikiComments },
     data() {
         return {

@@ -228,7 +228,7 @@ export default {
                 const end = item.Feed.FeedTip.indexOf("】");
                 feed = item.Feed.FeedTip.slice(start, end + 1);
             }
-            return feed;
+            return this.isRobot ? feed.replace("【", "").replace("】", "") : feed;
         },
         speedName() {
             const item = this.item;
