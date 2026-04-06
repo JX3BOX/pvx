@@ -75,6 +75,12 @@ const pages = {
         template: "public/index.html",
         filename: "pvg/index.html",
     },
+    qqbot: {
+        title: "QQBot PVX",
+        entry: "src/pages/qqbot/index.js",
+        template: "public/index.html",
+        filename: "qqbot/index.html",
+    },
 };
 
 const path = require("path");

@@ -22,13 +22,17 @@ export default {
             type: Array,
             required: true,
         },
+        compact: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         Jx3boxMap,
     },
     data() {
         return {
-            height: "896px",
+            height: this.compact ? "520px" : "896px",
         };
     },
     computed: {
@@ -55,7 +59,11 @@ export default {
     },
     methods: {
         handleResize(size) {
-            this.height = size[1] + "px";
+            const h = Array.isArray(size) ? Number(size[1] || 0) : 0;
+            if (!h) return;
+            // QQBot 窄容器下限制地图高度，避免画面被纵向拉得过高
+            const target = this.compact ? Math.min(h, 520) : h;
+            this.height = target + "px";
         },
     },
 };

@@ -1,28 +1,34 @@
 <template>
-    <div class="p-qqbot-treasure" v-if="userAchievement">
-        <div id="capture" ref="capture">
-            <landscapeContent
-                v-if="isLandscape"
-                :__img-root="imgRoot"
-                :user-achievement="userAchievement"
-                :role-info="roleInfo"
-                :add-class="addClass"
-                :is-over="isOver"
-                :content-zoom="contentZoom"
-                :current-camp="currentCamp"
-                :reel-add-class="reelAddClass"
-            ></landscapeContent>
-            <portraitContent
-                v-else
-                :__img-root="imgRoot"
-                :user-achievement="userAchievement"
-                :role-info="roleInfo"
-                :add-class="addClass"
-                :is-over="isOver"
-                :content-zoom="contentZoom"
-                :current-camp="currentCamp"
-                :reel-add-class="reelAddClass"
-            ></portraitContent>
+    <div
+        class="p-qqbot-treasure"
+        :class="isLandscape ? 'p-adventure-treasure-landscape' : 'p-adventure-treasure-portrait'"
+        v-if="userAchievement"
+    >
+        <div class="m-body">
+            <div id="capture" ref="capture">
+                <landscapeContent
+                    v-if="isLandscape"
+                    :__img-root="imgRoot"
+                    :user-achievement="userAchievement"
+                    :role-info="roleInfo"
+                    :add-class="addClass"
+                    :is-over="isOver"
+                    :content-zoom="contentZoom"
+                    :current-camp="currentCamp"
+                    :reel-add-class="reelAddClass"
+                ></landscapeContent>
+                <portraitContent
+                    v-else
+                    :__img-root="imgRoot"
+                    :user-achievement="userAchievement"
+                    :role-info="roleInfo"
+                    :add-class="addClass"
+                    :is-over="isOver"
+                    :content-zoom="contentZoom"
+                    :current-camp="currentCamp"
+                    :reel-add-class="reelAddClass"
+                ></portraitContent>
+            </div>
         </div>
     </div>
 </template>
@@ -180,14 +186,11 @@ export default {
             });
         },
         start() {
-            this.addClass = true;
-            this.reelAddClass = "start";
-            setTimeout(() => {
-                this.isOver = true;
-                this.addClass = false;
-                this.reelAddClass = "";
-                window.__READY__ = true;
-            }, 500);
+            // QQBot 页面直接进入最终态，避免卷轴开场动画造成白屏遮罩停留
+            this.addClass = false;
+            this.reelAddClass = "";
+            this.isOver = true;
+            window.__READY__ = true;
             window.addEventListener("resize", this.handleScreenWidthChange);
             window.addEventListener("load", this.handleScreenWidthChange);
             this.handleScreenWidthChange();
@@ -238,11 +241,8 @@ export default {
     margin: 0 auto;
 
     #capture {
-        padding: 20px;
-        width: max-content;
-        margin: 0 auto;
         user-select: none;
-        overflow: hidden;
+        overflow: visible;
     }
 }
 </style>

@@ -68,7 +68,7 @@
             <div class="m-robot__adventure-header is-perfect">
                 <div class="m-left">
                     <div class="m-title">
-                        <img :src="require(`@/assets/img/jx3box_qqbot_adventure_${robotIcon}.svg`)" />
+                        <img :src="require(`@/assets/img/qqbot/jx3box_qqbot_adventure_${robotIcon}.svg`)" />
                         <div class="u-title">{{ robotTitle }}</div>
                     </div>
                     <div class="m-reward">

@@ -172,7 +172,7 @@
         <div v-if="originDatas.length" class="catch-container" :class="isRobot ? 'is-robot' : ''">
             <div class="title">捕获地图</div>
             <!-- 地图组件 -->
-            <horse-map :name="item.Name" :list="originDatas" />
+            <horse-map :name="item.Name" :list="originDatas" :compact="isRobot" />
         </div>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
         <pvx-user :id="id" name="坐骑" type="item" :isRobot="isRobot"></pvx-user>

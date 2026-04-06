@@ -96,11 +96,17 @@
     }
 }
 
-.u-item__popup {
-    min-width: initial;
-    padding: 0;
-    border: none;
-    box-shadow: none;
-    background-color: transparent;
+.u-item__popup.el-popper,
+.u-item__popup.el-popover {
+    min-width: initial !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
     transform: translateY(-10px);
+
+    .el-popper__arrow,
+    .el-popper__arrow::before {
+        display: none !important;
+    }
 }
