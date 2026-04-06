@@ -48,8 +48,3 @@ export function deleteWikiAchievementLeapSchema(id) {
 export function getWikiAchievementLeapSchemaProgress(params) {
     return $cms().post(`/api/cms/pvx/wiki_achievement_difficulty/list`, params);
 }
-
-// 创建qqbot图片任务 刷图
-export function refreshQQBotImage(data) {
-    return $cms().post(`/api/cms/qqbot/picture_task`, data);
-}

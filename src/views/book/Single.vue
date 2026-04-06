@@ -1,11 +1,8 @@
 <template>
     <div ref="bookSingleWrap" class="book-single-wrapper m-single-wrapper">
-        <template v-if="!isRobot">
             <div class="back-wrap">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <div class="u-back-right">
-                    <PvxRobotTip v-if="!isRobot" type-name="书籍" :reply="book.Name"></PvxRobotTip>
-                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
             </div>
             <div v-if="book" class="book-single-content" v-loading="loading">
@@ -177,92 +174,8 @@
                 ></jx3box-map>
             </div> -->
             </div>
-        </template>
-        <template v-else>
-            <div class="m-pvx__item m-robot__book-header">
-                <div class="m-title">
-                    <div class="u-title">书籍 · {{ book?.Name || "" }}</div>
-                    <div class="m-meta">
-                        <div class="u-meta u-class" :class="`u-class-${book.ExtendProfessionID1}`">
-                            {{ bookTypeMap?.[book.ExtendProfessionID1] || "" }}
-                        </div>
-                        <div class="book-desc" v-html="book.Desc"></div>
-                    </div>
-                </div>
-                <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_book.svg" />
-                </div>
-            </div>
-            <div class="m-robot__book-info">
-                <div class="m-pvx__item m-book-info">
-                    <div class="u-title">书籍信息</div>
-                    <div class="m-list">
-                        <div v-if="!['其它', '碑铭'].includes(getOrigin(book))" class="u-item book-origin">
-                            来源：
-                            <span :class="getOrigin(book) !== '其它' && 'book-special'">{{ getOrigin(book) }}</span>
-                        </div>
-                        <div v-else class="u-info-item">
-                            来源：<span v-if="getOrigin(book) === '碑铭'" class="book-special"
-                                >{{ getOrigin(book) }}
-                            </span>
-                            <!-- 其它 -->
-                            <span v-else>{{ getOrigin(book) }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            所属套书：{{ "【" + getProfessionType(book.ExtendProfessionID1) + "】" + book.BookName }}
-                        </div>
-                        <div class="u-info-item">阅读等级：{{ book.RequireLevel }}</div>
-                    </div>
-                </div>
-                <div class="m-pvx__item m-book-write">
-                    <div class="u-title">抄录要求</div>
-
-                    <div class="m-list">
-                        <div class="u-info-item">
-                            <span>角色等级：</span>
-                            <span>{{ book.copy?.RequirePlayerLevel }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            <span>阅读等级：</span>
-                            <span>{{ book.copy?.RequireLevel }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            <span>{{ getProfessionType(book.ExtendProfessionID1) }}等级：</span>
-                            <span>{{ book.copy?.RequireLevelExt }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            <span>精力消耗：</span>
-                            <span>{{ book.copy?.CostVigor }}</span>
-                        </div>
-                    </div>
-                    <div v-if="book.copyList?.length" class="u-info-item m-materials">
-                        <span>所需材料：</span>
-                        <div class="u-material" v-for="material in book.copyList" :key="material.item_id">
-                            <item-icon :item_id="material.item_id" :onlyName="true"></item-icon>
-                            <span class="u-num"> x {{ material.count }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="m-robot__book-pack">
-                <div class="u-title">同套书籍 · {{ book.BookName }}</div>
-                <div class="m-pvx__item m-book-pack">
-                    <div class="u-item" v-for="(item, index) in bookList" :key="item.idKey + index">
-                        {{ item.SegmentName }}
-                    </div>
-                </div>
-            </div>
-            <div class="m-robot__book-content">
-                <div class="m-pvx-book-content">
-                    <div class="u-content" v-for="(item, i) in contentList" :key="i">
-                        <div class="u-title" v-if="!i">《{{ book.Name }}》</div>
-                        <div v-html="item"></div>
-                    </div>
-                </div>
-            </div>
-        </template>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="id" name="书籍" type="item" :is-robot="isRobot"></pvx-user>
+        <pvx-user :id="id" name="书籍" type="item"></pvx-user>
         <!-- 碑铭信息 -->
         <el-dialog
             title="碑铭位置"
@@ -288,8 +201,6 @@ import Jx3boxMap from "@jx3box/jx3box-map/src/components/Map.vue";
 import ItemIcon from "@/components/book/common/item_icon.vue";
 import BookCard from "@/components/book/BookCard";
 import PvxUser from "@/components/PvxUser.vue";
-import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
-import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 
 import bookProfession from "@/assets/data/book_profession.json";
 // 碑铭坐标json
@@ -309,8 +220,8 @@ import { isPhone } from "@/utils/index";
 
 export default {
     name: "bookSingle",
-    props: ["isRobot", "sourceId"],
-    components: { Jx3boxMap, BookCard, ItemIcon, PvxUser, PvxSingleAdminDrop, PvxRobotTip },
+    props: ["sourceId"],
+    components: { Jx3boxMap, BookCard, ItemIcon, PvxUser },
     data() {
         return {
             compatible: false,

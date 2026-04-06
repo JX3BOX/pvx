@@ -2,9 +2,9 @@ export default {
     index: {
         title: "休閒欄目",
         keywords:
-            "劍網3休閒欄目,JX3BOX休閒欄目,奇遇大全,聲望大全,書籍大全,劍三考試,捏臉數據,體型數據,寵物大全,家具大全,坐騎大全,家園藍圖,QQRobot",
+            "劍網3休閒欄目,JX3BOX休閒欄目,奇遇大全,聲望大全,書籍大全,劍三考試,捏臉數據,體型數據,寵物大全,家具大全,坐騎大全,家園藍圖",
         description:
-            "劍網3魔盒（JX3BOX）休閒欄目，提供奇遇、聲望、書籍、考試、捏臉、體型、寵物、家具、坐騎、家園藍圖與 QQRobot 等內容。",
+            "劍網3魔盒（JX3BOX）休閒欄目，提供奇遇、聲望、書籍、考試、捏臉、體型、寵物、家具、坐騎、家園藍圖等內容。",
     },
     adventure: {
         title: "奇遇大全",
@@ -201,13 +201,6 @@ export default {
                 keywords: "日曆詳情,JX3BOX",
                 description: "單條日曆內容詳情。",
             },
-        },
-    },
-    qqbot: {
-        pvx: {
-            title: "QQBot PVX",
-            keywords: "QQBot,PVX,JX3BOX",
-            description: "QQBot PVX 功能詳情頁。",
         },
     },
     reputation: {

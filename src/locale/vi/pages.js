@@ -2,9 +2,9 @@ export default {
     index: {
         title: "Chuyên mục giải trí",
         keywords:
-            "JX3BOX leisure,JX3 adventure,reputation,books,exam,face data,body data,pet list,furniture list,horse list,homeland blueprints,QQBot",
+            "JX3BOX leisure,JX3 adventure,reputation,books,exam,face data,body data,pet list,furniture list,horse list,homeland blueprints",
         description:
-            "JX3BOX cung cấp các nội dung giải trí và tra cứu: kỳ ngộ, danh vọng, sách, đề thi, mặt, vóc dáng, thú cưng, nội thất, tọa kỵ, bản thiết kế gia viên và QQBot.",
+            "JX3BOX cung cấp các nội dung giải trí và tra cứu: kỳ ngộ, danh vọng, sách, đề thi, mặt, vóc dáng, thú cưng, nội thất, tọa kỵ và bản thiết kế gia viên.",
     },
     adventure: {
         title: "Danh sách kỳ ngộ",
@@ -201,13 +201,6 @@ export default {
                 keywords: "calendar detail,JX3BOX",
                 description: "Chi tiết một mục trong lịch.",
             },
-        },
-    },
-    qqbot: {
-        pvx: {
-            title: "QQBot PVX",
-            keywords: "QQBot,PVX,JX3BOX",
-            description: "Trang chi tiết tính năng QQBot PVX.",
         },
     },
     reputation: {

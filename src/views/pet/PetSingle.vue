@@ -1,11 +1,8 @@
 <template>
     <div class="p-pet-single" v-if="pet" v-loading="loading">
-        <template v-if="!isRobot">
             <div class="m-pet-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <div class="u-back-right">
-                    <PvxRobotTip v-if="!isRobot" type-name="宠物" :reply="pet.Name"></PvxRobotTip>
-                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
             </div>
 
@@ -114,85 +111,8 @@
             </div>
             <!-- 宠物地图 -->
             <!-- <div class="u-map-title">捕获地图/获取攻略</div> -->
-        </template>
-        <template v-else>
-            <div class="m-pvx__item m-robot__pet-header">
-                <div class="m-title">
-                    <div class="u-title" :class="`u-title__level-${pet.Quality}`">
-                        {{ robotTitle }}
-                        <i class="u-stars">
-                            <i class="el-icon-star-on" v-for="count in pet.Star" :key="count"></i>
-                        </i>
-                    </div>
-                    <div class="m-meta">
-                        <div class="u-meta u-score" :class="`u-score-${getScoreClass(pet.Score)}`">
-                            {{ pet.Score || 0 }}分
-                        </div>
-                        <div class="u-meta u-class" :class="`u-class-${pet.Class}`">{{ getPetType(pet.Class) }}</div>
-                        <div class="u-meta">ID: {{ id }}</div>
-                    </div>
-                </div>
-                <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_pet.svg" />
-                </div>
-            </div>
-            <div class="m-robot__pet-info">
-                <div class="u-logo">
-                    <img :src="getImgSrc(pet.BgPath)" class="u-image" @error="replaceByDefault" />
-                </div>
-                <div class="m-pvx__item u-info">
-                    <div class="u-info__top">
-                        <div class="u-meta u-get-way">
-                            <span class="u-meta-label">获取方式：</span>{{ getPetSource(pet.Source) }}
-                        </div>
-                        <div class="u-meta u-source">
-                            <span class="u-meta-label">获取线索：</span>
-                            <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
-                                <span>{{ cleanResourceText(item.text) }}</span>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="u-info__bottom">
-                        <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
-                            <span v-html="item.text"></span>
-                        </template>
-                    </div>
-                </div>
-            </div>
-            <!-- 交互技能 -->
-            <!-- <div class="m-pvx__item m-robot__pet-skill">
-                <div class="u-title">交互技能</div>
-                <div class="m-skills">
-                    <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
-                        <img class="u-skill-icon" :src="iconLink(skill.IconID)" :alt="skill.Name" />
-                        <div class="u-skill-info">
-                            <div class="u-skill-name">{{ skill.Name }}</div>
-                            <div class="u-skill-desc">{{ skill.Desc }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-            <!-- 宠物羁绊 -->
-            <template v-if="medalList && medalList.length">
-                <div class="m-pvx__item m-robot-pet__fetters" v-for="item in medalList" :key="item.ID">
-                    <div class="u-title">羁绊 · {{ item.Name }}</div>
-                    <div class="u-desc">{{ showPetterDesc(item.Des) }}</div>
-                    <span v-for="pet in item.petList" :key="pet.Index" class="u-fetter" :to="'/' + pet.Index">
-                        <i class="u-fetter-icon" :class="['u-quality-' + pet.Quality]">
-                            <img :src="iconLink(pet.IconID)" />
-                        </i>
-                        <span class="u-fetter-name" :class="{ 'is-active': pet.Index == id }">{{ pet.Name }}</span>
-                    </span>
-                </div>
-            </template>
-            <div class="m-pvx-pet__map" v-show="mapDisplay">
-                <div class="u-title">捕获地图<span>（以魔盒在线版本为准）</span></div>
-                <!-- 地图组件 -->
-                <pet-map class="m-robot__map" :petId="parseInt(id)" @loaded="mapLoaded" />
-            </div>
-        </template>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="item_id" name="宠物" type="item" :is-robot="isRobot"></pvx-user>
+        <pvx-user :id="item_id" name="宠物" type="item"></pvx-user>
 
         <!-- <div class="m-pet-wiki">
             <Wiki
@@ -214,7 +134,6 @@ import { getPet, getPets, getShopInfo, getPetSkill, getSkill, getPetLucky } from
 import PvxUser from "@/components/PvxUser.vue";
 import petCard from "@/components/pet/PetCard.vue";
 import petFetters from "@/components/pet/PetFetters.vue";
-import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 // import Wiki from "@/components/wiki/Wiki.vue";
 import petType from "@/assets/data/pet_type.json";
 import petSource from "@/assets/data/pet_source.json";
@@ -225,10 +144,9 @@ import dayjs from "@/plugins/day";
 import PetMap from "@/components/pet/PetMap.vue";
 // import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 import { __imgPath } from "@/utils/config";
-import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 export default {
     name: "PetSingle",
-    props: ["isRobot", "sourceId"],
+    props: ["sourceId"],
     components: {
         petCard,
         petFetters,
@@ -237,8 +155,6 @@ export default {
         // WikiComments,
         PvxUser,
         PublicNotice,
-        PvxSingleAdminDrop,
-        PvxRobotTip,
     },
     data: function () {
         return {

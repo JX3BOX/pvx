@@ -2,17 +2,13 @@
     <!-- 包含攻略、评论、历史版本、点赞等 -->
     <div class="w-pvx-user">
         <!--攻略-->
-        <div class="m-wiki-post-panel" :class="isRobot ? 'is-robot' : ''" v-if="wiki_post && wiki_post.post">
-            <div v-if="isRobot" class="m-pvx-wiki-title">
-                <span class="u-title">{{ name }}攻略</span>
-                <span>（以魔盒在线版本为准）</span>
-            </div>
+        <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
-                <template #head-title v-if="!isRobot">
+                <template #head-title>
                     <img class="u-icon" svg-inline src="@/assets/img/common/item.svg" />
                     <span class="u-txt">{{ name }}攻略</span>
                 </template>
-                <template #head-actions v-if="!isRobot">
+                <template #head-actions>
                     <a class="el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
                         <i class="el-icon-edit"></i>
                         <span>完善{{ name }}攻略</span>
@@ -30,30 +26,22 @@
                     </div>
                 </template>
             </WikiPanel>
-            <template v-if="!isRobot">
-                <!-- 奇遇触发记录 -->
-                <slot name="serendipity"></slot>
+            <!-- 奇遇触发记录 -->
+            <slot name="serendipity"></slot>
 
-                <!-- 历史版本 -->
-                <WikiRevisions :type="type" :source-id="id" />
-            </template>
+            <!-- 历史版本 -->
+            <WikiRevisions :type="type" :source-id="id" />
         </div>
-        <div class="m-wiki-post-empty" :class="isRobot ? 'is-robot-empty' : ''"
-            v-if="(!wiki_post || !wiki_post.post) && id">
-            <template v-if="!isRobot">
-                <i class="el-icon-s-opportunity"></i>
-                <span>暂无攻略，我要</span>
-                <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
-            </template>
-            <span v-else>暂无相关攻略，欢迎热心侠士前往补充！</span>
+        <div class="m-wiki-post-empty" v-if="(!wiki_post || !wiki_post.post) && id">
+            <i class="el-icon-s-opportunity"></i>
+            <span>暂无攻略，我要</span>
+            <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
         </div>
-        <template v-if="!isRobot">
-            <Thx class="m-thx" :postId="id" :postType="type" :postTitle="wiki_post?.source?.Name || ''"
-                :userId="author_id" :adminBoxcoinEnable="false" :userBoxcoinEnable="false" :authors="authors"
-                mode="wiki" :key="type + '-thx-' + id" :client="client" />
-            <!-- 百科评论 -->
-            <WikiComments :type="type" :source-id="String(id)" />
-        </template>
+        <Thx class="m-thx" :postId="id" :postType="type" :postTitle="wiki_post?.source?.Name || ''" :userId="author_id"
+            :adminBoxcoinEnable="false" :userBoxcoinEnable="false" :authors="authors" mode="wiki"
+            :key="type + '-thx-' + id" :client="client" />
+        <!-- 百科评论 -->
+        <WikiComments :type="type" :source-id="String(id)" />
     </div>
 </template>
 
@@ -91,10 +79,6 @@ export default {
         itemId: {
             type: String,
             default: "",
-        },
-        isRobot: {
-            type: Boolean,
-            default: false,
         },
     },
     data() {
@@ -291,11 +275,6 @@ export default {
                     this.is_empty = isEmpty;
                     this.compatible = compatible;
                 });
-                // 请注意，为防止QQBOT无法抓取完全，请不要删除
-                if (this.isRobot) {
-                    // 数据加载后启动奇遇流程中的图片检测
-                    this.initImageLoader();
-                }
             }
             this.triggerStat();
         },
@@ -320,27 +299,6 @@ export default {
 
 <style lang="less">
 .w-pvx-user {
-    .m-wiki-post-panel.is-robot .m-panel-head .m-panel-title {
-        .none;
-    }
-
-    .m-pvx-wiki-title {
-        margin-top: 10px;
-
-        span {
-            font-weight: normal;
-            font-style: normal;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
-        }
-
-        .u-title {
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-        }
-    }
-
     &>div {
         margin-top: 40px !important;
     }

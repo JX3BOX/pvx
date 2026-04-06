@@ -1,18 +1,30 @@
 <template>
     <div>
-        <el-drawer v-model="show" direction="btt" :show-close="false" :with-header="false" append-to-body
-            class="topic-view-drawer" size="400" @close="onClose" style="width: 100%">
+        <el-drawer
+            v-model="show"
+            direction="btt"
+            :show-close="false"
+            :with-header="false"
+            append-to-body
+            class="topic-view-drawer"
+            size="400"
+            @close="onClose"
+            style="width: 100%"
+        >
             <template #default>
                 <div v-loading="loading" class="c-var m-topic-view">
                     <div v-if="source" class="m-achievement-info">
                         <div class="m-left">
                             <div class="u-achievement-box">
                                 <div class="u-icon">
-                                    <img :src="iconLink(source.IconID)" @error.once="
-                                        () => {
-                                            $event.target.src = iconLink();
-                                        }
-                                    " />
+                                    <img
+                                        :src="iconLink(source.IconID)"
+                                        @error.once="
+                                            () => {
+                                                $event.target.src = iconLink();
+                                            }
+                                        "
+                                    />
                                 </div>
                                 <div class="u-name">
                                     {{ source.Name }}
@@ -29,12 +41,15 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="m-right">
-                        </div>
+                        <div class="m-right"></div>
                     </div>
 
-                    <div class="m-content-box" ref="content" :class="{ 'not-on-bottom': !isAtBottom }"
-                        @contextmenu="openChild">
+                    <div
+                        class="m-content-box"
+                        ref="content"
+                        :class="{ 'not-on-bottom': !isAtBottom }"
+                        @contextmenu="openChild"
+                    >
                         <Article id="wikiArticle" :content="clearContent(wiki_post?.post?.content)" />
                     </div>
                 </div>
@@ -97,7 +112,7 @@ export default {
     },
     watch: {
         current: {
-            handler() { },
+            handler() {},
             immediate: true,
             deep: true,
         },
@@ -396,12 +411,6 @@ export default {
                     .finally(() => {
                         this.loading = false;
                     });
-            }
-
-            // 请注意，为防止QQBOT无法抓取完全，请不要删除
-            if (this.isRobot) {
-                // 数据加载后启动奇遇流程中的图片检测
-                this.initImageLoader();
             }
 
             this.triggerStat();
