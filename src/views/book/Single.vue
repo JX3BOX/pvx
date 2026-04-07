@@ -1,7 +1,7 @@
 <template>
     <div ref="bookSingleWrap" class="book-single-wrapper m-single-wrapper">
         <template v-if="!isRobot">
-            <div class="back-wrap">
+            <div class="back-wrap m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <div class="u-back-right">
                     <PvxRobotTip v-if="!isRobot" type-name="书籍" :reply="book.Name"></PvxRobotTip>

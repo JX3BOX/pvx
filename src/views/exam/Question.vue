@@ -1,6 +1,6 @@
 <template>
     <div class="v-question-single m-single-wrapper" v-loading="loading">
-        <div class="back-wrap">
+        <div class="back-wrap m-navigation">
             <el-button @click="goBack">返回列表</el-button>
             <a v-if="data.id && canManage" class="u-edit" :href="editLink('question', data.id)">
                 <i class="el-icon-edit-outline"></i><span>编辑</span>

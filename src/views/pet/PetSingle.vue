@@ -1,7 +1,7 @@
 <template>
     <div class="p-pet-single" v-if="pet" v-loading="loading">
         <template v-if="!isRobot">
-            <div class="m-pet-navigation">
+            <div class="m-pet-navigation m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <div class="u-back-right">
                     <PvxRobotTip v-if="!isRobot" type-name="宠物" :reply="pet.Name"></PvxRobotTip>

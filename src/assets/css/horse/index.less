@@ -39,6 +39,24 @@
                 .ml(-10px);
             }
         }
+        .m-cardlist-item {
+            .flex(x);
+        }
+        @media screen and (max-width: @ipad) {
+            .m-cardlist-items {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media screen and (max-width: @ipad-y) {
+            .m-cardlist-items {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media screen and (max-width: @phone) {
+            .m-cardlist-items {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     }
     .m-list-wrapper {
         .u-type {
@@ -146,6 +164,9 @@
 }
 
 @media screen and (max-width: @phone) {
+}
+
+@media screen and (max-width: @phone) {
     .horse-home-wrapper {
         .m-common-card {
             .u-tab:first-child {
@@ -181,12 +202,10 @@
     }
 }
 
-
 .m-horse-tabs {
     .u-filter {
         &:hover {
             background-color: @petColor;
         }
     }
-
 }
