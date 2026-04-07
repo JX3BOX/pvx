@@ -1,85 +1,47 @@
 <template>
-    <CommonToolbar class="m-face-tabs" :active="active" search :types="body_types" @update="updateToolbar">
-        <template v-slot:filter>
-            <div class="u-filter">
-                <el-popover placement="bottom-end" trigger="click" v-model="filterOpen" :width="400">
-                    <div class="m-face-filter m-common-filter">
-                        <div class="u-filter-item">
-                            <el-radio-group v-model="is_new_face" v-if="client === 'std'">
-                                <el-radio-button class="u-filter" :value="-1">全部</el-radio-button>
-                                <el-radio-button class="u-filter" :value="1">写实</el-radio-button>
-                                <el-radio-button class="u-filter" :value="0">写意</el-radio-button>
-                            </el-radio-group>
+    <div class="m-face-tabs">
+        <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
+            ref="pvxSearchRef" popperClass="m-face-filter-popover">
+            <template #extra>
+                <div v-if="!isMininote" class="m-toolbar-item m-toolbar-publish">
+                    <a :href="link.data" target="_blank">
+                        <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
+                    </a>
+                    <a :href="publish_link(link.key)" target="_blank">
+                        <div class="u-face-publish">
+                            <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
+                            <span>发布作品</span>
                         </div>
-
-                        <div class="u-filter-item">
-                            <el-checkbox-button
-                                :model-value="star === false && price_type === false && is_unlimited === false"
-                                @change="handleSelectAll" class="u-filter">全部</el-checkbox-button>
-                            <el-checkbox-button v-model="star" class="u-filter">精选</el-checkbox-button>
-                            <el-checkbox-button v-model="price_type" class="u-filter">免费</el-checkbox-button>
-                            <el-checkbox-button v-model="is_unlimited" class="u-filter">可新建</el-checkbox-button>
+                    </a>
+                </div>
+                <div v-if="isMininote" class="m-toolbar-item">
+                    <a :href="publish_link(link.key)" target="_blank">
+                        <div class="u-face-publish">
+                            <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
+                            <span>发布作品</span>
                         </div>
-                        <div class="u-filter-item">
-                            <el-radio-group v-model="filter_empty_images">
-                                <el-radio-button class="u-filter" :value="0">全部</el-radio-button>
-                                <el-radio-button class="u-filter" :value="1">有图</el-radio-button>
-                            </el-radio-group>
-                        </div>
-                        <div class="u-filter-item">
-                            <el-radio-group v-model="code_mode">
-                                <el-radio-button class="u-filter" value="">全部</el-radio-button>
-                                <el-radio-button class="u-filter" :value="1">捏脸码</el-radio-button>
-                            </el-radio-group>
-                        </div>
-                    </div>
-                    <template #reference>
-                        <img svg-inline src="@/assets/img/common/filter.svg" />
-                    </template>
-                </el-popover>
-            </div>
-        </template>
-        <template v-slot:append>
-            <div v-if="!isMininote" class="m-toolbar-item m-toolbar-publish">
-                <a :href="link.data" target="_blank">
-                    <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
-                </a>
-                <a :href="publish_link(link.key)" target="_blank">
-                    <div class="u-face-publish">
-                        <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
-                        <span>发布作品</span>
-                    </div>
-                </a>
-            </div>
-        </template>
-        <template v-slot:tool>
-            <div v-if="isMininote" class="m-toolbar-item">
-                <a :href="publish_link(link.key)" target="_blank">
-                    <div class="u-face-publish">
-                        <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
-                        <span>发布作品</span>
-                    </div>
-                </a>
-                <a :href="link.data" target="_blank">
-                    <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
-                </a>
-            </div>
-        </template>
-    </CommonToolbar>
+                    </a>
+                    <a :href="link.data" target="_blank">
+                        <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
+                    </a>
+                </div>
+            </template>
+        </PvxSearch>
+    </div>
 </template>
 
 <script>
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
 import { __imgPath } from "@/utils/config";
-import CommonToolbar from "@/components/common/toolbar.vue";
+import PvxSearch from "@/components/PvxSearch.vue";
 import { debounce } from "lodash";
+
 export default {
     name: "tabs",
     props: ["body_types", "active", "link"],
-    components: { CommonToolbar },
+    components: { PvxSearch },
     data: function () {
         return {
-            all: true,
             star: false,
             is_unlimited: false,
             price_type: false,
@@ -92,6 +54,96 @@ export default {
         };
     },
     computed: {
+        client() {
+            return this.$store.state.client;
+        },
+        isMininote() {
+            const w = this.screenWidth;
+            return w <= 1280;
+        },
+        searchItems() {
+            const items = [];
+            if (this.body_types && this.body_types.length) {
+                items.push({
+                    type: "radio",
+                    key: "body_type",
+                    options: this.body_types.map((item) => ({
+                        type: item.value,
+                        name: item.label,
+                    })),
+                });
+            }
+            const filterOptions = [];
+            if (this.client === "std") {
+                filterOptions.push({
+                    type: "radio",
+                    key: "is_new_face",
+                    name: "脸型风格",
+                    options: [
+                        { key: -1, value: "全部" },
+                        { key: 1, value: "写实" },
+                        { key: 0, value: "写意" },
+                    ],
+                });
+            }
+            filterOptions.push({
+                type: "checkbox",
+                key: "filter_flags",
+                name: "筛选条件",
+                options: [
+                    { label: "全部", value: "all" },
+                    { label: "精选", value: "star" },
+                    { label: "免费", value: "price_type" },
+                    { label: "可新建", value: "is_unlimited" },
+                ],
+            });
+            filterOptions.push({
+                type: "radio",
+                key: "filter_empty_images",
+                name: "图片筛选",
+                options: [
+                    { key: 0, value: "全部" },
+                    { key: 1, value: "有图" },
+                ],
+            });
+            filterOptions.push({
+                type: "radio",
+                key: "code_mode",
+                name: "捏脸码",
+                options: [
+                    { key: "", value: "全部" },
+                    { key: 1, value: "捏脸码" },
+                ],
+            });
+            items.push({
+                type: "filter",
+                options: filterOptions,
+            });
+            items.push({
+                key: "title",
+                name: "搜索内容",
+            });
+            return items;
+        },
+        initSearchValue() {
+            const value = {
+                body_type: this.active,
+                title: this.title,
+                is_new_face: this.is_new_face,
+                filter_empty_images: this.filter_empty_images,
+                code_mode: this.code_mode,
+            };
+            const filterFlags = [];
+            if (!this.star && !this.price_type && !this.is_unlimited) {
+                filterFlags.push("all");
+            } else {
+                if (this.star) filterFlags.push("star");
+                if (this.price_type) filterFlags.push("price_type");
+                if (this.is_unlimited) filterFlags.push("is_unlimited");
+            }
+            value.filter_flags = filterFlags;
+            return value;
+        },
         params() {
             const _params = {};
             if (this.star) _params.star = 1;
@@ -101,18 +153,17 @@ export default {
             if (this.filter_empty_images) _params.filter_empty_images = true;
             _params.is_new_face = this.is_new_face;
             _params.body_type = this.active;
-            if (this.code_mode === 0 || this.code_mode === 1) {
+            if (this.code_mode) {
                 _params.code_mode = this.code_mode;
             }
             return _params;
         },
-        client() {
-            return this.$store.state.client;
-        },
-        isMininote() {
-            const w = this.screenWidth;
-            return w <= 1280;
-        },
+    },
+
+    created() {
+        this.emitChange = debounce((params) => {
+            this.$emit("change", params);
+        }, 300);
     },
 
     methods: {
@@ -122,26 +173,26 @@ export default {
         publish_link(key) {
             return publishLink(key);
         },
-        updateToolbar(data) {
-            const { type, search } = data;
-            this.title = search;
-            this.$emit("setActive", type);
+        handleSearch(data) {
+            if (data.body_type !== undefined && data.body_type !== this.active) {
+                this.$emit("setActive", data.body_type);
+            }
+            this.title = data.title || "";
+            this.is_new_face = data.is_new_face !== undefined ? data.is_new_face : -1;
+            this.filter_empty_images = data.filter_empty_images !== undefined ? data.filter_empty_images : 0;
+            this.code_mode = data.code_mode !== undefined ? data.code_mode : "";
+            let filterFlags = data.filter_flags || [];
+            if (typeof filterFlags === "string") {
+                filterFlags = filterFlags.split(",").filter(Boolean);
+            }
+            const hasAll = filterFlags.includes("all");
+            this.star = !hasAll && filterFlags.includes("star");
+            this.price_type = !hasAll && filterFlags.includes("price_type");
+            this.is_unlimited = !hasAll && filterFlags.includes("is_unlimited");
+            this.emitChange(this.params);
         },
         handleResize() {
             this.screenWidth = window.innerWidth;
-        },
-        handleSelectAll() {
-            this.star = false;
-            this.price_type = false;
-            this.is_unlimited = false;
-        },
-    },
-    watch: {
-        params: {
-            handler: debounce(function (obj) {
-                this.$emit("change", obj);
-            }, 50),
-            deep: true,
         },
     },
     mounted() {
@@ -162,9 +213,30 @@ export default {
 
 <style lang="less">
 .m-face-tabs {
-    .u-filter {
-        &:hover {
-            background-color: @faceColor;
+    .pvx-search-wrapper {
+        .type-list {
+            .type-item {
+
+                &:hover,
+                &.is-active {
+                    background-color: @faceColor !important;
+
+                    .el-radio-button__inner {
+                        background-color: @faceColor !important;
+
+                    }
+                }
+            }
+        }
+
+        .filter-wrap {
+            .filter-img {
+                svg {
+                    fill: #949494;
+                    background-color: #fff;
+                    border-radius: 50%;
+                }
+            }
         }
     }
 
@@ -206,80 +278,56 @@ export default {
             filter: brightness(1.1);
         }
     }
+
+    .m-toolbar-publish {
+        .flex;
+        gap: 10px;
+    }
 }
 
-.m-face-filter {
-    .flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    .w(100%);
-    flex-direction: column;
+.m-face-filter-popover {
+    .filter-content {
 
-    .u-filter {
-        .u-filter-item {
-            .w(100%);
-            flex-shrink: 0;
-        }
+        .is-active,
+        .is-checked {
 
-        .el-button,
-        .el-checkbox-button__inner,
-        .el-radio-button__inner {
-            margin: 0 10px 0 10px;
-            .db;
-            .r(30px);
-            border: 1px solid #dcdfe6;
-            background-color: #e1dfdf;
-
-            &:hover {
-                color: #fff;
-                background-color: @faceColor;
-                border-color: @faceColor;
-            }
-        }
-
-        .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-            background-color: @faceColor;
-            border-color: @faceColor;
-        }
-
-        .el-checkbox-button__inner {
-            white-space: nowrap;
-            transition: 0.3s ease-out;
-
-            &:hover {
-                background-color: @faceColor;
-                color: #fff;
-            }
-        }
-
-        &.is-checked {
+            .el-radio-button__inner,
             .el-checkbox-button__inner {
-                border-color: @faceColor;
-                background-color: @faceColor;
+                background-color: @faceColor !important;
+                border-color: @faceColor !important;
+                color: #fff;
+
+                &:hover {
+                    background-color: @faceColor !important;
+                    color: #fff;
+                }
+            }
+        }
+
+        .el-radio-button__inner,
+        .el-checkbox-button__inner {
+            &:hover {
+                background-color: @faceColor !important;
                 color: #fff;
             }
         }
+
     }
 }
 
 @media screen and (max-width: @ipad) {
     .m-face-tabs {
+        .pvx-search-wrapper {
+            .search-group {
+                flex-wrap: wrap;
+            }
+        }
+
         .m-toolbar-publish {
             order: -1;
             justify-content: space-between;
+            width: 100%;
         }
     }
 }
-
-/*
-@media screen and (max-width: @phone) {
-    .m-face-tabs .m-toolbar-item {
-        &.m-toolbar-publish {
-            a:first-child {
-                order: 2;
-            }
-        }
-    }
-}
-*/
 </style>

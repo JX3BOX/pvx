@@ -23,7 +23,7 @@
                 </template>
                 <template v-if="item.type === 'filter' && item.options.length">
                     <el-popover ref="popover" :placement="isPhone() ? 'right' : 'bottom'" :width="!isPhone() && 420"
-                        trigger="click" v-model="filterValue">
+                        trigger="click" v-model="filterValue" :popper-class="popperClass">
                         <div class="filter-content">
                             <div class="filter-item" v-for="fItem in item.options" :key="fItem.key">
                                 <el-select v-if="fItem.type === 'select'" :id="fItem.remote" class="select-wrapper"
@@ -128,6 +128,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        popperClass: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
@@ -151,7 +155,6 @@ export default {
             immediate: true,
             deep: true,
             handler: function (initValue) {
-                // 初始化值
                 const items = this.items;
                 const formData = {};
                 items.forEach((item) => {
@@ -161,12 +164,19 @@ export default {
                         const options = item.options;
                         options.forEach((oItem) => {
                             formData[oItem.key] = "";
-                            const arr = initValue && initValue[oItem.key] ? [initValue[oItem.key]] : [];
+                            let arr = [];
+                            if (initValue && initValue[oItem.key]) {
+                                const val = initValue[oItem.key];
+                                if (Array.isArray(val)) {
+                                    arr = val;
+                                } else if (typeof val === "string") {
+                                    arr = val.split(",").filter(Boolean);
+                                }
+                            }
                             this.checkboxData[oItem.key] = arr;
                         });
                     }
                 });
-                // 使select的值响应式化
                 this.formData = { ...formData, ...initValue };
             },
         },
@@ -185,19 +195,39 @@ export default {
         },
         checkboxChange(key) {
             const value = this.checkboxData[key];
-            this.formData[key] = value.join(",");
+            const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
+            const checkboxOption = filterOptions.find((item) => item.key === key);
+            const hasAllOption = checkboxOption?.options?.some((opt) => opt.value === "all");
+            if (hasAllOption && value.length > 0) {
+                const lastSelected = value[value.length - 1];
+                if (lastSelected === "all") {
+                    this.checkboxData[key] = ["all"];
+                } else {
+                    const filtered = value.filter((v) => v !== "all");
+                    this.checkboxData[key] = filtered;
+                }
+            }
+            this.formData[key] = this.checkboxData[key].join(",");
         },
         reset() {
             const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
-            const filterRadios = filterOptions.filter((item) => item.type === "radio");
-            filterRadios.forEach((item) => {
-                this.formData[item.key] = "";
+            filterOptions.forEach((item) => {
+                if (item.type === "radio") {
+                    const firstOption = item.options[0];
+                    if (firstOption) {
+                        this.formData[item.key] = firstOption.key;
+                    }
+                } else if (item.type === "checkbox") {
+                    const allOption = item.options.find((opt) => opt.value === "all");
+                    if (allOption) {
+                        this.checkboxData[item.key] = ["all"];
+                        this.formData[item.key] = "all";
+                    } else {
+                        this.checkboxData[item.key] = [];
+                        this.formData[item.key] = "";
+                    }
+                }
             });
-            for (let key in this.checkboxData) {
-                this.checkboxData[key] = [];
-            }
-            const oldFormData = cloneDeep(this.formData);
-            this.formData = oldFormData;
             this.filterValue = false;
             this.$router.push({ query: "" });
         },
