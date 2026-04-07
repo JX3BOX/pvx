@@ -7,7 +7,7 @@
                     <span class="u-txt">{{ title }}</span>
                 </template>
                 <template v-slot:head-actions>
-                    <a class="el-button el-button--primary" :href="publish_url">
+                    <a class="u-btn--link el-button el-button--primary" :href="publish_url">
                         <i class="el-icon-edit"></i>
                         <span>完善{{ title }}</span>
                     </a>

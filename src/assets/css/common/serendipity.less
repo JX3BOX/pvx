@@ -1,51 +1,31 @@
 .m-serendipity {
-    .r(5px);
-    .mb(15px);
-    .lh(30px);
-    background-color: #fafbfc;
-    border: 1px solid #eeeeee;
-    .u-title {
-        padding: 10px 15px;
-        background-color: #f5f7fa;
-        border-bottom: 1px solid #eeeeee;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        .u-label {
-            .fz(17px);
-            .color(#6c645c);
-            .mr(14px);
-            font-weight: 300;
-            display: flex;
-            align-items: center;
-            text-wrap: nowrap;
-            i {
-                .fz(22px);
-                .mr(4px);
+    .m-panel-title {
+        .u-txt {
+            white-space: nowrap;
+        }
+        .u-server {
+            .w(140px);
+        }
+    }
+    .m-panel-actions {
+        .u-more {
+            color: @v4tip;
+            .smooth;
+            &:hover {
                 .color(@v4primary);
             }
         }
-
-        .u-server {
-            .ml(10px);
-            width: 215px;
-        }
-
-        .u-more {
-            .fz(13px,20px);
-            .color(@v4primary);
-        }
     }
 
-    .u-list{
-        padding:10px 20px;
+    .u-header{
+        color:#888;
     }
     .u-list li {
         list-style: none;
         display: flex;
-        .color(#6e7379);
         .fz(14px,40px);
         border-bottom: 1px solid #eee;
+        color:@color;
         span {
             .mr(30px);
             &:last-child {
@@ -70,16 +50,6 @@
         }
         &:last-child {
             border-bottom: 0;
-        }
-    }
-}
-
-@media screen and (max-width: @phone) {
-    .m-serendipity {
-        .u-title {
-            .u-server {
-                width: 140px;
-            }
         }
     }
 }

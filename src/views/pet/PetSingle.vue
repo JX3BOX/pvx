@@ -87,11 +87,7 @@
                                     <div class="u-skill-desc">{{ skill.Desc }}</div>
                                 </div>
                                 <template #reference>
-                                    <img
-                                        class="u-skill-icon"
-                                        :src="iconLink(skill.IconID)"
-                                        :alt="skill.Name"
-                                    />
+                                    <img class="u-skill-icon" :src="iconLink(skill.IconID)" :alt="skill.Name" />
                                 </template>
                             </el-popover>
                         </div>
@@ -105,12 +101,16 @@
             </div>
             <!-- 宠物羁绊 -->
             <div class="m-pet-fetters" v-if="medalList && medalList.length">
-                <div class="u-header">
-                    <img class="u-icon" svg-inline src="@/assets/img/common/achievement.svg" />
-                    <span class="u-txt">宠物羁绊</span>
-                </div>
-                <!-- 羁绊信息 -->
-                <petFetters :info="item" v-for="item in medalList" :key="item.ID" />
+                <WikiPanel>
+                    <template #head-title>
+                        <img class="u-icon" svg-inline src="@/assets/img/common/achievement.svg" />
+                        <span class="u-txt">宠物羁绊</span>
+                    </template>
+                    <template #body>
+                        <!-- 羁绊信息 -->
+                        <petFetters :info="item" v-for="item in medalList" :key="item.ID" />
+                    </template>
+                </WikiPanel>
             </div>
             <!-- 宠物地图 -->
             <!-- <div class="u-map-title">捕获地图/获取攻略</div> -->
@@ -215,6 +215,7 @@ import PvxUser from "@/components/PvxUser.vue";
 import petCard from "@/components/pet/PetCard.vue";
 import petFetters from "@/components/pet/PetFetters.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import WikiPanel from "@jx3box/jx3box-ui/src/wiki/WikiPanel";
 // import Wiki from "@/components/wiki/Wiki.vue";
 import petType from "@/assets/data/pet_type.json";
 import petSource from "@/assets/data/pet_source.json";
@@ -232,6 +233,7 @@ export default {
     components: {
         petCard,
         petFetters,
+        WikiPanel,
         // Wiki,
         PetMap,
         // WikiComments,
@@ -441,14 +443,14 @@ export default {
             });
             getPets({ ids: [...ids].join(","), client: this.client }).then((res) => {
                 const list = res.data.list;
-	                // 将羁绊的宠物放入对应的羁绊中
-	                this.medalList.map((item) => {
-	                    const petList = list.filter((pet) => item.pets.includes(pet.Index));
-	                    item.petList = petList;
-	                    return item;
-	                });
-	            });
-	        },
+                // 将羁绊的宠物放入对应的羁绊中
+                this.medalList.map((item) => {
+                    const petList = list.filter((pet) => item.pets.includes(pet.Index));
+                    item.petList = petList;
+                    return item;
+                });
+            });
+        },
         mapLoaded(visible) {
             this.mapDisplay = visible;
         },
