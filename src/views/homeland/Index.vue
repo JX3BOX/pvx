@@ -1,19 +1,6 @@
 <template>
     <div class="p-homeland">
-        <div class="m-homeland-tabs m-common-tabs">
-            <a
-                href="javascript:;"
-                class="u-tab"
-                :class="active === item.value && 'active'"
-                v-for="item in tabs"
-                :key="item.value"
-                @click="onTabClick(item.value)"
-                >{{ item.label }}
-            </a>
-            <a href="https://gdca.xoyo.com/jx3/blueprint/index.html" class="u-tab" target="_blank">免费蓝图</a>
-            <a href="https://gdca.xoyo.com/jx3/blueprint/index.html?" class="u-tab" target="_blank">付费蓝图</a>
-            <a href="https://jx3.seasunwbl.com/buyer?t=blueprint" class="u-tab" target="_blank">藏品蓝图</a>
-        </div>
+        <PvxSearch :items="searchItems" :initValue="initSearchValue" @search="handleSearch" />
         <div class="m-homeland-content">
             <!-- 家园信息 -->
             <Tutorial v-if="active === 0"></Tutorial>
@@ -32,6 +19,8 @@ import Tutorial from "./Tutorial.vue";
 import Maps from "./Maps.vue";
 import Flower from "./Flower.vue";
 import Bbs from "./Bbs.vue";
+import PvxSearch from "@/components/PvxSearch.vue";
+
 export default {
     name: "Index",
     components: {
@@ -39,6 +28,7 @@ export default {
         Maps,
         Flower,
         Bbs,
+        PvxSearch,
     },
     data() {
         return {
@@ -52,16 +42,53 @@ export default {
                     label: "家园地图",
                     value: 1,
                 },
-                // {
-                //     label: "家园花价",
-                //     value: 2,
-                // },
                 {
                     label: "家园攻略",
                     value: 3,
                 },
             ],
+            externalLinks: [
+                {
+                    label: "免费蓝图",
+                    link: "https://gdca.xoyo.com/jx3/blueprint/index.html",
+                },
+                {
+                    label: "付费蓝图",
+                    link: "https://gdca.xoyo.com/jx3/blueprint/index.html?",
+                },
+                {
+                    label: "藏品蓝图",
+                    link: "https://jx3.seasunwbl.com/buyer?t=blueprint",
+                },
+            ],
         };
+    },
+    computed: {
+        searchItems() {
+            const options = this.tabs.map((item) => ({
+                type: item.value,
+                name: item.label,
+            }));
+            this.externalLinks.forEach((item) => {
+                options.push({
+                    type: item.label,
+                    name: item.label,
+                    link: item.link,
+                });
+            });
+            return [
+                {
+                    type: "radio",
+                    key: "active",
+                    options: options,
+                },
+            ];
+        },
+        initSearchValue() {
+            return {
+                active: this.active,
+            };
+        },
     },
     methods: {
         toTip() {
@@ -70,8 +97,9 @@ export default {
                 message: "即将上线，敬请期待！",
             });
         },
-        onTabClick(val) {
-            if (val == 3) {
+        handleSearch(data) {
+            const val = data.active;
+            if (val === 3) {
                 window.open("/community?category=心得&page=1", "_self");
                 return;
             }
@@ -82,22 +110,58 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/tabs.less";
 @import "~@/assets/css/homeland/index.less";
-.m-homeland-tabs {
-    .u-tab {
-        &.active,
-        &:hover {
-            background-color: @homelandColor;
+
+.p-homeland {
+    .pvx-search-wrapper {
+        .type-list {
+            .type-item {
+
+                &.is-active,
+                &:hover {
+                    background-color: @homelandColor !important;
+
+                    .el-radio-button__inner {
+                        background-color: @homelandColor !important;
+                    }
+                }
+            }
+
+            a.type-item {
+                &:hover {
+                    background-color: @homelandColor !important;
+                    color: #fff;
+                }
+            }
         }
     }
 }
+
 @media screen and (max-width: @phone) {
-    .p-homeland .m-common-tabs.m-homeland-tabs {
-        justify-content: flex-start;
-        .u-tab {
-            .fz(14px);
-            width: calc(33% - 6px);
+    .p-homeland {
+        .pvx-search-wrapper {
+            height: auto;
+
+            .search-group {
+                flex-wrap: wrap;
+                gap: 10px;
+
+                .search-item.type-list {
+                    width: 100%;
+                    flex-wrap: wrap;
+                    gap: 10px;
+
+                    .el-radio-group {
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+
+                    .type-item {
+                        width: calc(33% - 6px);
+                        .fz(14px);
+                    }
+                }
+            }
         }
     }
 }
