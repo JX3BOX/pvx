@@ -1,141 +1,160 @@
 <template>
-    <div class="p-compare">
-        <!-- 顶部信息 -->
-        <div class="u-title">
-            <div class="u-label">亲友对比</div>
-            <div class="u-tip">
-                <div class="u-select">
-                    <el-select v-model="selectTab" placeholder="请选择" multiple collapse-tags clearable
-                        @change="selectTabChange">
-                        <el-option v-for="item in selectOptions" :key="item.type" :label="item.name" :value="item.type"
-                            :disabled="isSelectDisabled(item.type)">
-                        </el-option>
+    <div class="p-pvx-compare">
+        <!-- 顶部标题栏 -->
+        <div class="u-pvx-header">
+            <!-- 页面标题 -->
+            <div class="u-pvx-title-label">亲友对比</div>
+            <!-- 工具栏：筛选和搜索 -->
+            <div class="u-pvx-toolbar">
+                <!-- 筛选下拉框 -->
+                <div class="u-pvx-filter-select">
+                    <el-select v-model="selectedFilter" placeholder="请选择" multiple collapse-tags clearable
+                        @change="handleFilterChange">
+                        <el-option v-for="option in filterOptions" :key="option.type" :label="option.name"
+                            :value="option.type" :disabled="isFilterOptionDisabled(option.type)" />
                     </el-select>
                 </div>
 
-                <!-- *根据成就未完成人数由多到少排序。 -->
-                <el-input placeholder="输入成就名称/成就描述/称号/奖励物品「回车」进行搜索" v-model="searchKeyword" class="u-search-input"
-                    @keydown.enter="searchHandle">
+                <!-- 搜索输入框 -->
+                <el-input placeholder="输入成就名称/成就描述/称号/奖励物品「回车」进行搜索" v-model="searchKeyword" class="u-pvx-search-input"
+                    @keydown.enter="handleSearch">
                     <template #prepend>
-                        <slot><el-cascader v-model="searchMap" :options="mapList" @change="searchHandle"
-                                :show-all-levels="false" clearable class="u-cascader"></el-cascader></slot>
+                        <el-cascader v-model="selectedMap" :options="mapOptions" @change="handleSearch"
+                            :show-all-levels="false" clearable class="u-pvx-map-cascader" />
                     </template>
-                    <template #append><el-button icon="Search" class="u-btn"
-                            @click="searchHandle"></el-button></template>
+                    <template #append>
+                        <el-button icon="Search" class="u-pvx-search-btn" @click="handleSearch" />
+                    </template>
                 </el-input>
             </div>
-            <div class="u-export" @click="exportToExcel">
+            <!-- 导出按钮 -->
+            <div class="u-pvx-export-btn" @click="exportToExcel">
                 导出当前表格
             </div>
         </div>
-        <div class="m-compare-main">
-            <!-- 左侧成就筛选 -->
-            <div class="u-left">
-                <ul class="u-zl-item" :class="{
-                    active: item.sub == activeIndex,
-                    show: item.sub == activeIndex && !activeShow,
-                }" v-for="(item, index) in menuList" :key="index" @click="setActiveIndex(item.sub)">
-                    <div class="u-zl-item_title">
-                        {{ item.name }}
-                        <!-- &nbsp;<el-icon :class="item.sub == activeIndex && activeShow ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
-                            " @click.stop="setActiveShow(item.sub)" /> -->
+
+        <!-- 主内容区域 -->
+        <div class="m-pvx-compare-main">
+            <!-- 左侧菜单栏 -->
+            <div class="u-pvx-sidebar">
+                <ul class="u-pvx-menu-group" :class="{
+                    'is-active': menuGroup.sub === activeMenuIndex,
+                    'is-collapsed': menuGroup.sub === activeMenuIndex && !isMenuExpanded,
+                }" v-for="(menuGroup, groupIndex) in menuList" :key="groupIndex"
+                    @click="handleMenuGroupClick(menuGroup.sub)">
+                    <!-- 菜单组标题 -->
+                    <div class="u-pvx-menu-group-title">
+                        {{ menuGroup.name }}
                     </div>
-                    <li class="u-zl-item_children" :class="{ active: item2.detail == activeIndexChildren }"
-                        v-for="(item2, index2) in item.children" :key="index2"
-                        @click.stop="setActiveIndex(item.sub, item2.detail)">
-                        {{ item2.name }}
+                    <!-- 菜单项列表 -->
+                    <li class="u-pvx-menu-item" :class="{ 'is-active': menuItem.detail === activeMenuItemDetail }"
+                        v-for="(menuItem, itemIndex) in menuGroup.children" :key="itemIndex"
+                        @click.stop="handleMenuItemClick(menuGroup.sub, menuItem.detail)">
+                        {{ menuItem.name }}
                     </li>
                 </ul>
             </div>
-            <div class="u-right">
-                <!-- 竖向布局 -->
-                <div class="u-zl-box">
-                    <div class="u-zl_table" :style="'width:' + (contrastKith.length + 1) * 200 + 'px'">
-                        <div class="u-table_label ps">成就名称</div>
-                        <!-- 对比亲友及自身 -->
-                        <div class="u-table_label kith" v-for="(item, index) in contrastKith" :key="index">
-                            <div class="u-name" :title="item.name + '·' + item.server">
-                                {{ item.name }}·{{ item.server }}
+
+            <!-- 右侧内容区 -->
+            <div class="u-pvx-content">
+                <!-- 表格容器 -->
+                <div class="u-pvx-table-wrapper">
+                    <!-- 表头：角色名称行 -->
+                    <div class="u-pvx-table-header" :style="{ width: getTableWidth }">
+                        <div class="u-pvx-table-cell is-sticky">成就名称</div>
+                        <!-- 对比角色列表 -->
+                        <div class="u-pvx-table-cell" v-for="(role, roleIndex) in compareRoles" :key="roleIndex">
+                            <div class="u-pvx-role-name" :title="getRoleFullName(role)">
+                                {{ getRoleFullName(role) }}
                             </div>
-                            <el-icon class="el-icon-circle-close" @click="delRole(item, index)" />
+                            <el-icon class="u-pvx-remove-icon" @click="removeCompareRole(role, roleIndex)" />
                         </div>
                     </div>
-                    <!-- 总资历模块 -->
-                    <div class="u-zl-number_table" :style="'width:' + (contrastKith.length + 1) * 200 + 'px'">
-                        <div class="u-table_label ps">总资历</div>
-                        <!-- 对比亲友及自身 -->
-                        <div class="u-table_label kith" v-for="(item, index) in contrastKith" :key="index">
-                            <div class="u-name" :title="item.name + '·' + item.server + '总资历：' + item.number">
-                                {{ item.number }}
+
+                    <!-- 总资历行 -->
+                    <div class="u-pvx-points-table" :style="{ width: getTableWidth }">
+                        <div class="u-pvx-table-cell is-sticky">总资历</div>
+                        <!-- 各角色资历点数 -->
+                        <div class="u-pvx-table-cell" v-for="(role, roleIndex) in compareRoles" :key="roleIndex">
+                            <div class="u-pvx-role-name" :title="getRolePointsTitle(role)">
+                                {{ role.totalPoints }}
                             </div>
                         </div>
                     </div>
-                    <div class="u-zl_cell" :style="'width:' + (contrastKith.length + 1) * 200 + 'px'"
-                        v-loading="achievementsLoading">
-                        <div class="u-zl-list ps">
-                            <div class="u-zl-list_item" v-for="(item, index) in achievements" :key="index">
-                                <el-tooltip effect="dark" :content="item.Desc" placement="top">
-                                    <a :href="get_link(item.ID)" target="_blank">
-                                        <div class="u-zl-list_item_box">
-                                            <img class="u-icon" :src="icon_url(item?.IconID)" />
-                                            <span class="u-name">{{ item?.Name }}</span>
+
+                    <!-- 成就列表主体 -->
+                    <div class="u-pvx-table-body" :style="{ width: getTableWidth }" v-loading="isLoading">
+                        <!-- 成就名称列 -->
+                        <div class="u-pvx-achievement-list is-sticky">
+                            <div class="u-pvx-achievement-item"
+                                v-for="(achievement, achievementIndex) in achievementList" :key="achievementIndex">
+                                <el-tooltip effect="dark" :content="achievement.Desc" placement="top">
+                                    <a :href="getAchievementLink(achievement.ID)" target="_blank">
+                                        <div class="u-pvx-achievement-info">
+                                            <img class="u-pvx-achievement-icon"
+                                                :src="getIconUrl(achievement?.IconID)" />
+                                            <span class="u-pvx-achievement-name">{{ achievement?.Name }}</span>
                                         </div>
                                     </a>
                                 </el-tooltip>
                             </div>
                         </div>
-                        <div class="u-zl-list" v-for="(item, index) in contrastKith" :key="index">
-                            <div class="u-zl-list_item kith" v-for="(item2, index2) in item.achievements" :key="index2">
-                                <div class="u-self-checked" :class="{ finish: item2.value != '-1' }">
-                                    <el-icon v-if="item2.value != '-1'"><Select color="#000000" /></el-icon>
+                        <!-- 各角色完成状态列 -->
+                        <div class="u-pvx-achievement-list" v-for="(role, roleIndex) in compareRoles" :key="roleIndex">
+                            <div class="u-pvx-achievement-item"
+                                v-for="(status, statusIndex) in role.achievementStatusList" :key="statusIndex">
+                                <div class="u-pvx-status-check" :class="{ 'is-completed': status.value !== '-1' }">
+                                    <el-icon v-if="status.value !== '-1'">
+                                        <Select color="#000000" />
+                                    </el-icon>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="u-zl-add_item" @click="addRole">
-                    <img class="u-add-icon" :src="require('@/assets/img/wiki/compare/add.svg')" alt="" />
-                    <div class="u-add-txt">添加角色</div>
+
+                <!-- 添加角色按钮 -->
+                <div class="u-pvx-add-role" @click="openAddRoleDialog">
+                    <img class="u-pvx-add-icon" :src="require('@/assets/img/wiki/compare/add.svg')" alt="添加角色" />
+                    <div class="u-pvx-add-text">添加角色</div>
                 </div>
             </div>
         </div>
+
         <!-- 添加角色弹窗 -->
-        <el-dialog v-model="showAddRole" title="添加角色" width="420px" draggable :close-on-click-modal="false">
-            <el-form :model="kithForm" :rules="rules" ref="roleRef">
+        <el-dialog v-model="isAddRoleDialogVisible" title="添加角色" width="420px" draggable :close-on-click-modal="false">
+            <el-form :model="roleFormData" :rules="formRules" ref="roleFormRef">
                 <el-form-item label="角色类型" prop="roleType">
-                    <el-radio-group v-model="kithForm.roleType" @input="
-                        kithForm.userId = '';
-                    kithForm.jx3Id = [];
-                    ">
+                    <el-radio-group v-model="roleFormData.roleType" @input="handleRoleTypeChange">
                         <el-radio label="1">自身</el-radio>
                         <el-radio label="2">亲友</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="我的亲友" prop="uid" v-if="kithForm.roleType == 2">
-                    <el-select v-model="kithForm.uid" placeholder="请选择" @change="getKithRolesList">
-                        <el-option :label="item?.kith_info?.display_name || '-'" :value="item.kith_id"
-                            v-for="(item, index) in myKith" :key="index"></el-option>
+                <el-form-item label="我的亲友" prop="uid" v-if="roleFormData.roleType === '2'">
+                    <el-select v-model="roleFormData.uid" placeholder="请选择" @change="loadFriendRoles">
+                        <el-option v-for="(friend, friendIndex) in friendList" :key="friendIndex"
+                            :label="friend?.kith_info?.display_name || '-'" :value="friend.kith_id" />
                     </el-select>
                 </el-form-item>
                 <el-form-item label="对应角色" prop="jx3Id">
-                    <el-select v-model="kithForm.jx3Id" placeholder="请选择对应角色" @change="setRoleInfo" multiple>
-                        <el-option :label="item.name" :value="item.jx3id"
-                            v-for="(item, index) in kithForm.roleType == 1 ? roleList : myKithRoles"
-                            :key="index"></el-option>
+                    <el-select v-model="roleFormData.jx3Id" placeholder="请选择对应角色" @change="updateSelectedRoleInfo"
+                        multiple>
+                        <el-option v-for="(role, roleIndex) in availableRoleList" :key="roleIndex" :label="role.name"
+                            :value="role.jx3id" />
                     </el-select>
                 </el-form-item>
             </el-form>
-            <div class="u-tips">
+            <div class="u-pvx-dialog-tips">
                 <div>
-                    <el-icon class="el-icon-info" />&nbsp;提示
+                    <el-icon class="u-pvx-tip-icon" />&nbsp;提示
                 </div>
                 1. 添加亲友角色后，可对比亲友角色与自身角色的成就进度。<br />
                 2. 去<a href="https://www.jx3box.com/dashboard/privacy?tab=whitelist" target="_blank">添加亲友</a>
             </div>
             <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="showAddRole = false">取 消</el-button>
-                    <el-button type="primary" @click="addRoleConfirm">确 定</el-button>
+                <div class="u-pvx-dialog-footer">
+                    <el-button @click="closeAddRoleDialog">取 消</el-button>
+                    <el-button type="primary" @click="confirmAddRole">确 定</el-button>
                 </div>
             </template>
         </el-dialog>
@@ -143,6 +162,10 @@
 </template>
 
 <script>
+/**
+ * 亲友对比页面
+ * 功能：对比多个角色的成就完成情况，支持筛选、搜索和导出Excel
+ */
 import {
     getRoleGameAchievements,
     getMenuAchievements,
@@ -157,701 +180,943 @@ import User from "@jx3box/jx3box-common/js/user";
 import { getUserRoles } from "@/service/team";
 import { cloneDeep } from "lodash";
 import * as XLSX from 'xlsx';
+
 export default {
-    components: {},
+    name: 'ComparePage',
+
     data() {
         return {
-            currentRole: {}, //当前角色
-            menuList: [],
-            selectTab: [],
-            selectOptions: [
+            // ==================== 用户相关 ====================
+            currentUserRole: {},           // 当前登录用户的默认角色
+            userRoleList: [],              // 当前用户的所有角色列表
+
+            // ==================== 菜单相关 ====================
+            menuList: [],                  // 成就菜单列表
+            activeMenuIndex: 1,            // 当前选中的菜单组索引
+            activeMenuItemDetail: null,    // 当前选中的菜单项详情
+            isMenuExpanded: true,          // 菜单展开状态
+
+            // ==================== 筛选相关 ====================
+            selectedFilter: [],            // 当前选中的筛选条件
+            filterOptions: [               // 筛选选项列表
                 {
                     name: "共同未完成的",
                     value: 1,
                     type: "1,1",
                 },
             ],
-            activeIndex: 1,
-            activeShow: true,
-            activeIndexChildren: null,
-            achievements: [],
-            achievements_bak: [],
-            achievementsLoading: false,
-            showAddRole: false,
-            myKith: [],
-            myKithRoles: [],
-            roleList: [],
-            kithForm: {
-                uid: "",
-                jx3Id: [],
+
+            // ==================== 成就相关 ====================
+            achievementList: [],           // 当前显示的成就列表
+            achievementListBackup: [],     // 成就列表备份（用于筛选还原）
+            isLoading: false,              // 加载状态
+            achievementPointsData: [],     // 成就点数数据
+
+            // ==================== 搜索相关 ====================
+            searchKeyword: "",             // 搜索关键词
+            selectedMap: [],               // 选中的地图
+            mapOptions: [],                // 地图选项列表
+
+            // ==================== 角色对比相关 ====================
+            compareRoles: [],              // 对比的角色列表
+            compareRolesBackup: [],        // 对比角色列表备份
+
+            // ==================== 弹窗相关 ====================
+            isAddRoleDialogVisible: false, // 添加角色弹窗显示状态
+            friendList: [],                // 亲友列表
+            friendRoleList: [],            // 亲友角色列表
+            roleFormData: {                // 添加角色表单数据
+                roleType: "1",             // 角色类型：1-自身，2-亲友
+                uid: "",                   // 亲友ID
+                jx3Id: [],                 // 选中的角色ID列表
+                roleInfoList: [],          // 选中的角色信息列表
             },
-            rules: {
+            formRules: {                   // 表单验证规则
                 roleType: { required: true, message: "请选择类型", trigger: "change" },
                 uid: { required: true, message: "请选择亲友", trigger: "change" },
                 jx3Id: { required: true, message: "请选择角色", trigger: "change" },
             },
-            contrastKith: [], //对比的亲友及自身
-            contrastKith_bak: [], //对比的亲友及自身备份
-            pointsData: [],
-
-            searchKeyword: "", //搜索成就关键字
-            searchMap: [],
-            mapList: [],
         };
     },
 
-    created() {
-        this.loadUserRoles();
-        this.loadMapList();
+    /**
+     * 计算属性
+     */
+    computed: {
+        /**
+         * 计算表格宽度
+         * @returns {string} 表格宽度样式
+         */
+        getTableWidth() {
+            const columnCount = this.compareRoles.length + 1;
+            return `${columnCount * 200}px`;
+        },
+
+        /**
+         * 获取可用的角色列表
+         * 根据角色类型返回对应的角色列表
+         * @returns {Array} 角色列表
+         */
+        availableRoleList() {
+            return this.roleFormData.roleType === '1'
+                ? this.userRoleList
+                : this.friendRoleList;
+        },
     },
-    mounted() { },
+
+    /**
+     * 生命周期：组件创建时
+     */
+    created() {
+        this.initializePage();
+    },
+
     methods: {
-        get_link: function (id) {
-            return getLink("achievement", id);
+        // ==================== 工具方法 ====================
+
+        /**
+         * 获取成就详情链接
+         * @param {number} achievementId - 成就ID
+         * @returns {string} 成就详情页链接
+         */
+        getAchievementLink(achievementId) {
+            return getLink("achievement", achievementId);
         },
-        icon_url: function (id) {
-            return iconLink(id);
+
+        /**
+         * 获取图标URL
+         * @param {number} iconId - 图标ID
+         * @returns {string} 图标链接
+         */
+        getIconUrl(iconId) {
+            return iconLink(iconId);
         },
-        setActiveShow(sub) {
-            if (this.activeIndex == sub) {
-                this.activeShow = !this.activeShow;
+
+        /**
+         * 获取角色完整名称（名称·服务器）
+         * @param {Object} role - 角色对象
+         * @returns {string} 角色完整名称
+         */
+        getRoleFullName(role) {
+            return `${role.name}·${role.server}`;
+        },
+
+        /**
+         * 获取角色资历提示文本
+         * @param {Object} role - 角色对象
+         * @returns {string} 资历提示文本
+         */
+        getRolePointsTitle(role) {
+            return `${this.getRoleFullName(role)}总资历：${role.totalPoints}`;
+        },
+
+        // ==================== 初始化方法 ====================
+
+        /**
+         * 初始化页面
+         * 加载用户角色和地图数据
+         */
+        initializePage() {
+            this.loadUserRoles();
+            this.loadMapOptions();
+        },
+
+        /**
+         * 加载当前用户的角色列表
+         */
+        loadUserRoles() {
+            if (!User.isLogin()) {
+                this.$confirm("请先登录").then(() => {
+                    User.toLogin(window.location.href);
+                });
                 return;
             }
-            this.setActiveIndex(sub);
-        },
-        setActiveIndex(sub, detail) {
-            if (this.achievementsLoading) return;
-            if (this.activeIndex != sub && !detail) {
-                this.activeShow = true;
-            }
 
-            this.activeIndex = sub;
-            if (detail) {
-                this.activeIndexChildren = detail;
-            } else {
-                this.activeIndexChildren = null;
-            }
-            this.getMenuAchievements(sub, detail);
+            getUserRoles().then((response) => {
+                const roleList = response.data?.data?.list || [];
+                this.userRoleList = roleList;
+                this.currentUserRole = roleList[0] || {};
+
+                // 加载成就点数数据
+                this.loadAchievementPoints();
+                // 加载亲友列表
+                this.loadFriendList();
+            });
         },
-        //地图
-        loadMapList() {
+
+        /**
+         * 加载地图选项列表
+         */
+        loadMapOptions() {
             const client = this.$store.state.client;
             const params = {
                 client,
                 _no_page: 1,
             };
-            getMapList(params).then((res) => {
-                const data = res.data.data || [];
-                let regions = Object.values(
-                    data.reduce((acc, cur) => {
-                        if (!cur.RegionName) return acc;
-                        if (!acc[cur.RegionName]) {
-                            acc[cur.RegionName] = {
-                                value: Number(cur.Region),
-                                label: cur.RegionName,
-                                children: [],
-                            };
-                        }
-                        acc[cur.RegionName].children.push({
-                            value: Number(cur.ID),
-                            label: cur.MapName,
-                            parent: Number(cur.Region),
-                        });
 
-                        return acc;
-                    }, {})
-                );
-                this.mapList = regions;
+            getMapList(params).then((response) => {
+                const mapData = response.data.data || [];
+                this.mapOptions = this.formatMapOptions(mapData);
             });
         },
-        //搜索
-        searchHandle() {
-            this.activeIndex = null;
-            this.activeIndexChildren = null;
-            this.getSearchAchievements();
+
+        /**
+         * 格式化地图选项数据
+         * @param {Array} mapData - 原始地图数据
+         * @returns {Array} 格式化后的地图选项
+         */
+        formatMapOptions(mapData) {
+            const regionMap = {};
+
+            mapData.forEach(map => {
+                if (!map.RegionName) return;
+
+                if (!regionMap[map.RegionName]) {
+                    regionMap[map.RegionName] = {
+                        value: Number(map.Region),
+                        label: map.RegionName,
+                        children: [],
+                    };
+                }
+
+                regionMap[map.RegionName].children.push({
+                    value: Number(map.ID),
+                    label: map.MapName,
+                    parent: Number(map.Region),
+                });
+            });
+
+            return Object.values(regionMap);
         },
-        //根据搜索获取成就
-        getSearchAchievements() {
-            this.achievementsLoading = true;
-            let params = {
+
+        /**
+         * 加载成就点数数据
+         */
+        loadAchievementPoints() {
+            getAchievementPoints().then((response) => {
+                this.achievementPointsData = response.data.data.points;
+                this.loadAchievementMenuList();
+            });
+        },
+
+        /**
+         * 加载成就菜单列表
+         */
+        loadAchievementMenuList() {
+            getMenus({
+                general: 1,
+                client: this.$store.state.client,
+            }).then((response) => {
+                this.menuList = response.data.data.menus;
+                // 默认加载第一个菜单的成就
+                this.loadAchievementsByMenu(1, "", true);
+            });
+        },
+
+        /**
+         * 加载亲友列表
+         */
+        loadFriendList() {
+            getMyKith().then((response) => {
+                this.friendList = response.data.data;
+            });
+        },
+
+        // ==================== 菜单交互方法 ====================
+
+        /**
+         * 处理菜单组点击事件
+         * @param {number} subMenuIndex - 子菜单索引
+         */
+        handleMenuGroupClick(subMenuIndex) {
+            if (this.isLoading) return;
+
+            this.activeMenuIndex = subMenuIndex;
+            this.activeMenuItemDetail = null;
+            this.loadAchievementsByMenu(subMenuIndex, null);
+        },
+
+        /**
+         * 处理菜单项点击事件
+         * @param {number} subMenuIndex - 子菜单索引
+         * @param {string} detail - 菜单项详情
+         */
+        handleMenuItemClick(subMenuIndex, detail) {
+            if (this.isLoading) return;
+
+            this.activeMenuIndex = subMenuIndex;
+            this.activeMenuItemDetail = detail;
+            this.loadAchievementsByMenu(subMenuIndex, detail);
+        },
+
+        /**
+         * 根据菜单加载成就列表
+         * @param {number} subMenuIndex - 子菜单索引
+         * @param {string} detail - 菜单项详情
+         * @param {boolean} isInitialLoad - 是否为首次加载
+         */
+        loadAchievementsByMenu(subMenuIndex = 1, detail, isInitialLoad = false) {
+            this.isLoading = true;
+
+            getMenuAchievements(subMenuIndex, detail)
+                .then((response) => {
+                    const rawAchievements = response.data.data.achievements || [];
+                    this.achievementList = this.flattenAchievementList(rawAchievements);
+                    this.achievementListBackup = cloneDeep(this.achievementList);
+
+                    if (!isInitialLoad) {
+                        this.updateRoleAchievementStatus();
+                        this.applyFilter();
+                    } else {
+                        // 首次加载时，自动添加当前用户角色
+                        if (this.currentUserRole?.jx3id) {
+                            this.addCompareRole(this.currentUserRole.jx3id, true);
+                        }
+                    }
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        /**
+         * 扁平化成就列表（处理系列成就）
+         * @param {Array} rawAchievements - 原始成就列表
+         * @returns {Array} 扁平化后的成就列表
+         */
+        flattenAchievementList(rawAchievements) {
+            const flattenedList = [];
+
+            rawAchievements.forEach(achievement => {
+                flattenedList.push(achievement);
+
+                // 处理系列成就
+                if (achievement.SeriesAchievementList) {
+                    achievement.SeriesAchievementList.forEach((seriesItem, index) => {
+                        if (index > 0) {
+                            flattenedList.push(seriesItem);
+                        }
+                    });
+                }
+            });
+
+            return flattenedList;
+        },
+
+        // ==================== 搜索方法 ====================
+
+        /**
+         * 处理搜索事件
+         */
+        handleSearch() {
+            this.activeMenuIndex = null;
+            this.activeMenuItemDetail = null;
+            this.searchAchievements();
+        },
+
+        /**
+         * 搜索成就
+         */
+        searchAchievements() {
+            this.isLoading = true;
+
+            const params = {
                 keyword: this.searchKeyword,
-                scene: this.searchMap?.[1] ?? "",
+                scene: this.selectedMap?.[1] ?? "",
                 client: this.$store.state.client,
                 _no_page: 1,
                 limit: 99999,
             };
+
             searchAchievements(params)
-                .then((data) => {
-                    let list = data.data.data.achievements || [];
-                    let arr = [];
-                    list.forEach((item) => {
-                        arr.push(item);
-                        if (item.SeriesAchievementList) {
-                            item.SeriesAchievementList.forEach((sub, index) => {
-                                if (index > 0) {
-                                    arr.push(sub);
-                                }
-                            });
-                        }
-                    });
-                    this.achievements = arr;
-                    this.achievements_bak = cloneDeep(this.achievements);
-                    this.queryFinish();
-                    this.selectTabChange();
+                .then((response) => {
+                    const rawAchievements = response.data.data.achievements || [];
+                    this.achievementList = this.flattenAchievementList(rawAchievements);
+                    this.achievementListBackup = cloneDeep(this.achievementList);
+                    this.updateRoleAchievementStatus();
+                    this.applyFilter();
                 })
                 .finally(() => {
-                    this.achievementsLoading = false;
+                    this.isLoading = false;
                 });
         },
-        // 获取成就对应点数
-        getPoints() {
-            return getAchievementPoints().then((res) => {
-                const data = res.data.data.points;
-                this.pointsData = data;
-                this.getList();
+
+        // ==================== 筛选方法 ====================
+
+        /**
+         * 处理筛选条件变更
+         */
+        handleFilterChange() {
+            this.applyFilter();
+        },
+
+        /**
+         * 判断筛选选项是否禁用
+         * 同一角色不能同时选中"已完成"和"未完成"
+         * @param {string} filterType - 筛选类型（格式：jx3id,status）
+         * @returns {boolean} 是否禁用
+         */
+        isFilterOptionDisabled(filterType) {
+            const [targetRoleId] = filterType.split(",");
+
+            return this.selectedFilter.some(selected => {
+                const [selectedRoleId, selectedStatus] = selected.split(",");
+                return selectedRoleId === targetRoleId && selected.split(",")[1] !== filterType.split(",")[1];
             });
         },
-        // 获取成就菜单列表
-        getList() {
-            getMenus({
-                general: 1,
-                client: this.$store.state.client,
-            }).then((res) => {
-                const data = res.data.data.menus;
-                this.menuList = data;
-                this.getMenuAchievements(1, "", 1);
-            });
+
+        /**
+         * 应用筛选条件
+         */
+        applyFilter() {
+            const selectedFilters = cloneDeep(this.selectedFilter);
+
+            // 无筛选条件时，显示全部成就
+            if (selectedFilters.length === 0) {
+                this.achievementList = cloneDeep(this.achievementListBackup);
+                this.updateRoleAchievementStatus();
+                return;
+            }
+
+            // 处理筛选逻辑
+            const { normalizedFilters, normalizedValue } = this.normalizeFilterValue(selectedFilters);
+            this.selectedFilter = normalizedFilters;
+
+            // 根据筛选条件过滤成就
+            const filteredAchievementKeys = this.getFilteredAchievementKeys(normalizedValue);
+            this.achievementList = filteredAchievementKeys
+                .map(key => this.achievementListBackup[key])
+                .filter(Boolean);
+
+            this.updateRoleAchievementStatus(true);
         },
-        // 获取成就列表
-        getMenuAchievements(sub = 1, detail, type) {
-            this.achievementsLoading = true;
-            getMenuAchievements(sub, detail)
-                .then((data) => {
-                    let list = data.data.data.achievements || [];
-                    let arr = [];
-                    list.forEach((item) => {
-                        arr.push(item);
-                        if (item.SeriesAchievementList) {
-                            item.SeriesAchievementList.forEach((sub, index) => {
-                                if (index > 0) {
-                                    arr.push(sub);
-                                }
-                            });
-                        }
-                    });
-                    this.achievements = arr;
-                    this.achievements_bak = cloneDeep(this.achievements);
-                    //不是首次查询
-                    if (type != 1) {
-                        this.queryFinish();
-                        this.selectTabChange();
-                    } else {
-                        if (this.currentRole?.jx3id) this.addRoleConfirm(this.currentRole.jx3id, 1); // 添加角色
+
+        /**
+         * 规范化筛选值
+         * @param {Array} filters - 原始筛选值
+         * @returns {Object} 规范化后的筛选值
+         */
+        normalizeFilterValue(filters) {
+            const COMMON_UNFINISHED = "1,1";
+            let normalizedValue = "";
+            let normalizedFilters = cloneDeep(filters);
+
+            // 处理"共同未完成"选项
+            if (filters[filters.length - 1] === COMMON_UNFINISHED) {
+                normalizedValue = COMMON_UNFINISHED;
+                normalizedFilters = [COMMON_UNFINISHED];
+            } else if (filters.length === 1) {
+                normalizedValue = filters[0];
+            } else if (filters.length > 1 && filters[0] === COMMON_UNFINISHED) {
+                normalizedValue = filters[filters.length - 1];
+                normalizedFilters = [normalizedValue];
+            } else if (filters.length > 1) {
+                normalizedValue = filters;
+            }
+
+            return { normalizedFilters, normalizedValue };
+        },
+
+        /**
+         * 获取过滤后的成就索引列表
+         * @param {string|Array} filterValue - 筛选值
+         * @returns {Array} 成就索引数组
+         */
+        getFilteredAchievementKeys(filterValue) {
+            const statusArrays = [];
+            const COMMON_UNFINISHED = "1,1";
+
+            this.compareRolesBackup.forEach(role => {
+                const statusList = this.getRoleFilteredStatusList(role, filterValue, COMMON_UNFINISHED);
+                statusArrays.push(statusList);
+            });
+
+            return this.getIntersectionByKey(statusArrays, "key");
+        },
+
+        /**
+         * 获取角色过滤后的状态列表
+         * @param {Object} role - 角色对象
+         * @param {string|Array} filterValue - 筛选值
+         * @param {string} commonFilter - 通用筛选值
+         * @returns {Array} 状态列表
+         */
+        getRoleFilteredStatusList(role, filterValue, commonFilter) {
+            const statusList = [];
+
+            const filterByStatus = (achievements, statusType) => {
+                achievements.forEach(achievement => {
+                    const isUnfinished = achievement.value === "-1";
+                    const isFinished = achievement.value !== "-1";
+
+                    if ((isUnfinished && statusType === 1) || (isFinished && statusType === 2)) {
+                        statusList.push({
+                            key: achievement.key,
+                            value: achievement.value
+                        });
                     }
-                })
-                .finally(() => {
-                    this.achievementsLoading = false;
                 });
-        },
-        addRole() {
-            this.kithForm = {
-                roleType: "1",
-                userId: "",
-                jx3Id: "",
-                info: [],
             };
-            this.showAddRole = true;
-            this.$nextTick(() => {
-                this.$refs.roleRef.clearValidate(); // 清除表单验证
-            });
-        },
-        //获取我的亲友
-        getMyKith() {
-            getMyKith().then((res) => {
-                this.myKith = res.data.data;
-            });
-        },
-        // 获取当前用户角色列表
-        loadUserRoles() {
-            if (!User.isLogin()) {
-                this.$confirm("请先登录").then((_) => {
-                    User.toLogin(window.location.href);
-                });
-                return;
-            }
-            getUserRoles().then((res) => {
-                this.roleList = res.data?.data?.list || [];
-                this.currentRole = res.data?.data?.list[0] || {};
-                this.getPoints();
 
-                this.getMyKith(); //获取我的亲友
-            });
-        },
-        getKithRolesList() {
-            getMyKithRoles(this.kithForm.uid).then((res) => {
-                this.myKithRoles = res.data.data;
-                this.kithForm.jx3Id = "";
-            });
-        },
-        //删除角色
-        delRole(role, index) {
-            this.contrastKith.splice(index, 1);
-            this.selectTab = [];
-            let arr = [],
-                selectOptions = cloneDeep(this.selectOptions);
-            selectOptions.forEach((item, index) => {
-                if (item.value !== role.jx3id) {
-                    arr.push(item);
+            if (filterValue === commonFilter) {
+                const [, status] = filterValue.split(",");
+                filterByStatus(role.achievementStatusList, Number(status));
+            } else if (typeof filterValue === "string") {
+                const [roleId, status] = filterValue.split(",");
+                if (role.jx3id === roleId) {
+                    filterByStatus(role.achievementStatusList, Number(status));
                 }
-            });
-            this.selectOptions = arr;
-            this.selectTabChange(true);
-        },
-        setRoleInfo(value) {
-            value.map((jx3Id, index) => {
-                if (this.kithForm.roleType == 1) {
-                    let info = this.roleList.find((item) => item.jx3id == jx3Id);
-                    this.kithForm.info[index] = info;
-                } else {
-                    let info = this.myKithRoles.find((item) => item.jx3id == jx3Id);
-                    this.kithForm.info[index] = info;
-                }
-            });
-
-            // let info = this.myKithRoles.find((item) => item.jx3id == value);
-            // this.kithForm.info = info;
-        },
-        //获取对应角色成就列表
-        addRoleConfirm(jx3Id, type) {
-            if (type == 1) {
-                this.addRoleAndInfo(jx3Id, type);
-            } else {
-                // //判断是否已经存在
-                // let flag = false,
-                //     jx3IdArr = [];
-                // this.contrastKith.forEach((item) => {
-                this.kithForm.jx3Id.forEach((jx3Id) => {
-                    let info = null;
-                    if (this.kithForm.roleType == 1) {
-                        info = this.roleList.find((item) => item.jx3id == jx3Id);
-                    } else {
-                        info = this.myKithRoles.find((item) => item.jx3id == jx3Id);
-                    }
-                    let flag = false;
-                    this.contrastKith.forEach((item) => {
-                        if (item.jx3id == jx3Id) {
-                            flag = true;
-                            return;
-                        }
-                    });
-                    flag ? "" : this.addRoleAndInfo(jx3Id, type, info);
-                });
-            }
-            this.showAddRole = false;
-        },
-        addRoleAndInfo(jx3Id, type, info) {
-            // getRoleGameAchievements(type == 1 ? jx3Id : this.kithForm.jx3Id).then((res) => {
-            getRoleGameAchievements(jx3Id).then((res) => {
-                const my_achievements = (res.data?.data?.achievements || "").split(",");
-                let contrastKith = {};
-                //计算角色总资历
-                let total = 0;
-                my_achievements.forEach((item) => {
-                    total = total + (this.pointsData[item] || 0);
-                });
-                if (type) {
-                    contrastKith = {
-                        ...this.currentRole,
-                        my_achievements,
-                        achievements: [],
-                        number: total,
-                    };
-                } else {
-                    contrastKith = {
-                        ...info,
-                        my_achievements,
-                        achievements: [],
-                        number: total,
-                    };
-                }
-
-                //同时向select内追加个人选择
-                this.selectOptions.push({
-                    value: contrastKith.jx3id,
-                    name: contrastKith.name + "未完成",
-                    type: `${contrastKith.jx3id},1`,
-                });
-                this.selectOptions.push({
-                    value: contrastKith.jx3id,
-                    name: contrastKith.name + "已完成",
-                    type: `${contrastKith.jx3id},2`,
-                });
-                if (type == 1 && this.contrastKith[0]) {
-                    this.contrastKith[0] = contrastKith;
-                } else {
-                    this.contrastKith.push(contrastKith);
-                }
-                this.achievements = cloneDeep(this.achievements_bak);
-                this.queryFinish();
-
-                this.selectTabChange();
-            });
-        },
-        //判断成就是否完成
-        queryFinish(status) {
-            let kith = this.contrastKith,
-                achievements = this.achievements;
-            kith.forEach((item, index) => {
-                this.contrastKith[index].achievements = [];
-                achievements.forEach((achievement, index2) => {
-                    if (item.my_achievements.includes(achievement.ID.toString())) {
-                        this.contrastKith[index].achievements.push({ key: index2, value: achievement.ID.toString() });
-                    } else {
-                        this.contrastKith[index].achievements.push({ key: index2, value: "-1" });
+            } else if (Array.isArray(filterValue)) {
+                filterValue.forEach(filter => {
+                    const [roleId, status] = filter.split(",");
+                    if (role.jx3id === roleId) {
+                        filterByStatus(role.achievementStatusList, Number(status));
                     }
                 });
-            });
-            if (!status) this.contrastKith_bak = cloneDeep(this.contrastKith);
+            }
+
+            return statusList;
         },
-        //多数组取交集
+
+        /**
+         * 获取多个数组的交集（基于指定键）
+         * @param {Array} arrays - 对象数组列表
+         * @param {string} key - 用于比较的键
+         * @returns {Array} 交集结果
+         */
         getIntersectionByKey(arrays, key) {
-            if (arrays.length === 0) {
-                return [];
-            }
-            // 将每个对象数组映射为只包含指定键值的数组
-            const mappedArrays = arrays.map((array) => array.map((obj) => obj[key]));
-            // if (typeof this.selectTab == "object" && this.selectTab instanceof Array && this.selectTab[0] != 1) {
-            //     return [...new Set(mappedArrays.flat())];
-            // }
-            // 使用 reduce 方法进行交集操作
+            if (arrays.length === 0) return [];
+
+            const mappedArrays = arrays.map(array => array.map(obj => obj[key]));
+
             return mappedArrays.reduce((acc, curr) => {
-                return acc.filter((value) => curr.includes(value));
+                return acc.filter(value => curr.includes(value));
             });
         },
-        //同一个角色不能同时选中完成和未完成
-        isSelectDisabled(type) {
-            let selectTab = cloneDeep(this.selectTab);
-            let typeArr = type.split(",");
-            let status = false;
-            selectTab.forEach((item, index) => {
-                let itemArr = item.split(",");
-                if (itemArr[0] == typeArr[0] && itemArr[1] != typeArr[1]) status = true;
+
+        // ==================== 角色管理方法 ====================
+
+        /**
+         * 打开添加角色弹窗
+         */
+        openAddRoleDialog() {
+            this.roleFormData = {
+                roleType: "1",
+                uid: "",
+                jx3Id: [],
+                roleInfoList: [],
+            };
+            this.isAddRoleDialogVisible = true;
+
+            this.$nextTick(() => {
+                this.$refs.roleFormRef.clearValidate();
             });
-            return status;
         },
-        //根据条件筛选
-        selectTabChange() {
-            let selectTab = cloneDeep(this.selectTab),
-                value = "";
-            let achievements = cloneDeep(this.achievements_bak);
-            let contrastKith = cloneDeep(this.contrastKith_bak);
 
-            if (selectTab.length == 0) {
-                this.achievements = achievements;
-                this.queryFinish();
-                return;
-            }
-            let all_select = "1,1";
-            if (selectTab[selectTab.length - 1] == all_select) {
-                value = all_select;
-                selectTab = [all_select];
-            }
-            if (selectTab.length == 1 && selectTab[0] != all_select) value = selectTab[0];
-            if (selectTab.length > 1 && selectTab[0] == all_select) {
-                value = selectTab[selectTab.length - 1];
-                selectTab = [value];
-            }
+        /**
+         * 关闭添加角色弹窗
+         */
+        closeAddRoleDialog() {
+            this.isAddRoleDialogVisible = false;
+        },
 
-            if (selectTab.length > 1 && (selectTab[0] != all_select || selectTab[selectTab.length - 1] != all_select))
-                value = selectTab;
-            this.selectTab = selectTab;
-            let arr = [];
-            let selectTabArr = [];
-            if (typeof value == "string") selectTabArr = value.split(",");
-            contrastKith.forEach((item, index) => {
-                let a = [];
-                const ach_filter = function (array, type = 1) {
-                    array.forEach((item2, index2) => {
-                        if ((item2.value == "-1" && type == 1) || (item2.value != "-1" && type == 2)) {
-                            a.push({ key: item2.key, value: item2.value });
-                        }
-                    });
-                    arr.push(a);
-                };
-                if (value == all_select) {
-                    ach_filter(item.achievements, selectTabArr[1]);
-                } else if (item.jx3id == selectTabArr[0]) {
-                    ach_filter(item.achievements, selectTabArr[1]);
-                } else if (typeof value == "object" && value instanceof Array) {
-                    // && value.includes(item.jx3id)
-                    value.forEach((item2) => {
-                        let itemArr = item2.split(",");
-                        if (item.jx3id == itemArr[0]) ach_filter(item.achievements, itemArr[1]);
-                    });
+        /**
+         * 处理角色类型变更
+         */
+        handleRoleTypeChange() {
+            this.roleFormData.uid = "";
+            this.roleFormData.jx3Id = [];
+            this.roleFormData.roleInfoList = [];
+        },
+
+        /**
+         * 加载亲友的角色列表
+         */
+        loadFriendRoles() {
+            getMyKithRoles(this.roleFormData.uid).then((response) => {
+                this.friendRoleList = response.data.data;
+                this.roleFormData.jx3Id = [];
+            });
+        },
+
+        /**
+         * 更新选中的角色信息
+         * @param {Array} selectedRoleIds - 选中的角色ID列表
+         */
+        updateSelectedRoleInfo(selectedRoleIds) {
+            const roleList = this.roleFormData.roleType === '1'
+                ? this.userRoleList
+                : this.friendRoleList;
+
+            this.roleFormData.roleInfoList = selectedRoleIds.map(jx3Id => {
+                return roleList.find(role => role.jx3id === jx3Id);
+            });
+        },
+
+        /**
+         * 确认添加角色
+         */
+        confirmAddRole() {
+            this.roleFormData.jx3Id.forEach(jx3Id => {
+                const roleInfo = this.roleFormData.roleType === '1'
+                    ? this.userRoleList.find(role => role.jx3id === jx3Id)
+                    : this.friendRoleList.find(role => role.jx3id === jx3Id);
+
+                // 检查角色是否已存在
+                const isRoleExists = this.compareRoles.some(role => role.jx3id === jx3Id);
+
+                if (!isRoleExists) {
+                    this.addCompareRole(jx3Id, false, roleInfo);
                 }
-                item.achievements = a;
             });
-            let keys = this.getIntersectionByKey(arr, "key");
-            let achievementsFilter = [];
-            keys.map((item) => {
-                this.achievements_bak[item] ? achievementsFilter.push(this.achievements_bak[item]) : "";
-            });
-            this.achievements = achievementsFilter;
-            this.queryFinish(true);
+
+            this.closeAddRoleDialog();
         },
-        // 导出Excel功能
+
+        /**
+         * 添加对比角色
+         * @param {string} jx3Id - 角色ID
+         * @param {boolean} isCurrentUser - 是否为当前用户
+         * @param {Object} roleInfo - 角色信息
+         */
+        addCompareRole(jx3Id, isCurrentUser = false, roleInfo = null) {
+            getRoleGameAchievements(jx3Id).then((response) => {
+                const completedAchievements = (response.data?.data?.achievements || "").split(",");
+
+                // 计算总资历
+                const totalPoints = this.calculateTotalPoints(completedAchievements);
+
+                const newRole = {
+                    ...(isCurrentUser ? this.currentUserRole : roleInfo),
+                    completedAchievements,
+                    achievementStatusList: [],
+                    totalPoints,
+                };
+
+                // 添加筛选选项
+                this.addFilterOptionsForRole(newRole);
+
+                // 更新对比角色列表
+                if (isCurrentUser && this.compareRoles[0]) {
+                    this.compareRoles[0] = newRole;
+                } else {
+                    this.compareRoles.push(newRole);
+                }
+
+                // 更新成就状态
+                this.achievementList = cloneDeep(this.achievementListBackup);
+                this.updateRoleAchievementStatus();
+                this.applyFilter();
+            });
+        },
+
+        /**
+         * 计算角色总资历点数
+         * @param {Array} completedAchievements - 已完成成就ID列表
+         * @returns {number} 总资历点数
+         */
+        calculateTotalPoints(completedAchievements) {
+            return completedAchievements.reduce((total, achievementId) => {
+                return total + (this.achievementPointsData[achievementId] || 0);
+            }, 0);
+        },
+
+        /**
+         * 为角色添加筛选选项
+         * @param {Object} role - 角色对象
+         */
+        addFilterOptionsForRole(role) {
+            this.filterOptions.push({
+                value: role.jx3id,
+                name: `${role.name}未完成`,
+                type: `${role.jx3id},1`,
+            });
+            this.filterOptions.push({
+                value: role.jx3id,
+                name: `${role.name}已完成`,
+                type: `${role.jx3id},2`,
+            });
+        },
+
+        /**
+         * 移除对比角色
+         * @param {Object} role - 要移除的角色
+         * @param {number} roleIndex - 角色索引
+         */
+        removeCompareRole(role, roleIndex) {
+            // 从对比列表中移除
+            this.compareRoles.splice(roleIndex, 1);
+            this.selectedFilter = [];
+
+            // 从筛选选项中移除
+            this.filterOptions = this.filterOptions.filter(
+                option => option.value !== role.jx3id
+            );
+
+            this.applyFilter();
+        },
+
+        /**
+         * 更新所有角色的成就完成状态
+         * @param {boolean} keepBackup - 是否保持备份数据不变
+         */
+        updateRoleAchievementStatus(keepBackup = false) {
+            this.compareRoles.forEach((role, roleIndex) => {
+                this.compareRoles[roleIndex].achievementStatusList = this.achievementList.map((achievement, index) => {
+                    const isCompleted = role.completedAchievements.includes(achievement.ID.toString());
+                    return {
+                        key: index,
+                        value: isCompleted ? achievement.ID.toString() : "-1"
+                    };
+                });
+            });
+
+            if (!keepBackup) {
+                this.compareRolesBackup = cloneDeep(this.compareRoles);
+            }
+        },
+
+        // ==================== 导出功能 ====================
+
+        /**
+         * 导出当前表格到Excel
+         */
         exportToExcel() {
             try {
-                // 验证必要数据
-                if (!this.achievements || this.achievements.length === 0) {
-                    this.$message.warning('暂无成就数据可导出');
-                    return;
-                }
-                if (!this.contrastKith || this.contrastKith.length === 0) {
-                    this.$message.warning('请先添加对比角色');
-                    return;
-                }
-
-                // 获取共同完成情况描述
-                let completionStatus = '全部成就';
-                if (this.selectTab && this.selectTab.length > 0) {
-                    if (this.selectTab.includes('1,1')) {
-                        completionStatus = '共同未完成';
-                    } else {
-                        completionStatus = '自定义筛选';
-                    }
-                }
-
-                // 构建角色列表字符串
-                const roleNames = this.contrastKith.map(role => `${role.name}·${role.server}`).join('-');
-
-                // 构建文件名（使用当前选中的分类）
-                let mainCategoryName = '全部';
-                let subCategoryName = '全部';
-                console.log(this.menuList);
-                if (this.menuList) {
-                    //this.menuList 是一个对象，循环对象
-                    let mainCategory = null;
-                    for (let key in this.menuList) {
-                        if (this.menuList.hasOwnProperty(key)) {
-                            let element = this.menuList[key];
-                            if (element.sub == this.activeIndex) {
-                                mainCategoryName = element.name;
-                                mainCategory = element;
-                                break;
-                            }
-                        }
-                    }
-                    if (this.activeIndexChildren && mainCategory && mainCategory.children && Array.isArray(mainCategory.children)) {
-                        const subCategory = mainCategory.children.find(
-                            child => child.detail == this.activeIndexChildren
-                        );
-                        subCategoryName = subCategory ? subCategory.name : '全部';
-                    }
-                }
-
-                let fileName = `剑网3资历对比-${mainCategoryName}-${subCategoryName}-${completionStatus}（${roleNames}）`;
-                // 处理文件名中的特殊字符
-                fileName = fileName.replace(/[\\/:*?"<>|]/g, '_');
+                // 验证数据
+                if (!this.validateExportData()) return;
 
                 // 构建Excel数据
-                const excelData = [];
+                const excelData = this.buildExcelData();
 
-                // 构建表头
-                const headers = ['成就大类', '成就小类', '成就名称'];
-                this.contrastKith.forEach(role => {
-                    headers.push(`${role.name}·${role.server}`);
-                });
-                excelData.push(headers);
+                // 创建并导出工作簿
+                const workbook = this.createExcelWorkbook(excelData);
+                const fileName = this.generateExportFileName();
 
-                // 辅助函数：根据成就的Sub和Detail获取分类名称
-                const getCategoryNames = (achievement) => {
-                    let mainCat = '未知';
-                    let subCat = '';
-
-                    if (this.menuList) {
-                        // 查找成就大类
-                        let mainCategory = null;
-                        for (let key in this.menuList) {
-                            if (this.menuList.hasOwnProperty(key)) {
-                                let element = this.menuList[key];
-                                if (element.sub == this.activeIndex) {
-                                    mainCategory = element;
-                                    break;
-                                }
-                            }
-                        }
-                        if (mainCategory) {
-                            mainCat = mainCategory.name;
-
-                            // 查找成就小类
-                            if (achievement.Detail && mainCategory.children && Array.isArray(mainCategory.children)) {
-                                const subCategory = mainCategory.children.find(
-                                    child => child.detail === achievement.Detail
-                                );
-                                subCat = subCategory ? subCategory.name : '未知';
-                            }
-                        }
-                    }
-
-                    return { mainCat, subCat };
-                };
-
-                // 构建数据行
-                this.achievements.forEach((achievement, achievementIndex) => {
-                    const rowData = [];
-
-                    // 获取该成就的分类信息
-                    const { mainCat, subCat } = getCategoryNames(achievement);
-
-                    // 成就大类
-                    rowData.push(mainCat);
-
-                    // 成就小类
-                    rowData.push(subCat);
-
-                    // 成就名称
-                    rowData.push(achievement.Name || '');
-
-                    // 各角色完成状态
-                    this.contrastKith.forEach(role => {
-                        const achievementStatus = role.achievements.find(a => a.key === achievementIndex);
-                        const status = achievementStatus && achievementStatus.value !== '-1' ? '已完成' : '未完成';
-                        rowData.push(status);
-                    });
-
-                    excelData.push(rowData);
-                });
-
-
-                // 创建工作簿
-                const workbook = XLSX.utils.book_new();
-
-                // 将数据转换为工作表
-                const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-
-                // 设置列宽
-                const colWidths = [
-                    { wch: 15 }, // 成就大类
-                    { wch: 15 }, // 成就小类
-                    { wch: 30 }, // 成就名称
-                ];
-                this.contrastKith.forEach(() => {
-                    colWidths.push({ wch: 12 }); // 角色列
-                });
-                worksheet['!cols'] = colWidths;
-
-                // 添加工作表到工作簿
-                XLSX.utils.book_append_sheet(workbook, worksheet, '资历对比');
-
-                // 导出文件
                 XLSX.writeFile(workbook, `${fileName}.xlsx`);
-
-                // 提示成功
                 this.$message.success('导出成功');
             } catch (error) {
                 console.error('导出Excel失败:', error);
                 this.$message.error('导出失败,请重试');
             }
         },
+
+        /**
+         * 验证导出数据
+         * @returns {boolean} 是否验证通过
+         */
+        validateExportData() {
+            if (!this.achievementList || this.achievementList.length === 0) {
+                this.$message.warning('暂无成就数据可导出');
+                return false;
+            }
+            if (!this.compareRoles || this.compareRoles.length === 0) {
+                this.$message.warning('请先添加对比角色');
+                return false;
+            }
+            return true;
+        },
+
+        /**
+         * 构建Excel数据
+         * @returns {Array} Excel数据数组
+         */
+        buildExcelData() {
+            const excelData = [];
+
+            // 构建表头
+            const headers = ['成就大类', '成就小类', '成就名称'];
+            this.compareRoles.forEach(role => {
+                headers.push(this.getRoleFullName(role));
+            });
+            excelData.push(headers);
+
+            // 构建数据行
+            this.achievementList.forEach((achievement, achievementIndex) => {
+                const { mainCategory, subCategory } = this.getAchievementCategory(achievement);
+
+                const rowData = [
+                    mainCategory,
+                    subCategory,
+                    achievement.Name || ''
+                ];
+
+                // 添加各角色完成状态
+                this.compareRoles.forEach(role => {
+                    const status = role.achievementStatusList.find(s => s.key === achievementIndex);
+                    rowData.push(status && status.value !== '-1' ? '已完成' : '未完成');
+                });
+
+                excelData.push(rowData);
+            });
+
+            return excelData;
+        },
+
+        /**
+         * 获取成就分类信息
+         * @param {Object} achievement - 成就对象
+         * @returns {Object} 分类信息
+         */
+        getAchievementCategory(achievement) {
+            let mainCategory = '未知';
+            let subCategory = '';
+
+            if (!this.menuList) return { mainCategory, subCategory };
+
+            // 查找主分类
+            let mainCategoryData = null;
+            for (const key in this.menuList) {
+                if (this.menuList.hasOwnProperty(key)) {
+                    const element = this.menuList[key];
+                    if (element.sub === this.activeMenuIndex) {
+                        mainCategoryData = element;
+                        mainCategory = element.name;
+                        break;
+                    }
+                }
+            }
+
+            // 查找子分类
+            if (achievement.Detail && mainCategoryData?.children) {
+                const subCategoryData = mainCategoryData.children.find(
+                    child => child.detail === achievement.Detail
+                );
+                subCategory = subCategoryData ? subCategoryData.name : '未知';
+            }
+
+            return { mainCategory, subCategory };
+        },
+
+        /**
+         * 创建Excel工作簿
+         * @param {Array} data - Excel数据
+         * @returns {Object} 工作簿对象
+         */
+        createExcelWorkbook(data) {
+            const workbook = XLSX.utils.book_new();
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // 设置列宽
+            const columnWidths = [
+                { wch: 15 }, // 成就大类
+                { wch: 15 }, // 成就小类
+                { wch: 30 }, // 成就名称
+            ];
+            this.compareRoles.forEach(() => {
+                columnWidths.push({ wch: 12 });
+            });
+            worksheet['!cols'] = columnWidths;
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, '资历对比');
+            return workbook;
+        },
+
+        /**
+         * 生成导出文件名
+         * @returns {string} 文件名
+         */
+        generateExportFileName() {
+            // 获取完成状态描述
+            let completionStatus = '全部成就';
+            if (this.selectedFilter?.length > 0) {
+                completionStatus = this.selectedFilter.includes('1,1')
+                    ? '共同未完成'
+                    : '自定义筛选';
+            }
+
+            // 获取角色名称
+            const roleNames = this.compareRoles
+                .map(role => this.getRoleFullName(role))
+                .join('-');
+
+            // 获取分类名称
+            const { mainCategory, subCategory } = this.getCurrentCategoryNames();
+
+            let fileName = `剑网3资历对比-${mainCategory}-${subCategory}-${completionStatus}（${roleNames}）`;
+
+            // 处理文件名中的特殊字符
+            return fileName.replace(/[\\/:*?"<>|]/g, '_');
+        },
+
+        /**
+         * 获取当前选中的分类名称
+         * @returns {Object} 分类名称
+         */
+        getCurrentCategoryNames() {
+            let mainCategory = '全部';
+            let subCategory = '全部';
+
+            if (!this.menuList) return { mainCategory, subCategory };
+
+            // 查找主分类
+            let mainCategoryData = null;
+            for (const key in this.menuList) {
+                if (this.menuList.hasOwnProperty(key)) {
+                    const element = this.menuList[key];
+                    if (element.sub === this.activeMenuIndex) {
+                        mainCategory = element.name;
+                        mainCategoryData = element;
+                        break;
+                    }
+                }
+            }
+
+            // 查找子分类
+            if (this.activeMenuItemDetail && mainCategoryData?.children) {
+                const subCategoryData = mainCategoryData.children.find(
+                    child => child.detail === this.activeMenuItemDetail
+                );
+                subCategory = subCategoryData ? subCategoryData.name : '全部';
+            }
+
+            return { mainCategory, subCategory };
+        },
     },
 };
 </script>
 
 <style lang="less">
-/* 针对Webkit内核的浏览器 */
+/* ==================== 全局滚动条样式 ==================== */
 ::-webkit-scrollbar {
-    /* 设置滚动条的宽度 */
     width: 10px;
 }
 
-/* 滚动条轨道 - 背景颜色/白底 */
 ::-webkit-scrollbar-track {
     background: #595958;
     border-radius: 4px;
 }
 
-/* 滚动条的滑块部分 */
 ::-webkit-scrollbar-thumb {
     background: #e2d3b9;
     border-radius: 4px;
 }
 
-/* 当鼠标悬停在滚动条滑块上时改变颜色 */
 ::-webkit-scrollbar-thumb:hover {
     background: #e2d3b9;
 }
 
-.u-left {
+.u-pvx-sidebar {
     &::-webkit-scrollbar {
-        /* 设置滚动条的宽度 */
         width: 2px;
     }
 }
 
-.p-compare {
+/* ==================== 页面容器 ==================== */
+.p-pvx-compare {
     margin-top: 45px;
-    // width: 960px;
-
     min-width: 1200px;
     max-width: 1620px;
     box-sizing: border-box;
 
-    .m-info-user {
-        .mb(8px);
-        .flex;
-        .h(35px);
-        transition: 0.5s;
-        align-items: center;
-        color: rgba(255, 236, 204, 1);
-
-        .u-name {
-            .fz(24px, 35px);
-            .mr(8px);
-            .bold;
-        }
-
-        .u-toggle-btn {
-            .r(4px);
-            .size(96px, 28px);
-            .ml(36px);
-            .flex;
-            .flex(o);
-            border: 1px solid rgba(191, 184, 172, 1);
-            color: #ffeccc;
-            gap: 4px;
-            cursor: pointer;
-
-            >div {
-                .flex;
-                align-items: center;
-
-                img {
-                    .ml(4px);
-                    width: 16px;
-                    height: 16px;
-                }
-            }
-        }
-
-        .u-overview {
-            .fz(24px, 35px);
-            .bold;
-            color: white;
-            margin-left: auto;
-            cursor: pointer;
-            text-decoration: underline;
-            position: relative;
-            bottom: -5px;
-        }
-    }
-
-    .u-title {
+    /* ==================== 顶部标题栏 ==================== */
+    .u-pvx-header {
         .flex;
         align-items: center;
         .mb(8px);
 
-        .u-label {
+        /* 标题标签 */
+        .u-pvx-title-label {
             .w(115px);
             flex-shrink: 0;
             mask-image: linear-gradient(180deg, rgba(255, 255, 255, 1) 43.06%, rgba(255, 255, 255, 0) 100%);
@@ -860,14 +1125,16 @@ export default {
             color: #fff;
         }
 
-        .u-tip {
+        /* 工具栏 */
+        .u-pvx-toolbar {
             flex: 1;
             .h(28px);
             gap: 12px;
             .flex;
             align-items: center;
 
-            .u-select {
+            /* 筛选下拉框 */
+            .u-pvx-filter-select {
                 width: 168px;
             }
 
@@ -878,8 +1145,10 @@ export default {
                 min-height: 28px;
             }
 
-            .u-search-input {
+            /* 搜索输入框 */
+            .u-pvx-search-input {
                 .w(600px);
+                border: 1px solid rgba(217, 196, 167, 1);
             }
 
             .el-input-group__prepend {
@@ -895,7 +1164,6 @@ export default {
             .el-input__wrapper {
                 background-color: transparent;
                 box-shadow: none;
-                border: 1px solid rgba(217, 196, 167, 1);
                 min-height: 28px;
                 .h(28px);
 
@@ -904,25 +1172,28 @@ export default {
                 }
             }
 
-            .u-cascader {
+            /* 地图级联选择器 */
+            .u-pvx-map-cascader {
                 .w(160px);
                 border: none;
-                // border: 1px solid rgba(217, 196, 167, 1);
                 background-color: transparent;
 
                 .el-input__wrapper {
-                    border-right: none;
+                    border-right: 1px solid rgba(217, 196, 167, 1);
+                    border-radius: 0;
                 }
             }
 
-            .u-btn {
+            /* 搜索按钮 */
+            .u-pvx-search-btn {
                 .h(28px);
                 background-color: rgba(255, 236, 204, 1);
                 color: #000;
             }
         }
 
-        .u-export {
+        /* 导出按钮 */
+        .u-pvx-export-btn {
             flex-shrink: 0;
             .size(168px, 28px);
             .r(4px);
@@ -930,10 +1201,10 @@ export default {
             .flex;
             .flex(o);
             flex-direction: column;
-            padding: 0px 12px 0px 12px;
+            padding: 0 12px;
             .fz(14px);
             font-weight: 400;
-            letter-spacing: 0px;
+            letter-spacing: 0;
             color: rgba(217, 196, 167, 1);
 
             &:hover {
@@ -944,12 +1215,14 @@ export default {
         }
     }
 
-    .m-compare-main {
+    /* ==================== 主内容区域 ==================== */
+    .m-pvx-compare-main {
         height: calc(100vh - 170px);
         padding: 0;
         .flex;
 
-        .u-left {
+        /* 左侧菜单栏 */
+        .u-pvx-sidebar {
             flex: 0 0 106px;
             color: #ffeccc;
             background: #1b1814;
@@ -962,37 +1235,40 @@ export default {
                 margin: 0;
             }
 
-            .u-zl-item {
+            /* 菜单组 */
+            .u-pvx-menu-group {
                 cursor: pointer;
                 padding: 4px 4px 4px 2px;
                 box-sizing: border-box;
 
-                &.active {
-                    .u-zl-item_title {
+                &.is-active {
+                    .u-pvx-menu-group-title {
                         background: #3d342a;
                     }
 
-                    .u-zl-item_children {
+                    .u-pvx-menu-item {
                         transition: display 0.5s ease-in;
                         display: block;
                     }
                 }
 
-                &.show {
-                    .u-zl-item_children {
+                &.is-collapsed {
+                    .u-pvx-menu-item {
                         display: none;
                         transition: display 0.5s ease-out;
                     }
                 }
 
-                .u-zl-item_title {
+                /* 菜单组标题 */
+                .u-pvx-menu-group-title {
                     .fz(14px);
                     padding: 4px;
                     .bold(700);
                 }
             }
 
-            .u-zl-item_children {
+            /* 菜单项 */
+            .u-pvx-menu-item {
                 .bold(400);
                 .fz(12px);
                 display: none;
@@ -1000,7 +1276,7 @@ export default {
                 padding: 4px 0 4px 20px;
                 .pr;
 
-                &.active {
+                &.is-active {
                     background: #3d342a;
 
                     &::before {
@@ -1017,16 +1293,17 @@ export default {
             }
         }
 
-        .u-right {
+        /* 右侧内容区 */
+        .u-pvx-content {
             .h(100%);
             .flex;
             max-width: 1414px;
             min-width: 1093px;
             justify-content: space-between;
 
-            .u-zl-box {
+            /* 表格容器 */
+            .u-pvx-table-wrapper {
                 .h(100%);
-                // max-width: 642px;
                 max-width: 912px;
                 overflow: scroll;
                 .pr;
@@ -1034,25 +1311,25 @@ export default {
                 .bold(400);
             }
 
-            .u-zl_table {
+            /* 表头 */
+            .u-pvx-table-header {
                 .flex;
                 .w(100%);
                 position: sticky;
                 top: 0;
                 .z(3);
 
-                .u-table_label {
+                .u-pvx-table-cell {
                     background-color: #463c34;
-                    padding: 0px 12px 0px 12px;
+                    padding: 0 12px;
                     box-sizing: border-box;
                     .size(200px, 50px);
                     flex-shrink: 0;
                     color: #ffeccc;
-
                     .flex;
                     .flex(o);
 
-                    .u-name {
+                    .u-pvx-role-name {
                         .mr(4px);
                         max-width: 170px;
                         overflow: hidden;
@@ -1060,28 +1337,25 @@ export default {
                         white-space: nowrap;
                     }
 
-                    &.kith {
-                        justify-content: center;
-                    }
-
-                    &.ps {
+                    &.is-sticky {
                         position: sticky;
                         left: 0;
                     }
 
-                    i {
+                    .u-pvx-remove-icon {
                         cursor: pointer;
                     }
                 }
             }
 
-            .u-zl-number_table {
+            /* 资历点数表 */
+            .u-pvx-points-table {
                 .flex;
                 .w(100%);
 
-                .u-table_label {
+                .u-pvx-table-cell {
                     background-color: #fff;
-                    padding: 0px 12px 0px 12px;
+                    padding: 0 12px;
                     box-sizing: border-box;
                     .size(200px, 36px);
                     flex-shrink: 0;
@@ -1089,7 +1363,7 @@ export default {
                     .flex;
                     .flex(o);
 
-                    .u-name {
+                    .u-pvx-role-name {
                         .mr(4px);
                         max-width: 170px;
                         overflow: hidden;
@@ -1097,45 +1371,38 @@ export default {
                         white-space: nowrap;
                     }
 
-                    &.kith {
-                        justify-content: center;
-                    }
-
-                    &.ps {
+                    &.is-sticky {
                         position: sticky;
                         left: 0;
                     }
-
-                    i {
-                        cursor: pointer;
-                    }
                 }
             }
 
-            .u-zl_cell {
+            /* 表格主体 */
+            .u-pvx-table-body {
                 .h(calc(100% - 86px));
                 .flex;
-                // .pr;
                 .w(100%);
             }
 
-            .u-zl-list {
+            /* 成就列表 */
+            .u-pvx-achievement-list {
                 .size(200px, 100%);
                 flex-shrink: 0;
 
-                &.ps {
+                &.is-sticky {
                     position: sticky;
                     left: 0;
-
                     .z(2);
                 }
 
-                .u-zl-list_item {
+                /* 成就项 */
+                .u-pvx-achievement-item {
                     color: #ffeccc;
                     .w(100%);
                     min-height: 36px;
                     .flex;
-                    align-items: center;
+                    .flex(o);
 
                     &:nth-child(odd) {
                         background: #ebe5df;
@@ -1145,21 +1412,18 @@ export default {
                         background: #fff;
                     }
 
-                    &.kith {
-                        .flex(o);
-                    }
-
-                    .u-zl-list_item_box {
+                    /* 成就信息 */
+                    .u-pvx-achievement-info {
                         cursor: pointer;
                         .flex;
                         align-items: center;
 
-                        .u-icon {
+                        .u-pvx-achievement-icon {
                             .size(22px);
                             margin: 0 18px 0 12px;
                         }
 
-                        .u-name {
+                        .u-pvx-achievement-name {
                             color: #846b4b;
                             white-space: nowrap;
                             overflow: hidden;
@@ -1168,25 +1432,25 @@ export default {
                         }
                     }
 
-                    .u-self-checked {
+                    /* 完成状态 */
+                    .u-pvx-status-check {
                         .size(24px);
                         background: #fff;
-                        border: 1px solid #6e6e6d;
+                        border: 1px solid rgba(204, 204, 204, 1);
                         .r(4px);
                         .flex;
                         .flex(o);
 
-
-                        &.finish {
+                        &.is-completed {
+                            border: none;
                             background: linear-gradient(180deg, rgba(181, 148, 87, 1) 0%, rgba(227, 211, 191, 1) 100%);
-
-
                         }
                     }
                 }
             }
 
-            .u-zl-add_item {
+            /* 添加角色按钮 */
+            .u-pvx-add-role {
                 cursor: pointer;
                 .size(168px, 100%);
                 .fz(22px);
@@ -1198,20 +1462,37 @@ export default {
                 .ml(12px);
                 box-sizing: border-box;
 
-                .u-add-icon {
+                .u-pvx-add-icon {
                     margin-bottom: 12px;
                 }
 
-                .u-add-txt {
+                .u-pvx-add-text {
                     font-size: 24px;
                     font-weight: 400;
-                    letter-spacing: 0px;
+                    letter-spacing: 0;
                     line-height: 34.75px;
                     color: rgba(226, 211, 185, 1);
-
                 }
             }
         }
+    }
+
+    /* ==================== 弹窗样式 ==================== */
+    .u-pvx-dialog-tips {
+        margin-top: 16px;
+        padding: 12px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #666;
+
+        .u-pvx-tip-icon {
+            color: #409eff;
+        }
+    }
+
+    .u-pvx-dialog-footer {
+        text-align: right;
     }
 }
 </style>
