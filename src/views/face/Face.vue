@@ -5,7 +5,7 @@
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
             <div class="m-main"><router-view></router-view></div>
         </Main>
-        <CommonFooter></CommonFooter>
+        <CommonFooter v-if="!isMiniProgram()"></CommonFooter>
     </div>
 </template>
 
@@ -13,6 +13,7 @@
 const single_pages = ["single"];
 import Nav from "@/components/Nav_v5.vue";
 import User from "@jx3box/jx3box-common/js/user";
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { setStar, cancelStar, onlineFace, offlineFace, deleteFace } from "@/service/face/index.js";
 export default {
     name: "App",
@@ -49,6 +50,7 @@ export default {
         },
     },
     methods: {
+        isMiniProgram,
         statusChange(navStatusClass) {
             this.navStatusClass = navStatusClass;
         },

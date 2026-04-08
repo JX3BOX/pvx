@@ -3,7 +3,7 @@
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
             ref="pvxSearchRef" popperClass="m-face-filter-popover">
             <template #extra>
-                <div v-if="!isMininote" class="m-toolbar-item m-toolbar-publish">
+                <div class="m-toolbar-item m-toolbar-publish">
                     <a :href="link.data" target="_blank">
                         <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
                     </a>
@@ -12,17 +12,6 @@
                             <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
                             <span>发布作品</span>
                         </div>
-                    </a>
-                </div>
-                <div v-if="isMininote" class="m-toolbar-item">
-                    <a :href="publish_link(link.key)" target="_blank">
-                        <div class="u-face-publish">
-                            <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
-                            <span>发布作品</span>
-                        </div>
-                    </a>
-                    <a :href="link.data" target="_blank">
-                        <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
                     </a>
                 </div>
             </template>
@@ -56,10 +45,6 @@ export default {
     computed: {
         client() {
             return this.$store.state.client;
-        },
-        isMininote() {
-            const w = this.screenWidth;
-            return w <= 1280;
         },
         searchItems() {
             const items = [];
@@ -240,6 +225,10 @@ export default {
         }
     }
 
+    .m-toolbar-publish {
+        .flex;
+    }
+
     .u-analysis {
         .r(5px);
         .fz(16px);
@@ -247,6 +236,7 @@ export default {
         background-color: #e54059;
         border-color: #e54059;
         transition: 0.3s ease-out;
+        margin-right: 10px;
 
         &:hover {
             filter: brightness(1.1);
@@ -279,10 +269,6 @@ export default {
         }
     }
 
-    .m-toolbar-publish {
-        .flex;
-        gap: 10px;
-    }
 }
 
 .m-face-filter-popover {
@@ -315,18 +301,54 @@ export default {
     }
 }
 
-@media screen and (max-width: @ipad) {
+@media screen and (max-width: @ipad-y) {
     .m-face-tabs {
+
         .pvx-search-wrapper {
+            flex-direction: column;
+
             .search-group {
                 flex-wrap: wrap;
+                flex-direction: row;
+
+                .filter-wrap {
+                    width: 40px;
+                    flex-shrink: 0;
+                    margin-right: 0;
+                }
+
+                .input-wrap {
+                    width: calc(100% - 40px);
+                    flex-shrink: 0;
+                }
+
+            }
+        }
+
+        .type-list {
+            width: 100%;
+
+            // 移动端布局时，第一个占满全屏
+            .type-item {
+                &:first-child {
+                    margin-right: 0 !important;
+                    width: 100% !important;
+                    flex-shrink: 0;
+                }
+
+                // 其他项宽度自适应
+                &:not(:first-child) {
+                    width: calc(50% - 20px) !important;
+                }
             }
         }
 
         .m-toolbar-publish {
             order: -1;
+            flex-direction: row-reverse;
             justify-content: space-between;
             width: 100%;
+            margin-bottom: 10px;
         }
     }
 }
