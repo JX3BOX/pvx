@@ -1,6 +1,7 @@
 .m-adventure-item {
     .pr;
-    // .size(auto,224px);
+    .size(auto, 224px);
+    aspect-ratio: 1 / 1;
     .r(10px);
     display: block;
     flex-shrink: 0;
@@ -12,13 +13,13 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     transition: 0.3s ease-out;
 
-    .u-bg{
+    .u-bg {
         background-position: center center;
         background-repeat: no-repeat;
         background-size: contain;
     }
 
-    .u-pic{
+    .u-pic {
         .size(100%);
         object-fit: contain;
     }
@@ -35,17 +36,18 @@
     .u-title {
         .pa;
         .z(1);
-        .lb(0,20px);
+        .lb(0, 20px);
         width: 50%;
         margin-left: 25%;
     }
+
     .u-icon {
         .pa;
         .z(2);
         background-image: url("@{pvx_img}icon.png");
         background-size: cover;
-        .size(41px,73px);
-        .lt(20px,14px);
+        .size(41px, 73px);
+        .lt(20px, 14px);
     }
 
     .u-camp-switch,
@@ -74,6 +76,7 @@
         box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
     }
 }
+
 .m-school-choose {
     .u-school-list {
         display: flex;
@@ -86,11 +89,13 @@
         .pointer;
         .r(4px);
         transition: all 0.2s ease-in-out;
+
         &:hover {
             background-color: #0002;
         }
     }
 }
+
 .m-adventure-item:last-child {
     .mr(0);
 }
