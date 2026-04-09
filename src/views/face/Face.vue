@@ -1,3 +1,30 @@
+<!--
+ * Face - 脸型模块主入口组件
+ * 
+ * @description 脸型模块的根组件，包含导航栏、主内容区和页脚
+ * @author Face & Body 模块优化团队
+ * @version 1.0.0
+ * 
+ * @features
+ * - 响应式导航栏状态管理
+ * - 支持正式服和怀旧服切换
+ * - 支持编辑权限判断
+ * - 支持小程序环境检测
+ * 
+ * @components
+ * - CommonHeader: 公共头部组件
+ * - Nav: 导航栏组件
+ * - Main: 主内容区组件
+ * - CommonFooter: 公共页脚组件
+ * 
+ * @routes
+ * - /face: 脸型列表页
+ * - /face/:id: 脸型详情页
+ * - /face/parse: 脸型解析页
+ * 
+ * @permissions
+ * - 编辑权限: User.isEditor()
+ -->
 <template>
     <div id="app" class="p-pet">
         <CommonHeader></CommonHeader>

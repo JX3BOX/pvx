@@ -1,3 +1,39 @@
+<!--
+ * Single - 脸型模块详情页
+ * 
+ * @description 展示脸型详情信息，包括图片预览、数据分析、购买下载、作者信息等
+ * @author Face & Body 模块优化团队
+ * @version 1.0.0
+ * 
+ * @features
+ * - 图片轮播预览
+ * - 脸型数据分析展示（写实/写意）
+ * - 购买/下载功能
+ * - 复制捏脸码功能
+ * - 作者信息展示
+ * - 随机推荐列表
+ * - 评论功能
+ * - 感谢/投币功能
+ * 
+ * @components
+ * - SingleNavigation: 导航栏组件
+ * - SingleHeader: 头部信息组件
+ * - SingleCarousel: 图片轮播组件
+ * - SinglePaySection: 支付下载组件
+ * - SingleRandomList: 随机推荐组件
+ * - author: 作者信息组件
+ * - Thx: 感谢组件
+ * - Comment: 评论组件
+ * 
+ * @api
+ * - /api/face/:id: 获取脸型详情
+ * - /api/face/random: 获取随机推荐
+ * - /api/face/download: 下载脸型数据
+ * - /api/face/buy: 购买脸型
+ * 
+ * @styles
+ * - 样式文件: assets/css/face/single.less
+ -->
 <template>
     <div class="p-face-single" v-loading="loading" ref="singleRef">
         <!-- 导航区域 - 使用公共组件 -->

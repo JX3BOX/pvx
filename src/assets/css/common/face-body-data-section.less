@@ -1,0 +1,184 @@
+// ==================== 公共数据展示区样式 ====================
+// 此文件用于face和body模块的数据展示区公共样式
+
+.pvx-data-section-common() {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    
+    .u-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #1c1c1c;
+    }
+    
+    .u-content {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #666;
+    }
+}
+
+// 数据组样式
+.pvx-data-group-common() {
+    .u-title {
+        font-weight: bold;
+        font-size: 15px;
+        line-height: 2;
+        flex-shrink: 0;
+        width: 220px;
+    }
+
+    .u-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 10px;
+        font-size: 0;
+
+        li {
+            padding: 5px 0;
+            display: flex;
+            flex-flow: row;
+        }
+
+        .u-sub-title {
+            height: 24px;
+            font-size: 12px;
+            line-height: 24px;
+            border-radius: 5px;
+            padding: 0 0 0 10px;
+            color: #6f6f6f;
+            background: rgba(232, 232, 232, 0.5);
+            font-weight: 700;
+        }
+
+        label,
+        input,
+        span {
+            font-size: 14px;
+        }
+
+        label {
+            margin-right: 4px;
+            font-weight: normal;
+            color: rgba(28, 28, 28, 0.8);
+            min-width: 40px;
+        }
+
+        text-align: right;
+
+        input,
+        .u-range {
+            flex: 1;
+            margin-right: 5px;
+        }
+
+        .el-slider__runway {
+            margin: 10px 0;
+        }
+
+        span {
+            width: 40px;
+            margin-right: 10px;
+            white-space: nowrap;
+            font-weight: bold;
+            color: #5856d6;
+            text-align: right;
+        }
+
+        &.u-new {
+            label {
+                width: 40px;
+            }
+        }
+    }
+
+    .u-decals {
+        border-radius: 5px;
+        list-style: none;
+        padding: 0 0 0 10px;
+        margin-bottom: 10px;
+        background: rgba(107, 82, 255, 0.05);
+
+        li {
+            display: flex;
+            align-items: center;
+            height: 50px;
+            gap: 10px;
+        }
+
+        img {
+            width: 32px;
+            height: 32px;
+            vertical-align: middle;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+
+        span {
+            flex: 1 1 auto;
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: bold;
+            max-width: 15%;
+        }
+
+        .u-decals-params {
+            span {
+                &:first-child {
+                    width: 28px;
+                    font-size: 14px;
+                }
+
+                &:nth-child(2) {
+                    width: 28px;
+                    color: #3374db;
+                }
+            }
+        }
+
+        .u-free {
+            font-size: 12px;
+            color: #49c10f;
+        }
+
+        .u-price {
+            font-size: 12px;
+            line-height: 50px;
+            width: 100px;
+            margin-right: 10px;
+            color: #fba524;
+            text-align: right;
+        }
+
+        .u-dcolor {
+            font-size: 12px;
+            color: #999;
+            margin-left: 3px;
+        }
+
+        .u-dflip {
+            font-size: 12px;
+            color: #555;
+            margin-left: 3px;
+        }
+    }
+}
+
+// 暗色模式适配
+.pvx-data-section-dark() {
+    @media (prefers-color-scheme: dark) {
+        background-color: #000;
+        
+        .u-title {
+            color: #fff;
+        }
+        
+        .u-content {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+}

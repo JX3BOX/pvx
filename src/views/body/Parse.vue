@@ -5,7 +5,9 @@
             <Upload type="body" @success="handleSuccess">
                 <template #guide>
                     <a class="u-help" href="/tool/67546" target="_blank">
-                        <el-icon><Collection /></el-icon>
+                        <el-icon>
+                            <Collection />
+                        </el-icon>
                         游戏体型导入导出指南
                     </a>
                 </template>
@@ -16,7 +18,7 @@
 </template>
 
 <script>
-import Bodydat from "./components/Bodydat.vue";
+import Bodydat from "@jx3box/jx3box-facedat/src/Bodydat.vue";
 import Upload from "@jx3box/jx3box-facedat/src/Upload";
 export default {
     name: "BodyDataParse",

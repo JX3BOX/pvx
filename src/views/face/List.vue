@@ -1,3 +1,32 @@
+<!--
+ * List - 脸型模块列表页
+ * 
+ * @description 展示脸型列表，支持推荐列表和全部列表两种模式
+ * @author Face & Body 模块优化团队
+ * @version 1.0.0
+ * 
+ * @features
+ * - 支持按脸型类型分类展示（写实、写意）
+ * - 支持推荐列表和全部列表切换
+ * - 支持分页加载
+ * - 支持搜索筛选
+ * - 响应式布局适配
+ * - 支持公告展示
+ * 
+ * @components
+ * - faceTabs: 标签页组件
+ * - PublicNotice: 公告组件
+ * - CardBannerList: 卡片轮播列表组件
+ * - ListItem: 列表项组件
+ * 
+ * @api
+ * - /api/face/list: 获取脸型列表
+ * - /api/face/types: 获取脸型类型
+ * 
+ * @styles
+ * - 样式文件: assets/css/face/list.less
+ * - 样式文件: assets/css/face/item.less
+ -->
 <template>
     <div class="p-face-list" v-loading="loading" ref="listRef">
         <faceTabs :body_types="list" :active="active" :link="link" @change="handleFaceTabChange"
@@ -16,7 +45,7 @@
                         <div @click="setActive(item.value)">查看全部</div>
                     </template>
                     <template v-slot="{ item }">
-                        <faceItem :key="item.id" :item="item" />
+                        <ListItem type="face" :key="item.id" :item="item" />
                     </template>
                 </CardBannerList>
             </div>
@@ -26,7 +55,7 @@
                 <div class="u-title">{{ typeName + "脸型" }}</div>
             </div>
             <div class="m-face-list--all">
-                <faceItem v-for="item in subList" :key="item.id" :item="item" />
+                <ListItem type="face" v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <el-button class="m-archive-more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">
@@ -44,7 +73,7 @@
 import PublicNotice from "@/components/PublicNotice";
 import CardBannerList from "@/components/common/card_banner_list.vue";
 import faceTabs from "@/components/common/face-body/tabs";
-import faceItem from "./components/item";
+import ListItem from "@/components/common/face-body/ListItem.vue";
 import { isPhone } from "@/utils/index";
 import { cloneDeep, omit, concat, debounce } from "lodash";
 import { getFaceList, getSliders } from "@/service/face";
@@ -52,7 +81,7 @@ import { ArrowDown } from '@element-plus/icons-vue';
 
 export default {
     name: "face",
-    components: { CardBannerList, faceTabs, faceItem, PublicNotice, ArrowDown },
+    components: { CardBannerList, faceTabs, ListItem, PublicNotice, ArrowDown },
     data() {
         return {
             loading: false,
@@ -281,4 +310,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/face/list.less";
+@import "~@/assets/css/face/item.less";
 </style>

@@ -1,9 +1,9 @@
 <template>
     <div class="m-random-list">
         <div class="u-list m-single-content-box m-author-faces" v-if="list && list.length">
-            <component
-                :is="itemComponent"
+            <ListItem
                 class="u-item"
+                :type="type"
                 :item="item"
                 :noName="true"
                 v-for="item in list"
@@ -14,8 +14,7 @@
 </template>
 
 <script>
-import faceItem from "@/views/face/components/item.vue";
-import bodyItem from "@/views/body/components/item.vue";
+import ListItem from "@/components/common/face-body/ListItem.vue";
 
 /**
  * SingleRandomList - 详情页随机推荐列表组件
@@ -28,6 +27,7 @@ import bodyItem from "@/views/body/components/item.vue";
  */
 export default {
     name: "SingleRandomList",
+    components: { ListItem },
     props: {
         // 列表数据
         list: {
@@ -39,12 +39,6 @@ export default {
             type: String,
             default: "face",
             validator: (val) => ["face", "body"].includes(val),
-        },
-    },
-    computed: {
-        // 根据类型动态选择列表项组件
-        itemComponent() {
-            return this.type === "face" ? faceItem : bodyItem;
         },
     },
 };

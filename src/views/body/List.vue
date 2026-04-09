@@ -1,3 +1,30 @@
+<!--
+ * List - 体型模块列表页
+ * 
+ * @description 展示体型列表，支持推荐列表和全部列表两种模式
+ * @author Face & Body 模块优化团队
+ * @version 1.0.0
+ * 
+ * @features
+ * - 支持按体型类型分类展示（成男、成女、正太、萝莉）
+ * - 支持推荐列表和全部列表切换
+ * - 支持分页加载
+ * - 支持搜索筛选
+ * - 响应式布局适配
+ * 
+ * @components
+ * - pvxTabs: 标签页组件
+ * - CardBannerList: 卡片轮播列表组件
+ * - ListItem: 列表项组件
+ * 
+ * @api
+ * - /api/body/list: 获取体型列表
+ * - /api/body/types: 获取体型类型
+ * 
+ * @styles
+ * - 样式文件: assets/css/body/list.less
+ * - 样式文件: assets/css/body/item.less
+ -->
 <template>
     <div class="p-body-list" v-loading="loading" ref="listRef">
         <pvxTabs @change="handleBodyTabChange" :body_types="list" :link="link" :active="active"
@@ -14,7 +41,7 @@
                         <div @click="setActive(item.value)">查看全部</div>
                     </template>
                     <template v-slot="{ item }">
-                        <bodyItem :key="item.id" :item="item" />
+                        <ListItem type="body" :key="item.id" :item="item" />
                     </template>
                 </CardBannerList>
             </div>
@@ -24,7 +51,7 @@
                 <div class="u-title">{{ typeName + "体型" }}</div>
             </div>
             <div class="m-body-list--all">
-                <bodyItem v-for="item in subList" :key="item.id" :item="item" />
+                <ListItem type="body" v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <el-button class="m-archive-more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">
@@ -43,7 +70,7 @@
 <script>
 import CardBannerList from "@/components/common/card_banner_list.vue";
 import pvxTabs from "@/components/common/face-body/tabs";
-import bodyItem from "./components/item.vue";
+import ListItem from "@/components/common/face-body/ListItem.vue";
 import { isPhone } from "@/utils/index";
 import { cloneDeep, omit, concat, debounce } from "lodash";
 import { getBodyList, getSliders } from "@/service/body";
@@ -83,7 +110,7 @@ const initBodyList = () => {
 
 export default {
     name: "bodyList",
-    components: { CardBannerList, pvxTabs, bodyItem },
+    components: { CardBannerList, pvxTabs, ListItem },
     data() {
         return {
             loading: false,
@@ -348,4 +375,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/body/list.less";
+@import "~@/assets/css/body/item.less";
 </style>
