@@ -1,7 +1,7 @@
 <template>
     <div class="horse-single-wrapper m-single-wrapper">
         <template v-if="!isRobot">
-            <div class="back-wrap">
+            <div class="back-wrap m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <!-- <el-button @click="goBack">返回列表</el-button> -->
                 <div class="u-back-right">

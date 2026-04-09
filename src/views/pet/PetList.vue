@@ -248,6 +248,8 @@ export default {
             this.page = this.page + 1;
         },
         handleTabChange: function (data) {
+            const isEvent = data instanceof Event;
+            if (isEvent) return;
             this.page = 1;
             this.tabsData = data;
         },

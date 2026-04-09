@@ -231,6 +231,8 @@ export default {
             this.handleLoad(this.active);
         },
         handleFaceTabChange: function (data) {
+            const isEvent = data instanceof Event;
+            if (isEvent) return;
             this.page = 1;
             this.tabsData = data;
             // 重置 Tab 切换标志，确保筛选条件变化时能正常触发加载

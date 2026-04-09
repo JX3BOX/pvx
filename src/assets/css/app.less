@@ -47,12 +47,18 @@ body {
     }
 }
 
-@media screen and (max-width:@ipad-y){
-    // .m-navigation{
-        // .none !important;
-    // }
-    .m-pvx-box{
-        .none;
+@media screen and (max-width: @ipad-y) {
+    .m-navigation {
+        .none !important;
+    }
+    .m-header {
+        margin-top: 0 !important;
+        padding: 20px 0 0 0;
+
+        justify-content: center;
+        .m-header-info {
+            align-items: center;
+        }
     }
 }
 
@@ -93,5 +99,28 @@ body {
         padding: 0 16px;
         line-height: 1;
         white-space: nowrap;
+    }
+}
+
+.c-wiki-panel {
+    .m-panel-title {
+        .u-icon {
+            font-size: 22px;
+            .size(22px);
+            fill: @v4primary;
+            color: @v4primary;
+        }
+        .u-txt {
+            .fz(15px,22px);
+            color: @color;
+            .smooth;
+        }
+    }
+    .m-panel-actions {
+        .u-btn--link {
+            .flex(y);
+            .gap(3px);
+            font-size: 12px;
+        }
     }
 }

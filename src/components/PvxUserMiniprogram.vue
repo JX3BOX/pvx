@@ -10,7 +10,7 @@
                     <span class="u-txt">{{ name }}攻略</span>
                 </template>
                 <template #head-actions>
-                    <a class="el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
+                    <a class="u-btn--link el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
                         <i class="el-icon-edit"></i>
                         <span>完善{{ name }}攻略</span>
                     </a>
@@ -504,7 +504,7 @@ export default {
                         .x;
 
                         .s-link {
-                            .underline(@color-link);
+                            .underline();
                         }
 
                         letter-spacing: 2px;
@@ -517,7 +517,7 @@ export default {
                         padding: 5px 10px;
 
                         a {
-                            .underline(@color-link);
+                            .underline();
                         }
                     }
                 }

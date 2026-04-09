@@ -1,9 +1,12 @@
 <template>
     <a class="m-adventure-item" :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'">
         <!-- @click="getLink(item.dwID)" -->
-        <img class="u-default" :src="defaultImg" />
+        <!-- <span class="u-img" :style="{ backgroundImage: `url(${getImgUrl})` }"></span> -->
+        <!-- <img class="u-default" :src="defaultImg" /> -->
+        <div class="u-bg" :style="{ backgroundImage: `url(${defaultImg})` }">
+            <img class="u-pic" :src="getImgUrl" />
+        </div>
         <img class="u-title" :src="titleImg" :style="titleStyle" />
-        <span class="u-img" :style="{ backgroundImage: `url(${getImgUrl})` }"></span>
         <span class="u-icon"></span>
         <div v-if="item.szRewardType === 'camp'" class="u-camp-switch" @click.prevent="switchCamp">
             <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />

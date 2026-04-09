@@ -281,6 +281,8 @@ export default {
         },
         // 搜索toolbar传值
         onSearch(params) {
+            const isEvent = params instanceof Event;
+            if (isEvent) return;
             this.page = 1;
             this.tabsData = params;
         },

@@ -1,41 +1,48 @@
 <template>
     <div class="m-serendipity" v-if="title" v-loading="loading">
-        <div class="u-title">
-            <span class="u-label">
-                <i class="el-icon-present"></i>
-                触发记录
+        <WikiPanel>
+            <template #head-title>
+                <i class="u-icon el-icon-present"></i>
+                <span class="u-txt">触发记录</span>
                 <el-select v-model="server" placeholder="区服" class="u-server" @change="changeServer">
                     <el-option v-for="item in servers" :key="item" :label="item" :value="item"></el-option>
                 </el-select>
-            </span>
-            <a class="u-more" href="https://j3cx.com/serendipity" target="_blank">查看更多 &raquo;</a>
-        </div>
-        <ul class="u-list" v-if="list && list.length > 0">
-            <li class="u-header">
-                <span class="u-date">日期</span>
-                <span class="u-time">激活时间</span>
-                <span class="u-server">服务器</span>
-                <span class="u-name">玩家</span>
-            </li>
-            <li v-for="(item, i) in list" :key="i">
-                <span class="u-date">{{ formatDate(item.date_str) }}</span>
-                <span class="u-time">{{ formatWikiDate(item.dwTime) }}</span>
-                <span class="u-server">{{ item.region }}-{{ item.server }}</span>
-                <span class="u-name">{{ item.name || "匿名" }}</span>
-            </li>
-        </ul>
-        <el-alert class="u-alert" v-else title="无记录" type="info" center :closable="false" />
+            </template>
+            <template #head-actions>
+                <a class="u-more" href="https://j3cx.com/serendipity" target="_blank">查看更多 &raquo;</a>
+            </template>
+            <template #body>
+                <ul class="u-list" v-if="list && list.length > 0">
+                    <li class="u-header">
+                        <span class="u-date">日期</span>
+                        <span class="u-time">激活时间</span>
+                        <span class="u-server">服务器</span>
+                        <span class="u-name">玩家</span>
+                    </li>
+                    <li v-for="(item, i) in list" :key="i">
+                        <span class="u-date">{{ formatDate(item.date_str) }}</span>
+                        <span class="u-time">{{ formatWikiDate(item.dwTime) }}</span>
+                        <span class="u-server">{{ item.region }}-{{ item.server }}</span>
+                        <span class="u-name">{{ item.name || "匿名" }}</span>
+                    </li>
+                </ul>
+                <el-alert class="u-alert" v-else title="无记录" type="info" center :closable="false" />
+            </template>
+        </WikiPanel>
     </div>
 </template>
 <script>
 import servers from "@jx3box/jx3box-data/data/server/server_cn.json";
+import WikiPanel from "@jx3box/jx3box-ui/src/wiki/WikiPanel";
 import { getUserInfo, getSerendipity } from "@/service/adventure/serendipity";
 import { showRecently, showDate as showDateFn } from "@/utils/moment";
 import User from "@jx3box/jx3box-common/js/user";
 export default {
     name: "serendipity",
     props: ["title"],
-    components: {},
+    components: {
+        WikiPanel,
+    },
     data: function () {
         return {
             servers,

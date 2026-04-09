@@ -1,6 +1,8 @@
 <template>
     <div class="p-furniture-single m-single-wrapper" v-loading="loading">
-        <div class="u-goback" @click="goBack">返回列表</div>
+        <div class="m-navigation">
+            <div class="u-goback" @click="goBack">返回列表</div>
+        </div>
 
         <div class="m-furniture-content">
             <div class="u-info">
@@ -9,42 +11,65 @@
                     <i class="u-interact" v-if="data.bInteract"></i>
                 </div>
                 <div class="u-attrs">
-                    <span class="u-attr" v-if="data.Attribute1"><span
-                            class="u-label blue">观赏</span>{{ data.Attribute1 }}</span>
-                    <span class="u-attr" v-if="data.Attribute2"><span
-                            class="u-label pink">实用</span>{{ data.Attribute2 }}</span>
-                    <span class="u-attr" v-if="data.Attribute3"><span
-                            class="u-label yellow">坚固</span>{{ data.Attribute3 }}</span>
-                    <span class="u-attr" v-if="data.Attribute4"><span
-                            class="u-label green">风水</span>{{ data.Attribute4 }}</span>
-                    <span class="u-attr" v-if="data.Attribute5"><span
-                            class="u-label purple">趣味</span>{{ data.Attribute5 }}</span>
+                    <span class="u-attr" v-if="data.Attribute1"
+                        ><span class="u-label blue">观赏</span>{{ data.Attribute1 }}</span
+                    >
+                    <span class="u-attr" v-if="data.Attribute2"
+                        ><span class="u-label pink">实用</span>{{ data.Attribute2 }}</span
+                    >
+                    <span class="u-attr" v-if="data.Attribute3"
+                        ><span class="u-label yellow">坚固</span>{{ data.Attribute3 }}</span
+                    >
+                    <span class="u-attr" v-if="data.Attribute4"
+                        ><span class="u-label green">风水</span>{{ data.Attribute4 }}</span
+                    >
+                    <span class="u-attr" v-if="data.Attribute5"
+                        ><span class="u-label purple">趣味</span>{{ data.Attribute5 }}</span
+                    >
                 </div>
                 <div class="u-metas">
-                    <span class="u-meta"><img src="../../assets/img/furniture/origin.svg" svg-inline /><span
-                            class="u-label">来源途径：</span>{{ data.szSource }}</span>
-                    <span v-if="data.LevelLimit" class="u-meta"><img src="../../assets/img/furniture/level.svg"
-                            svg-inline /><span class="u-label">摆放等级：</span>{{ data.LevelLimit }}级</span>
-                    <span v-if="data.MaxAmountPerLand" class="u-meta"><img src="../../assets/img/furniture/limit.svg"
-                            svg-inline /><span class="u-label">摆放上限：</span>{{ data.MaxAmountPerLand }}</span>
-                    <span class="u-meta u-meta-scale" v-if="data.szScaleRange"><img
-                            src="../../assets/img/furniture/scale.svg" svg-inline /><span class="u-label">缩放大小：</span>
+                    <span class="u-meta"
+                        ><img src="../../assets/img/furniture/origin.svg" svg-inline /><span class="u-label"
+                            >来源途径：</span
+                        >{{ data.szSource }}</span
+                    >
+                    <span v-if="data.LevelLimit" class="u-meta"
+                        ><img src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label"
+                            >摆放等级：</span
+                        >{{ data.LevelLimit }}级</span
+                    >
+                    <span v-if="data.MaxAmountPerLand" class="u-meta"
+                        ><img src="../../assets/img/furniture/limit.svg" svg-inline /><span class="u-label"
+                            >摆放上限：</span
+                        >{{ data.MaxAmountPerLand }}</span
+                    >
+                    <span class="u-meta u-meta-scale" v-if="data.szScaleRange"
+                        ><img src="../../assets/img/furniture/scale.svg" svg-inline /><span class="u-label"
+                            >缩放大小：</span
+                        >
                         <span class="u-value">
                             <b v-for="(item, index) in scaleRange(data.szScaleRange)" :key="index">{{ item }}</b>
                         </span>
                     </span>
-                    <span class="u-meta u-meta-dyes" v-if="color_list.length"><img
-                            src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label">染色选项：</span>
+                    <span class="u-meta u-meta-dyes" v-if="color_list.length"
+                        ><img src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label"
+                            >染色选项：</span
+                        >
                         <span class="u-value">
-                            <i v-for="item in color_list" :key="item" class="u-dye"
-                                :style="{ backgroundColor: `rgb(${item})` }"></i>
+                            <i
+                                v-for="item in color_list"
+                                :key="item"
+                                class="u-dye"
+                                :style="{ backgroundColor: `rgb(${item})` }"
+                            ></i>
                         </span>
                     </span>
                 </div>
 
                 <div class="m-buttons">
-                    <a v-if="other_id" class="u-link u-item" :href="getLink('item', item_id)" target="_blank"><i
-                            class="el-icon-collection-tag"></i>物品信息</a>
+                    <a v-if="other_id" class="u-link u-item" :href="getLink('item', item_id)" target="_blank"
+                        ><i class="el-icon-collection-tag"></i>物品信息</a
+                    >
                     <a v-if="achieve_id" class="u-link u-achievement" :href="getLink('cj', achieve_id)" target="_blank">
                         <i class="el-icon-trophy"></i>
                         成就信息
@@ -73,8 +98,12 @@
 
                 <!--                <list-cross v-if="setData.furnitures.length" :width="30" :list="setData.furnitures">-->
                 <div v-if="setData.furnitures.length" class="u-furniture-list">
-                    <furnitureSet v-for="(item, index) in setData.furnitures" :data="item" :category="category"
-                        :key="index" />
+                    <furnitureSet
+                        v-for="(item, index) in setData.furnitures"
+                        :data="item"
+                        :category="category"
+                        :key="index"
+                    />
                 </div>
                 <!--                </list-cross>-->
             </div>
@@ -86,8 +115,14 @@
 
         <!-- 攻略 -->
         <div class="m-furniture-wiki" v-if="other_id">
-            <Wiki source_type="item" :source_id="item_id" :type="type" :id="id" title="家具攻略"
-                :source_title="data.szName"></Wiki>
+            <Wiki
+                source_type="item"
+                :source_id="item_id"
+                :type="type"
+                :id="id"
+                title="家具攻略"
+                :source_title="data.szName"
+            ></Wiki>
         </div>
         <WikiComments type="item" :source-id="String(id)" />
     </div>

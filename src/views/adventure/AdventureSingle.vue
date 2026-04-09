@@ -26,7 +26,7 @@
                 </div>
             </el-drawer>
 
-            <div class="m-adventure-navigation">
+            <div class="m-adventure-navigation m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 <!-- <el-input

@@ -90,6 +90,7 @@ const commonDomains = require("@jx3box/jx3box-common/data/jx3box.json");
 
 module.exports = {
     productionSourceMap: false,
+    transpileDependencies: true,
     //❤️ define path for static files ~
     publicPath: process.env.BUILD_PREVIEW
         ? "/" + process.env.APP_NAME
