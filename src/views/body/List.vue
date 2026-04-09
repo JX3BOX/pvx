@@ -323,8 +323,6 @@ export default {
          * @param {Object} data - Tab切换时传递的数据
          */
         handleBodyTabChange(data) {
-            const isEvent = data instanceof Event;
-            if (isEvent) return;
             this.page = 1;
             this.tabsData = data;
         },

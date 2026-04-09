@@ -21,13 +21,26 @@
 
 <script>
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
-import { __imgPath } from "@/utils/config";
 import PvxSearch from "@/components/PvxSearch.vue";
 import { debounce } from "lodash";
 
 export default {
     name: "tabs",
-    props: ["body_types", "active", "link"],
+    emits: ["change", "setActive"],
+    props: {
+        body_types: {
+            type: Array,
+            default: () => [],
+        },
+        active: {
+            type: [String, Number],
+            required: true,
+        },
+        link: {
+            type: Object,
+            default: () => ({}),
+        },
+    },
     components: { PvxSearch },
     data: function () {
         return {
@@ -39,12 +52,23 @@ export default {
             code_mode: "",
             title: "",
             filterOpen: false,
-            screenWidth: window.innerWidth,
+            internalUpdateCount: 0,
         };
     },
     computed: {
         client() {
             return this.$store.state.client;
+        },
+        filterFlagsArray() {
+            const flags = [];
+            if (!this.star && !this.price_type && !this.is_unlimited) {
+                flags.push("all");
+            } else {
+                if (this.star) flags.push("star");
+                if (this.price_type) flags.push("price_type");
+                if (this.is_unlimited) flags.push("is_unlimited");
+            }
+            return flags;
         },
         searchItems() {
             const items = [];
@@ -111,23 +135,14 @@ export default {
             return items;
         },
         initSearchValue() {
-            const value = {
+            return {
                 body_type: this.active,
                 title: this.title,
                 is_new_face: this.is_new_face,
                 filter_empty_images: this.filter_empty_images,
                 code_mode: this.code_mode,
+                filter_flags: this.filterFlagsArray,
             };
-            const filterFlags = [];
-            if (!this.star && !this.price_type && !this.is_unlimited) {
-                filterFlags.push("all");
-            } else {
-                if (this.star) filterFlags.push("star");
-                if (this.price_type) filterFlags.push("price_type");
-                if (this.is_unlimited) filterFlags.push("is_unlimited");
-            }
-            value.filter_flags = filterFlags;
-            return value;
         },
         params() {
             const _params = {};
@@ -145,27 +160,32 @@ export default {
         },
     },
 
+    watch: {
+        active() {
+            this.internalUpdateCount++;
+            this.$nextTick(() => {
+                this.internalUpdateCount--;
+            });
+        },
+    },
+
     created() {
         this.emitChange = debounce((params) => {
+            if (!params || typeof params !== "object" || params instanceof Event) return;
             this.$emit("change", params);
         }, 300);
     },
 
     methods: {
-        getThumbnail: function (filename) {
-            return __imgPath + "image/face/" + filename + ".jpg";
-        },
         publish_link(key) {
             return publishLink(key);
         },
-        handleSearch(data) {
-            if (data.body_type !== undefined && data.body_type !== this.active) {
-                this.$emit("setActive", data.body_type);
-            }
+        syncSearchState(data) {
             this.title = data.title || "";
             this.is_new_face = data.is_new_face !== undefined ? data.is_new_face : -1;
             this.filter_empty_images = data.filter_empty_images !== undefined ? data.filter_empty_images : 0;
             this.code_mode = data.code_mode !== undefined ? data.code_mode : "";
+
             let filterFlags = data.filter_flags || [];
             if (typeof filterFlags === "string") {
                 filterFlags = filterFlags.split(",").filter(Boolean);
@@ -174,10 +194,25 @@ export default {
             this.star = !hasAll && filterFlags.includes("star");
             this.price_type = !hasAll && filterFlags.includes("price_type");
             this.is_unlimited = !hasAll && filterFlags.includes("is_unlimited");
-            this.emitChange(this.params);
         },
-        handleResize() {
-            this.screenWidth = window.innerWidth;
+        isBodyTypeChange(data) {
+            return data.body_type !== undefined && data.body_type !== this.active;
+        },
+        handleSearch(data) {
+            if (!data || typeof data !== "object" || data instanceof Event) return;
+
+            if (this.internalUpdateCount > 0) {
+                this.syncSearchState(data);
+                return;
+            }
+
+            if (this.isBodyTypeChange(data)) {
+                this.$emit("setActive", data.body_type);
+                return;
+            }
+
+            this.syncSearchState(data);
+            this.emitChange(this.params);
         },
     },
     mounted() {
@@ -188,10 +223,6 @@ export default {
                 }
             });
         }
-        window.addEventListener("resize", this.handleResize);
-    },
-    beforeUnmount() {
-        window.removeEventListener("resize", this.handleResize);
     },
 };
 </script>
@@ -328,7 +359,6 @@ export default {
         .type-list {
             width: 100%;
 
-            // 移动端布局时，第一个占满全屏
             .type-item {
                 &:first-child {
                     margin-right: 0 !important;
@@ -336,7 +366,6 @@ export default {
                     flex-shrink: 0;
                 }
 
-                // 其他项宽度自适应
                 &:not(:first-child) {
                     width: calc(50% - 20px) !important;
                 }
