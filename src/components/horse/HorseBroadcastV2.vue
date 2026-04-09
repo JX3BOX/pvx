@@ -129,8 +129,10 @@ export default {
         listData() {
             let column = Math.floor((document.body.clientWidth - 460) / 350);
             column = column > 2 ? 2 : column;
+            column = column <= 0 ? 1 : column;
             let list = this.list || [];
-            const arr = this.isPhone ? [] : new Array(column * 4 - 2 - list.length).fill({});
+            const fillCount = Math.max(0, column * 4 - 2 - list.length);
+            const arr = this.isPhone ? [] : new Array(fillCount).fill({});
             list = list.sort((a, b) => this.convertTime(a.fromTime) - this.convertTime(b.fromTime));
             return list.concat(arr) || [];
         },
@@ -444,6 +446,18 @@ export default {
             if (!item.map_id) return;
             this.active = index;
         },
+        startTimer(callback, delay) {
+            if (this.timer) {
+                clearInterval(this.timer);
+            }
+            this.timer = setInterval(callback, delay);
+        },
+        stopTimer() {
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
+        },
     },
     mounted() {
         if (User.isLogin()) {
@@ -454,15 +468,10 @@ export default {
             this.server = "梦江南";
         }
 
-        // 不断获取播放
-        this.timer = setInterval(() => {
-            this.getGameReporter();
-        }, 30 * 1000);
+        this.startTimer(() => this.getGameReporter(), 30 * 1000);
     },
     beforeUnmount() {
-        // 清除定时器
-        clearInterval(this.timer);
-        this.timer = null;
+        this.stopTimer();
     },
 };
 </script>

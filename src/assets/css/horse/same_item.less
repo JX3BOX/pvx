@@ -12,22 +12,28 @@
     gap: 10px;
     border: 1px solid #fff;
     transition: 0.3s ease-out;
+
     &:hover {
         border: 1px solid #e86f00;
         box-shadow: 0 0 10px 0 rgba(232, 111, 0, 0.4);
         background-color: rgba(232, 111, 0, 0.1);
+
         .info-item .u-more {
             background-color: #fff;
         }
     }
+
     .img-wrap {
         .size(48px);
         .r(10px);
         flex-shrink: 0;
         background-image: url("../../img/horse/horse_item_bg_sm.jpg");
+        background-size: cover;
+        background-position: center;
         transition: all 0.5s;
         box-sizing: border-box;
-        .u-image {
+
+        .el-image {
             .size(100%);
             .r(10px);
             box-sizing: border-box;
@@ -40,27 +46,51 @@
         gap: 10px;
     }
 
+    .m-info {
+        .flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
     .info-item {
         .flex;
         gap: 10px;
         align-items: center;
+
         &.name {
+            .fz(14px);
+            font-weight: 700;
             .break(1);
         }
+
+        &.id {
+            .fz(12px);
+            color: #999;
+        }
+
         .u-attr-icon {
             .size(30px);
             .clip;
             flex-shrink: 0;
         }
+
         .u-more {
             .flex;
             .r(5px);
-            .size(100%,30px);
+            .size(100%, 30px);
             font-weight: 400;
             align-items: center;
             justify-content: center;
             color: #999;
             background-color: #f3f4f5;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .same-item {
+        .info-item .u-more {
+            display: none;
         }
     }
 }

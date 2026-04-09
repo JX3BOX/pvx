@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="info-item">
-            <el-tooltip trigger="hover" placement="top" v-for="(data, index) in MagicAttributes" :key="index">
+            <el-tooltip trigger="hover" placement="top" v-for="(data, index) in displayAttributes" :key="index">
                 <template #content>
                     <div class="u-attr-pop">
                         <div class="u-attr-name" v-if="data.name">
@@ -34,14 +34,15 @@
                 </template>
                 <img class="u-attr-icon" :src="data.iconUrl" :alt="data.name" />
             </el-tooltip>
-            <span class="u-more" v-if="count">+{{ count }}</span>
+            <span class="u-more" v-if="hiddenAttributesCount">+{{ hiddenAttributesCount }}</span>
         </div>
     </a>
 </template>
 
 <script>
-import { isPhone } from "@/utils/index";
 import ItemIcon from "../common/item_icon.vue";
+import HorseCardBase from "./HorseCardBase.vue";
+
 export default {
     name: "SameItem",
     props: {
@@ -51,39 +52,17 @@ export default {
         },
     },
     components: { ItemIcon },
-    computed: {
-        isPhone() {
-            return isPhone();
-        },
-        MagicAttributes() {
-            if (this.isPhone) this.item.MagicAttributes;
-            return this.item.MagicAttributes.length <= 4
-                ? this.item.MagicAttributes
-                : this.item.MagicAttributes.slice(0, 3) || [];
-        },
-        count() {
-            if (this.isPhone) return 0;
-            return this.item.MagicAttributes.length <= 4 ? 0 : this.item.MagicAttributes.slice(3).length;
-        },
-    },
+    mixins: [HorseCardBase],
     methods: {
-        getLink(item) {
-            const id = item.ItemID;
-            // 2 马具 1 坐骑
-            const type = item.SubType === 15 ? 1 : 2;
-            return `/horse/${id}?type=${type}`;
-        },
         replaceByDefault(e) {
             e.target.src = require("../../assets/img/horse/horse_item_bg_sm.jpg");
         },
         getImgSrc(item, isAuto = false) {
-            // const client = this.client;
-            const client = isAuto ? this.client : "std"; // 怀旧服的坐骑图片取正式服的, 没有再根据client获取
+            const client = isAuto ? this.client : "std";
             const path = item.ImgPath;
             if (path) {
                 let img = path.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
                 let name = img?.[1].replace(/\\/g, "/");
-
                 if (img?.[1] == "default") return this.__imgRoot + `homeland/${client}` + "/default/default.png";
                 return this.__imgRoot + `homeland/${client}` + name + ".png";
             } else {

@@ -1,34 +1,7 @@
 <template>
     <div class="horse-home-wrapper">
-        <CommonToolbar ref="toolbar" class="m-horse-tabs" :active="active" color="#d16400" search :types="list"
-            @update="updateToolbar">
-            <template v-slot:filter>
-                <div class="u-filter">
-                    <el-popover ref="popover" :placement="isPhone ? 'right' : 'bottom'" :width="!isPhone && 420"
-                        trigger="click">
-                        <div class="filter-content">
-                            <div class="filter-item" v-for="(sItem, i) in searchType" :key="i">
-                                <div class="check-box-wrapper">
-                                    <div class="name">{{ sItem.name }}</div>
-                                    <el-checkbox-group v-model="searchType[i].checked">
-                                        <el-checkbox-button v-for="option in sItem.list" :label="option.label"
-                                            :key="option.value"></el-checkbox-button>
-                                    </el-checkbox-group>
-                                </div>
-                            </div>
-                            <el-row>
-                                <el-col :offset="20" :span="4">
-                                    <el-button size="mini" type="info" plain @click="reset">重置</el-button>
-                                </el-col>
-                            </el-row>
-                        </div>
-                        <template v-slot:reference>
-                            <img svg-inline src="@/assets/img/common/filter.svg" @click="filter = true" />
-                        </template>
-                    </el-popover>
-                </div>
-            </template>
-        </CommonToolbar>
+        <PvxSearch class="m-horse-tabs" :items="searchItems" :initValue="searchInitValue" @search="handleSearch">
+        </PvxSearch>
         <div class="m-horse-content" ref="listRef" v-loading="loading">
             <!-- 全部模式 -->
             <template v-if="active === ''">
@@ -71,13 +44,11 @@
                 <template v-if="subList.length">
                     <div class="m-horse-list--card" v-if="showType === 'card'">
                         <template v-if="active !== 2">
-                            <HorseCard :style="!isPhone ? `width: calc(100% / ${count} - 20px)` : ''"
-                                v-for="item in subList" :key="item.ID" :item="item"
+                            <HorseCard v-for="item in subList" :key="item.ID" :item="item"
                                 :reporter="{ aggregate: listId(subList) }" />
                         </template>
                         <template v-else>
-                            <SameItem :style="!isPhone ? `width: calc(100% / ${count} - 20px)` : ''"
-                                v-for="item in subList" :key="item.ID" :item="item"
+                            <SameItem v-for="item in subList" :key="item.ID" :item="item"
                                 :reporter="{ aggregate: listId(item.list) }" />
                         </template>
                     </div>
@@ -100,7 +71,7 @@
 <script>
 import { getHorses, getFeeds, getAttrs } from "@/service/horse";
 import horseData from "@/assets/data/horse.json";
-import CommonToolbar from "@/components/common/toolbar.vue";
+import PvxSearch from "@/components/PvxSearch.vue";
 import HorseBroadcastV2 from "@/components/horse/HorseBroadcastV2";
 import HorseCard from "@/components/horse/HorseCard";
 import SameItem from "@/components/horse/SameItem.vue";
@@ -108,13 +79,12 @@ import ListHead from "@/components/horse/ListHead";
 import HorseItem from "@/components/horse/HorseItem";
 import { omit, cloneDeep, concat } from "lodash";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
-import { isPhone } from "@/utils/index";
 import CardBannerList from "@/components/common/card_banner_list.vue";
 const { list, searchType, showTypes } = horseData;
 
 export default {
     name: "HorseHome",
-    components: { SameItem, HorseCard, HorseBroadcastV2, CardBannerList, CommonToolbar, ListHead, HorseItem },
+    components: { SameItem, HorseCard, HorseBroadcastV2, CardBannerList, PvxSearch, ListHead, HorseItem },
     data() {
         return {
             loading: false,
@@ -162,8 +132,36 @@ export default {
             if (this.active === "") return [];
             return this.typeList.find((e) => e.type === this.active)?.list || [];
         },
-        isPhone() {
-            return isPhone();
+        searchItems() {
+            return [
+                {
+                    key: "type",
+                    type: "radio",
+                    options: this.list.map((item) => ({
+                        type: item.type,
+                        name: item.label,
+                    })),
+                },
+                {
+                    type: "filter",
+                    options: this.searchType.map((item) => ({
+                        key: item.key,
+                        type: item.type,
+                        name: item.name,
+                        options: item.list,
+                    })),
+                },
+                {
+                    key: "keyword",
+                    name: "关键词",
+                },
+            ];
+        },
+        searchInitValue() {
+            return {
+                type: this.active,
+                keyword: this.keyword,
+            };
         },
     },
     watch: {
@@ -173,28 +171,11 @@ export default {
                 this.typeList = cloneDeep(_list);
             },
         },
-        params: {
-            deep: true,
-            handler() {
-                this.loadData();
-            },
-        },
-        searchType: {
-            deep: true,
-            handler() {
-                const feed = this.searchType[0].checked.join(",");
-                const attr = this.searchType[1].checked.join(",");
-                this.page = 1;
-                if (this.filter) {
-                    this.loadData({ ...this.params, feed, attr });
-                }
-            },
-        },
     },
     methods: {
         iconLink,
-        clickTabs(type, { syncToolbar = true } = {}) {
-            const current = this.typeList.find((item) => item.value == type);
+        clickTabs(type) {
+            const current = this.typeList.find((item) => item.type == type);
             if (!current) {
                 this.active = "";
                 this.page = 1;
@@ -205,12 +186,6 @@ export default {
                 e.page = 1;
                 return e;
             });
-            if (syncToolbar) {
-                const toolbar = this.$refs.toolbar;
-                if (toolbar && typeof toolbar.changeType === "function") {
-                    toolbar.changeType(type);
-                }
-            }
             this.page = 1;
         },
         loadInfoData() {
@@ -305,15 +280,22 @@ export default {
             this.page = i;
             this.loadData();
         },
-        // 按宽度显示个数
         showCount() {
-            if (this.isPhone) {
+            const listWidth = this.$refs.listRef?.clientWidth || 1200;
+            const cardWidth = 220;
+
+            if (listWidth <= 520) {
+                this.count = 1;
                 this.per = 8;
-                this.count = 8;
                 return;
             }
-            const listWidth = this.$refs.listRef?.clientWidth - 120;
-            this.count = Math.floor(listWidth / this.itemData.width);
+            if (listWidth <= 1024) {
+                this.count = 2;
+                this.per = 16;
+                return;
+            }
+
+            this.count = Math.floor((listWidth - 120) / cardWidth);
             this.per = this.count;
         },
         appendPage() {
@@ -391,16 +373,65 @@ export default {
             this.feed = [];
             this.attr = [];
         },
-        updateToolbar(data) {
-            const { type, search } = data;
-            this.keyword = search;
-            // update 事件可能在 toolbar 初始化阶段触发，此时 $refs 还未就绪
-            this.clickTabs(type, { syncToolbar: false });
+        handleSearch(data) {
+            const { type, keyword, feed, attr } = data;
+            this.keyword = keyword || "";
+
+            // 处理类型切换（使用严格相等避免 0 == "" 的问题）
+            const current = this.typeList.find((item) => item.type === type);
+            if (!current) {
+                this.active = "";
+                this.page = 1;
+                this.loadData(this.params);
+                return;
+            }
+
+            // 如果 type 没有变化且已有数据，直接返回
+            if (this.active === type && this.typeList.some(e => e.list && e.list.length > 0)) {
+                return;
+            }
+
+
+            this.active = current.type;
+            this.typeList = this.typeList.map((e) => {
+                e.page = 1;
+                return e;
+            });
+            this.page = 1;
+
+            // 构建请求参数
+            const params = {
+                client: this.client,
+                per: this.per,
+                page: this.page,
+                type: this.active,
+            };
+            if (this.keyword) params.keyword = this.keyword;
+            if (feed) params.feed = feed;
+            if (attr) params.attr = attr;
+
+            // 调用 loadData
+            this.loadData(params);
+        },
+        debounce(fn, delay = 300) {
+            let timer = null;
+            return (...args) => {
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(() => {
+                    fn.apply(this, args);
+                }, delay);
+            };
         },
     },
     mounted() {
         this.showCount();
         this.loadInfoData();
+
+        this.handleResize = this.debounce(this.showCount, 300);
+        window.addEventListener("resize", this.handleResize);
+    },
+    beforeUnmount() {
+        window.removeEventListener("resize", this.handleResize);
     },
 };
 </script>

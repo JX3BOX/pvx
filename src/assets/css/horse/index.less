@@ -121,13 +121,12 @@
     .m-horse-list--card,
     .m-horse-list--list {
         .w(100%);
-        .flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;
     }
     .m-horse-list--list {
-        .flex;
-        flex-direction: column;
+        grid-template-columns: 1fr;
         .m-book-card {
             box-sizing: border-box;
             .w(100%);
@@ -145,8 +144,48 @@
     }
 }
 
+@media screen and (max-width: @ipad) {
+    .horse-home-wrapper {
+        .m-common-card {
+            .u-tab:first-child {
+                .w(100%);
+            }
+        }
+        .m-list-wrapper {
+            .m-common-list--v2 {
+                .same-item {
+                    flex-shrink: 0;
+                }
+                .m-common-list {
+                    overflow-x: auto;
+                }
+            }
+        }
+        .m-horse-list--card {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            .m-horse-card {
+                .w(100%);
+                .u-image {
+                    .flex;
+                    align-items: center;
+                    justify-content: center;
+                    .el-image__inner {
+                        .w(auto);
+                    }
+                }
+            }
+            .same-item {
+                .w(100%);
+            }
+        }
+    }
+}
+
 @media screen and (max-width: @phone) {
     .horse-home-wrapper {
+        .m-horse-list--card {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        }
         .m-common-card {
             .u-tab:first-child {
                 .w(100%);
