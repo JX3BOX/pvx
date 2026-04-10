@@ -22,11 +22,11 @@
 <script>
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
 import PvxSearch from "@/components/PvxSearch.vue";
-import { debounce } from "lodash";
+import { debounce, isEqual, cloneDeep } from "lodash";
 
 export default {
     name: "tabs",
-    emits: ["change", "setActive"],
+    emits: ["change"],
     props: {
         body_types: {
             type: Array,
@@ -52,7 +52,9 @@ export default {
             code_mode: "",
             title: "",
             filterOpen: false,
-            internalUpdateCount: 0,
+            queryParams: {},
+            localBodyType: this.active,
+            isFirstSearch: true,
         };
     },
     computed: {
@@ -136,7 +138,7 @@ export default {
         },
         initSearchValue() {
             return {
-                body_type: this.active,
+                body_type: this.localBodyType,
                 title: this.title,
                 is_new_face: this.is_new_face,
                 filter_empty_images: this.filter_empty_images,
@@ -152,7 +154,7 @@ export default {
             if (this.price_type) _params.price_type = 0;
             if (this.filter_empty_images) _params.filter_empty_images = true;
             _params.is_new_face = this.is_new_face;
-            _params.body_type = this.active;
+            _params.body_type = this.localBodyType;
             if (this.code_mode) {
                 _params.code_mode = this.code_mode;
             }
@@ -161,11 +163,11 @@ export default {
     },
 
     watch: {
-        active() {
-            this.internalUpdateCount++;
-            this.$nextTick(() => {
-                this.internalUpdateCount--;
-            });
+        active: {
+            handler(val) {
+                this.localBodyType = val;
+            },
+            immediate: true,
         },
     },
 
@@ -194,24 +196,25 @@ export default {
             this.star = !hasAll && filterFlags.includes("star");
             this.price_type = !hasAll && filterFlags.includes("price_type");
             this.is_unlimited = !hasAll && filterFlags.includes("is_unlimited");
-        },
-        isBodyTypeChange(data) {
-            return data.body_type !== undefined && data.body_type !== this.active;
+
+            if (data.body_type !== undefined) {
+                this.localBodyType = data.body_type;
+            }
         },
         handleSearch(data) {
             if (!data || typeof data !== "object" || data instanceof Event) return;
 
-            if (this.internalUpdateCount > 0) {
-                this.syncSearchState(data);
-                return;
-            }
-
-            if (this.isBodyTypeChange(data)) {
-                this.$emit("setActive", data.body_type);
-                return;
-            }
+            if (isEqual(data, this.queryParams)) return;
+            console.log("参数变化", data, this.queryParams);
+            this.queryParams = cloneDeep(data);
 
             this.syncSearchState(data);
+
+            if (this.isFirstSearch) {
+                this.isFirstSearch = false;
+                return;
+            }
+
             this.emitChange(this.params);
         },
     },
