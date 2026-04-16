@@ -276,7 +276,7 @@ export default {
 
     .m-pet-tabs-selectors__mobile {
         margin-top: 10px;
-        padding: 0 15px;
+        padding: 10px 15px;
         box-sizing: border-box;
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
         border-radius: 10px;
