@@ -51,7 +51,8 @@ export default {
             return this.data?.type;
         },
         list() {
-            return this.count ? this.items.slice(0, this.count) : this.items;
+            // count 只控制网格列数，不限制显示数量
+            return this.items;
         },
     },
     mounted() { },

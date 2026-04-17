@@ -182,6 +182,7 @@ export default {
             if (!current) {
                 this.active = "";
                 this.page = 1;
+                this.loadData();
                 return;
             }
             this.active = current.type;
@@ -190,6 +191,8 @@ export default {
                 return e;
             });
             this.page = 1;
+            // 触发数据加载
+            this.loadData();
         },
         loadInfoData() {
             Promise.all([
@@ -300,17 +303,18 @@ export default {
 
             if (listWidth <= 520) {
                 this.count = 1;
-                this.per = 8;
+                this.per = 16;
                 return;
             }
             if (listWidth <= 1024) {
                 this.count = 2;
-                this.per = 16;
+                this.per = 32;
                 return;
             }
 
             this.count = Math.floor((listWidth - 120) / cardWidth);
-            this.per = this.count;
+            // 加载足够填满 2 行的数据量
+            this.per = this.count * 2;
         },
         appendPage() {
             this.appendMode = true;
