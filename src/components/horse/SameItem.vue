@@ -9,13 +9,8 @@
                         </div>
                     </template>
                 </el-image>
-                <item-icon
-                    v-else
-                    :item_id="String(item.ItemID)"
-                    :isLink="false"
-                    :size="48"
-                    :onlyIcon="true"
-                ></item-icon>
+                <item-icon v-else :item_id="String(item.ItemID)" :isLink="false" :size="48"
+                    :onlyIcon="true"></item-icon>
             </div>
             <div class="m-info">
                 <div class="info-item name">{{ item.Name }}</div>

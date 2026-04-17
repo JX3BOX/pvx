@@ -1,6 +1,7 @@
 <template>
     <div class="horse-home-wrapper">
-        <PvxSearch class="m-horse-tabs" :items="searchItems" :initValue="searchInitValue" @search="handleSearch">
+        <PvxSearch v-if="searchReady" class="m-horse-tabs" :items="searchItems" :initValue="searchInitValue"
+            @search="handleSearch">
         </PvxSearch>
         <div class="m-horse-content" ref="listRef" v-loading="loading">
             <!-- 全部模式 -->
@@ -77,7 +78,7 @@ import HorseCard from "@/components/horse/HorseCard";
 import SameItem from "@/components/horse/SameItem.vue";
 import ListHead from "@/components/horse/ListHead";
 import HorseItem from "@/components/horse/HorseItem";
-import { omit, cloneDeep, concat } from "lodash";
+import { omit, cloneDeep, concat, isEqual } from "lodash";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import CardBannerList from "@/components/common/card_banner_list.vue";
 const { list, searchType, showTypes } = horseData;
@@ -103,11 +104,17 @@ export default {
             feeds: [],
             attrs: [],
             filter: false,
+            feed: "",
+            attr: "",
+            searchReady: false, // 标记 filter 选项是否加载完成
+            searchInitValue: {}, // 初始搜索值，只在初始化时设置一次
 
             typeList: [],
             list,
             searchType,
             showTypes,
+            queryParams: {},
+            isFirstSearch: true,
         };
     },
     computed: {
@@ -118,6 +125,8 @@ export default {
             const _params = { client: this.client, per: this.per };
             if (this.keyword) _params.keyword = this.keyword;
             if (this.active !== "") _params.type = this.active;
+            if (this.feed) _params.feed = this.feed;
+            if (this.attr) _params.attr = this.attr;
             return _params;
         },
         hasNextPage: function () {
@@ -157,12 +166,6 @@ export default {
                 },
             ];
         },
-        searchInitValue() {
-            return {
-                type: this.active,
-                keyword: this.keyword,
-            };
-        },
     },
     watch: {
         list: {
@@ -189,48 +192,59 @@ export default {
             this.page = 1;
         },
         loadInfoData() {
-            getFeeds({ client: this.client }).then((res) => {
-                const arr = res.data.map((item) => {
-                    const start = item.tip.indexOf("【");
-                    const end = item.tip.indexOf("】");
-                    item.feed = item.tip.slice(start + 1, end);
-                    return item;
-                });
-                let newArr = [];
-                arr.forEach((item) => {
-                    const index = newArr.findIndex((nItem) => nItem.feed === item.feed);
-                    if (index > -1) {
-                        newArr[index].id += "," + item.id;
-                    } else {
-                        newArr.push(item);
-                    }
-                });
-                this.feeds = newArr.map((item) => {
-                    return {
-                        label: item.feed,
-                        value: item.id,
-                    };
-                });
-                this.searchType[0].list = this.feeds;
-            });
-            getAttrs({ client: this.client }).then((res) => {
-                const data = res.data;
-                const options = data.map((item) => {
-                    return {
-                        label: item.name,
-                        value: item.name,
-                    };
-                });
-                this.attrs = options;
-                this.searchType[1].list = this.attrs;
+            Promise.all([
+                getFeeds({ client: this.client }).then((res) => {
+                    const arr = res.data.map((item) => {
+                        const start = item.tip.indexOf("【");
+                        const end = item.tip.indexOf("】");
+                        item.feed = item.tip.slice(start + 1, end);
+                        return item;
+                    });
+                    let newArr = [];
+                    arr.forEach((item) => {
+                        const index = newArr.findIndex((nItem) => nItem.feed === item.feed);
+                        if (index > -1) {
+                            newArr[index].id += "," + item.id;
+                        } else {
+                            newArr.push(item);
+                        }
+                    });
+                    this.feeds = newArr.map((item) => {
+                        return {
+                            label: item.feed,
+                            value: item.feed, // 使用饲料名称作为 value
+                            id: item.id, // 保留 id 供其他地方使用
+                        };
+                    });
+                    this.searchType[0].list = this.feeds;
+                }),
+                getAttrs({ client: this.client }).then((res) => {
+                    const data = res.data;
+                    const options = data.map((item) => {
+                        return {
+                            label: item.name,
+                            value: item.name,
+                        };
+                    });
+                    this.attrs = options;
+                    this.searchType[1].list = this.attrs;
+                })
+            ]).then(() => {
+                // 所有 filter 选项加载完成，设置初始值
+                this.searchInitValue = {
+                    type: this.active,
+                    keyword: this.keyword,
+                    feed: this.feed,
+                    attr: this.attr,
+                };
+                this.searchReady = true;
             });
         },
         getFeed(item) {
             let feed = "";
             if (item.SubType === 15) {
-                feed = this.feeds.find((fitem) => fitem.id === item.DetailType)
-                    ? this.feeds.find((fitem) => fitem.id === item.DetailType).feed
-                    : "";
+                const feedItem = this.feeds.find((fitem) => fitem.id === item.DetailType);
+                feed = feedItem ? feedItem.label : "";
             }
             return feed;
         },
@@ -374,8 +388,17 @@ export default {
             this.attr = [];
         },
         handleSearch(data) {
+            if (!data || typeof data !== "object" || data instanceof Event) return;
+
+            // 检查参数是否变化
+            if (isEqual(data, this.queryParams)) return;
+            this.queryParams = cloneDeep(data);
+
             const { type, keyword, feed, attr } = data;
             this.keyword = keyword || "";
+            // 更新 feed 和 attr，供 params 计算属性使用
+            this.feed = feed || "";
+            this.attr = attr || "";
 
             // 处理类型切换（使用严格相等避免 0 == "" 的问题）
             const current = this.typeList.find((item) => item.type === type);
@@ -386,12 +409,6 @@ export default {
                 return;
             }
 
-            // 如果 type 没有变化且已有数据，直接返回
-            if (this.active === type && this.typeList.some(e => e.list && e.list.length > 0)) {
-                return;
-            }
-
-
             this.active = current.type;
             this.typeList = this.typeList.map((e) => {
                 e.page = 1;
@@ -399,14 +416,20 @@ export default {
             });
             this.page = 1;
 
-            // 构建请求参数
+            // 首次搜索不触发数据加载
+            if (this.isFirstSearch) {
+                this.isFirstSearch = false;
+                return;
+            }
+
+            // 构建请求参数，直接使用 data 中的值
             const params = {
                 client: this.client,
                 per: this.per,
                 page: this.page,
                 type: this.active,
             };
-            if (this.keyword) params.keyword = this.keyword;
+            if (keyword) params.keyword = keyword;
             if (feed) params.feed = feed;
             if (attr) params.attr = attr;
 
@@ -427,6 +450,11 @@ export default {
         this.showCount();
         this.loadInfoData();
 
+        // 加载初始数据
+        this.$nextTick(() => {
+            this.loadData();
+        });
+
         this.handleResize = this.debounce(this.showCount, 300);
         window.addEventListener("resize", this.handleResize);
     },
@@ -440,4 +468,45 @@ export default {
 @import "~@/assets/css/common/search.less";
 @import "~@/assets/css/common/tabs.less";
 @import "~@/assets/css/horse/index.less";
+@media screen and (max-width: @ipad-y) {
+    .horse-home-wrapper {
+        .type-list {
+            width: 100%;
+
+            .type-item {
+                &:first-child {
+                    margin-right: 0 !important;
+                    width: 100% !important;
+                    flex-shrink: 0;
+                }
+
+                &:not(:first-child) {
+                    width: calc(50% - 20px) !important;
+                }
+            }
+        }
+
+        .pvx-search-wrapper {
+            flex-direction: column;
+            height: auto;
+
+            .search-group {
+                flex-wrap: wrap;
+                flex-direction: row;
+
+                .filter-wrap {
+                    width: 40px;
+                    flex-shrink: 0;
+                    margin-right: 0;
+                }
+
+                .input-wrap {
+                    width: calc(100% - 40px);
+                    flex-shrink: 0;
+                }
+
+            }
+        }
+    }
+}
 </style>

@@ -6,12 +6,15 @@
     .fz(14px);
     background-color: #fafbfc;
     border: 1px solid #eeeeee;
+    
     .u-header {
         .flex;
-        .lh(28px);
+        line-height: 28px;
         padding: 10px 15px;
         background-color: #f5f7fa;
         border-bottom: 1px solid #eeeeee;
+        .mb(10px);
+
         .u-icon {
             .size(28px);
             .fz(22px);
@@ -19,12 +22,12 @@
             color: #0366d6;
             fill: #0366d6;
         }
+        
         span {
             .fz(17px);
             color: #6c645c;
             font-weight: 300;
         }
-        .mb(10px);
     }
 }
 
@@ -34,15 +37,19 @@
 
 .m-fetters-title {
     .u-title {
-        .fz(14px,2);
+        .fz(14px);
+        line-height: 2;
         .bold;
         color: #3d454d;
+        
         i {
             .mr(7px);
         }
     }
+    
     .u-desc {
-        .fz(12px,2);
+        .fz(12px);
+        line-height: 2;
         color: #fda522;
         .mb(10px);
     }
@@ -56,6 +63,7 @@
         display: inline-block;
         .mr(15px);
     }
+    
     .u-fetter {
         .pr;
         .pointer;
@@ -92,6 +100,7 @@
 
         .db;
         .pr;
+        
         &:after {
             content: "";
             .db;
@@ -119,13 +128,12 @@
     .u-fetter-name {
         .db;
         .x;
-        .lh(24px);
+        line-height: 24px;
         color: @color;
         .w(100%);
         overflow: hidden;
         white-space: nowrap;
     }
-    
 }
 
 .m-pet-pop {
@@ -133,6 +141,6 @@
     padding: 0 !important;
     box-shadow: none !important;
     transform: translateY(-10px);
-    background:none !important;
-    border:none !important;
+    background: none !important;
+    border: none !important;
 }

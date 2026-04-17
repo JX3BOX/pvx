@@ -40,7 +40,7 @@ export default {
                 }
                 return this.__imgRoot + `homeland/${client}` + name + ".png";
             }
-            return `${__cdn}/design/horse/${client}/${item.ID}.png`;
+            return `${__cdn}design/horse/${client}/${item.ID}.png`;
         },
         getType(item) {
             let type = "";

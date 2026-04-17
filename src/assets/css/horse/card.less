@@ -1,10 +1,10 @@
 @import "./pop.less";
 
 .m-horse-card {
-    flex-shrink: 0;
     .pointer;
     .r(10px);
     display: block;
+    width: 100%;
     height: auto;
     background-color: #fff;
     box-sizing: border-box;
@@ -24,34 +24,23 @@
         }
     }
 
-    .u-image-wrapper {
-        position: relative;
+    .u-image {
+       
         width: 100%;
         aspect-ratio: 1 / 1;
         .r(10px);
         overflow: hidden;
-        background-color: #f5f5f5;
+        background-image: url("../../img/horse/horse_item_bg_sm.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
 
-        .u-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.3;
-            transition: opacity 0.3s;
-        }
-
-        .u-image {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .u-image-item {
             width: 100%;
             height: 100%;
             object-fit: contain;
             transition: all 0.5s;
-            z-index: 1;
+
         }
     }
 
@@ -72,9 +61,8 @@
         .scrollbar;
         .mt(10px);
         .pb(6px);
-        gap: 8px;
-        overflow-y: hidden;
-        overflow-x: auto;
+        .gap(0 8px);
+        overflow: hidden;
     }
 
     .u-attr-icon {
@@ -111,7 +99,7 @@
 
 @media screen and (max-width: @phone) {
     .m-horse-card {
-        flex-shrink: 0;
+        width: 100%;
 
         .u-more {
             display: none;

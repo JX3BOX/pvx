@@ -1,8 +1,8 @@
 <template>
     <a class="m-horse-card" :class="`u-quality-bg--` + item.Quality" :href="getLink(item)" target="_blank">
-        <div class="u-image-wrapper">
-            <img :src="getPlaceholderImage()" class="u-placeholder" alt="" aria-hidden="true" />
-            <img v-if="item.SubType === 15" :src="getImgSrc(item)" class="u-image" :alt="`${item.Name} - 剑网3马匹`"
+        <div class="u-image">
+
+            <img v-if="item.SubType === 15" :src="getImgSrc(item)" class="u-image-item" :alt="`${item.Name} - 剑网3马匹`"
                 loading="lazy" @error="handleImageError" />
             <item-icon v-else :item_id="String(item.ItemID)" :isLink="false" :size="160" :onlyIcon="true"></item-icon>
         </div>

@@ -2,15 +2,12 @@
 @import "./pop.less";
 
 .m-horse-item {
-    //指针
     .pointer;
     .fz(14px);
-    border-radius: 6px;
+    .r(6px);
     border: 1px solid #eee;
-
     background-color: @bg-light;
-
-    margin-bottom: 20px;
+    .mb(20px);
     min-height: 120px;
     text-align: center;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
@@ -18,18 +15,16 @@
     .grid-layout;
 
     @media screen and (max-width: @phone) {
-        & > .u-level {
+        &>.u-level {
             .none;
         }
 
-        & > div {
-            margin-bottom: 12px;
+        &>div {
+            .mb(12px);
         }
 
-        & {
-            display: block;
-            padding: 12px 6px;
-        }
+        display: block;
+        padding: 12px 6px;
     }
 
     &:hover {
@@ -51,42 +46,46 @@
 
     .u-name {
         .u-name-title {
-            .flex;
-            align-items: center;
-            justify-content: center;
+            .flex(o);
             width: 100%;
-            font-weight: bold;
-            font-size: 16px;
+            .bold;
+            .fz(16px);
         }
 
         .u-name-type {
             .size(26px);
             .mt(-6px);
-            margin-right: 8px;
+            .mr(8px);
         }
 
         .u-name-school {
             .size(30px);
             .mt(-6px);
-            margin-left: 8px;
+            .ml(8px);
         }
 
         .u-name-id {
-            .fz(12px, 2);
+            .fz(12px);
+            line-height: 2;
             color: #909399;
             font-weight: normal;
             display: inline-block;
             text-align: center;
         }
+
+
     }
+
     .u-attr-icon {
-        width: 36px;
+        .w(36px);
     }
+
     .u-attr-wrap {
-        display: flex;
+        .flex;
         justify-content: flex-start;
         flex-direction: row;
         flex-wrap: wrap;
+
         .u-attr {
             margin: 2px;
         }

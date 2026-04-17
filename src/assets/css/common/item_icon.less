@@ -1,16 +1,16 @@
-.u-item {
-    .u-item__wrapper {
-        display: flex;
-        align-items: flex-start;
+.u-item__wrapper {
+    display: flex;
+    align-items: flex-start;
+    align-items: center;
+
+    &.is_vertical {
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
-        &.is_vertical {
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            .u-item-name {
-                .pt(8px);
-                .pl(0);
-            }
+
+        .u-item-name {
+            .pt(8px);
+            .pl(0);
         }
     }
 
@@ -99,6 +99,7 @@
 .u-item__popup.el-popper,
 .u-item__popup.el-popover {
     min-width: initial !important;
+    width: initial !important;
     padding: 0 !important;
     border: none !important;
     box-shadow: none !important;

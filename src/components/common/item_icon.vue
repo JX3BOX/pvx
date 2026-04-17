@@ -1,36 +1,21 @@
 <!--
  * @Author: X3ZvaWQ
  * @Date: 2022-07-11 00:14:57
- * @LastEditors: X3ZvaWQ
- * @LastEditTime: 2022-08-23 20:11:18
+ * @LastEditors: zhusha
+ * @LastEditTime: 2026-04-17 10:17:15
  * @Description: 各个地方都有用到的，后端没有联物品表，只提供了物品id，通过该组件展示物品
 -->
 <template>
-    <el-popover
-        class="u-item"
-        placement="right-start"
-        trigger="hover"
-        :visible-arrow="false"
-        popper-class="u-item__popup"
-    >
+    <el-popover placement="right-start" trigger="hover" :visible-arrow="false" popper-class="u-item__popup">
         <template v-slot:reference>
             <div class="u-item__wrapper" :class="{ background: !onlyIcon, is_vertical: vertical }">
-                <a
-                    class="u-item-icon"
-                    target="_blank"
-                    :style="`height:${size}px; width:${size}px`"
-                    :href="isLink ? getLink('item', source.id) : noLink()"
-                    v-if="!onlyName"
-                >
-                    <img
-                        class="u-item-icon__img"
+                <a class="u-item-icon" target="_blank" :style="`height:${size}px; width:${size}px`"
+                    :href="isLink ? getLink('item', source.id) : noLink()" v-if="!onlyName">
+                    <img class="u-item-icon__img"
                         :style="{ height: size + 'px', width: size + 'px', cursor: isLink ? 'pointer' : 'default' }"
-                        :src="iconLink(source.IconID, client)"
-                    />
-                    <div
-                        class="u-item-icon__quality"
-                        :style="{ backgroundImage: item_border(source), opacity: source.Quality == 5 ? 0.9 : 1 }"
-                    ></div>
+                        :src="iconLink(source.IconID, client)" />
+                    <div class="u-item-icon__quality"
+                        :style="{ backgroundImage: item_border(source), opacity: source.Quality == 5 ? 0.9 : 1 }"></div>
                     <div class="u-item-icon__quest" :style="{ backgroundImage: item_border_quest(source) }"></div>
                     <span class="u-item-icon__count" v-if="display_amount !== 1">{{ display_amount }}</span>
                 </a>

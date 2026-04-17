@@ -53,11 +53,12 @@
     .m-horse-broadcast__list {
         .flex;
         .mt(20px);
-        gap: 40px;
+        .gap(40px);
         .h(192px);
         box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
         padding: 20px;
         .r(10px);
+        box-sizing: initial;
 
         .u-horse-map {
             .size(306px, 192px);
@@ -71,8 +72,8 @@
             flex-direction: column;
             flex-wrap: wrap;
             .w(100%);
-            gap: 3px;
-            column-gap: 40px;
+            .gap(3px);
+            column-gap: 40px !important;
 
             .m-item {
                 .pr;
@@ -93,14 +94,16 @@
                 .r(10px);
                 .bold;
                 .fz(14px);
-                .size(auto, 43px);
+                width: auto;
+                .h(43px);
                 background-color: #f5f5f5;
                 padding: 0 10px;
-                gap: 5px;
+                .gap(5px);
                 color: #000;
                 border: 1px solid #f5f5f5;
 
                 &.no-horse {
+                    width: calc(50% - 20px);
                     .flex(x);
                 }
 
@@ -111,7 +114,7 @@
 
                 .u-col {
                     .flex;
-                    gap: 2px;
+                    .gap(2px);
                     .w(32%);
                     flex-shrink: 0;
                     justify-content: flex-end;
@@ -170,12 +173,12 @@
     }
 }
 
-@media screen and(max-width: @ipad) {
+@media screen and (max-width: @ipad) {
     .m-horse-broadcast .m-horse-broadcast__list {
         padding: 10px;
         .h(auto);
         flex-direction: column;
-        gap: 0;
+        .gap(0);
 
         .u-horse-map {
             .w(100%);
@@ -192,7 +195,7 @@
                 padding: 10px;
                 flex-wrap: wrap;
                 .h(auto);
-                gap: 20px;
+                .gap(20px);
                 .fz(12px);
 
                 .u-col {
