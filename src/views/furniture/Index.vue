@@ -261,6 +261,8 @@ export default {
             },
         },
         version() {
+            if (!this.$refs.search) return;
+
             if (this.version) {
                 this.$refs.search.reset();
                 this.$refs.search.formData.nCatag1Index = "";
@@ -377,7 +379,6 @@ export default {
             });
         },
         getData() {
-            this.version = "";
             this.setList = [];
             const params = deleteNull(this.params);
             this.loading = true;
