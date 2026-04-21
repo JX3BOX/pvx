@@ -25,76 +25,77 @@
  * 
  * @styles
  * - 使用 pvx-item-mixin 样式混合
- * - 样式文件: assets/css/common/face-body-mixins.less
+ * - 样式文件: assets/css/common/face-body/index.less
  -->
 <template>
-    <a 
-        :class="itemClasses" 
-        :href="`${link}/${item.id}`" 
+    <a
+        class="m-pvx-type-item"
+        :class="{ 'is-only-pic': onlyPic, 'is-no-name': noName }"
+        :href="`${link}/${item.id}`"
         target="_blank"
     >
-        <div class="m-img" v-if="type === 'body'">
-            <el-image class="u-pic" :src="showThumb(imgLink)" fit="cover">
+        <div class="m-pvx-img" v-if="type === 'body'">
+            <el-image class="u-pvx-pic" :src="showThumb(imgLink)" fit="cover">
                 <template #error>
                     <div class="image-slot">
                         <img :src="defaultImage" />
                     </div>
                 </template>
             </el-image>
-            <div class="m-mark-left">
-                <i class="u-mark u-mark--star" v-if="!!item.star">编辑推荐</i>
-                <i class="u-mark u-mark--new" v-if="!!item.is_unlimited">可新建</i>
+            <div class="m-pvx-mark-left">
+                <i class="u-pvx-mark u-pvx-mark--star" v-if="!!item.star">编辑推荐</i>
+                <i class="u-pvx-mark u-pvx-mark--new" v-if="!!item.is_unlimited">可新建</i>
             </div>
-            <i class="u-mark u-mark--pay" v-if="!!~~item.price_type && !!item.price_count">付费</i>
+            <i class="u-pvx-mark u-pvx-mark--pay" v-if="!!~~item.price_type && !!item.price_count">付费</i>
         </div>
 
         <el-image 
             v-else
-            class="u-img" 
+            class="u-pvx-img" 
             :src="showThumb(imgLink)" 
             fit="cover"
         ></el-image>
 
         <img 
             v-if="type === 'face' && item.code_mode" 
-            class="u-pinch__marker" 
+            class="u-pvx-pinch-marker" 
             src="@/assets/img/face/bxs_barcode.svg" 
             alt="" 
         />
 
-        <div class="m-tags" v-if="type === 'face'">
-            <div class="m-tag-left">
+        <div class="m-pvx-tags" v-if="type === 'face'">
+            <div class="m-pvx-tag-left">
                 <template v-if="client === 'std'">
-                    <i class="u-tag u-tag--type u-new-face" v-if="item.is_new_face">写实</i>
-                    <i class="u-tag u-tag--type" v-else>写意</i>
+                    <i class="u-pvx-tag u-pvx-tag--type u-pvx-new-face" v-if="item.is_new_face">写实</i>
+                    <i class="u-pvx-tag u-pvx-tag--type" v-else>写意</i>
                 </template>
-                <i class="u-tag u-tag--new" v-if="!!item.is_unlimited">可新建</i>
+                <i class="u-pvx-tag u-pvx-tag--new" v-if="!!item.is_unlimited">可新建</i>
             </div>
 
-            <i class="u-tag u-tag--star" v-if="!!item.star">
+            <i class="u-pvx-tag u-pvx-tag--star" v-if="!!item.star">
                 <img :src="require('@/assets/img/face/star.svg')" alt="" />推荐
             </i>
-            <i class="u-tag u-tag--pay" v-if="!!~~item.price_type && !!item.price_count">
+            <i class="u-pvx-tag u-pvx-tag--pay" v-if="!!~~item.price_type && !!item.price_count">
                 <img :src="require('@/assets/img/face/coin.svg')" alt="" />{{ item.price_count }}
             </i>
         </div>
 
-        <div class="m-op">
-            <div class="u-title">{{ item.title }}</div>
-            <div class="m-author" @click.stop="onAuthorClick">
+        <div class="m-pvx-op">
+            <div class="u-pvx-title">{{ item.title }}</div>
+            <div class="m-pvx-author" @click.stop="onAuthorClick">
                 <el-image 
                     v-if="type === 'face'" 
-                    class="u-avatar" 
-                    :src="showAvatar(item.user_avatar)" 
-                    :alt="author" 
+                    class="u-pvx-avatar"
+                    :src="showAvatar(item.user_avatar)"
+                    :alt="author"
                 />
-                <img 
-                    v-else 
-                    class="u-avatar" 
-                    :src="showAvatar(item.user_avatar)" 
-                    :alt="author" 
+                <img
+                    v-else
+                    class="u-pvx-avatar"
+                    :src="showAvatar(item.user_avatar)"
+                    :alt="author"
                 />
-                <span class="u-name"> {{ item.author_name || "匿名" }} </span>
+                <span class="u-pvx-name"> {{ item.author_name || "匿名" }} </span>
             </div>
         </div>
     </a>
@@ -181,10 +182,9 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body-mixins.less";
+@import "~@/assets/css/common/face-body/index.less";
 
-.m-face-item,
-.m-body-item {
+.m-pvx-type-item {
     .pvx-item-mixin();
 }
 </style>

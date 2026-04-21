@@ -29,7 +29,7 @@
  * 
  * @styles
  * - 使用 pvx-list-mixin 样式混合
- * - 样式文件: assets/css/common/face-body-mixins.less
+ * - 样式文件: assets/css/common/face-body/index.less
  -->
 <template>
     <div :class="['p-pvx-list', `p-${type}-list`]" v-loading="loading">
@@ -207,7 +207,7 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body-mixins.less";
+@import "~@/assets/css/common/face-body/index.less";
 
 .p-pvx-list {
     .pvx-list-mixin();

@@ -1,0 +1,111 @@
+/**
+ * 小程序体型详情页样式
+ * 从 body/miniprogram/Single.vue 抽离
+ * 复用 face-single.less 样式
+ */
+
+@import "face-single.less";
+
+.p-body-detail {
+    height: 100vh;
+    background-color: @pvx-mini-surface;
+    overflow: auto;
+    .pb(3.5rem);
+    box-sizing: border-box;
+
+    .m-body-detail-top {
+        .pr;
+        overflow: hidden;
+
+        .u-img-item {
+            .size(100%, 550px);
+            .pr;
+
+            &::before {
+                content: "";
+                .pa;
+                .size(100%, 100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                background: linear-gradient(180deg,
+                        #f8f8f8 0.04%,
+                        rgba(248, 248, 248, 0) 30%,
+                        rgba(248, 248, 248, 0) 70%,
+                        #fafafa 100%);
+            }
+
+            img {
+                .size(100%, 100%);
+                object-fit: cover;
+            }
+        }
+
+        .el-carousel__indicators {
+            height: 2.333rem;
+
+            &.el-carousel__indicators--horizontal {
+                right: 0;
+                left: unset;
+            }
+
+            .el-carousel__indicator {
+                .pt(0);
+
+                .el-carousel__button {
+                    .size(0.444rem);
+                    .r(0.444rem);
+                    background-color: rgba(28, 28, 28, 0.4);
+                }
+
+                &.is-active {
+                    .el-carousel__button {
+                        background-color: #1c1c1c;
+                    }
+                }
+            }
+        }
+
+        .u-body-info {
+            .pa;
+            .z(2);
+            .lb(1.111rem, 0.333rem);
+
+            .u-body-name {
+                color: @pvx-mini-text;
+                .fz(0.889rem, 1.333rem);
+                .bold(700);
+            }
+
+            .u-body-author {
+                color: rgba(28, 28, 28, 0.4);
+                .fz(0.667rem, 1rem);
+                .bold(400);
+            }
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .m-body-detail-top {
+            .u-img-item {
+                &::before {
+                    background: linear-gradient(180deg,
+                            #1c1c1c 0.04%,
+                            rgba(0, 0, 0, 0) 20%,
+                            rgba(0, 0, 0, 0) 80%,
+                            #000000 100%);
+                }
+            }
+
+            .u-body-info {
+                .u-body-name {
+                    color: @pvx-mini-text-dark;
+                }
+
+                .u-body-author {
+                    color: @pvx-mini-text-disabled-dark;
+                }
+            }
+        }
+    }
+}

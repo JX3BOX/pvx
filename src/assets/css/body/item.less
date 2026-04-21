@@ -1,65 +1,85 @@
-@import "~@/assets/css/common/face-body-mixins.less";
+@import "~@/assets/css/common/face-body/index.less";
 
-.m-body-item {
+.m-pvx-type-item {
     .pvx-item-mixin();
+}
 
-    body & {
-        width: 100%;
+.m-pvx-type-list--all {
+    .pvx-list-all-mixin();
+
+    > .m-pvx-type-item {
+        max-width: 190px;
+    }
+}
+
+.p-pvx-body-list,
+.p-pvx-body-single {
+    // 匹配 CardBannerList 组件内的列表项（推荐列表）
+    .m-card-banner-list .m-pvx-type-item {
+        width: 190px;
         height: 368px;
 
-        .m-img {
+        .m-pvx-img {
             height: 264px;
             width: 100%;
         }
 
-        .u-pic {
+        .u-pvx-pic {
             .size(100%);
         }
 
-        &.noName {
-            .h(340px);
+        &.is-no-name {
+            height: 340px;
         }
+    }
 
-        &.onlyPic {
-            .size(160px, 264px);
-            padding: 0;
+    .m-pvx-type-list--all {
+        > .m-pvx-type-item {
+            width: 190px;
+            height: 368px;
 
-            .m-op {
-                .pa;
-                .z(2);
-                .lb(0);
-                padding: 20px 10px;
+            .m-pvx-img {
+                height: 264px;
+                width: 100%;
+            }
 
-                .u-title {
-                    color: #fff;
-                }
+            .u-pvx-pic {
+                .size(100%);
+            }
 
-                .m-author {
-                    .none;
-                }
+            &.is-no-name {
+                height: 340px;
+            }
 
-                &::after {
-                    content: "";
+            &.is-only-pic {
+                .size(160px, 264px);
+                padding: 0;
+
+                .m-pvx-op {
                     .pa;
-                    .size(160px, 264px);
+                    .z(2);
                     .lb(0);
-                    .z(-1);
-                    .r(10px);
-                    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+                    padding: 20px 10px;
+
+                    .u-pvx-title {
+                        color: #fff;
+                    }
+
+                    .m-pvx-author {
+                        .none;
+                    }
+
+                    &::after {
+                        content: "";
+                        .pa;
+                        .size(160px, 264px);
+                        .lb(0);
+                        .z(-1);
+                        .r(10px);
+                        background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+                    }
                 }
             }
         }
-    }
-}
-
-.m-body-list--all {
-    .pvx-list-all-mixin();
-
-    >.m-body-item {
-        max-width: 200px;
-    }
-
-    >.m-body-item {
-        max-width: 190px;
     }
 }

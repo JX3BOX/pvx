@@ -7,7 +7,7 @@ const routes = [
         path: "/",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/body/mobile/List.vue")
+                ? () => import("@/views/body/miniprogram/List.vue")
                 : () => import("@/views/body/List.vue"),
         meta: {
             i18n: {
@@ -22,7 +22,7 @@ const routes = [
         path: "/:id(\\d+)",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/body/mobile/Single.vue")
+                ? () => import("@/views/body/miniprogram/Single.vue")
                 : () => import("@/views/body/Single.vue"),
         meta: {
             i18n: {
@@ -47,7 +47,7 @@ const routes = [
     {
         name: "bodydatMobile",
         path: "/BodydatMobile",
-        component: () => import("@/views/body/mobile/Bodydat.vue"),
+        component: () => import("@/views/body/miniprogram/Bodydat.vue"),
         meta: {
             i18n: {
                 title: "pages.body.bodydatMobile.title",

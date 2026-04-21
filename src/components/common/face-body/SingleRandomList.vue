@@ -1,8 +1,8 @@
 <template>
-    <div class="m-random-list">
-        <div class="u-list m-single-content-box m-author-faces" v-if="list && list.length">
+    <div class="m-pvx-random-list">
+        <div class="u-pvx-list m-pvx-single-content-box m-pvx-author-faces" v-if="list && list.length">
             <ListItem
-                class="u-item"
+                class="u-pvx-item"
                 :type="type"
                 :item="item"
                 :noName="true"
@@ -23,7 +23,7 @@ import ListItem from "@/components/common/face-body/ListItem.vue";
  * 样式说明：
  * - 组件使用原有类名 m-random-list、u-list 等
  * - 样式由页面引入的 less 文件控制（body/single.less 或 face/single.less）
- * - 通过 face-body-mixins.less 中的 pvx-random-list-mixin 定义样式
+ * - 通过 face-body/index.less 中的 pvx-random-list-mixin 定义样式
  */
 export default {
     name: "SingleRandomList",

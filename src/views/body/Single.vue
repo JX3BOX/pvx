@@ -3,7 +3,7 @@
  * 
  * @description 展示体型详情信息，包括图片预览、数据分析、购买下载、作者信息等
  * @author Face & Body 模块优化团队
- * @version 1.0.0
+ * @version 2.0.0
  * 
  * @features
  * - 图片轮播预览
@@ -13,93 +13,45 @@
  * - 随机推荐列表
  * - 评论功能
  * - 感谢/投币功能
- * 
- * @components
- * - SingleNavigation: 导航栏组件
- * - SingleHeader: 头部信息组件
- * - SingleCarousel: 图片轮播组件
- * - SinglePaySection: 支付下载组件
- * - SingleRandomList: 随机推荐组件
- * - author: 作者信息组件
- * - Thx: 感谢组件
- * - Comment: 评论组件
- * 
- * @api
- * - /api/body/:id: 获取体型详情
- * - /api/body/random: 获取随机推荐
- * - /api/body/download: 下载体型数据
- * - /api/body/buy: 购买体型
- * 
- * @styles
- * - 样式文件: assets/css/body/single.less
  -->
 <template>
-    <div class="p-body-single" v-loading="loading" ref="singleRef">
-        <!-- 导航区域 - 使用公共组件 -->
+    <div class="p-pvx-body-single" v-loading="loading" ref="singleRef">
         <SingleNavigation type="body" @go-back="goBack" />
+        <SingleHeader :post="post" type="body" :canEdit="canEdit" :topicText="topicText" />
 
-        <!-- 头部信息 - 使用公共组件 -->
-        <SingleHeader
-            :post="post"
-            type="body"
-            :canEdit="canEdit"
-            :topicText="topicText"
-        />
-
-        <div class="m-body-content">
-            <!-- 图片轮播 - 使用公共组件 -->
-            <SingleCarousel
-                :imageList="previewSrcList"
-                type="body"
-            />
-
-            <!-- 右侧购买/下载区域 - 使用公共组件 -->
-            <SinglePaySection
-                :post="post"
-                type="body"
-                :hasBuy="has_buy"
-                :fileList="downFileList"
-                :topicInfo="topic_info"
-                @pay="bodyPay"
-                @download="downloadAll"
-                @download-file="handleDownloadFile"
-            />
+        <div class="m-pvx-type-content">
+            <SingleCarousel :imageList="previewSrcList" type="body" />
+            <SinglePaySection :post="post" type="body" :hasBuy="has_buy" :fileList="downFileList"
+                :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile" />
         </div>
 
-        <!-- 数据分析区域 -->
-        <div class="m-single-data">
-            <span class="m-single-data-title">独家数据分析</span>
+        <div class="m-pvx-single-data">
+            <span class="m-pvx-single-data-title">独家数据分析</span>
             <Bodydat v-if="bodydata" :data="bodydata" />
-            <div class="m-single-buy-box" v-else>
-                <div class="m-body-buy-btn" @click="bodyPay()"
-                    v-if="post.price_type && post.price_type != 0 && !has_buy">
-                    <div class="u-price" v-if="post.price_type == 1">售价：{{ post.price_count }} 盒币</div>
-                    <div class="u-price" v-if="post.price_type == 2">售价：{{ post.price_count }} 金箔</div>
-                    <div class="u-buy"><img :src="iconShopcart" alt="" />购买</div>
+            <div class="m-pvx-single-buy-box" v-else>
+                <div class="m-pvx-type-buy-btn" @click="pay()" v-if="canBuy">
+                    <div class="u-pvx-price">{{ priceText }}</div>
+                    <div class="u-pvx-buy"><img :src="iconShopcart" alt="" />购买</div>
                 </div>
-                <div class="u-body-buy-tip">数据分析将在购买后解锁</div>
+                <div class="u-pvx-type-buy-tip">数据分析将在购买后解锁</div>
             </div>
         </div>
 
-        <div class="m-body-download" v-if="has_buy && bodydata">
-            <div class="m-body-buy-btn" @click="downloadAll">
-                <div class="u-buy"><img :src="iconDownload" alt="" />下载数据</div>
+        <div class="m-pvx-type-download" v-if="has_buy && bodydata">
+            <div class="m-pvx-type-buy-btn" @click="downloadAll">
+                <div class="u-pvx-buy"><img :src="iconDownload" alt="" />下载数据</div>
             </div>
         </div>
 
-        <div class="u-about-author">关于作者</div>
+        <div class="u-pvx-about-author">关于作者</div>
         <authorItem :uid="post.user_id" />
-
-        <!-- 随机推荐列表 - 使用公共组件 -->
         <SingleRandomList :list="randomList" type="body" />
 
-        <!-- 点赞 -->
-        <Thx class="m-thx m-single-content-box" :postId="id" postType="body" :postTitle="post.title || '无标题'"
+        <Thx class="m-pvx-thx m-pvx-single-content-box" :postId="id" postType="body" :postTitle="post.title || '无标题'"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
             :client="post.client" />
 
-        <!-- 评论 -->
-        <div class="m-comments m-single-content-box">
+        <div class="m-pvx-comments m-pvx-single-content-box">
             <el-divider content-position="left">讨论</el-divider>
             <Comment :id="id" category="body" />
         </div>
@@ -107,17 +59,7 @@
 </template>
 
 <script>
-/**
- * Single.vue - 体型数据详情页
- * 主要功能：展示体型数据详情、图片预览、购买/下载、评论等
- *
- * 重构说明：
- * - 引入 SingleNavigation 公共组件替换导航区域
- * - 引入 SingleHeader 公共组件替换头部信息
- * - 引入 SingleCarousel 公共组件替换图片轮播
- * - 引入 SinglePaySection 公共组件替换购买下载区域
- * - 引入 SingleRandomList 公共组件替换随机推荐列表
- */
+import pcSingleMixin from "@/components/common/face-body/mixins/pcSingleMixin";
 import {
     getOneBodyInfo,
     payBody,
@@ -125,25 +67,12 @@ import {
     getAccessoryList,
     getDownUrl as fetchDownUrl,
     getRandomBody,
-    setStar,
-    cancelStar,
-    onlineBody,
-    offlineBody,
     getSliders,
 } from "@/service/body";
-import { publishLink } from "@jx3box/jx3box-common/js/utils";
-import { getStat, postStat } from "@jx3box/jx3box-common/js/stat";
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import Bodydat from "@jx3box/jx3box-facedat/src/Bodydat.vue";
 import User from "@jx3box/jx3box-common/js/user";
-import bodyData from "@jx3box/jx3box-data/data/role/body.json";
-import { __clients, __imgPath } from "@/utils/config";
-
 import authorItem from "@/components/common/face-body/author";
-import { downloadZip } from "@/utils/exportFileZip";
-import dayjs from "@/utils/day";
-
-// 引入公共组件
 import SingleNavigation from "@/components/common/face-body/SingleNavigation.vue";
 import SingleHeader from "@/components/common/face-body/SingleHeader.vue";
 import SingleCarousel from "@/components/common/face-body/SingleCarousel.vue";
@@ -153,180 +82,67 @@ import SingleRandomList from "@/components/common/face-body/SingleRandomList.vue
 import iconShopcart from "@/assets/img/common/face-body/shopcart.svg";
 import iconDownload from "@/assets/img/common/face-body/download.svg";
 
-const { bodyMap } = bodyData;
-
 export default {
     name: "single",
     components: {
-        Bodydat,
-        Comment,
-        authorItem,
-        SingleNavigation,
-        SingleHeader,
-        SingleCarousel,
-        SinglePaySection,
-        SingleRandomList,
+        Bodydat, Comment, authorItem,
+        SingleNavigation, SingleHeader, SingleCarousel, SinglePaySection, SingleRandomList,
     },
-    data: function () {
+    mixins: [pcSingleMixin],
+
+    data() {
         return {
-            loading: false,
-            post: {},
+            type: "body",
             stat: {},
-            has_buy: false,
-            client_map: __clients,
-            downFileList: [],
-            downloadParams: {
-                pageIndex: 1,
-                pageSize: 10,
-                total: 0,
-            },
-            payBtnLoading: false,
-            randomList: [],
-            topic_info: null,
             iconShopcart,
             iconDownload,
         };
     },
-    computed: {
-        publish_link() {
-            return publishLink("body");
-        },
-        id: function () {
-            return ~~this.$route.params.id;
-        },
-        isAdmin: function () {
-            return User.isAdmin();
-        },
-        isAuthor: function () {
-            return this.post?.user_id == User.getInfo().uid || false;
-        },
-        bodydata: function () {
-            const data = this.post?.data || "";
-            if (!data) return { object: {}, fieldRanges: [] };
 
+    computed: {
+        bodydata() {
+            const data = this.post?.data || "";
+            if (!data) return null;
             try {
                 const parsed = JSON.parse(data);
                 const finalData = typeof parsed === "string" ? JSON.parse(parsed) : parsed;
                 return { object: finalData, fieldRanges: finalData?.fieldRanges || [] };
             } catch {
-                return { object: {}, fieldRanges: [] };
+                return null;
             }
         },
-        previewSrcList: function () {
-            return this.post?.images || [];
+        canBuy() {
+            return this.post.price_type && this.post.price_type != 0 && !this.has_buy;
         },
-        canEdit: function () {
-            return User.isEditor() || this.post?.user_id == User.getInfo().uid;
-        },
-        topicText() {
-            return this.topic_info ? `${dayjs.tz(this.topic_info.created_at).format("YYYY年MM月DD日")}荣登头条` : "";
+        priceText() {
+            if (this.post.price_type == 1) return `售价：${this.post.price_count} 盒币`;
+            if (this.post.price_type == 2) return `售价：${this.post.price_count} 金箔`;
+            return "";
         },
     },
-    created: function () {
-        this.getData();
-    },
+
     methods: {
-        goBack() {
-            this.$router.push({ name: "list" });
-        },
         getData() {
-            if (this.id) {
-                this.loading = true;
-                getOneBodyInfo(this.id)
-                    .then((res) => {
-                        this.post = this.$store.state.bodySingle = res.data.data;
-                        document.title = this.post.title + this.$t("pages.common.appendTitle");
-
-                        this.getAccessoryList();
-                        this.getRandomBodyList();
-                        this.getSliders();
-                    })
-                    .catch((err) => {
-                        this.loading = false;
-                    });
-
-                getStat("body", this.id).then((res) => {
-                    this.stat = res.data;
-                });
-                postStat("body", this.id);
-            }
-        },
-        getAccessoryList() {
-            getAccessoryList(this.id, this.downloadParams)
+            if (!this.id) return;
+            this.loading = true;
+            getOneBodyInfo(this.id)
                 .then((res) => {
-                    let data = res.data.data;
-                    this.has_buy = data.has_buy;
-                    if (data.has_buy) {
-                        this.downFileList = data.list;
-                        this.downloadParams.total = data.page.total;
-                    }
+                    this.post = this.$store.state.bodySingle = res.data.data;
+                    document.title = this.post.title + this.$t("pages.common.appendTitle");
+                    this.getAccessoryList();
+                    this.getRandomList();
+                    this.getSliders();
                 })
-                .finally(() => {
-                    this.loading = false;
-                });
+                .catch(() => { this.loading = false; });
+            this.loadStat();
         },
-        // 处理下载单个文件
-        handleDownloadFile(item) {
-            fetchDownUrl(this.id, item.uuid).then((res) => {
-                this.downloadfile(res.data.data?.url, item.name);
-            });
-        },
-        downloadfile(url, filename) {
-            this.getBlob(url).then((blob) => {
-                this.saveAs(blob, filename);
-            });
-        },
-        getBlob(url) {
-            return new Promise((resolve) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open("GET", url, true);
-                xhr.responseType = "blob";
-                xhr.onload = () => {
-                    if (xhr.status === 200) {
-                        resolve(xhr.response);
-                    }
-                };
-                xhr.send();
-            });
-        },
-        saveAs(blob, filename) {
-            if (window.navigator.msSaveOrOpenBlob) {
-                navigator.msSaveBlob(blob, filename);
-            } else {
-                const link = document.createElement("a");
-                const body = document.querySelector("body");
-                link.href = window.URL.createObjectURL(blob);
-                link.download = filename;
-                link.style.display = "none";
-                body.appendChild(link);
-                link.click();
-                body.removeChild(link);
-                window.URL.revokeObjectURL(link.href);
-            }
-        },
-        downloadAll() {
-            if (this.downFileList.length === 1) {
-                const item = this.downFileList[0];
-                this.handleDownloadFile(item);
-                return;
-            }
-            const urlArr = [];
-            this.downFileList.forEach((item) => {
-                urlArr.push(fetchDownUrl(this.id, item.uuid));
-            });
-            let p = Promise.all(urlArr);
-            let downloadFiles = [];
-            p.then((arr) => {
-                downloadFiles = arr.map((item, index) => {
-                    return {
-                    name: this.downFileList[index].name,
-                    url: item.data.data?.url,
-                    };
-                });
-                downloadZip(downloadFiles, `body_${this.id}.zip`, "url", "name");
-            });
-        },
-        bodyPay() {
+
+        fetchAccessoryList: getAccessoryList,
+        getDownUrl: fetchDownUrl,
+        fetchRandomList: getRandomBody,
+        fetchSliders: getSliders,
+
+        pay() {
             if (!User.isLogin()) {
                 User.toLogin();
                 return;
@@ -335,90 +151,48 @@ export default {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning",
-            })
-                .then(() => {
-                    let postData = this.post;
-                    let params = {
-                        postType: "body",
-                        PostId: postData.id,
-                        priceType: postData.price_type,
-                        priceCount: postData.price_count,
-                        accessUserId: postData.user_id,
-                        payUserId: User.getInfo().uid,
-                    };
-                    this.payBtnLoading = true;
-                    payBody(params)
-                        .then((res) => {
-                            let payid = res.data.data.id;
-                            this.loopPayStatus(payid);
-                        })
-                        .catch((err) => {
-                            if (err.response?.data?.code == 40019) {
-                                this.$confirm("余额不足，是否前往充值？", "提示", {
-                                    confirmButtonText: "确定",
-                                    cancelButtonText: "取消",
-                                    type: "warning",
-                                })
-                                    .then(() => {
-                                        window.open("/vip/cny", "_blank");
-                                    })
-                                    .catch(() => { });
-                            }
-                        })
-                        .finally(() => {
-                            this.payBtnLoading = false;
-                        });
-                })
-                .catch(() => { });
-        },
-        loopPayStatus(payid) {
-            let intervalId = setInterval(() => {
-                loopPayStatus(payid)
-                    .then((d) => {
-                        this.getPayBodyStatus(d.data.data.pay_status, intervalId);
+            }).then(() => {
+                const params = {
+                    postType: "body",
+                    PostId: this.post.id,
+                    priceType: this.post.price_type,
+                    priceCount: this.post.price_count,
+                    accessUserId: this.post.user_id,
+                    payUserId: User.getInfo().uid,
+                };
+                this.payBtnLoading = true;
+                payBody(params)
+                    .then((res) => this.loopPayStatus(res.data.data.id))
+                    .catch((err) => {
+                        if (err.response?.data?.code == 40019) {
+                            this.$confirm("余额不足，是否前往充值？", "提示", {
+                                confirmButtonText: "确定",
+                                cancelButtonText: "取消",
+                                type: "warning",
+                            }).then(() => window.open("/vip/cny", "_blank"));
+                        }
                     })
-                    .catch(() => {
-                        clearInterval(intervalId);
-                    });
+                    .finally(() => { this.payBtnLoading = false; });
+            });
+        },
+
+        loopPayStatus(payid) {
+            const intervalId = setInterval(() => {
+                loopPayStatus(payid)
+                    .then((d) => this.handlePayResult(d.data.data.pay_status, intervalId))
+                    .catch(() => clearInterval(intervalId));
             }, 2000);
         },
-        getPayBodyStatus(pay_status, intervalId) {
-            if (pay_status == 1) {
-                this.payBtnLoading = false;
-                clearInterval(intervalId);
+
+        handlePayResult(status, intervalId) {
+            this.payBtnLoading = false;
+            clearInterval(intervalId);
+            if (status === 1) {
                 this.getData();
-                this.$notify.success({
-                    title: "成功",
-                    message: "购买成功",
-                });
-            } else if (pay_status == 2) {
-                this.payBtnLoading = false;
-                clearInterval(intervalId);
-                this.$notify.error({
-                    title: "失败",
-                    message: "支付失败",
-                });
+                this.$notify.success({ title: "成功", message: "购买成功" });
+            } else {
+                this.$notify.error({ title: "失败", message: "支付失败" });
             }
-        },
-        getRandomBodyList() {
-            const { user_id } = this.post;
-            const listWidth = this.$refs.singleRef?.clientWidth - 120;
-            const limit = Math.floor(listWidth / 190);
-            getRandomBody({ user_id, limit }).then((res) => {
-                if (res.data.data.list && res.data.data.list.length > 0) {
-                    this.randomList = res.data.data.list;
-                }
-            });
-        },
-        getSliders() {
-            getSliders("slider", this.post.client, 10, this.post.id).then((res) => {
-                if (res.data.data?.list) {
-                    const list = res.data.data.list.sort((a, b) =>
-                    dayjs.tz(b.created_at).isAfter(dayjs.tz(a.created_at)) ? 1 : -1
-                );
-                this.topic_info = list[0];
-                }
-            });
         },
     },
 };

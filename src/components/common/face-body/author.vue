@@ -1,32 +1,57 @@
+<!--
+ * author - 作者信息组件
+ * 
+ * @description 用于脸型/体型详情页展示作者详细信息，包括头像、等级、VIP状态等
+ * @author Face & Body 模块优化团队
+ * @version 1.0.0
+ * 
+ * @features
+ * - 显示作者头像和框架
+ * - 显示作者名称和UID
+ * - 显示用户等级（带颜色）
+ * - 显示VIP状态
+ * - 显示签约作者标识
+ * - 显示用户自定义装扮
+ * 
+ * @props
+ * - uid: Number - 用户ID
+ * - avatar: String - 头像URL
+ * - avatar_frame: String - 头像框架
+ * - data: Object - 用户数据对象
+ * 
+ * @styles
+ * - 使用 pvx-author-mixin 样式混合
+ * - 样式文件: assets/css/common/face-body/index.less
+ -->
 <template>
-    <div class="m-author-header">
-        <div class="m-info">
-            <Avatar class="u-avatar" :uid="uid" :url="avatar" :size="avatarSize" :frame="avatar_frame" />
-            <div class="m-author-info">
-                <span class="u-name">
+    <div class="m-pvx-author-header">
+        <div class="m-pvx-info">
+            <Avatar class="u-pvx-avatar" :uid="uid" :url="avatar" :size="avatarSize" :frame="avatar_frame" />
+            <div class="m-pvx-author-info">
+                <span class="u-pvx-name">
                     <span>{{ data.display_name }}</span>
-                    <span class="u-uid">(UID : {{ data.ID }})</span>
+                    <span class="u-pvx-uid">(UID : {{ data.ID }})</span>
                 </span>
-                <div class="u-tips">
+                <div class="u-pvx-tips">
                     <el-tooltip :content="`当前经验 ${data.experience || 0}`" placement="top">
-                        <span class="u-level" :class="'lv-' + level"
+                        <span class="u-pvx-level" :class="'lv-' + level"
                             :style="{ backgroundColor: showLevelColor(level) }">Lv.{{ level }}</span>
                     </el-tooltip>
                     <el-tooltip :content="vipTypeTitle" v-if="isPRO" placement="top">
-                        <a class="u-vip" href="/vip/premium?from=user_homepage" target="_blank">
-                            <i class="u-icon vip">{{ vipType }}</i>
+                        <a class="u-pvx-vip" href="/vip/premium?from=user_homepage" target="_blank">
+                            <i class="u-pvx-icon vip">{{ vipType }}</i>
                         </a>
                     </el-tooltip>
                     <el-tooltip content="签约作者" v-if="isSuperAuthor" placement="top">
-                        <span class="u-superauthor">
-                            <i class="u-icon superauthor">签约作者</i>
+                        <span class="u-pvx-superauthor">
+                            <i class="u-pvx-icon superauthor">签约作者</i>
                         </span>
                     </el-tooltip>
                 </div>
             </div>
         </div>
-        <div class="m-mark">
-            <span class="u-img">
+        <div class="m-pvx-mark">
+            <span class="u-pvx-img">
                 <img :src="`${img}/decoration/images/${userDefinedStyle.name}/homebanner.png`" />
             </span>
         </div>
@@ -138,18 +163,18 @@ export default {
 </script>
 
 <style lang="less">
-.m-author-header {
+.m-pvx-author-header {
     .pr;
     .clip;
     .size(100%, 220px);
     .r(10px);
     background-color: #fff;
 
-    .m-mark {
+    .m-pvx-mark {
         .flex;
         justify-content: flex-end;
 
-        .u-img {
+        .u-pvx-img {
             .pr;
 
             img {
@@ -167,7 +192,7 @@ export default {
         }
     }
 
-    .m-info {
+    .m-pvx-info {
         .flex;
         .size(100%);
         .pa;
@@ -177,25 +202,25 @@ export default {
         box-sizing: border-box;
     }
 
-    .u-avatar {
+    .u-pvx-avatar {
         .size(120px);
         flex-shrink: 0;
         margin: 0 48px;
     }
 
-    .m-author-info {
+    .m-pvx-author-info {
         .pr;
         .flex;
         flex-direction: column;
         flex: 1;
         color: #000;
 
-        .u-tips {
+        .u-pvx-tips {
             .h(24px);
             .mt(10px);
         }
 
-        .u-name {
+        .u-pvx-name {
             .flex;
             .fz(26px);
             .bold(600);
@@ -203,12 +228,12 @@ export default {
             gap: 10px;
             align-items: center;
 
-            .u-uid {
+            .u-pvx-uid {
                 .fz(14px);
             }
         }
 
-        .u-level {
+        .u-pvx-level {
             .fz(14px, 1.5);
             color: #fff;
             background-color: #aaa;
@@ -250,7 +275,7 @@ export default {
             }
         }
 
-        .u-icon {
+        .u-pvx-icon {
             .bold(600);
             cursor: default;
             .fz(14px, 1.5);
@@ -269,24 +294,23 @@ export default {
             }
         }
 
-        .u-vip,
-        .u-superauthor {
+        .u-pvx-vip,
+        .u-pvx-superauthor {
             margin-left: 4px;
             font-weight: normal;
         }
 
-        .u-honor {
+        .u-pvx-honor {
             .dbi;
             text-align: center;
             .size(220px, 45px);
-            // background-color: #494038;
             color: #ffffff;
             .fz(10px, 45px);
             .r(2px);
         }
     }
 
-    .u-info {
+    .u-pvx-info {
         .fz(14px);
         color: #fff;
         .mt(10px);
@@ -296,7 +320,7 @@ export default {
     }
 
     @media screen and (max-width: @ipad) {
-        .m-mark {
+        .m-pvx-mark {
             display: none;
         }
     }

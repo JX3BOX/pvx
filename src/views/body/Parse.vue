@@ -1,7 +1,7 @@
 <template>
-    <div class="m-bodydata">
-        <div class="m-body-parse" :class="{ on: done }">
-            <h1 class="m-body-parse-title">体型数据解析器</h1>
+    <div class="m-pvx-facedata">
+        <div class="m-pvx-body-parse" :class="{ on: done }">
+            <h1 class="m-pvx-body-parse-title">体型数据解析器</h1>
             <Upload type="body" @success="handleSuccess">
                 <template #guide>
                     <a class="u-help" href="/tool/67546" target="_blank">
@@ -12,7 +12,7 @@
                     </a>
                 </template>
             </Upload>
-            <Bodydat class="m-body-parse-preview" :data="json" :lock="false" v-if="done" />
+            <Bodydat class="m-pvx-body-parse-preview" :data="json" :lock="false" v-if="done" />
         </div>
     </div>
 </template>

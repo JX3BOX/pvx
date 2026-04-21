@@ -1,0 +1,283 @@
+/**
+ * 小程序脸型列表页样式
+ * 从 common/face-body/miniprogram 迁移
+ */
+
+@import "../../common/face-body/miniprogram/base.less";
+
+body {
+    padding: 0 !important;
+}
+
+.m-cut {
+    .w(calc(100% - 1.5rem));
+    margin: 0 auto;
+
+    .u-cut-all {
+        .flex;
+        .flex(o);
+        .mb(1rem);
+        .r(0.75rem);
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: @pvx-mini-text-muted-dark;
+        .fz(1rem, 1.5rem);
+        .bold(700);
+        box-sizing: border-box;
+
+        .u-icon {
+            .w(1.25rem);
+            .mr(0.25rem);
+
+            svg,
+            path {
+                fill: @pvx-mini-text-muted-dark;
+                stroke: @pvx-mini-text-muted-dark;
+            }
+        }
+
+        &.is-active {
+            background: @pvx-mini-primary;
+            color: @pvx-mini-primary-bg;
+
+            svg,
+            path {
+                fill: @pvx-mini-primary-bg;
+                stroke: @pvx-mini-primary-bg;
+            }
+        }
+    }
+
+    .u-cut-box {
+        .flex;
+        .mb(1rem);
+        gap: 0.75rem;
+        align-content: center;
+        justify-content: space-between;
+
+        .u-cut-item {
+            .flex;
+            .flex(o);
+            .r(0.75rem);
+            flex-direction: column;
+            flex: 1;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            box-sizing: border-box;
+
+            .u-icon {
+                svg,
+                path {
+                    fill: @pvx-mini-text-muted-dark;
+                    stroke: @pvx-mini-text-muted-dark;
+                }
+            }
+
+            &.is-active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+
+                svg,
+                path {
+                    fill: @pvx-mini-primary-bg;
+                    stroke: @pvx-mini-primary-bg;
+                }
+            }
+        }
+    }
+
+    .u-cut-btn {
+        .flex;
+        .fz(1rem, 1.5rem);
+        .bold(700);
+        gap: 1.25rem;
+
+        .u-report-btn {
+            .r(0.75rem);
+            flex-shrink: 0;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            box-sizing: border-box;
+        }
+
+        .u-confirm-btn {
+            .r(0.75rem);
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-disabled-dark;
+            .x;
+            box-sizing: border-box;
+
+            &.active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+            }
+        }
+    }
+}
+
+.m-no-body {
+    .flex;
+    .flex(o);
+    flex-direction: column;
+
+    .u-tips {
+        color: @pvx-mini-text-disabled-dark;
+        .fz(0.875rem, 1.25rem);
+        .bold(700);
+        .flex;
+        .flex(o);
+    }
+
+    .u-btn {
+        .flex;
+        .flex(o);
+        .mt(1.25rem);
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        .r(0.75rem);
+        background: rgba(255, 255, 255, 0.1);
+        color: @pvx-mini-text-disabled-dark;
+    }
+}
+
+.m-filtrate {
+    padding: 0.75rem;
+    box-sizing: border-box;
+
+    .u-filtrate-title {
+        .mb(0.75rem);
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .u-box {
+        .flex;
+        .mb(0.75rem);
+        gap: 0.5rem;
+        align-content: center;
+        justify-content: space-between;
+
+        .u-item {
+            .flex;
+            .flex(o);
+            .r(0.75rem);
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            .fz(0.875rem, 1.25rem);
+            .bold(400);
+            box-sizing: border-box;
+
+            &.active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+            }
+        }
+    }
+
+    .u-btn {
+        .flex;
+        .fz(1rem, 1.5rem);
+        .bold(700);
+        gap: 1.25rem;
+
+        .u-report-btn {
+            .r(0.75rem);
+            flex-shrink: 0;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            box-sizing: border-box;
+        }
+
+        .u-confirm-btn {
+            .r(0.75rem);
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-disabled-dark;
+            .x;
+            box-sizing: border-box;
+
+            &.active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+            }
+        }
+    }
+}
+
+.m-face-list_mobile {
+    .h(100vh);
+    padding: 0.45rem 0 4.45rem 0;
+    overflow: auto;
+    box-sizing: border-box;
+
+    .m-base {
+        .w(100%);
+    }
+
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
+
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            flex: 1;
+            gap: 0.5rem;
+
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+
+            .u-icon {
+                .size(1.25rem);
+                filter: brightness(0) saturate(100%) invert(87%) sepia(56%) saturate(366%) hue-rotate(321deg) brightness(101%) contrast(99%);
+            }
+        }
+    }
+
+    .u-card-title {
+        .mb(0.667rem);
+        padding: 0 1.25rem;
+        color: @pvx-mini-text;
+        .fz(1rem, 1.556rem);
+        .bold(700);
+        box-sizing: border-box;
+    }
+
+    .u-content-all {
+        .u-list {
+            &.body {
+                padding: 0 1.25rem;
+                box-sizing: border-box;
+            }
+        }
+    }
+
+    .u-content {
+        .h(100%);
+
+        .u-list {
+            .h(100%);
+        }
+    }
+
+    .u-content-item {
+        .mb(0.556rem);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        background-color: @pvx-dark-bg;
+
+        .u-card-title {
+            color: @pvx-mini-text-dark;
+        }
+    }
+}

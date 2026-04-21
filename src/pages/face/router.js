@@ -7,7 +7,7 @@ const routes = [
         path: "/",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/face/mobile/List.vue")
+                ? () => import("@/views/face/miniprogram/List.vue")
                 : () => import("@/views/face/List.vue"),
         meta: {
             i18n: {
@@ -22,7 +22,7 @@ const routes = [
         path: "/:id(\\d+)",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/face/mobile/Single.vue")
+                ? () => import("@/views/face/miniprogram/Single.vue")
                 : () => import("@/views/face/Single.vue"),
         meta: {
             i18n: {
@@ -47,7 +47,7 @@ const routes = [
     {
         name: "faceDataMobile",
         path: "/FaceDataMobile",
-        component: () => import("@/views/face/mobile/FaceData.vue"),
+        component: () => import("@/views/face/miniprogram/FaceData.vue"),
         meta: {
             i18n: {
                 title: "pages.face.faceDataMobile.title",

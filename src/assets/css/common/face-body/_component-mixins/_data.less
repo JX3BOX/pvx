@@ -1,0 +1,186 @@
+/**
+ * 数据展示相关 Mixin
+ * 包含数据区、数据组、暗色模式等样式
+ */
+
+// ==================== 数据展示区 Mixin ====================
+
+.pvx-data-section-mixin() {
+    margin-top: @pvx-gap-lg;
+    padding: @pvx-gap-lg;
+    background: @pvx-bg-white;
+    .r(10px);
+    .pvx-shadow-sm();
+
+    .u-pvx-title {
+        font-size: 18px;
+        .bold;
+        margin-bottom: 15px;
+    }
+
+    .u-pvx-content {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+}
+
+// ==================== 数据组 Mixin ====================
+
+.pvx-data-group-mixin() {
+    .u-pvx-title {
+        .bold;
+        font-size: 15px;
+        line-height: 2;
+        flex-shrink: 0;
+        width: 220px;
+    }
+
+    .u-pvx-list {
+        .pvx-list-reset();
+        margin-bottom: @pvx-gap-md;
+        font-size: 0;
+
+        li {
+            padding: 5px 0;
+            .flex;
+            flex-flow: row;
+        }
+
+        .u-pvx-sub-title {
+            height: 24px;
+            font-size: 12px;
+            line-height: 24px;
+            .r(6px);
+            padding: 0 0 0 @pvx-gap-md;
+            color: #6f6f6f;
+            background: #e8e8e880;
+            font-weight: 700;
+        }
+
+        label,
+        input,
+        span {
+            font-size: 14px;
+        }
+
+        label {
+            margin-right: @pvx-gap-sm;
+            font-weight: normal;
+            color: rgba(28, 28, 28, 0.8);
+            min-width: 40px;
+        }
+
+        text-align: right;
+
+        input,
+        .u-pvx-range {
+            flex: 1;
+            margin-right: 5px;
+        }
+
+        .el-slider__runway {
+            margin: @pvx-gap-md 0;
+        }
+
+        span {
+            width: 40px;
+            margin-right: @pvx-gap-md;
+            white-space: nowrap;
+            .bold;
+            color: #5856d6;
+            text-align: right;
+        }
+
+        &.u-pvx-new {
+            label {
+                width: 40px;
+            }
+        }
+    }
+
+    .u-pvx-decals {
+        .r(6px);
+        .pvx-list-reset();
+        padding: 0 0 0 @pvx-gap-md;
+        margin-bottom: @pvx-gap-md;
+        background: @pvx-primary-bg;
+
+        li {
+            .flex;
+            align-items: center;
+            height: 50px;
+            gap: @pvx-gap-md;
+        }
+
+        img {
+            .size(32px);
+            vertical-align: middle;
+            margin-right: 5px;
+            .r(4px);
+        }
+
+        span {
+            flex: 1 1 auto;
+            font-size: 14px;
+            white-space: nowrap;
+            .bold;
+            max-width: 15%;
+        }
+
+        .u-pvx-decals-params {
+            span {
+                &:first-child {
+                    width: 28px;
+                    font-size: 14px;
+                }
+
+                &:nth-child(2) {
+                    width: 28px;
+                    color: #3374db;
+                }
+            }
+        }
+
+        .u-pvx-free {
+            font-size: 12px;
+            color: @pvx-price-free;
+        }
+
+        .u-pvx-price {
+            font-size: 12px;
+            line-height: 50px;
+            width: 100px;
+            margin-right: @pvx-gap-md;
+            color: @pvx-price-gold;
+            text-align: right;
+        }
+
+        .u-pvx-dcolor {
+            font-size: 12px;
+            color: @pvx-text-light;
+            margin-left: 3px;
+        }
+
+        .u-pvx-dflip {
+            font-size: 12px;
+            color: @pvx-text-secondary;
+            margin-left: 3px;
+        }
+    }
+}
+
+// ==================== 暗色模式 Mixin ====================
+
+.pvx-data-section-dark-mixin() {
+    @media (prefers-color-scheme: dark) {
+        background-color: @pvx-dark-bg;
+
+        .u-pvx-title {
+            color: @pvx-dark-text;
+        }
+
+        .u-pvx-content {
+            color: @pvx-dark-text-muted;
+        }
+    }
+}

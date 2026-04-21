@@ -1,0 +1,268 @@
+/**
+ * 头部信息相关 Mixin
+ * 已拆分为原子 mixin，提高可维护性
+ */
+
+// ==================== 头部基础布局 ====================
+
+.pvx-header-base() {
+    .flex;
+    align-items: flex-start;
+    margin-top: @pvx-gap-lg;
+    gap: @pvx-gap-lg;
+}
+
+// ==================== 头像区 ====================
+
+.pvx-header-avatar() {
+    .m-pvx-avatar {
+        .size(160px);
+        .r(10px);
+    }
+}
+
+// ==================== 话题标签 ====================
+
+.pvx-header-topic() {
+    .m-pvx-topic {
+        .pr;
+        .size(300px, 108px);
+        font-size: 14px;
+        .bold;
+        .flex;
+        align-items: center;
+        user-select: none;
+        box-sizing: border-box;
+        padding: 48px 0 0 118px;
+        flex-shrink: 0;
+        background: url("@{design_url}pvx/topic_bg.svg") center center no-repeat;
+        background-size: 300px 108px;
+        color: @pvx-bg-white;
+
+        @media screen and (max-width: @phone) {
+            .size(270px, 106px);
+            font-size: 13px;
+            padding-left: 110px;
+            margin-left: auto;
+            margin-right: auto;
+            background-size: 270px 106px;
+        }
+    }
+}
+
+// ==================== 信息区 ====================
+
+.pvx-header-info() {
+    .m-pvx-header-info {
+        .flex;
+        font-size: 12px;
+        flex-direction: column;
+        gap: 8px;
+        width: calc(100% - 300px);
+        color: #000;
+
+        .u-pvx-status {
+            .pr;
+            top: -2px;
+        }
+    }
+}
+
+.pvx-header-title() {
+    h2 {
+        font-size: 28px;
+        line-height: 1.5;
+        .bold;
+        margin: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .u-pvx-title {
+        font-weight: 300;
+        margin: 0;
+        .x;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        .pvx-overflow-hidden();
+        height: auto;
+    }
+}
+
+// ==================== 作者信息 ====================
+
+.pvx-header-author() {
+    .u-pvx-author {
+        .flex;
+        align-items: center;
+        height: 24px;
+        gap: 5px;
+
+        * {
+            flex-shrink: 0;
+        }
+
+        a {
+            color: #000;
+            opacity: 0.6;
+
+            &:hover {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+            }
+        }
+
+        i {
+            font-size: 16px;
+        }
+
+        .u-pvx-edit-icon {
+            font-size: 12px;
+            margin-right: 0;
+        }
+
+        .u-pvx-avatar {
+            .size(18px);
+            .r(50%);
+        }
+
+        @media screen and (max-width: @phone) {
+            flex-wrap: wrap;
+            height: auto;
+
+            .u-pvx-time {
+                order: 1;
+                width: 100%;
+            }
+        }
+
+        .u-pvx-edit {
+            color: #0366d6;
+
+            &:hover {
+                border-bottom: 1px solid #0366d6;
+            }
+        }
+    }
+}
+
+// ==================== 描述区 ====================
+
+.pvx-header-desc() {
+    .u-pvx-desc {
+        border: 1px dashed @pvx-border-light;
+        .r(6px);
+        padding: @pvx-gap-md;
+        background-color: @pvx-bg-light;
+        font-size: 14px;
+        line-height: 2;
+        margin: @pvx-gap-md 0;
+        white-space: pre-line;
+        box-sizing: border-box;
+        color: @pvx-text-secondary;
+        text-align: left;
+    }
+}
+
+// ==================== 元信息标签 ====================
+
+.pvx-header-meta() {
+    .u-pvx-meta {
+        .flex;
+        flex-wrap: wrap;
+        gap: 6px;
+
+        i {
+            font-size: 12px;
+            .r(4px);
+            flex-shrink: 0;
+            user-select: none;
+            padding: 2px 6px;
+            font-style: normal;
+        }
+    }
+}
+
+.pvx-header-meta-variants() {
+    .u-pvx-original {
+        border: 1px solid #f39;
+        color: #f39;
+    }
+
+    .u-pvx-is-new-face {
+        &.u-pvx-old {
+            border: 1px solid @pvx-color-info;
+            color: @pvx-color-info;
+        }
+
+        &.u-pvx-new {
+            border: 1px solid @pvx-color-success;
+            color: @pvx-color-success;
+        }
+    }
+
+    .u-pvx-fr {
+        border: 1px solid #c00;
+        color: #c00;
+    }
+
+    .u-pvx-mark {
+        background-color: #6f42c1;
+        border: 1px solid #6f42c1;
+        color: @pvx-bg-white;
+    }
+
+    .u-pvx-client {
+        border: 1px solid #0eb7ce;
+        color: #0eb7ce;
+
+        &.std {
+            border: 1px solid #f0b400;
+            color: #f0b400;
+        }
+    }
+
+    .u-pvx-bodytype {
+        &.u-pvx-bodytype-1 {
+            border: 1px solid #00aaff;
+            color: #00aaff;
+        }
+
+        &.u-pvx-bodytype-2 {
+            border: 1px solid #aaaaff;
+            color: #aaaaff;
+        }
+
+        &.u-pvx-bodytype-6 {
+            border: 1px solid #ffaaff;
+            color: #ffaaff;
+        }
+
+        &.u-pvx-bodytype-5 {
+            border: 1px solid #3fbd5c;
+            color: #3fbd5c;
+        }
+    }
+
+    .u-pvx-label-client {
+        margin-right: 5px;
+        color: @pvx-text-muted;
+        background-color: #eee;
+        padding: 0 5px;
+        .r(4px);
+        font-style: normal;
+    }
+}
+
+// ==================== 头部完整 Mixin（组合原子 mixin）====================
+
+.pvx-header-mixin() {
+    .pvx-header-base();
+    .pvx-header-avatar();
+    .pvx-header-topic();
+    .pvx-header-info();
+    .pvx-header-title();
+    .pvx-header-author();
+    .pvx-header-desc();
+    .pvx-header-meta();
+    .pvx-header-meta-variants();
+}

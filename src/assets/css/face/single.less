@@ -1,116 +1,112 @@
-@import "~@/assets/css/common/face-body-mixins.less";
+@import "~@/assets/css/common/face-body/index.less";
 
-.m-navigation {
+.m-pvx-navigation {
     .pvx-navigation-mixin();
     
-    .m-face-btn-box {
-        .u-btn {
+    .m-pvx-type-btn-box {
+        .u-pvx-btn {
             background-color: @faceColor;
             border-color: @faceColor;
         }
     }
 }
 
-.m-header {
+.m-pvx-header {
     .pvx-header-mixin();
 }
 
-.m-face-content {
+.m-pvx-type-content {
     .pvx-content-mixin();
 }
 
-.m-single-data {
+.m-pvx-single-data {
     .pvx-single-data-mixin();
 }
 
-.m-single-data-title {
+.m-pvx-single-data-title {
     .pvx-single-data-title-mixin();
 }
 
-.m-files-list {
+.m-pvx-files-list {
     .pvx-files-list-mixin();
 }
 
-.m-single-buy-box {
+.m-pvx-single-buy-box {
     .pvx-single-buy-box-mixin();
 }
 
-.m-face-pay {
+.m-pvx-type-pay {
     .pvx-pay-mixin();
 }
 
-.m-single-pics {
+.m-pvx-single-pics {
     .pvx-single-pics-mixin();
 }
 
-.m-face-buy-btn {
+.m-pvx-type-buy-btn {
     .pvx-buy-btn-mixin();
 }
 
-.m-face-files-list {
+.m-pvx-type-files-list {
     .pvx-files-list-mixin();
 }
 
-.m-author {
+.m-pvx-author {
     .pvx-author-mixin();
 }
 
-.u-about-author {
+.u-pvx-about-author {
     .pvx-about-author-mixin();
 }
 
-.m-author-header {
+.m-pvx-author-header {
     .pvx-author-header-mixin();
 }
 
-.m-random-list,
-.m-pvxbody-list {
+.m-pvx-random-list {
     .pvx-random-list-mixin();
-}
-
-.m-random-list {
     .pvx-random-list-extra-mixin();
 }
 
-.m-face-pic {
+.m-pvx-type-pic {
     .pvx-pic-mixin();
 }
 
-.m-thx {
+.m-pvx-thx {
     .pvx-thx-mixin();
 }
 
 .pvx-carousel-mixin();
 .pvx-facedat-preview-mixin();
 
-.m-desc {
+.m-pvx-desc {
     .pvx-desc-mixin();
 }
 
-.p-face-single .m-pvxbody-list {
-    .m-face-item.m-body-item.onlyPic .m-op .m-author {
-        .flex;
-        
-        .u-name {
-            opacity: 1;
-            color: #fff;
-        }
-    }
-    
-    .m-face-item.m-body-item.onlyPic.noName .m-op .m-author {
-        .none;
-    }
-    
-    .m-face-item {
-        height: 264px;
-        
-        .m-op .u-title {
-            .break(2);
+// 脸型详情页随机推荐列表样式
+.p-pvx-face-single .m-pvx-random-list {
+    .u-pvx-list {
+        .m-pvx-type-item {
+            width: 190px;
+            height: 280px;
+
+            .m-pvx-img {
+                height: 160px;
+                width: 156px;
+            }
+
+            .u-pvx-pic {
+                .size(100%);
+            }
+
+            &.is-no-name {
+                .h(250px);
+            }
         }
     }
 }
 
-.p-face-single h3 {
+.p-pvx-face-single h3 {
     .fz(28px, 1);
     margin: 0;
     font-weight: 700;
@@ -118,23 +114,12 @@
     color: rgba(36, 41, 46, 1);
 }
 
-.p-face-single .m-pvxbody-list .m-face-item {
-    background: rgba(36, 41, 46, 0.05);
-    
-    &:hover {
-        background-color: #786cbb;
-    }
-}
-
-.p-face-single .m-face-item.m-body-item {
-    width: 200px;
-}
-
-.p-face-single .m-face-item {
+// 脸型详情页列表项宽度统一设置
+.p-pvx-face-single .m-pvx-type-item {
     width: 190px;
 }
 
-.m-face-download {
+.m-pvx-type-download {
     .pvx-download-mixin();
 }
 
@@ -142,7 +127,7 @@
     .pvx-w-thx-mixin();
 }
 
-.u-tips-off {
+.u-pvx-tips-off {
     .pvx-tips-off-mixin();
 }
 

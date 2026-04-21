@@ -1,0 +1,33 @@
+/**
+ * 小程序端相关 Mixin
+ * 包含小程序列表页、详情页等样式
+ */
+
+// ==================== 小程序列表 Mixin ====================
+
+.pvx-miniapp-list-mixin() {
+    padding: @pvx-gap-md;
+
+    .m-pvx-item {
+        width: calc(50% - 10px);
+        margin-bottom: @pvx-gap-md;
+    }
+}
+
+// ==================== 小程序详情 Mixin ====================
+
+.pvx-miniapp-single-mixin() {
+    .m-pvx-header {
+        .m-pvx-avatar {
+            .none;
+        }
+    }
+
+    .m-pvx-content {
+        flex-direction: column;
+
+        .m-pvx-pay {
+            width: 100%;
+        }
+    }
+}

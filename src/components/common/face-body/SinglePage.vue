@@ -31,7 +31,7 @@
  * 
  * @styles
  * - 使用 pvx-single-data-mixin 样式混合
- * - 样式文件: assets/css/common/face-body-mixins.less
+ * - 样式文件: assets/css/common/face-body/index.less
  -->
 <template>
     <div :class="['p-pvx-single', `p-${type}-single`]" v-loading="loading">
@@ -226,7 +226,7 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body-mixins.less";
+@import "~@/assets/css/common/face-body/index.less";
 
 .p-pvx-single {
     .pvx-single-data-mixin();

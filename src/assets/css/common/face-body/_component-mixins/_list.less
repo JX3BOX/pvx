@@ -1,0 +1,142 @@
+/**
+ * 列表页相关 Mixin
+ * 包含列表页布局、分页、加载更多等样式
+ */
+
+// ==================== 列表页 Mixin ====================
+
+.pvx-list-mixin() {
+    .pr;
+    padding-top: @pvx-gap-xl;
+
+    .m-pvx-type-box {
+        &.none {
+            .none;
+        }
+    }
+
+    .u-pvx-type {
+        .flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: @pvx-gap-lg;
+        align-items: flex-end;
+
+        .u-pvx-all {
+            .pointer;
+            color: @pvx-text-placeholder;
+            font-size: 16px;
+            line-height: 21px;
+        }
+    }
+
+    .u-pvx-title {
+        font-size: 24px;
+        line-height: 1;
+        .bold;
+        color: @pvx-text-primary;
+    }
+
+    .u-pvx-recommend-title {
+        margin: @pvx-gap-lg 0;
+    }
+
+    .c-public-notice {
+        margin-top: @pvx-gap-xl;
+    }
+}
+
+// ==================== 列表布局 Mixin ====================
+
+.pvx-list-all-mixin() {
+    .flex;
+    margin-bottom: @pvx-gap-lg;
+    flex-wrap: wrap;
+    gap: @pvx-gap-lg;
+}
+
+.pvx-item-last-child-mixin() {
+    margin-right: 0;
+}
+
+.pvx-archive-null-mixin() {
+    margin-top: @pvx-gap-lg;
+}
+
+.pvx-archive-more-mixin() {
+    margin-top: @pvx-gap-xl;
+    width: 100%;
+    background-color: @pvx-primary;
+
+    &:hover,
+    &:focus {
+        background-color: @pvx-primary;
+        border-color: @pvx-primary;
+    }
+}
+
+.pvx-archive-pages-mixin() {
+    margin-top: @pvx-gap-xl;
+    .pvx-overflow-auto();
+
+    .active {
+        background-color: @pvx-primary  !important;
+    }
+}
+
+// ==================== 推荐列表 Mixin ====================
+
+.pvx-recommend-list-mixin() {
+    .flex;
+    .pvx-overflow-hidden();
+    .r(10px);
+    width: 100%;
+    .pvx-scrollbar(2px);
+}
+
+.pvx-recommend-box-mixin() {
+    margin-top: @pvx-gap-xl;
+
+    .u-pvx-shade-btn {
+        .pointer;
+        .pa;
+        z-index: 12;
+        .flex;
+        align-items: center;
+        .size(60px, 200px);
+        font-size: 26px;
+        visibility: hidden;
+        background-color: rgba(0, 0, 0, 0.7);
+
+        i {
+            color: @pvx-bg-white;
+        }
+
+        &:hover {
+            background-color: @pvx-primary;
+
+            i,
+            svg {
+                color: @pvx-bg-white;
+            }
+        }
+    }
+
+    .u-pvx-shade-btn-left {
+        .r(10px 0 0 10px);
+    }
+
+    .u-pvx-shade-btn-right {
+        .r(0 10px 10px 0);
+        right: 0;
+    }
+
+    .u-pvx-disabled {
+        cursor: not-allowed;
+        background-color: rgba(163, 152, 152, 0.7);
+
+        &:hover {
+            background-color: rgba(163, 152, 152, 0.7);
+        }
+    }
+}

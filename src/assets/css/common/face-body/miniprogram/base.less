@@ -1,0 +1,86 @@
+/**
+ * 小程序专用样式入口文件
+ * 用于统一管理微信小程序 webview 环境的样式
+ * 
+ * @version 2.0.0
+ * @updated 将小程序专用变量从 var.less 迁移至此
+ */
+
+// 从全局变量文件导入公共变量
+@import "../../../var.less";
+
+// 引入 face-body 模块变量（包含卡片尺寸、价格等）
+@import "../_variables.less";
+
+// 引入公共混合
+@import "../_base-mixins.less";
+@import "../_component-mixins.less";
+@import "../_responsive-mixins.less";
+
+// 引入弹窗样式
+@import "../../drawer.less";
+
+// ==================== 小程序专用基础变量 ====================
+
+// 小程序布局尺寸
+@pvx-mini-header-height: 44px;
+@pvx-mini-tab-height: 32px;
+@pvx-mini-padding: 8px;
+@pvx-mini-bottom-nav: 3.5rem;
+
+// 小程序主题色
+@pvx-mini-primary: #fedaa3;
+@pvx-mini-primary-bg: #24292e;
+
+// 小程序背景色
+@pvx-mini-surface: #fafafa;
+@pvx-mini-surface-dark: #000;
+@pvx-mini-card: #fff;
+@pvx-mini-card-dark: #282828;
+
+// ==================== 小程序文字颜色别名 ====================
+
+// 亮色模式
+@pvx-mini-text: @pvx-dark-surface; // #1c1c1c
+@pvx-mini-text-muted: @pvx-text-80; // 80% 透明度
+@pvx-mini-text-disabled: @pvx-text-40; // 40% 透明度
+
+// 暗色模式
+@pvx-mini-text-dark: @pvx-bg-white; // #fff
+@pvx-mini-text-muted-dark: @pvx-dark-text-80;
+@pvx-mini-text-disabled-dark: @pvx-dark-text-40;
+
+// 背景色别名
+@pvx-mini-bg: @pvx-bg-white;
+@pvx-mini-bg-dark: @pvx-dark-card;
+
+// 按钮颜色别名
+@pvx-mini-btn-bg: @pvx-mini-primary-bg;
+@pvx-mini-btn-bg-dark: @pvx-mini-primary;
+
+// ==================== 小程序专用混合 ====================
+
+.mini-page-container() {
+    .h(100vh);
+    overflow: auto;
+    box-sizing: border-box;
+    .pb(@pvx-mini-bottom-nav);
+}
+
+.mini-card() {
+    .r(0.667rem);
+    background-color: @pvx-mini-card;
+    margin: 0 1.111rem 0.889rem 1.111rem;
+    box-sizing: border-box;
+}
+
+.mini-tag() {
+    padding: 0.222rem 0.444rem;
+    .flex;
+    .flex(o);
+    .r(0.444rem);
+    border: 1px solid rgba(40, 40, 40, 0.05);
+    background: @pvx-mini-card;
+    .fz(0.778rem, 0.889rem);
+    .bold(400);
+}

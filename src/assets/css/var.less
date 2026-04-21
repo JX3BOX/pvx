@@ -1,41 +1,187 @@
-@pvx_img: "https://img.jx3box.com/image/pvx/";
-@pet_root: "https://img.jx3box.com/pet/";
-@game_icons: "https://img.jx3box.com/image/game/";
-@img_path: "https://img.jx3box.com/";
-@design_url: "https://cdn.jx3box.com/design/";
+/**
+ * PVX 项目全局变量定义
+ * 作为所有模块变量的唯一入口文件
+ * 
+ * @description 统一管理颜色、尺寸、间距等公共设计令牌
+ * @version 2.1.0
+ * 
+ * @note 模块专用变量已拆分到各自模块的变量文件中：
+ *   - face/body 卡片尺寸、价格、支付 → common/face-body/_variables.less
+ *   - 小程序专用变量 → miniprogram/index.less
+ */
 
-@border-active: #39d45d;
-@color-cyan: #17e0c2;
-@color-gray: #586069;
-@active-color: #d16400;
+// ==================== 外部依赖声明 ====================
+// 以下变量来自 jx3box-common 公共库，此处仅作文档说明
+// @phone: 480px;
+// @ipad: 1024px;
+// @ipad-y: 768px;
+// @smallpc: 1200px;
+// @header-height: 50px;
+// @bread-height: 40px;
+// @v4primary: #6b52ff;
 
+// ==================== 路径变量 ====================
 
-@faceColor: #6b52ff;
-@bodyColor: #6b52ff;
-@homelandColor: #6b52ff;
-@petColor: #d16400;
-@priceColor: #53b27f;
-@examColor: #07ad36;
-@furnitureColor: #d16400;
-@activeColor: #ff9a00;
+@pvx-img-path: "https://img.jx3box.com/image/pvx/";
+@pvx-pet-root: "https://img.jx3box.com/pet/";
+@pvx-game-icons: "https://img.jx3box.com/image/game/";
+@pvx-cdn-root: "https://img.jx3box.com/";
+@pvx-design-url: "https://cdn.jx3box.com/design/";
 
-@openedWidth: 136px;
-@regularWidth: 70px;
+// ==================== 主题色 ====================
 
+@pvx-color-primary: #6b52ff;
+@pvx-color-primary-light: rgba(107, 82, 255, 0.5);
+@pvx-color-primary-bg: rgba(107, 82, 255, 0.05);
+
+// ==================== 模块主题色 ====================
+
+@pvx-color-face: #6b52ff;
+@pvx-color-body: #6b52ff;
+@pvx-color-homeland: #6b52ff;
+@pvx-color-pet: #d16400;
+@pvx-color-furniture: #d16400;
+@pvx-color-exam: #07ad36;
+@pvx-color-price: #53b27f;
+@pvx-color-active: #ff9a00;
+
+// ==================== 文字颜色 ====================
+
+@pvx-text-primary: #24292e;
+@pvx-text-secondary: #555;
+@pvx-text-muted: #666;
+@pvx-text-light: #999;
+@pvx-text-placeholder: #a5a5a5;
+
+// 文字颜色（透明度变体）
+@pvx-text-40: rgba(28, 28, 28, 0.4);
+@pvx-text-80: rgba(28, 28, 28, 0.8);
+
+// ==================== 暗色模式 ====================
+
+@pvx-dark-text: #fedaa3;
+@pvx-dark-text-40: rgba(255, 255, 255, 0.4);
+@pvx-dark-text-80: rgba(255, 255, 255, 0.8);
+@pvx-dark-bg: #000;
+@pvx-dark-surface: #1c1c1c;
+@pvx-dark-card: #282828;
+@pvx-dark-border: rgba(255, 255, 255, 0.1);
+
+// ==================== 背景色 ====================
+
+@pvx-bg-white: #fff;
+@pvx-bg-light: #fafbfc;
+@pvx-bg-gray: rgba(36, 41, 46, 0.05);
+
+// ==================== 状态颜色 ====================
+
+@pvx-color-success: #53b27f;
+@pvx-color-warning: #ffaa28;
+@pvx-color-danger: #ed4948;
+@pvx-color-info: #23abe5;
+@pvx-color-new: #ff7991;
+@pvx-color-pay: #ffad31;
+@pvx-color-star: #fba524;
+
+// ==================== 辅助颜色 ====================
+
+@pvx-color-cyan: #17e0c2;
+@pvx-color-gray: #586069;
+@pvx-color-border-active: #39d45d;
+
+// ==================== 边框颜色 ====================
+
+@pvx-border-light: #e1e4e8;
+@pvx-border-dashed: #ddd;
+
+// ==================== 间距 ====================
+
+@pvx-gap-xs: 4px;
+@pvx-gap-sm: 8px;
+@pvx-gap-md: 10px;
+@pvx-gap-lg: 20px;
+@pvx-gap-xl: 40px;
+
+// ==================== 圆角 ====================
+
+@pvx-radius-sm: 3px;
+@pvx-radius-md: 5px;
+@pvx-radius-lg: 10px;
+@pvx-radius-xl: 30px;
+@pvx-radius-full: 50%;
+
+// ==================== 阴影 ====================
+
+@pvx-shadow-sm: 0px 0px 10px rgba(0, 0, 0, 0.1);
+@pvx-shadow-md: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+@pvx-shadow-primary: 0px 0px 10px #6b52ff;
+@pvx-shadow-primary-light: 0px 0px 10px 0px #6b52ff66;
+
+// ==================== 动画 ====================
+
+@pvx-transition-fast: 0.2s ease-out;
+@pvx-transition-normal: 0.3s ease-out;
+
+// ==================== 布局尺寸 ====================
+
+@pvx-sidebar-opened: 136px;
+@pvx-sidebar-regular: 70px;
+
+// ==================== 旧变量别名（向后兼容） ====================
+// 以下变量保持向后兼容，新代码请使用上述规范命名
+
+// 路径变量别名
+@pvx_img: @pvx-img-path;
+@pet_root: @pvx-pet-root;
+@game_icons: @pvx-game-icons;
+@img_path: @pvx-cdn-root;
+@design_url: @pvx-design-url;
+
+// 模块颜色别名
+@faceColor: @pvx-color-face;
+@bodyColor: @pvx-color-body;
+@homelandColor: @pvx-color-homeland;
+@petColor: @pvx-color-pet;
+@priceColor: @pvx-color-price;
+@examColor: @pvx-color-exam;
+@furnitureColor: @pvx-color-furniture;
+@activeColor: @pvx-color-active;
+
+// 文字颜色别名
+@fontColor: @pvx-text-primary;
+@fontColor-dark: @pvx-dark-text;
+@fontcolor-40: @pvx-text-40;
+@fontcolor-40-dark: @pvx-dark-text-40;
+@fontcolor-80: @pvx-text-80;
+@fontcolor-80-dark: @pvx-dark-text-80;
+@fontColor-40: @pvx-text-40;
+@fontColor-40-dark: @pvx-dark-text-40;
+@fontColor-80: @pvx-text-80;
+@fontColor-80-dark: @pvx-dark-text-80;
+
+// 边框颜色别名
+@border-active: @pvx-color-border-active;
+
+// 辅助颜色别名
+@color-cyan: @pvx-color-cyan;
+@color-gray: @pvx-color-gray;
+
+// 活动颜色别名（连字符格式）
+@active-color: @pvx-color-active;
+
+// 布局尺寸别名
+@openedWidth: @pvx-sidebar-opened;
+@regularWidth: @pvx-sidebar-regular;
+
+// 小程序文字颜色别名
+@fontColorLight: @pvx-bg-white;
+@fontColorLightMuted: @pvx-dark-text-80;
+@fontColorLightDisabled: @pvx-dark-text-40;
+
+// 辅助颜色（保留原值）
 @default: #2682ea;
 @green: #62d3b0;
 @orange: #f49e40;
 @red: #ed4948;
 @purple: #9262d3;
 @tm: #2682ea00;
-
-@fontColor: #24292e;
-@fontColor-dark: #fedaa3;
-@fontcolor-40: rgba(28, 28, 28, 0.4);
-@fontcolor-40-dark: rgba(255, 255, 255, 0.4);
-@fontcolor-80: rgba(28, 28, 28, 0.8);
-@fontcolor-80-dark: rgba(255, 255, 255, 0.8);
-@fontColor-40: @fontcolor-40;
-@fontColor-40-dark: @fontcolor-40-dark;
-@fontColor-80: @fontcolor-80;
-@fontColor-80-dark: @fontcolor-80-dark;

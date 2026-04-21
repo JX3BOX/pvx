@@ -1,0 +1,326 @@
+/**
+ * 支付相关 Mixin
+ * 包含购买按钮、支付区域、文件列表、下载等样式
+ */
+
+.pvx-content-mixin() {
+    .flex;
+    margin-top: @pvx-gap-xl;
+    gap: @pvx-gap-lg;
+}
+
+.pvx-single-data-mixin() {
+    margin-top: @pvx-gap-xl;
+
+    .c-facedat-tab {
+        .r(10px);
+        margin: @pvx-gap-lg 0 0 0;
+        padding: @pvx-gap-md;
+
+        .el-radio-button__inner {
+            margin-top: 0;
+        }
+
+        .c-facedat-group {
+            .u-pvx-list {
+                span {
+                    color: @v4primary;
+                }
+            }
+        }
+    }
+}
+
+.pvx-single-data-title-mixin() {
+    font-size: 28px;
+    .bold;
+}
+
+.pvx-single-buy-box-mixin() {
+    .flex;
+    align-items: center;
+    .r(10px);
+    margin-top: @pvx-gap-lg;
+    gap: @pvx-gap-lg;
+    flex-direction: column;
+    height: 220px;
+    padding: @pvx-gap-lg;
+    box-sizing: border-box;
+    background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
+    .pvx-shadow-sm();
+
+    .m-pvx-type-buy-btn {
+        min-height: @pvx-btn-buy-height;
+        .size(@pvx-btn-buy-width, @pvx-btn-buy-height);
+        .r(10px);
+        font-size: 14px;
+    }
+
+    .u-pvx-type-buy-tip {
+        font-size: 16px;
+        line-height: 24px;
+        color: @pvx-bg-white;
+    }
+}
+
+.pvx-buy-btn-mixin() {
+    .pointer;
+    .flex(o);
+    min-height: @pvx-btn-buy-height;
+    .size(@pvx-btn-buy-width, @pvx-btn-buy-height);
+    .r(10px);
+    background: linear-gradient(0deg, @pvx-color-warning, @pvx-color-warning),
+        linear-gradient(267.15deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+
+    .u-pvx-price {
+        .flex;
+        align-items: center;
+        flex-shrink: 0;
+        height: 39px;
+        .r(10px);
+        padding: 0 @pvx-gap-md;
+        background: @pvx-bg-white;
+        color: #f1b65c;
+    }
+
+    .u-pvx-buy {
+        .flex;
+        align-items: center;
+        min-width: 80px;
+        font-size: 16px;
+        gap: @pvx-gap-sm;
+        color: @pvx-bg-white;
+
+        img {
+            .size(20px, 20px);
+            vertical-align: middle;
+        }
+    }
+
+    .u-pvx-price+.u-pvx-buy {
+        margin-right: @pvx-gap-lg;
+    }
+
+    &:hover {
+        .pointer;
+    }
+
+    &.m-pvx-type-buy-btn_copy {
+        background: linear-gradient(266deg, rgba(255, 255, 255, 0.2) 38.61%, rgba(255, 255, 255, 0) 100%), @pvx-color-new;
+    }
+}
+
+.pvx-pay-mixin() {
+    .size(@pvx-pay-width, @pvx-pay-height);
+    box-sizing: border-box;
+    flex-shrink: 0;
+
+    .pr;
+    font-size: 14px;
+    .r(10px);
+    color: @pvx-text-secondary;
+    .flex;
+    flex-direction: column;
+    height: @pvx-pay-height;
+
+    .m-pvx-type-buy {
+        .pr;
+        min-height: 110px;
+        .size(100%, 110px);
+        .r(10px);
+        font-size: 14px;
+        .bold;
+        .pvx-shadow-primary-light();
+        background: url("@{pvx-design-url}pvx/face_bg.svg") #d2738f;
+
+        &.m-pvx-dowload {
+            background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
+        }
+
+        .u-pvx-box-img {
+            .pa;
+            right: -30px;
+            bottom: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .m-pvx-type-buy-btn {
+            margin-top: 13px;
+            margin-left: @pvx-gap-lg;
+            font-size: 14px;
+            .bold;
+        }
+
+        .u-pvx-type-code {
+            .none;
+        }
+
+        .u-pvx-update-time {
+            font-size: 10px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: @pvx-gap-lg;
+            margin-top: @pvx-gap-md;
+        }
+    }
+
+    .m-pvx-type-tips {
+        .size(100%, auto);
+        min-height: 44px;
+        .r(10px);
+        font-size: 14px;
+        line-height: 20px;
+        margin-top: @pvx-gap-lg;
+        box-sizing: border-box;
+        padding: 12px 17px;
+        background: #4782e01a;
+        .flex;
+
+        img {
+            .size(20px, 20px);
+        }
+
+        .u-pvx-tips-left {
+            margin-left: @pvx-gap-md;
+            color: #3d7cde;
+            flex: 1;
+        }
+
+        .u-pvx-tips-right {
+            color: #f1b65c;
+            .bold;
+        }
+    }
+
+    .u-pvx-type-desc-tab {
+        .pointer;
+        font-size: 20px;
+        .bold;
+        margin-top: @pvx-gap-lg;
+
+        span {
+            margin-right: @pvx-gap-md;
+            color: rgb(194, 197, 199);
+
+            &.active {
+                color: #333;
+            }
+        }
+    }
+
+    .m-pvx-type-desc {
+        flex: 1;
+        box-sizing: border-box;
+        padding: 15px;
+        width: 100%;
+        .r(10px);
+        margin-top: @pvx-gap-md;
+        overflow-y: auto;
+        background: @pvx-primary-bg;
+        border: 1px solid @pvx-primary-light;
+        box-shadow: 0px 0px 10px rgba(107, 82, 255, 0.4);
+
+        .u-pvx-label {
+            display: block;
+        }
+
+        .u-pvx-action {
+            font-size: 12px;
+            line-height: 28px;
+        }
+
+        &.is-no-desc {
+            background: url("../../../../img/face/no-desc.svg") bottom no-repeat !important;
+        }
+
+        &.has-desc {
+            background: unset;
+            box-shadow: 0px 0px 10px 0px #0000001a;
+            border: 1px solid transparent;
+        }
+    }
+
+    .m-pvx-type-head {
+        .flex;
+        align-items: center;
+        .size(100%, 44px);
+        font-size: 14px;
+        line-height: 20px;
+        gap: @pvx-gap-md;
+        margin-top: @pvx-gap-lg;
+        box-sizing: border-box;
+        padding: 12px 17px;
+        background-color: #786cbb1a;
+        color: #786cbb;
+        .r(10px);
+
+        img {
+            .size(20px, 20px);
+        }
+    }
+}
+
+.pvx-files-list-mixin() {
+    .flex;
+    flex-direction: column;
+    gap: @pvx-gap-md;
+
+    .u-pvx-file {
+        .flex;
+        .r(10px);
+        justify-content: space-between;
+        gap: @pvx-gap-md;
+        color: @pvx-bg-white;
+        background: #786cbb;
+        padding: @pvx-gap-md;
+    }
+
+    .u-pvx-info {
+        .flex;
+        font-size: 12px;
+        line-height: 18px;
+        font-weight: 400;
+        flex-direction: column;
+        gap: @pvx-gap-md;
+
+        em {
+            font-style: normal;
+        }
+    }
+
+    .u-pvx-action {
+        .flex;
+        .flex(o);
+        .size(44px, 24px);
+        font-size: 12px;
+        .r(6px);
+        .pointer;
+        color: @pvx-bg-white;
+        background: @pvx-color-warning;
+    }
+}
+
+.pvx-download-mixin() {
+    .flex(o);
+    margin-top: @pvx-gap-xl;
+    .size(100%, 120px);
+    .r(10px);
+    .bold;
+    .pvx-shadow-primary-light();
+    background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
+}
+
+.pvx-tips-off-mixin() {
+    background: url("../../../../img/face/report.svg") no-repeat center,
+        linear-gradient(0deg, rgba(251, 47, 47, 0.5), rgba(251, 47, 47, 0.5));
+    border: 1px solid #fb2f2f;
+    .size(@pvx-btn-height);
+
+    &:hover {
+        background: url("../../../../img/face/report.svg") no-repeat center,
+            linear-gradient(0deg, rgba(251, 47, 47, 0.5), rgba(251, 47, 47, 0.5));
+        border: 1px solid #fb2f2f;
+        filter: brightness(1.1);
+    }
+}

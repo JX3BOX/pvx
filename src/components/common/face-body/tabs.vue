@@ -1,15 +1,42 @@
+<!--
+ * tabs - 列表页标签筛选组件
+ * 
+ * @description 用于脸型/体型列表页的搜索和筛选功能，包含搜索框、筛选器、发布入口
+ * @author Face & Body 模块优化团队
+ * @version 1.0.0
+ * 
+ * @features
+ * - 支持face和body两种类型
+ * - 集成PvxSearch搜索组件
+ * - 支持多条件筛选
+ * - 支持数据解析入口
+ * - 支持发布作品入口
+ * 
+ * @props
+ * - type: 'face' | 'body' - 模块类型
+ * - active: Number - 当前激活标签
+ * - searchItems: Array - 搜索项配置
+ * - initSearchValue: Object - 初始搜索值
+ * - filterOpen: Boolean - 筛选面板是否打开
+ * 
+ * @events
+ * - change: 筛选条件变化事件
+ * 
+ * @styles
+ * - 样式文件: assets/css/face/list.less 或 assets/css/body/list.less
+ -->
 <template>
-    <div class="m-face-tabs">
+    <div class="m-pvx-face-tabs">
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
-            ref="pvxSearchRef" popperClass="m-face-filter-popover">
+            ref="pvxSearchRef" popperClass="m-pvx-face-filter-popover">
             <template #extra>
-                <div class="m-toolbar-item m-toolbar-publish">
+                <div class="m-pvx-toolbar-item m-pvx-toolbar-publish">
                     <a :href="link.data" target="_blank">
-                        <el-button type="primary" class="u-analysis"> 数据解析 </el-button>
+                        <el-button type="primary" class="u-pvx-analysis"> 数据解析 </el-button>
                     </a>
                     <a :href="publish_link(link.key)" target="_blank">
-                        <div class="u-face-publish">
-                            <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-img" />
+                        <div class="u-pvx-face-publish">
+                            <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-pvx-img" />
                             <span>发布作品</span>
                         </div>
                     </a>
@@ -231,7 +258,7 @@ export default {
 </script>
 
 <style lang="less">
-.m-face-tabs {
+.m-pvx-face-tabs {
     .pvx-search-wrapper {
         .type-list {
             .type-item {
@@ -259,11 +286,11 @@ export default {
         }
     }
 
-    .m-toolbar-publish {
+    .m-pvx-toolbar-publish {
         .flex;
     }
 
-    .u-analysis {
+    .u-pvx-analysis {
         .r(5px);
         .fz(16px);
         .h(38px);
@@ -277,7 +304,7 @@ export default {
         }
     }
 
-    .u-face-publish {
+    .u-pvx-face-publish {
         .pr;
         .pointer;
         .bold;
@@ -292,7 +319,7 @@ export default {
             .fr;
         }
 
-        .u-img {
+        .u-pvx-img {
             .pa;
             .lb(0);
             .w(65px);
@@ -305,7 +332,7 @@ export default {
 
 }
 
-.m-face-filter-popover {
+.m-pvx-face-filter-popover {
     .filter-content {
 
         .is-active,
@@ -336,7 +363,7 @@ export default {
 }
 
 @media screen and (max-width: @ipad-y) {
-    .m-face-tabs {
+    .m-pvx-face-tabs {
 
         .pvx-search-wrapper {
             flex-direction: column;
@@ -375,7 +402,7 @@ export default {
             }
         }
 
-        .m-toolbar-publish {
+        .m-pvx-toolbar-publish {
             order: -1;
             flex-direction: row-reverse;
             justify-content: space-between;

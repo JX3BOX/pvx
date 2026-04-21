@@ -26,7 +26,7 @@
  * - 编辑权限: User.isEditor()
  -->
 <template>
-    <div id="app" class="p-pet">
+    <div id="app" class="p-pvx-face">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">

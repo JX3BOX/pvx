@@ -1,0 +1,197 @@
+/**
+ * 卡片项相关 Mixin
+ * 已拆分为原子 mixin，提高可维护性
+ */
+
+// ==================== 卡片基础布局 ====================
+
+.pvx-card-base() {
+    .flex;
+    .pointer;
+    .r(10px);
+    .pr;
+    .size(@pvx-card-face-width, @pvx-card-face-height);
+    flex-shrink: 0;
+    flex-direction: column;
+    padding: 15px;
+    gap: @pvx-gap-md;
+    box-sizing: border-box;
+    background: @pvx-bg-white;
+    border: 2px solid @pvx-bg-white;
+    .pvx-shadow-sm();
+    transition: @pvx-transition-normal;
+}
+
+.pvx-card-hover() {
+    &:hover {
+        background: rgba(222, 216, 255, 0.5);
+        border: 2px solid @pvx-primary;
+        .pvx-shadow-primary();
+    }
+}
+
+.pvx-card-no-name() {
+    &.is-no-name {
+        height: 250px;
+
+        .m-pvx-op .m-pvx-author {
+            .none;
+        }
+    }
+}
+
+// ==================== 卡片图片区 ====================
+
+.pvx-card-image() {
+    .u-pvx-img {
+        .size(@pvx-card-face-img-width, @pvx-card-face-img-height);
+        .r(10px);
+    }
+}
+
+.pvx-card-image-wrap() {
+    .m-pvx-img {
+        .pr;
+        .size(@pvx-card-face-img-width, @pvx-card-face-img-height);
+        .r(10px);
+        .pvx-overflow-hidden();
+
+        .u-pvx-pic {
+            .size(100%);
+        }
+    }
+}
+
+.pvx-card-marker() {
+    .u-pvx-pinch-marker {
+        .pa;
+        right: 15px;
+        top: 15px;
+        .size(30px);
+    }
+}
+
+// ==================== 卡片标签区 ====================
+
+.pvx-card-tags() {
+    .m-pvx-tags {
+        .flex;
+        height: 20px;
+        font-size: 12px;
+        line-height: 18px;
+        color: @pvx-bg-white;
+        justify-content: space-between;
+
+        .m-pvx-tag-left {
+            .flex;
+            gap: @pvx-gap-sm;
+        }
+
+        .m-pvx-tag-right {
+            .flex;
+            max-width: 72px;
+            gap: @pvx-gap-sm;
+        }
+
+        .u-pvx-tag {
+            .flex;
+            .r(4px);
+            align-items: center;
+            padding: 0 5px;
+            gap: 2px;
+            font-style: normal;
+        }
+    }
+}
+
+.pvx-card-tag-variants() {
+    .u-pvx-tag--new {
+        background-color: @pvx-color-new;
+    }
+
+    .u-pvx-tag--type {
+        background-color: @pvx-color-info;
+
+        &.u-pvx-new-face {
+            background-color: @pvx-color-success;
+        }
+    }
+
+    .u-pvx-tag--star {
+        background-color: @faceColor;
+        padding: 3px;
+        .flex;
+
+        img {
+            .size(14px);
+        }
+    }
+
+    .u-pvx-tag--pay {
+        background-color: @pvx-color-pay;
+        padding: 3px;
+        .flex;
+
+        img {
+            .size(14px);
+        }
+    }
+}
+
+// ==================== 卡片操作区 ====================
+
+.pvx-card-op() {
+    .m-pvx-op {
+        .flex;
+        flex-direction: column;
+        gap: @pvx-gap-md;
+
+        .u-pvx-title {
+            .bold;
+            font-size: 16px;
+            line-height: 24px;
+            .pvx-text-ellipsis();
+            color: #000;
+        }
+    }
+}
+
+.pvx-card-author() {
+    .m-pvx-author {
+        .flex;
+        font-size: 12px;
+        line-height: 18px;
+        white-space: nowrap;
+        gap: @pvx-gap-sm;
+        align-items: center;
+
+        .u-pvx-avatar {
+            .size(18px);
+            .r(50%);
+        }
+
+        .u-pvx-name {
+            opacity: 0.6;
+            color: #000;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+// ==================== 卡片完整 Mixin（组合原子 mixin）====================
+
+.pvx-item-mixin() {
+    .pvx-card-base();
+    .pvx-card-hover();
+    .pvx-card-no-name();
+    .pvx-card-image();
+    .pvx-card-image-wrap();
+    .pvx-card-marker();
+    .pvx-card-tags();
+    .pvx-card-tag-variants();
+    .pvx-card-op();
+    .pvx-card-author();
+}
