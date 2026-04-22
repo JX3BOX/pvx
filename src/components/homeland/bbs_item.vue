@@ -1,89 +1,77 @@
 <template>
     <li class="u-item">
-        <!-- Banner -->
-        <a class="u-banner" :href="postLink(item.ID)" :target="target"><img :src="getBanner(item.post_banner, item.post_subtype)" :key="item.ID"/></a>
-
-        <!-- 标题 -->
-        <h2 class="u-post" :class="{ isSticky: item.sticky }">
-            <!-- 图标 -->
-            <img class="u-icon" svg-inline src="@/assets/img/homeland/post.svg" />
-
-            <!-- 标题文字 -->
-            <a class="u-title" :style="showHighlight(item.color)" :href="postLink(item.ID)" :target="target">{{ item.post_title || "无标题" }}</a>
-
-            <!-- 角标 -->
-            <span class="u-marks" v-if="item.mark && item.mark.length">
-                <i v-for="mark in item.mark" class="u-mark" :key="mark">{{ showMark(mark) }}</i>
-            </span>
-        </h2>
-
-        <!-- 字段 -->
-        <div class="u-content u-desc">
-            {{ item.post_excerpt || item.post_title || "这个作者很懒,什么都没有留下" }}
-        </div>
-
-        <!-- 作者 -->
-        <div class="u-misc">
-            <img class="u-author-avatar" :src="showAvatar(item.author_info)" :alt="showNickname(item.author_info)" />
-            <a class="u-author-name" :href="authorLink(item.post_author)" target="_blank">{{ showNickname(item.author_info) }}</a>
-            <span class="u-date">
-                Updated on
-                <time v-if="order == 'update'">{{ dateFormat(item.post_modified) }}</time>
-                <time v-else>{{ dateFormat(item.post_date) }}</time>
-            </span>
+        <a class="u-banner" :href="postLink" target="_blank">
+            <img :src="showBanner" :alt="item.title" />
+        </a>
+        <div class="u-content">
+            <h2 class="u-post" :class="{ isSticky: item.sticky }">
+                <a class="u-title" :href="postLink" target="_blank">{{ item.title }}</a>
+            </h2>
+            <div class="u-desc" v-if="item.summary">{{ item.summary }}</div>
+            <div class="u-metalist">
+                <strong v-if="item.tags?.length">
+                    <span v-for="(tag, i) in item.tags" :key="i">{{ tag }}</span>
+                </strong>
+            </div>
+            <div class="u-misc">
+                <a class="u-author-name" :href="authorLink" target="_blank">
+                    <img class="u-author-avatar" :src="authorAvatar" />
+                    {{ item.author?.name || "匿名" }}
+                </a>
+                <span class="u-date">{{ showTime }}</span>
+            </div>
         </div>
     </li>
 </template>
 
 <script>
-import { showAvatar as showAvatarUtil, authorLink as authorLinkUtil, showBanner, buildTarget } from "@jx3box/jx3box-common/js/utils";
-import { __imgPath } from "@/utils/config";
-import markData from "@jx3box/jx3box-common/data/mark.json";
-import {showDate} from '@jx3box/jx3box-common/js/moment.js'
-const mark_map = markData?.cms || {};
+/**
+ * @description 攻略列表项组件
+ * @description 展示单篇攻略文章的卡片信息
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @props
+ * - item {Object} 攻略数据对象，包含 title, summary, tags, author, sticky 等字段
+ * 
+ * @example
+ * <bbs_item :item="articleData" />
+ * 
+ * @notes
+ * - 置顶文章会显示特殊标记
+ * - 点击标题或封面跳转到文章详情页
+ * - 显示作者头像、名称和发布时间
+ */
+import { getLink, showAvatar, formatTime } from "@jx3box/jx3box-common/js/utils";
+
 export default {
-    name: "ListItem",
-    props: ['item','order'],
-    components: {},
-    data: function() {
-        return {
-            target : buildTarget(),
-        };
+    name: "BbsItem",
+    props: {
+        item: {
+            type: Object,
+            required: true,
+        },
     },
     computed: {
-    },
-    watch: {},
-    methods: {
-        getBanner: function(val, subtype) {
-            if (val) {
-                return showBanner(val);
-            } else {
-                return __imgPath + `image/banner/bbs` + subtype + ".png";
-            }
+        postLink() {
+            return getLink("post", this.item.id);
         },
-        authorLink(val) {
-            return authorLinkUtil(val);
+        authorLink() {
+            return getLink("user", this.item.author?.id);
         },
-        postLink(val) {
-            return location.origin + `/bbs/` + val;
+        authorAvatar() {
+            return showAvatar(this.item.author?.avatar, "s");
         },
-        showHighlight(val) {
-            return val ? `color:${val};font-weight:600;` : "";
+        showBanner() {
+            return this.item.banner || "https://img.jx3box.com/image/bbs/default_banner.png";
         },
-        showMark(val) {
-            return mark_map[val] || val;
-        },
-        showAvatar(userinfo) {
-            return showAvatarUtil(userinfo?.user_avatar);
-        },
-        showNickname(userinfo) {
-            return userinfo?.display_name || "匿名";
-        },
-        dateFormat(gmt) {
-            return showDate(new Date(gmt));
+        showTime() {
+            return formatTime(this.item.updated || this.item.created);
         },
     },
-    created: function() {},
-    mounted: function() {},
 };
 </script>
+
+<style lang="less">
+@import "~@/assets/css/homeland/bbs.less";
+</style>

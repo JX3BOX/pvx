@@ -1,42 +1,57 @@
+/**
+ * Homeland 花价查询样式
+ * 
+ * @description 全区服小区花价查询功能样式
+ * @version 2.1.0
+ */
 
-@max-width: 1200px;
+@import "_variables.less";
+
 .m-flower {
     padding: 0 20px 20px;
 }
+
 @media screen and (max-width: @phone) {
     .m-flower {
         padding: 10px 15px 0 15px;
     }
 }
+
 .m-flower-container {
     max-width: @max-width;
     .auto(x);
     min-height: calc(100vh - 250px);
 }
+
 .m-flower-title {
     font-weight: 300;
     .x;
 }
+
 @media screen and (max-width: @ip5) {
     .m-flower-title {
         .fz(20px);
     }
 }
+
 .m-flower-desc {
     .x;
     .auto(x);
     .w(100%);
+    white-space: nowrap;
+
     .el-divider__text {
         font-weight: 300;
-        color: #888;
-        background: #f1f3f5;
+        color: @pvx-homeland-text-desc;
+        background: @pvx-homeland-bg-card;
     }
-    white-space: nowrap;
 }
+
 .m-flower-search {
     .x;
     .auto(x);
     .w(100%);
+
     .el-select,
     .el-button {
         .w(100%);
@@ -57,11 +72,13 @@
         .el-col {
             .w(100%);
         }
+
         .el-select {
             .db;
             margin-right: 0;
             margin-bottom: 10px;
         }
+
         .u-button {
             .db;
             .w(100%);
@@ -71,6 +88,7 @@
 
 .m-flower-submit {
     .auto(x);
+
     .u-tip {
         margin-top: 10px;
     }
@@ -80,24 +98,26 @@
     .fz(12px);
     margin: 10px auto;
     max-width: @max-width;
-    background-color: #ebfbff;
+    background-color: @pvx-homeland-bg-tip;
     .db;
 }
 
 .m-flower-box {
     min-height: 500px;
 }
+
 .m-flower-result {
     .auto(x);
     margin-top: 10px;
-    .lh(34px);
+    line-height: 34px;
 }
 
 .m-flower-all {
     padding: 10px 20px 10px 15px;
-    color: #666;
+    color: @pvx-homeland-text-light;
     .fz(12px);
     .clearfix;
+    overflow: hidden;
 
     .u-flower {
         margin-bottom: 12px;
@@ -106,7 +126,7 @@
     }
 
     .u-title {
-        .lh(20px);
+        line-height: 20px;
         .clearfix;
         .db;
         margin-bottom: 5px;
@@ -117,6 +137,7 @@
         margin-right: 8px;
         .fl;
     }
+
     .u-icons {
         .clearfix;
     }
@@ -125,6 +146,7 @@
         .db;
         .fl;
         margin-right: 5px;
+
         img {
             .db;
             .size(22px);
@@ -134,36 +156,42 @@
     }
 
     .u-desc {
-        .lh(20px);
+        line-height: 20px;
     }
+
     .u-line {
         .pointer;
+
         b {
-            color: #fc3c3c;
+            color: @pvx-homeland-price;
             .fz(14px);
             padding: 0 2px;
         }
+
         &:after {
             content: "、";
         }
+
         &:nth-child(3):after {
             .none;
         }
     }
+
     .u-price {
         .fr;
     }
-    overflow: hidden;
 
     .isHidden {
         .none;
     }
 }
+
 @media screen and (max-width: @ipad) {
     .m-flower-all .u-flower {
         .w(100%);
     }
 }
+
 @media screen and (max-width: @phone) {
     .m-flower-all .u-price {
         .db;
@@ -175,17 +203,21 @@
 .m-flower-overview {
     min-height: 400px;
     .auto(x);
+
     th .cell,
     td .cell {
         .x;
     }
+
     .u-line {
         padding: 0 10px;
     }
+
     .u-line-wrapper {
         .pointer;
     }
 }
+
 @media screen and (max-width: @phone) {
     .m-flower-overview {
         min-height: none;
@@ -194,6 +226,7 @@
             width: 100% !important;
             .db;
         }
+
         thead,
         tbody {
             .db;
@@ -201,13 +234,15 @@
 
         tr {
             .db;
-            border: 1px solid #eee;
+            border: 1px solid @pvx-homeland-border-light;
             .r(4px);
             margin-bottom: 10px;
         }
+
         td {
             .db;
             border: none;
+
             &:first-child {
                 .bold;
             }
@@ -217,10 +252,12 @@
             tr {
                 display: flex;
             }
+
             th {
                 border: none !important;
                 min-width: 25%;
             }
+
             th:last-child {
                 flex: 1;
             }

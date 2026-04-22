@@ -1,7 +1,18 @@
+/**
+ * Homeland 首页样式
+ * 
+ * @description 家园模块首页布局样式
+ * @version 2.0.0
+ */
+
+@import "_variables.less";
+
 .p-homeland {
     padding-top: 40px;
+
     .m-homeland-content {
         padding-top: 20px;
+
         .el-tabs__content {
             .scrollbar(2px);
             width: 100%;
@@ -15,18 +26,25 @@
         .m-homeland-content {
             padding-top: 24px;
         }
+
         .m-homeland-games {
             justify-content: flex-start;
         }
+
         .m-common-tabs {
             .w(100%);
-            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
             padding: 10px 15px;
-            gap: 10px;
-            justify-content: space-between;
+            .flex;
             flex-direction: row;
             flex-wrap: wrap;
+            justify-content: space-between;
+
+            > * + * {
+                margin-left: 10px;
+            }
         }
+
         .m-homeland-levels {
             overflow: auto;
         }

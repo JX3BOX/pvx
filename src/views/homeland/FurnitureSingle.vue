@@ -114,6 +114,22 @@
 </template>
 
 <script>
+/**
+ * @description 家具详情页面
+ * @description 展示家具详细信息，包括属性、来源、染色、套装、合成材料、攻略和评论
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @example
+ * <FurnitureSingle />
+ * 
+ * @notes
+ * - 通过路由参数 id 获取家具详情
+ * - 支持跳转到物品信息和成就信息页面
+ * - 自动加载关联的套装信息和染色数据
+ * - 生活技能来源的家具会显示合成材料
+ * - 集成 Wiki 攻略和评论功能
+ */
 import furnitureSet from "@/components/homeland/furniture_set.vue";
 import Wiki from "@/components/wiki/Wiki.vue";
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";

@@ -39,6 +39,21 @@
 </template>
 
 <script>
+/**
+ * @description 家园地图页面
+ * @description 展示家园地图，支持切换不同地图，显示房屋位置和信息
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @example
+ * <Maps />
+ * 
+ * @notes
+ * - 支持多个地图切换（通过 el-tabs）
+ * - 房屋位置通过坐标百分比计算
+ * - 悬停显示房屋详情（名称、面积、价格）
+ * - 地图数据按需加载并缓存
+ */
 import homeland_maps from "@/assets/data/homeland_maps.json";
 import { __imgPath, __ossRoot } from "@/utils/config";
 import { resolveImagePath } from "@jx3box/jx3box-common/js/utils";

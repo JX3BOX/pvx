@@ -11,7 +11,18 @@
     </div>
 </div>
 </template>
+
 <script>
+/**
+ * @description 小程序端家园首页
+ * @description 小程序 webview 适配的家园模块入口页面
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @notes
+ * - 使用路由跳转到子页面
+ * - 支持跳转到家园信息和家园地图页面
+ */
 export default {
     name: "Index",
     data() {
@@ -40,6 +51,7 @@ export default {
     }
 };
 </script>
+
 <style scoped lang="less">
 .p-mobile-homeland_index {
     .m-homeland_list {
@@ -67,9 +79,8 @@ export default {
         }
     }
 }
-//@media screen and (width: 414.4px)
-@media (prefers-color-scheme: dark)
-{
+
+@media (prefers-color-scheme: dark) {
     .p-mobile-homeland_index{
         background: #000;
         .m-homeland_list{

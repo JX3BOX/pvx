@@ -1,6 +1,16 @@
+/**
+ * Homeland 地图样式
+ * 
+ * @description 家园地图功能样式
+ * @version 2.1.0
+ */
+
+@import "_variables.less";
+
 .m-house-map {
     width: 1024px;
 }
+
 @media screen and (max-width: @phone) {
     .el-tab-pane {
         overflow-x: auto;
@@ -14,10 +24,12 @@
     height: 896px;
     .auto(x);
     .pr;
+
     .u-map {
         .size(100%);
         .r(6px);
     }
+
     .u-house {
         .pa;
         .lt(0);
@@ -36,55 +48,63 @@
         .db;
         .size(100%);
     }
+
     .u-house-area-7200 {
         background: url("../../img/house/7000-1.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-item:hover .u-house-area-7200 {
         background: url("../../img/house/7000-2.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-area-4032 {
         background: url("../../img/house/3640-1.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-item:hover .u-house-area-4032 {
         background: url("../../img/house/3640-2.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-area-2240 {
         background: url("../../img/house/2080-1.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-item:hover .u-house-area-2240 {
         background: url("../../img/house/2080-2.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-area-1280 {
         background: url("../../img/house/1200-1.png") no-repeat center center;
         background-size: auto 80%;
     }
+
     .u-house-item:hover .u-house-area-1280 {
         background: url("../../img/house/1200-2.png") no-repeat center center;
         background-size: auto 80%;
     }
 
-    .pr;
     .u-close {
         .pa;
         .rt(7px, 28px);
         .pointer;
-        color: #c7c7c7;
+        color: @pvx-homeland-text-close;
         font-size: 16px;
-        background-color: #3c4b2b;
+        background-color: @pvx-homeland-bg-map-btn;
         font-weight: 300;
         padding: 5px 10px;
         border-radius: 4px;
-
         transition: 0.1s ease-in;
+
         &:hover {
-            color: #eee;
+            color: @pvx-homeland-border-light;
         }
+
         i {
             .mr(2px);
             .y(-1px);
@@ -94,12 +114,14 @@
 
 .m-house-map-pop {
     .u-house-desc {
-        .lh(1.6);
+        line-height: 1.6;
     }
 }
+
 .v-homeland-maps .u-title {
     .x;
 }
+
 @media screen and (max-width: @phone) {
     .v-homeland-maps {
         padding-top: 10px;

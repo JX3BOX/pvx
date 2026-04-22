@@ -1,13 +1,11 @@
-@blue: #81b0cc;
-@pink: #cc819c;
-@yellow: #cca981;
-@green: #81ccb2;
-@purple: #b381cc;
+/**
+ * Homeland 家具详情样式
+ * 
+ * @description 家具详情页面样式
+ * @version 2.1.0
+ */
 
-@quality2: #00d24b;
-@quality3: #007eff;
-@quality4: #ff2dff;
-@quality5: #ffa500;
+@import "_variables.less";
 
 .v-homeland-furniture {
     .pr;
@@ -17,10 +15,12 @@
     .flex;
     .pr;
     .mb(20px);
+
     .u-input {
         .ml(20px);
         flex: 1;
     }
+
     .u-links {
         .pa;
         .rt(0);
@@ -47,6 +47,7 @@
 .m-info-box {
     .mb(20px);
     .flex;
+
     .u-img {
         .pr;
         .w(240px);
@@ -58,41 +59,47 @@
         justify-content: center;
         flex-shrink: 0;
         box-sizing: border-box;
-        background: #2b3d3d;
+        background: @pvx-homeland-bg-img;
+
         img {
             max-width: 100%;
             max-height: 100%;
             transition: 0.2s ease;
         }
+
         &:hover img {
             transform: scale(1.2);
         }
     }
+
     .u-info {
         .pr;
         .size(100%, 240px);
-        background-color: #f5f7fa;
+        background-color: @pvx-homeland-bg-card;
         padding: 10px 20px;
+
         .u-info-title {
             .flex;
             align-items: center;
             .bold;
-            .fz(22px, 2);
+            .fz(22px);
+            line-height: 2;
             font-family: "KaiTi", "Microsoft YaHei";
 
             &.quality_2 {
-                color: @quality2;
+                color: @pvx-quality-2;
             }
             &.quality_3 {
-                color: @quality3;
+                color: @pvx-quality-3;
             }
             &.quality_4 {
-                color: @quality4;
+                color: @pvx-quality-4;
             }
             &.quality_5 {
-                color: @quality5;
+                color: @pvx-quality-5;
             }
         }
+
         .u-interact {
             .dbi;
             .r(2px);
@@ -100,50 +107,57 @@
             .ml(5px);
             background: url("@{game_icons}homeland/interact.png") rgba(255, 255, 255, 0.5) center center no-repeat;
         }
+
         .u-attrs {
-            border-bottom: 1px dashed #ddd;
+            border-bottom: 1px dashed @pvx-border-dashed;
             .pb(10px);
         }
+
         .u-attr {
             .mr(20px);
             .fz(14px);
             .mt(10px);
+            font-family: "Consolas";
+
             .u-label {
-                color: #fff;
+                color: @pvx-bg-white;
                 padding: 0 5px;
                 .r(3px);
                 .mr(5px);
             }
+
             .blue {
-                background: #81b0cc;
+                background: @pvx-homeland-blue;
             }
 
             .pink {
-                background: #cc819c;
+                background: @pvx-homeland-pink;
             }
 
             .yellow {
-                background: #cca981;
+                background: @pvx-homeland-yellow;
             }
 
             .green {
-                background: #81ccb2;
+                background: @pvx-homeland-green;
             }
 
             .purple {
-                background: #b381cc;
+                background: @pvx-homeland-purple;
             }
-
-            font-family: "Consolas";
         }
+
         .u-metas {
             .pt(10px);
             .pb(10px);
         }
+
         .u-meta {
             .db;
-            .fz(13px, 2);
+            .fz(13px);
+            line-height: 2;
         }
+
         .u-meta-scale {
             b::after {
                 content: "~";
@@ -152,34 +166,42 @@
                 content: "";
             }
         }
+
         .u-meta-dyes {
             .flex;
         }
+
         .u-dye {
             .size(20px);
             .r(50%);
             .dbi;
             .mr(8px);
-            border: 2px solid #ddd;
+            border: 2px solid @pvx-border-dashed;
         }
+
         .u-relation {
             .flex;
             flex-direction: column;
+
             .u-line {
-                .lh(28px);
                 .pointer;
-                .color(#666, #0366d6);
+                .color(@pvx-homeland-text-secondary, @pvx-homeland-link);
+                line-height: 28px;
+
                 i {
                     .mr(10px);
                 }
+
                 &:hover {
                     text-decoration: underline;
                 }
             }
         }
+
         .m-buttons {
             .pa;
             .rt(10px, 10px);
+
             .u-plansBox {
                 .mr(10px);
             }
@@ -187,57 +209,66 @@
 
         .u-label {
             .mr(5px);
-            color: #8a6d3b;
+            color: @pvx-homeland-text-label;
         }
+
         .u-blue {
-            color: @blue;
+            color: @pvx-homeland-blue;
         }
+
         .u-pink {
-            color: @pink;
+            color: @pvx-homeland-pink;
         }
+
         .u-yellow {
-            color: @yellow;
+            color: @pvx-homeland-yellow;
         }
+
         .u-green {
-            color: @green;
+            color: @pvx-homeland-green;
         }
+
         .u-purple {
-            color: @purple;
+            color: @pvx-homeland-purple;
         }
     }
 }
+
 .m-extend {
     .mb(15px);
     .pb(20px);
     .r(5px);
     .fz(14px);
-    background-color: #fafbfc;
-    border: 1px solid #eeeeee;
+    background-color: @pvx-bg-light;
+    border: 1px solid @pvx-homeland-border-light;
 
     .m-extend-header {
         .flex;
-        .lh(28px);
+        line-height: 28px;
         padding: 10px 15px;
-        background-color: #f5f7fa;
-        border-bottom: 1px solid #eeeeee;
+        background-color: @pvx-homeland-bg-card;
+        border-bottom: 1px solid @pvx-homeland-border-light;
+        .mb(10px);
+
         .u-icon {
             .size(28px);
             .fz(22px);
             .mr(7px);
-            color: #0366d6;
-            fill: #0366d6;
+            color: @pvx-homeland-link;
+            fill: @pvx-homeland-link;
         }
+
         span {
             .fz(17px);
-            color: #6c645c;
+            color: @pvx-homeland-text-muted;
             font-weight: 300;
         }
-        .mb(10px);
     }
 
     .u-title {
         .bold;
         .mb(10px);
+
         i {
             .mr(5px);
         }
@@ -246,17 +277,20 @@
     .m-extend-content {
         padding: 10px 20px;
     }
+
     .m-extend-desc {
         .u-txt {
             .fz(14px, 24px);
-            .color(#fda522);
+            .color(@pvx-homeland-star);
         }
     }
+
     .m-extend-relation {
         .u-title {
             .flex;
             align-items: center;
         }
+
         .u-star {
             .ml(10px);
         }
@@ -270,11 +304,13 @@
 @media screen and (max-width: @phone) {
     .m-info-box {
         .db;
+
         .u-img {
             .w(auto);
             .mr(0);
             .mb(10px);
         }
+
         .u-info {
             box-sizing: border-box;
         }

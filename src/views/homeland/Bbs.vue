@@ -26,6 +26,21 @@
 </template>
 
 <script>
+/**
+ * @description 家园攻略列表页面
+ * @description 展示家园相关的攻略文章列表，支持搜索和分页
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @example
+ * <Bbs />
+ * 
+ * @notes
+ * - 默认按更新时间排序
+ * - 筛选条件为 topic: "家园"
+ * - 支持关键词搜索
+ * - 点击发布按钮跳转到发布页面
+ */
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
 import { deleteNull } from "@/utils/index";
 import { getBbsList } from "@/service/homeland";

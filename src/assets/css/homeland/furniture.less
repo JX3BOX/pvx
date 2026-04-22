@@ -1,80 +1,105 @@
-.flex {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.flexNormal {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-}
+/**
+ * Homeland 家具模块样式
+ * 
+ * @description 家具列表、分类、搜索等组件样式
+ * @version 2.1.0
+ */
 
+@import "_variables.less";
+
+// ==================== 家具标题 ====================
+
+.m-pvx-furniture-title,
 .m-furniture-title {
     .x;
 }
 
+// ==================== 家具搜索 ====================
+
+.m-pvx-furniture-search,
 .m-furniture-search {
-    margin-bottom: 20px;
+    .mb(20px);
 }
 
+// ==================== 家具容器 ====================
+
+.m-pvx-furniture-container,
 .m-furniture-container {
     .r(5px);
-    background-color: #f5f7fa;
-    border: 1px solid #dcdfe6;
+    background-color: @pvx-homeland-bg-card;
+    border: 1px solid @pvx-homeland-border;
 }
 
+// ==================== 家具类型侧边栏 ====================
+
+.m-pvx-furniture-types,
 .m-furniture-types {
     padding: 20px;
-    background-color: #f5f7fa;
+    background-color: @pvx-homeland-bg-card;
     .w(120px);
+
     .u-list {
         padding-left: 20px;
         .fz(14px);
     }
+
     .u-item {
         .db;
         .pointer;
-        margin-top: 20px;
+        .mt(20px);
+
         &::before {
             content: "◇";
         }
+
         &:hover {
-            color: @v4primary;
+            color: @pvx-color-primary;
         }
     }
+
     .active {
         .bold;
-        color: @v4primary;
+        color: @pvx-color-primary;
     }
 }
 
+// ==================== 家具内容区域 ====================
+
+.m-pvx-furniture-box,
 .m-furniture-box {
     flex: 1;
-    border-left: 1px solid #dcdfe6;
-    background-color: #fff;
+    border-left: 1px solid @pvx-homeland-border;
+    background-color: @pvx-bg-white;
 }
 
+// ==================== 家具分类 ====================
+
+.m-pvx-furniture-category,
 .m-furniture-category {
     padding: 20px;
-    border-bottom: 1px solid #dcdfe6;
-    background-color: #f5f7fa;
+    border-bottom: 1px solid @pvx-homeland-border;
+    background-color: @pvx-homeland-bg-card;
+    box-sizing: border-box;
+
     .active {
         .bold;
-        color: @v4primary;
+        color: @pvx-color-primary;
     }
 
-    box-sizing: border-box;
     .u-tabs {
         .fz(14px);
-        margin-bottom: 20px;
+        .mb(20px);
+        .flex;
         flex-wrap: wrap;
+
         .u-item {
-            margin-right: 10px;
+            .mr(10px);
             .flex;
             .pointer;
             .bold;
-            .color(#676767);
+            .color(@pvx-homeland-text-muted);
             flex-direction: column;
+
             .u-img {
                 .pointer;
                 .db;
@@ -83,13 +108,16 @@
                 .x;
                 background-repeat: no-repeat;
             }
+
             &.active {
-                color: @v4primary;
+                color: @pvx-color-primary;
             }
 
             &:hover {
-                color: #0366d6;
+                color: @pvx-homeland-link;
             }
+
+            // 图标位置生成
             .u-icon(@i: 0) when (@i <= 18) {
                 .u-iconj(@j: 0) when (@j <= 11) {
                     .u-icon-@{i}-@{j} {
@@ -109,27 +137,28 @@
     }
 
     .u-box {
-        align-items: center;
-        .u-input {
-            margin-right: 10px;
-        }
+        .flex(y);
     }
+
     .u-select {
         .w(180px);
     }
+
     .u-margin {
-        margin-right: 20px;
+        .mr(20px);
     }
+
     .u-input {
         .w(280px);
         cursor: default;
+
         .el-input--suffix {
             .w(100px);
         }
     }
 
     .el-input-group__prepend {
-        background-color: #fff;
+        background-color: @pvx-bg-white;
     }
 
     .u-source,
@@ -143,15 +172,12 @@
         .u-prefix {
             .db;
             .h(38px);
-            .lh(38px);
-
-            background-color: #f5f7fa;
-            color: #909399;
-
-            border-right: 1px solid #dcdfe6;
+            line-height: 38px;
+            background-color: @pvx-homeland-bg-card;
+            color: @pvx-text-placeholder;
+            border-right: 1px solid @pvx-homeland-border;
             border-top-left-radius: 4px;
             border-bottom-left-radius: 4px;
-
             padding: 0 10px;
             white-space: nowrap;
         }
@@ -162,33 +188,51 @@
     }
 }
 
+// ==================== 家具列表 ====================
+
+.m-pvx-furniture-list,
 .m-furniture-list {
     padding: 20px;
+    .flex;
     flex-wrap: wrap;
-    background-color: #fff;
+    background-color: @pvx-bg-white;
+
+    .m-pvx-furniture-item,
     .m-furniture-item {
-        margin-right: 20px;
-        margin-bottom: 20px;
+        .mr(20px);
+        .mb(20px);
     }
 }
 
+// ==================== 空状态 ====================
+
+.m-pvx-furniture-null,
 .m-furniture-null {
     margin: 20px;
 }
 
+// ==================== 分页 ====================
+
+.m-pvx-furniture-pages,
 .m-furniture-pages {
     padding: 20px;
     min-height: 300px;
+
     .m-archive-more {
         .db;
         .w(100%);
-        margin-bottom: 20px !important;
+        .mb(20px) !important;
     }
+
     .m-archive-pages {
         overflow-x: auto;
     }
 }
 
+// ==================== 匹配弹窗 ====================
+
+.m-pvx-match-furniture-pop,
 .m-match-furniture-pop {
-    .fz(14px, 1.6);
+    .fz(14px);
+    line-height: 1.6;
 }

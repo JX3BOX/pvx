@@ -71,6 +71,22 @@
 </template>
 
 <script>
+/**
+ * @description 家具列表页面
+ * @description 展示家具分类筛选、搜索、列表展示和分页功能
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @example
+ * <FurnitureList />
+ * 
+ * @notes
+ * - 支持按一级分类（左侧边栏）和二级分类（顶部标签）筛选
+ * - 支持关键词搜索、来源途径、家园等级、可交互、庐园广记等筛选条件
+ * - 支持园宅会赛匹配功能，自动筛选本周比赛所需家具类型
+ * - 分页采用"加载更多"和"分页器"两种方式
+ * - furniture 数据通过 sessionStorage 缓存，避免重复请求
+ */
 import FurnitureCategory from "@/components/homeland/furniture_category.vue";
 import FurnitureCard from "@/components/homeland/furniture_card.vue";
 import { getFurnitureCategory, getFurnitureMatch } from "@/service/homeland.js";

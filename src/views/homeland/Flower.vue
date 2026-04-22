@@ -1,408 +1,171 @@
 <template>
     <div class="m-flower">
         <div class="m-flower-container">
-            <h1 class="m-flower-title">全区服小区花价查询</h1>
-            <el-divider class="m-flower-desc">精准数据·居家种田好帮手</el-divider>
-
+            <h1 class="m-flower-title">花价查询</h1>
+            <div class="m-flower-desc">
+                <el-divider><i class="el-icon-info"></i> 花价信息每日凌晨更新</el-divider>
+            </div>
             <div class="m-flower-search">
                 <el-row :gutter="20">
-                    <el-col :span="7">
-                        <el-select class="u-server" v-model="current_server" filterable placeholder="请选择服务器">
-                            <el-option v-for="item in servers" :key="item" :label="item" :value="item"> </el-option>
+                    <el-col :span="5">
+                        <el-select v-model="server" placeholder="请选择服务器" filterable>
+                            <el-option v-for="serve in servers" :key="serve" :label="serve" :value="serve"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="7">
-                        <el-select class="u-server" v-model="current_map" filterable placeholder="请选择小区">
-                            <el-option v-for="item in maps" :key="item" :label="item" :value="item"> </el-option>
+                    <el-col :span="5">
+                        <el-select v-model="flower" placeholder="请选择花种" filterable>
+                            <el-option v-for="item in flower_types" :key="item.name" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="7">
-                        <el-select class="u-type" v-model="type" placeholder="请选择花型">
-                            <el-option label="全部" value=""></el-option>
-                            <el-option v-for="item in types" :key="item.name" :label="item.name" :value="item.key"> </el-option>
-                        </el-select>
-                    </el-col>
-                    <el-col :span="3">
-                        <el-button class="u-button" type="primary" icon="el-icon-search" :disabled="isGuest" @click="loadData">查询</el-button>
+                    <el-col :span="5">
+                        <el-button class="u-button" type="primary" @click="search" :loading="loading">查询</el-button>
                     </el-col>
                 </el-row>
             </div>
+            <div class="m-flower-submit">
+                <div class="u-tip">
+                    <el-alert class="m-flower-tip" title="提示：点击小区可查看详细花价信息" type="info" show-icon :closable="false"> </el-alert>
+                </div>
+            </div>
 
-            <div class="m-flower-all">
-                <div class="m-flower-result" v-if="isTraditional">
-                    <el-row :gutter="40" v-if="rank && rank.length">
-                        <el-col :span="12" class="u-flower" v-for="(item, i) in rank" :key="i" :class="{ isHidden: item.isHidden }">
-                            <span class="u-title">
-                                <span class="u-name">{{ item.name }}</span>
-                                <span class="u-icons">
-                                    <i class="u-icon" v-for="(icon, key) in flowers[item.name]" :key="key">
-                                        <el-tooltip effect="dark" :content="icon.color" placement="top">
-                                            <img :src="iconURL(icon.icon)" :alt="icon.color" />
-                                        </el-tooltip>
-                                    </i>
-                                </span>
-                            </span>
-                            <div class="u-desc">
-                                当前最高分线 :
-                                <span
-                                    class="u-line"
-                                    v-for="(line, i) in item.line"
-                                    :key="line + i"
-                                    title="点击快速复制"
-                                    v-clipboard:copy="line"
-                                    v-clipboard:success="onCopy"
-                                    v-clipboard:error="onError"
-                                    ><b>{{ line }}</b
-                                    >线</span
-                                >
-                                <span class="u-price">价格 : 1.5倍率</span>
+            <div class="m-flower-box">
+                <div class="m-flower-result" v-if="result && result.length">
+                    <el-tabs v-model="activeTab">
+                        <el-tab-pane label="花价列表" name="list">
+                            <div class="m-flower-all">
+                                <div class="u-flower" v-for="(item, i) in result" :key="i">
+                                    <div class="u-title">
+                                        <span class="u-name">{{ item.district }} - {{ item.name }}</span>
+                                        <span class="u-price">最高价：<b>{{ item.maxPrice }}</b> 金</span>
+                                    </div>
+                                    <div class="u-desc">
+                                        <span class="u-line" v-for="(flower, j) in item.flowers" :key="j">
+                                            {{ flower.name }}：<b>{{ flower.price }}</b> 金
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </el-col>
-                    </el-row>
-                </div>
-                <div class="m-flower-result" v-else>
-                    <el-row :gutter="40" v-if="data && data.length">
-                        <el-col :span="12" class="u-flower" v-for="(item, i) in data" :key="i" :class="{ isHidden: item.isHidden }">
-                            <span class="u-title">
-                                <span class="u-name">{{ item.name }}</span>
-                                <span class="u-icons">
-                                    <i class="u-icon" v-for="(icon, key) in flowers[item._name]" :key="key">
-                                        <el-tooltip effect="dark" :content="icon.color" placement="top">
-                                            <img :src="iconURL(icon.icon)" :alt="icon.color" />
-                                        </el-tooltip>
-                                    </i>
-                                </span>
-                            </span>
-                            <div class="u-desc">
-                                当前最高分线 :
-                                <span
-                                    class="u-line"
-                                    v-for="(branch, i) in item.branch"
-                                    :key="branch + i"
-                                    title="点击快速复制"
-                                    v-clipboard:copy="branch.number"
-                                    v-clipboard:success="onCopy"
-                                    v-clipboard:error="onError"
-                                    ><b>{{ branch.number }}</b
-                                    >线</span
-                                >
-                                <span class="u-price">价格 : 1.5倍率</span>
+                        </el-tab-pane>
+                        <el-tab-pane label="花价总览" name="overview">
+                            <div class="m-flower-overview">
+                                <el-table :data="overviewData" stripe style="width: 100%">
+                                    <el-table-column prop="name" label="小区名称" width="180"></el-table-column>
+                                    <el-table-column prop="maxPrice" label="最高价" width="100"></el-table-column>
+                                    <el-table-column label="花价详情">
+                                        <template #default="scope">
+                                            <span v-for="(flower, i) in scope.row.flowers" :key="i" class="u-line-wrapper" @click="showDetail(scope.row, flower)">
+                                                {{ flower.name }}: <b>{{ flower.price }}</b> 金
+                                                <span v-if="i < scope.row.flowers.length - 1">| </span>
+                                            </span>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
                             </div>
-                        </el-col>
-                    </el-row>
+                        </el-tab-pane>
+                    </el-tabs>
                 </div>
+                <el-empty v-else-if="searched" description="暂无花价数据"></el-empty>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import User from "@jx3box/jx3box-common/js/user";
-import { getFlower, getFlowerRank } from "@/service/flower";
-import { setFlowerServer, getProfile } from "@/service/server";
-import { showDate as dateFormat } from "@jx3box/jx3box-common/js/moment";
-import servers from "@jx3box/jx3box-data/data/server/flower_server.json";
-import colors from "@/assets/data/flower_colors.json";
-import flowers from "@/assets/data/flowers.json";
-import items from "@/assets/data/flower_items.json";
-import { __iconPath, __ossRoot, __imgPath } from "@/utils/config";
-// 繁體
-import traditional_servers from "@jx3box/jx3box-data/data/server/server_international.json";
-import dict from "@/assets/data/flower_dict.json";
-import maps from "@/assets/data/flower_maps.json";
+/**
+ * @description 花价查询页面
+ * @description 查询全区服小区的花价信息，支持服务器和花种筛选
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @example
+ * <Flower />
+ * 
+ * @notes
+ * - 支持服务器筛选（支持搜索）
+ * - 支持花种筛选（支持搜索）
+ * - 花价信息每日凌晨更新
+ * - 支持列表视图和表格视图切换
+ * - 繁体服使用不同的服务器列表
+ */
+import { getFlowerServers, getFlowerPrice } from "@/service/homeland.js";
+import servers_std from "@jx3box/jx3box-data/data/server/server_std.json";
+import servers_origin from "@jx3box/jx3box-data/data/server/server_origin.json";
+
+// 花种数据
+const flower_types = [
+    { name: "绣球花", id: "绣球花" },
+    { name: "郁金香", id: "郁金香" },
+    { name: "牵牛花", id: "牵牛花" },
+    { name: "百合", id: "百合" },
+    { name: "荧光菌", id: "荧光菌" },
+    { name: "玫瑰", id: "玫瑰" },
+    { name: "羽扇豆花", id: "羽扇豆花" },
+    { name: "葫芦", id: "葫芦" },
+    { name: "麦子", id: "麦子" },
+    { name: "青菜", id: "青菜" },
+    { name: "芜菁", id: "芜菁" },
+];
+
 export default {
     name: "Flower",
     props: [],
-    data: function () {
+    data() {
         return {
-            servers,
-            current_server: "",
-            current_map: "广陵邑",
-            types: [
-                {
-                    name: "绣球花",
-                    key: "绣球花",
-                },
-                {
-                    name: "郁金香",
-                    key: "郁金香",
-                },
-                {
-                    name: "牵牛花",
-                    key: "牵牛花",
-                },
-                {
-                    name: "玫瑰",
-                    key: "玫瑰",
-                },
-                {
-                    name: "百合",
-                    key: "百合",
-                },
-                {
-                    name: "荧光菌",
-                    key: "荧光菌",
-                },
-                {
-                    name: "羽扇豆花",
-                    key: "羽扇豆花",
-                },
-                {
-                    name: "葫芦",
-                    key: "葫芦",
-                },
-                {
-                    name: "麦子",
-                    key: "麦",
-                },
-                {
-                    name: "青菜",
-                    key: "青菜",
-                },
-                {
-                    name: "芜菁",
-                    key: "芜菁",
-                },
-            ],
-            type: "",
-            level: "",
-            colors,
-            flowers,
-            items,
-
-            // rank: "",
-            // overview: "",
-            data: [],
-            rank: [],
-
-            total: 1,
-            pages: 1,
-            page: 1,
             loading: false,
-            done: false,
-            isLogin: User.isLogin(),
+            searched: false,
+            
+            server: "",
+            servers: [],
+            flower: "",
+            flower_types: flower_types,
+            
+            result: [],
+            activeTab: "list",
         };
     },
     computed: {
-        levels: function () {
-            let levels = [];
-            if (this.type) {
-                return Object.keys(this.colors[this.type]);
-            }
-            return levels;
+        client() {
+            return this.$store.state.client;
         },
-        isGuest: function () {
-            // return !User.isLogin();
-            return false;
-        },
-        hasNextPage: function () {
-            return this.total > 1 && this.page < this.pages;
-        },
-        mode: function () {
-            if (!this.type && !this.level) {
-                return 0;
-            } else if (this.type && !this.level) {
-                return 1;
-            } else if (this.type && this.level) {
-                return 2;
-            }
-            return 0;
-        },
-        isTraditional: function () {
-            return traditional_servers.includes(this.current_server);
-        },
-        maps: function () {
-            if (this.isTraditional) {
-                return maps["tr"];
-            }
-            return maps["cn"];
-        },
-        map: function () {
-            return this.maps[0] || "广陵邑";
-        },
-        params: function () {
-            console.log("2.查询参数更新");
-            return {
-                server: this.current_server,
-                map: this.current_map,
-                type: this.type,
-                // level: this.level,
-                // page: this.page,
-            };
+        overviewData() {
+            return this.result;
         },
     },
     methods: {
-        getIcon(key) {
-            return __imgPath + "image/box/" + key + ".svg";
+        loadServers() {
+            // 根据客户端类型加载服务器列表
+            this.servers = this.client === "origin" ? servers_origin : servers_std;
         },
-        color: function (level) {
-            if (this.type) {
-                return this.colors[this.type][level];
+        search() {
+            if (!this.server) {
+                this.$message.warning("请选择服务器");
+                return;
             }
-            return "";
-        },
-        dateFormat: function (row, column) {
-            return dateFormat(row.time * 1000);
-        },
-        nameFormat: function (row, column) {
-            let colors = [];
-            flowers[row.name].forEach((item) => {
-                colors.push(item.color);
-            });
-            colors = colors.join("/");
-            return row.name + " ( " + colors + " ) ";
-        },
-        loadData: function () {
-            setFlowerServer(this.current_server);
-            return this.loadRank();
-        },
-        loadRank: function () {
+            if (!this.flower) {
+                this.$message.warning("请选择花种");
+                return;
+            }
+            
             this.loading = true;
-
-            if (this.isTraditional) {
-                return getFlowerRank(
-                    {
-                        server: this.current_server,
-                        map: this.current_map,
-                    },
-                    this
-                )
-                    .then((data) => {
-                        data = this.transformData(data);
-
-                        let list = [];
-                        for (let name in flowers) {
-                            let lines = data[name] ? data[name]["maxLine"].slice(0, 3) : [];
-                            lines.forEach((item, i) => {
-                                lines[i] = item && item.replace(" 线", "");
-                            });
-
-                            let max = data[name] ? ~~data[name]["max"] : "-";
-                            list.push({
-                                name,
-                                line: lines,
-                                price: max,
-                            });
-                        }
-                        this.rank = list;
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
-            } else {
-                return getFlower(this.params)
-                    .then((res) => {
-                        let data = res.data.data;
-                        data.forEach((item) => {
-                            let hasColor = item.name.indexOf("(");
-                            if (hasColor >= 0) {
-                                item["_name"] = item.name.slice(0, hasColor);
-                            } else {
-                                item._name = item.name;
-                            }
-                        });
-                        this.data = data;
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
-            }
-        },
-        changePage: function () {
-            window.scrollTo(0, 0);
-        },
-        onCopy: function (val) {
-            this.$notify({
-                title: "复制成功",
-                message: "复制内容 : " + val.text,
-                type: "success",
-            });
-        },
-        onError: function () {
-            this.$notify.error({
-                title: "复制失败",
-                message: "请手动复制",
-            });
-        },
-        onlyLineNumber: function (val) {
-            return val.replace("线", "");
-        },
-        transformData: function (data) {
-            let _data = JSON.stringify(data);
-            dict.tr.forEach((key, i) => {
-                let re = new RegExp(key, "g");
-                _data = _data.replace(re, dict.cn[i]);
-            });
-            return JSON.parse(_data);
-        },
-        transformRequest: function (str) {
-            let _data = str;
-            dict.cn.forEach((key, i) => {
-                let re = new RegExp(key, "g");
-                _data = _data.replace(re, dict.tr[i]);
-            });
-            return _data;
-        },
-        // changeServer : function (){
-        //     this.type = ''
-        // }
-        filterTypes: function () {
-            this.rank &&
-                this.rank.forEach((item) => {
-                    if (this.type) {
-                        if (!item.name.includes(this.type)) {
-                            item.isHidden = true;
-                        } else {
-                            item.isHidden = false;
-                        }
-                    } else {
-                        item.isHidden = false;
-                    }
-                    this.$forceUpdate();
+            this.searched = true;
+            
+            getFlowerPrice({
+                server: this.server,
+                flower: this.flower,
+            })
+                .then((res) => {
+                    this.result = res.data || [];
+                })
+                .finally(() => {
+                    this.loading = false;
                 });
         },
-        iconURL(id) {
-            return __iconPath + "icon/" + id + ".png";
+        showDetail(row, flower) {
+            this.$message.info(`${row.district} - ${row.name}: ${flower.name} 价格 ${flower.price} 金`);
         },
     },
-    watch: {
-        map: function (newdata) {
-            this.current_map = newdata;
-        },
-        params: {
-            deep: true,
-            handler: function () {
-                console.log("3.数据加载");
-                this.loadData().then(() => {
-                    this.filterTypes();
-                });
-            },
-        },
-        type: function (val) {
-            this.filterTypes();
-        },
-    },
-    mounted: function () {
-        let game_params = new URLSearchParams(location.search);
-        let game_server = game_params.get("server");
-        let game_flower = game_params.get("item");
-
-        if (game_server && game_flower) {
-            this.current_server = game_server;
-            this.type = items[game_flower];
-        } else {
-            if (this.isLogin) {
-                getProfile().then((data) => {
-                    console.log("1.a.已登录,加载profile_server");
-                    this.current_server = (data && data.jx3_server) || "蝶恋花";
-                });
-            } else {
-                console.log("1.b.未登录,加载最后一次服务器");
-                this.current_server = localStorage.getItem("flower_server") || "蝶恋花";
-            }
-        }
-    },
-    components: {
+    created() {
+        this.loadServers();
     },
 };
 </script>

@@ -1,19 +1,34 @@
+/**
+ * Homeland 攻略列表样式
+ * 
+ * @description 家园攻略文章列表样式
+ * @version 2.1.0
+ */
+
+@import "_variables.less";
+
 .m-bbs {
     .m-archive-search {
         .flex;
-        gap: 10px;
         padding-top: 10px;
         margin-bottom: 10px;
+
+        > * + * {
+            margin-left: 10px;
+        }
+
         @media screen and (max-width: @phone) {
             padding-top: 30px;
         }
     }
+
     .m-archive-list {
         .el-alert {
             width: 100%;
             justify-content: center;
-            background: #fff;
+            background: @pvx-bg-white;
         }
+
         .u-list {
             padding-left: 0;
             margin: 0;
@@ -38,15 +53,18 @@
             .db;
             .pr;
             .z(1);
-            border: 1px solid #eee;
+            border: 1px solid @pvx-homeland-border-light;
             padding: 5px;
             box-sizing: border-box;
+
             img {
                 .size(100%);
                 filter: saturate(120%);
                 transition: 0.06s all ease-in-out;
             }
+
             transition: 0.06s border ease-in-out;
+
             &:hover {
                 img {
                     filter: saturate(140%) brightness(120%);
@@ -60,27 +78,30 @@
             padding-left: 0;
             .nobreak;
             margin-bottom: 5px;
+            .fz(15px);
+            line-height: 2;
+            font-weight: 400;
+
             .u-icon {
                 .size(16px);
                 .y(-3px);
                 .mr(5px);
             }
+
             &.isSticky {
                 .u-title::before {
                     content: "🎯";
                     .mr(5px);
                 }
             }
+
             .u-title {
                 font-weight: 400;
+
                 &:hover {
                     box-shadow: 0 1px 0 @primary;
                 }
             }
-            .fz(15px, 2);
-            font-weight: normal;
-            .lh(2);
-            font-weight: 400;
         }
 
         .u-mark {
@@ -89,9 +110,8 @@
             padding: 1px 5px 2px 5px;
             margin-left: 5px;
             border-radius: 2px;
-            background-color: #6f42c1;
-            color: #fff;
-            margin-left: 5px;
+            background-color: @pvx-homeland-mark;
+            color: @pvx-bg-white;
         }
 
         .u-content {
@@ -102,8 +122,9 @@
 
         .u-desc {
             .db;
-            .fz(12px, 1.8);
-            color: #555;
+            .fz(12px);
+            line-height: 1.8;
+            color: @pvx-homeland-text-secondary;
             .break(2);
             margin-bottom: 6px;
             padding: 0 2px;
@@ -113,51 +134,62 @@
         .u-metalist {
             .nobreak;
             .db;
-            .fz(12px, 25px);
+            .fz(12px);
+            line-height: 25px;
             margin-bottom: 4px;
+
             strong {
                 .dbi;
                 .y(top);
                 padding: 0 10px;
                 margin-right: 10px;
                 .r(4px);
-                background-color: #f1f8ff;
+                background-color: @pvx-homeland-tag-bg;
                 color: @v4primary;
                 font-weight: normal;
             }
+
             em {
                 font-style: normal;
             }
+
             b {
                 font-weight: normal;
             }
+
             a {
-                color: #333;
+                color: @pvx-text-primary;
+
                 &:hover {
                     color: @v4primary;
                     box-shadow: 0 1px 0 @v4primary;
                 }
             }
         }
+
         .u-tag {
             .db;
             .nobreak;
+
             a,
             b {
                 padding: 0.2em 0.8em;
                 margin: 0 0.5em 0 0;
-                background-color: #f1f8ff;
+                background-color: @pvx-homeland-tag-bg;
                 border-radius: 3px;
                 .fz(12px);
-                color: #4989d2;
+                color: @pvx-homeland-tag;
             }
+
             a:hover {
-                background-color: #def;
+                background-color: @pvx-homeland-tag-hover;
             }
         }
+
         .u-types {
             .db;
             .nobreak;
+
             b {
                 padding: 0.1em 0.8em;
                 margin: 0 0.5em 0.5em 0;
@@ -173,8 +205,9 @@
             .pa;
             .rb(10px, 24px);
             .x(right);
-            .fz(12px, 20px);
-            color: #777;
+            .fz(12px);
+            line-height: 20px;
+            color: @pvx-homeland-text-misc;
         }
 
         .u-author-avatar {
@@ -183,13 +216,17 @@
             .r(2px);
             margin-right: 5px;
         }
+
         .u-author-name {
-            .fz(12px, 24px);
-            color: #666;
+            .fz(12px);
+            line-height: 24px;
+            color: @pvx-homeland-text-light;
+
             &:hover {
-                color: @pink;
+                color: @pvx-homeland-pink;
             }
         }
+
         .u-date {
             .db;
             margin-top: 3px;
@@ -202,11 +239,13 @@
                 .y(-1px);
             }
         }
+
         .u-pipe {
             margin: 0 5px;
-            color: #999;
+            color: @pvx-homeland-text-light;
         }
     }
+
     @media screen and (max-width: @ipad) {
         .m-archive-list {
             .u-banner {
@@ -222,7 +261,8 @@
                 white-space: normal;
                 word-break: break-all;
                 .break(2);
-                .fz(14px, 22px);
+                .fz(14px);
+                line-height: 22px;
             }
 
             .u-metalist,
@@ -230,6 +270,7 @@
             .u-view {
                 .none;
             }
+
             .u-tag {
                 margin-bottom: 8px;
             }
@@ -238,11 +279,13 @@
                 .ps;
                 .x(left);
             }
+
             .u-author-name {
-                color: #555;
+                color: @pvx-homeland-text-secondary;
             }
         }
     }
+
     @media screen and (max-width: @phone) {
         .m-archive-list {
             .u-desc {

@@ -3,23 +3,45 @@
         <PvxSearch :items="searchItems" :initValue="initSearchValue" @search="handleSearch" />
         <div class="m-homeland-content">
             <!-- 家园信息 -->
-            <Tutorial v-if="active === 0"></Tutorial>
+            <Tutorial v-if="active === 'info'"></Tutorial>
             <!-- 家园地图 -->
-            <Maps v-if="active === 1"></Maps>
+            <Maps v-if="active === 'map'"></Maps>
             <!-- 家园花价 -->
-            <Flower v-if="active === 2"></Flower>
+            <Flower v-if="active === 'flower'"></Flower>
             <!-- 家园攻略 -->
-            <Bbs v-if="active === 3"></Bbs>
+            <Bbs v-if="active === 'bbs'"></Bbs>
         </div>
     </div>
 </template>
 
 <script>
+/**
+ * @description 家园模块首页
+ * @description 展示家园信息、地图、花价、攻略等内容的入口页面
+ * @author ymg
+ * @version 1.1.0
+ * 
+ * @example
+ * <Index />
+ * 
+ * @notes
+ * - 使用 PvxSearch 组件实现标签切换和外部链接跳转
+ * - 所有选项统一使用 radio 按钮样式，保证小屏幕换行一致
+ * - 内部功能模块：家园信息、家园地图、家园花价、家园攻略
+ * - 外部链接模块：免费蓝图、付费蓝图、藏品蓝图（通过 handleSearch 处理跳转）
+ */
 import Tutorial from "./Tutorial.vue";
 import Maps from "./Maps.vue";
 import Flower from "./Flower.vue";
 import Bbs from "./Bbs.vue";
 import PvxSearch from "@/components/PvxSearch.vue";
+
+// 外部链接配置
+const EXTERNAL_LINKS = {
+    free_blueprint: "https://gdca.xoyo.com/jx3/blueprint/index.html",
+    paid_blueprint: "https://gdca.xoyo.com/jx3/blueprint/index.html?",
+    collection_blueprint: "https://jx3.seasunwbl.com/buyer?t=blueprint",
+};
 
 export default {
     name: "Index",
@@ -32,55 +54,24 @@ export default {
     },
     data() {
         return {
-            active: 0,
-            tabs: [
-                {
-                    label: "家园信息",
-                    value: 0,
-                },
-                {
-                    label: "家园地图",
-                    value: 1,
-                },
-                {
-                    label: "家园攻略",
-                    value: 3,
-                },
-            ],
-            externalLinks: [
-                {
-                    label: "免费蓝图",
-                    link: "https://gdca.xoyo.com/jx3/blueprint/index.html",
-                },
-                {
-                    label: "付费蓝图",
-                    link: "https://gdca.xoyo.com/jx3/blueprint/index.html?",
-                },
-                {
-                    label: "藏品蓝图",
-                    link: "https://jx3.seasunwbl.com/buyer?t=blueprint",
-                },
-            ],
+            active: "info",
         };
     },
     computed: {
         searchItems() {
-            const options = this.tabs.map((item) => ({
-                type: item.value,
-                name: item.label,
-            }));
-            this.externalLinks.forEach((item) => {
-                options.push({
-                    type: item.label,
-                    name: item.label,
-                    link: item.link,
-                });
-            });
             return [
                 {
                     type: "radio",
                     key: "active",
-                    options: options,
+                    options: [
+                        { type: "info", name: "家园信息" },
+                        { type: "map", name: "家园地图" },
+                        // { type: "flower", name: "家园花价" },
+                        { type: "bbs", name: "家园攻略" },
+                        { type: "free_blueprint", name: "免费蓝图" },
+                        { type: "paid_blueprint", name: "付费蓝图" },
+                        { type: "collection_blueprint", name: "藏品蓝图" },
+                    ],
                 },
             ];
         },
@@ -91,18 +82,22 @@ export default {
         },
     },
     methods: {
-        toTip() {
-            return this.$message({
-                type: "warning",
-                message: "即将上线，敬请期待！",
-            });
-        },
         handleSearch(data) {
             const val = data.active;
-            if (val === 3) {
+
+            // 处理外部链接跳转
+            if (EXTERNAL_LINKS[val]) {
+                window.open(EXTERNAL_LINKS[val], "_blank");
+                return;
+            }
+
+            // 处理家园攻略跳转到社区
+            if (val === "bbs") {
                 window.open("/community?category=心得&page=1", "_self");
                 return;
             }
+
+            // 内部模块切换
             this.active = val;
         },
     },
@@ -115,22 +110,20 @@ export default {
 .p-homeland {
     .pvx-search-wrapper {
         .type-list {
+            .el-radio-group {
+                .flex;
+                flex-wrap: wrap;
+            }
+
             .type-item {
 
                 &.is-active,
                 &:hover {
-                    background-color: @homelandColor !important;
+                    background-color: @pvx-color-homeland !important;
 
                     .el-radio-button__inner {
-                        background-color: @homelandColor !important;
+                        background-color: @pvx-color-homeland !important;
                     }
-                }
-            }
-
-            a.type-item {
-                &:hover {
-                    background-color: @homelandColor !important;
-                    color: #fff;
                 }
             }
         }
@@ -144,22 +137,41 @@ export default {
 
             .search-group {
                 flex-wrap: wrap;
-                gap: 10px;
+
+                >*+* {
+                    margin-top: 10px;
+                }
 
                 .search-item.type-list {
                     width: 100%;
-                    flex-wrap: wrap;
-                    gap: 10px;
 
                     .el-radio-group {
+                        .flex;
                         flex-wrap: wrap;
-                        gap: 10px;
+                        gap: 8px;
                     }
 
                     .type-item {
-                        width: calc(33% - 6px);
+                        flex: 0 0 calc(25% - 6px);
                         .fz(14px);
+                        min-width: 80px;
                     }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-homeland {
+        .pvx-search-wrapper {
+            .search-item.type-list {
+                .el-radio-group {
+                    gap: 8px;
+                }
+
+                .type-item {
+                    .fz(14px);
                 }
             }
         }

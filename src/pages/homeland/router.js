@@ -7,7 +7,7 @@ const routes = [
         path: "/",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/homeland/mobile/Index.vue")
+                ? () => import("@/views/homeland/miniprogram/Index.vue")
                 : () => import("@/views/homeland/Index.vue"),
         meta: {
             i18n: {
@@ -22,7 +22,7 @@ const routes = [
         path: "/tutorial",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/homeland/mobile/Tutorial.vue")
+                ? () => import("@/views/homeland/miniprogram/Tutorial.vue")
                 : () => import("@/views/homeland/Tutorial.vue"),
         meta: {
             i18n: {
@@ -37,7 +37,7 @@ const routes = [
         path: "/maps",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/homeland/mobile/Map.vue")
+                ? () => import("@/views/homeland/miniprogram/Map.vue")
                 : () => import("@/views/homeland/Maps.vue"),
         meta: {
             i18n: {

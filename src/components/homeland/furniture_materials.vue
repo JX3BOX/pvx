@@ -1,119 +1,113 @@
 <template>
-	<div class="m-furniture-materials" v-loading="loading">
-		<a class="u-material" v-for="(item, index) in list" :key="index" target="_blank" :href="itemLink(item.ID)">
-			<img class="u-material-img" :src="iconLink(item.IconID)"/>
-			<span class="u-material-name">{{ item.Name }}</span>
-			<span class="u-material-count">{{ item._count }}</span>
-		</a>
-	</div>
+    <div class="m-furniture-materials" v-loading="loading">
+        <div class="u-material-list" v-if="materials.length">
+            <div class="u-material-item" v-for="(item, i) in materials" :key="i">
+                <img class="u-icon" :src="getIcon(item)" :alt="item.name" />
+                <span class="u-name">{{ item.name }}</span>
+                <span class="u-count">x{{ item.count }}</span>
+            </div>
+        </div>
+        <el-empty v-else description="暂无合成材料数据" :image-size="60"></el-empty>
+    </div>
 </template>
 
 <script>
-import { getFurnitureMaterials, getItemDetail } from "@/service/furniture.js";
-import {iconLink,getLink} from '@jx3box/jx3box-common/js/utils'
+/**
+ * @description 家具合成材料组件
+ * @description 展示生活技能家具的合成材料列表
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @props
+ * - id {Number|String} 物品 ID，用于获取合成材料数据
+ * 
+ * @example
+ * <FurnitureMaterials :id="itemId" />
+ * 
+ * @notes
+ * - 仅生活技能来源的家具显示此组件
+ * - 材料数据通过 API 获取
+ * - 显示材料图标、名称和数量
+ */
+import { getItemMaterials } from "@/service/furniture.js";
+import { __ossRoot } from "@/utils/config";
+
 export default {
-	name: "furnitureMaterials",
-	props: ["id"],
-	components: {},
-	data: function () {
-		return {
-			list: [],
-			loading: false,
-		};
-	},
-	computed: {
-		client: function () {
-			return this.$store.state.client;
-		},
-	},
-	watch: {
-		id: {
-			immediate: true,
-			handler: function (val) {
-				val && this.loadData();
-			},
-		},
-	},
-	methods: {
-		loadData: function () {
-			this.loading = true;
-			getFurnitureMaterials(this.id)
-				.then((res) => {
-					res?.data && this.getDetail(res.data);
-				})
-				.finally(() => {
-					this.loading = false;
-				});
-		},
-		getDetail(data) {
-			let counts = [];
-			let itemIds = [];
-			for (const key in data) {
-				if (key.startsWith("RequireItemCount") && data[key]) {
-					counts.push(data[key]);
-				}
-
-				if (key.startsWith("RequireItemIndex") && data[key]) {
-					itemIds.push(data[key]);
-				}
-			}
-			let params = { ids: itemIds.join(","), per: 10, client: this.client };
-
-			getItemDetail(params).then((res) => {
-				this.list = res?.data?.list?.map((item, i) => {
-					return {
-						...item,
-						...item.item_info[0],
-						_count: counts[i],
-					};
-				});
-			});
-		},
-		iconLink,
-		itemLink : function (other_id){
-			return getLink('item','5_' + other_id)
-		}
-	},
-	created: function () {},
+    name: "FurnitureMaterials",
+    props: {
+        id: {
+            type: [Number, String],
+            required: true,
+        },
+    },
+    data() {
+        return {
+            loading: false,
+            materials: [],
+        };
+    },
+    methods: {
+        getIcon(item) {
+            return __ossRoot + "image/item/" + item.icon + ".png";
+        },
+        loadMaterials() {
+            if (!this.id) return;
+            
+            this.loading = true;
+            getItemMaterials(this.id)
+                .then((res) => {
+                    this.materials = res.data || [];
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        },
+    },
+    watch: {
+        id: {
+            immediate: true,
+            handler() {
+                this.loadMaterials();
+            },
+        },
+    },
 };
 </script>
 
-<style scoped lang="less">
+<style lang="less">
 .m-furniture-materials {
-	.flex;
-	padding:20px;
-	.u-material {
-		.flex;
-		.pr;
-		.pointer;
-		flex-direction: column;
-		align-items: center;
-		.mr(20px);
-		.color(@color,@pink);
-		transition: all 0.1s ease-in-out;
-		.u-material-img {
-			.size(48px);
-		}
+    padding: 10px 0;
 
-		.u-material-count {
-			.pa;
-			.rt(0,28px);
-			.fz(12px);
-			color: #fff;
-			text-align: right;
-			padding: 0 3px 0 5px;
-			background-color: rgba(0, 0, 0, 0.6);
-			border-radius: 3px 0 0 3px;
-			&::before {
-				content: "×";
-			}
-		}
-		&:hover {
-			.u-material-img {
-				filter: saturate(120%) brightness(110%);
-				transform: scale(1.04);
-			}
-		}
-	}
+    .u-material-list {
+        .flex;
+        flex-wrap: wrap;
+
+        .u-material-item {
+            .flex;
+            align-items: center;
+            .mr(20px);
+            .mb(10px);
+            padding: 8px 12px;
+            background-color: #f5f7fa;
+            .r(4px);
+
+            .u-icon {
+                .size(24px);
+                .mr(8px);
+            }
+
+            .u-name {
+                .fz(13px);
+                .color(#333);
+            }
+
+            .u-count {
+                .ml(5px);
+                .fz(12px);
+                .color(@pvx-color-primary);
+                .bold;
+            }
+        }
+    }
 }
 </style>

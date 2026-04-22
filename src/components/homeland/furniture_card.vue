@@ -1,78 +1,87 @@
 <template>
-    <div>
-        <a class="m-furniture-item flex" @click="toLink(item.dwID)" v-if="item && data">
-            <div class="m-furniture-image">
-                <img class="u-img" :src="formatImg(item.Path)" alt="" srcset="" />
-                <!-- 是否可交互和染色 -->
-                <span class="u-use" v-if="item.bInteract"></span>
-                <span class="u-dye" v-if="item.__canDye"></span>
+    <div class="m-furniture-item flexNormal" @click="goDetail">
+        <div class="m-furniture-image">
+            <img class="u-img" :src="formatImg(item.Path)" :alt="item.szName" />
+            <i class="u-use" v-if="item.bInteract"></i>
+            <i class="u-dye" v-if="item.nRepresentID"></i>
+        </div>
+        <div class="m-furniture-detail">
+            <div class="u-name" :class="'quality_' + item.Quality">
+                {{ item.szName }}
             </div>
-            <div class="m-furniture-detail">
-                <div class="u-name" :class="quality(item.Quality)">{{ item.szName }}</div>
-                <div class="u-nature" v-if="item.Attribute1">
-                    <span class="u-attribute u-blue">观赏</span> <span class="u-num">{{ data.Attribute1 }}</span>
-                </div>
-                <div class="u-nature" v-if="item.Attribute2">
-                    <span class="u-attribute u-pink">实用</span> <span class="u-num">{{ data.Attribute2 }}</span>
-                </div>
-                <div class="u-nature" v-if="item.Attribute3">
-                    <span class="u-attribute u-yellow">坚固</span> <span class="u-num">{{ data.Attribute3 }}</span>
-                </div>
-                <div class="u-nature" v-if="item.Attribute4">
-                    <span class="u-attribute u-green">风水</span> <span class="u-num">{{ data.Attribute4 }}</span>
-                </div>
-                <div class="u-nature" v-if="item.Attribute5">
-                    <span class="u-attribute u-purple">趣味</span> <span class="u-num">{{ data.Attribute5 }}</span>
-                </div>
+            <div class="u-nature" v-if="item.Attribute1">
+                <span class="u-attribute u-blue">观赏</span>
+                <span class="u-num">{{ item.Attribute1 }}</span>
             </div>
-        </a>
+            <div class="u-nature" v-if="item.Attribute2">
+                <span class="u-attribute u-pink">实用</span>
+                <span class="u-num">{{ item.Attribute2 }}</span>
+            </div>
+            <div class="u-nature" v-if="item.Attribute3">
+                <span class="u-attribute u-yellow">坚固</span>
+                <span class="u-num">{{ item.Attribute3 }}</span>
+            </div>
+            <div class="u-nature" v-if="item.Attribute4">
+                <span class="u-attribute u-green">风水</span>
+                <span class="u-num">{{ item.Attribute4 }}</span>
+            </div>
+            <div class="u-nature" v-if="item.Attribute5">
+                <span class="u-attribute u-purple">趣味</span>
+                <span class="u-num">{{ item.Attribute5 }}</span>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
+/**
+ * @description 家具卡片组件
+ * @description 展示单个家具的缩略信息卡片
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @props
+ * - item {Object} 家具数据对象，包含 Path, szName, Quality, Attribute1-5 等字段
+ * 
+ * @example
+ * <FurnitureCard :item="furnitureData" />
+ * 
+ * @notes
+ * - 点击卡片跳转到家具详情页
+ * - 品质颜色通过 Quality 字段动态设置
+ * - 可交互家具显示交互图标
+ * - 可染色家具显示染色图标
+ */
+import { __imgPath } from "@/utils/config";
+
 export default {
-    name: "Card",
-    props: ["item"],
-    inject: ["__imgRoot"],
-    data: function () {
-        return {};
-    },
-    computed: {
-        client: function () {
-            return this.$store.state.client;
+    name: "FurnitureCard",
+    props: {
+        item: {
+            type: Object,
+            required: true,
         },
-        data : function (){
-            let item = this.item
-            if(item.nFurnitureType == 2){
-                if(!item.Attribute1 && !item.Attribute2 && !item.Attribute3 && !item.Attribute4 && !item.Attribute5 ){
-                    item.Attribute1 = 1
-                    item.Attribute2 = 1
-                    item.Attribute3 = 1
-                    item.Attribute4 = 1
-                    item.Attribute5 = 1
-                }
-            }
-            return item
-        }
     },
+    inject: ["__imgRoot"],
     methods: {
         formatImg(link) {
             if (!link) return;
             let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
             let name = img?.[1].replace(/\\/g, "/");
 
-            if (img?.[1] == "default") return this.__imgRoot + `homeland/${this.client}` + "/default/default.png";
-            return this.__imgRoot + `homeland/${this.client}` + name + ".png";
+            if (img?.[1] == "default") return this.__imgRoot + "homeland/std/default/default.png";
+            return this.__imgRoot + "homeland/std" + name + ".png";
         },
-        toLink(id) {
-            this.$router.push({ name: "single", params: { id } });
-        },
-        quality: function (id) {
-            return id ? "quality_" + id : "";
+        goDetail() {
+            this.$router.push({
+                name: "single",
+                params: { id: this.item.ID },
+            });
         },
     },
 };
 </script>
+
 <style lang="less">
 @import "~@/assets/css/homeland/item.less";
 </style>

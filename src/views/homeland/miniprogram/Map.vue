@@ -3,7 +3,6 @@
         <SuspendCommon :btnOptions="{ showHome: true, showMore: false }"
             :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }">
             <template #default>
-                <!--                切换按钮区域-->
                 <div class="m-suspend-btn">
                     <div class="u-btn-item" @click="showForm = true">
                         <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline />
@@ -32,11 +31,9 @@
         <div class="m-map">
             <el-image class="u-map-bg" :src="getMapImage(active_bak)" :preview-src-list="[getMapImage(active_bak)]">
             </el-image>
-            <!--        <img class="u-map-bg" :src="getMapImage(active_bak)" />-->
             <div class="u-tips">点击查看大图</div>
         </div>
 
-        <!--    地图信息-->
         <div class="m-homeland-map">
             <div class="u-title">{{ data[active_bak] }} 地图信息</div>
             <div class="u-box">
@@ -56,11 +53,23 @@
         </div>
     </div>
 </template>
+
 <script>
+/**
+ * @description 小程序端家园地图页面
+ * @description 小程序 webview 适配的家园地图展示页面
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @notes
+ * - 使用 SuspendCommon 组件提供悬浮操作
+ * - 使用 el-drawer 底部抽屉切换地图
+ * - 地图支持预览大图
+ * - 显示房屋信息表格（房屋号、面积、价格）
+ */
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import homeland_maps from "@/assets/data/homeland_maps.json";
-import { __imgPath, __ossRoot } from "@/utils/config";
-import { resolveImagePath } from "@jx3box/jx3box-common/js/utils";
+import { __imgPath } from "@/utils/config";
 import { getHomelandCoord } from "@/service/homeland.js";
 import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import { cloneDeep } from "lodash";
@@ -79,12 +88,9 @@ export default {
         };
     },
     methods: {
-        // 显示家园地图图片
         getMapImage: function (map_id) {
-            // return resolveImagePath(__ossRoot + "image/house/map/" + map_id + ".png")
             return __imgPath + "image/house/map/" + map_id + ".png";
         },
-        // 坐标计算
         buildStyle: function (house) {
             let x = (house.x / 1024) * 100 + "%";
             let y = (house.y / 896) * 100 + "%";
@@ -93,7 +99,6 @@ export default {
                 top: y,
             };
         },
-        // 获取坐标数据
         loadCoords: function () {
             let map_id = this.active_bak;
             if (this.coords[map_id]?.length) {
@@ -105,7 +110,6 @@ export default {
                 });
             }
         },
-        // 初始化坐标仓库
         init: function () {
             Object.keys(homeland_maps).forEach((map_id) => {
                 this.coords[map_id] = [];
@@ -129,23 +133,18 @@ export default {
     },
 };
 </script>
+
 <style lang="less">
+@import "~@/assets/css/var.less";
 @import "~@/assets/css/common/drawer.less";
-@fontcolor: #1c1c1c;
-@fontcolor2: rgba(28, 28, 28, 0.8);
-@fontcolor3: rgba(28, 28, 28, 0.4);
-@fontColor-dark: #fff;
-@fontColor-dark2: rgba(255, 255, 255, 0.8);
-@fontColor-dark3: rgba(255, 255, 255, 0.4);
 
 .m-cut {
     .w(calc(100% - 1.5rem));
-
     margin: 0 auto;
 
     .u-cut-all {
         background: rgba(255, 255, 255, 0.05);
-        color: @fontColor-dark2;
+        color: @pvx-dark-text-80;
         .fz(1rem, 1.5rem);
         .bold(700);
         padding: 0.75rem 1rem;
@@ -161,19 +160,19 @@ export default {
 
             svg,
             path {
-                fill: @fontColor-dark2;
-                stroke: @fontColor-dark2;
+                fill: @pvx-dark-text-80;
+                stroke: @pvx-dark-text-80;
             }
         }
 
         &.is-active {
-            background: #fedaa3;
-            color: #24292e;
+            background: @pvx-dark-text;
+            color: @pvx-text-primary;
 
             svg,
             path {
-                fill: #24292e;
-                stroke: #24292e;
+                fill: @pvx-text-primary;
+                stroke: @pvx-text-primary;
             }
         }
     }
@@ -192,7 +191,7 @@ export default {
             .flex(o);
             flex-direction: column;
             background: rgba(255, 255, 255, 0.05);
-            color: @fontColor-dark2;
+            color: @pvx-dark-text-80;
             padding: 0.75rem;
             box-sizing: border-box;
             .r(0.75rem);
@@ -201,19 +200,19 @@ export default {
 
                 svg,
                 path {
-                    fill: @fontColor-dark2;
-                    stroke: @fontColor-dark2;
+                    fill: @pvx-dark-text-80;
+                    stroke: @pvx-dark-text-80;
                 }
             }
 
             &.is-active {
-                color: #24292e;
-                background: #fedaa3;
+                color: @pvx-text-primary;
+                background: @pvx-dark-text;
 
                 svg,
                 path {
-                    fill: #24292e;
-                    stroke: #24292e;
+                    fill: @pvx-text-primary;
+                    stroke: @pvx-text-primary;
                 }
             }
         }
@@ -231,7 +230,7 @@ export default {
             flex-shrink: 0;
             .r(0.75rem);
             background: rgba(255, 255, 255, 0.05);
-            color: @fontColor-dark2;
+            color: @pvx-dark-text-80;
         }
 
         .u-confirm-btn {
@@ -240,12 +239,12 @@ export default {
             box-sizing: border-box;
             .r(0.75rem);
             background: rgba(255, 255, 255, 0.05);
-            color: @fontColor-dark3;
+            color: @pvx-dark-text-40;
             .x;
 
             &.active {
-                background: #fedaa3;
-                color: #24292e;
+                background: @pvx-dark-text;
+                color: @pvx-text-primary;
             }
         }
     }
@@ -265,7 +264,6 @@ export default {
             .flex;
             .flex(o);
             gap: 0.5rem;
-            //.w(7.5rem);
             flex: 1;
 
             &.line {
@@ -277,8 +275,8 @@ export default {
 
                 svg,
                 path {
-                    fill: #fedaa3;
-                    stroke: #fedaa3;
+                    fill: @pvx-dark-text;
+                    stroke: @pvx-dark-text;
                 }
             }
         }
@@ -287,7 +285,7 @@ export default {
     .m-map {
         .u-tips {
             .mt(0.75rem);
-            color: rgba(28, 28, 28, 0.4);
+            color: @pvx-text-40;
             .fz(0.875rem, 1.25rem);
             .x;
         }
@@ -312,7 +310,7 @@ export default {
                 .u-title-1,
                 .u-title-2,
                 .u-title-3 {
-                    color: rgba(28, 28, 28, 0.4);
+                    color: @pvx-text-40;
                     .fz(0.875rem, 1.25rem);
                     .x;
                 }
@@ -320,9 +318,9 @@ export default {
                 .u-number-1,
                 .u-number-2,
                 .u-number-3 {
-                    color: rgba(28, 28, 28, 0.8);
+                    color: @pvx-text-80;
                     .fz(0.875rem, 1.25rem);
-                    background: rgba(28, 28, 28, 0.05);
+                    background: @pvx-bg-gray;
                     padding: 0.25rem;
                     .flex;
                     .flex(o);
@@ -347,17 +345,17 @@ export default {
 
 @media (prefers-color-scheme: dark) {
     .p-homeland-maps {
-        background: #000000;
+        background: @pvx-dark-bg;
 
         .m-map {
             .u-tips {
-                color: rgba(255, 255, 255, 0.8);
+                color: @pvx-dark-text-80;
             }
         }
 
         .m-homeland-map {
             .u-title {
-                color: #fff;
+                color: @pvx-bg-white;
             }
 
             .u-box {
@@ -366,14 +364,14 @@ export default {
                     .u-title-1,
                     .u-title-2,
                     .u-title-3 {
-                        color: rgba(255, 255, 255, 0.4);
+                        color: @pvx-dark-text-40;
                     }
 
                     .u-number-1,
                     .u-number-2,
                     .u-number-3 {
-                        background: rgba(255, 255, 255, 0.1);
-                        color: rgba(255, 255, 255, 0.8);
+                        background: @pvx-dark-border;
+                        color: @pvx-dark-text-80;
                     }
                 }
             }

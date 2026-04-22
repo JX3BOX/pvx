@@ -53,6 +53,20 @@
 </template>
 
 <script>
+/**
+ * @description 家园教程页面
+ * @description 展示家园日常活动图标和家园升级需求表
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @example
+ * <Tutorial />
+ * 
+ * @notes
+ * - game_data: 家园日常活动数据，包含图标和提示信息
+ * - level_data: 家园升级需求数据，包含等级、收藏分、园宅币
+ * - 悬停活动图标显示详细提示
+ */
 import { getHomelandLevelUp, getHomelandGame } from "@/service/homeland.js";
 import { getMenu } from "@jx3box/jx3box-common/js/system";
 import { __imgPath } from "@/utils/config";

@@ -1,81 +1,135 @@
 <template>
-	<div class="m-furniture-set">
-		<!-- <el-popover class="m-popover"  placement="top-start" width="200" trigger="hover">
-			<div class="u-info">
-				<span class="u-name">{{ item.szName }}</span>
-				<span v-if="item.Attribute1"><span class="u-label u-blue">观赏</span>{{ item.Attribute1 }}</span>
-				<span v-if="item.Attribute2"><span class="u-label u-pink">实用</span>{{ item.Attribute2 }}</span>
-				<span v-if="item.Attribute3"><span class="u-label u-yellow">坚固</span>{{ item.Attribute3 }}</span>
-				<span v-if="item.Attribute4"><span class="u-label u-green">风水</span>{{ item.Attribute4 }}</span>
-				<span v-if="item.Attribute5"><span class="u-label u-purple">趣味</span>{{ item.Attribute5 }}</span>
-				<span><span class="u-label">园宅等级：</span>{{ item.LevelLimit }}级</span>
-			</div>
-
-		</el-popover> -->
-		<router-link v-for="(item, i) in furnitures" :key="i" class="u-item" :class="quality(item.Quality)" :to="`/${item.dwID}`" target="_blank">
-			<img class="u-pic" :src="formatImg(item.Path)" />
-			<span class="u-name">{{ item.szName }}</span>
-		</router-link>
-	</div>
+    <div class="m-furniture-set">
+        <div class="u-set-info">
+            <div class="u-set-name">{{ data.szName }}</div>
+            <div class="u-set-desc" v-if="data.szDesc">{{ data.szDesc }}</div>
+        </div>
+        <div class="u-set-items" v-if="items.length">
+            <div
+                class="u-set-item"
+                v-for="(item, i) in items"
+                :key="i"
+                @click="goDetail(item)"
+            >
+                <img class="u-item-icon" :src="formatImg(item.Path)" :alt="item.szName" />
+                <span class="u-item-name" :class="'quality_' + item.Quality">{{ item.szName }}</span>
+            </div>
+        </div>
+    </div>
 </template>
-<script>
-export default {
-	name: "Set",
-	props: ["data"],
-	inject: ["__imgRoot"],
-	data: function () {
-		return {};
-	},
-	computed: {
-		furnitures: function () {
-			return this.data?.furnitures || [];
-		},
-		client: function () {
-			return this.$store.state.client;
-		},
-	},
-	methods: {
-		quality: function (id) {
-			return id ? "quality_" + id : "";
-		},
-		formatImg(link) {
-			if (!link) return;
-			let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-			let name = img?.[1].replace(/\\/g, "/");
 
-			if (img?.[1] == "default") return this.__imgRoot + `homeland/${this.client}` + "/default/default.png";
-			return this.__imgRoot + `homeland/${this.client}` + name + ".png";
-		},
-	},
-	created() {},
+<script>
+/**
+ * @description 家具套装组件
+ * @description 展示家具套装信息和套装内所有家具列表
+ * @author ymg
+ * @version 1.0.0
+ * 
+ * @props
+ * - data {Object} 套装数据对象，包含 szName, szDesc, Items 等字段
+ * 
+ * @example
+ * <FurnitureSet :data="setData" />
+ * 
+ * @notes
+ * - 显示套装名称、描述和家具列表
+ * - 点击家具项跳转到对应家具详情页
+ * - 家具名称根据品质显示不同颜色
+ */
+export default {
+    name: "FurnitureSet",
+    props: {
+        data: {
+            type: Object,
+            required: true,
+        },
+    },
+    inject: ["__imgRoot"],
+    computed: {
+        items() {
+            return this.data?.Items || [];
+        },
+    },
+    methods: {
+        formatImg(link) {
+            if (!link) return;
+            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
+            let name = img?.[1].replace(/\\/g, "/");
+
+            if (img?.[1] == "default") return this.__imgRoot + "homeland/std/default/default.png";
+            return this.__imgRoot + "homeland/std" + name + ".png";
+        },
+        goDetail(item) {
+            this.$router.push({
+                name: "single",
+                params: { id: item.ID },
+            });
+        },
+    },
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .m-furniture-set {
-	.flex;
-	flex-wrap: wrap;
-	align-items: center;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-	.u-item {
-		.db;
-		transition: all 0.1s ease-in-out;
-		.mr(40px);
-		.mb(20px);
-		&:hover {
-			filter: brightness(110%) saturate(120%);
-			.u-name {
-				color: @pink;
-			}
-		}
-	}
-	.u-pic {
-		.h(100px);
-	}
-	.u-name {
-		.db;
-		color: @color;
-		.x;
-	}
+    .u-set-info {
+        .mb(15px);
+
+        .u-set-name {
+            .fz(16px);
+            .bold;
+            .color(#333);
+            .mb(5px);
+        }
+
+        .u-set-desc {
+            .fz(13px);
+            .color(#666);
+            line-height: 1.6;
+        }
+    }
+
+    .u-set-items {
+        .flex;
+        flex-wrap: wrap;
+
+        .u-set-item {
+            .flex;
+            align-items: center;
+            .mr(15px);
+            .mb(10px);
+            padding: 8px 12px;
+            background-color: #f5f7fa;
+            .r(4px);
+            .pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #e8f4ff;
+            }
+
+            .u-item-icon {
+                .size(32px);
+                .mr(8px);
+                .r(4px);
+            }
+
+            .u-item-name {
+                .fz(13px);
+
+                &.quality_2 {
+                    color: @pvx-quality-2;
+                }
+                &.quality_3 {
+                    color: @pvx-quality-3;
+                }
+                &.quality_4 {
+                    color: @pvx-quality-4;
+                }
+                &.quality_5 {
+                    color: @pvx-quality-5;
+                }
+            }
+        }
+    }
 }
 </style>
