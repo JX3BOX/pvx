@@ -2,7 +2,7 @@
     <div class="m-horse-broadcast">
         <div class="m-horse-broadcast__header">
             <div class="u-title">抓马播报</div>
-            <el-select class="u-select" v-model="server" placeholder="请选择服务器" size="mini">
+            <el-select class="u-select" v-model="server" placeholder="请选择服务器" size="small">
                 <el-option v-for="serve in servers" :key="serve" :label="serve" :value="serve"></el-option>
             </el-select>
         </div>

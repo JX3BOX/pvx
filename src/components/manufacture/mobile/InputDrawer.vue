@@ -10,7 +10,7 @@
         @close="onClose"
     >
         <div class="m-input">
-            <el-input class="u-input" v-model="inputValue" size="mini" @focus="$event.target.select()">
+            <el-input class="u-input" v-model="inputValue" size="small" @focus="$event.target.select()">
                 <template #suffix>
                     <img svg-inline src="@/assets/img/manufacture/edit.svg" />
                 </template>

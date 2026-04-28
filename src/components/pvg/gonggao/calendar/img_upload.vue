@@ -12,7 +12,7 @@
             <img v-if="banner" :src="showBanner(banner)" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-        <el-button class="u-remove" type="info" size="mini" icon="el-icon-circle-close" @click="clearBanner">移除图片</el-button>
+        <el-button class="u-remove" type="info" size="small" icon="el-icon-circle-close" @click="clearBanner">移除图片</el-button>
     </div>
 </template>
 

@@ -12,7 +12,7 @@
                     v-if="copy"
                     icon="el-icon-document-copy"
                     circle
-                    size="mini"
+                    size="small"
                     @click.stop="copyName(item.szName)"
                 ></el-button>
             </div>

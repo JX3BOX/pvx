@@ -25,19 +25,19 @@
             </div>
         </div>
         <div class="m-input">
-            <el-input class="u-input" type="number" size="mini" v-model="newPrice.jin" @focus="$event.target.select()">
+            <el-input class="u-input" type="number" size="small" v-model="newPrice.jin" @focus="$event.target.select()">
                 <template #suffix>
                     <img :src="`${img}/jin.png`" alt="金" />
                 </template>
             </el-input>
 
-            <el-input class="u-input" type="number" size="mini" v-model="newPrice.yin" @focus="$event.target.select()">
+            <el-input class="u-input" type="number" size="small" v-model="newPrice.yin" @focus="$event.target.select()">
                 <template #suffix>
                     <img :src="`${img}/yin.png`" alt="银" />
                 </template>
             </el-input>
 
-            <el-input class="u-input" type="number" size="mini" v-model="newPrice.tong" @focus="$event.target.select()">
+            <el-input class="u-input" type="number" size="small" v-model="newPrice.tong" @focus="$event.target.select()">
                 <template #suffix>
                     <img :src="`${img}/tong.png`" alt="铜" />
                 </template>
