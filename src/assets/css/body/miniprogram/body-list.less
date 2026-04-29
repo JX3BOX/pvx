@@ -1,70 +1,15 @@
 /**
  * 小程序体型列表页样式
- * 从 common/face-body/miniprogram 迁移
- * 复用 face/miniprogram/face-list.less 样式
+ * 独立维护，不依赖 face 模块
  */
 
-@import "../../face/miniprogram/face-list.less";
+@import "../../common/face-body/shared/mini-list.less";
 
 .m-body-list_mobile {
-    padding: 0.45rem 0 4.45rem 0;
-    box-sizing: border-box;
-    .h(100vh);
-    overflow: auto;
-
-    .m-base {
-        .w(100%);
-    }
-
-    .m-suspend-btn {
-        .flex;
-        align-items: center;
-
-        .u-btn-item {
-            .flex;
-            .flex(o);
-            gap: 0.5rem;
-            flex: 1;
-
-            &.line {
-                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
-            }
-
-            .u-icon {
-                .size(1.25rem, 1.25rem);
-                filter: brightness(0) saturate(100%) invert(87%) sepia(56%) saturate(366%) hue-rotate(321deg) brightness(101%) contrast(99%);
-            }
-        }
-    }
+    &:extend(.m-pvx-mini-list-base all);
 
     .u-card-title {
-        padding: 0 1.25rem;
-        box-sizing: border-box;
-        .mb(0.667rem);
         color: @fontColor;
-        .fz(1rem, 1.556rem);
-        .bold(700);
-    }
-
-    .u-content-all {
-        .u-list {
-            &.body {
-                padding: 0 1.25rem;
-                box-sizing: border-box;
-            }
-        }
-    }
-
-    .u-content {
-        .h(100%);
-
-        .u-list {
-            .h(100%);
-        }
-    }
-
-    .u-content-item {
-        .mb(0.556rem);
     }
 
     @media (prefers-color-scheme: dark) {

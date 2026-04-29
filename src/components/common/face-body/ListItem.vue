@@ -182,9 +182,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/index.less";
-
-.m-pvx-type-item {
-    .pvx-item-mixin();
-}
+@import "~@/assets/css/common/face-body/shared/list-card.less";
 </style>

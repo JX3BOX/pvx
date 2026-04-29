@@ -1,0 +1,380 @@
+/**
+ * 列表页和卡片项公共样式
+ * face 和 body 模块共用
+ * 使用 CSS 变量统一管理模块差异
+ */
+
+@import "../_variables.less";
+@import "./module-variables.less";
+
+// ==================== 列表页基础样式 ====================
+
+.p-pvx-list-base {
+    .pr;
+    padding-top: 40px;
+
+    .m-pvx-type-box {
+        &.none {
+            display: none !important;
+        }
+    }
+
+    .u-pvx-type {
+        .flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 16px;
+
+        .u-pvx-all {
+            .pointer;
+            color: #999;
+            .fz(16px);
+            line-height: 21px;
+        }
+    }
+
+    .u-pvx-title {
+        .fz(24px);
+        line-height: 1;
+        .bold;
+        color: #24292e;
+    }
+
+    .u-pvx-recommend-title {
+        margin: 16px 0;
+    }
+
+    .c-public-notice {
+        margin-top: 24px;
+    }
+}
+
+.m-pvx-type-title {
+    margin-top: 20px !important;
+}
+
+.m-pvx-recommend-box,
+.m-pvx-type-box {
+    margin-top: 24px;
+
+    .u-pvx-shade-btn {
+        .pointer;
+        .pa;
+        z-index: 12;
+        .flex;
+        align-items: center;
+        .w(60px);
+        .h(200px);
+        .fz(26px);
+        visibility: hidden;
+        background-color: rgba(0, 0, 0, 0.7);
+
+        i {
+            color: #fff;
+        }
+
+        &:hover {
+            background-color: var(--pvx-module-color, @pvx-color-primary);
+
+            i,
+            svg {
+                color: #fff;
+            }
+        }
+    }
+
+    .u-pvx-shade-btn-left {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .u-pvx-shade-btn-right {
+        border-radius: 0 10px 10px 0;
+        right: 0;
+    }
+
+    .u-pvx-disabled {
+        cursor: not-allowed;
+        background-color: rgba(163, 152, 152, 0.7);
+
+        &:hover {
+            background-color: rgba(163, 152, 152, 0.7);
+        }
+    }
+}
+
+.m-pvx-type-list--all {
+    .flex;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+}
+
+.m-pvx-type-item:last-child,
+.m-pvx-recommend-item:last-child {
+    margin-right: 0;
+}
+
+.m-pvx-archive-null {
+    margin-top: 16px;
+}
+
+.m-pvx-archive-more {
+    margin-top: 24px;
+    .w(100%);
+    background-color: var(--pvx-module-color, @pvx-color-primary);
+
+    &:hover,
+    &:focus {
+        background-color: var(--pvx-module-color, @pvx-color-primary);
+        border-color: var(--pvx-module-color, @pvx-color-primary);
+    }
+}
+
+.m-pvx-archive-pages {
+    margin-top: 24px;
+    overflow: auto;
+
+    .active {
+        background-color: var(--pvx-module-color, @pvx-color-primary) !important;
+    }
+}
+
+// ==================== 卡片项样式（使用 CSS 变量）====================
+
+.m-pvx-type-item {
+    .flex;
+    .pointer;
+    .r(10px);
+    .pr;
+    flex-shrink: 0;
+    flex-direction: column;
+    padding: 15px;
+    gap: 12px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+
+    // 使用 CSS 变量设置尺寸
+    width: var(--pvx-module-card-width, 190px);
+    height: var(--pvx-module-card-height, 280px);
+
+    &:hover {
+        background: rgba(222, 216, 255, 0.5);
+        border: 2px solid var(--pvx-module-color, @pvx-color-primary);
+        box-shadow: 0 4px 16px rgba(107, 82, 255, 0.3);
+    }
+
+    &.is-no-name {
+        height: var(--pvx-module-card-no-name-height, 250px);
+
+        .m-pvx-op .m-pvx-author {
+            display: none;
+        }
+    }
+
+    .m-pvx-img {
+        .pr;
+        .r(10px);
+        overflow: hidden;
+        width: var(--pvx-module-card-img-width, 156px);
+        height: var(--pvx-module-card-img-height, 160px);
+
+        .u-pvx-pic {
+            .w(100%);
+            .h(100%);
+        }
+    }
+
+    .u-pvx-pinch-marker {
+        .pa;
+        .rt(15px, 15px);
+        .size(30px, 30px);
+    }
+
+    .m-pvx-tags {
+        .flex;
+        .h(20px);
+        .fz(12px);
+        line-height: 18px;
+        color: #fff;
+        justify-content: space-between;
+
+        .m-pvx-tag-left {
+            .flex;
+            gap: 8px;
+        }
+
+        .m-pvx-tag-right {
+            .flex;
+            max-width: 72px;
+            gap: 8px;
+        }
+
+        .u-pvx-tag {
+            .flex;
+            .r(4px);
+            align-items: center;
+            padding: 0 5px;
+            gap: 2px;
+            font-style: normal;
+        }
+    }
+
+    .u-pvx-tag--new {
+        background-color: #282828;
+    }
+
+    .u-pvx-tag--type {
+        background-color: #409eff;
+
+        &.u-pvx-new-face {
+            background-color: #67c23a;
+        }
+    }
+
+    .u-pvx-tag--star {
+        background-color: var(--pvx-module-color, @pvx-color-face);
+        padding: 3px;
+        .flex;
+
+        img {
+            .size(14px, 14px);
+        }
+    }
+
+    .u-pvx-tag--pay {
+        background-color: #f1b65c;
+        padding: 3px;
+        .flex;
+
+        img {
+            .size(14px, 14px);
+        }
+    }
+
+    .m-pvx-op {
+        .flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .u-pvx-title {
+            .bold;
+            .fz(16px);
+            line-height: 24px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #000;
+        }
+    }
+
+    .m-pvx-author {
+        .flex;
+        .fz(12px);
+        line-height: 18px;
+        white-space: nowrap;
+        gap: 8px;
+        align-items: center;
+
+        .u-pvx-avatar {
+            .size(18px, 18px);
+            .r(50%);
+        }
+
+        .u-pvx-name {
+            opacity: 0.6;
+            color: #000;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+// ==================== 脸型列表页样式 ====================
+
+.p-pvx-face-list {
+    &:extend(.p-pvx-list-base all);
+}
+
+// ==================== 体型列表页样式 ====================
+
+.p-pvx-body-list {
+    &:extend(.p-pvx-list-base all);
+
+    .m-pvx-type-item {
+        max-width: 190px;
+    }
+
+    .m-card-banner-list .m-pvx-type-item {
+        .size(190px, 368px);
+
+        .m-pvx-img {
+            .h(264px);
+            .w(100%);
+        }
+
+        .u-pvx-pic {
+            .w(100%);
+            .h(100%);
+        }
+
+        &.is-no-name {
+            .h(340px);
+        }
+    }
+
+    .m-pvx-type-list--all {
+        >.m-pvx-type-item {
+            .size(190px, 368px);
+
+            .m-pvx-img {
+                .h(264px);
+                .w(100%);
+            }
+
+            .u-pvx-pic {
+                .w(100%);
+                .h(100%);
+            }
+
+            &.is-no-name {
+                .h(340px);
+            }
+
+            &.is-only-pic {
+                .size(160px, 264px);
+                padding: 0;
+
+                .m-pvx-op {
+                    .pa;
+                    z-index: 2;
+                    .lt(0, 0);
+                    padding: 20px 10px;
+
+                    .u-pvx-title {
+                        color: #fff;
+                    }
+
+                    .m-pvx-author {
+                        display: none;
+                    }
+
+                    &::after {
+                        content: "";
+                        .pa;
+                        .size(160px, 264px);
+                        .lt(0, 0);
+                        z-index: -1;
+                        .r(10px);
+                        background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+                    }
+                }
+            }
+        }
+    }
+}

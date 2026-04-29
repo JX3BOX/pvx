@@ -226,9 +226,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/index.less";
-
-.p-pvx-single {
-    .pvx-single-data-mixin();
-}
+@import "~@/assets/css/common/face-body/shared/single.less";
 </style>

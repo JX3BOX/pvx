@@ -1,10 +1,12 @@
 /**
  * Face & Body 模块样式入口
- * 统一导出所有变量和 Mixin
+ * 统一导出所有变量和公共样式
  */
 
-// 导入顺序很重要：变量 -> 基础 -> 组件 -> 响应式
+// 导入变量
 @import "./_variables.less";
-@import "./_base-mixins.less";
-@import "./_component-mixins.less";
-@import "./_responsive-mixins.less";
+
+// 导入公共样式（非 mixin，直接输出 CSS）
+@import "./shared/list-card.less";
+@import "./shared/single.less";
+@import "./shared/mini-list.less";

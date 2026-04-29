@@ -2,22 +2,11 @@
  * Face & Body 模块变量定义
  * 
  * @description 从全局变量文件导入，并定义模块专用变量
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 // 从全局变量文件导入所有变量
 @import "~@/assets/css/var.less";
-
-// ==================== 模块特定别名 ====================
-
-// 主题色别名（与全局保持一致）
-@pvx-primary: @pvx-color-primary;
-@pvx-primary-light: @pvx-color-primary-light;
-@pvx-primary-bg: @pvx-color-primary-bg;
-
-// 暗色模式文字颜色别名
-@pvx-dark-text-muted: @pvx-dark-text-80;
-@pvx-dark-text-light: @pvx-dark-text-40;
 
 // ==================== 脸型卡片尺寸 ====================
 
@@ -48,3 +37,27 @@
 @pvx-price-gold: #fba524;
 @pvx-price-free: #49c10f;
 @pvx-price-box: #ffad31;
+
+// ==================== 小程序专用变量 ====================
+
+// 小程序主题色
+@pvx-mini-primary: #fedaa3;
+@pvx-mini-primary-bg: #24292e;
+
+// 小程序背景色
+@pvx-mini-surface: #fafafa;
+@pvx-mini-surface-dark: #000;
+@pvx-mini-card: #fff;
+@pvx-mini-card-dark: #282828;
+
+// 小程序文字颜色
+@pvx-mini-text: @pvx-dark-surface;
+@pvx-mini-text-muted: @pvx-text-80;
+@pvx-mini-text-disabled: @pvx-text-40;
+@pvx-mini-text-dark: @pvx-bg-white;
+@pvx-mini-text-muted-dark: @pvx-dark-text-80;
+@pvx-mini-text-disabled-dark: @pvx-dark-text-40;
+
+// 小程序背景色别名
+@pvx-mini-bg: @pvx-bg-white;
+@pvx-mini-bg-dark: @pvx-dark-card;

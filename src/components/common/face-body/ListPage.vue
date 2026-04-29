@@ -207,9 +207,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/index.less";
-
-.p-pvx-list {
-    .pvx-list-mixin();
-}
+@import "~@/assets/css/common/face-body/shared/list.less";
 </style>

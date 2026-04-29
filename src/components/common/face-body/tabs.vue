@@ -265,10 +265,10 @@ export default {
 
                 &:hover,
                 &.is-active {
-                    background-color: @faceColor !important;
+                    background-color: @pvx-color-face !important;
 
                     .el-radio-button__inner {
-                        background-color: @faceColor !important;
+                        background-color: @pvx-color-face !important;
 
                     }
                 }
@@ -312,7 +312,7 @@ export default {
         .size(130px, 38px);
         .fz(16px, 38px);
         .r(5px);
-        background: @faceColor;
+        background: @pvx-color-face;
         color: #fff;
 
         span {
@@ -340,12 +340,12 @@ export default {
 
             .el-radio-button__inner,
             .el-checkbox-button__inner {
-                background-color: @faceColor !important;
-                border-color: @faceColor !important;
+                background-color: @pvx-color-face !important;
+                border-color: @pvx-color-face !important;
                 color: #fff;
 
                 &:hover {
-                    background-color: @faceColor !important;
+                    background-color: @pvx-color-face !important;
                     color: #fff;
                 }
             }
@@ -354,7 +354,7 @@ export default {
         .el-radio-button__inner,
         .el-checkbox-button__inner {
             &:hover {
-                background-color: @faceColor !important;
+                background-color: @pvx-color-face !important;
                 color: #fff;
             }
         }

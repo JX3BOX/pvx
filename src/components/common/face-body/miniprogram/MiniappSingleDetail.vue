@@ -156,7 +156,7 @@ import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import routineOther from "@/components/common/face-body/miniprogram/routine_other";
 import { showAvatar, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 import { getFans, getUserInfo } from "@/service/face/author";
-import { subscribeAuthor, unsubscribeAuthor } from "@jx3box/jx3box-common/js/rss.js";
+import { subscribeAuthor, unsubscribeAuthor } from "@/service/common/suspend";
 import { __clients } from "@/utils/config";
 import bodyData from "@jx3box/jx3box-data/data/role/body.json";
 import wx from "weixin-js-sdk";

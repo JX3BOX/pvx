@@ -1,0 +1,284 @@
+/**
+ * 小程序公共样式
+ * face 和 body 模块共用的小程序样式
+ */
+
+@import "../_variables.less";
+
+body {
+    padding: 0 !important;
+}
+
+.m-cut {
+    width: calc(100% - 1.5rem);
+    margin: 0 auto;
+
+    .u-cut-all {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: @pvx-mini-text-muted-dark;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 700;
+        box-sizing: border-box;
+
+        .u-icon {
+            width: 1.25rem;
+            margin-right: 0.25rem;
+
+            svg,
+            path {
+                fill: @pvx-mini-text-muted-dark;
+                stroke: @pvx-mini-text-muted-dark;
+            }
+        }
+
+        &.is-active {
+            background: @pvx-mini-primary;
+            color: @pvx-mini-primary-bg;
+
+            svg,
+            path {
+                fill: @pvx-mini-primary-bg;
+                stroke: @pvx-mini-primary-bg;
+            }
+        }
+    }
+
+    .u-cut-box {
+        display: flex;
+        margin-bottom: 1rem;
+        gap: 0.75rem;
+        align-content: center;
+        justify-content: space-between;
+
+        .u-cut-item {
+            display: flex;
+            justify-content: center;
+            border-radius: 0.75rem;
+            flex-direction: column;
+            flex: 1;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            box-sizing: border-box;
+
+            .u-icon {
+
+                svg,
+                path {
+                    fill: @pvx-mini-text-muted-dark;
+                    stroke: @pvx-mini-text-muted-dark;
+                }
+            }
+
+            &.is-active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+
+                svg,
+                path {
+                    fill: @pvx-mini-primary-bg;
+                    stroke: @pvx-mini-primary-bg;
+                }
+            }
+        }
+    }
+
+    .u-cut-btn {
+        display: flex;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 700;
+        gap: 1.25rem;
+
+        .u-report-btn {
+            border-radius: 0.75rem;
+            flex-shrink: 0;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            box-sizing: border-box;
+        }
+
+        .u-confirm-btn {
+            border-radius: 0.75rem;
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-disabled-dark;
+            text-align: center;
+            box-sizing: border-box;
+
+            &.active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+            }
+        }
+    }
+}
+
+.m-no-body {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+    .u-tips {
+        color: @pvx-mini-text-disabled-dark;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 700;
+        display: flex;
+        justify-content: center;
+    }
+
+    .u-btn {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.25rem;
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        align-self: stretch;
+        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: @pvx-mini-text-disabled-dark;
+    }
+}
+
+.m-filtrate {
+    padding: 0.75rem;
+    box-sizing: border-box;
+
+    .u-filtrate-title {
+        margin-bottom: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .u-box {
+        display: flex;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
+        align-content: center;
+        justify-content: space-between;
+
+        .u-item {
+            display: flex;
+            justify-content: center;
+            border-radius: 0.75rem;
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 400;
+            box-sizing: border-box;
+
+            &.active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+            }
+        }
+    }
+
+    .u-btn {
+        display: flex;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 700;
+        gap: 1.25rem;
+
+        .u-report-btn {
+            border-radius: 0.75rem;
+            flex-shrink: 0;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-muted-dark;
+            box-sizing: border-box;
+        }
+
+        .u-confirm-btn {
+            border-radius: 0.75rem;
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: @pvx-mini-text-disabled-dark;
+            text-align: center;
+            box-sizing: border-box;
+
+            &.active {
+                background: @pvx-mini-primary;
+                color: @pvx-mini-primary-bg;
+            }
+        }
+    }
+}
+
+.m-pvx-mini-list-base {
+    height: 100vh;
+    padding: 0.45rem 0 4.45rem 0;
+    overflow: auto;
+    box-sizing: border-box;
+
+    .m-base {
+        width: 100%;
+    }
+
+    .m-suspend-btn {
+        display: flex;
+        align-items: center;
+
+        .u-btn-item {
+            display: flex;
+            justify-content: center;
+            flex: 1;
+            gap: 0.5rem;
+
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+
+            .u-icon {
+                width: 1.25rem;
+                height: 1.25rem;
+                filter: brightness(0) saturate(100%) invert(87%) sepia(56%) saturate(366%) hue-rotate(321deg) brightness(101%) contrast(99%);
+            }
+        }
+    }
+
+    .u-card-title {
+        margin-bottom: 0.667rem;
+        padding: 0 1.25rem;
+        font-size: 1rem;
+        line-height: 1.556rem;
+        font-weight: 700;
+        box-sizing: border-box;
+    }
+
+    .u-content-all {
+        .u-list {
+            margin-bottom: 0.556rem;
+
+            &.body {
+                padding: 0 1.25rem;
+                box-sizing: border-box;
+            }
+        }
+    }
+
+    .u-content {
+        height: 100%;
+
+        .u-list {
+            height: 100%;
+        }
+    }
+
+    .u-content-item {
+        margin-bottom: 0.556rem;
+    }
+}

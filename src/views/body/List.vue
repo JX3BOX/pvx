@@ -165,6 +165,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/body/list.less";
-@import "~@/assets/css/body/item.less";
+@import "~@/assets/css/body/index.less";
 </style>

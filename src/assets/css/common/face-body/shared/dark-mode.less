@@ -1,0 +1,96 @@
+/**
+ * 暗色模式样式
+ * 集中管理所有暗色模式样式
+ */
+
+@import "../_variables.less";
+
+@media (prefers-color-scheme: dark) {
+    .c-facedat,
+    .c-bodydat {
+        background-color: @pvx-dark-bg;
+    }
+
+    .m-face-list_mobile__tabs,
+    .m-body-list_mobile__tabs {
+        .u-tab_item {
+            color: @pvx-dark-text-80;
+
+            &.is-active {
+                color: @pvx-bg-white;
+                border-bottom: 2px solid @pvx-bg-white;
+            }
+        }
+    }
+
+    .c-facedat-group,
+    .c-bodydat-group {
+        .u-title {
+            color: @pvx-mini-text-muted-dark;
+        }
+
+        .u-type-title {
+            background-color: @pvx-mini-card-dark;
+        }
+
+        .u-decals {
+            background-color: @pvx-mini-card-dark;
+        }
+
+        .u-list {
+            li,
+            label {
+                color: @pvx-mini-text-muted-dark;
+            }
+
+            .u-sub-title {
+                color: @pvx-mini-text-muted-dark;
+            }
+        }
+
+        .u-decals-params-box {
+            .u-decals-params {
+                span {
+                    &:first-child {
+                        color: @pvx-mini-text-muted-dark;
+                    }
+                }
+            }
+        }
+    }
+
+    .m-price-all {
+        .u-title {
+            color: @pvx-mini-text-muted-dark;
+        }
+    }
+
+    .m-face-data {
+        background-color: @pvx-mini-card-dark;
+        color: @pvx-mini-text-muted-dark;
+
+        .u-img {
+            display: none;
+        }
+
+        .u-img-dark {
+            display: block;
+        }
+    }
+
+    .m-face-list_mobile {
+        background-color: @pvx-dark-bg;
+
+        .u-card-title {
+            color: @pvx-mini-text-dark;
+        }
+    }
+
+    .m-body-list_mobile {
+        background-color: #000;
+
+        .u-card-title {
+            color: @pvx-bg-white;
+        }
+    }
+}

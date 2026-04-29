@@ -2,8 +2,8 @@
  * 小程序专用样式入口文件
  * 用于统一管理微信小程序 webview 环境的样式
  * 
- * @version 2.0.0
- * @updated 将小程序专用变量从 var.less 迁移至此
+ * @version 3.0.0
+ * @updated 移除废弃的 mixin 引用，使用 shared 目录下的公共样式
  */
 
 // 从全局变量文件导入公共变量
@@ -11,11 +11,6 @@
 
 // 引入 face-body 模块变量（包含卡片尺寸、价格等）
 @import "../_variables.less";
-
-// 引入公共混合
-@import "../_base-mixins.less";
-@import "../_component-mixins.less";
-@import "../_responsive-mixins.less";
 
 // 引入弹窗样式
 @import "../../drawer.less";
@@ -64,7 +59,7 @@
     .h(100vh);
     overflow: auto;
     box-sizing: border-box;
-    .pb(@pvx-mini-bottom-nav);
+    padding-bottom: @pvx-mini-bottom-nav;
 }
 
 .mini-card() {
@@ -81,6 +76,7 @@
     .r(0.444rem);
     border: 1px solid rgba(40, 40, 40, 0.05);
     background: @pvx-mini-card;
-    .fz(0.778rem, 0.889rem);
-    .bold(400);
+    .fz(0.778rem);
+    line-height: 0.889rem;
+    font-weight: 400;
 }
