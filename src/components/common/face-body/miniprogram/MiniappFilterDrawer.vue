@@ -29,42 +29,26 @@
  * - select-body: 选择体型
  -->
 <template>
-    <el-drawer
-        v-model="visible"
-        direction="btt"
-        :with-header="false"
-        :modal-append-to-body="false"
-        append-to-body
-        class="c-drawer"
-        @close="handleClose"
-    >
+    <el-drawer v-model="visible" direction="btt" :with-header="false" :modal-append-to-body="false" append-to-body
+        class="c-drawer" @close="handleClose">
         <!-- 体型切换区域 -->
         <transition :name="cutShowTra ? 'slide-up' : ''">
             <div class="m-cut" v-if="showCut">
                 <!-- 全部体型选项 -->
-                <div
-                    class="u-cut-all"
-                    :class="{ 'is-active': tempActive === -1 }"
-                    @click="tempActive = -1"
-                >
+                <div class="u-cut-all" :class="{ 'is-active': tempActive === -1 }" @click="tempActive = -1">
                     <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
                     全部体型
                 </div>
-                
+
                 <!-- 体型列表 -->
                 <div class="u-cut-box">
-                    <div
-                        class="u-cut-item"
-                        v-for="(item, index) in typeList"
-                        :key="index"
-                        :class="{ 'is-active': tempActive === item.value }"
-                        @click="tempActive = item.value"
-                    >
+                    <div class="u-cut-item" v-for="(item, index) in typeList" :key="index"
+                        :class="{ 'is-active': tempActive === item.value }" @click="tempActive = item.value">
                         <img class="u-icon" :src="getTypeIcon(item.value)" svg-inline />
                         <span>{{ item.label }}</span>
                     </div>
                 </div>
-                
+
                 <!-- 操作按钮 -->
                 <div class="u-cut-btn">
                     <div class="u-report-btn" @click="handleReset">重置</div>
@@ -74,7 +58,7 @@
                 </div>
             </div>
         </transition>
-        
+
         <!-- 请先选择体型提示 -->
         <div class="m-no-body" v-if="noBody">
             <div class="u-icon">
@@ -83,103 +67,71 @@
             </div>
             <div class="u-btn" @click="handleSelectBody">选择体型</div>
         </div>
-        
+
         <!-- 筛选区域 -->
         <div class="m-filtrate" v-if="showFiltrate">
             <!-- 类型筛选（仅脸型有写实/写意） -->
             <template v-if="showFaceTypeFilter">
                 <div class="u-filtrate-title">类型</div>
                 <div class="u-box">
-                    <div
-                        class="u-item"
-                        :class="{ active: !filterParams.is_new_face }"
-                        @click="toggleFilter('is_new_face', '')"
-                    >
+                    <div class="u-item" :class="{ active: !localFilterParams.is_new_face }"
+                        @click="toggleFilter('is_new_face', '')">
                         全部
                     </div>
-                    <div
-                        class="u-item"
-                        :class="{ active: filterParams.is_new_face === '1' }"
-                        @click="toggleFilter('is_new_face', '1')"
-                    >
+                    <div class="u-item" :class="{ active: localFilterParams.is_new_face === '1' }"
+                        @click="toggleFilter('is_new_face', '1', localFilterParams.is_new_face === '1')">
                         写实
                     </div>
-                    <div
-                        class="u-item"
-                        :class="{ active: filterParams.is_new_face === '0' }"
-                        @click="toggleFilter('is_new_face', '0')"
-                    >
+                    <div class="u-item" :class="{ active: localFilterParams.is_new_face === '0' }"
+                        @click="toggleFilter('is_new_face', '0', localFilterParams.is_new_face === '0')">
                         写意
                     </div>
                 </div>
             </template>
-            
+
             <!-- 标签筛选 -->
             <div class="u-filtrate-title">标签</div>
             <div class="u-box">
-                <div
-                    class="u-item all"
-                    :class="{
-                        active:
-                            !filterParams.star &&
-                            filterParams.price_type === '' &&
-                            !filterParams.is_unlimited,
-                    }"
-                    @click="resetTagFilters"
-                >
+                <div class="u-item all" :class="{
+                    active:
+                        !localFilterParams.star &&
+                        localFilterParams.price_type === '' &&
+                        !localFilterParams.is_unlimited,
+                }" @click="resetTagFilters">
                     全部
                 </div>
-                <div
-                    class="u-item"
-                    :class="{ active: filterParams.star === '1' }"
-                    @click="toggleFilter('star', '1', filterParams.star === '1')"
-                >
+                <div class="u-item" :class="{ active: localFilterParams.star === '1' }"
+                    @click="toggleFilter('star', '1', localFilterParams.star === '1')">
                     精选
                 </div>
-                <div
-                    class="u-item"
-                    :class="{ active: filterParams.price_type === '0' }"
-                    @click="toggleFilter('price_type', '0', filterParams.price_type === '0')"
-                >
+                <div class="u-item" :class="{ active: localFilterParams.price_type === '0' }"
+                    @click="toggleFilter('price_type', '0', localFilterParams.price_type === '0')">
                     免费
                 </div>
-                <div
-                    class="u-item"
-                    :class="{ active: filterParams.is_unlimited === '1' }"
-                    @click="toggleFilter('is_unlimited', '1', filterParams.is_unlimited === '1')"
-                >
+                <div class="u-item" :class="{ active: localFilterParams.is_unlimited === '1' }"
+                    @click="toggleFilter('is_unlimited', '1', localFilterParams.is_unlimited === '1')">
                     可新建
                 </div>
             </div>
-            
+
             <!-- 其他筛选 -->
             <div class="u-filtrate-title">其他</div>
             <div class="u-box">
-                <div
-                    class="u-item all"
-                    :class="{ active: !filterParams.filter_empty_images }"
-                    @click="resetOtherFilters"
-                >
+                <div class="u-item all" :class="{ active: !localFilterParams.filter_empty_images }"
+                    @click="resetOtherFilters">
                     全部
                 </div>
-                <div
-                    class="u-item"
-                    :class="{ active: filterParams.filter_empty_images }"
-                    @click="toggleFilter('filter_empty_images', '1')"
-                >
+                <div class="u-item" :class="{ active: localFilterParams.filter_empty_images }"
+                    @click="toggleFilter('filter_empty_images', '1')">
                     只看有图
                 </div>
                 <!-- 脸型特有：只看捏脸码 -->
-                <div
-                    class="u-item"
-                    v-if="type === 'face'"
-                    :class="{ active: filterParams.code_mode }"
-                    @click="toggleFilter('code_mode', '1')"
-                >
+                <div class="u-item" v-if="type === 'face'" :class="{ active: localFilterParams.code_mode }"
+                    @click="toggleFilter('code_mode', '1')">
                     只看捏脸码
                 </div>
             </div>
-            
+
             <!-- 操作按钮 -->
             <div class="u-btn">
                 <div class="u-report-btn" @click="handleFiltrateReset">重置</div>
@@ -369,65 +321,31 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/drawer.less";
+    @import "~@/assets/css/common/drawer.less";
 </style>
 
 <style lang="less" scoped>
-@import "~@/assets/css/common/face-body/miniprogram/index.less";
+    @import "~@/assets/css/common/face-body/miniprogram/index.less";
 
-.m-cut {
-    .w(calc(100% - 1.5rem));
-    margin: 0 auto;
+    .m-cut {
+        .w(calc(100% - 1.5rem));
+        margin: 0 auto;
 
-    .u-cut-all {
-        .flex;
-        .flex(o);
-        .mb(1rem);
-        .r(0.75rem);
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        color: @pvx-mini-text-muted-dark;
-        .fz(1rem, 1.5rem);
-        .bold(700);
-        box-sizing: border-box;
-
-        .u-icon {
-            .w(1.25rem);
-            .mr(0.25rem);
-            filter: brightness(0) invert(1);
-            opacity: 0.8;
-        }
-
-        &.is-active {
-            background: @pvx-mini-primary;
-            color: @pvx-mini-btn-bg;
-
-            .u-icon {
-                filter: brightness(0) saturate(100%) invert(8%) sepia(11%) saturate(298%) hue-rotate(192deg) brightness(98%) contrast(90%);
-                opacity: 1;
-            }
-        }
-    }
-
-    .u-cut-box {
-        .flex;
-        .mb(1rem);
-        gap: 0.75rem;
-        align-content: center;
-        justify-content: space-between;
-
-        .u-cut-item {
+        .u-cut-all {
             .flex;
             .flex(o);
+            .mb(1rem);
             .r(0.75rem);
-            flex-direction: column;
-            flex: 1;
-            padding: 0.75rem;
+            padding: 0.75rem 1rem;
             background: rgba(255, 255, 255, 0.05);
             color: @pvx-mini-text-muted-dark;
+            .fz(1rem, 1.5rem);
+            .bold(700);
             box-sizing: border-box;
 
             .u-icon {
+                .w(1.25rem);
+                .mr(0.25rem);
                 filter: brightness(0) invert(1);
                 opacity: 0.8;
             }
@@ -442,141 +360,175 @@ export default {
                 }
             }
         }
-    }
 
-    .u-cut-btn {
-        .flex;
-        .fz(1rem, 1.5rem);
-        .bold(700);
-        gap: 1.25rem;
+        .u-cut-box {
+            .flex;
+            .mb(1rem);
+            gap: 0.75rem;
+            align-content: center;
+            justify-content: space-between;
 
-        .u-report-btn {
-            .r(0.75rem);
-            flex-shrink: 0;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            color: @pvx-mini-text-muted-dark;
-            box-sizing: border-box;
+            .u-cut-item {
+                .flex;
+                .flex(o);
+                .r(0.75rem);
+                flex-direction: column;
+                flex: 1;
+                padding: 0.75rem;
+                background: rgba(255, 255, 255, 0.05);
+                color: @pvx-mini-text-muted-dark;
+                box-sizing: border-box;
+
+                .u-icon {
+                    filter: brightness(0) invert(1);
+                    opacity: 0.8;
+                }
+
+                &.is-active {
+                    background: @pvx-mini-primary;
+                    color: @pvx-mini-btn-bg;
+
+                    .u-icon {
+                        filter: brightness(0) saturate(100%) invert(8%) sepia(11%) saturate(298%) hue-rotate(192deg) brightness(98%) contrast(90%);
+                        opacity: 1;
+                    }
+                }
+            }
         }
 
-        .u-confirm-btn {
-            .r(0.75rem);
-            flex: 1;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            color: @pvx-mini-text-disabled-dark;
-            text-align: center;
-            box-sizing: border-box;
+        .u-cut-btn {
+            .flex;
+            .fz(1rem, 1.5rem);
+            .bold(700);
+            gap: 1.25rem;
 
-            &.active {
-                background: @pvx-mini-primary;
-                color: @pvx-mini-btn-bg;
+            .u-report-btn {
+                .r(0.75rem);
+                flex-shrink: 0;
+                padding: 0.75rem 1rem;
+                background: rgba(255, 255, 255, 0.05);
+                color: @pvx-mini-text-muted-dark;
+                box-sizing: border-box;
+            }
+
+            .u-confirm-btn {
+                .r(0.75rem);
+                flex: 1;
+                padding: 0.75rem 1rem;
+                background: rgba(255, 255, 255, 0.05);
+                color: @pvx-mini-text-disabled-dark;
+                text-align: center;
+                box-sizing: border-box;
+
+                &.active {
+                    background: @pvx-mini-primary;
+                    color: @pvx-mini-btn-bg;
+                }
             }
         }
     }
-}
 
-.m-no-body {
-    .flex;
-    .flex(o);
-    flex-direction: column;
-
-    .u-tips {
-        color: @pvx-mini-text-disabled-dark;
-        .fz(0.875rem, 1.25rem);
-        .bold(700);
+    .m-no-body {
         .flex;
         .flex(o);
-    }
+        flex-direction: column;
 
-    .u-btn {
-        .flex;
-        .flex(o);
-        .mt(1.25rem);
-        padding: 0.75rem 1rem;
-        gap: 0.5rem;
-        align-self: stretch;
-        .r(0.75rem);
-        background: rgba(255, 255, 255, 0.1);
-        color: @pvx-mini-text-disabled-dark;
-    }
-}
-
-.m-filtrate {
-    padding: 0.75rem;
-    box-sizing: border-box;
-
-    .u-filtrate-title {
-        .mb(0.75rem);
-        color: rgba(255, 255, 255, 0.6);
-    }
-
-    .u-box {
-        .flex;
-        .mb(0.75rem);
-        gap: 0.5rem;
-        align-content: center;
-        justify-content: space-between;
-
-        .u-item {
+        .u-tips {
+            color: @pvx-mini-text-disabled-dark;
+            .fz(0.875rem, 1.25rem);
+            .bold(700);
             .flex;
             .flex(o);
-            .r(0.75rem);
-            flex: 1;
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            color: @pvx-mini-text-muted-dark;
-            .fz(0.875rem, 1.25rem);
-            .bold(400);
-            box-sizing: border-box;
-
-            &.active {
-                background: @pvx-mini-primary;
-                color: @pvx-mini-btn-bg;
-            }
-        }
-    }
-
-    .u-btn {
-        .flex;
-        .fz(1rem, 1.5rem);
-        .bold(700);
-        gap: 1.25rem;
-
-        .u-report-btn {
-            .r(0.75rem);
-            flex-shrink: 0;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            color: @pvx-mini-text-muted-dark;
-            box-sizing: border-box;
         }
 
-        .u-confirm-btn {
-            .r(0.75rem);
-            flex: 1;
+        .u-btn {
+            .flex;
+            .flex(o);
+            .mt(1.25rem);
             padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
+            gap: 0.5rem;
+            align-self: stretch;
+            .r(0.75rem);
+            background: rgba(255, 255, 255, 0.1);
             color: @pvx-mini-text-disabled-dark;
-            text-align: center;
-            box-sizing: border-box;
+        }
+    }
 
-            &.active {
-                background: @pvx-mini-primary;
-                color: @pvx-mini-btn-bg;
+    .m-filtrate {
+        padding: 0.75rem;
+        box-sizing: border-box;
+
+        .u-filtrate-title {
+            .mb(0.75rem);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .u-box {
+            .flex;
+            .mb(0.75rem);
+            gap: 0.5rem;
+            align-content: center;
+            justify-content: space-between;
+
+            .u-item {
+                .flex;
+                .flex(o);
+                .r(0.75rem);
+                flex: 1;
+                padding: 0.5rem;
+                background: rgba(255, 255, 255, 0.05);
+                color: @pvx-mini-text-muted-dark;
+                .fz(0.875rem, 1.25rem);
+                .bold(400);
+                box-sizing: border-box;
+
+                &.active {
+                    background: @pvx-mini-primary;
+                    color: @pvx-mini-btn-bg;
+                }
+            }
+        }
+
+        .u-btn {
+            .flex;
+            .fz(1rem, 1.5rem);
+            .bold(700);
+            gap: 1.25rem;
+
+            .u-report-btn {
+                .r(0.75rem);
+                flex-shrink: 0;
+                padding: 0.75rem 1rem;
+                background: rgba(255, 255, 255, 0.05);
+                color: @pvx-mini-text-muted-dark;
+                box-sizing: border-box;
+            }
+
+            .u-confirm-btn {
+                .r(0.75rem);
+                flex: 1;
+                padding: 0.75rem 1rem;
+                background: rgba(255, 255, 255, 0.05);
+                color: @pvx-mini-text-disabled-dark;
+                text-align: center;
+                box-sizing: border-box;
+
+                &.active {
+                    background: @pvx-mini-primary;
+                    color: @pvx-mini-btn-bg;
+                }
             }
         }
     }
-}
 
-.slide-up-enter-active,
-.slide-up-leave-active {
-    transition: all 0.3s ease;
-}
+    .slide-up-enter-active,
+    .slide-up-leave-active {
+        transition: all 0.3s ease;
+    }
 
-.slide-up-enter-from,
-.slide-up-leave-to {
-    transform: translateY(100%);
-    opacity: 0;
-}
+    .slide-up-enter-from,
+    .slide-up-leave-to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
 </style>

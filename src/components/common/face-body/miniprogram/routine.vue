@@ -2,27 +2,19 @@
  * @Author: zhusha
  * @Date: 2025-02-16 01:28:40
  * @LastEditors: zhusha
- * @LastEditTime: 2025-03-20 21:51:05
+ * @LastEditTime: 2026-04-29 10:10:42
  * @Description: 小程序适配捏脸常规模组
  *
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
     <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
-        <div
-            class="u-item"
-            v-for="item in list"
-            :key="item.id"
-            :style="{ width: isOne ? 'calc(calc(100vw - 70px) / 3)' : size }"
-            @click="openNewFace(item.id)"
-        >
-            <div
-                class="u-item_img"
-                :style="{
-                    width: isOne ? '100%' : size,
-                    height: isOne ? 'calc(calc(100vw - 70px) / 3)' : size,
-                }"
-            >
+        <div class="u-item" v-for="item in list" :key="item.id"
+            :style="{ width: isOne ? 'calc(calc(100vw - 70px) / 3)' : size }" @click="openNewFace(item.id)">
+            <div class="u-item_img" :style="{
+                width: isOne ? '100%' : size,
+                height: isOne ? 'calc(calc(100vw - 70px) / 3)' : size,
+            }">
                 <el-image class="u-pic" :src="showImg(item)" fit="cover">
                     <template #error>
                         <div class="image-slot">
@@ -142,100 +134,101 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import "~@/assets/css/common/face-body/miniprogram/index.less";
+    @import "~@/assets/css/common/face-body/miniprogram/index.less";
 
-.p-face-routine {
-    .size(100%, 182px);
-    .flex;
-    overflow: auto;
-    box-sizing: border-box;
-    padding: 0 1.25rem;
-    &::-webkit-scrollbar {
-        width: 0;
-        height: 0;
-    }
+    .p-face-routine {
+        .size(100%, auto);
+        .flex;
+        overflow: auto;
+        box-sizing: border-box;
+        padding: 0 1.25rem;
 
-    &.p-face-routine_one {
-        flex-wrap: wrap;
-        height: 100%;
-    }
-
-    .u-item {
-        .u-item_img {
-            .r(0.444rem);
-            background: #d9d9d9;
-            overflow: hidden;
-
-            img {
-                object-fit: contain;
-            }
+        &::-webkit-scrollbar {
+            width: 0;
+            height: 0;
         }
 
-        .u-item_tag {
-            .flex;
-            gap: 0.222rem;
-            padding: 0.222rem 0.111rem;
-            box-sizing: border-box;
+        &.p-face-routine_one {
+            flex-wrap: wrap;
+            height: 100%;
+        }
 
-            .u-tag_item {
-                .size(0.667rem, 0.111rem);
-                border-radius: 100px;
+        .u-item {
+            .u-item_img {
+                .r(0.444rem);
+                background: #d9d9d9;
+                overflow: hidden;
 
-                &.green {
-                    background: #34c759;
-                }
-
-                &.mint {
-                    background: #23abe5;
-                }
-
-                &.purple {
-                    background: #af52de;
-                }
-
-                &.new {
-                    background: #ff72af;
+                img {
+                    object-fit: contain;
                 }
             }
-        }
 
-        .u-item_name,
-        .u-item_author {
-            padding: 0 0.111rem;
-            box-sizing: border-box;
-            .bold(400);
-            font-style: normal;
-        }
+            .u-item_tag {
+                .flex;
+                gap: 0.222rem;
+                padding: 0.222rem 0.111rem;
+                box-sizing: border-box;
 
-        .u-item_name {
-            .w(100%);
-            color: @pvx-text-80;
-            .fz(0.778rem, 1.333rem);
-            .mb(0.222rem);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+                .u-tag_item {
+                    .size(0.667rem, 0.111rem);
+                    border-radius: 100px;
 
-        .u-item_author {
-            color: @pvx-text-40;
-            .fz(0.667rem, 1rem);
-        }
+                    &.green {
+                        background: #34c759;
+                    }
 
-        @media (prefers-color-scheme: dark) {
+                    &.mint {
+                        background: #23abe5;
+                    }
+
+                    &.purple {
+                        background: #af52de;
+                    }
+
+                    &.new {
+                        background: #ff72af;
+                    }
+                }
+            }
+
+            .u-item_name,
+            .u-item_author {
+                padding: 0 0.111rem;
+                box-sizing: border-box;
+                .bold(400);
+                font-style: normal;
+            }
+
             .u-item_name {
-                color: @pvx-dark-text-80;
+                .w(100%);
+                color: @pvx-text-80;
+                .fz(0.778rem, 1.333rem);
+                .mb(0.222rem);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .u-item_author {
-                color: @pvx-dark-text-40;
+                color: @pvx-text-40;
+                .fz(0.667rem, 1rem);
+            }
+
+            @media (prefers-color-scheme: dark) {
+                .u-item_name {
+                    color: @pvx-dark-text-80;
+                }
+
+                .u-item_author {
+                    color: @pvx-dark-text-40;
+                }
             }
         }
-    }
 
-    .u-more {
-        .x;
-        .w(100%);
+        .u-more {
+            .x;
+            .w(100%);
+        }
     }
-}
 </style>
