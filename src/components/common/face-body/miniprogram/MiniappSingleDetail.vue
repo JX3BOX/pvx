@@ -319,6 +319,7 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/common/drawer.less";
+@import "~@/assets/css/common/face-body/miniprogram/drawer.less";
 </style>
 
 <style lang="less" scoped>

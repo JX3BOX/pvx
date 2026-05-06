@@ -102,7 +102,7 @@ export default {
         .m-cardlist-items {
             flex: 1;
             .grid;
-            gap: 20px;
+            gap: 10px;
             overflow-x: auto;
             padding:10px 0;
 

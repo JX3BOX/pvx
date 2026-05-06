@@ -1,6 +1,6 @@
 /**
- * PC 端暗色模式样式
- * 仅包含 PC 端专用的暗色模式样式
+ * 小程序暗色模式样式
+ * 集中管理所有小程序暗色模式样式
  */
 
 @import "../_variables.less";
@@ -9,6 +9,18 @@
     .c-facedat,
     .c-bodydat {
         background-color: @pvx-dark-bg;
+    }
+
+    .m-face-list_mobile__tabs,
+    .m-body-list_mobile__tabs {
+        .u-tab_item {
+            color: @pvx-dark-text-80;
+
+            &.is-active {
+                color: @pvx-bg-white;
+                border-bottom: 2px solid @pvx-bg-white;
+            }
+        }
     }
 
     .c-facedat-group,
@@ -50,6 +62,35 @@
     .m-price-all {
         .u-title {
             color: @pvx-mini-text-muted-dark;
+        }
+    }
+
+    .m-face-data {
+        background-color: @pvx-mini-card-dark;
+        color: @pvx-mini-text-muted-dark;
+
+        .u-img {
+            display: none;
+        }
+
+        .u-img-dark {
+            display: block;
+        }
+    }
+
+    .m-face-list_mobile {
+        background-color: @pvx-dark-bg;
+
+        .u-card-title {
+            color: @pvx-mini-text-dark;
+        }
+    }
+
+    .m-body-list_mobile {
+        background-color: #000;
+
+        .u-card-title {
+            color: @pvx-bg-white;
         }
     }
 }

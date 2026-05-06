@@ -103,11 +103,16 @@
 }
 
 .m-pvx-type-list--all {
-    .flex;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 16px;
+    .grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
     width: 100%;
+    margin-bottom: 16px;
+
+    .m-pvx-type-item {
+        max-width: 220px;
+        justify-self: start;
+    }
 }
 
 .m-pvx-type-item:last-child,

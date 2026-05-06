@@ -1,10 +1,10 @@
 /**
  * pcListMixin - PC端列表页公共逻辑
- * 
+ *
  * @description 用于脸型/体型模块PC端列表页的公共逻辑抽取
  * @author Face & Body 模块优化团队
  * @version 1.3.0
- * 
+ *
  * @changelog
  * - v1.3.0: 彻底解决重复请求问题
  *   - 使用 isChangingActive 标志位，阻止 tabsData 在 active 变化时触发额外请求
@@ -62,7 +62,7 @@ export default {
 
         typeName() {
             const tab = this.activeTab;
-            return tab ? tab.label : '';
+            return tab ? tab.label : "";
         },
 
         noList() {
@@ -77,7 +77,7 @@ export default {
     methods: {
         /**
          * 设置当前激活的类型
-         * 
+         *
          * 设计思路：
          * 1. 设置 isChangingActive 标志位，阻止后续 tabsData 变化触发请求
          * 2. 更新 per、page、active
@@ -86,23 +86,28 @@ export default {
          */
         setActive(val) {
             if (val === this.active) return;
-            
+
             // 设置标志位，阻止 tabsData 变化触发的额外请求
             this.isChangingActive = true;
-            
-            // 更新状态
-            this.per = val === -1 ? this.count : this.count * 3;
-            this.page = 1;
+
+            // 先更新active，然后重新计算count
+            const oldActive = this.active;
             this.active = val;
-            
+
+            // 重新计算count（因为全部选项和非全部选项使用不同的计算逻辑）
+            this.showCount();
+
+            // 更新状态
+            this.page = 1;
+
             // 滚动到顶部
             document.documentElement.scrollTop = 0;
-            
+
             // 直接调用 loadData，不依赖 params watcher
             if (this.isInitialized) {
                 this.loadData();
             }
-            
+
             // 在下一个 tick 重置标志位
             this.$nextTick(() => {
                 this.isChangingActive = false;
@@ -124,9 +129,30 @@ export default {
                 this.per = 8;
                 return;
             }
+
+            // 获取容器宽度（减去左右边距）
             const listWidth = this.$refs.listRef?.clientWidth - 120;
-            this.count = Math.floor(listWidth / (Number(this.itemData.width) + 10));
-            this.per = this.active === -1 ? this.count : this.count * 3;
+
+            // 根据是否是全部选项，使用不同的计算参数
+            if (this.active === -1) {
+                // 全部选项：使用最原始的计算逻辑
+                // CardBannerList组件，gap: 10px
+                const cardMinWidth = Number(this.itemData.width); // 190px
+                const gridGap = 10; // 卡片之间的间距
+
+                this.count = Math.floor(listWidth / (cardMinWidth + gridGap));
+                this.per = this.count;
+            } else {
+                // 非全部选项：使用 .m-pvx-type-list--all 容器
+                // gap: 12px，卡片有 max-width: 220px 限制
+                // CSS Grid使用minmax(190px, 1fr)，但卡片实际最大宽度为220px
+                // 使用220px计算列数，确保与CSS Grid实际渲染一致
+                const cardMaxWidth = 220; // 卡片最大宽度
+                const gridGap = 12; // 卡片之间的间距
+
+                this.count = Math.floor((listWidth + gridGap) / (cardMaxWidth + gridGap));
+                this.per = this.count * 4; // 4行
+            }
         },
 
         handleResize() {
@@ -136,7 +162,7 @@ export default {
         handleLoad(type) {
             const item = this.list.find((e) => e.value === type);
             if (!item) return;
-            
+
             const params = omit(this.params, ["type"]);
             params.pageSize = this.per;
             params.pageIndex = item.page + 1;
@@ -146,7 +172,7 @@ export default {
 
         /**
          * 加载数据
-         * 
+         *
          * 设计思路：
          * 1. 构建请求参数
          * 2. 与 lastRequestParams 比较，避免重复请求
@@ -154,7 +180,7 @@ export default {
          */
         loadData() {
             let params = omit(this.params, ["type"]);
-            
+
             // 构建完整的请求参数对象
             const requestParams = {
                 ...params,
@@ -162,15 +188,15 @@ export default {
                 page: this.page,
                 per: this.per,
             };
-            
+
             // 与上次请求参数比较，避免重复请求
             if (isEqual(requestParams, this.lastRequestParams)) {
                 return;
             }
-            
+
             // 缓存当前请求参数
             this.lastRequestParams = { ...requestParams };
-            
+
             this.loading = true;
 
             if (this.active === -1) {
@@ -188,7 +214,7 @@ export default {
 
         /**
          * 处理 Tab 切换事件（来自 tabs 组件）
-         * 
+         *
          * 设计思路：
          * 1. 如果正在切换 active（isChangingActive 为 true），只更新 tabsData，不触发 loadData
          * 2. 如果是 body_type 变化，调用 setActive
@@ -201,7 +227,7 @@ export default {
                 this.tabsData = { ...data };
                 return;
             }
-            
+
             const isBodyTypeChange = data.body_type !== undefined && data.body_type !== this.active;
 
             this.page = 1;
@@ -225,10 +251,10 @@ export default {
             this.isInitialized = true;
             this.loadData();
         });
-        window.addEventListener('resize', this.handleResize);
+        window.addEventListener("resize", this.handleResize);
     },
 
     beforeUnmount() {
-        window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener("resize", this.handleResize);
     },
 };
