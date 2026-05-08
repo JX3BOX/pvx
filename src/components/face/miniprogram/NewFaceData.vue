@@ -10,24 +10,24 @@
             <div class="c-facedat-group" v-for="category in boneCategories" :key="category.tabValue"
                 v-show="active === category.tabValue">
                 <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(category.data)" :key="index">
-                    <div class="u-type-title">{{ item }}</div>
-                    <ul class="u-list u-new"
+                    <div class="u-type-title u-fb-data-type-title">{{ item }}</div>
+                    <ul class="u-list u-new u-fb-data-list is-new"
                         v-for="(subItem, itemIndex) in Object.keys(category.data[item])" :key="itemIndex">
                         <template v-if="subItem === 'root'">
-                            <li v-for="(key, i) in category.data[item].root" :key="key + i">
-                                <label>{{ key.BoneName }}</label>
-                                <span>{{ facedata["tBone"][key.BoneType] }}</span>
+                            <li class="u-fb-list-item" v-for="(key, i) in category.data[item].root" :key="key + i">
+                                <label class="u-fb-list-label">{{ key.BoneName }}</label>
+                                <span class="u-fb-list-value">{{ facedata["tBone"][key.BoneType] }}</span>
                                 <slider v-if="lock" class="u-range" :min="-128" :max="128"
                                     :model-value="facedata['tBone'][key.BoneType]"></slider>
                                 <el-slider v-else class="u-range" :min="-128" :max="128"
                                     v-model="localFacedata.tBone[key.BoneType]" :disabled="lock"></el-slider>
                             </li>
                         </template>
-                        <li v-if="subItem !== 'root'" class="u-sub-title">{{ subItem }}</li>
+                        <li v-if="subItem !== 'root'" class="u-sub-title u-fb-data-sub-title">{{ subItem }}</li>
                         <template v-if="subItem !== 'root'">
-                            <li v-for="(key, i) in category.data[item][subItem]" :key="i">
-                                <label>{{ key.BoneName }}</label>
-                                <span>{{ facedata["tBone"][key.BoneType] }}</span>
+                            <li class="u-fb-list-item" v-for="(key, i) in category.data[item][subItem]" :key="i">
+                                <label class="u-fb-list-label">{{ key.BoneName }}</label>
+                                <span class="u-fb-list-value">{{ facedata["tBone"][key.BoneType] }}</span>
                                 <slider v-if="lock" class="u-range" :min="-128" :max="128"
                                     :model-value="facedata['tBone'][key.BoneType]"></slider>
                                 <el-slider v-else class="u-range" :min="-128" :max="128"
@@ -41,9 +41,9 @@
                 <div class="c-facedat-group__item" v-for="(item, index) in Object.keys(new_decal_group['妆容'])"
                     :key="index">
                     <div class="u-type-title">{{ item }}</div>
-                    <div class="u-decals" v-for="(subItem, itemIndex) in new_decal_group['妆容'][item]" :key="itemIndex">
-                        <div v-if="facedata.tDecal[subItem.DecalsType].bUse" class="u-decals-box">
-                            <div class="u-price">
+                    <div class="u-decals m-fb-decals" v-for="(subItem, itemIndex) in new_decal_group['妆容'][item]" :key="itemIndex">
+                        <div v-if="facedata.tDecal[subItem.DecalsType].bUse" class="u-decals-box m-fb-decals__box">
+                            <div class="u-price u-fb-decals-price">
                                 <i class="el-icon-coin"></i>
                                 {{
                                     decalDb.getDecalPrice(
@@ -54,7 +54,7 @@
                                 }}
                                 通宝
                             </div>
-                            <div class="u-title">
+                            <div class="u-title u-fb-data-title">
                                 <img class="u-pic" :src="decalDb.getDecalIcon(
                                     subItem.DecalsType,
                                     facedata.tDecal[subItem.DecalsType]['nShowID'],
@@ -70,30 +70,30 @@
                                 }}
                                 <span class="u-dname"> ({{ facedata.tDecal[subItem.DecalsType].nColorID }})</span>
                             </div>
-                            <div class="u-decals-params-box">
-                                <div class="u-decals-params">
-                                    <span>{{ subItem.Name1 }}</span>
-                                    <span>{{ facedata.tDecal[subItem.DecalsType].fValue1.toFixed(2) }}</span>
+                            <div class="u-decals-params-box m-fb-decals__params-box">
+                                <div class="u-decals-params m-fb-decals__params">
+                                    <span class="u-fb-decals-params-label">{{ subItem.Name1 }}</span>
+                                    <span class="u-fb-decals-params-value">{{ facedata.tDecal[subItem.DecalsType].fValue1.toFixed(2) }}</span>
                                 </div>
                                 <div class="u-decals-params" v-if="!subItem.bValueXY">
                                     <template v-if="subItem.bShowScroll2">
-                                        <span>{{ subItem.Name2 }}</span>
-                                        <span>{{ facedata.tDecal[subItem.DecalsType].fValue2.toFixed(2) }}</span>
+                                        <span class="u-fb-decals-params-label">{{ subItem.Name2 }}</span>
+                                        <span class="u-fb-decals-params-value">{{ facedata.tDecal[subItem.DecalsType].fValue2.toFixed(2) }}</span>
                                     </template>
                                 </div>
                                 <div class="u-decals-params" v-if="!subItem.bValueXY">
                                     <template v-if="subItem.bShowScroll3">
-                                        <span>{{ subItem.Name3 }}</span>
-                                        <span>{{ facedata.tDecal[subItem.DecalsType].fValue3.toFixed(2) }}</span>
+                                        <span class="u-fb-decals-params-label">{{ subItem.Name3 }}</span>
+                                        <span class="u-fb-decals-params-value">{{ facedata.tDecal[subItem.DecalsType].fValue3.toFixed(2) }}</span>
                                     </template>
                                 </div>
-                                <div class="u-decals-params" v-if="subItem.bValueXY">
-                                    <span>X坐标</span>
-                                    <span>{{ facedata.tDecal[subItem.DecalsType].fValue3.toFixed(2) }}</span>
+                                <div class="u-decals-params m-fb-decals__params" v-if="subItem.bValueXY">
+                                    <span class="u-fb-decals-params-label">X坐标</span>
+                                    <span class="u-fb-decals-params-value">{{ facedata.tDecal[subItem.DecalsType].fValue3.toFixed(2) }}</span>
                                 </div>
-                                <div class="u-decals-params" v-if="subItem.bValueXY">
-                                    <span>Y坐标</span>
-                                    <span>{{ facedata.tDecal[subItem.DecalsType].fValue3.toFixed(2) }}</span>
+                                <div class="u-decals-params m-fb-decals__params" v-if="subItem.bValueXY">
+                                    <span class="u-fb-decals-params-label">Y坐标</span>
+                                    <span class="u-fb-decals-params-value">{{ facedata.tDecal[subItem.DecalsType].fValue3.toFixed(2) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -101,8 +101,8 @@
                 </div>
 
                 <div class="m-price-all">
-                    <span class="u-title">总计：</span>
-                    <span class="u-total"><i class="el-icon-coin"></i>
+                    <span class="u-title u-fb-price-title">总计：</span>
+                    <span class="u-total u-fb-price-total"><i class="el-icon-coin"></i>
                         <b>{{ decalDb.getTotalPrice(facedata, true) }}</b> 通宝</span>
                 </div>
             </div>

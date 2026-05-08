@@ -169,10 +169,9 @@ export default {
                     if (!list.length) {
                         return;
                     }
-                    // 最近刷新时间 返回的时间已经是东八区时间，其余对比时间同样需要换算到东八区时间
-                    let created_at = dayjs(list?.[0].created_at || dayjs.tz());
+                    let created_at = dayjs(list?.[0]?.created_at || dayjs.tz());
                     if (!this.isAsia) {
-                        created_at = dayjs.tz(list?.[0].created_at || dayjs.tz());
+                        created_at = dayjs.tz(list?.[0]?.created_at || dayjs.tz());
                     }
                     const now = dayjs.tz();
                     const now_day = now.day();
@@ -210,8 +209,12 @@ export default {
             getHorseReporter(type, server)
                 .then((res) => {
                     const list = res.data?.data?.list || [];
+                    if (!list.length) {
+                        return;
+                    }
                     const content = list?.[0]?.content || "";
-                    const npc = /\]\[(.*)\]大声喊/.exec(content)[1].trim() || "";
+                    const npcMatch = /\]\[(.*)\]大声喊/.exec(content);
+                    const npc = npcMatch?.[1]?.trim() || "";
                     const defaultMapId = 216;
                     const map_id = this.chituMap?.[npc] || defaultMapId;
                     const mapInfo = horseSites[map_id];
@@ -226,10 +229,9 @@ export default {
                             ...coor,
                         },
                     ];
-                    // 最近刷新时间 返回的时间已经是东八区时间，其余对比时间同样需要换算到东八区时间
-                    let created_at = dayjs(list?.[0].created_at || dayjs.tz());
+                    let created_at = dayjs(list?.[0]?.created_at || dayjs.tz());
                     if (!this.isAsia) {
-                        created_at = dayjs.tz(list?.[0].created_at || dayjs.tz());
+                        created_at = dayjs.tz(list?.[0]?.created_at || dayjs.tz());
                     }
                     const now = dayjs.tz();
                     const now_day = now.day();
@@ -313,7 +315,8 @@ export default {
                 const { type, content } = item;
                 if (type === "chitu-horse") {
                     horses = ["赤兔·飞虹"];
-                    const npc = /\]\[(.*)\]大声喊/.exec(content)[1].trim();
+                    const npcMatch = /\]\[(.*)\]大声喊/.exec(content);
+                    const npc = npcMatch?.[1]?.trim() || "";
                     mapName = this.chituMap[npc] || "";
                     mapId = this.chituMap?.[npc] || defaultMapId;
                     const mapInfo = horseSites[mapId];

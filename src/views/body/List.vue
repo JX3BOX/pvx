@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * List - 体型模块列表页
  * 
  * @description 展示体型列表，支持推荐列表和全部列表两种模式
@@ -25,7 +25,7 @@
     <div class="p-pvx-body-list" v-loading="loading" ref="listRef">
         <pvxTabs @change="handleBodyTabChange" :body_types="list" :link="link" :active="active" />
         <template v-if="active === -1">
-            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type-box"
+            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
                 :class="{ none: !item.list.length }">
                 <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="200"
                     :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
@@ -41,33 +41,33 @@
                 </CardBannerList>
             </div>
         </template>
-        <div class="m-pvx-type-box" v-else>
-            <div class="m-pvx-type-title u-pvx-type">
+        <div class="m-pvx-type__box" v-else>
+            <div class="m-pvx-type__title u-pvx-type">
                 <div class="u-pvx-title">{{ typeName + "体型" }}</div>
             </div>
-            <div class="m-pvx-type-list--all">
+            <div class="m-pvx-type__list--all">
                 <ListItem type="body" v-for="item in subList" :key="item.id" :item="item" />
             </div>
-            <el-button class="m-pvx-archive-more" v-show="hasNextPage" type="primary" @click="appendPage"
+            <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">
                 <el-icon>
                     <ArrowDown />
                 </el-icon>
                 加载更多
             </el-button>
-            <el-pagination class="m-pvx-archive-pages" background layout="total, prev, pager, next, jumper"
+            <el-pagination class="m-pvx-archive__pages" background layout="total, prev, pager, next, jumper"
                 :hide-on-single-page="true" @current-change="changePage" @prev-click="changePage"
                 @next-click="changePage" :page-size="per" :total="total" v-model:current-page="page"></el-pagination>
         </div>
-        <el-alert v-if="noList" class="m-pvx-archive-null" :title="alertTitle" type="info" center show-icon></el-alert>
+        <el-alert v-if="noList" class="m-pvx-archive__null" :title="alertTitle" type="info" center show-icon></el-alert>
     </div>
 </template>
 
 <script>
 import CardBannerList from "@/components/common/card_banner_list.vue";
-import pvxTabs from "@/components/common/face-body/tabs";
+import pvxTabs from "@/components/common/face-body/Tabs";
 import ListItem from "@/components/common/face-body/ListItem.vue";
-import pcListMixin from "@/components/common/face-body/mixins/pcListMixin";
+import pcListMixin from "@/components/common/face-body/mixins/pc-list-mixin";
 import { concat } from "lodash";
 import { getBodyList } from "@/service/body";
 import { ArrowDown } from '@element-plus/icons-vue';

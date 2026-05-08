@@ -10,10 +10,10 @@
         <template v-for="tab in Object.values(group_tabs)" :key="tab.value">
             <div class="c-facedat-preivew" v-show="active === tab.value">
                 <div class="c-facedat-group">
-                    <ul class="u-list">
-                        <li v-for="(item, i) in currentGroup" :key="i">
-                            <label>{{ item.name }}</label>
-                            <span>{{ item.value }}</span>
+                    <ul class="u-list u-fb-data-list">
+                        <li class="u-fb-list-item" v-for="(item, i) in currentGroup" :key="i">
+                            <label class="u-fb-list-label">{{ item.name }}</label>
+                            <span class="u-fb-list-value">{{ item.value }}</span>
                             <slider class="u-range" :min="item.min" :max="item.max" v-model="body_data.tBody[item.key]"
                                 :disabled="false"></slider>
                         </li>
@@ -33,6 +33,7 @@ import field_range from "@jx3box/jx3box-facedat/assets/data/body/body_fields_rev
 import Slider from "@jx3box/jx3box-facedat/src/Slider.vue";
 
 export default {
+    name: "BodyData",
     components: { Slider },
     data: function () {
         return {

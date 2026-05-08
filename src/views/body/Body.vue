@@ -34,7 +34,7 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { __OriginRoot } from "@/utils/config";
 export default {
     name: "Body",

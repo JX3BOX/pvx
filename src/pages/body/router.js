@@ -47,7 +47,7 @@ const routes = [
     {
         name: "bodydatMobile",
         path: "/BodydatMobile",
-        component: () => import("@/views/body/miniprogram/Bodydat.vue"),
+        component: () => import("@/views/body/miniprogram/BodyData.vue"),
         meta: {
             i18n: {
                 title: "pages.body.bodydatMobile.title",

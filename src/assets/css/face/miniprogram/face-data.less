@@ -1,31 +1,29 @@
 /**
  * 小程序脸型数据展示样式
- * 从 common/face-body/miniprogram 迁移
+ * 公共部分已抽取到 data-common.less，此处仅保留 face 特有样式
+ * 暗色模式统一在 miniprogram/dark-mode.less 中管理
  */
 
 @import "../../common/face-body/miniprogram/base.less";
-
-// ==================== 基础布局样式 ====================
+@import "../../common/face-body/miniprogram/data-common.less";
 
 .c-facedat {
-    .h(100vh);
     overflow-y: auto;
-    padding: 10px 4px;
-    box-sizing: border-box;
+    padding: 1.111rem 0.222rem;
     background-color: #f3f1f1;
 }
 
-.m-face-list_mobile__tabs {
+.m-pvx-face-list-mobile__tabs {
     .flex;
     justify-content: space-between;
     align-items: center;
-    height: 32px;
+    height: 1.778rem;
 
     .u-tab_item {
         color: @pvx-text-40;
-        .fz(18px, 28px);
+        .fz(1rem, 1.556);
         .bold(700);
-        .mb(20px);
+        .mb(1.111rem);
 
         &.is-active {
             color: @pvx-dark-surface;
@@ -34,108 +32,224 @@
     }
 }
 
-.c-facedat-preivew {
-    overflow: auto;
-    height: calc(100vh - 73px);
-    padding: 0 8px 10px 8px;
+.u-fb-data-title-old,
+.c-facedat-group .u-title-old {
+    .bold;
+    .fz(0.833rem, 2);
+    flex-shrink: 0;
+    width: 5.556rem;
+}
+
+.u-fb-data-type-title,
+.c-facedat-group .u-type-title {
+    border-radius: 0.444rem;
+    border: 1px solid rgba(40, 40, 40, 0.05);
+    background-color: @pvx-mini-card;
+    padding: 0.222rem 0.444rem;
+    .flex;
+    flex-direction: column;
+    gap: 0.222rem;
+    align-items: flex-start;
+    align-self: stretch;
+    color: @pvx-mini-text-muted;
+    .fz(0.667rem, 1);
+    .bold(700);
+}
+
+.u-fb-data-sub-title,
+.c-facedat-group .u-list .u-sub-title {
+    .h(1.333rem);
+    .pl(0.444rem);
+    color: @pvx-mini-text-disabled;
+    .fz(0.667rem, 1);
+    .bold(700);
+}
+
+.u-fb-data-list.is-new .u-fb-list-label,
+.c-facedat-group .u-list.u-new label {
+    .w(2.222rem);
+}
+
+.m-fb-decals,
+.c-facedat-group .u-decals {
+    .r(0.278rem);
+    list-style: none;
+    background-color: @pvx-mini-text-dark;
+    .mt(0.667rem);
+}
+
+.m-fb-decals__box,
+.u-decals .u-decals-box {
+    padding: 0.444rem;
+
+    .u-title {
+        .flex;
+        align-items: center;
+    }
+}
+
+.u-fb-decals-item,
+.c-facedat-group .u-decals li {
+    display: flex;
+    gap: 0.278rem;
+    align-items: center;
+    height: 2.778rem;
+    padding: 0.444rem;
+}
+
+.u-fb-decals-img,
+.c-facedat-group .u-decals img {
+    .size(1.778rem);
+    .y;
+    .r(0.167rem);
+}
+
+.u-fb-decals-name,
+.c-facedat-group .u-decals span {
+    flex: 1 1 auto;
+    .fz(0.778rem);
+    .nobreak;
+    .bold;
+    max-width: 15%;
+}
+
+.m-fb-decals__params-box,
+.u-decals .u-decals-params-box {
+    .w(calc(100vw - 1.778rem));
+    .mt(0.444rem);
+    .flex;
+    flex-wrap: wrap;
+    gap: 0.556rem;
+}
+
+.m-fb-decals__params,
+.u-decals .u-decals-params {
+    .w(calc(100% / 3 - 0.556rem));
     box-sizing: border-box;
 }
 
-.c-facedat-group {
-    .u-title {
-        .bold;
-        .fz(15px, 2);
-        flex-shrink: 0;
-        width: 220px;
-    }
+.u-fb-decals-params-label,
+.c-facedat-group .u-decals .u-decals-params span:first-child {
+    width: 1.556rem;
+    .fz(0.778rem);
+    color: @pvx-mini-text-muted;
+    .pr(0.556rem);
+}
 
+.u-fb-decals-params-value,
+.c-facedat-group .u-decals .u-decals-params span:nth-child(2) {
+    width: 1.556rem;
+    color: #5856d6;
+}
+
+.m-fb-decals__top,
+.u-decals .u-top-box {
+    .flex;
+    gap: 0.167rem;
+    justify-content: space-between;
+}
+
+.u-fb-decals-price,
+.u-decals .u-price {
+    .fz(0.667rem);
+    color: @pvx-price-gold;
+    .h(1rem);
+    .mb(0.444rem);
+}
+
+.u-fb-decals-free,
+.u-decals .u-free {
+    .fz(0.667rem);
+    color: @pvx-price-free;
+}
+
+.u-fb-decals-color,
+.u-decals .u-dcolor {
+    .flex;
+    .flex(o);
+    .fz(0.667rem);
+    color: #999;
+}
+
+.u-fb-decals-flip,
+.u-decals .u-dflip {
+    .fz(0.667rem);
+    color: #555;
+}
+
+.u-fb-price-title,
+.m-price-all .u-title {
+    color: @pvx-mini-text-disabled;
+}
+
+.u-fb-price-total,
+.m-price-all .u-total {
+    color: @pvx-price-gold;
+}
+
+.u-fb-number-title,
+.m-pvx-face-number .u-title {
+    .flex;
+    gap: 0.111rem;
+    align-items: center;
+    .bold(400);
+    .mb(0.222rem);
+}
+
+.u-fb-number-value,
+.m-pvx-face-number .u-number {
+    .bold(700);
+}
+
+.c-facedat-group {
     .u-title-old {
         .bold;
-        .fz(15px, 2);
+        .fz(0.833rem, 2);
         flex-shrink: 0;
-        width: 100px;
+        width: 5.556rem;
     }
 
     .u-type-title {
-        border-radius: 8px;
+        border-radius: 0.444rem;
         border: 1px solid rgba(40, 40, 40, 0.05);
         background-color: @pvx-mini-card;
-        padding: 4px 8px;
+        padding: 0.222rem 0.444rem;
         .flex;
         flex-direction: column;
+        gap: 0.222rem;
         align-items: flex-start;
-        gap: 4px;
         align-self: stretch;
         color: @pvx-mini-text-muted;
-        .fz(12px, 18px);
+        .fz(0.667rem, 1);
         .bold(700);
     }
 
     .u-list {
-        list-style: none;
-        padding: 0;
-        .mb(10px);
-        .mt(0px);
-
-        li {
-            padding: 5px 8px;
-            .flex;
-            flex-flow: row;
-        }
-
         .u-sub-title {
-            .h(24px);
-            .pl(8px);
+            .h(1.333rem);
+            .pl(0.444rem);
             color: @pvx-mini-text-disabled;
-            .fz(12px, 18px);
+            .fz(0.667rem, 1);
             .bold(700);
         }
 
-        label,
-        span {
-            .fz(14px);
-        }
-
-        label {
-            .mr(10px);
-            font-weight: normal;
-            .w(80px);
-            color: #000;
-            .x(left);
-        }
-
-        .x(right);
-
-        input,
-        .u-range {
-            flex: 1;
-            .mr(5px);
-        }
-
-        span {
-            .w(50px);
-            .mr(10px);
-            .nobreak;
-            .bold;
-            color: #5856d6;
-            .x(right);
-        }
-
         &.u-new {
-            label {
-                .w(40px);
+
+            label,
+            .u-fb-list-label {
+                .w(2.222rem);
             }
         }
     }
 
     .u-decals {
-        .r(5px);
+        .r(0.278rem);
         list-style: none;
         background-color: @pvx-mini-text-dark;
-        .mt(12px);
+        .mt(0.667rem);
 
         .u-decals-box {
-            padding: 8px;
+            padding: 0.444rem;
 
             .u-title {
                 .flex;
@@ -143,50 +257,53 @@
             }
         }
 
-        li {
+        li,
+        .u-fb-decals-item {
             display: flex;
+            gap: 0.278rem;
             align-items: center;
-            height: 50px;
-            padding: 8px;
+            height: 2.778rem;
+            padding: 0.444rem;
         }
 
-        img {
-            .size(32px);
+        img,
+        .u-fb-decals-img {
+            .size(1.778rem);
             .y;
-            .mr(5px);
-            .r(3px);
+            .r(0.167rem);
         }
 
-        span {
+        span,
+        .u-fb-decals-name {
             flex: 1 1 auto;
-            .fz(14px);
+            .fz(0.778rem);
             .nobreak;
             .bold;
             max-width: 15%;
         }
 
         .u-decals-params-box {
-            .w(calc(100vw - 32px));
-            .mt(8px);
+            .w(calc(100vw - 1.778rem));
+            .mt(0.444rem);
             .flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 0.556rem;
         }
 
         .u-decals-params {
-            .w(calc(100% / 3 - 10px));
+            .w(calc(100% / 3 - 0.556rem));
             box-sizing: border-box;
 
             span {
                 &:first-child {
-                    width: 28px;
-                    .fz(14px);
+                    width: 1.556rem;
+                    .fz(0.778rem);
                     color: @pvx-mini-text-muted;
-                    .pr(10px);
+                    .pr(0.556rem);
                 }
 
                 &:nth-child(2) {
-                    width: 28px;
+                    width: 1.556rem;
                     color: #5856d6;
                 }
             }
@@ -194,44 +311,44 @@
 
         .u-top-box {
             .flex;
+            gap: 0.167rem;
             justify-content: space-between;
         }
 
         .u-price {
-            .fz(12px);
+            .fz(0.667rem);
             color: @pvx-price-gold;
-            .h(18px);
-            .mb(8px);
+            .h(1rem);
+            .mb(0.444rem);
         }
 
         .u-free {
-            .fz(12px);
+            .fz(0.667rem);
             color: @pvx-price-free;
         }
 
         .u-dcolor {
             .flex;
             .flex(o);
-            .fz(12px);
+            .fz(0.667rem);
             color: #999;
-            .ml(3px);
         }
 
         .u-dflip {
-            .fz(12px);
+            .fz(0.667rem);
             color: #555;
-            .ml(3px);
         }
-
     }
 }
 
 .m-price-all {
-    .fz(12px, 18px);
+    .fz(0.667rem, 1);
     .bold(700);
-    .x;
+    .flex;
+    .flex(o);
 
     .u-title {
+        width: auto;
         color: @pvx-mini-text-disabled;
     }
 
@@ -240,70 +357,7 @@
     }
 }
 
-// ==================== 暗色模式 ====================
-
-@media (prefers-color-scheme: dark) {
-    .c-facedat {
-        background-color: @pvx-dark-bg;
-    }
-
-    .m-face-list_mobile__tabs {
-        .u-tab_item {
-            color: @pvx-dark-text-80;
-
-            &.is-active {
-                color: @pvx-bg-white;
-                border-bottom: 2px solid @pvx-bg-white;
-            }
-        }
-    }
-
-    .c-facedat-group {
-        .u-type-title {
-            background-color: @pvx-mini-card-dark;
-        }
-
-        .u-decals {
-            background-color: @pvx-mini-card-dark;
-        }
-
-        .u-title,
-        .u-title-old,
-        .u-type-title,
-        .u-decals-params {
-            color: @pvx-mini-text-muted-dark;
-        }
-
-        .u-list {
-
-            .u-sub-title,
-            li,
-            label {
-                color: @pvx-mini-text-muted-dark;
-            }
-        }
-
-        .u-decals-params-box {
-            .u-decals-params {
-                span {
-                    &:first-child {
-                        color: @pvx-mini-text-muted-dark;
-                    }
-                }
-            }
-        }
-    }
-
-    .m-price-all {
-        .u-title {
-            color: @pvx-mini-text-muted-dark;
-        }
-    }
-}
-
-// ==================== 其他组件样式 ====================
-
-.m-face-data {
+.m-pvx-face-data {
     .flex;
     justify-content: space-between;
     align-items: center;
@@ -318,22 +372,9 @@
     .u-img-dark {
         display: none;
     }
-
-    @media (prefers-color-scheme: dark) {
-        background-color: @pvx-mini-card-dark;
-        color: @pvx-mini-text-muted-dark;
-
-        .u-img {
-            display: none;
-        }
-
-        .u-img-dark {
-            display: block;
-        }
-    }
 }
 
-.m-face-number {
+.m-pvx-face-number {
     margin: 0 1.111rem 0.889rem 1.111rem;
     padding: 0.889rem;
     .r(0.667rem);
@@ -354,67 +395,4 @@
     }
 }
 
-.m-face-data-copy {
-    .w(100%);
-
-    .u-copy-box,
-    .u-data-box {
-        .w(100%);
-        .flex;
-        .flex(o);
-        flex-direction: column;
-        gap: 1.25rem;
-
-        .u-copy-top {
-            .flex;
-            .flex(o);
-            flex-direction: column;
-        }
-    }
-
-    .u-label {
-        color: rgba(255, 255, 255, 0.4);
-        .fz(0.875rem, 1.25rem);
-        .bold(700);
-    }
-
-    .u-number {
-        .w(100%);
-        .flex;
-        padding: 1rem;
-        align-items: flex-start;
-        gap: 0.25rem;
-        align-self: stretch;
-        .r(0.75rem);
-        background: #ff7991;
-        box-sizing: border-box;
-        color: @pvx-mini-bg;
-        .fz(0.75rem, 1.125rem);
-        .bold(700);
-    }
-
-    .u-copy-btn {
-        .flex;
-        .flex(o);
-        padding: 0.75rem 1rem;
-        gap: 0.5rem;
-        align-self: stretch;
-        .r(0.75rem);
-        background: @pvx-mini-primary;
-        .fz(0.875rem, 1.25rem);
-        .bold(700);
-    }
-
-    .u-no-data-btn {
-        .flex;
-        .flex(o);
-        padding: 0.75rem 1rem;
-        gap: 0.5rem;
-        align-self: stretch;
-        .r(0.75rem);
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.4);
-        .fz(0.875rem, 1.25rem);
-        .bold(700);
-    }
-}
+@import "../../common/face-body/miniprogram/dark-mode.less";

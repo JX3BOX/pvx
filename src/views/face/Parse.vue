@@ -1,7 +1,7 @@
-<template>
+﻿<template>
     <div class="m-pvx-facedata">
-        <div class="m-pvx-face-parse" :class="{ on: done }">
-            <h1 class="m-pvx-face-parse-title">捏脸数据解析器</h1>
+        <div class="p-pvx-face-parse m-pvx-fb-parse" :class="{ on: done }">
+            <h1 class="m-pvx-fb-parse__title">捏脸数据解析器</h1>
             <Upload type="face" @success="handleSuccess">
                 <template #guide>
                     <a class="u-help" href="/tool/746" target="_blank">
@@ -11,7 +11,7 @@
                     </a>
                 </template>
             </Upload>
-            <Facedat class="m-pvx-face-parse-preview" :data="data" :lock="true" v-if="data" />
+            <Facedat class="m-pvx-fb-parse__preview" :data="data" :lock="true" v-if="data" />
         </div>
     </div>
 </template>
@@ -55,5 +55,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/face/parse.less";
+@import "~@/assets/css/common/face-body/parse.less";
 </style>

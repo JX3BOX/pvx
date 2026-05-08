@@ -22,6 +22,7 @@
 <script>
 import MiniappSingleDetail from "@/components/common/face-body/miniprogram/MiniappSingleDetail";
 import { getOneBodyInfo, getRandomBody } from "@/service/body";
+import { parseBodyData } from "@/utils/data-parser";
 
 export default {
     name: "BodySingleMiniprogram",
@@ -31,20 +32,7 @@ export default {
             return ~~this.$route.params.id;
         },
         bodydata() {
-            const data = this.post?.data || "";
-            const bodyData = {
-                object: {},
-            };
-            try {
-                if (data) {
-                    bodyData.object = JSON.parse(JSON.parse(data));
-                } else {
-                    bodyData.object = data;
-                }
-            } catch {
-                bodyData.object = JSON.parse(data);
-            }
-            return bodyData;
+            return parseBodyData(this.post?.data) || { object: {} };
         },
     },
     data() {

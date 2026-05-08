@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * Single - 脸型模块详情页
  * 
  * @description 展示脸型详情信息，包括图片预览、数据分析、购买下载、作者信息等
@@ -21,40 +21,40 @@
         <public-notice bckey="face_ac"></public-notice>
         <SingleHeader :post="post" type="face" :canEdit="canEdit" :topicText="topicText" />
 
-        <div class="m-pvx-type-content">
+        <div class="m-pvx-type__content">
             <SingleCarousel :imageList="previewSrcList" type="face" />
             <SinglePaySection :post="post" type="face" :hasBuy="has_buy" :fileList="downFileList"
                 :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile">
                 <template #extra-buttons>
-                    <div class="m-pvx-type-buy-btn m-pvx-type-buy-btn_copy" v-if="post.code_mode && !canBuy"
+                    <div class="m-pvx-type__buy-btn m-pvx-type__buy-btn--copy" v-if="post.code_mode && !canBuy"
                         @click="copy(post.code)">
                         <div class="u-pvx-buy">
-                            <img :src="require('@/assets/img/face/bxs_copy.svg')" alt="" />复制捏脸码
-                        </div>
+                        <img class="u-fb-buy-icon" :src="require('@/assets/img/face/bxs_copy.svg')" alt="" />复制捏脸码
                     </div>
-                    <div class="u-pvx-type-code" v-if="post.code_mode">{{ post.code }}</div>
+                    </div>
+                    <div class="u-pvx-type-code u-fb-buy-code" v-if="post.code_mode">{{ post.code }}</div>
                 </template>
             </SinglePaySection>
         </div>
 
-        <div class="m-pvx-single-data" v-if="!post.code_mode">
-            <span class="m-pvx-single-data-title">独家数据分析</span>
+        <div class="m-pvx-single__data" v-if="!post.code_mode">
+            <span class="m-pvx-single__data-title">独家数据分析</span>
             <facedata v-if="has_buy && facedata" :data="faceAllData" :lock="true" type="face" />
-            <div class="m-pvx-single-buy-box" v-else>
-                <div class="m-pvx-type-buy-btn" @click="pay()" v-if="canBuy">
+            <div class="m-pvx-single__buy-box" v-else>
+                <div class="m-pvx-type__buy-btn" @click="pay()" v-if="canBuy">
                     <div class="u-pvx-price">{{ priceText }}</div>
                     <div class="u-pvx-buy">
-                        <img :src="require('@/assets/img/common/face-body/shopcart.svg')" alt="" />购买
+                        <img class="u-fb-buy-icon" :src="require('@/assets/img/common/face-body/shopcart.svg')" alt="" />购买
                     </div>
                 </div>
                 <div class="u-pvx-type-buy-tip">数据分析将在购买后解锁</div>
             </div>
         </div>
 
-        <div class="m-pvx-type-download" v-if="has_buy && facedata">
-            <div class="m-pvx-type-buy-btn" @click="downloadAll">
+        <div class="m-pvx-type__download" v-if="has_buy && facedata">
+            <div class="m-pvx-type__buy-btn" @click="downloadAll">
                 <div class="u-pvx-buy">
-                    <img :src="require('@/assets/img/common/face-body/download.svg')" alt="" />下载数据
+                    <img class="u-fb-buy-icon" :src="require('@/assets/img/common/face-body/download.svg')" alt="" />下载数据
                 </div>
             </div>
         </div>
@@ -63,11 +63,11 @@
         <authorItem :uid="post.user_id" />
         <SingleRandomList :list="randomList" type="face" />
 
-        <Thx class="m-pvx-thx m-pvx-single-content-box" :postId="id" postType="face" :postTitle="post.title || '无标题'"
+        <Thx class="m-pvx-thx m-pvx-single__content-box" :postId="id" postType="face" :postTitle="post.title || '无标题'"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
             :client="post.client" />
 
-        <div class="m-pvx-comments m-pvx-single-content-box">
+        <div class="m-pvx-comments m-pvx-single__content-box">
             <el-divider content-position="left">讨论</el-divider>
             <CommonComment :id="id" category="face" />
         </div>
@@ -76,7 +76,7 @@
 
 <script>
 import PublicNotice from "@/components/PublicNotice";
-import pcSingleMixin from "@/components/common/face-body/mixins/pcSingleMixin";
+import pcSingleMixin from "@/components/common/face-body/mixins/pc-single-mixin";
 import {
     getOneFaceInfo,
     payFace,
@@ -89,7 +89,10 @@ import {
 import facedata from "@jx3box/jx3box-facedat/src/Facedat.vue";
 import CommonComment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import User from "@jx3box/jx3box-common/js/user";
-import authorItem from "@/components/common/face-body/author";
+import { buildFaceAllData } from "@/utils/data-parser";
+import { pollPayStatus } from "@/utils/pay-polling";
+import { formatPriceText } from "@/utils/price";
+import authorItem from "@/components/common/face-body/Author";
 import SingleNavigation from "@/components/common/face-body/SingleNavigation.vue";
 import SingleHeader from "@/components/common/face-body/SingleHeader.vue";
 import SingleCarousel from "@/components/common/face-body/SingleCarousel.vue";
@@ -108,42 +111,39 @@ export default {
         return {
             type: "face",
             stat: {},
+            payPollingHandle: null,
         };
     },
 
     computed: {
         facedata() {
-            const data = this.post?.data || "";
-            try {
-                return data.indexOf("\\") > -1 ? JSON.parse(data) : data;
-            } catch (e) {
-                return data;
-            }
+            return buildFaceAllData(this.post?.data);
         },
         canBuy() {
             return this.post.price_type && this.post.price_type != 0 && !this.has_buy;
         },
         priceText() {
-            if (this.post.price_type == 1) return `售价：${this.post.price_count} 盒币`;
-            if (this.post.price_type == 2) return `售价：${this.post.price_count} 金箔`;
-            return "";
+            return formatPriceText(this.post.price_type, this.post.price_count);
         },
         faceAllData() {
-            return {
-                json: this.facedata,
-                object: JSON.parse(this.facedata),
-                type: "face",
-            };
+            return this.facedata;
         },
     },
 
+    beforeUnmount() {
+        if (this.payPollingHandle) {
+            this.payPollingHandle.stop();
+            this.payPollingHandle = null;
+        }
+    },
     methods: {
         getData() {
             if (!this.id) return;
             this.loading = true;
             getOneFaceInfo(this.id)
                 .then((res) => {
-                    this.post = this.$store.state.faceSingle = res.data.data;
+                    this.post = res.data.data;
+                    this.$store.commit("SET_FACE_SINGLE", res.data.data);
                     document.title = this.post.title + this.$t("pages.common.appendTitle");
                     this.getAccessoryList();
                     this.getRandomList();
@@ -193,18 +193,20 @@ export default {
         },
 
         pollPayStatus(payid) {
-            loopPayStatus(payid).then((d) => {
-                const status = d.data.data.pay_status;
-                if (status === 1 || status === 2) {
-                    this.handlePayResult(status);
-                } else {
-                    setTimeout(() => this.pollPayStatus(payid), 1000);
-                }
-            }).catch(() => setTimeout(() => this.pollPayStatus(payid), 1000));
+            if (this.payPollingHandle) this.payPollingHandle.stop();
+            this.payPollingHandle = pollPayStatus(loopPayStatus, payid, {
+                onSuccess: () => this.handlePayResult(1),
+                onFail: () => this.handlePayResult(2),
+                onTimeout: () => {
+                    this.payBtnLoading = false;
+                    this.$notify.error({ title: "超时", message: "支付结果查询超时，请稍后查看" });
+                },
+            });
         },
 
         handlePayResult(status) {
             this.payBtnLoading = false;
+            this.payPollingHandle = null;
             if (status === 1) {
                 this.getData();
                 this.$notify.success({ title: "成功", message: "购买成功" });

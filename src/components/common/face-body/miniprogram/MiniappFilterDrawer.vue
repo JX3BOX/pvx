@@ -33,24 +33,27 @@
         class="c-drawer" @close="handleClose">
         <!-- 体型切换区域 -->
         <transition :name="cutShowTra ? 'slide-up' : ''">
-            <div class="m-cut" v-if="showCut">
+            <div class="m-cut m-pvx-fb-cut" v-if="showCut">
                 <!-- 全部体型选项 -->
-                <div class="u-cut-all" :class="{ 'is-active': tempActive === -1 }" @click="tempActive = -1">
+                <div class="u-cut-all u-fb-cut-all" :class="{ 'is-active': tempActive === -1 }" @click="tempActive = -1">
                     <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
                     全部体型
                 </div>
 
                 <!-- 体型列表 -->
-                <div class="u-cut-box">
-                    <div class="u-cut-item" v-for="(item, index) in typeList" :key="index"
+                <div class="u-cut-box u-fb-cut-box">
+                    <div class="u-cut-item u-fb-cut-item" v-for="(item, index) in typeList" :key="index"
                         :class="{ 'is-active': tempActive === item.value }" @click="tempActive = item.value">
-                        <img class="u-icon" :src="getTypeIcon(item.value)" svg-inline />
+                        <img class="u-icon" v-if="item.value === 1" src="@/assets/img/pvxsuspension/man.svg" svg-inline />
+                        <img class="u-icon" v-else-if="item.value === 2" src="@/assets/img/pvxsuspension/woman.svg" svg-inline />
+                        <img class="u-icon" v-else-if="item.value === 5" src="@/assets/img/pvxsuspension/boy.svg" svg-inline />
+                        <img class="u-icon" v-else-if="item.value === 6" src="@/assets/img/pvxsuspension/girl.svg" svg-inline />
                         <span>{{ item.label }}</span>
                     </div>
                 </div>
 
                 <!-- 操作按钮 -->
-                <div class="u-cut-btn">
+                <div class="u-cut-btn u-fb-cut-btn">
                     <div class="u-report-btn" @click="handleReset">重置</div>
                     <div class="u-confirm-btn" :class="{ active: showHighlightConfirm }" @click="handleConfirm">
                         确定
@@ -60,7 +63,7 @@
         </transition>
 
         <!-- 请先选择体型提示 -->
-        <div class="m-no-body" v-if="noBody">
+        <div class="m-no-body m-pvx-fb-no-body" v-if="noBody">
             <div class="u-icon">
                 <img src="@/assets/img/pvxsuspension/report.svg" svg-inline />
                 <div class="u-tips">请先选择体型</div>
@@ -69,20 +72,20 @@
         </div>
 
         <!-- 筛选区域 -->
-        <div class="m-filtrate" v-if="showFiltrate">
+        <div class="m-filtrate m-pvx-fb-filtrate" v-if="showFiltrate">
             <!-- 类型筛选（仅脸型有写实/写意） -->
             <template v-if="showFaceTypeFilter">
-                <div class="u-filtrate-title">类型</div>
+                <div class="u-filtrate-title u-fb-filtrate-title">类型</div>
                 <div class="u-box">
-                    <div class="u-item" :class="{ active: !localFilterParams.is_new_face }"
+                    <div class="u-item u-fb-filtrate-item" :class="{ active: !localFilterParams.is_new_face }"
                         @click="toggleFilter('is_new_face', '')">
                         全部
                     </div>
-                    <div class="u-item" :class="{ active: localFilterParams.is_new_face === '1' }"
+                    <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.is_new_face === '1' }"
                         @click="toggleFilter('is_new_face', '1', localFilterParams.is_new_face === '1')">
                         写实
                     </div>
-                    <div class="u-item" :class="{ active: localFilterParams.is_new_face === '0' }"
+                    <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.is_new_face === '0' }"
                         @click="toggleFilter('is_new_face', '0', localFilterParams.is_new_face === '0')">
                         写意
                     </div>
@@ -90,9 +93,9 @@
             </template>
 
             <!-- 标签筛选 -->
-            <div class="u-filtrate-title">标签</div>
+            <div class="u-filtrate-title u-fb-filtrate-title">标签</div>
             <div class="u-box">
-                <div class="u-item all" :class="{
+                <div class="u-item u-fb-filtrate-item all" :class="{
                     active:
                         !localFilterParams.star &&
                         localFilterParams.price_type === '' &&
@@ -100,40 +103,40 @@
                 }" @click="resetTagFilters">
                     全部
                 </div>
-                <div class="u-item" :class="{ active: localFilterParams.star === '1' }"
+                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.star === '1' }"
                     @click="toggleFilter('star', '1', localFilterParams.star === '1')">
                     精选
                 </div>
-                <div class="u-item" :class="{ active: localFilterParams.price_type === '0' }"
+                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.price_type === '0' }"
                     @click="toggleFilter('price_type', '0', localFilterParams.price_type === '0')">
                     免费
                 </div>
-                <div class="u-item" :class="{ active: localFilterParams.is_unlimited === '1' }"
+                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.is_unlimited === '1' }"
                     @click="toggleFilter('is_unlimited', '1', localFilterParams.is_unlimited === '1')">
                     可新建
                 </div>
             </div>
 
             <!-- 其他筛选 -->
-            <div class="u-filtrate-title">其他</div>
+            <div class="u-filtrate-title u-fb-filtrate-title">其他</div>
             <div class="u-box">
-                <div class="u-item all" :class="{ active: !localFilterParams.filter_empty_images }"
+                <div class="u-item u-fb-filtrate-item all" :class="{ active: !localFilterParams.filter_empty_images }"
                     @click="resetOtherFilters">
                     全部
                 </div>
-                <div class="u-item" :class="{ active: localFilterParams.filter_empty_images }"
+                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.filter_empty_images }"
                     @click="toggleFilter('filter_empty_images', '1')">
                     只看有图
                 </div>
                 <!-- 脸型特有：只看捏脸码 -->
-                <div class="u-item" v-if="type === 'face'" :class="{ active: localFilterParams.code_mode }"
+                <div class="u-item u-fb-filtrate-item" v-if="type === 'face'" :class="{ active: localFilterParams.code_mode }"
                     @click="toggleFilter('code_mode', '1')">
                     只看捏脸码
                 </div>
             </div>
 
             <!-- 操作按钮 -->
-            <div class="u-btn">
+            <div class="u-btn m-pvx-fb-filtrate__btn">
                 <div class="u-report-btn" @click="handleFiltrateReset">重置</div>
                 <div class="u-confirm-btn" :class="{ active: showFiltrateConfirm }" @click="handleFiltrateConfirm">
                     确定
@@ -243,16 +246,6 @@ export default {
         },
     },
     methods: {
-        // 获取体型图标
-        getTypeIcon(value) {
-            const iconMap = {
-                1: require("@/assets/img/pvxsuspension/man.svg"),
-                2: require("@/assets/img/pvxsuspension/woman.svg"),
-                5: require("@/assets/img/pvxsuspension/boy.svg"),
-                6: require("@/assets/img/pvxsuspension/girl.svg"),
-            };
-            return iconMap[value] || "";
-        },
         // 切换筛选参数
         toggleFilter(key, value, isActive = false) {
             if (typeof key === "string") {
@@ -324,211 +317,7 @@ export default {
     @import "~@/assets/css/common/drawer.less";
 </style>
 
-<style lang="less" scoped>
-    @import "~@/assets/css/common/face-body/miniprogram/index.less";
-
-    .m-cut {
-        .w(calc(100% - 1.5rem));
-        margin: 0 auto;
-
-        .u-cut-all {
-            .flex;
-            .flex(o);
-            .mb(1rem);
-            .r(0.75rem);
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            color: @pvx-mini-text-muted-dark;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            box-sizing: border-box;
-
-            .u-icon {
-                .w(1.25rem);
-                .mr(0.25rem);
-                filter: brightness(0) invert(1);
-                opacity: 0.8;
-            }
-
-            &.is-active {
-                background: @pvx-mini-primary;
-                color: @pvx-mini-btn-bg;
-
-                .u-icon {
-                    filter: brightness(0) saturate(100%) invert(8%) sepia(11%) saturate(298%) hue-rotate(192deg) brightness(98%) contrast(90%);
-                    opacity: 1;
-                }
-            }
-        }
-
-        .u-cut-box {
-            .flex;
-            .mb(1rem);
-            gap: 0.75rem;
-            align-content: center;
-            justify-content: space-between;
-
-            .u-cut-item {
-                .flex;
-                .flex(o);
-                .r(0.75rem);
-                flex-direction: column;
-                flex: 1;
-                padding: 0.75rem;
-                background: rgba(255, 255, 255, 0.05);
-                color: @pvx-mini-text-muted-dark;
-                box-sizing: border-box;
-
-                .u-icon {
-                    filter: brightness(0) invert(1);
-                    opacity: 0.8;
-                }
-
-                &.is-active {
-                    background: @pvx-mini-primary;
-                    color: @pvx-mini-btn-bg;
-
-                    .u-icon {
-                        filter: brightness(0) saturate(100%) invert(8%) sepia(11%) saturate(298%) hue-rotate(192deg) brightness(98%) contrast(90%);
-                        opacity: 1;
-                    }
-                }
-            }
-        }
-
-        .u-cut-btn {
-            .flex;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            gap: 1.25rem;
-
-            .u-report-btn {
-                .r(0.75rem);
-                flex-shrink: 0;
-                padding: 0.75rem 1rem;
-                background: rgba(255, 255, 255, 0.05);
-                color: @pvx-mini-text-muted-dark;
-                box-sizing: border-box;
-            }
-
-            .u-confirm-btn {
-                .r(0.75rem);
-                flex: 1;
-                padding: 0.75rem 1rem;
-                background: rgba(255, 255, 255, 0.05);
-                color: @pvx-mini-text-disabled-dark;
-                text-align: center;
-                box-sizing: border-box;
-
-                &.active {
-                    background: @pvx-mini-primary;
-                    color: @pvx-mini-btn-bg;
-                }
-            }
-        }
-    }
-
-    .m-no-body {
-        .flex;
-        .flex(o);
-        flex-direction: column;
-
-        .u-tips {
-            color: @pvx-mini-text-disabled-dark;
-            .fz(0.875rem, 1.25rem);
-            .bold(700);
-            .flex;
-            .flex(o);
-        }
-
-        .u-btn {
-            .flex;
-            .flex(o);
-            .mt(1.25rem);
-            padding: 0.75rem 1rem;
-            gap: 0.5rem;
-            align-self: stretch;
-            .r(0.75rem);
-            background: rgba(255, 255, 255, 0.1);
-            color: @pvx-mini-text-disabled-dark;
-        }
-    }
-
-    .m-filtrate {
-        padding: 0.75rem;
-        box-sizing: border-box;
-
-        .u-filtrate-title {
-            .mb(0.75rem);
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .u-box {
-            .flex;
-            .mb(0.75rem);
-            gap: 0.5rem;
-            align-content: center;
-            justify-content: space-between;
-
-            .u-item {
-                .flex;
-                .flex(o);
-                .r(0.75rem);
-                flex: 1;
-                padding: 0.5rem;
-                background: rgba(255, 255, 255, 0.05);
-                color: @pvx-mini-text-muted-dark;
-                .fz(0.875rem, 1.25rem);
-                .bold(400);
-                box-sizing: border-box;
-
-                &.active {
-                    background: @pvx-mini-primary;
-                    color: @pvx-mini-btn-bg;
-                }
-            }
-        }
-
-        .u-btn {
-            .flex;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            gap: 1.25rem;
-
-            .u-report-btn {
-                .r(0.75rem);
-                flex-shrink: 0;
-                padding: 0.75rem 1rem;
-                background: rgba(255, 255, 255, 0.05);
-                color: @pvx-mini-text-muted-dark;
-                box-sizing: border-box;
-            }
-
-            .u-confirm-btn {
-                .r(0.75rem);
-                flex: 1;
-                padding: 0.75rem 1rem;
-                background: rgba(255, 255, 255, 0.05);
-                color: @pvx-mini-text-disabled-dark;
-                text-align: center;
-                box-sizing: border-box;
-
-                &.active {
-                    background: @pvx-mini-primary;
-                    color: @pvx-mini-btn-bg;
-                }
-            }
-        }
-    }
-
-    .slide-up-enter-active,
-    .slide-up-leave-active {
-        transition: all 0.3s ease;
-    }
-
-    .slide-up-enter-from,
-    .slide-up-leave-to {
-        transform: translateY(100%);
-        opacity: 0;
-    }
+<style lang="less">
+@import "~@/assets/css/common/face-body/miniprogram/list.less";
+@import "~@/assets/css/common/face-body/miniprogram/dark-mode.less";
 </style>

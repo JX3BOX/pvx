@@ -8,7 +8,7 @@
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
-    <div class="p-face-routine" :style="{ gap: gap }">
+    <div class="m-pvx-fb-routine--compact">
         <div class="u-item" v-for="item in list" :key="item.id" :style="{ width: width + 'px', height: height + 'px' }" @click="openNewFace(item.id)">
 <!--            <a :href="`${link}/${item.id}`" :style="{ width: width + 'px', height: height + 'px' }">-->
                 <div class="u-item_img">
@@ -85,58 +85,6 @@ export default {
 };
 </script>
 
-<style lang="less" scoped>
-@import "~@/assets/css/common/face-body/miniprogram/index.less";
-
-.p-face-routine {
-    .w(100%);
-    .flex;
-    overflow: auto;
-    box-sizing: border-box;
-
-    &::-webkit-scrollbar {
-        width: 0;
-        height: 0;
-    }
-
-    .u-item {
-        .u-item_img {
-            .r(0.444rem);
-            background: #d9d9d9;
-            overflow: hidden;
-            .pr;
-            .size(100%, 100%);
-
-            &::before {
-                content: "";
-                .pa;
-                .size(100%, 100%);
-                .lt(0);
-                .dbi;
-                .z(1);
-                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
-            }
-
-            img {
-                .size(100%, 100%);
-                object-fit: cover;
-            }
-        }
-
-        .u-item_name {
-            .pa;
-            .z(2);
-            .lb(6px);
-            .bold(400);
-            font-style: normal;
-            .w(calc(100% - 0.667rem));
-            .fz(0.778rem, 1.111rem);
-            .mb(0.222rem);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: @pvx-mini-surface;
-        }
-    }
-}
+<style lang="less">
+@import "~@/assets/css/common/face-body/miniprogram/routine-other.less";
 </style>

@@ -22,41 +22,41 @@
  -->
 <template>
     <div class="m-pvx-header">
-        <div class="m-pvx-header-info">
-            <h2>
+        <div class="m-pvx-header__info">
+            <h2 class="u-fb-header-heading">
                 {{ post.title || "无标题" }}
-                <el-tag class="u-pvx-status" v-if="post.status != 1" effect="dark" type="danger">已下架</el-tag>
+                <el-tag class="u-pvx-status u-fb-header-status" v-if="post.status != 1" effect="dark" type="danger">已下架</el-tag>
             </h2>
 
-            <div class="u-pvx-author">
+            <div class="u-pvx-author u-fb-header-author">
                 <img class="u-pvx-avatar" :src="showAvatar(post.user_avatar)" :alt="post.user_avatar_frame" />
-                <a class="u-pvx-name" :href="authorLink(post.user_id)" target="_blank" v-if="!!post.original">
+                <a class="u-pvx-name u-fb-author-link" :href="authorLink(post.user_id)" target="_blank" v-if="!!post.original">
                     {{ post.display_name }}
                 </a>
-                <a class="u-pvx-name" :href="post.author_link" target="_blank" v-else-if="post.author_link">
+                <a class="u-pvx-name u-fb-author-link" :href="post.author_link" target="_blank" v-else-if="post.author_link">
                     {{ post.author_name }}
                 </a>
                 <span class="u-pvx-name" v-else>{{ post.author_name }}</span>
                 <time class="u-pvx-time">{{ post.updated_at }}</time>
-                <a class="u-pvx-edit" v-if="canEdit" :href="editLink(type, post.id)" target="_blank">
-                    <el-icon class="u-pvx-edit-icon">
+                <a class="u-pvx-edit u-fb-author-link" v-if="canEdit" :href="editLink(type, post.id)" target="_blank">
+                    <el-icon class="u-pvx-edit-icon u-fb-author-icon">
                         <EditPen />
                     </el-icon>
                     编辑
                 </a>
             </div>
 
-            <div class="u-pvx-meta">
-                <i class="u-pvx-mark" v-if="!!post.star">★ 编辑推荐</i>
-                <i class="u-pvx-fr" v-if="!!post.is_fr">首发</i>
-                <i class="u-pvx-original" v-if="!!post.original">原创</i>
-                <i class="u-pvx-client" :class="post.client || 'std'">{{ showClientLabel(post.client) }}</i>
+            <div class="u-pvx-meta u-fb-header-meta">
+                <i class="u-pvx-mark u-fb-meta-tag" v-if="!!post.star">★ 编辑推荐</i>
+                <i class="u-pvx-fr u-fb-meta-tag" v-if="!!post.is_fr">首发</i>
+                <i class="u-pvx-original u-fb-meta-tag" v-if="!!post.original">原创</i>
+                <i class="u-pvx-client u-fb-meta-tag" :class="post.client || 'std'">{{ showClientLabel(post.client) }}</i>
                 <template v-if="type === 'face' && post.client === 'std'">
-                    <i class="u-pvx-is-new-face" :class="post.is_new_face === 1 ? 'u-pvx-new' : 'u-pvx-old'">
+                    <i class="u-pvx-is-new-face u-fb-meta-tag" :class="post.is_new_face === 1 ? 'u-pvx-new' : 'u-pvx-old'">
                         {{ newFaceMap[post.is_new_face] }}
                     </i>
                 </template>
-                <i class="u-pvx-bodytype" :class="'u-pvx-bodytype-' + post.body_type" v-if="post.body_type">
+                <i class="u-pvx-bodytype u-fb-meta-tag" :class="'u-pvx-bodytype-' + post.body_type" v-if="post.body_type">
                     {{ showBodyTypeLabel(post.body_type) }}
                 </i>
             </div>

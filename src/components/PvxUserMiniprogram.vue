@@ -391,7 +391,7 @@ export default {
         bottom: 0 !important;
     }
 
-    .m-adventure-navigation {
+    .m-pvx-adventure-navigation {
         display: none;
     }
 

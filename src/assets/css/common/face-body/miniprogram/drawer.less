@@ -4,34 +4,41 @@
  */
 
 @import "../_variables.less";
+@import "base.less";
 
 // ==================== 复制码抽屉样式 ====================
 
-.m-face-data-copy {
+.m-pvx-face-data-copy,
+.m-pvx-fb-data-copy {
     .w(100%);
 
     .u-copy-box,
-    .u-data-box {
+    .u-data-box,
+    .m-pvx-fb-data-copy__box,
+    .m-pvx-fb-data-copy__data {
         .w(100%);
         .flex;
         .flex(o);
         flex-direction: column;
         gap: 1.25rem;
 
-        .u-copy-top {
+        .u-copy-top,
+        .u-fb-data-copy-top {
             .flex;
             .flex(o);
             flex-direction: column;
         }
     }
 
-    .u-label {
+    .u-label,
+    .u-fb-data-copy-label {
         color: rgba(255, 255, 255, 0.4);
         .fz(0.875rem, 1.25rem);
         .bold(700);
     }
 
-    .u-number {
+    .u-number,
+    .u-fb-data-copy-number {
         .w(100%);
         .flex;
         padding: 1rem;
@@ -46,7 +53,8 @@
         .bold(700);
     }
 
-    .u-copy-btn {
+    .u-copy-btn,
+    .u-fb-data-copy-btn {
         .flex;
         .flex(o);
         padding: 0.75rem 1rem;
@@ -58,7 +66,8 @@
         .bold(700);
     }
 
-    .u-no-data-btn {
+    .u-no-data-btn,
+    .u-fb-data-copy-no-data-btn {
         .flex;
         .flex(o);
         padding: 0.75rem 1rem;
@@ -73,8 +82,9 @@
 }
 
 // 体型模块的码颜色
-.m-body-data-copy {
-    .u-number {
+.m-pvx-body-data-copy {
+    .u-number,
+    .u-fb-data-copy-number {
         background: #79ceff;
     }
 }

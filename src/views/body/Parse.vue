@@ -1,7 +1,7 @@
-<template>
+﻿<template>
     <div class="m-pvx-facedata">
-        <div class="m-pvx-body-parse" :class="{ on: done }">
-            <h1 class="m-pvx-body-parse-title">体型数据解析器</h1>
+        <div class="p-pvx-body-parse m-pvx-fb-parse" :class="{ on: done }">
+            <h1 class="m-pvx-fb-parse__title">体型数据解析器</h1>
             <Upload type="body" @success="handleSuccess">
                 <template #guide>
                     <a class="u-help" href="/tool/67546" target="_blank">
@@ -12,7 +12,7 @@
                     </a>
                 </template>
             </Upload>
-            <Bodydat class="m-pvx-body-parse-preview" :data="json" :lock="false" v-if="done" />
+            <Bodydat class="m-pvx-fb-parse__preview" :data="json" :lock="false" v-if="done" />
         </div>
     </div>
 </template>
@@ -51,5 +51,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/face/parse.less";
+@import "~@/assets/css/common/face-body/parse.less";
 </style>

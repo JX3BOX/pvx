@@ -29,7 +29,7 @@
  -->
 <template>
     <a
-        class="m-pvx-type-item"
+        class="m-pvx-type__item"
         :class="{ 'is-only-pic': onlyPic, 'is-no-name': noName }"
         :href="`${link}/${item.id}`"
         target="_blank"
@@ -42,7 +42,7 @@
                     </div>
                 </template>
             </el-image>
-            <div class="m-pvx-mark-left">
+            <div class="m-pvx-mark__left">
                 <i class="u-pvx-mark u-pvx-mark--star" v-if="!!item.star">编辑推荐</i>
                 <i class="u-pvx-mark u-pvx-mark--new" v-if="!!item.is_unlimited">可新建</i>
             </div>
@@ -64,7 +64,7 @@
         />
 
         <div class="m-pvx-tags" v-if="type === 'face'">
-            <div class="m-pvx-tag-left">
+            <div class="m-pvx-tag__left">
                 <template v-if="client === 'std'">
                     <i class="u-pvx-tag u-pvx-tag--type u-pvx-new-face" v-if="item.is_new_face">写实</i>
                     <i class="u-pvx-tag u-pvx-tag--type" v-else>写意</i>

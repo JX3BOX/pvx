@@ -25,11 +25,11 @@
     <div class="m-pvx-navigation">
         <div class="u-pvx-goback" @click="handleGoBack">返回列表</div>
 
-        <div class="m-pvx-type-btn-box">
+        <div class="m-pvx-type__btn-box">
             <a :href="publishLink" target="_blank">
                 <div class="u-pvx-type-publish">
                     <img svg-inline src="@/assets/img/common/face-body/publish.svg" class="u-pvx-img" />
-                    <span>{{ publishText }}</span>
+                    <span class="u-fb-publish-text">{{ publishText }}</span>
                 </div>
             </a>
             <a :href="manageLink" target="_blank">
@@ -48,7 +48,7 @@ import { publishLink } from "@jx3box/jx3box-common/js/utils";
  * 包含返回列表、发布按钮、管理按钮
  *
  * 样式说明：
- * - 组件使用统一类名 m-pvx-navigation、m-pvx-type-btn-box 等
+ * - 组件使用统一类名 m-pvx-navigation、m-pvx-type__btn-box 等
  * - 样式由页面引入的 less 文件控制（body/single.less 或 face/single.less）
  * - 通过 face-body/index.less 中的 pvx-navigation-mixin 定义样式
  */

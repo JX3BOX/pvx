@@ -27,12 +27,12 @@
         }
     }
 
-    .m-pvx-type-list--all {
+    .m-pvx-type__list--all {
         .w(100%);
         .flex;
         justify-content: space-between;
 
-        .m-pvx-type-item {
+        .m-pvx-type__item {
             .pr;
             margin-bottom: 30px;
             overflow: hidden;
@@ -71,7 +71,7 @@
             background: transparent;
         }
 
-        .m-pvx-type-item {
+        .m-pvx-type__item {
             .u-pvx-img {
                 .u-pvx-star-mark {
                     .fz(12px);
@@ -92,16 +92,16 @@
 
 /* ==================== 手机端 - 列表页 ==================== */
 @media screen and (max-width: @phone) {
-    .m-pvx-recommend-box {
+    .m-pvx-recommend__box {
         padding-top: 64px;
     }
 
-    .m-pvx-type-tabs {
+    .m-pvx-type__tabs {
         .pr;
         width: unset;
     }
 
-    .m-pvx-type-box {
+    .m-pvx-type__box {
         &:nth-child(2) {
             margin-top: 40px;
         }
@@ -119,22 +119,22 @@
 /* ==================== iPad 端 - 详情页 ==================== */
 @media screen and (max-width: @ipad) {
     .m-pvx-header,
-    .m-pvx-random-list .u-pvx-list {
+    .m-pvx-random__list .u-pvx-list {
         flex-wrap: wrap;
     }
 
-    .m-pvx-random-list .u-pvx-list {
+    .m-pvx-random__list .u-pvx-list {
         overflow: auto;
 
-        .m-pvx-type-item {
+        .m-pvx-type__item {
             flex-shrink: 0;
         }
     }
 
-    .m-pvx-type-content {
+    .m-pvx-type__content {
         flex-wrap: wrap;
 
-        .m-pvx-type-pay {
+        .m-pvx-type__pay {
             .w(100%);
 
             .u-pvx-box-img {
@@ -143,7 +143,7 @@
         }
     }
 
-    .m-pvx-type-pay .m-pvx-type-buy {
+    .m-pvx-type__pay .m-pvx-type__buy {
         .flex;
         flex-direction: column;
         align-items: center;
@@ -151,12 +151,12 @@
         height: auto;
         padding: 14px 0;
 
-        .m-pvx-type-buy-btn {
+        .m-pvx-type__buy-btn {
             margin: 0;
         }
     }
 
-    .m-pvx-single-data {
+    .m-pvx-single__data {
         .c-bodydat-tab,
         .c-facedat-tab {
             overflow: auto;
@@ -169,7 +169,7 @@
         }
     }
 
-    .m-pvx-type-pay .m-pvx-type-buy .u-pvx-type-code {
+    .m-pvx-type__pay .m-pvx-type__buy .u-pvx-type-code {
         display: block;
         background-color: #fff;
         .w(269px);
@@ -187,12 +187,12 @@
             display: none;
         }
 
-        .m-pvx-header-info {
+        .m-pvx-header__info {
             .w(100%);
         }
     }
 
-    .m-pvx-type-pay .m-pvx-type-pay-info {
+    .m-pvx-type__pay .m-pvx-type__pay-info {
         margin: 40px auto;
     }
 
@@ -201,7 +201,7 @@
         display: none;
     }
 
-    .m-pvx-random-list {
+    .m-pvx-random__list {
         .u-pvx-list {
             overflow: auto;
             flex-wrap: nowrap;
@@ -217,7 +217,7 @@
         }
     }
 
-    .m-pvx-author-header {
+    .m-pvx-author__header {
         height: auto;
         min-height: 240px;
         padding-top: 30px;
@@ -231,7 +231,7 @@
         }
     }
 
-    .m-pvx-type-tips {
+    .m-pvx-type__tips {
         height: auto;
         flex-wrap: wrap;
         justify-content: center;
@@ -247,7 +247,7 @@
         }
     }
 
-    .m-pvx-single-pics .m-pvx-carousel {
+    .m-pvx-single__pics .m-pvx-carousel {
         width: calc(100% - 40px);
     }
 }

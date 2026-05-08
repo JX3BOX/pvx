@@ -2,52 +2,27 @@
  * 小程序专用样式入口文件
  * 用于统一管理微信小程序 webview 环境的样式
  * 
- * @version 3.0.0
- * @updated 移除废弃的 mixin 引用，使用 shared 目录下的公共样式
+ * @version 4.0.0
+ * @updated 移除与 _variables.less 重复的变量定义
  */
 
 // 从全局变量文件导入公共变量
 @import "../../../var.less";
 
-// 引入 face-body 模块变量（包含卡片尺寸、价格等）
+// 引入 face-body 模块变量（包含小程序主题色、文字颜色等）
 @import "../_variables.less";
 
 // 引入弹窗样式
 @import "../../drawer.less";
 
 // ==================== 小程序专用基础变量 ====================
+// 以下变量仅在 base.less 中定义，不与 _variables.less 重复
 
 // 小程序布局尺寸
 @pvx-mini-header-height: 44px;
 @pvx-mini-tab-height: 32px;
 @pvx-mini-padding: 8px;
 @pvx-mini-bottom-nav: 3.5rem;
-
-// 小程序主题色
-@pvx-mini-primary: #fedaa3;
-@pvx-mini-primary-bg: #24292e;
-
-// 小程序背景色
-@pvx-mini-surface: #fafafa;
-@pvx-mini-surface-dark: #000;
-@pvx-mini-card: #fff;
-@pvx-mini-card-dark: #282828;
-
-// ==================== 小程序文字颜色别名 ====================
-
-// 亮色模式
-@pvx-mini-text: @pvx-dark-surface; // #1c1c1c
-@pvx-mini-text-muted: @pvx-text-80; // 80% 透明度
-@pvx-mini-text-disabled: @pvx-text-40; // 40% 透明度
-
-// 暗色模式
-@pvx-mini-text-dark: @pvx-bg-white; // #fff
-@pvx-mini-text-muted-dark: @pvx-dark-text-80;
-@pvx-mini-text-disabled-dark: @pvx-dark-text-40;
-
-// 背景色别名
-@pvx-mini-bg: @pvx-bg-white;
-@pvx-mini-bg-dark: @pvx-dark-card;
 
 // 按钮颜色别名
 @pvx-mini-btn-bg: @pvx-mini-primary-bg;

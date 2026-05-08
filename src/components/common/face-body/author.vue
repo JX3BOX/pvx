@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * author - 作者信息组件
  * 
  * @description 用于脸型/体型详情页展示作者详细信息，包括头像、等级、VIP状态等
@@ -24,10 +24,10 @@
  * - 样式文件: assets/css/common/face-body/index.less
  -->
 <template>
-    <div class="m-pvx-author-header">
+    <div class="m-pvx-author__header">
         <div class="m-pvx-info">
             <Avatar class="u-pvx-avatar" :uid="uid" :url="avatar" :size="avatarSize" :frame="avatar_frame" />
-            <div class="m-pvx-author-info">
+            <div class="m-pvx-author__info">
                 <span class="u-pvx-name">
                     <span>{{ data.display_name }}</span>
                     <span class="u-pvx-uid">(UID : {{ data.ID }})</span>
@@ -58,12 +58,12 @@
     </div>
 </template>
 <script>
-import { getUserInfo, getDecoration, getDecorationJson } from "@/service/face";
+import { getUserInfo, getDecoration, getDecorationJson } from "@/service/common/user";
 import { __userLevelColor, __imgPath } from "@/utils/config";
 import User from "@jx3box/jx3box-common/js/user";
 import Avatar from "@jx3box/jx3box-ui/src/author/Avatar.vue"
-const DECORATION_JSON = "decoration_json_face";
-const DECORATION_KEY = "decoration_me_face";
+const DECORATION_JSON = "decoration_json";
+const DECORATION_KEY = "decoration_me";
 export default {
     name: "Author",
     components: {
@@ -163,7 +163,7 @@ export default {
 </script>
 
 <style lang="less">
-.m-pvx-author-header {
+.m-pvx-author__header {
     .pr;
     .clip;
     .size(100%, 220px);
@@ -208,7 +208,7 @@ export default {
         margin: 0 48px;
     }
 
-    .m-pvx-author-info {
+    .m-pvx-author__info {
         .pr;
         .flex;
         flex-direction: column;
@@ -225,8 +225,11 @@ export default {
             .fz(26px);
             .bold(600);
             user-select: none;
-            gap: 10px;
             align-items: center;
+
+            > * + * {
+                .ml(10px);
+            }
 
             .u-pvx-uid {
                 .fz(14px);

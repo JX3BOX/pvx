@@ -8,14 +8,14 @@
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
-    <div class="p-pvx-habitus">
-        <div class="u-item" v-for="(item, index) in list" :key="index"
-            :style="{ width: 'calc(calc(100vw - 70px) / 4)' }" @click="$emit('toTab', item)">
-            <div class="u-item_img">
-                <img :src="showImg(item)" />
+    <div class="m-pvx-fb-habitus">
+        <div class="u-item u-fb-item" v-for="(item, index) in list" :key="index"
+            @click="$emit('toTab', item)">
+            <div class="u-item_img u-fb-item__img">
+                <img class="u-fb-item__img-el" :src="showImg(item)" />
             </div>
 
-            <div class="u-item_type">{{ showBodyTypeLabel(item.body_type) }}</div>
+            <div class="u-item_type u-fb-item__type">{{ showBodyTypeLabel(item.body_type) }}</div>
         </div>
     </div>
 </template>
@@ -47,62 +47,17 @@ export default {
             return bodyMap[val];
         },
         showImg(item) {
-            let width = parseInt((document.body.clientWidth - 70) / 4);
-            return this.getThumbnail(item.images?.[0] || __imgPath + `image/face/null2.png`, [width, 156]);
+            const htmlFontSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+            const gapPx = 0.556 * htmlFontSize;
+            const paddingPx = 1.25 * htmlFontSize;
+            const width = parseInt((document.body.clientWidth - paddingPx * 2 - gapPx * 3) / 4);
+            const height = parseInt(width * 2);
+            return this.getThumbnail(item.images?.[0] || __imgPath + `image/face/null2.png`, [width, height]);
         },
     },
 };
 </script>
 
-<style lang="less" scoped>
-@import "~@/assets/css/common/face-body/miniprogram/index.less";
-
-.p-pvx-habitus {
-    .flex;
-    justify-content: space-between;
-    gap: 0.556rem;
-
-    .u-item {
-        .pr;
-        .h(156px);
-        .r(0.444rem);
-        overflow: hidden;
-
-        .u-item_img {
-            .size(100%);
-
-            .pr;
-
-            &::before {
-                content: "";
-                .pa;
-                .size(100%, 100%);
-                .lt(0);
-                .dbi;
-                .z(1);
-                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
-            }
-
-            img {
-                .size(100%);
-                object-fit: cover;
-            }
-        }
-
-        .u-item_type {
-            color: @pvx-mini-surface;
-            .fz(0.778rem, 0.889rem);
-            .bold(400);
-            font-style: normal;
-            .pa;
-            .z(2);
-            .lb(0, 0.222rem);
-            padding: 0 0.333rem;
-
-            @media (prefers-color-scheme: dark) {
-                color: @pvx-dark-text-80;
-            }
-        }
-    }
-}
+<style lang="less">
+@import "~@/assets/css/common/face-body/miniprogram/habitus.less";
 </style>

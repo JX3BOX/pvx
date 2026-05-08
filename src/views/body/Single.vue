@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * Single - 体型模块详情页
  * 
  * @description 展示体型详情信息，包括图片预览、数据分析、购买下载、作者信息等
@@ -19,27 +19,27 @@
         <SingleNavigation type="body" @go-back="goBack" />
         <SingleHeader :post="post" type="body" :canEdit="canEdit" :topicText="topicText" />
 
-        <div class="m-pvx-type-content">
+        <div class="m-pvx-type__content">
             <SingleCarousel :imageList="previewSrcList" type="body" />
             <SinglePaySection :post="post" type="body" :hasBuy="has_buy" :fileList="downFileList"
                 :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile" />
         </div>
 
-        <div class="m-pvx-single-data">
-            <span class="m-pvx-single-data-title">独家数据分析</span>
+        <div class="m-pvx-single__data">
+            <span class="m-pvx-single__data-title">独家数据分析</span>
             <Bodydat v-if="bodydata" :data="bodydata" />
-            <div class="m-pvx-single-buy-box" v-else>
-                <div class="m-pvx-type-buy-btn" @click="pay()" v-if="canBuy">
+            <div class="m-pvx-single__buy-box" v-else>
+                <div class="m-pvx-type__buy-btn" @click="pay()" v-if="canBuy">
                     <div class="u-pvx-price">{{ priceText }}</div>
-                    <div class="u-pvx-buy"><img :src="iconShopcart" alt="" />购买</div>
+                    <div class="u-pvx-buy"><img class="u-fb-buy-icon" :src="iconShopcart" alt="" />购买</div>
                 </div>
                 <div class="u-pvx-type-buy-tip">数据分析将在购买后解锁</div>
             </div>
         </div>
 
-        <div class="m-pvx-type-download" v-if="has_buy && bodydata">
-            <div class="m-pvx-type-buy-btn" @click="downloadAll">
-                <div class="u-pvx-buy"><img :src="iconDownload" alt="" />下载数据</div>
+        <div class="m-pvx-type__download" v-if="has_buy && bodydata">
+            <div class="m-pvx-type__buy-btn" @click="downloadAll">
+                <div class="u-pvx-buy"><img class="u-fb-buy-icon" :src="iconDownload" alt="" />下载数据</div>
             </div>
         </div>
 
@@ -47,11 +47,11 @@
         <authorItem :uid="post.user_id" />
         <SingleRandomList :list="randomList" type="body" />
 
-        <Thx class="m-pvx-thx m-pvx-single-content-box" :postId="id" postType="body" :postTitle="post.title || '无标题'"
+        <Thx class="m-pvx-thx m-pvx-single__content-box" :postId="id" postType="body" :postTitle="post.title || '无标题'"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
             :client="post.client" />
 
-        <div class="m-pvx-comments m-pvx-single-content-box">
+        <div class="m-pvx-comments m-pvx-single__content-box">
             <el-divider content-position="left">讨论</el-divider>
             <Comment :id="id" category="body" />
         </div>
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import pcSingleMixin from "@/components/common/face-body/mixins/pcSingleMixin";
+import pcSingleMixin from "@/components/common/face-body/mixins/pc-single-mixin";
 import {
     getOneBodyInfo,
     payBody,
@@ -72,7 +72,10 @@ import {
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import Bodydat from "@jx3box/jx3box-facedat/src/Bodydat.vue";
 import User from "@jx3box/jx3box-common/js/user";
-import authorItem from "@/components/common/face-body/author";
+import { parseBodyData } from "@/utils/data-parser";
+import { pollPayStatus } from "@/utils/pay-polling";
+import { formatPriceText } from "@/utils/price";
+import authorItem from "@/components/common/face-body/Author";
 import SingleNavigation from "@/components/common/face-body/SingleNavigation.vue";
 import SingleHeader from "@/components/common/face-body/SingleHeader.vue";
 import SingleCarousel from "@/components/common/face-body/SingleCarousel.vue";
@@ -96,38 +99,36 @@ export default {
             stat: {},
             iconShopcart,
             iconDownload,
+            payPollingHandle: null,
         };
     },
 
     computed: {
         bodydata() {
-            const data = this.post?.data || "";
-            if (!data) return null;
-            try {
-                const parsed = JSON.parse(data);
-                const finalData = typeof parsed === "string" ? JSON.parse(parsed) : parsed;
-                return { object: finalData, fieldRanges: finalData?.fieldRanges || [] };
-            } catch {
-                return null;
-            }
+            return parseBodyData(this.post?.data);
         },
         canBuy() {
             return this.post.price_type && this.post.price_type != 0 && !this.has_buy;
         },
         priceText() {
-            if (this.post.price_type == 1) return `售价：${this.post.price_count} 盒币`;
-            if (this.post.price_type == 2) return `售价：${this.post.price_count} 金箔`;
-            return "";
+            return formatPriceText(this.post.price_type, this.post.price_count);
         },
     },
 
+    beforeUnmount() {
+        if (this.payPollingHandle) {
+            this.payPollingHandle.stop();
+            this.payPollingHandle = null;
+        }
+    },
     methods: {
         getData() {
             if (!this.id) return;
             this.loading = true;
             getOneBodyInfo(this.id)
                 .then((res) => {
-                    this.post = this.$store.state.bodySingle = res.data.data;
+                    this.post = res.data.data;
+                    this.$store.commit("SET_BODY_SINGLE", res.data.data);
                     document.title = this.post.title + this.$t("pages.common.appendTitle");
                     this.getAccessoryList();
                     this.getRandomList();
@@ -177,16 +178,20 @@ export default {
         },
 
         loopPayStatus(payid) {
-            const intervalId = setInterval(() => {
-                loopPayStatus(payid)
-                    .then((d) => this.handlePayResult(d.data.data.pay_status, intervalId))
-                    .catch(() => clearInterval(intervalId));
-            }, 2000);
+            if (this.payPollingHandle) this.payPollingHandle.stop();
+            this.payPollingHandle = pollPayStatus(loopPayStatus, payid, {
+                onSuccess: () => this.handlePayResult(1),
+                onFail: () => this.handlePayResult(2),
+                onTimeout: () => {
+                    this.payBtnLoading = false;
+                    this.$notify.error({ title: "超时", message: "支付结果查询超时，请稍后查看" });
+                },
+            });
         },
 
-        handlePayResult(status, intervalId) {
+        handlePayResult(status) {
             this.payBtnLoading = false;
-            clearInterval(intervalId);
+            this.payPollingHandle = null;
             if (status === 1) {
                 this.getData();
                 this.$notify.success({ title: "成功", message: "购买成功" });

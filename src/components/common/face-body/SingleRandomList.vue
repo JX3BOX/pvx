@@ -1,6 +1,6 @@
 <template>
-    <div class="m-pvx-random-list">
-        <div class="u-pvx-list m-pvx-single-content-box m-pvx-author-faces" v-if="list && list.length">
+    <div class="m-pvx-random__list">
+        <div class="u-pvx-list m-pvx-single__content-box m-pvx-author__faces" v-if="list && list.length">
             <ListItem
                 class="u-pvx-item"
                 :type="type"

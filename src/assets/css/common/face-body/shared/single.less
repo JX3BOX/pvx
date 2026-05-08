@@ -36,7 +36,7 @@
         .flex;
     }
 
-    .m-pvx-type-btn-box {
+    .m-pvx-type__btn-box {
         .flex;
         .r(10px);
         padding: 12px;
@@ -66,7 +66,8 @@
         color: #fff;
         padding-right: 12px;
 
-        span {
+        span,
+        .u-fb-publish-text {
             float: right;
         }
 
@@ -136,7 +137,7 @@
         }
     }
 
-    .m-pvx-header-info {
+    .m-pvx-header__info {
         .flex;
         .fz(12px);
         flex-direction: column;
@@ -144,12 +145,14 @@
         width: calc(100% - 300px);
         color: #000;
 
-        .u-pvx-status {
+        .u-pvx-status,
+        .u-fb-header-status {
             .pr;
             top: -2px;
         }
 
-        h2 {
+        h2,
+        .u-fb-header-heading {
             .fz(28px);
             line-height: 1.5;
             .bold;
@@ -157,7 +160,8 @@
             letter-spacing: 0.5px;
         }
 
-        .u-pvx-title {
+        .u-pvx-title,
+        .u-fb-header-title {
             font-weight: 300;
             margin: 0;
             text-align: center;
@@ -168,17 +172,21 @@
             height: auto;
         }
 
-        .u-pvx-author {
+        .u-pvx-author,
+        .u-fb-header-author {
             .flex;
             align-items: center;
             .h(24px);
             gap: 5px;
 
-            * {
+            // 通配符选择器性能较差，后续应迁移到 .u-fb-author > * 替代
+            *,
+            .u-fb-author > * {
                 flex-shrink: 0;
             }
 
-            a {
+            a,
+            .u-fb-author-link {
                 color: #000;
                 opacity: 0.6;
 
@@ -187,7 +195,8 @@
                 }
             }
 
-            i {
+            i,
+            .u-fb-author-icon {
                 .fz(16px);
             }
 
@@ -220,7 +229,8 @@
             }
         }
 
-        .u-pvx-desc {
+        .u-pvx-desc,
+        .u-fb-header-desc {
             border: 1px dashed #e4e7ed;
             .r(6px);
             padding: 12px;
@@ -234,12 +244,14 @@
             text-align: left;
         }
 
-        .u-pvx-meta {
+        .u-pvx-meta,
+        .u-fb-header-meta {
             .flex;
             flex-wrap: wrap;
             gap: 6px;
 
-            i {
+            i,
+            .u-fb-meta-tag {
                 .fz(12px);
                 .r(4px);
                 flex-shrink: 0;
@@ -320,13 +332,13 @@
     }
 }
 
-.m-pvx-type-content {
+.m-pvx-type__content {
     .flex;
     margin-top: 24px;
     gap: 16px;
 }
 
-.m-pvx-single-data {
+.m-pvx-single__data {
     margin-top: 24px;
 
     .c-facedat-tab {
@@ -339,8 +351,10 @@
         }
 
         .c-facedat-group {
+
             .u-pvx-list {
-                span {
+                span,
+                .u-fb-list-value {
                     color: @v4primary;
                 }
             }
@@ -348,12 +362,12 @@
     }
 }
 
-.m-pvx-single-data-title {
+.m-pvx-single__data-title {
     .fz(28px);
     .bold;
 }
 
-.m-pvx-single-buy-box {
+.m-pvx-single__buy-box {
     .flex;
     align-items: center;
     .r(10px);
@@ -366,7 +380,7 @@
     background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    .m-pvx-type-buy-btn {
+    .m-pvx-type__buy-btn {
         min-height: 60px;
         .w(269px);
         .h(60px);
@@ -381,7 +395,7 @@
     }
 }
 
-.m-pvx-type-pay {
+.m-pvx-type__pay {
     .w(435px);
     .h(500px);
     box-sizing: border-box;
@@ -393,7 +407,7 @@
     .flex;
     flex-direction: column;
 
-    .m-pvx-type-buy {
+    .m-pvx-type__buy {
         .pr;
         min-height: 110px;
         .w(100%);
@@ -408,26 +422,30 @@
             background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
         }
 
-        .u-pvx-box-img {
+        .u-pvx-box-img,
+        .u-fb-buy-img {
             .pa;
             right: -30px;
-            top: 0;
+            bottom: 0;
             z-index: 1;
             pointer-events: none;
         }
 
-        .m-pvx-type-buy-btn {
+        .m-pvx-type__buy-btn,
+        .m-fb-buy-btn {
             margin-top: 13px;
             margin-left: 16px;
             .fz(14px);
             .bold;
         }
 
-        .u-pvx-type-code {
+        .u-pvx-type-code,
+        .u-fb-buy-code {
             display: none;
         }
 
-        .u-pvx-update-time {
+        .u-pvx-update-time,
+        .u-fb-buy-update-time {
             .fz(10px);
             font-weight: 400;
             color: rgba(255, 255, 255, 0.8);
@@ -436,7 +454,7 @@
         }
     }
 
-    .m-pvx-type-tips {
+    .m-pvx-type__tips {
         .w(100%);
         height: auto;
         min-height: 44px;
@@ -449,17 +467,20 @@
         background: #4782e01a;
         .flex;
 
-        img {
+        img,
+        .u-fb-tips-icon {
             .size(20px, 20px);
         }
 
-        .u-pvx-tips-left {
+        .u-pvx-tips-left,
+        .u-fb-tips-left {
             margin-left: 12px;
             color: #3d7cde;
             flex: 1;
         }
 
-        .u-pvx-tips-right {
+        .u-pvx-tips-right,
+        .u-fb-tips-right {
             color: #f1b65c;
             .bold;
         }
@@ -471,7 +492,8 @@
         .bold;
         margin-top: 16px;
 
-        span {
+        span,
+        .u-fb-desc-tab-item {
             margin-right: 12px;
             color: rgb(194, 197, 199);
 
@@ -481,7 +503,7 @@
         }
     }
 
-    .m-pvx-type-desc {
+    .m-pvx-type__desc {
         flex: 1;
         box-sizing: border-box;
         padding: 15px;
@@ -503,7 +525,7 @@
         }
 
         &.is-no-desc {
-            background: url("../../../../img/face/no-desc.svg") bottom no-repeat !important;
+            background: url("../../../../img/face/no-desc.svg") bottom no-repeat;
         }
 
         &.has-desc {
@@ -513,7 +535,7 @@
         }
     }
 
-    .m-pvx-type-head {
+    .m-pvx-type__head {
         .flex;
         align-items: center;
         .w(100%);
@@ -528,13 +550,14 @@
         color: #786cbb;
         .r(10px);
 
-        img {
+        img,
+        .u-fb-head-icon {
             .size(20px, 20px);
         }
     }
 }
 
-.m-pvx-type-buy-btn {
+.m-pvx-type__buy-btn {
     .pointer;
     .flex;
     justify-content: center;
@@ -564,7 +587,8 @@
         gap: 8px;
         color: #fff;
 
-        img {
+        img,
+        .u-fb-buy-icon {
             .size(20px, 20px);
             vertical-align: middle;
         }
@@ -578,12 +602,12 @@
         .pointer;
     }
 
-    &.m-pvx-type-buy-btn_copy {
+    &.m-pvx-type__buy-btn--copy {
         background: linear-gradient(266deg, rgba(255, 255, 255, 0.2) 38.61%, rgba(255, 255, 255, 0) 100%), #282828;
     }
 }
 
-.m-pvx-type-files-list {
+.m-pvx-type__files-list {
     .flex;
     flex-direction: column;
     gap: 12px;
@@ -598,22 +622,25 @@
         padding: 12px;
     }
 
-    .u-pvx-info {
+    .u-pvx-info,
+    .u-fb-file-info {
         .flex;
         .fz(12px);
         line-height: 18px;
         font-weight: 400;
         flex-direction: column;
-        gap: 12px;
+        .gap(12px);
 
-        em {
+        em,
+        .u-fb-info-highlight {
             font-style: normal;
         }
     }
 
-    .u-pvx-action {
+    .u-pvx-action,
+    .u-fb-file-action {
         .flex;
-        justify-content: center;
+        .flex(o);
         .size(44px, 24px);
         .fz(12px);
         .r(6px);
@@ -623,7 +650,7 @@
     }
 }
 
-.m-pvx-single-pics {
+.m-pvx-single__pics {
     .pr;
     .flex;
     align-items: center;
@@ -695,17 +722,18 @@
     margin-top: 24px;
 }
 
-.m-pvx-author-header {
+.m-pvx-author__header {
     margin-top: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.m-pvx-random-list {
+.m-pvx-random__list {
     overflow: auto;
 
     .u-pvx-list {
         .flex;
         gap: 16px;
+        margin-top: 16px;
 
         .u-pvx-item {
             margin: 5px;
@@ -720,13 +748,9 @@
         user-select: none;
         color: #999;
     }
-
-    .u-pvx-list {
-        margin-top: 16px;
-    }
 }
 
-.m-pvx-type-pic {
+.m-pvx-type__pic {
     .h(100%);
     .flex;
     align-items: center;
@@ -744,7 +768,7 @@
     padding: 16px;
 }
 
-.m-pvx-type-download {
+.m-pvx-type__download {
     .flex;
     .flex(o);
     margin-top: 24px;
@@ -792,10 +816,12 @@
     height: 430px;
 }
 
+// 覆写 Element Plus 轮播组件遮罩层，必须使用 !important 确保优先级
 .el-carousel__mask {
     display: none !important;
 }
 
+// 覆写 Element Plus 滑块组件层级，必须使用 !important 确保优先级
 .el-slider__button-wrapper {
     z-index: 100 !important;
 }
@@ -812,7 +838,6 @@
 }
 
 @import "./responsive.less";
-@import "./dark-mode.less";
 
 // ==================== 模块特定样式覆盖 ====================
 
@@ -820,7 +845,7 @@
 .p-pvx-face-single,
 .p-pvx-body-single {
     .m-pvx-navigation {
-        .m-pvx-type-btn-box {
+        .m-pvx-type__btn-box {
             .u-pvx-btn {
                 background-color: var(--pvx-module-color);
                 border-color: var(--pvx-module-color);
@@ -828,9 +853,9 @@
         }
     }
 
-    .m-pvx-random-list {
+    .m-pvx-random__list {
         .u-pvx-list {
-            .m-pvx-type-item {
+            .m-pvx-type__item {
                 width: var(--pvx-module-card-width, 190px);
                 height: var(--pvx-module-card-height, 280px);
 

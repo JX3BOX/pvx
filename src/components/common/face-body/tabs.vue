@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * tabs - 列表页标签筛选组件
  * 
  * @description 用于脸型/体型列表页的搜索和筛选功能，包含搜索框、筛选器、发布入口
@@ -26,16 +26,16 @@
  * - 样式文件: assets/css/face/list.less 或 assets/css/body/list.less
  -->
 <template>
-    <div class="m-pvx-face-tabs">
+    <div class="m-pvx-fb__tabs">
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
-            ref="pvxSearchRef" popperClass="m-pvx-face-filter-popover">
+            ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover">
             <template #extra>
-                <div class="m-pvx-toolbar-item m-pvx-toolbar-publish">
+                <div class="m-pvx-toolbar__item m-pvx-toolbar__publish">
                     <a :href="link.data" target="_blank">
                         <el-button type="primary" class="u-pvx-analysis"> 数据解析 </el-button>
                     </a>
                     <a :href="publish_link(link.key)" target="_blank">
-                        <div class="u-pvx-face-publish">
+                        <div class="u-pvx-fb-publish">
                             <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-pvx-img" />
                             <span>发布作品</span>
                         </div>
@@ -55,6 +55,11 @@ export default {
     name: "tabs",
     emits: ["change"],
     props: {
+        type: {
+            type: String,
+            default: "face",
+            validator: (val) => ["face", "body"].includes(val),
+        },
         body_types: {
             type: Array,
             default: () => [],
@@ -112,7 +117,7 @@ export default {
                 });
             }
             const filterOptions = [];
-            if (this.client === "std") {
+            if (this.client === "std" && this.type === "face") {
                 filterOptions.push({
                     type: "radio",
                     key: "is_new_face",
@@ -144,15 +149,17 @@ export default {
                     { key: 1, value: "有图" },
                 ],
             });
-            filterOptions.push({
-                type: "radio",
-                key: "code_mode",
-                name: "捏脸码",
-                options: [
-                    { key: "", value: "全部" },
-                    { key: 1, value: "捏脸码" },
-                ],
-            });
+            if (this.type === "face") {
+                filterOptions.push({
+                    type: "radio",
+                    key: "code_mode",
+                    name: "捏脸码",
+                    options: [
+                        { key: "", value: "全部" },
+                        { key: 1, value: "捏脸码" },
+                    ],
+                });
+            }
             items.push({
                 type: "filter",
                 options: filterOptions,
@@ -232,7 +239,6 @@ export default {
             if (!data || typeof data !== "object" || data instanceof Event) return;
 
             if (isEqual(data, this.queryParams)) return;
-            console.log("参数变化", data, this.queryParams);
             this.queryParams = cloneDeep(data);
 
             this.syncSearchState(data);
@@ -258,16 +264,18 @@ export default {
 </script>
 
 <style lang="less">
-.m-pvx-face-tabs {
+.m-pvx-fb__tabs {
     .pvx-search-wrapper {
         .type-list {
             .type-item {
 
                 &:hover,
                 &.is-active {
+                    // !important: 覆写 ElementPlus el-radio-button 内部样式
                     background-color: @pvx-color-face !important;
 
                     .el-radio-button__inner {
+                        // !important: 覆写 ElementPlus el-radio-button__inner 内联样式
                         background-color: @pvx-color-face !important;
 
                     }
@@ -286,7 +294,7 @@ export default {
         }
     }
 
-    .m-pvx-toolbar-publish {
+    .m-pvx-toolbar__publish {
         .flex;
     }
 
@@ -304,7 +312,7 @@ export default {
         }
     }
 
-    .u-pvx-face-publish {
+    .u-pvx-fb-publish {
         .pr;
         .pointer;
         .bold;
@@ -332,7 +340,7 @@ export default {
 
 }
 
-.m-pvx-face-filter-popover {
+.m-pvx-fb__filter-popover {
     .filter-content {
 
         .is-active,
@@ -340,11 +348,13 @@ export default {
 
             .el-radio-button__inner,
             .el-checkbox-button__inner {
+                // !important: 覆写 ElementPlus 按钮组件内部样式
                 background-color: @pvx-color-face !important;
                 border-color: @pvx-color-face !important;
                 color: #fff;
 
                 &:hover {
+                    // !important: 覆写 ElementPlus hover 内联样式
                     background-color: @pvx-color-face !important;
                     color: #fff;
                 }
@@ -363,7 +373,7 @@ export default {
 }
 
 @media screen and (max-width: @ipad-y) {
-    .m-pvx-face-tabs {
+    .m-pvx-fb__tabs {
 
         .pvx-search-wrapper {
             flex-direction: column;
@@ -391,18 +401,20 @@ export default {
 
             .type-item {
                 &:first-child {
+                    // !important: 覆写 ElementPlus el-radio-button 默认 margin 和 width
                     margin-right: 0 !important;
                     width: 100% !important;
                     flex-shrink: 0;
                 }
 
                 &:not(:first-child) {
+                    // !important: 覆写 ElementPlus el-radio-button 默认 width
                     width: calc(50% - 20px) !important;
                 }
             }
         }
 
-        .m-pvx-toolbar-publish {
+        .m-pvx-toolbar__publish {
             order: -1;
             flex-direction: row-reverse;
             justify-content: space-between;

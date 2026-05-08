@@ -1,4 +1,4 @@
-<!--
+﻿<!--
  * SingleCarousel - 详情页图片轮播组件
  * 
  * @description 用于脸型/体型详情页展示作品图片，支持轮播和预览功能
@@ -24,7 +24,7 @@
  * - 样式文件: assets/css/common/face-body/index.less
  -->
 <template>
-    <div class="m-pvx-single-pics m-pvx-single-content-box" v-if="imageList">
+    <div class="m-pvx-single__pics m-pvx-single__content-box" v-if="imageList">
         <!-- 无图片提示 -->
         <div v-if="!imageList.length" class="u-pvx-no-pic">
             <el-icon>
@@ -49,7 +49,7 @@
                 @change="handleCarouselChange"
             >
                 <el-carousel-item v-for="(item, i) in imageList" :key="i">
-                    <div class="m-pvx-type-pic">
+                    <div class="m-pvx-type__pic">
                         <el-image
                             ref="previewImage"
                             fit="contain"

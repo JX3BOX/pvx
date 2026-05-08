@@ -37,10 +37,9 @@
 </template>
 
 <script>
-const single_pages = ["single"];
 import Nav from "@/components/Nav_v5.vue";
 import User from "@jx3box/jx3box-common/js/user";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
+import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { setStar, cancelStar, onlineFace, offlineFace, deleteFace } from "@/service/face/index.js";
 export default {
     name: "App",
@@ -53,9 +52,6 @@ export default {
         };
     },
     computed: {
-        isSinglePage: function () {
-            return single_pages.includes(this.$route.name);
-        },
         id: function () {
             return this.$store.state.faceSingle?.id || "";
         },
@@ -93,7 +89,7 @@ export default {
                             //取精
                             cancelStar(this.id)
                                 .then(() => {
-                                    this.$store.state.faceSingle.star = 0;
+                                    this.$store.commit("UPDATE_FACE_SINGLE", { star: 0 });
                                     done();
                                     this.$notify({
                                         title: "成功",
@@ -108,7 +104,7 @@ export default {
                             //精
                             setStar(this.id)
                                 .then(() => {
-                                    this.$store.state.faceSingle.star = 1;
+                                    this.$store.commit("UPDATE_FACE_SINGLE", { star: 1 });
                                     done();
                                     this.$notify({
                                         title: "成功",
@@ -140,7 +136,7 @@ export default {
                             //下架
                             offlineFace(this.id, this.isEditor)
                                 .then(() => {
-                                    this.$store.state.faceSingle.status = 2;
+                                    this.$store.commit("UPDATE_FACE_SINGLE", { status: 2 });
                                     done();
                                     this.$notify({
                                         title: "成功",
@@ -155,7 +151,7 @@ export default {
                             //上架
                             onlineFace(this.id, this.isEditor)
                                 .then(() => {
-                                    this.$store.state.faceSingle.status = 1;
+                                    this.$store.commit("UPDATE_FACE_SINGLE", { status: 1 });
                                     done();
                                     this.$notify({
                                         title: "成功",

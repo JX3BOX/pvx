@@ -22,6 +22,7 @@
 <script>
 import MiniappSingleDetail from "@/components/common/face-body/miniprogram/MiniappSingleDetail";
 import { getOneFaceInfo, getRandomFace } from "@/service/face";
+import { buildFaceAllData } from "@/utils/data-parser";
 
 export default {
     name: "FaceSingleMiniprogram",
@@ -31,15 +32,10 @@ export default {
             return ~~this.$route.params.id;
         },
         facedata() {
-            const data = this.post?.data || "";
-            return data.indexOf("\\") > -1 ? JSON.parse(data) : data;
+            return buildFaceAllData(this.post?.data);
         },
         faceAllData() {
-            return {
-                json: this.facedata,
-                object: JSON.parse(this.facedata),
-                type: "face",
-            };
+            return this.facedata;
         },
     },
     data() {

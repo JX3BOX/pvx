@@ -13,9 +13,10 @@
     .pr;
     padding-top: 40px;
 
-    .m-pvx-type-box {
-        &.none {
-            display: none !important;
+    .m-pvx-type__box {
+        &.none,
+        &.is-hidden {
+            display: none;
         }
     }
 
@@ -49,12 +50,12 @@
     }
 }
 
-.m-pvx-type-title {
-    margin-top: 20px !important;
+.p-pvx-list-base .m-pvx-type__title {
+    margin-top: 20px;
 }
 
-.m-pvx-recommend-box,
-.m-pvx-type-box {
+.m-pvx-recommend__box,
+.m-pvx-type__box {
     margin-top: 24px;
 
     .u-pvx-shade-btn {
@@ -69,7 +70,8 @@
         visibility: hidden;
         background-color: rgba(0, 0, 0, 0.7);
 
-        i {
+        i,
+        .u-fb-shade-icon {
             color: #fff;
         }
 
@@ -77,7 +79,12 @@
             background-color: var(--pvx-module-color, @pvx-color-primary);
 
             i,
-            svg {
+            .u-fb-shade-icon {
+                color: #fff;
+            }
+
+            .u-fb-shade-icon svg,
+            .u-icon-svg {
                 color: #fff;
             }
         }
@@ -102,29 +109,29 @@
     }
 }
 
-.m-pvx-type-list--all {
+.m-pvx-type__list--all {
     .grid;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     gap: 12px;
     width: 100%;
     margin-bottom: 16px;
 
-    .m-pvx-type-item {
+    .m-pvx-type__item {
         max-width: 220px;
         justify-self: start;
     }
 }
 
-.m-pvx-type-item:last-child,
-.m-pvx-recommend-item:last-child {
+.m-pvx-type__item:last-child,
+.m-pvx-recommend__item:last-child {
     margin-right: 0;
 }
 
-.m-pvx-archive-null {
+.m-pvx-archive__null {
     margin-top: 16px;
 }
 
-.m-pvx-archive-more {
+.m-pvx-archive__more {
     margin-top: 24px;
     .w(100%);
     background-color: var(--pvx-module-color, @pvx-color-primary);
@@ -136,10 +143,11 @@
     }
 }
 
-.m-pvx-archive-pages {
+.m-pvx-archive__pages {
     margin-top: 24px;
     overflow: auto;
 
+    // !important: 覆写 ElementPlus 分页组件内置样式，无法通过选择器优先级替代
     .active {
         background-color: var(--pvx-module-color, @pvx-color-primary) !important;
     }
@@ -147,7 +155,7 @@
 
 // ==================== 卡片项样式（使用 CSS 变量）====================
 
-.m-pvx-type-item {
+.m-pvx-type__item {
     .flex;
     .pointer;
     .r(10px);
@@ -207,12 +215,12 @@
         color: #fff;
         justify-content: space-between;
 
-        .m-pvx-tag-left {
+        .m-pvx-tag__left {
             .flex;
             gap: 8px;
         }
 
-        .m-pvx-tag-right {
+        .m-pvx-tag__right {
             .flex;
             max-width: 72px;
             gap: 8px;
@@ -245,7 +253,8 @@
         padding: 3px;
         .flex;
 
-        img {
+        img,
+        .u-fb-tag-icon {
             .size(14px, 14px);
         }
     }
@@ -255,7 +264,8 @@
         padding: 3px;
         .flex;
 
-        img {
+        img,
+        .u-fb-tag-icon {
             .size(14px, 14px);
         }
     }
@@ -311,15 +321,16 @@
 .p-pvx-body-list {
     &:extend(.p-pvx-list-base all);
 
-    .m-pvx-type-item {
-        max-width: 190px;
+    .m-pvx-type__item {
+        max-width: var(--pvx-module-card-width, 190px);
     }
 
-    .m-card-banner-list .m-pvx-type-item {
-        .size(190px, 368px);
+    .m-card-banner-list .m-pvx-type__item {
+        .w(var(--pvx-module-card-width, 190px));
+        .h(var(--pvx-module-card-height, 368px));
 
         .m-pvx-img {
-            .h(264px);
+            .h(var(--pvx-module-card-img-height, 264px));
             .w(100%);
         }
 
@@ -329,16 +340,17 @@
         }
 
         &.is-no-name {
-            .h(340px);
+            .h(var(--pvx-module-card-no-name-height, 340px));
         }
     }
 
-    .m-pvx-type-list--all {
-        >.m-pvx-type-item {
-            .size(190px, 368px);
+    .m-pvx-type__list--all {
+        >.m-pvx-type__item {
+            .w(var(--pvx-module-card-width, 190px));
+            .h(var(--pvx-module-card-height, 368px));
 
             .m-pvx-img {
-                .h(264px);
+                .h(var(--pvx-module-card-img-height, 264px));
                 .w(100%);
             }
 
@@ -348,7 +360,7 @@
             }
 
             &.is-no-name {
-                .h(340px);
+                .h(var(--pvx-module-card-no-name-height, 340px));
             }
 
             &.is-only-pic {

@@ -1,0 +1,60 @@
+@import "index.less";
+
+.m-pvx-fb-routine--compact {
+    .w(100%);
+    .flex;
+    gap: 0.444rem;
+    overflow: auto;
+    box-sizing: border-box;
+
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    .u-item,
+    .u-fb-item {
+        .u-item_img,
+        .u-fb-item__img {
+            .r(0.444rem);
+            background: #d9d9d9;
+            overflow: hidden;
+            .pr;
+            .size(100%, 100%);
+
+            &::before {
+                content: "";
+                .pa;
+                .size(100%, 100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+            }
+
+            img,
+            .u-fb-item__img-el {
+                .size(100%, 100%);
+                object-fit: cover;
+            }
+        }
+
+        .u-item_name,
+        .u-fb-item__name {
+            .pa;
+            .z(2);
+            .lb(6px);
+            .bold(400);
+            font-style: normal;
+            .w(calc(100% - 0.667rem));
+            .fz(0.778rem, 1.111rem);
+            .mb(0.222rem);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: @pvx-mini-surface;
+        }
+    }
+}
+
+@import "dark-mode.less";

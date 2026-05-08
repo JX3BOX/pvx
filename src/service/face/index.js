@@ -1,6 +1,4 @@
 import { $next, $pay, $cms } from "@jx3box/jx3box-common/js/api";
-import axios from "axios";
-import { __imgPath } from "@/utils/config";
 /**
  * 获取捏脸列表
  * @param {*} params 参数
@@ -167,24 +165,7 @@ function setPost(id, data) {
     return $cms().put(`/api/cms/post/${id}/setting`, data);
 }
 
-function getUserInfo(uid) {
-    return $cms().get(`/api/cms/user/${uid}/info`, {
-        params: {
-            nocache: 1,
-        },
-    });
-}
-
-function getDecorationJson() {
-    let url = __imgPath + "decoration/index.json";
-    return axios.get(url);
-}
-//获取装扮
-function getDecoration(params) {
-    return $cms().get(`/api/cms/user/decoration`, {
-        params,
-    });
-}
+export { getUserInfo, getDecoration, getDecorationJson } from "@/service/common/user";
 export {
     getFaceList,
     getOneFaceInfo,
@@ -204,7 +185,4 @@ export {
     getSliders,
     getRandomFaceAndBody,
     setPost,
-    getUserInfo,
-    getDecorationJson,
-    getDecoration,
 };

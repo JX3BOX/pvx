@@ -8,13 +8,10 @@
  * Copyright (c) 2025 by zhusha, email: no email, All Rights Reserved.
 -->
 <template>
-    <div class="p-face-routine" :style="{ gap: gap }" :class="{ 'p-face-routine_one': isOne }" @scroll="handleScroll">
+    <div class="m-pvx-fb-routine" :class="{ 'm-pvx-fb-routine--one': isOne }" @scroll="handleScroll">
         <div class="u-item" v-for="item in list" :key="item.id"
-            :style="{ width: isOne ? 'calc(calc(100vw - 70px) / 3)' : size }" @click="openNewFace(item.id)">
-            <div class="u-item_img" :style="{
-                width: isOne ? '100%' : size,
-                height: isOne ? 'calc(calc(100vw - 70px) / 3)' : size,
-            }">
+            :style="itemStyle" @click="openNewFace(item.id)">
+            <div class="u-item_img" :style="imgStyle">
                 <el-image class="u-pic" :src="showImg(item)" fit="cover">
                     <template #error>
                         <div class="image-slot">
@@ -44,6 +41,14 @@ export default {
     computed: {
         link() {
             return `/${this.type}`;
+        },
+        itemStyle() {
+            if (this.isOne) return null;
+            return { width: this.size };
+        },
+        imgStyle() {
+            if (this.isOne) return null;
+            return { width: this.size, height: this.size };
         },
     },
     components: {},
@@ -90,11 +95,15 @@ export default {
         },
         getThumbnail,
         showImg(item) {
-            let width = parseInt((document.body.clientWidth - 64) / 3);
-            return this.getThumbnail(
-                item.images?.[0] || __imgPath + `image/face/null2.png`,
-                this.isOne ? this.getImgSize(width) : this.getImgSize(this.size)
-            );
+            const source = item.images?.[0] || __imgPath + `image/face/null2.png`;
+            if (this.isOne) {
+                const htmlFontSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+                const gapTotal = 0.667 * htmlFontSize * 2;
+                const paddingTotal = 1.25 * htmlFontSize * 2;
+                const itemPx = parseInt((document.body.clientWidth - paddingTotal - gapTotal) / 3);
+                return this.getThumbnail(source, [itemPx, itemPx]);
+            }
+            return this.getThumbnail(source, [this.getImgSize(this.size), this.getImgSize(this.size)]);
         },
         getImgSize(w) {
             if (typeof w == "number") return w;
@@ -133,102 +142,6 @@ export default {
 };
 </script>
 
-<style lang="less" scoped>
-    @import "~@/assets/css/common/face-body/miniprogram/index.less";
-
-    .p-face-routine {
-        .size(100%, auto);
-        .flex;
-        overflow: auto;
-        box-sizing: border-box;
-        padding: 0 1.25rem;
-
-        &::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-        }
-
-        &.p-face-routine_one {
-            flex-wrap: wrap;
-            height: 100%;
-        }
-
-        .u-item {
-            .u-item_img {
-                .r(0.444rem);
-                background: #d9d9d9;
-                overflow: hidden;
-
-                img {
-                    object-fit: contain;
-                }
-            }
-
-            .u-item_tag {
-                .flex;
-                gap: 0.222rem;
-                padding: 0.222rem 0.111rem;
-                box-sizing: border-box;
-
-                .u-tag_item {
-                    .size(0.667rem, 0.111rem);
-                    border-radius: 100px;
-
-                    &.green {
-                        background: #34c759;
-                    }
-
-                    &.mint {
-                        background: #23abe5;
-                    }
-
-                    &.purple {
-                        background: #af52de;
-                    }
-
-                    &.new {
-                        background: #ff72af;
-                    }
-                }
-            }
-
-            .u-item_name,
-            .u-item_author {
-                padding: 0 0.111rem;
-                box-sizing: border-box;
-                .bold(400);
-                font-style: normal;
-            }
-
-            .u-item_name {
-                .w(100%);
-                color: @pvx-text-80;
-                .fz(0.778rem, 1.333rem);
-                .mb(0.222rem);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .u-item_author {
-                color: @pvx-text-40;
-                .fz(0.667rem, 1rem);
-            }
-
-            @media (prefers-color-scheme: dark) {
-                .u-item_name {
-                    color: @pvx-dark-text-80;
-                }
-
-                .u-item_author {
-                    color: @pvx-dark-text-40;
-                }
-            }
-        }
-
-        .u-more {
-            .x;
-            .w(100%);
-        }
-    }
+<style lang="less">
+@import "~@/assets/css/common/face-body/miniprogram/routine.less";
 </style>

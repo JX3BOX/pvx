@@ -1,0 +1,133 @@
+/**
+ * Face/Body 数据展示页公共样式
+ * 小程序端脸型和体型数据展示的共享样式
+ */
+
+.c-facedat {
+    .h(100vh);
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+.c-facedat-preivew,
+.u-fb-data-preview {
+    overflow: auto;
+    height: calc(100vh - 4.056rem);
+    padding: 0 0.444rem 0.556rem 0.444rem;
+    box-sizing: border-box;
+}
+
+.m-pvx-face-list-mobile__tabs,
+.m-pvx-body-list-mobile__tabs {
+    .flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 1.778rem;
+
+    .u-tab_item {
+        color: @pvx-text-40;
+        .fz(1rem, 1.556);
+        .bold(700);
+        .mb(1.111rem);
+
+        &.is-active {
+            color: @pvx-dark-surface;
+            border-bottom: 2px solid @pvx-dark-surface;
+        }
+    }
+}
+
+.u-fb-data-title {
+    .flex;
+    .flex(o);
+    .bold;
+    .fz(0.833rem, 2);
+    flex-shrink: 0;
+    width: 12.222rem;
+}
+
+.u-fb-data-list {
+    list-style: none;
+    padding: 0;
+    .mb(0.556rem);
+    .mt(0);
+    .x(right);
+}
+
+.u-fb-list-item {
+    padding: 0.278rem 0.444rem;
+    .flex;
+    flex-flow: row;
+    gap: 0.556rem;
+}
+
+.u-fb-list-label {
+    .fz(0.778rem);
+    font-weight: normal;
+    .w(4.444rem);
+    color: #000;
+    .x(left);
+}
+
+.u-fb-list-value {
+    .fz(0.778rem);
+    .w(2.778rem);
+    .nobreak;
+    .bold;
+    color: #5856d6;
+    .x(right);
+}
+
+.u-fb-list-input,
+.u-range {
+    flex: 1;
+}
+
+.c-facedat-group {
+    .u-title {
+        .flex;
+        align-items: center;
+        justify-content: flex-start;
+        .bold;
+        .fz(0.833rem, 2);
+        flex-shrink: 0;
+        width: 12.222rem;
+    }
+
+    .u-list {
+        list-style: none;
+        padding: 0;
+        .mb(0.556rem);
+        .mt(0);
+        .x(right);
+
+        li {
+            padding: 0.278rem 0.444rem;
+            .flex;
+            flex-flow: row;
+            gap: 0.556rem;
+        }
+
+        label {
+            .fz(0.778rem);
+            font-weight: normal;
+            .w(4.444rem);
+            color: #000;
+            .x(left);
+        }
+
+        input,
+        .u-range {
+            flex: 1;
+        }
+
+        span {
+            .fz(0.778rem);
+            .w(2.778rem);
+            .nobreak;
+            .bold;
+            color: #5856d6;
+            .x(right);
+        }
+    }
+}

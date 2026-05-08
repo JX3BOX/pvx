@@ -4,18 +4,13 @@
 
 @import "../../common/face-body/miniprogram/index.less";
 
-.m-face-list_mobile {
+.m-pvx-face-list-mobile {
     &:extend(.m-pvx-mini-list-base all);
 
-    .u-card-title {
+    .u-card-title,
+    .u-fb-card-title {
         color: @pvx-mini-text;
     }
-
-    @media (prefers-color-scheme: dark) {
-        background-color: @pvx-dark-bg;
-
-        .u-card-title {
-            color: @pvx-mini-text-dark;
-        }
-    }
 }
+
+@import "../../common/face-body/miniprogram/dark-mode.less";

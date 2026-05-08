@@ -1,93 +1,13 @@
 /**
  * Body 数据展示页样式
- * 体型数据展示页面样式（小程序端）
+ * 公共部分已抽取到 data-common.less，此处仅保留 body 特有样式
  */
 
-@import "../common/face-body/shared/dark-mode.less";
+@import "../common/face-body/miniprogram/base.less";
+@import "../common/face-body/miniprogram/data-common.less";
 
 .c-facedat {
-    height: 100vh;
-    overflow: auto;
-    padding: 20px;
-    box-sizing: border-box;
+    padding: 1.111rem;
 }
 
-.m-body-list_mobile__tabs {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 32px;
-
-    .u-tab_item {
-        color: @pvx-text-40;
-        font-size: 18px;
-        line-height: 28px;
-        font-weight: 700;
-        margin-bottom: 20px;
-
-        &.is-active {
-            color: @pvx-dark-surface;
-            border-bottom: 2px solid @pvx-dark-surface;
-        }
-    }
-}
-
-.c-facedat-preivew {
-    overflow: auto;
-    height: calc(100vh - 73px);
-    padding: 0 8px 10px 8px;
-    box-sizing: border-box;
-}
-
-.c-facedat-group {
-    .u-title {
-        font-weight: bold;
-        font-size: 15px;
-        line-height: 2;
-        flex-shrink: 0;
-        width: 220px;
-    }
-
-    .u-list {
-        list-style: none;
-        padding: 0;
-        margin-bottom: 10px;
-        margin-top: 0;
-
-        li {
-            padding: 5px 8px;
-            display: flex;
-            flex-flow: row;
-        }
-
-        label,
-        span {
-            font-size: 14px;
-        }
-
-        label {
-            margin-right: 10px;
-            font-weight: normal;
-            width: 80px;
-            color: #000;
-            text-align: left;
-        }
-
-        text-align: right;
-
-        input,
-        .u-range {
-            flex: 1;
-            margin-right: 5px;
-        }
-
-        span {
-            width: 50px;
-            margin-right: 10px;
-            white-space: nowrap;
-            font-weight: bold;
-            color: #5856d6;
-            text-align: right;
-        }
-    }
-}
+@import "../common/face-body/miniprogram/dark-mode.less";

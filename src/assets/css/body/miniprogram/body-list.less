@@ -1,22 +1,16 @@
 /**
  * 小程序体型列表页样式
- * 独立维护，不依赖 face 模块
  */
 
 @import "../../common/face-body/miniprogram/index.less";
 
-.m-body-list_mobile {
+.m-pvx-body-list-mobile {
     &:extend(.m-pvx-mini-list-base all);
 
-    .u-card-title {
+    .u-card-title,
+    .u-fb-card-title {
         color: @fontColor;
     }
-
-    @media (prefers-color-scheme: dark) {
-        background-color: #000;
-
-        .u-card-title {
-            color: @fontColorLight;
-        }
-    }
 }
+
+@import "../../common/face-body/miniprogram/dark-mode.less";
