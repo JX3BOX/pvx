@@ -99,7 +99,6 @@ import CardBannerList from "@/components/common/card_banner_list.vue";
 import AdventureTabs from "@/components/adventure/tabs.vue";
 import AdventureItem from "@/components/adventure/item.vue";
 import { getAdventures } from "@/service/adventure/adventure";
-import { cloneDeep, omit, concat } from "lodash";
 import { isPhone } from "@/utils/index";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import dayjs from "@/utils/day";
@@ -206,10 +205,7 @@ export default {
         },
         active: {
             immediate: true,
-            handler: function (val) {
-                if (this.count > 0) {
-                    this.per = val == "all" ? this.count : this.count * 3;
-                }
+            handler: function () {
                 this.page = 1;
             },
         },
@@ -217,24 +213,27 @@ export default {
     methods: {
         // 设置当前tab
         setActive(val) {
+            if (val === this.active) return;
             this.active = val;
+            this.showCount();
+            this.page = 1;
             this.showTypeForm = false;
             document.documentElement.scrollTop = 0;
         },
         // 加载数据
         loadData() {
             this.loading = true;
-            let params = omit(this.params, ["type"]);
+            let params = { ...this.params };
+            const { type, ...rest } = params;
             if (this.active === "all") {
                 const list = this.list.filter((e) => e.value !== "all");
                 list.forEach((e) => {
-                    params.page = e.page;
-                    params.type = e.value;
-                    this.loadList(params, e.value);
+                    rest.page = e.page;
+                    rest.type = e.value;
+                    this.loadList(rest, e.value);
                 });
             } else {
-                params.page = this.page;
-                this.loadList({ ...params, type: this.active }, this.active);
+                this.loadList({ ...rest, type: this.active, page: this.page }, this.active);
             }
         },
         // 加载type对应的数据
@@ -244,7 +243,7 @@ export default {
             getAdventures(params)
                 .then((res) => {
                     const { list, total, pages, page } = res.data;
-                    const _list = this.appendMode ? concat(this.list[index].list, list) : list;
+                    const _list = this.appendMode ? [...this.list[index].list, ...list] : list;
                     this.list[index].list = _list || [];
                     this.list[index].page = page || 1;
                     this.list[index].pages = pages || 1;
@@ -255,19 +254,6 @@ export default {
                     this.loading = false;
                     this.appendMode = false;
                 });
-        },
-        //处理特殊的链接
-        toSpecial(data) {
-            const type = data.szRewardType;
-            let str = data.szOpenRewardPath;
-            const name = data.szOpenRewardPath.split("\\").filter(Boolean).pop();
-            if (type == "school") str = `ui/Image/Adventure/reward/Open/${name}/school_${this.school}_Open.tga`;
-            if (type == "camp") {
-                data.bHide;
-                str = `ui/Image/Adventure/reward/Open/${name}/camp_${this.camp}_Open.tga`;
-            }
-            data.szOpenRewardPath = str;
-            return data;
         },
         // 切换页数
         changePage(i) {
@@ -293,20 +279,55 @@ export default {
                 type: this.active,
             };
         },
+        // 窗口resize时重新计算
+        handleResize() {
+            this.showCount();
+        },
+        // 从CSS Grid动态测量实际列数
+        measureGridColumnCount() {
+            const container = this.$refs.listRef;
+            if (!container) return 4;
+
+            const measureEl = document.createElement("div");
+            measureEl.className = "m-face-list--all";
+            measureEl.style.cssText = `display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;width:${container.clientWidth}px;position:fixed;top:-9999px;left:0;pointer-events:none;`;
+
+            for (let i = 0; i < 10; i++) {
+                measureEl.appendChild(document.createElement("div"));
+            }
+
+            document.body.appendChild(measureEl);
+            const columns = window.getComputedStyle(measureEl).gridTemplateColumns;
+            const count = columns ? columns.split(" ").length : 4;
+            document.body.removeChild(measureEl);
+
+            return Math.max(count, 1);
+        },
         // 按宽度显示个数
         showCount() {
             if (isPhone() || isMiniProgram()) {
                 this.per = 8;
                 return;
             }
-            const listWidth = this.$refs.listRef?.clientWidth - 120;
-            this.count = Math.floor(listWidth / this.itemData.width);
-            this.per = this.active == "all" ? this.count : this.count * 3;
+
+            if (this.active === "all") {
+                // 全部选项：CardBannerList有替换按钮(110px)+gap(10px)=120px
+                const listWidth = this.$refs.listRef?.clientWidth - 120;
+                if (!listWidth) return;
+                const cardMinWidth = Number(this.itemData.width);
+                const gridGap = 10;
+                this.count = Math.floor(listWidth / (cardMinWidth + gridGap));
+                this.per = this.count;
+            } else {
+                // 分类选项：从CSS Grid动态读取实际列数
+                this.count = this.measureGridColumnCount();
+                this.per = this.count * 3;
+            }
         },
         // 单独加载
         handleLoad(type) {
             const page = this.list.filter((e) => e.value == type)[0].page;
-            let params = cloneDeep(this.params);
+            let params = { ...this.params };
             params.per = this.per;
             params.page = page + 1;
             params.type = type;
@@ -318,6 +339,10 @@ export default {
     },
     mounted: function () {
         this.showCount();
+        window.addEventListener("resize", this.handleResize);
+    },
+    beforeUnmount() {
+        window.removeEventListener("resize", this.handleResize);
     },
 };
 </script>
