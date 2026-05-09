@@ -1,16 +1,16 @@
 <template>
-    <div class="v-homeland-furniture" v-loading="loading">
-        <h1 class="m-furniture-title">家具大全</h1>
+    <div class="p-homeland-furniture" v-loading="loading">
+        <h1 class="m-pvx-furniture-title">家具大全</h1>
 
-        <div class="m-furniture-search">
+        <div class="m-pvx-furniture-search">
             <el-input placeholder="请输入搜索内容" v-model="search">
                 <template #prepend><span>关键词</span></template>
                 <template #append><el-button icon="el-icon-search"></el-button></template>
             </el-input>
         </div>
 
-        <div class="m-furniture-container flexNormal">
-            <div class="m-furniture-types">
+        <div class="m-pvx-furniture-container flexNormal">
+            <div class="m-pvx-furniture-types">
                 <div class="u-list">
                     <span class="u-item" @click="onDefault" :class="{ active: attKey == '-1' }"> 全部</span>
                     <span
@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <div class="m-furniture-box">
+            <div class="m-pvx-furniture-box">
                 <FurnitureCategory
                     :list="children(attKey)"
                     :isChange="isChange"
@@ -36,15 +36,15 @@
                     ref="furnitureCategory"
                 />
 
-                <div class="m-furniture-list flexNormal" v-if="list.length">
+                <div class="m-pvx-furniture-list flexNormal" v-if="list.length">
                     <FurnitureCard v-for="(item, index) in list" :key="index" :item="item" />
                 </div>
 
-                <div class="m-furniture-null" v-else>
+                <div class="m-pvx-furniture-null" v-else>
                     <el-alert center title="没有对应的家具" show-icon type="info"> </el-alert>
                 </div>
 
-                <div class="m-furniture-pages">
+                <div class="m-pvx-furniture-pages">
                     <el-button
                         class="m-archive-more"
                         v-show="hasNextPage"

@@ -1,5 +1,5 @@
 <template>
-    <div class="v-homeland-furniture" v-loading="loading">
+    <div class="p-homeland-furniture" v-loading="loading">
         <div class="m-navigation">
             <el-button class="u-goback" icon="el-icon-arrow-left" @click="goBack" plain>返回列表</el-button>
             <el-input placeholder="请输入家具名字搜索" v-model="search" class="u-input" @keyup.enter="goSearch">
@@ -28,19 +28,19 @@
                 </div>
                 <div class="u-attrs">
                     <span class="u-attr" v-if="data.Attribute1"
-                        ><span class="u-label blue">观赏</span>{{ data.Attribute1 }}</span
+                        ><span class="u-label u-bg-blue">观赏</span>{{ data.Attribute1 }}</span
                     >
                     <span class="u-attr" v-if="data.Attribute2"
-                        ><span class="u-label pink">实用</span>{{ data.Attribute2 }}</span
+                        ><span class="u-label u-bg-pink">实用</span>{{ data.Attribute2 }}</span
                     >
                     <span class="u-attr" v-if="data.Attribute3"
-                        ><span class="u-label yellow">坚固</span>{{ data.Attribute3 }}</span
+                        ><span class="u-label u-bg-yellow">坚固</span>{{ data.Attribute3 }}</span
                     >
                     <span class="u-attr" v-if="data.Attribute4"
-                        ><span class="u-label green">风水</span>{{ data.Attribute4 }}</span
+                        ><span class="u-label u-bg-green">风水</span>{{ data.Attribute4 }}</span
                     >
                     <span class="u-attr" v-if="data.Attribute5"
-                        ><span class="u-label purple">趣味</span>{{ data.Attribute5 }}</span
+                        ><span class="u-label u-bg-purple">趣味</span>{{ data.Attribute5 }}</span
                     >
                 </div>
                 <div class="u-metas">
@@ -95,7 +95,7 @@
         </div>
 
         <!-- 攻略 -->
-        <div class="m-furniture-wiki" v-if="other_id">
+        <div class="m-pvx-furniture-wiki" v-if="other_id">
             <Wiki
                 source_type="item"
                 :source_id="item_id"
@@ -107,7 +107,7 @@
         </div>
 
         <!-- 评论 -->
-        <div class="m-furniture-comment">
+        <div class="m-pvx-furniture-comment">
             <Comment :id="id" :category="type" order="desc" />
         </div>
     </div>
@@ -135,6 +135,7 @@ import Wiki from "@/components/wiki/Wiki.vue";
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import furnitureMaterials from "@/components/homeland/furniture_materials.vue";
 
+import { formatFurnitureImg, parseFurnitureDescription } from "@/utils/homeland";
 import { getLink } from "@jx3box/jx3box-common/js/utils";
 
 import { getFurnitureDetail, getSetList, getFurnitureColor } from "@/service/furniture.js";
@@ -154,7 +155,7 @@ export default {
         return {
             type: "furniture",
             loading: false,
-            data: "", // 家具数据
+            data: {},
             setData: "",
             colorData: "", // 染色数据
 
@@ -235,21 +236,9 @@ export default {
         // 工具函数
         // ===================
         getLink,
-        // 描述过滤
-        description_filter(value) {
-            let matchs = /text="(.*?)(\\\\\\n)?"/.exec(value);
-            if (matchs && matchs.length > 1) value = matchs[1].trim();
-            if (value) value = value.replace(/\\n/g, "<br>");
-            return value;
-        },
-        // 图片链接转换
+        description_filter: parseFurnitureDescription,
         formatImg(link) {
-            if (!link) return;
-            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-            let name = img?.[1].replace(/\\/g, "/");
-
-            if (img?.[1] == "default") return this.__imgRoot + "homeland/std/default/default.png";
-            return this.__imgRoot + "homeland/std" + name + ".png";
+            return formatFurnitureImg(link, this.__imgRoot);
         },
 
         scaleRange(str) {

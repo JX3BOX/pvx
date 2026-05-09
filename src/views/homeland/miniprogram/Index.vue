@@ -1,5 +1,5 @@
 <template>
-<div class="p-mobile-homeland_index">
+<div class="p-homeland-index">
     <div class="m-homeland_list">
         <div class="u-item" v-for="item in tabs" :key="item.value" @click="onTabClick(item.value)">
             <div class="u-title">{{item.label}}</div>
@@ -52,50 +52,6 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
-.p-mobile-homeland_index {
-    .m-homeland_list {
-        padding: 1.25rem;
-        box-sizing: border-box;
-        .h(100vh);
-        .u-item {
-            .r(0.25rem);
-            .h(4.625rem);
-            .flex;
-            padding: 0.5rem 0.75rem;
-            justify-content: space-between;
-            background: rgba(28, 28, 28, 0.05);
-            margin-bottom: 0.5rem;
-            .pr;
-            .u-title{
-                .fz(1rem,1.5rem);
-                .bold(700);
-            }
-            .u-img{
-                .w(3rem);
-                .pa;
-                .rb(0.5rem)
-            }
-        }
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .p-mobile-homeland_index{
-        background: #000;
-        .m-homeland_list{
-            .u-item{
-                background: rgba(255, 255, 255, 0.1);
-                .u-title{
-                    color: #fff;
-                }
-                .u-img{
-                    svg{
-                        fill: #fff;
-                    }
-                }
-            }
-        }
-    }
-}
+<style lang="less">
+@import "~@/assets/css/homeland/miniprogram/index.less";
 </style>

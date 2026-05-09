@@ -1,5 +1,5 @@
 <template>
-    <div class="m-furniture-category">
+    <div class="m-pvx-furniture-category">
         <!-- 二级分类标签 -->
         <div class="u-tabs" v-if="list.length">
             <div

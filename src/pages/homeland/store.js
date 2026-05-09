@@ -3,9 +3,8 @@ import { createStore } from "vuex";
 let store = {
     state: {
         client: location.href.includes("origin") ? "origin" : "std",
-        faceSingle: {},
         isCollapse: false,
-        timezone: "Asia/Shanghai", // 时区
+        timezone: "Asia/Shanghai",
     },
     mutations: {
         toState(state, data) {

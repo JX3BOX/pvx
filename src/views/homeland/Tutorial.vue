@@ -1,5 +1,5 @@
 <template>
-    <div class="v-homeland-tutorial">
+    <div class="p-homeland-tutorial">
         <!-- <h1 class="m-homeland-title">家园指南</h1> -->
 
         <div class="m-homeland-info">

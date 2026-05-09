@@ -1,5 +1,5 @@
 <template>
-    <div class="v-homeland-maps">
+    <div class="p-homeland-maps">
         <!-- <h1 class="u-title">家园地图</h1> -->
         <div class="m-homeland-maps-tabs">
             <el-tabs v-model="active">

@@ -1,5 +1,5 @@
 <template>
-    <div class="m-furniture-set">
+    <div class="m-pvx-furniture-set">
         <div class="u-set-info">
             <div class="u-set-name">{{ data.szName }}</div>
             <div class="u-set-desc" v-if="data.szDesc">{{ data.szDesc }}</div>
@@ -36,6 +36,8 @@
  * - 点击家具项跳转到对应家具详情页
  * - 家具名称根据品质显示不同颜色
  */
+import { formatFurnitureImg } from "@/utils/homeland";
+
 export default {
     name: "FurnitureSet",
     props: {
@@ -52,12 +54,7 @@ export default {
     },
     methods: {
         formatImg(link) {
-            if (!link) return;
-            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-            let name = img?.[1].replace(/\\/g, "/");
-
-            if (img?.[1] == "default") return this.__imgRoot + "homeland/std/default/default.png";
-            return this.__imgRoot + "homeland/std" + name + ".png";
+            return formatFurnitureImg(link, this.__imgRoot);
         },
         goDetail(item) {
             this.$router.push({
@@ -70,7 +67,7 @@ export default {
 </script>
 
 <style lang="less">
-.m-furniture-set {
+.m-pvx-furniture-set {
     .u-set-info {
         .mb(15px);
 

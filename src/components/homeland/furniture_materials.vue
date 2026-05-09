@@ -1,5 +1,5 @@
 <template>
-    <div class="m-furniture-materials" v-loading="loading">
+    <div class="m-pvx-furniture-materials" v-loading="loading">
         <div class="u-material-list" v-if="materials.length">
             <div class="u-material-item" v-for="(item, i) in materials" :key="i">
                 <img class="u-icon" :src="getIcon(item)" :alt="item.name" />
@@ -75,7 +75,7 @@ export default {
 </script>
 
 <style lang="less">
-.m-furniture-materials {
+.m-pvx-furniture-materials {
     padding: 10px 0;
 
     .u-material-list {

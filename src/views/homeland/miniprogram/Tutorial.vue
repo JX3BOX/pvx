@@ -8,7 +8,7 @@
                     <span class="u-name">{{ item.szName }}</span>
                 </div>
             </div>
-            <div class="u-info-tips" v-show="showTips['game' + i]">
+            <div class="u-info-tips" v-show="showTips[i]">
                 {{ tip_data }}
             </div>
         </div>
@@ -45,8 +45,7 @@
  * - 显示家园升级需求表格
  * - 支持暗色模式
  */
-import { getHomelandLevelUp, getHomelandGame } from "@/service/homeland.js";    
-import {cloneDeep} from "lodash";
+import { getHomelandLevelUp, getHomelandGame } from "@/service/homeland.js";
 import { __imgPath } from "@/utils/config";
 
 export default {
@@ -55,7 +54,7 @@ export default {
         return {
             game_data:[],
             level_data: [],
-            showTips:{},
+            showTips:[],
             select_game: null,
             tip_data:""
         }
@@ -79,14 +78,10 @@ export default {
                 this.game_data =  this.chunkArray(res?.data, 3);
             });
         },
-        showGameContent: function (item,index) {
+        showGameContent: function (item, index) {
             this.tip_data = this.showGameTip(item.szTip);
-            this.select_game = item.Bit
-            this.game_data.map((item,i)=>{
-                this.showTips['game' + i] = index === i;
-            })
-
-            this.$forceUpdate()
+            this.select_game = item.Bit;
+            this.showTips = this.game_data.map((_, i) => index === i);
         },
         showGamePic: function (index) {
             return __imgPath + "/image/game/homeland/seasonfurniture_" + index + ".png";
@@ -99,123 +94,6 @@ export default {
 };
 </script>
 
-<style scoped lang="less">
-.p-homeland-info {
-    padding: 1.25rem;
-    box-sizing: border-box;
-    height: 100vh;
-    overflow: auto;
-    .m-homeland-games {
-        .u-game-box{
-            .flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .u-game{
-            .w(calc(calc(calc(100vw - 2.5rem) / 3) - 0.5rem));
-            background: rgba(28, 28, 28, 0.05);
-            padding: 0.75rem;
-            box-sizing: border-box;
-            .mb(0.5rem);
-            .r(0.25rem);
-            &.noactive{
-                opacity: 0.5;
-            }
-            .u-name{
-                .mt(0.5rem);
-                .fz(1rem,1.5rem);
-                .bold(700);
-            }
-        }
-        .u-info-tips{
-            .w(100%);
-            flex-shrink: 0;
-            .mb(0.5rem);
-            background: rgba(28, 28, 28, 0.05);
-            padding: 0.5rem 0.75rem;
-            box-sizing: border-box;
-            .r(0.25rem);
-            color:rgba(28, 28, 28, 0.8);
-            .fz(0.875rem,1.25rem);
-        }
-        .u-box {
-            .flex;
-            flex-direction: column;
-            align-items: center;
-        }
-    }
-    .m-homeland-levels{
-        .mt(1.25rem);
-        .u-title{
-            .fz(1rem,1.5rem);
-            .bold(700);
-            .mb(0.75rem);
-        }
-        .u-box{
-            .u-item{
-                .flex;
-                justify-content: space-between;
-                gap:0.625rem;
-                .mb(0.75rem);
-                .u-title-1,.u-title-2,.u-title-3{
-                    color:rgba(28, 28, 28, 0.4);
-                    .fz(0.875rem,1.25rem);
-                    .x;
-                }
-                .u-number-1,.u-number-2,.u-number-3{
-                    color:rgba(28, 28, 28, 0.8);
-                    .fz(0.875rem,1.25rem);
-                    background: rgba(28, 28, 28, 0.05);
-                    padding: 0.25rem;
-                    .x;
-                }
-                .u-title-1,.u-number-1{
-                    .w(3.75rem);
-                    flex-shrink: 0;
-                }
-                .u-title-2,.u-number-2,.u-title-3,.u-number-3{
-                    flex: 1;
-                }
-            }
-        }
-    }
-}
-
-@media (prefers-color-scheme: dark){
-    .p-homeland-info{
-        background: #000000;
-        .m-homeland-games{
-            .u-game{
-                background: rgba(255, 255, 255, 0.1);
-                .u-name{
-                    color: rgba(255, 255, 255, 0.8);
-                }
-                &.noactive{
-                    opacity: 0.6;
-                }
-            }
-            .u-info-tips{
-                background: rgba(255, 255, 255, 0.1);
-                color: rgba(255, 255, 255, 0.8);
-            }
-        }
-        .m-homeland-levels{
-            .u-title{
-                color: #fff;
-            }
-            .u-box{
-                .u-item{
-                    .u-title-1,.u-title-2,.u-title-3{
-                        color: rgba(255, 255, 255, 0.4);
-                    }
-                    .u-number-1,.u-number-2,.u-number-3{
-                        background: rgba(255, 255, 255, 0.1);
-                        color: rgba(255, 255, 255, 0.8);
-                    }
-                }
-            }
-
-        }
-    }
-}
+<style lang="less">
+@import "~@/assets/css/homeland/miniprogram/tutorial.less";
 </style>
