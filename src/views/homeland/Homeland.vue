@@ -8,7 +8,7 @@
             </div>
             <PvxBacktop color="#fff" bgColor="#6b52ff"></PvxBacktop>
         </Main>
-        <CommonFooter v-if="!isMiniProgram()"></CommonFooter>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 
@@ -53,5 +53,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/app.less";
+    @import "~@/assets/css/app.less";
 </style>

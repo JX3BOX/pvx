@@ -1,18 +1,4 @@
 // ===========================================
-// 变量定义
-// ===========================================
-@themeColor: #d16400;
-@Brand-2: #24292e;
-@Brand-2-dark: #fedaa3;
-@black-40: rgba(28, 28, 28, 0.4);
-@black-80: rgba(28, 28, 28, 0.8);
-@black-100: #1c1c1c;
-@black-40-dark: rgba(255, 255, 255, 0.4);
-@black-80-dark: rgba(255, 255, 255, 0.8);
-@black-100-dark: #ffffff;
-@brand4: #282828;
-
-// ===========================================
 // 页面级样式 - p-adventure-List
 // ===========================================
 .p-adventure-List {
@@ -37,9 +23,9 @@
 }
 
 // ===========================================
-// 模块级样式 - m-adventure-list
+// 模块级样式 - m-pvx-adventure-list
 // ===========================================
-.m-adventure-list {
+.m-pvx-adventure-list {
     .mt(40px);
 
     .u-shade-btn {
@@ -59,7 +45,7 @@
         }
 
         &:hover {
-            background-color: @themeColor;
+            background-color: @pvx-color-pet;
 
             i,
             svg {
@@ -90,21 +76,21 @@
 // ===========================================
 // 分类列表样式
 // ===========================================
-.u-all-type {
+.u-pvx-all-type {
     margin-top: 20px !important;
 }
 
 // ===========================================
 // 全部列表样式
 // ===========================================
-.m-face-list--all {
+.m-pvx-face-list--all {
     .mb(40px);
     .grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
     .gap(12px);
     width: 100%;
 
-    .m-adventure-item {
+    .m-pvx-adventure-item {
         max-width: 220px;
         justify-self: start;
     }
@@ -125,7 +111,7 @@
     display: none;
 }
 
-.m-adventure-item {
+.m-pvx-adventure-item {
     .u-name {
         display: none;
     }
@@ -144,7 +130,7 @@
             .fz(24px);
         }
 
-        .u-all-type {
+        .u-pvx-all-type {
             margin-top: 0 !important;
         }
     }
@@ -185,27 +171,27 @@
     }
 
     // 奇遇列表 - 小程序端
-    .m-adventure-list {
+    .m-pvx-adventure-list {
         .mt(20px);
         padding: 0 4px;
 
-        .u-all-type {
+        .u-pvx-all-type {
             .mt(20px);
             .mb(8px);
 
             .u-title {
-                .fz(16px, 24px);
-                color: @black-80;
+                    .fz(16px, 24px);
+                    color: @pvx-text-80;
+                }
             }
-        }
 
-        .m-card-banner-list {
+            .m-card-banner-list {
             .m-card-banner-list_header {
                 .mb(8px);
 
                 .u-title {
                     .fz(16px, 24px);
-                    color: @black-80;
+                    color: @pvx-text-80;
                 }
             }
 
@@ -219,7 +205,7 @@
                         background-color: transparent;
                         border: none;
 
-                        .m-adventure-item {
+                        .m-pvx-adventure-item {
                             height: 100%;
                             overflow: initial;
                             box-shadow: none;
@@ -242,7 +228,7 @@
                                 left: 0;
                                 line-height: 20px;
                                 font-size: 14px;
-                                color: @Brand-2;
+                                color: @pvx-text-primary;
                                 display: block;
                             }
                         }
@@ -258,24 +244,24 @@
 
     // 分页样式 - 小程序端
     .m-archive-pages {
-        background-color: @themeColor;
+        background-color: @pvx-color-pet;
 
         .el-pager {
-            background-color: @themeColor;
+            background-color: @pvx-color-pet;
 
             .is-active {
-                background-color: @themeColor  !important;
+                background-color: @pvx-color-pet  !important;
             }
         }
     }
 
     // 全部列表 - 小程序端
-    .m-face-list--all {
+    .m-pvx-face-list--all {
         .pr(20px);
         margin-bottom: 0;
         grid-template-columns: repeat(2, 1fr);
 
-        .m-adventure-item {
+        .m-pvx-adventure-item {
             max-width: none;
             height: 100%;
             margin-bottom: 28px;
@@ -294,7 +280,7 @@
                 left: 0;
                 line-height: 20px;
                 font-size: 14px;
-                color: @Brand-2;
+                color: @pvx-text-primary;
                 display: block;
             }
         }
@@ -318,7 +304,7 @@
         .u-btn-item {
             .flex;
             .flex(o);
-            gap: 0.5rem;
+            .gap(0.5rem);
             flex: 1;
 
             &.line {
@@ -357,7 +343,7 @@
         .m-drawer-content {
             .mt(12px);
             display: flex;
-            gap: 8px;
+            .gap(8px);
 
             .m-type-item {
                 flex: 1;
@@ -422,73 +408,4 @@
     }
 }
 
-// ===========================================
-// 小程序端 - 深色模式适配
-// ===========================================
-@media (prefers-color-scheme: dark) {
-    .v-miniprogram {
-        &::after {
-            background-color: #000;
-        }
-
-        .m-type-list {
-            color: @black-40-dark;
-            background-color: #000;
-
-            .u-type-item {
-                &.is-active {
-                    color: @black-100-dark;
-
-                    &::after {
-                        background-color: @black-100-dark;
-                    }
-                }
-            }
-        }
-
-        .m-adventure-list {
-            .u-all-type {
-                .u-title {
-                    color: @black-80-dark;
-                }
-            }
-
-            .m-card-banner-list {
-                .m-card-banner-list_header {
-                    .u-title {
-                        color: @black-80-dark;
-                    }
-                }
-
-                .m-card-banner-list_box {
-                    .m-cardlist-items {
-                        .m-cardlist-item {
-                            background-color: transparent;
-                            border-color: transparent;
-
-                            .m-adventure-item {
-                                background-color: @brand4;
-                                border-color: transparent;
-
-                                .u-name {
-                                    color: @Brand-2-dark;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        .m-face-list--all {
-            .m-adventure-item {
-                background-color: @brand4;
-                border-color: transparent;
-
-                .u-name {
-                    color: @Brand-2-dark;
-                }
-            }
-        }
-    }
-}
+@import "dark-mode.less";

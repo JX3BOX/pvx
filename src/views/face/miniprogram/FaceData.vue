@@ -1,10 +1,10 @@
 <template>
     <div class="c-facedat">
         <NewFace :facedata="facedata" :body_type="body_type" :cleandata="cleandata" :clean="clean" :lock="lock"
-            :decalDb="decalDb" v-if="decalDb && facedata.bNewFace">
+            :decalDb="decalDb" v-if="decalDb && facedata?.tBone && facedata.bNewFace">
         </NewFace>
         <OldFace :facedata="facedata" :body_type="body_type" :cleandata="cleandata" :clean="clean" :lock="lock"
-            :decalDb="decalDb" v-if="decalDb && !facedata.bNewFace">
+            :decalDb="decalDb" v-if="decalDb && facedata?.tBone && !facedata.bNewFace">
         </OldFace>
     </div>
 </template>

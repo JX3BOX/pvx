@@ -1,5 +1,5 @@
 <template>
-    <a class="m-adventure-item" :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'">
+    <a class="m-pvx-adventure-item" :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'">
         <!-- @click="getLink(item.dwID)" -->
         <!-- <span class="u-img" :style="{ backgroundImage: `url(${getImgUrl})` }"></span> -->
         <!-- <img class="u-default" :src="defaultImg" /> -->
@@ -18,7 +18,7 @@
                 placement="bottom"
                 width="180"
                 trigger="click"
-                popper-class="m-school-choose"
+                popper-class="m-pvx-school-choose"
             >
                 <template #reference>
                     <img class="u-school-icon" :src="forceIconUrl(force)" />
@@ -40,6 +40,7 @@
 
 <script>
 import { __imgPath } from "@/utils/config";
+import { isPhone } from "@/utils/index";
 import forceid from "@jx3box/jx3box-data/data/xf/forceid.json";
 export default {
     name: "item",
@@ -50,9 +51,11 @@ export default {
         forceid,
         camp: 1,
         force: 2,
-        isPhone: window.innerWidth <= 768,
     }),
     computed: {
+        isPhone() {
+            return isPhone();
+        },
         link: function () {
             return "/adventure/" + this.item.dwID;
         },

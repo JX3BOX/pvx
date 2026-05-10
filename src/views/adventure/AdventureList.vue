@@ -2,8 +2,8 @@
     <div class="p-adventure-List p-common-list" v-loading="loading" ref="listRef">
         <AdventureTabs :active="active" :body_types="list" @setActive="setActive" @change="onSearch" />
         <template v-if="active === 'all'">
-            <div v-for="(item, index) in list" :key="'l' + index" class="m-adventure-list"
-                :class="`m-adventure-list-${index}`">
+            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-adventure-list"
+                :class="`m-pvx-adventure-list-${index}`">
                 <template v-if="item.list.length">
                     <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="212"
                         :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
@@ -20,11 +20,11 @@
                 </template>
             </div>
         </template>
-        <div class="m-adventure-list" v-else>
-            <div class="u-type u-all-type">
+        <div class="m-pvx-adventure-list" v-else>
+            <div class="u-type u-pvx-all-type">
                 <div class="u-title">{{ typeName + "奇遇" }}</div>
             </div>
-            <div class="m-face-list--all" v-if="subList.length">
+            <div class="m-pvx-face-list--all" v-if="subList.length">
                 <AdventureItem v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <template v-if="isMiniProgram">
@@ -289,7 +289,7 @@ export default {
             if (!container) return 4;
 
             const measureEl = document.createElement("div");
-            measureEl.className = "m-face-list--all";
+            measureEl.className = "m-pvx-face-list--all";
             measureEl.style.cssText = `display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;width:${container.clientWidth}px;position:fixed;top:-9999px;left:0;pointer-events:none;`;
 
             for (let i = 0; i < 10; i++) {

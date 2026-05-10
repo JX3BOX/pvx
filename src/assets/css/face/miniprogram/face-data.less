@@ -108,9 +108,9 @@
 .c-facedat-group .u-decals span {
     flex: 1 1 auto;
     .fz(0.778rem);
-    .nobreak;
+    // .nobreak;
     .bold;
-    max-width: 15%;
+    // max-width: 15%;
 }
 
 .m-fb-decals__params-box,
@@ -126,11 +126,15 @@
 .u-decals .u-decals-params {
     .w(calc(100% / 3 - 0.556rem));
     box-sizing: border-box;
+    .flex;
+    align-items: center;
+    gap: 0.222rem;
+    .fz(0.778rem);
 }
 
 .u-fb-decals-params-label,
 .c-facedat-group .u-decals .u-decals-params span:first-child {
-    width: 1.556rem;
+    width: auto;
     .fz(0.778rem);
     color: @pvx-mini-text-muted;
     .pr(0.556rem);
@@ -138,7 +142,7 @@
 
 .u-fb-decals-params-value,
 .c-facedat-group .u-decals .u-decals-params span:nth-child(2) {
-    width: 1.556rem;
+    width: auto;
     color: #5856d6;
 }
 
@@ -277,9 +281,9 @@
         .u-fb-decals-name {
             flex: 1 1 auto;
             .fz(0.778rem);
-            .nobreak;
+            // .nobreak;
             .bold;
-            max-width: 15%;
+            // max-width: 15%;
         }
 
         .u-decals-params-box {
@@ -346,6 +350,7 @@
     .bold(700);
     .flex;
     .flex(o);
+    margin-top: 0.667rem;
 
     .u-title {
         width: auto;

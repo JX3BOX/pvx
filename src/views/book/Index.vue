@@ -38,7 +38,7 @@
             </template>
             <div v-else class="m-book-all">
                 <div class="m-book-list">
-                    <div class="u-type u-all-type">
+                    <div class="u-type u-pvx-all-type">
                         <div class="u-title">{{ typeName }}</div>
                         <div v-if="active !== 0" class="m-operate">
                             <div

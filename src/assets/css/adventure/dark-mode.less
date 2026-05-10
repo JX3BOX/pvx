@@ -1,0 +1,87 @@
+@media (prefers-color-scheme: dark) {
+    .v-miniprogram {
+        &::after {
+            background-color: #000;
+        }
+
+        .m-type-list {
+            color: @pvx-dark-text-40;
+            background-color: #000;
+
+            .u-type-item {
+                &.is-active {
+                    color: @pvx-bg-white;
+
+                    &::after {
+                        background-color: @pvx-bg-white;
+                    }
+                }
+            }
+        }
+
+        .m-pvx-adventure-list {
+            .u-pvx-all-type {
+                .u-title {
+                    color: @pvx-dark-text-80;
+                }
+            }
+
+            .m-card-banner-list {
+                .m-card-banner-list_header {
+                    .u-title {
+                        color: @pvx-dark-text-80;
+                    }
+                }
+
+                .m-card-banner-list_box {
+                    .m-cardlist-items {
+                        .m-cardlist-item {
+                            background-color: transparent;
+                            border-color: transparent;
+
+                            .m-pvx-adventure-item {
+                                background-color: @pvx-dark-card;
+                                border-color: transparent;
+
+                                .u-name {
+                                    color: @pvx-dark-text;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .m-pvx-face-list--all {
+            .m-pvx-adventure-item {
+                background-color: @pvx-dark-card;
+                border-color: transparent;
+
+                .u-name {
+                    color: @pvx-dark-text;
+                }
+            }
+        }
+
+        .m-pvx-adventure-header {
+            background-color: #000;
+
+            .u-pvx-adventure-title {
+                .fz(16px, 48px);
+                color: @pvx-bg-white;
+            }
+
+            .m-trigger-links {
+                display: none;
+            }
+        }
+
+        .m-pvx-task-container {
+            .m-task-item-box {
+                background-color: @pvx-dark-card;
+                color: @pvx-dark-text-80;
+            }
+        }
+    }
+}

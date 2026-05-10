@@ -1,0 +1,180 @@
+.m-robot__adventure-header {
+    .flex;
+    justify-content: space-between;
+    align-items: center;
+    .gap(5px);
+    padding: 12px 20px 12px 12px;
+    width: 100%;
+    min-height: 75px;
+    opacity: 1;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: linear-gradient(to top, rgba(56, 56, 56, 1) 0%, rgba(0, 0, 0, 1) 100%);
+
+    border: 1px solid rgba(110, 110, 110, 1);
+
+    &.is-perfect {
+        background: linear-gradient(to top, rgba(82, 44, 11, 1) 0%, rgba(0, 0, 0, 1) 100%);
+
+        border: 1px solid rgba(255, 195, 0, 1);
+    }
+
+    .m-left {
+        flex: 1;
+    }
+
+    .m-title {
+        .flex;
+        align-items: center;
+        .gap(5px);
+    }
+
+    .u-title {
+        font-size: 20px;
+        .bold;
+        color: #fff;
+    }
+
+    .m-reward {
+        margin-top: 4px;
+        .flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        .gap(4px);
+        font-size: 12px;
+        color: #ffeb3b;
+        width: 100%;
+
+        span {
+            flex: none;
+        }
+
+        .u-reward {
+            flex: none;
+            .flex;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 460px;
+
+            &>p:first-child {
+                .none;
+            }
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        img,
+        h1 {
+            .none;
+        }
+
+        .c-article {
+            .flex;
+            flex-wrap: wrap;
+            .gap(4px);
+            align-items: center;
+        }
+
+        p,
+        a,
+        span {
+            color: #ffeb3b !important;
+            font-size: 12px !important;
+            white-space: pre-wrap;
+            max-width: 460px;
+            display: inline-block;
+        }
+
+        div {
+            color: #ffeb3b !important;
+            font-size: 12px !important;
+        }
+    }
+}
+
+.m-robot__adventure-condition {
+    .flex;
+    .gap(5px);
+
+    .u-pvx-logo {
+        .size(180px);
+    }
+
+    .m-condition {
+        flex: 1;
+
+        .u-content {
+            min-height: 100px;
+        }
+    }
+}
+
+.m-robot-item {
+    margin-top: 10px;
+
+    .u-content {
+        width: 100%;
+        line-height: 18px;
+
+        h1 {
+            .none;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        img {
+            margin: 5px 0;
+            width: 100%;
+            height: auto !important;
+        }
+
+        p,
+        span,
+        a,
+        div {
+            font-size: 12px !important;
+            color: #fff !important;
+        }
+    }
+
+    .m-title {
+        .flex;
+        align-items: center;
+        .gap(4px);
+
+        span {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(#ffffff, 0.5);
+        }
+    }
+
+    .u-title {
+        font-size: 16px;
+        color: #ffc300;
+        font-weight: 700;
+    }
+
+    .m-pvx-adventure-content {
+        margin-top: 10px;
+        border-radius: 4px;
+        background: linear-gradient(to top, #383838 0%, #000000 100%);
+
+        border: 1px solid #6e6e6e;
+
+        box-shadow: inset 0px 10px 5px #000000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 12px 12px 12px 12px;
+        font-size: 10px;
+        color: #fff;
+    }
+}

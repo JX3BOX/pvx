@@ -1,6 +1,6 @@
 <template>
-    <div class="m-adventure-search">
-        <div class="m-adventure-mark">
+    <div class="m-pvx-adventure-search">
+        <div class="m-pvx-adventure-mark">
             <span class="u-mark" v-for="(item, i) in marks" :key="i" @click="changeMark(i)">
                 <b :class="i == index ? 'active' : ''"></b>
                 <span>{{ item.name }}</span>

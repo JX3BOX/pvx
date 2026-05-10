@@ -28,7 +28,7 @@
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
             <div class="m-main"><router-view></router-view></div>
         </Main>
-        <CommonFooter v-if="!isMiniProgram()"></CommonFooter>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 
@@ -59,11 +59,11 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/app.less";
+    @import "~@/assets/css/app.less";
 
-.v-miniprogram {
-    .m-main {
-        padding: 0;
+    .v-miniprogram {
+        .m-main {
+            padding: 0;
+        }
     }
-}
 </style>

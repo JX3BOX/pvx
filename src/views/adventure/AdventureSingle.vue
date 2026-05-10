@@ -26,7 +26,7 @@
                 </div>
             </el-drawer>
 
-            <div class="m-adventure-navigation m-navigation">
+            <div class="m-pvx-adventure-navigation m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 <!-- <el-input
@@ -38,8 +38,8 @@
                 <el-button slot="append" icon="el-icon-search" @click="goSearch"></el-button>
             </el-input> -->
             </div>
-            <div class="m-adventure-header">
-                <span class="m-adventure-title">{{ title }}</span>
+            <div class="m-pvx-adventure-header">
+                <span class="u-pvx-adventure-title">{{ title }}</span>
                 <div class="m-trigger-links">
                     <a class="u-link u-achievement" :href="getLink('cj', achieve_id)" target="_blank">
                         <i class="el-icon-trophy"></i>
@@ -48,7 +48,7 @@
                     <PvxRobotTip v-if="!isRobot" type-name="奇遇" :reply="title"></PvxRobotTip>
                 </div>
             </div>
-            <div class="m-adventure-content">
+            <div class="m-pvx-adventure-content">
                 <task :id="id" :info="data" />
             </div>
             <!-- (小程序端)包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
@@ -182,9 +182,6 @@ export default {
             ],
             drawerNavCurrentId: "mini-task-container",
 
-            imageCount: 0,
-            loadedImageCount: 0,
-            images: [],
             imagesLoaded: false,
         };
     },
@@ -240,7 +237,7 @@ export default {
                 return `${__imgPath}adventure/adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
             if (this.data.szRewardType === "school")
                 return `${__imgPath}adventure/adventure/${client}/${tgaPath}/school_${this.force}_open.png`;
-            return defaultImg;
+            return this.defaultImg;
         },
     },
     watch: {
@@ -258,106 +255,39 @@ export default {
     },
     methods: {
         initImageLoader() {
-            // 在DOM更新后获取所有图片
             this.$nextTick(() => {
                 const container = document.getElementById("adventureProcessContent");
                 if (!container) {
                     this.setGlobalReady();
                     return;
                 }
-
                 const images = container.querySelectorAll("img");
-                this.images = images;
-                this.imageCount = images.length;
-
-                if (this.imageCount === 0) {
+                if (images.length === 0) {
                     this.setGlobalReady();
                     return;
                 }
-
-                // 手动预加载所有图片
                 this.preloadAllImages(images);
             });
         },
-
-        // 手动预加载所有图片
         preloadAllImages(images) {
-            let loadedInThisBatch = 0;
-            let totalProcessed = 0;
-            Array.from(images).forEach((img, index) => {
-                // 记录原始src
+            const promises = Array.from(images).map((img) => {
+                if (img.complete) return Promise.resolve();
                 const originalSrc = img.src;
-
-                // 如果图片未加载
-                if (!img.complete) {
-                    // 创建一个Image对象来预加载
+                return new Promise((resolve) => {
                     const tempImg = new Image();
-
-                    tempImg.onload = () => {
-                        loadedInThisBatch++;
-
-                        // 在临时图片加载完成后，设置原始图片的src
+                    tempImg.onload = tempImg.onerror = () => {
                         img.src = originalSrc;
-
-                        // 检查是否所有图片都已处理
-                        this.checkImageLoadCompletion(images, loadedInThisBatch);
+                        resolve();
                     };
-
-                    tempImg.onerror = () => {
-                        console.error(`图片加载失败: ${originalSrc}`);
-                        totalProcessed++;
-
-                        // 即使加载失败，也要设置原始图片的src
-                        img.src = originalSrc;
-
-                        // 标记原始图片为已加载（错误情况）
-                        this.handleImageLoad();
-                    };
-
-                    // 开始预加载
                     tempImg.src = originalSrc;
-                } else {
-                    // 图片已经加载完成
-                    this.handleImageLoad();
-                    totalProcessed++;
-                }
+                });
             });
+            Promise.all(promises).then(() => this.setGlobalReady());
         },
-
-        // 检查图片加载状态
-        checkImageLoadCompletion(images, loadedCount) {
-            if (images.length === this.loadedImageCount) {
-                this.setGlobalReady();
-                return;
-            }
-
-            // 设置超时检查，防止意外情况
-            setTimeout(() => {
-                const allLoaded = Array.from(images).every((img) => img.complete);
-
-                if (allLoaded) {
-                    this.setGlobalReady();
-                } else if (this.loadedImageCount === images.length) {
-                    this.setGlobalReady();
-                }
-            }, 3000);
-        },
-
-        // 判断是否全部完成
-        handleImageLoad() {
-            this.loadedImageCount++;
-            if (this.loadedImageCount === this.imageCount) {
-                this.setGlobalReady();
-            }
-        },
-
-        // 设置全局就绪状态
         setGlobalReady() {
-            if (this.imagesLoaded) return; // 避免重复设置
-
+            if (this.imagesLoaded) return;
             this.imagesLoaded = true;
             window.__READY__ = true;
-            console.log("全局状态设置成功: __READY__ = ", window.__READY__);
         },
         getLink,
         goBack() {
@@ -449,185 +379,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/adventure/single.less";
 @import "~@/assets/css/common/drawer.less";
-
-.m-robot__adventure-header {
-    .flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 5px;
-    padding: 12px 20px 12px 12px;
-    width: 100%;
-    min-height: 75px;
-    opacity: 1;
-    border-radius: 8px;
-    box-sizing: border-box;
-    background: linear-gradient(to top, rgba(56, 56, 56, 1) 0%, rgba(0, 0, 0, 1) 100%);
-
-    border: 1px solid rgba(110, 110, 110, 1);
-
-    &.is-perfect {
-        background: linear-gradient(to top, rgba(82, 44, 11, 1) 0%, rgba(0, 0, 0, 1) 100%);
-
-        border: 1px solid rgba(255, 195, 0, 1);
-    }
-
-    .m-left {
-        flex: 1;
-    }
-
-    .m-title {
-        .flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .u-title {
-        font-size: 20px;
-        .bold;
-        color: #fff;
-    }
-
-    .m-reward {
-        margin-top: 4px;
-        .flex;
-        align-items: center;
-        flex-wrap: nowrap;
-        gap: 4px;
-        font-size: 12px;
-        color: #ffeb3b;
-        width: 100%;
-
-        span {
-            flex: none;
-        }
-
-        .u-reward {
-            flex: none;
-            .flex;
-            align-items: center;
-            flex-wrap: wrap;
-            width: 460px;
-
-            &>p:first-child {
-                .none;
-            }
-        }
-
-        p {
-            margin: 0;
-            padding: 0;
-        }
-
-        img,
-        h1 {
-            .none;
-        }
-
-        .c-article {
-            .flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            align-items: center;
-        }
-
-        p,
-        a,
-        span {
-            color: #ffeb3b !important;
-            font-size: 12px !important;
-            white-space: pre-wrap;
-            max-width: 460px;
-            display: inline-block;
-        }
-
-        div {
-            color: #ffeb3b !important;
-            font-size: 12px !important;
-        }
-    }
-}
-
-.m-robot__adventure-condition {
-    .flex;
-    gap: 5px;
-
-    .u-pvx-logo {
-        .size(180px);
-    }
-
-    .m-condition {
-        flex: 1;
-
-        .u-content {
-            min-height: 100px;
-        }
-    }
-}
-
-.m-robot-item {
-    margin-top: 10px;
-
-    .u-content {
-        width: 100%;
-        line-height: 18px;
-
-        h1 {
-            .none;
-        }
-
-        p {
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
-
-        img {
-            margin: 5px 0;
-            width: 100%;
-            height: auto !important;
-        }
-
-        p,
-        span,
-        a,
-        div {
-            font-size: 12px !important;
-            color: #fff !important;
-        }
-    }
-
-    .m-title {
-        .flex;
-        align-items: center;
-        gap: 4px;
-
-        span {
-            font-size: 12px;
-            font-weight: 400;
-            color: rgba(#ffffff, 0.5);
-        }
-    }
-
-    .u-title {
-        font-size: 16px;
-        color: #ffc300;
-        font-weight: 700;
-    }
-
-    .m-pvx-adventure-content {
-        margin-top: 10px;
-        border-radius: 4px;
-        background: linear-gradient(to top, #383838 0%, #000000 100%);
-
-        border: 1px solid #6e6e6e;
-
-        box-shadow: inset 0px 10px 5px #000000;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 12px 12px 12px 12px;
-        font-size: 10px;
-        color: #fff;
-    }
-}
+@import "~@/assets/css/adventure/robot.less";
 </style>

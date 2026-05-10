@@ -13,12 +13,12 @@
                         <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
                         <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
                         <slider v-if="lock" class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
                         <el-slider v-else class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
@@ -29,12 +29,12 @@
                         <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
                         <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
                         <slider v-if="lock" class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
                         <el-slider v-else class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
@@ -45,12 +45,12 @@
                         <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
                         <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
                         <slider v-if="lock" class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
                         <el-slider v-else class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
@@ -61,12 +61,12 @@
                         <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
                         <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
                         <slider v-if="lock" class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
                         <el-slider v-else class="u-range"
-                            :min="bone_range[body_type][dict[key]['type']]['min']"
-                            :max="bone_range[body_type][dict[key]['type']]['max']"
+                            :min="getBoneMin(dict[key]['type'])"
+                            :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
@@ -213,6 +213,12 @@ export default {
     },
     mounted() {},
     methods: {
+        getBoneMin(type) {
+            return this.bone_range[this.body_type]?.[type]?.min ?? -128;
+        },
+        getBoneMax(type) {
+            return this.bone_range[this.body_type]?.[type]?.max ?? 128;
+        },
         checkdecal_prop: function (key) {
             return decal_group.origin.includes(key);
         },

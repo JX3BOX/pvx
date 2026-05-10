@@ -33,7 +33,7 @@
             </template>
             <!-- 列表模式 -->
             <div class="m-horse-list" v-else>
-                <div class="u-type u-all-type">
+                <div class="u-type u-pvx-all-type">
                     <div class="u-title">{{ typeName }}</div>
                     <div v-if="active !== ''" class="m-operate">
                         <div class="m-item" :class="showType === item.value && 'active'" :key="item.value"
