@@ -182,5 +182,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/shared/list-card.less";
+@import "~@/assets/css/common/face-body/pc/list-card.less";
 </style>

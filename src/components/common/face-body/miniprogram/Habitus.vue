@@ -9,13 +9,13 @@
 -->
 <template>
     <div class="m-pvx-fb-habitus">
-        <div class="u-item u-fb-item" v-for="(item, index) in list" :key="index"
+        <div class="u-pvx-fb-item" v-for="(item, index) in list" :key="index"
             @click="$emit('toTab', item)">
-            <div class="u-item_img u-fb-item__img">
-                <img class="u-fb-item__img-el" :src="showImg(item)" />
+            <div class="u-pvx-fb-item__img">
+                <img class="u-pvx-fb-item__img-el" :src="showImg(item)" />
             </div>
 
-            <div class="u-item_type u-fb-item__type">{{ showBodyTypeLabel(item.body_type) }}</div>
+            <div class="u-pvx-fb-item__type">{{ showBodyTypeLabel(item.body_type) }}</div>
         </div>
     </div>
 </template>
@@ -59,5 +59,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/miniprogram/habitus.less";
+@import "~@/assets/css/common/face-body/miniprogram/list-variants.less";
 </style>

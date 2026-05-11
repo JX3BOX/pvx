@@ -1,105 +1,105 @@
 <template>
     <div class="m-pvx-face-old-data">
         <div class="m-pvx-face-list-mobile__tabs">
-            <div class="u-tab_item" v-for="(item, index) in tablist" :key="index"
+            <div class="u-pvx-tab-item" v-for="(item, index) in tablist" :key="index"
                 :class="{ 'is-active': active == item.value }" @click="active = item.value">
                 {{ item.label }}
             </div>
         </div>
-        <div class="c-facedat-preivew">
-            <div class="c-facedat-group" v-show="active === 'eye'">
-                <ul class="u-list u-fb-data-list">
-                    <li class="u-fb-list-item" v-for="(key, i) in group['eye']" :key="key + i">
-                        <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
-                        <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
-                        <slider v-if="lock" class="u-range"
+        <div class="m-pvx-fb-data-preview">
+            <div class="m-pvx-fb-data-group" v-show="active === 'eye'">
+                <ul class="u-pvx-fb-data-list">
+                    <li class="u-pvx-fb-list-item" v-for="(key, i) in group['eye']" :key="key + i">
+                        <label class="u-pvx-fb-list-label">{{ dict[key]["desc"] }}</label>
+                        <span class="u-pvx-fb-list-value">{{ facedata["tBone"][key] }}</span>
+                        <slider v-if="lock" class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
-                        <el-slider v-else class="u-range"
+                        <el-slider v-else class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
             </div>
-            <div class="c-facedat-group" v-show="active === 'mouth'">
-                <ul class="u-list u-fb-data-list">
-                    <li class="u-fb-list-item" v-for="(key, i) in group['mouth']" :key="key + i">
-                        <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
-                        <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
-                        <slider v-if="lock" class="u-range"
+            <div class="m-pvx-fb-data-group" v-show="active === 'mouth'">
+                <ul class="u-pvx-fb-data-list">
+                    <li class="u-pvx-fb-list-item" v-for="(key, i) in group['mouth']" :key="key + i">
+                        <label class="u-pvx-fb-list-label">{{ dict[key]["desc"] }}</label>
+                        <span class="u-pvx-fb-list-value">{{ facedata["tBone"][key] }}</span>
+                        <slider v-if="lock" class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
-                        <el-slider v-else class="u-range"
+                        <el-slider v-else class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
             </div>
-            <div class="c-facedat-group" v-show="active === 'nose'">
-                <ul class="u-list u-fb-data-list">
-                    <li class="u-fb-list-item" v-for="(key, i) in group['nose']" :key="key + i">
-                        <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
-                        <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
-                        <slider v-if="lock" class="u-range"
+            <div class="m-pvx-fb-data-group" v-show="active === 'nose'">
+                <ul class="u-pvx-fb-data-list">
+                    <li class="u-pvx-fb-list-item" v-for="(key, i) in group['nose']" :key="key + i">
+                        <label class="u-pvx-fb-list-label">{{ dict[key]["desc"] }}</label>
+                        <span class="u-pvx-fb-list-value">{{ facedata["tBone"][key] }}</span>
+                        <slider v-if="lock" class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
-                        <el-slider v-else class="u-range"
+                        <el-slider v-else class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
             </div>
-            <div class="c-facedat-group" v-show="active === 'face'">
-                <ul class="u-list u-fb-data-list">
-                    <li class="u-fb-list-item" v-for="(key, i) in group['face']" :key="key + i">
-                        <label class="u-fb-list-label">{{ dict[key]["desc"] }}</label>
-                        <span class="u-fb-list-value">{{ facedata["tBone"][key] }}</span>
-                        <slider v-if="lock" class="u-range"
+            <div class="m-pvx-fb-data-group" v-show="active === 'face'">
+                <ul class="u-pvx-fb-data-list">
+                    <li class="u-pvx-fb-list-item" v-for="(key, i) in group['face']" :key="key + i">
+                        <label class="u-pvx-fb-list-label">{{ dict[key]["desc"] }}</label>
+                        <span class="u-pvx-fb-list-value">{{ facedata["tBone"][key] }}</span>
+                        <slider v-if="lock" class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             :model-value="facedata['tBone'][key]"></slider>
-                        <el-slider v-else class="u-range"
+                        <el-slider v-else class="u-pvx-fb-range"
                             :min="getBoneMin(dict[key]['type'])"
                             :max="getBoneMax(dict[key]['type'])"
                             v-model="localFacedata.tBone[key]" :disabled="lock"></el-slider>
                     </li>
                 </ul>
             </div>
-            <div class="m-facedat-decals" id="newDecals" v-show="active === 'decals'">
-                <div class="c-facedat-group" v-for="(key, i) in group['decal']" :key="key + i">
+            <div class="m-pvx-fb-decals-wrap" id="newDecals" v-show="active === 'decals'">
+                <div class="m-pvx-fb-data-group" v-for="(key, i) in group['decal']" :key="key + i">
                     <template v-if="cleandata['tDecal'][key]">
-                        <div class="u-decals m-fb-decals">
-                            <div class="u-decals-box m-fb-decals__box" v-show="!clean || checkdecal_prop(key)">
-                                <div class="u-top-box m-fb-decals__top">
-                                    <div v-if="decalDb.getDecalPrice(key, cleandata['tDecal'][key]['nShowID'])" class="u-price u-fb-decals-price">
+                        <div class="u-pvx-fb-decals">
+                            <div class="m-pvx-fb-decals__box" v-show="!clean || checkdecal_prop(key)">
+                                <div class="u-pvx-fb-decals-top">
+                                    <div v-if="decalDb.getDecalPrice(key, cleandata['tDecal'][key]['nShowID'])" class="u-pvx-fb-decal-price">
                                         <i class="el-icon-coin"></i>
                                         {{ decalDb.getDecalPrice(key, cleandata["tDecal"][key]["nShowID"]) }}
                                         通宝
                                     </div>
-                                    <div v-if="decalDb.getDecalIsFree(key, cleandata['tDecal'][key]['nShowID'])" class="u-free u-fb-decals-free">
+                                    <div v-if="decalDb.getDecalIsFree(key, cleandata['tDecal'][key]['nShowID'])" class="u-pvx-fb-decal-free">
                                         <i class="el-icon-success"></i> 新建角色可用
                                     </div>
                                 </div>
-                                <div class="u-title-old u-fb-data-title-old">
+                                <div class="u-pvx-fb-data-title--old">
                                     <template v-if="dict[key]['desc'] === '右瞳'">左瞳</template>
                                     <template v-else-if="dict[key]['desc'] === '左瞳'">右瞳</template>
                                     <template v-else>{{ dict[key]["desc"] }}</template>
                                 </div>
-                                <div class="u-decals-params-box m-fb-decals__params-box">
-                                    <div class="u-decals-params m-fb-decals__params">
+                                <div class="u-pvx-fb-decals-params__box">
+                                    <div class="u-pvx-fb-decals-params">
                                         <img class="u-pic" :src="decalDb.getDecalIcon(key, cleandata['tDecal'][key]['nShowID'])" />
                                         {{ decalDb.getDecalName(key, cleandata["tDecal"][key]["nShowID"]) }}
                                     </div>
-                                    <div class="u-decals-params u-dflip m-fb-decals__params u-fb-decals-flip" v-if="decalDb.getDecalIsFlip(key, cleandata['tDecal'][key]['nShowID'])">
+                                    <div class="u-pvx-fb-decals-params u-pvx-fb-decal-flip" v-if="decalDb.getDecalIsFlip(key, cleandata['tDecal'][key]['nShowID'])">
                                         (翻转)
                                     </div>
-                                    <div class="u-decals-params u-dcolor m-fb-decals__params u-fb-decals-color">
+                                    <div class="u-pvx-fb-decals-params u-pvx-fb-decal-color">
                                         (颜色:{{ cleandata["tDecal"][key]["nColorID"] }})
                                     </div>
                                 </div>
@@ -107,17 +107,17 @@
                         </div>
                     </template>
                 </div>
-                <div class="c-facedat-group">
-                    <ul class="u-decals">
-                        <li class="u-fb-list-item">
-                            <div class="u-title u-fb-data-title">装饰物</div>
-                            <span class="u-dname">
+                <div class="m-pvx-fb-data-group">
+                    <ul class="u-pvx-fb-decals">
+                        <li class="u-pvx-fb-list-item">
+                            <div class="u-pvx-fb-data-title">装饰物</div>
+                            <span class="u-pvx-data-name">
                                 <img class="u-pic" :src="decalDb.getDecorationIcon(cleandata['nDecorationID'])" />
                                 {{ decalDb.getDecorationName(cleandata["nDecorationID"]) }}
                             </span>
-                            <span class="u-dname"></span>
-                            <span class="u-dname"></span>
-                            <span class="u-price" v-if="decalDb.showDecorationPrice(cleandata['nDecorationID'])">
+                            <span class="u-pvx-data-name"></span>
+                            <span class="u-pvx-data-name"></span>
+                            <span class="u-pvx-fb-decal-price" v-if="decalDb.showDecorationPrice(cleandata['nDecorationID'])">
                                 <i class="el-icon-coin"></i>
                                 {{ decalDb.showDecorationPrice(cleandata["nDecorationID"]) }}
                                 通宝
@@ -125,9 +125,9 @@
                         </li>
                     </ul>
                 </div>
-                <div class="m-price-all">
-                    <span class="u-title u-fb-price-title">总计：</span>
-                    <span class="u-total u-fb-price-total">
+                <div class="m-pvx-fb-price-all">
+                    <span class="u-pvx-fb-price-title">总计：</span>
+                    <span class="u-pvx-fb-price-total">
                         <i class="el-icon-coin"></i> <b>{{ decalDb.getTotalPrice(facedata) }}</b> 通宝
                     </span>
                 </div>

@@ -9,11 +9,11 @@
 -->
 <template>
     <div class="m-pvx-fb-routine--compact">
-        <div class="u-item" v-for="item in list" :key="item.id" :style="{ width: width + 'px', height: height + 'px' }" @click="openNewFace(item.id)">
+        <div class="u-pvx-fb-item" v-for="item in list" :key="item.id" :style="{ width: width + 'px', height: height + 'px' }" @click="openNewFace(item.id)">
 <!--            <a :href="`${link}/${item.id}`" :style="{ width: width + 'px', height: height + 'px' }">-->
-                <div class="u-item_img">
+                <div class="u-pvx-fb-item__img">
                     <img :src="showImg(item)" />
-                    <div class="u-item_name">{{ item.title }}</div>
+                    <div class="u-pvx-fb-item__name">{{ item.title }}</div>
                 </div>
 <!--            </a>-->
         </div>
@@ -86,5 +86,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/miniprogram/routine-other.less";
+@import "~@/assets/css/common/face-body/miniprogram/list-variants.less";
 </style>

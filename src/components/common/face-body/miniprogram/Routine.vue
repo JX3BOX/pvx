@@ -9,9 +9,9 @@
 -->
 <template>
     <div class="m-pvx-fb-routine" :class="{ 'm-pvx-fb-routine--one': isOne }" @scroll="handleScroll">
-        <div class="u-item" v-for="item in list" :key="item.id"
+        <div class="u-pvx-fb-item" v-for="item in list" :key="item.id"
             :style="itemStyle" @click="openNewFace(item.id)">
-            <div class="u-item_img" :style="imgStyle">
+            <div class="u-pvx-fb-item__img" :style="imgStyle">
                 <el-image class="u-pic" :src="showImg(item)" fit="cover">
                     <template #error>
                         <div class="image-slot">
@@ -20,14 +20,14 @@
                     </template>
                 </el-image>
             </div>
-            <div class="u-item_tag">
-                <div class="u-tag_item green" v-if="item.is_new_face"></div>
-                <div class="u-tag_item mint" v-else></div>
-                <div class="u-tag_item new" v-if="!!item.is_unlimited"></div>
-                <div class="u-tag_item purple" v-if="!!item.star"></div>
+            <div class="u-pvx-fb-item__tag">
+                <div class="u-pvx-fb-item__tag-icon green" v-if="item.is_new_face"></div>
+                <div class="u-pvx-fb-item__tag-icon mint" v-else></div>
+                <div class="u-pvx-fb-item__tag-icon new" v-if="!!item.is_unlimited"></div>
+                <div class="u-pvx-fb-item__tag-icon purple" v-if="!!item.star"></div>
             </div>
-            <div class="u-item_name">{{ item.title }}</div>
-            <div class="u-item_author">{{ item.display_name || "匿名" }}</div>
+            <div class="u-pvx-fb-item__name">{{ item.title }}</div>
+            <div class="u-pvx-fb-item__author">{{ item.display_name || "匿名" }}</div>
             <!--            </a>-->
         </div>
     </div>
@@ -143,5 +143,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/miniprogram/routine.less";
+@import "~@/assets/css/common/face-body/miniprogram/list-variants.less";
 </style>

@@ -13,7 +13,7 @@
         <SuspendCommon :btnOptions="{ showHome: true }"
             :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }" @search="search">
             <template #default>
-                <div class="m-suspend-btn m-pvx-fb-list-base__suspend">
+                <div class="m-pvx-fb-list-base__suspend">
                     <div class="u-btn-item line" @click="handleOpenDrawer('cut')">
                         <img class="u-icon" v-if="active === -1" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline />
                         <img class="u-icon" v-else-if="active === 1" src="@/assets/img/pvxsuspension/man.svg" svg-inline />
@@ -35,22 +35,22 @@
             :typeList="tabsData" :active="active" :filterParams="filterParams" type="body" @confirm="handleCutConfirm"
             @filtrate-confirm="handleFilterConfirm" @select-body="handleSelectBody" />
 
-        <div class="u-content-all" v-if="active === -1">
+        <div class="u-pvx-fb-content-all" v-if="active === -1">
             <div v-for="(item, index) in allList" :key="index">
-                <div class="u-card-title u-fb-card-title">{{ item.label }}</div>
-                <div class="u-list">
+                <div class="u-pvx-fb-card-title">{{ item.label }}</div>
+                <div class="u-pvx-fb-list">
                     <routine-list :list="item.list" type="body" />
                 </div>
             </div>
 
-            <div class="u-card-title u-fb-card-title">体型特辑</div>
-            <div class="u-list body">
+            <div class="u-pvx-fb-card-title">体型特辑</div>
+            <div class="u-pvx-fb-list body">
                 <habitus :list="bodyList" @toTab="handleToTab" type="body" />
             </div>
         </div>
 
-        <div class="u-content" v-else>
-            <div class="u-list" id="oneList">
+        <div class="u-pvx-fb-content" v-else>
+            <div class="u-pvx-fb-list" id="oneList">
                 <routine-list gap="0.667rem" size="5.778rem" :isOne="true" :list="list" :total="total"
                     :isFinish="isFinish" v-if="listShow" :loadingList="loadingList" @getMore="handleLoadMore"
                     type="body" />

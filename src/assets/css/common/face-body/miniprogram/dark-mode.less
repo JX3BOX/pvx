@@ -4,158 +4,100 @@
  * PC端不需要暗色模式，仅此文件管理小程序端暗色
  */
 
-@import "../_variables.less";
+@import (reference) "_variables.less";
 
 @media (prefers-color-scheme: dark) {
 
-    .c-facedat,
-    .c-bodydat {
+    .m-pvx-face-data,
+    .m-pvx-body-data {
         background-color: @pvx-dark-bg;
     }
 
     .m-pvx-face-list-mobile__tabs,
     .m-pvx-body-list-mobile__tabs {
-        .u-tab_item {
+        background-color: @pvx-dark-bg;
+
+        .u-pvx-tab-item {
             color: @pvx-dark-text-80;
 
             &.is-active {
-                color: @pvx-bg-white;
-                border-bottom: 2px solid @pvx-bg-white;
+                color: @pvx-mini-primary;
+                border-bottom-color: @pvx-mini-primary;
             }
         }
     }
 
-    .c-facedat-group,
-    .c-bodydat-group {
-
-        .u-title,
-        .u-title-old,
-        .u-fb-data-title,
-        .u-fb-data-title-old {
-            color: @pvx-mini-text-muted-dark;
-        }
-
-        .u-type-title,
-        .u-fb-data-type-title {
-            background-color: @pvx-mini-card-dark;
-            color: @pvx-mini-text-muted-dark;
-        }
-
-        .u-decals,
-        .m-fb-decals {
-            background-color: @pvx-mini-card-dark;
-        }
-
-        .u-decals-params,
-        .m-fb-decals__params {
-            color: @pvx-mini-text-muted-dark;
-        }
-
-        .u-fb-list-item,
-        .u-fb-list-label {
-            color: @pvx-mini-text-muted-dark;
-        }
-
-        .u-list {
-
-            li,
-            label,
-            .u-fb-list-item,
-            .u-fb-list-label {
-                color: @pvx-mini-text-muted-dark;
-            }
-
-            span,
-            .u-fb-list-value {
-                color: @pvx-dark-text;
-            }
-
-            .u-sub-title,
-            .u-fb-data-sub-title {
-                color: @pvx-mini-text-muted-dark;
-            }
-        }
-
-        .u-decals-params-box {
-            .u-decals-params {
-
-                span:first-child,
-                .u-fb-decals-params-label {
-                    color: @pvx-mini-text-muted-dark;
-                }
-            }
-        }
+    .u-pvx-fb-data-title {
+        color: @pvx-dark-text-80;
     }
 
-    .u-fb-data-title {
-        color: @pvx-mini-text-muted-dark;
-    }
+    .u-pvx-fb-data-list {
 
-    .u-fb-data-list {
-
-        .u-fb-list-item,
-        .u-fb-list-label {
-            color: @pvx-mini-text-muted-dark;
+        .u-pvx-fb-list-item,
+        .u-pvx-fb-list-label {
+            color: @pvx-dark-text-80;
         }
 
-        .u-fb-list-value {
+        .u-pvx-fb-list-value {
             color: @pvx-dark-text;
         }
     }
 
-    .u-fb-data-preview {
+    .m-pvx-fb-data-preview,
+    .u-pvx-fb-data-preview {
         background-color: @pvx-dark-bg;
     }
 
-    .m-price-all {
+    .m-pvx-fb-price-all {
 
-        .u-title,
-        .u-fb-price-title {
-            color: @pvx-mini-text-muted-dark;
+        .u-pvx-fb-price-title {
+            color: @pvx-dark-text-80;
         }
 
-        .u-total,
-        .u-fb-price-total {
+        .u-pvx-fb-price-total {
             color: @pvx-price-gold;
         }
     }
 
-    .m-pvx-face-data {
+    .u-pvx-fb-type-title {
         background-color: @pvx-mini-card-dark;
-        color: @pvx-mini-text-muted-dark;
+        color: @pvx-dark-text-80;
+    }
 
-        .u-img {
-            display: none;
-        }
+    .u-pvx-fb-sub-title {
+        color: @pvx-dark-text-40;
+    }
 
-        .u-img-dark {
-            display: block;
-        }
+    .u-pvx-fb-decals {
+        // background: rgba(107, 82, 255, 0.15);
+        background-color: @pvx-mini-card-dark;
+    }
+
+    .u-pvx-fb-decals-params-label {
+        color: @pvx-dark-text-80;
     }
 
     .m-pvx-face-list-mobile,
     .m-pvx-body-list-mobile {
         background-color: @pvx-dark-bg;
 
-        .u-card-title,
-        .u-fb-card-title {
-            color: @pvx-mini-text-dark;
+        .u-pvx-fb-card-title {
+            color: @pvx-bg-white;
         }
     }
 
-    .m-pvx-mini-list-base {
+    .m-pvx-fb-mini-list {
 
-        .u-card-title,
-        .u-fb-card-title {
-            color: @pvx-mini-text-dark;
+        .u-pvx-fb-card-title {
+            color: @pvx-bg-white;
         }
     }
 
     .m-pvx-fb-single-detail {
         background-color: #000;
 
-        .m-detail-top {
-            .u-img-item {
+        .m-pvx-fb-detail-top {
+            .u-pvx-fb-img-item {
                 &::before {
                     background: linear-gradient(180deg,
                             #1c1c1c 0.04%,
@@ -165,124 +107,113 @@
                 }
             }
 
-            .u-info {
-                .u-name {
+            .u-pvx-fb-detail-info {
+                .u-pvx-fb-detail-name {
                     color: @pvx-bg-white;
                 }
 
-                .u-author {
+                .u-pvx-fb-detail-author {
                     color: @pvx-dark-text-40;
                 }
             }
         }
 
-        .m-tags {
+        .m-pvx-fb-tags {
 
-            .u-tag,
-            .u-fb-tag {
+            .u-pvx-fb-tag {
                 background: @pvx-dark-card;
                 color: @pvx-dark-text-80;
             }
         }
 
-        .m-introduce {
+        .m-pvx-fb-introduce {
             background-color: @pvx-dark-card;
 
-            .u-title,
-            .u-fb-introduce-title {
+            .u-pvx-fb-introduce-title {
                 color: @pvx-dark-text-40;
             }
 
-            .u-content,
-            .u-fb-introduce-content {
+            .u-pvx-fb-introduce-content {
                 color: @pvx-dark-text-80;
             }
         }
 
-        .m-warning {
+        .m-pvx-fb-warning {
             background-color: @pvx-dark-card;
             color: @pvx-dark-text-40;
 
-            .u-img {
+            .u-pvx-fb-warning-img {
                 display: none;
             }
 
-            .u-img-dark {
+            .u-pvx-fb-warning-img-dark {
                 display: block;
             }
         }
 
-        .m-data-entry {
+        .m-pvx-fb-data-entry {
             background-color: @pvx-dark-card;
             color: @pvx-dark-text-80;
 
-            .u-img {
+            .u-pvx-fb-data-entry-img {
                 display: none;
             }
 
-            .u-img-dark {
+            .u-pvx-fb-data-entry-img-dark {
                 display: block;
             }
         }
 
-        .m-author {
+        .m-pvx-fb-author {
             background-color: @pvx-dark-card;
 
-            .u-info-box {
+            .u-pvx-fb-author-info-box {
 
-                .u-name,
-                .u-fb-author-name {
+                .u-pvx-fb-author-name {
                     color: @pvx-dark-text-80;
                 }
 
-                .u-fans,
-                .u-fb-author-fans {
+                .u-pvx-fb-author-fans {
                     color: @pvx-dark-text-40;
                 }
 
-                .u-follow,
-                .u-fb-author-follow {
-                    background: @pvx-mini-btn-bg-dark;
-                    color: @pvx-mini-btn-bg;
+                .u-pvx-fb-author-follow {
+                    background: @pvx-mini-primary;
+                    color: @pvx-mini-primary-bg;
                 }
             }
 
-            .u-introduce,
-            .u-fb-author-introduce {
+            .u-pvx-fb-author-introduce {
                 color: @pvx-dark-text-40;
             }
         }
 
-        .m-author-other {
+        .m-pvx-fb-author-other {
             background-color: @pvx-dark-card;
 
-            .u-title,
-            .u-fb-author-other-title {
+            .u-pvx-fb-author-other-title {
                 color: @pvx-dark-text-40;
             }
         }
     }
 
     .m-pvx-fb-routine {
-        .u-item {
+        .u-pvx-fb-item {
 
-            .u-item_name,
-            .u-fb-item__name {
+            .u-pvx-fb-item__name {
                 color: @pvx-dark-text-80;
             }
 
-            .u-item_author,
-            .u-fb-item__author {
+            .u-pvx-fb-item__author {
                 color: @pvx-dark-text-40;
             }
         }
     }
 
     .m-pvx-fb-habitus {
-        .u-item {
+        .u-pvx-fb-item {
 
-            .u-item_type,
-            .u-fb-item__type {
+            .u-pvx-fb-item__type {
                 color: @pvx-dark-text-80;
             }
         }

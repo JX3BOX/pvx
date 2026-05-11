@@ -1,4 +1,4 @@
-﻿<!--
+<!--
  * author - 作者信息组件
  * 
  * @description 用于脸型/体型详情页展示作者详细信息，包括头像、等级、VIP状态等
@@ -120,10 +120,10 @@ export default {
         },
         async getDecorationStyle() {
             let decoration_local = sessionStorage.getItem(DECORATION_KEY + this.uid);
-            if (decoration_local && decoration_local !== "undefined") {
+            if (decoration_local) {
                 try {
                     const decoration = JSON.parse(decoration_local);
-                    this.userDefinedStyle = decoration ? decoration : {};
+                    this.userDefinedStyle = decoration || {};
                 } catch (e) {
                     sessionStorage.removeItem(DECORATION_KEY + this.uid);
                     this.userDefinedStyle = {};
@@ -143,7 +143,7 @@ export default {
                         this.userDefinedStyle = theme;
                     });
                 } else {
-                    if (decorationJson && decorationJson !== "undefined") {
+                    if (decorationJson) {
                         try {
                             const theme = JSON.parse(decorationJson)[decoration.val];
                             this.userDefinedStyle = theme;

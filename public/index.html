@@ -8,6 +8,21 @@
         <title><%= htmlWebpackPlugin.options.title %></title>
         <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
         <!--<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>-->
+        <script>
+            // 安全拦截 JSON.parse，防止 sessionStorage/localStorage 中的脏数据导致运行时崩溃
+            // 必须在 webpack 模块加载之前执行，否则 @jx3box/jx3box-ui 等第三方组件的裸 JSON.parse 会报错
+            (function () {
+                var _orig = JSON.parse;
+                var unsafe = { undefined: 1 };
+                JSON.parse = function (text, reviver) {
+                    if (unsafe[text] === 1) {
+                        console.warn('[safeJSONParse] 拦截无效 JSON: "' + text + '"\n' + new Error().stack);
+                        return reviver ? _orig.call(JSON, '{}', reviver) : {};
+                    }
+                    return _orig.call(JSON, text, reviver);
+                };
+            })();
+        </script>
     </head>
     <body>
         <div id="app"></div>

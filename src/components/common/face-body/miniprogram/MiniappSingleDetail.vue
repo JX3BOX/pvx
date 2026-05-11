@@ -35,8 +35,8 @@
         <SuspendCommon v-if="!disabled" :btnOptions="{ showHome: true }" :drawerOptions="suspendOptions"
             @search="handleSearch">
             <template #default>
-                <div class="u-copy m-pvx-fb-single-detail__copy" @click="showCodeDrawer = true">
-                    <img class="u-copy-icon u-fb-copy-icon" src="@/assets/img/pvxsuspension/copy_touchbar.svg" svg-inline />
+                <div class="m-pvx-fb-single-detail__copy" @click="showCodeDrawer = true">
+                    <img class="u-pvx-fb-copy-icon" src="@/assets/img/pvxsuspension/copy_touchbar.svg" svg-inline />
                     复制{{ typeLabel }}码
                 </div>
             </template>
@@ -47,71 +47,71 @@
             @go-to-data="handleGoToData" />
 
         <!-- 图片轮播区域 -->
-        <div class="m-detail-top">
+        <div class="m-pvx-fb-detail-top">
             <el-carousel :height="carouselHeight">
                 <el-carousel-item v-for="(item, i) in imageList" :key="i">
-                    <div class="u-img-item">
-                        <img class="u-fb-detail-img" :src="showPic(item)" />
+                    <div class="u-pvx-fb-img-item">
+                        <img class="u-pvx-fb-detail-img" :src="showPic(item)" />
                     </div>
                 </el-carousel-item>
             </el-carousel>
             <!-- 作品名称/作者 -->
-            <div class="u-info">
-                <div class="u-name">{{ post.title || "无标题" }}</div>
-                <div class="u-author">{{ post.display_name }}</div>
+            <div class="u-pvx-fb-detail-info">
+                <div class="u-pvx-fb-detail-name">{{ post.title || "无标题" }}</div>
+                <div class="u-pvx-fb-detail-author">{{ post.display_name }}</div>
             </div>
         </div>
 
         <!-- 标签区域 -->
-        <div class="m-tags">
-            <div class="u-tag u-fb-tag purple" v-if="!!post.star">★ 编辑推荐</div>
+        <div class="m-pvx-fb-tags">
+            <div class="u-pvx-fb-tag purple" v-if="!!post.star">★ 编辑推荐</div>
             <!-- 脸型特有：写实/写意标签 -->
             <template v-if="type === 'face'">
-                <div class="u-tag u-fb-tag" :class="post.is_new_face ? 'green' : 'mint'">
+                <div class="u-pvx-fb-tag" :class="post.is_new_face ? 'green' : 'mint'">
                     {{ newFaceMap[post.is_new_face] }}
                 </div>
             </template>
-            <div class="u-tag u-fb-tag" v-if="!!post.is_fr">首发</div>
-            <div class="u-tag u-fb-tag" v-if="!!post.original">原创</div>
-            <div class="u-tag u-fb-tag">{{ showClientLabel(post.client) }}</div>
-            <div class="u-tag u-fb-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
+            <div class="u-pvx-fb-tag" v-if="!!post.is_fr">首发</div>
+            <div class="u-pvx-fb-tag" v-if="!!post.original">原创</div>
+            <div class="u-pvx-fb-tag">{{ showClientLabel(post.client) }}</div>
+            <div class="u-pvx-fb-tag" v-if="post.body_type">{{ showBodyTypeLabel(post.body_type) }}</div>
         </div>
 
         <!-- 介绍区域 -->
-        <div class="m-introduce" v-if="post.remark">
-            <div class="u-title u-fb-introduce-title">介绍</div>
-            <div class="u-content u-fb-introduce-content">{{ post.remark }}</div>
+        <div class="m-pvx-fb-introduce" v-if="post.remark">
+            <div class="u-pvx-fb-introduce-title">介绍</div>
+            <div class="u-pvx-fb-introduce-content">{{ post.remark }}</div>
         </div>
 
         <!-- 警告提示 -->
-        <div class="m-warning" v-if="showWarning">
-            <img src="@/assets/img/common/face-body/mobile/warning.svg" class="u-img" />
-            <img src="@/assets/img/common/face-body/mobile/warning-dark.svg" class="u-img-dark u-fb-warning-img-dark" />
-            <div class="u-text">小程序暂时不支持[非{{ typeLabel }}码]作品数据下载</div>
+        <div class="m-pvx-fb-warning" v-if="showWarning">
+            <img src="@/assets/img/common/face-body/mobile/warning.svg" class="u-pvx-fb-warning-img" />
+            <img src="@/assets/img/common/face-body/mobile/warning-dark.svg" class="u-pvx-fb-warning-img-dark" />
+            <div class="u-pvx-fb-warning-text">小程序暂时不支持[非{{ typeLabel }}码]作品数据下载</div>
         </div>
 
         <!-- 码/数据入口 -->
-        <div :class="['m-number-card', type === 'face' ? 'm-face-number' : 'm-body-number']" v-if="post.code_mode"
+        <div :class="['m-pvx-fb-number-card', type === 'face' ? 'm-pvx-fb-number-card--face' : 'm-pvx-fb-number-card--body']" v-if="post.code_mode"
             @click="handleCopy">
-            <div class="u-title u-fb-number-card-title">
-                <img class="u-fb-number-icon" src="@/assets/img/common/face-body/mobile/copy.svg" />
+            <div class="u-pvx-fb-number-card-title">
+                <img class="u-pvx-fb-number-icon" src="@/assets/img/common/face-body/mobile/copy.svg" />
                 {{ typeLabel }}码
             </div>
-            <div class="u-number u-fb-number-card-value">{{ post.code }}</div>
+            <div class="u-pvx-fb-number-card-value">{{ post.code }}</div>
         </div>
-        <div class="m-data-entry" v-else @click="handleGoToData">
-            <div class="u-text">{{ typeLabel }}数据</div>
-            <img src="@/assets/img/common/face-body/mobile/CaretLeft.svg" class="u-img" />
-            <img src="@/assets/img/common/face-body/mobile/CaretLeft-dark.svg" class="u-img-dark u-fb-data-entry-img-dark" />
+        <div class="m-pvx-fb-data-entry" v-else @click="handleGoToData">
+            <div class="u-pvx-fb-data-entry-text">{{ typeLabel }}数据</div>
+            <img src="@/assets/img/common/face-body/mobile/CaretLeft.svg" class="u-pvx-fb-data-entry-img" />
+            <img src="@/assets/img/common/face-body/mobile/CaretLeft-dark.svg" class="u-pvx-fb-data-entry-img-dark" />
         </div>
 
         <!-- 关于作者 -->
         <MiniappAuthorCard :author="authorData" />
 
         <!-- 其他作品 -->
-        <div class="m-author-other" v-if="randomList.length > 0">
-            <div class="u-title u-fb-author-other-title">{{ post.display_name }}其他作品</div>
-            <div class="u-list u-fb-author-other-list">
+        <div class="m-pvx-fb-author-other" v-if="randomList.length > 0">
+            <div class="u-pvx-fb-author-other-title">{{ post.display_name }}其他作品</div>
+            <div class="u-pvx-fb-author-other-list">
                 <routine-list mode="compact" :list="randomList" :isNumber="true" :type="type" />
             </div>
         </div>
@@ -232,4 +232,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/common/face-body/miniprogram/single-detail.less";
+@import "~@/assets/css/common/face-body/miniprogram/dark-mode.less";
 </style>

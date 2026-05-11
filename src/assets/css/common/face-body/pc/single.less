@@ -4,8 +4,7 @@
  * 使用 CSS 变量统一管理模块差异
  */
 
-@import "../_variables.less";
-@import "./module-variables.less";
+@import (reference) "_variables.less";
 
 .m-pvx-navigation {
     .flex;
@@ -181,7 +180,7 @@
 
             // 通配符选择器性能较差，后续应迁移到 .u-fb-author > * 替代
             *,
-            .u-fb-author > * {
+            .u-fb-author>* {
                 flex-shrink: 0;
             }
 
@@ -340,26 +339,6 @@
 
 .m-pvx-single__data {
     margin-top: 24px;
-
-    .c-facedat-tab {
-        .r(10px);
-        margin: 16px 0 0 0;
-        padding: 12px;
-
-        .el-radio-button__inner {
-            margin-top: 0;
-        }
-
-        .c-facedat-group {
-
-            .u-pvx-list {
-                span,
-                .u-fb-list-value {
-                    color: @v4primary;
-                }
-            }
-        }
-    }
 }
 
 .m-pvx-single__data-title {
@@ -826,6 +805,11 @@
     z-index: 100 !important;
 }
 
+// ==================== node_modules 组件样式覆盖 ====================
+// 覆盖 @jx3box/jx3box-facedat 中的 Facedat.vue / Bodydat.vue
+// 组件class名无法修改，只能通过外部覆盖调整
+// 注意：.c-facedat-preivew 拼写错误来自源组件，不可修改
+
 .c-facedat-preivew {
     margin-top: 16px;
     padding: 16px 12px;
@@ -837,7 +821,270 @@
     }
 }
 
-@import "./responsive.less";
+.c-facedat-group {
+
+    .u-pvx-list-value,
+    .u-fb-list-value {
+        color: @v4primary;
+    }
+
+    .u-dname,
+    .u-title {
+        .flex;
+        align-items: center;
+    }
+}
+
+// ==================== 响应式适配 ====================
+
+/* iPad 端 - 列表页 */
+@media screen and (max-width: @ipad) {
+    .m-card-banner-list .m-cardlist-items {
+        overflow-x: auto;
+    }
+
+    .p-pvx-body-list,
+    .p-pvx-face-list {
+        .u-pvx-type {
+            margin-top: 20px;
+        }
+
+        .u-pvx-title {
+            .fz(24px);
+        }
+
+        .u-pvx-recommend-title,
+        .u-pvx-all-type {
+            margin-top: 0 !important;
+        }
+    }
+
+    .m-pvx-type__list--all {
+        .w(100%);
+        .flex;
+        justify-content: space-between;
+
+        .m-pvx-type__item {
+            .pr;
+            margin-bottom: 30px;
+            overflow: hidden;
+            height: auto;
+            .w(100%);
+            margin-right: 10px;
+
+            .u-pvx-img {
+                width: auto;
+                height: auto;
+            }
+
+            .m-pvx-op {
+                .u-pvx-type-title {
+                    .fz(14px);
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    .m-pvx-common-list {
+        overflow-x: auto;
+
+        &::-webkit-scrollbar {
+            width: 2px;
+            height: 2px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: @pvx-color-primary;
+            .r(2px);
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .m-pvx-type__item {
+            .u-pvx-img {
+                .u-pvx-star-mark {
+                    .fz(12px);
+                    .lt(6px, 6px);
+                    padding: 2px;
+                }
+            }
+        }
+
+        .m-pvx-op {
+            .u-pvx-type-title {
+                .fz(14px);
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+/* 手机端 - 列表页 */
+@media screen and (max-width: @phone) {
+    .m-pvx-recommend__box {
+        padding-top: 64px;
+    }
+
+    .m-pvx-type__tabs {
+        .pr;
+        width: unset;
+    }
+
+    .m-pvx-type__box {
+        &:nth-child(2) {
+            margin-top: 40px;
+        }
+
+        .u-pvx-shade-btn {
+            .h(264px);
+        }
+
+        .u-pvx-shade {
+            .h(224px);
+        }
+    }
+}
+
+/* iPad 端 - 详情页 */
+@media screen and (max-width: @ipad) {
+
+    .m-pvx-header,
+    .m-pvx-random__list .u-pvx-list {
+        flex-wrap: wrap;
+    }
+
+    .m-pvx-random__list .u-pvx-list {
+        overflow: auto;
+
+        .m-pvx-type__item {
+            flex-shrink: 0;
+        }
+    }
+
+    .m-pvx-type__content {
+        flex-wrap: wrap;
+
+        .m-pvx-type__pay {
+            .w(100%);
+
+            .u-pvx-box-img {
+                display: none;
+            }
+        }
+    }
+
+    .m-pvx-type__pay .m-pvx-type__buy {
+        .flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: auto;
+        padding: 14px 0;
+
+        .m-pvx-type__buy-btn {
+            margin: 0;
+        }
+    }
+
+    .m-pvx-single__data {
+
+        .c-bodydat-tab,
+        .c-facedat-tab {
+            overflow: auto;
+
+            .el-radio-group {
+                .flex;
+                gap: 10px 0;
+                flex-wrap: wrap;
+            }
+        }
+    }
+
+    .m-pvx-type__pay .m-pvx-type__buy .u-pvx-type-code {
+        display: block;
+        background-color: #fff;
+        .w(269px);
+        margin-top: 10px;
+        padding: 5px 15px;
+        box-sizing: border-box;
+        .r(10px);
+    }
+}
+
+/* 手机端 - 详情页 */
+@media screen and (max-width: @phone) {
+    .m-pvx-header {
+        .m-pvx-avatar {
+            display: none;
+        }
+
+        .m-pvx-header__info {
+            .w(100%);
+        }
+    }
+
+    .m-pvx-type__pay .m-pvx-type__pay-info {
+        margin: 40px auto;
+    }
+
+    .p-pvx-body-single .el-input-group__prepend,
+    .p-pvx-face-single .el-input-group__prepend {
+        display: none;
+    }
+
+    .m-pvx-random__list {
+        .u-pvx-list {
+            overflow: auto;
+            flex-wrap: nowrap;
+        }
+    }
+
+    .m-pvx-navigation {
+        flex-wrap: wrap;
+        gap: 40px;
+
+        .m-pvx-op {
+            display: none;
+        }
+    }
+
+    .m-pvx-author__header {
+        height: auto;
+        min-height: 240px;
+        padding-top: 30px;
+        padding-bottom: 20px;
+
+        .m-pvx-info {
+            .flex;
+            .w(100%);
+            flex-direction: column;
+            gap: 30px;
+        }
+    }
+
+    .m-pvx-type__tips {
+        height: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+
+        .u-pvx-tips-right {
+            .w(100%);
+            text-align: center;
+            .r(2px);
+            padding: 3px 0;
+            border: 1px solid #f9f9f9;
+        }
+    }
+
+    .m-pvx-single__pics .m-pvx-carousel {
+        width: calc(100% - 40px);
+    }
+}
 
 // ==================== 模块特定样式覆盖 ====================
 

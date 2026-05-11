@@ -1,19 +1,19 @@
 <template>
-    <div class="c-facedat" v-if="ready && group_tabs">
+    <div class="m-pvx-body-data" v-if="ready && group_tabs">
         <div class="m-pvx-body-list-mobile__tabs">
-            <div class="u-tab_item" v-for="(item, index) in Object.values(group_tabs)" :key="index"
+            <div class="u-pvx-tab-item" v-for="(item, index) in Object.values(group_tabs)" :key="index"
                 :class="{ 'is-active': active == item.value }" @click="active = item.value">
                 {{ item.label }}
             </div>
         </div>
 
         <template v-for="tab in Object.values(group_tabs)" :key="tab.value">
-            <div class="c-facedat-preivew" v-show="active === tab.value">
-                <div class="c-facedat-group">
-                    <ul class="u-list u-fb-data-list">
-                        <li class="u-fb-list-item" v-for="(item, i) in currentGroup" :key="i">
-                            <label class="u-fb-list-label">{{ item.name }}</label>
-                            <span class="u-fb-list-value">{{ item.value }}</span>
+            <div class="m-pvx-fb-data-preview" v-show="active === tab.value">
+                <div class="m-pvx-fb-data-group">
+                    <ul class="u-pvx-fb-data-list">
+                        <li class="u-pvx-fb-list-item" v-for="(item, i) in currentGroup" :key="i">
+                            <label class="u-pvx-fb-list-label">{{ item.name }}</label>
+                            <span class="u-pvx-fb-list-value">{{ item.value }}</span>
                             <slider class="u-range" :min="item.min" :max="item.max" v-model="body_data.tBody[item.key]"
                                 :disabled="false"></slider>
                         </li>
@@ -85,7 +85,12 @@ export default {
         render() {
             // 是否为空
             //获取缓存
-            let data = JSON.parse(sessionStorage.getItem("bodyData"));
+            let data;
+            try {
+                data = JSON.parse(sessionStorage.getItem("bodyData"));
+            } catch (e) {
+                sessionStorage.removeItem("bodyData");
+            }
             if (!data) {
                 this.body_data = "";
                 this.body_type = "";

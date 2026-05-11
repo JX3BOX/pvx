@@ -1,16 +1,16 @@
 <template>
-    <div class="c-facedat" v-if="ready && group_tabs">
+    <div class="m-pvx-body-data" v-if="ready && group_tabs">
         <div class="m-pvx-body-list-mobile__tabs">
-            <div class="u-tab_item" v-for="(item, index) in Object.values(group_tabs)" :key="index"
+            <div class="u-pvx-tab-item" v-for="(item, index) in Object.values(group_tabs)" :key="index"
                 :class="{ 'is-active': active == item.value }" @click="active = item.value">
                 {{ item.label }}
             </div>
         </div>
 
         <template v-for="tab in Object.values(group_tabs)" :key="tab.value">
-            <div class="c-facedat-preivew" v-show="active === tab.value">
-                <div class="c-facedat-group">
-                    <ul class="u-list">
+            <div class="m-pvx-fb-data-preview" v-show="active === tab.value">
+                <div class="m-pvx-fb-data-group">
+                    <ul class="u-pvx-fb-data-list">
                         <li v-for="(item, i) in currentGroup" :key="i">
                             <label>{{ item.name }}</label>
                             <span>{{ item.value }}</span>
@@ -84,7 +84,12 @@ export default {
         render() {
             // 是否为空
             //获取缓存
-            let data = JSON.parse(sessionStorage.getItem("bodyData"));
+            let data;
+            try {
+                data = JSON.parse(sessionStorage.getItem("bodyData"));
+            } catch (e) {
+                sessionStorage.removeItem("bodyData");
+            }
             if (!data) {
                 this.body_data = "";
                 this.body_type = "";

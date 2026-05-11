@@ -1,0 +1,213 @@
+@import (reference) "_variables.less";
+
+// ==================== 体型特辑 ====================
+
+.m-pvx-fb-habitus {
+    .flex;
+    gap: 0.556rem;
+    flex-wrap: wrap;
+
+    .u-pvx-fb-item {
+        width: calc((100% - 0.556rem * 3) / 4);
+        .pr;
+        .r(0.444rem);
+        overflow: hidden;
+        aspect-ratio: 1 / 2;
+
+        .u-pvx-fb-item__img {
+            .size(100%);
+            .pr;
+
+            &::before {
+                content: "";
+                .pa;
+                .size(100%, 100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+            }
+
+            img,
+            .u-pvx-fb-item__img-el {
+                .size(100%);
+                object-fit: cover;
+            }
+        }
+
+        .u-pvx-fb-item__type {
+            color: @pvx-mini-surface;
+            .fz(0.778rem, 0.889rem);
+            .bold(400);
+            font-style: normal;
+            .pa;
+            .z(2);
+            .lb(0, 0.222rem);
+            padding: 0 0.333rem;
+        }
+    }
+}
+
+// ==================== 常规列表 ====================
+
+.m-pvx-fb-routine {
+    .size(100%, auto);
+    .flex;
+    gap: 0.889rem;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 0 1.25rem;
+
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    &.m-pvx-fb-routine--one {
+        flex-wrap: wrap;
+        height: 100%;
+        gap: 0.667rem;
+
+        .u-pvx-fb-item {
+            width: calc((100% - 0.667rem * 2) / 3);
+
+            .u-pvx-fb-item__img {
+                width: 100%;
+                aspect-ratio: 1;
+                object-fit: cover;
+
+                img,
+                .u-pvx-fb-item__img-el,
+                .el-image {
+                    .size(100%, 100%);
+                    object-fit: contain;
+                }
+            }
+        }
+    }
+
+    .u-pvx-fb-item {
+        .u-pvx-fb-item__img {
+            .r(0.444rem);
+            background: #d9d9d9;
+            overflow: hidden;
+
+            img,
+            .u-pvx-fb-item__img-el {
+                object-fit: contain;
+            }
+        }
+
+        .u-pvx-fb-item__tag {
+            .flex;
+            gap: 0.222rem;
+            padding: 0.222rem 0.111rem;
+            box-sizing: border-box;
+
+            .u-pvx-fb-item__tag-icon {
+                .size(0.667rem, 0.111rem);
+                border-radius: 6.25rem;
+
+                &.green {
+                    background: #34c759;
+                }
+
+                &.mint {
+                    background: #23abe5;
+                }
+
+                &.purple {
+                    background: #af52de;
+                }
+
+                &.new {
+                    background: #ff72af;
+                }
+            }
+        }
+
+        .u-pvx-fb-item__name,
+        .u-pvx-fb-item__author {
+            padding: 0 0.111rem;
+            box-sizing: border-box;
+            .bold(400);
+            font-style: normal;
+        }
+
+        .u-pvx-fb-item__name {
+            .w(100%);
+            color: @pvx-text-80;
+            .fz(0.778rem, 1.333rem);
+            .mb(0.222rem);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .u-pvx-fb-item__author {
+            color: @pvx-text-40;
+            .fz(0.667rem, 1rem);
+        }
+    }
+
+    .u-pvx-fb-more {
+        .x;
+        .w(100%);
+    }
+}
+
+// ==================== 紧凑列表 ====================
+
+.m-pvx-fb-routine--compact {
+    .w(100%);
+    .flex;
+    gap: 0.444rem;
+    overflow: auto;
+    box-sizing: border-box;
+
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    .u-pvx-fb-item {
+        .u-pvx-fb-item__img {
+            .r(0.444rem);
+            background: #d9d9d9;
+            overflow: hidden;
+            .pr;
+            .size(100%, 100%);
+
+            &::before {
+                content: "";
+                .pa;
+                .size(100%, 100%);
+                .lt(0);
+                .dbi;
+                .z(1);
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+            }
+
+            img,
+            .u-pvx-fb-item__img-el {
+                .size(100%, 100%);
+                object-fit: cover;
+            }
+        }
+
+        .u-pvx-fb-item__name {
+            .pa;
+            .z(2);
+            .lb(0.375rem);
+            .bold(400);
+            font-style: normal;
+            .w(calc(100% - 0.667rem));
+            .fz(0.778rem, 1.111rem);
+            .mb(0.222rem);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: @pvx-mini-surface;
+        }
+    }
+}

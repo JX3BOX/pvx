@@ -5,33 +5,33 @@
 <template>
     <div :class="containerClass" @scroll="handleScroll">
         <template v-if="mode === 'list'">
-            <div class="u-item u-fb-item" v-for="item in list" :key="item.id"
+            <div class="u-pvx-fb-item" v-for="item in list" :key="item.id"
                 :style="itemStyle" @click="openNewFace(item.id)">
-                <div class="u-item_img u-fb-item__img" :style="imgStyle">
+                <div class="u-pvx-fb-item__img" :style="imgStyle">
                     <el-image class="u-pic" :src="showImg(item)" fit="cover">
                         <template #error>
                             <div class="image-slot">
-                                <img class="u-fb-item__img-el" src="@/assets/img/body/body_null.png" />
+                                <img class="u-pvx-fb-item__img-el" src="@/assets/img/body/body_null.png" />
                             </div>
                         </template>
                     </el-image>
                 </div>
-                <div class="u-item_tag u-fb-item__tag">
-                    <div class="u-tag_item u-fb-tag-item green" v-if="item.is_new_face"></div>
-                    <div class="u-tag_item u-fb-tag-item mint" v-else></div>
-                    <div class="u-tag_item u-fb-tag-item new" v-if="!!item.is_unlimited"></div>
-                    <div class="u-tag_item u-fb-tag-item purple" v-if="!!item.star"></div>
+                <div class="u-pvx-fb-item__tag">
+                    <div class="u-pvx-fb-tag-item green" v-if="item.is_new_face"></div>
+                    <div class="u-pvx-fb-tag-item mint" v-else></div>
+                    <div class="u-pvx-fb-tag-item new" v-if="!!item.is_unlimited"></div>
+                    <div class="u-pvx-fb-tag-item purple" v-if="!!item.star"></div>
                 </div>
-                <div class="u-item_name u-fb-item__name">{{ item.title }}</div>
-                <div class="u-item_author u-fb-item__author">{{ item.display_name || "匿名" }}</div>
+                <div class="u-pvx-fb-item__name">{{ item.title }}</div>
+                <div class="u-pvx-fb-item__author">{{ item.display_name || "匿名" }}</div>
             </div>
         </template>
         <template v-else>
-            <div class="u-item u-fb-item" v-for="item in list" :key="item.id"
+            <div class="u-pvx-fb-item" v-for="item in list" :key="item.id"
                 :style="{ width: itemWidth + 'px', height: itemHeight + 'px' }" @click="openNewFace(item.id)">
-                <div class="u-item_img u-fb-item__img">
-                    <img class="u-fb-item__img-el" :src="showImg(item)" />
-                    <div class="u-item_name u-fb-item__name">{{ item.title }}</div>
+                <div class="u-pvx-fb-item__img">
+                    <img class="u-pvx-fb-item__img-el" :src="showImg(item)" />
+                    <div class="u-pvx-fb-item__name">{{ item.title }}</div>
                 </div>
             </div>
         </template>
@@ -188,6 +188,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/face-body/miniprogram/routine.less";
-@import "~@/assets/css/common/face-body/miniprogram/routine-other.less";
+@import "~@/assets/css/common/face-body/miniprogram/list-variants.less";
 </style>

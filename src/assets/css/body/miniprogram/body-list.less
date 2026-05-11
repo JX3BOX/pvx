@@ -2,13 +2,13 @@
  * 小程序体型列表页样式
  */
 
-@import "../../common/face-body/miniprogram/index.less";
+@import (reference) "../../common/face-body/miniprogram/_variables.less";
+@import "../../common/face-body/miniprogram/list.less";
 
 .m-pvx-body-list-mobile {
-    &:extend(.m-pvx-mini-list-base all);
+    &:extend(.m-pvx-fb-mini-list all);
 
-    .u-card-title,
-    .u-fb-card-title {
+    .u-pvx-fb-card-title {
         color: @fontColor;
     }
 }

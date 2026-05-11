@@ -1,12 +1,8 @@
 /**
- * 体型模块样式入口
- * 统一导入所有公共样式
+ * 体型模块PC端样式入口
  */
 
-// 导入公共样式（包含 CSS 变量定义）
-@import "../common/face-body/shared/list-card.less";
-@import "../common/face-body/shared/single.less";
-
-// 小程序样式
-@import "./miniprogram/body-list.less";
-@import "./data.less";
+@import (reference) "../common/face-body/pc/_variables.less";
+@import "../common/face-body/pc/list-card.less";
+@import "../common/face-body/pc/single.less";
+@import "../common/face-body/pc/parse.less";

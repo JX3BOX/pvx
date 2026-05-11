@@ -1,0 +1,57 @@
+/**
+ * PC端 Face/Body 模块变量
+ * 仅包含PC端使用的变量，与小程序端完全独立
+ */
+
+@import "~@/assets/css/var.less";
+
+// ==================== Less 变量 ====================
+
+// 卡片尺寸
+@pvx-card-face-width: 190px;
+@pvx-card-face-height: 280px;
+@pvx-card-face-img-width: 156px;
+@pvx-card-face-img-height: 160px;
+@pvx-card-body-width: 190px;
+@pvx-card-body-height: 368px;
+@pvx-card-body-img-height: 264px;
+
+// 按钮尺寸
+@pvx-btn-height: 39px;
+@pvx-btn-buy-width: 269px;
+@pvx-btn-buy-height: 60px;
+
+// 支付区域尺寸
+@pvx-pay-width: 435px;
+@pvx-pay-height: 500px;
+
+// 价格颜色
+@pvx-price-gold: #fba524;
+@pvx-price-free: #49c10f;
+@pvx-price-box: #ffad31;
+
+// 数据值颜色
+@pvx-fb-value-color: #5856d6;
+
+// ==================== CSS 自定义属性 ====================
+// 通过 CSS 变量统一管理 face 和 body 模块的差异
+
+.p-pvx-face-list,
+.p-pvx-face-single {
+    --pvx-module-color: @pvx-color-face;
+    --pvx-module-card-width: 190px;
+    --pvx-module-card-height: 280px;
+    --pvx-module-card-img-width: 156px;
+    --pvx-module-card-img-height: 160px;
+    --pvx-module-card-no-name-height: 250px;
+}
+
+.p-pvx-body-list,
+.p-pvx-body-single {
+    --pvx-module-color: @pvx-color-body;
+    --pvx-module-card-width: 190px;
+    --pvx-module-card-height: 368px;
+    --pvx-module-card-img-width: 100%;
+    --pvx-module-card-img-height: 264px;
+    --pvx-module-card-no-name-height: 340px;
+}

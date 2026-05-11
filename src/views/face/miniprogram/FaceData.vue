@@ -1,5 +1,5 @@
 <template>
-    <div class="c-facedat">
+    <div class="m-pvx-face-data">
         <NewFace :facedata="facedata" :body_type="body_type" :cleandata="cleandata" :clean="clean" :lock="lock"
             :decalDb="decalDb" v-if="decalDb && facedata?.tBone && facedata.bNewFace">
         </NewFace>
@@ -97,7 +97,12 @@ export default {
     methods: {
         // 数据构建
         render: function () {
-            let data = JSON.parse(sessionStorage.getItem("faceData"));
+            let data;
+            try {
+                data = JSON.parse(sessionStorage.getItem("faceData"));
+            } catch (e) {
+                sessionStorage.removeItem("faceData");
+            }
             // this.decalDb.ready()
             this.decalDb = new DecalDatabase(this.client, data?.object?.bNewFace);
 

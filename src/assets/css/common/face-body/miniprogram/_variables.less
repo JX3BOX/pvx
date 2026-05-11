@@ -1,0 +1,54 @@
+/**
+ * 小程序端 Face/Body 模块变量
+ * 仅包含小程序端使用的变量，与PC端完全独立
+ * 无别名变量，直接使用原始变量名
+ */
+
+@import "~@/assets/css/var.less";
+
+// ==================== Less 变量 ====================
+
+// 小程序主题色
+@pvx-mini-primary: #fedaa3;
+@pvx-mini-primary-bg: #24292e;
+
+// 小程序背景色
+@pvx-mini-surface: #fafafa;
+@pvx-mini-surface-dark: #000;
+@pvx-mini-card: #fff;
+@pvx-mini-card-dark: #282828;
+
+// 小程序布局尺寸（基准 1rem = 16px）
+@pvx-mini-header-height: 2.75rem;
+@pvx-mini-tab-height: 2rem;
+@pvx-mini-padding: 0.5rem;
+@pvx-mini-bottom-nav: 3.5rem;
+
+// 价格颜色
+@pvx-price-gold: #fba524;
+@pvx-price-free: #49c10f;
+
+// 数据值颜色
+@pvx-fb-value-color: #5856d6;
+@pvx-fb-muted-color: #999;
+@pvx-fb-secondary-color: #555;
+@pvx-fb-placeholder-bg: #d9d9d9;
+
+// 暗色模式
+@pvx-fb-dark-surface: rgba(255, 255, 255, 0.05);
+@pvx-fb-dark-surface-hover: rgba(255, 255, 255, 0.1);
+
+// ==================== CSS 自定义属性 ====================
+// 通过 CSS 变量统一管理 face 和 body 小程序模块的差异
+
+.m-pvx-face-list-mobile {
+    --pvx-mini-bg: @pvx-dark-bg;
+    --pvx-mini-text-color: @pvx-dark-surface;
+    --pvx-mini-text-color-dark: @pvx-bg-white;
+}
+
+.m-pvx-body-list-mobile {
+    --pvx-mini-bg: #000;
+    --pvx-mini-text-color: @pvx-text-primary;
+    --pvx-mini-text-color-dark: @pvx-bg-white;
+}

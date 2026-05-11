@@ -33,16 +33,16 @@
         class="c-drawer" @close="handleClose">
         <!-- 体型切换区域 -->
         <transition :name="cutShowTra ? 'slide-up' : ''">
-            <div class="m-cut m-pvx-fb-cut" v-if="showCut">
+            <div class="m-pvx-fb-cut" v-if="showCut">
                 <!-- 全部体型选项 -->
-                <div class="u-cut-all u-fb-cut-all" :class="{ 'is-active': tempActive === -1 }" @click="tempActive = -1">
+                <div class="u-pvx-fb-cut-all" :class="{ 'is-active': tempActive === -1 }" @click="tempActive = -1">
                     <img class="u-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
                     全部体型
                 </div>
 
                 <!-- 体型列表 -->
-                <div class="u-cut-box u-fb-cut-box">
-                    <div class="u-cut-item u-fb-cut-item" v-for="(item, index) in typeList" :key="index"
+                <div class="u-pvx-fb-cut-box">
+                    <div class="u-pvx-fb-cut-item" v-for="(item, index) in typeList" :key="index"
                         :class="{ 'is-active': tempActive === item.value }" @click="tempActive = item.value">
                         <img class="u-icon" v-if="item.value === 1" src="@/assets/img/pvxsuspension/man.svg" svg-inline />
                         <img class="u-icon" v-else-if="item.value === 2" src="@/assets/img/pvxsuspension/woman.svg" svg-inline />
@@ -53,9 +53,9 @@
                 </div>
 
                 <!-- 操作按钮 -->
-                <div class="u-cut-btn u-fb-cut-btn">
+                <div class="u-pvx-fb-cut-btn">
                     <div class="u-report-btn" @click="handleReset">重置</div>
-                    <div class="u-confirm-btn" :class="{ active: showHighlightConfirm }" @click="handleConfirm">
+                    <div class="u-confirm-btn" :class="{ 'is-active': showHighlightConfirm }" @click="handleConfirm">
                         确定
                     </div>
                 </div>
@@ -63,7 +63,7 @@
         </transition>
 
         <!-- 请先选择体型提示 -->
-        <div class="m-no-body m-pvx-fb-no-body" v-if="noBody">
+        <div class="m-pvx-fb-no-body" v-if="noBody">
             <div class="u-icon">
                 <img src="@/assets/img/pvxsuspension/report.svg" svg-inline />
                 <div class="u-tips">请先选择体型</div>
@@ -72,20 +72,20 @@
         </div>
 
         <!-- 筛选区域 -->
-        <div class="m-filtrate m-pvx-fb-filtrate" v-if="showFiltrate">
+        <div class="m-pvx-fb-filtrate" v-if="showFiltrate">
             <!-- 类型筛选（仅脸型有写实/写意） -->
             <template v-if="showFaceTypeFilter">
-                <div class="u-filtrate-title u-fb-filtrate-title">类型</div>
+                <div class="u-pvx-fb-filtrate-title">类型</div>
                 <div class="u-box">
-                    <div class="u-item u-fb-filtrate-item" :class="{ active: !localFilterParams.is_new_face }"
+                    <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': !localFilterParams.is_new_face }"
                         @click="toggleFilter('is_new_face', '')">
                         全部
                     </div>
-                    <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.is_new_face === '1' }"
+                    <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': localFilterParams.is_new_face === '1' }"
                         @click="toggleFilter('is_new_face', '1', localFilterParams.is_new_face === '1')">
                         写实
                     </div>
-                    <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.is_new_face === '0' }"
+                    <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': localFilterParams.is_new_face === '0' }"
                         @click="toggleFilter('is_new_face', '0', localFilterParams.is_new_face === '0')">
                         写意
                     </div>
@@ -93,52 +93,52 @@
             </template>
 
             <!-- 标签筛选 -->
-            <div class="u-filtrate-title u-fb-filtrate-title">标签</div>
+            <div class="u-pvx-fb-filtrate-title">标签</div>
             <div class="u-box">
-                <div class="u-item u-fb-filtrate-item all" :class="{
-                    active:
+                <div class="u-pvx-fb-filtrate-item all" :class="{
+                    'is-active':
                         !localFilterParams.star &&
                         localFilterParams.price_type === '' &&
                         !localFilterParams.is_unlimited,
                 }" @click="resetTagFilters">
                     全部
                 </div>
-                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.star === '1' }"
+                <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': localFilterParams.star === '1' }"
                     @click="toggleFilter('star', '1', localFilterParams.star === '1')">
                     精选
                 </div>
-                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.price_type === '0' }"
+                <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': localFilterParams.price_type === '0' }"
                     @click="toggleFilter('price_type', '0', localFilterParams.price_type === '0')">
                     免费
                 </div>
-                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.is_unlimited === '1' }"
+                <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': localFilterParams.is_unlimited === '1' }"
                     @click="toggleFilter('is_unlimited', '1', localFilterParams.is_unlimited === '1')">
                     可新建
                 </div>
             </div>
 
             <!-- 其他筛选 -->
-            <div class="u-filtrate-title u-fb-filtrate-title">其他</div>
+            <div class="u-pvx-fb-filtrate-title">其他</div>
             <div class="u-box">
-                <div class="u-item u-fb-filtrate-item all" :class="{ active: !localFilterParams.filter_empty_images }"
+                <div class="u-pvx-fb-filtrate-item all" :class="{ 'is-active': !localFilterParams.filter_empty_images }"
                     @click="resetOtherFilters">
                     全部
                 </div>
-                <div class="u-item u-fb-filtrate-item" :class="{ active: localFilterParams.filter_empty_images }"
+                <div class="u-pvx-fb-filtrate-item" :class="{ 'is-active': localFilterParams.filter_empty_images }"
                     @click="toggleFilter('filter_empty_images', '1')">
                     只看有图
                 </div>
                 <!-- 脸型特有：只看捏脸码 -->
-                <div class="u-item u-fb-filtrate-item" v-if="type === 'face'" :class="{ active: localFilterParams.code_mode }"
+                <div class="u-pvx-fb-filtrate-item" v-if="type === 'face'" :class="{ 'is-active': localFilterParams.code_mode }"
                     @click="toggleFilter('code_mode', '1')">
                     只看捏脸码
                 </div>
             </div>
 
             <!-- 操作按钮 -->
-            <div class="u-btn m-pvx-fb-filtrate__btn">
+            <div class="m-pvx-fb-filtrate__btn">
                 <div class="u-report-btn" @click="handleFiltrateReset">重置</div>
-                <div class="u-confirm-btn" :class="{ active: showFiltrateConfirm }" @click="handleFiltrateConfirm">
+                <div class="u-confirm-btn" :class="{ 'is-active': showFiltrateConfirm }" @click="handleFiltrateConfirm">
                     确定
                 </div>
             </div>

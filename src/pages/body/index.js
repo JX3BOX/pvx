@@ -1,3 +1,7 @@
+// 0. 清理 Storage 中的脏数据
+import { cleanInvalidStorage } from "@/utils/storage";
+cleanInvalidStorage();
+
 // 1.Create APP
 import { createApp } from "vue";
 import App from "@/views/body/Body.vue";

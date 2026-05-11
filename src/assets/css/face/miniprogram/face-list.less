@@ -2,14 +2,14 @@
  * 小程序脸型列表页样式
  */
 
-@import "../../common/face-body/miniprogram/index.less";
+@import (reference) "../../common/face-body/miniprogram/_variables.less";
+@import "../../common/face-body/miniprogram/list.less";
 
 .m-pvx-face-list-mobile {
-    &:extend(.m-pvx-mini-list-base all);
+    &:extend(.m-pvx-fb-mini-list all);
 
-    .u-card-title,
-    .u-fb-card-title {
-        color: @pvx-mini-text;
+    .u-pvx-fb-card-title {
+        color: @pvx-dark-surface;
     }
 }
 
