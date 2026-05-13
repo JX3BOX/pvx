@@ -39,14 +39,14 @@
                                     <div class="u-pvx-horse-attr" v-for="attr in basicAttrs" :key="attr.id">
                                         <el-tooltip trigger="hover" placement="top">
                                             <template #content>
-                                                <div class="u-attr-pop">
-                                                    <div class="u-attr-name" v-if="attr.name">
+                                                <div class="u-pvx-horse-attr-pop">
+                                                    <div class="u-pvx-horse-attr-name" v-if="attr.name">
                                                         {{
                                                             (attr.name || "") +
                                                             (Number(attr.level) ? attr.level + "级" : "")
                                                         }}
                                                     </div>
-                                                    <div class="u-attr-desc">{{ attr.desc }}</div>
+                                                    <div class="u-pvx-horse-attr-desc">{{ attr.desc }}</div>
                                                 </div>
                                             </template>
                                             <img class="u-pvx-horse-attr-icon" style="cursor: default" :src="attr.iconUrl"
@@ -62,14 +62,14 @@
                                     <div class="u-pvx-horse-attr" v-for="(attr, index) in magicAttrs" :key="index">
                                         <el-tooltip trigger="hover" placement="top">
                                             <template #content>
-                                                <div class="u-attr-pop">
-                                                    <div class="u-attr-name" v-if="attr.name">
+                                                <div class="u-pvx-horse-attr-pop">
+                                                    <div class="u-pvx-horse-attr-name" v-if="attr.name">
                                                         {{
                                                             (attr.name || "") +
                                                             (Number(attr.level) ? attr.level + "级" : "")
                                                         }}
                                                     </div>
-                                                    <div class="u-attr-desc">{{ attr.desc }}</div>
+                                                    <div class="u-pvx-horse-attr-desc">{{ attr.desc }}</div>
                                                 </div>
                                             </template>
                                             <img class="u-pvx-horse-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
