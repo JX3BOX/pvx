@@ -1,8 +1,17 @@
-@import "./pop.less";
+.u-pvx-horse-attr-pop {
+    width: 200px;
+
+    .u-pvx-horse-attr-name {
+        margin-bottom: 2px;
+        font-size: 14px;
+        color: #00d24b;
+    }
+}
+
 @import "~@/assets/css/common/back.less";
 
-.horse-single-wrapper {
-    .u-goback {
+.p-pvx-horse-single {
+    .u-pvx-horse-goback {
         .pointer;
         .r(30px);
         .fz(16px, 40px);
@@ -19,7 +28,7 @@
         }
     }
 
-    .main-info-wrapper {
+    .m-pvx-horse-main-info {
         .pr;
         .mt(40px);
         width: 100%;
@@ -32,12 +41,12 @@
         }
     }
 
-    .horse-single-content {
-        .main-info-wrap {
+    .m-pvx-horse-single-content {
+        .m-pvx-horse-main-info__wrap {
             display: flex;
             gap: 20px;
 
-            .img-wrap {
+            .m-pvx-horse-main-info__img {
                 .size(390px);
                 .r(10px);
                 background-color: #fff;
@@ -51,11 +60,11 @@
                     .r(10px);
                     align-items: center;
                     justify-content: center;
-                    background-image: url("../../img/horse/horse_item_bg.jpg");
+                    background-image: url("../../../img/horse/horse_item_bg.jpg");
                 }
             }
 
-            .info-wrap {
+            .m-pvx-horse-main-info__info {
                 .pr;
                 .flex;
                 .r(10px);
@@ -68,39 +77,39 @@
                 color: #24292e;
                 box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 
-                .info-item {
+                .u-pvx-horse-info-item {
                     .flex;
                     .fz(14px, 1.2);
                     flex-direction: column;
 
-                    .u-id {
+                    .u-pvx-horse-id {
                         .fz(12px);
                         font-weight: 400;
                     }
 
-                    .u-name {
+                    .u-pvx-horse-name {
                         .fz(28px);
                     }
 
-                    .u-title {
+                    .u-pvx-horse-title {
                         .fz(16px);
                     }
 
-                    .u-list {
+                    .u-pvx-horse-attr-list {
                         .flex;
                         flex-wrap: wrap;
                         gap: 10px;
 
-                        .u-attr {
+                        .u-pvx-horse-attr {
                             flex-shrink: 0;
                         }
 
-                        .u-attr-icon {
+                        .u-pvx-horse-attr-icon {
                             .size(38px);
                         }
                     }
 
-                    .no-data {
+                    .u-pvx-horse-no-data {
                         color: #aaa;
                         height: 50px;
                         width: 50px;
@@ -110,20 +119,14 @@
                         border-radius: 10px;
                     }
 
-                    &.u-desc {
+                    &.u-pvx-horse-desc {
                         gap: 10px;
                     }
                 }
             }
         }
 
-        // .info-list {
-        //     .basic-list {
-        //         font-size: 13px;
-        //         color: #00d24b;
-        //     }
-        // }
-        .u-link {
+        .u-pvx-horse-link {
             position: absolute;
             right: 30px;
             top: 18px;
@@ -136,7 +139,7 @@
         }
     }
 
-    .same-list-container {
+    .m-pvx-horse-same-list {
         margin-top: 40px;
 
         .title {
@@ -145,16 +148,15 @@
             font-weight: 700;
         }
 
-        .same-list-wrapper {
+        .m-pvx-horse-same-list__wrapper {
             position: relative;
             width: 100%;
             height: 160px;
             overflow: hidden;
         }
-
     }
 
-    .catch-container {
+    .m-pvx-horse-catch {
         margin-top: 40px;
 
         .title {
@@ -164,7 +166,7 @@
             line-height: 42px;
         }
 
-        .m-horse-map {
+        .m-pvx-horse-map {
             background-color: #fff;
             padding: 20px 0;
             border-radius: 10px;
@@ -180,7 +182,7 @@
                 color: #fff;
             }
 
-            .m-horse-map {
+            .m-pvx-horse-map {
                 margin: -10px 0;
                 padding: 0;
                 background-color: transparent;
@@ -188,7 +190,7 @@
                 border-radius: 0;
             }
 
-            .m-horse-map .c-map__inner {
+            .m-pvx-horse-map .c-map__inner {
                 border: none !important;
                 box-shadow: none !important;
             }
@@ -199,19 +201,18 @@
         margin-top: 20px;
     }
 
-    // 同类坐骑
-    .m-horse-list {
+    .m-pvx-horse-list {
         .flex;
         .ml(-10px);
         .gap(20px);
         overflow: auto;
         padding: 10px;
 
-        .m-horse-card {
+        .m-pvx-horse-card {
             max-width: 200px;
         }
 
-        .same-item {
+        .m-pvx-horse-same {
             flex-shrink: 0;
             height: 110px;
             padding: 10px;
@@ -233,11 +234,11 @@
                 }
             }
 
-            .u-attr-content {
+            .u-pvx-horse-attr-content {
                 .flex;
                 gap: 10px;
 
-                .u-attr {
+                .u-pvx-horse-attr {
                     margin: 0;
                     flex-shrink: 0;
                 }
@@ -247,24 +248,23 @@
 }
 
 @media screen and (max-width: @ipad-y) {
-    .horse-single-wrapper {
-
-        .horse-single-content .main-info-wrap .img-wrap .u-image {
+    .p-pvx-horse-single {
+        .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap .m-pvx-horse-main-info__img .u-image {
             .w(100%);
         }
 
-        .main-info-wrapper {
+        .m-pvx-horse-main-info {
             .mt(0);
         }
 
-        .horse-single-content {
+        .m-pvx-horse-single-content {
             padding-top: 30px;
         }
 
-        .main-info-wrap {
+        .m-pvx-horse-main-info__wrap {
             flex-direction: column;
 
-            .img-wrap {
+            .m-pvx-horse-main-info__img {
                 width: 100% !important;
                 height: auto !important;
 

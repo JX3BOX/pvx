@@ -1,0 +1,244 @@
+.v-miniprogram {
+    .m-main {
+        padding: 0;
+    }
+
+    body {
+        padding: 0 !important;
+    }
+
+    .el-backtop {
+        display: none;
+    }
+
+    .u-attr-popover {
+        border: none;
+        background: #303133;
+        color: #fff;
+        .fz(0.85rem);
+
+        .el-popper__arrow::before {
+            background: #303133;
+        }
+
+        .u-attr-name {
+            color: #00d24b;
+        }
+    }
+}
+
+.p-pvx-horse-single-mobile {
+    background: #fafafa;
+    padding: 0.75rem 1.25rem 4.45rem 1.25rem;
+    box-sizing: border-box;
+    overflow: auto;
+    height: 100vh;
+
+    .u-horse-common {
+        .m-more {
+            border-left: none;
+        }
+    }
+
+    .m-info-main {
+        background: #fff;
+        .r(0.75rem);
+        padding: 1rem;
+        box-sizing: border-box;
+
+        .u-top-box {
+            .flex;
+            gap: 0.5rem;
+            .mb(1rem);
+
+            .u-pvx-horse-name {
+                color: @fontColor;
+                .fz(1rem, 1.5rem);
+                .bold(700);
+            }
+
+            .u-pvx-horse-id {
+                color: @fontColor;
+                .fz(0.75rem, 1.5rem);
+                .bold(400);
+            }
+
+            .u-pvx-horse-img {
+                .size(2.875rem);
+                .r(0.25rem);
+                background: #aaa;
+            }
+        }
+
+        .m-box {
+            .mb(1rem);
+
+            .u-pvx-horse-title {
+                color: @fontColor-40;
+                .fz(0.75rem, 1.125rem);
+                .bold(400);
+                .mb(0.25rem);
+            }
+
+            .u-text {
+                color: @fontColor-80;
+                .fz(0.875rem, 1.25rem);
+                .bold(400);
+            }
+        }
+
+        .m-other {
+            .flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+
+            .u-item {
+                .w(calc(calc(100% - 1rem) / 2));
+                flex-shrink: 0;
+            }
+        }
+
+        .m-attrs {
+            .u-attrs {
+                .flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+
+                .u-attr-item {
+                    .size(2.25rem);
+                    .r(0.25rem);
+                    background: #d9d9d9;
+                }
+
+                .u-pvx-horse-attr-icon {
+                    .r(0.25rem);
+                }
+            }
+        }
+    }
+
+    .m-same-horses {
+        margin: 1.25rem 0;
+
+        .m-title {
+            color: @fontColor;
+            .fz(1rem, 1.5rem);
+            .bold(700);
+            .mb(0.5rem);
+        }
+
+        .m-pvx-horse-card {
+            .flex;
+            gap: 0.75rem;
+            .mb(1rem);
+            flex-wrap: wrap;
+
+            .u-item {
+                padding: 0.5rem;
+                box-sizing: border-box;
+                .w(calc(calc(100% - 1.5rem) / 3));
+                flex-shrink: 0;
+                .flex;
+                flex-direction: column;
+                background: #fff;
+                .r(0.25rem);
+
+                .u-pvx-horse-img {
+                    .w(100%);
+                    border-radius: 0.25rem;
+                    background: #aaa;
+                    .mb(0.5rem);
+                    border: 1px solid #ff2dff;
+                }
+
+                .u-pvx-horse-name {
+                    color: @fontColor;
+                    .fz(0.875rem, 1.25rem);
+                    .bold(700);
+                    font-style: normal;
+                }
+
+                .u-pvx-horse-id {
+                    color: @fontColor-40;
+                    .fz(0.625rem, 0.938rem);
+                    font-style: normal;
+                    .bold(400);
+                }
+            }
+        }
+
+        .u-pvx-horse-more {
+            color: @fontColor-40;
+            .fz(0.75rem, 1.125rem);
+            .bold(400);
+            .x;
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .p-pvx-horse-single-mobile {
+        background-color: #000;
+
+        .m-info-main {
+            background: #282828;
+
+            .u-top-box {
+                .u-pvx-horse-name,
+                .u-pvx-horse-id {
+                    color: @fontColor-dark;
+                }
+
+                .u-pvx-horse-img {
+                    border-color: #555;
+                }
+            }
+
+            .m-box {
+                .u-pvx-horse-title {
+                    color: @fontColor-40-dark;
+                }
+
+                .u-text {
+                    color: @fontColor-80-dark;
+                }
+            }
+
+            .m-attrs {
+                .u-attrs {
+                    .u-attr-item {
+                        background: #444;
+                    }
+                }
+            }
+        }
+
+        .m-same-horses {
+            .m-title {
+                color: @fontColor-80-dark;
+            }
+
+            .m-pvx-horse-card {
+                .u-item {
+                    background: #282828;
+
+                    .u-pvx-horse-img {
+                        border-color: #555;
+                    }
+
+                    .u-pvx-horse-name {
+                        color: @fontColor-dark;
+                    }
+
+                    .u-pvx-horse-id {
+                        color: @fontColor-40-dark;
+                    }
+                }
+            }
+
+            .u-pvx-horse-more {
+                color: @fontColor-40-dark;
+            }
+        }
+    }
+}

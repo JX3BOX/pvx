@@ -1,11 +1,9 @@
 <template>
-    <!-- 跑马灯组件 -->
-    <div class="marquee-wrap" ref="marquee-wrap">
+    <div class="marquee-wrap" ref="marqueeWrap">
         <div class="scroll" ref="scroll">
-            <div class="marquee">{{ text }}</div>
-            <div class="copy" ref="copy"></div>
+            <span class="marquee" ref="marquee">{{ text }}</span>
+            <span class="copy" ref="copy"></span>
         </div>
-        <div class="getWidth" ref="getWidth">{{ text }}</div>
     </div>
 </template>
 
@@ -32,17 +30,17 @@ export default {
     },
     methods: {
         move() {
-            let maxWidth = this.$refs["marquee-wrap"].clientWidth;
-            let width = this.$refs["getWidth"].scrollWidth;
-            if (width <= maxWidth) return;
-            let scroll = this.$refs["scroll"];
-            let copy = this.$refs["copy"];
+            let wrapWidth = this.$refs.marqueeWrap.clientWidth;
+            let textWidth = this.$refs.marquee.scrollWidth;
+            if (textWidth <= wrapWidth) return;
+            let scroll = this.$refs.scroll;
+            let copy = this.$refs.copy;
             copy.innerText = this.text;
             let distance = 0;
             this.timer = setInterval(() => {
                 distance -= 1;
-                if (-distance >= width) {
-                    distance = 16;
+                if (-distance >= textWidth) {
+                    distance = 0;
                 }
                 scroll.style.transform = "translateX(" + distance + "px)";
             }, 30);
@@ -58,23 +56,17 @@ export default {
 .marquee-wrap {
     width: 100%;
     overflow: hidden;
-    position: relative;
-}
-.marquee {
-    margin-right: 0.16rem;
-}
-p {
-    word-break: keep-all;
-    white-space: nowrap;
 }
 .scroll {
     display: flex;
-}
-.getWidth {
-    word-break: keep-all;
     white-space: nowrap;
-    position: absolute;
-    opacity: 0;
-    top: 0;
+}
+.marquee {
+    flex-shrink: 0;
+    padding-right: 0.16rem;
+}
+.copy {
+    flex-shrink: 0;
+    padding-right: 0.16rem;
 }
 </style>

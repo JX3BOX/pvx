@@ -1,15 +1,14 @@
 <template>
-    <div class="m-fetters">
-        <!-- 羁绊信息 -->
-        <div class="m-fetters-title">
-            <div class="u-title"><i class="el-icon-star-on"></i>{{ info.Name }}</div>
-            <div class="u-desc">{{ showPetterDesc(info.Des) }}</div>
+    <div class="m-pvx-horse-fetters-content">
+        <div class="m-pvx-horse-fetters-title">
+            <div class="u-pvx-horse-title"><i class="el-icon-star-on"></i>{{ info.Name }}</div>
+            <div class="u-pvx-horse-desc">{{ showPetterDesc(info.Des) }}</div>
         </div>
 
-        <div class="m-fetters-list">
+        <div class="m-pvx-horse-fetters-list">
             <el-popover
                 placement="top"
-                popper-class="m-pet-pop"
+                popper-class="m-pvx-horse-attr-pop"
                 width="auto"
                 :visible-arrow="false"
                 trigger="hover"
@@ -19,12 +18,12 @@
                 :key="pet.Index"
             >
                 <template #reference>
-                    <router-link class="u-fetter" :to="'/' + pet.Index">
-                        <i class="u-fetter-icon" :class="['u-quality-' + pet.Quality]">
+                    <router-link class="u-pvx-horse-fetter" :to="'/' + pet.Index">
+                        <i class="u-pvx-horse-fetter-icon" :class="['u-pvx-horse-quality--' + pet.Quality]">
                             <img :src="iconLink(pet.IconID)" />
                         </i>
-                        <span class="u-fetter-name">{{ pet.Name }}</span>
-                        <i class="u-mark" v-if="pet.Index == id">当前</i>
+                        <span class="u-pvx-horse-fetter-name">{{ pet.Name }}</span>
+                        <i class="u-pvx-horse-fetter__mark" v-if="pet.Index == id">当前</i>
                     </router-link>
                 </template>
 
@@ -38,7 +37,7 @@ import { __iconPath } from "@/utils/config";
 import { iconLink, extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import Item from "@jx3box/jx3box-editor/src/Item";
 export default {
-    name: "Fetters",
+    name: "HorseFetters",
     props: ["info"],
     components: {
         'jx3-item': Item
@@ -52,20 +51,17 @@ export default {
         }
     },
     methods: {
-        // 获取宠物图片路径
         getImgSrc: function (path) {
             if (path) {
                 let img_name = path.match(/.*[\/,\\](.*?).tga/);
                 return __iconPath + "pvx/pet/images/" + img_name[1] + ".png";
             }
         },
-        // 宠物链接跳转
         getLink(pet_id) {
             if (pet_id == this.$route.params.id) return;
             this.$router.push({ name: "single", params: { id: pet_id } });
         },
         iconLink,
-        // 显示羁绊介绍
         showPetterDesc: function (str) {
             let result = extractTextContent(str);
             return result[0]["text"];
@@ -74,5 +70,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/pet/fetter.less";
+@import "~@/assets/css/horse/pc/fetter.less";
 </style>

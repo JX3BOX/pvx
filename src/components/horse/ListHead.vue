@@ -1,5 +1,5 @@
 <template>
-    <div class="m-list-head list-sticky-head">
+    <div class="m-pvx-horse-list-head list-sticky-head">
         <div>名称</div>
         <div>类型</div>
         <div>骑乘</div>
@@ -18,5 +18,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/horse/list_head.less";
+@import "~@/assets/css/horse/pc/list.less";
 </style>

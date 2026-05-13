@@ -1,5 +1,5 @@
 <template>
-    <div class="p-horse-single_mobile">
+    <div class="p-pvx-horse-single-mobile">
         <SuspendCommon :btnOptions="{ showHome: true }" :drawerOptions="{
             hideType: ['report', 'rss', 'search', 'user'],
             title: item.Name,
@@ -9,44 +9,44 @@
         </SuspendCommon>
         <div class="m-info-main">
             <div class="u-top-box">
-                <div class="u-img">
-                    <img v-if="type !== 2" :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-image" />
+                <div class="u-pvx-horse-img">
+                    <img v-if="type !== 2" :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-pvx-horse-image" />
 
-                    <item-icon v-else class="u-image" :item_id="String(item.ItemID)" :isLink="false" :size="150"
+                    <item-icon v-else class="u-pvx-horse-image" :item_id="String(item.ItemID)" :isLink="false" :size="150"
                         :onlyIcon="true"></item-icon>
                 </div>
                 <div class="u-info">
-                    <div class="u-name">{{ item.Name }}</div>
-                    <div class="u-id">ID：{{ item.ID }}</div>
+                    <div class="u-pvx-horse-name">{{ item.Name }}</div>
+                    <div class="u-pvx-horse-id">ID：{{ item.ID }}</div>
                 </div>
             </div>
             <!--        分类-->
             <div class="m-box m-types">
-                <div class="u-title">分类</div>
+                <div class="u-pvx-horse-title">分类</div>
                 <div class="u-text">{{ displayType }}</div>
             </div>
             <!--        其他-->
             <div class="m-box m-other">
                 <div class="u-item">
-                    <div class="u-title">品质</div>
+                    <div class="u-pvx-horse-title">品质</div>
                     <div class="u-text">{{ item.Level }}</div>
                 </div>
                 <div class="u-item" v-if="type !== '2'">
-                    <div class="u-title">跑速</div>
+                    <div class="u-pvx-horse-title">跑速</div>
                     <div class="u-text">{{ speedName }}</div>
                 </div>
                 <div class="u-item" v-if="type !== '2'">
-                    <div class="u-title">捕获地图</div>
+                    <div class="u-pvx-horse-title">捕获地图</div>
                     <div class="u-text">{{ originDatas }}</div>
                 </div>
                 <div class="u-item" v-if="type !== '2'">
-                    <div class="u-title">饲料</div>
+                    <div class="u-pvx-horse-title">饲料</div>
                     <div class="u-text">{{ feedName }}</div>
                 </div>
             </div>
             <!--        属性模块-->
             <div class="m-box m-attrs" v-if="basicAttrs.length">
-                <div class="u-title">属性</div>
+                <div class="u-pvx-horse-title">属性</div>
                 <div class="u-attrs">
                     <div class="u-attr-item" v-for="attr in basicAttrs" :key="attr.id">
                         <el-popover placement="top" width="300" trigger="click" popper-class="u-attr-popover">
@@ -57,14 +57,14 @@
                                 <div class="u-attr-desc">{{ attr.desc }}</div>
                             </div>
                             <template #reference>
-                                <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
+                                <img class="u-pvx-horse-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
                             </template>
                         </el-popover>
                     </div>
                 </div>
             </div>
             <div class="m-box m-attrs" v-if="magicAttrs.length">
-                <div class="u-title">特殊属性</div>
+                <div class="u-pvx-horse-title">特殊属性</div>
                 <div class="u-attrs">
                     <div class="u-attr-item" v-for="(attr, index) in magicAttrs" :key="index">
                         <el-popover placement="top" width="300" trigger="click" popper-class="u-attr-popover">
@@ -75,7 +75,7 @@
                                 <div class="u-attr-desc">{{ attr.desc }}</div>
                             </div>
                             <template #reference>
-                                <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
+                                <img class="u-pvx-horse-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
                             </template>
                         </el-popover>
                     </div>
@@ -85,14 +85,14 @@
         <!--        同类坐骑-->
         <div class="m-same-horses" v-if="sameList.length">
             <div class="m-title">同类坐骑</div>
-            <div class="m-horse-card">
+            <div class="m-pvx-horse-card">
                 <div class="u-item" v-for="item in sameListInit" :key="item?.ID" @click="openOther(item)">
-                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
-                    <div class="u-name">{{ item.Name }}</div>
-                    <div class="u-id">ID：{{ item.ID }}</div>
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-pvx-horse-img" />
+                    <div class="u-pvx-horse-name">{{ item.Name }}</div>
+                    <div class="u-pvx-horse-id">ID：{{ item.ID }}</div>
                 </div>
             </div>
-            <div class="u-more" v-show="sameList.length > 3 && !showMore" @click="showMore = true">加载更多</div>
+            <div class="u-pvx-horse-more" v-show="sameList.length > 3 && !showMore" @click="showMore = true">加载更多</div>
         </div>
         <div>
             <PvxUserMiniprogram :id="id" name="坐骑" type="item"></PvxUserMiniprogram>
@@ -106,6 +106,7 @@ import ItemIcon from "@/components/common/item_icon.vue";
 import { getHorse, getHorses } from "@/service/horse";
 import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
 import { __cdn } from "@/utils/config";
+import { getHorseType, getHorseModeName, getHorseFeedName, getHorseSpeed, getHorseImgSrc, handleHorseImgError } from "@/utils/horse";
 import { wxNewPage } from "@/utils/minprogram";
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";
@@ -181,62 +182,16 @@ export default {
                 : [];
         },
         typeName() {
-            const item = this.item;
-            // SubType 15为坐骑 23 为马具
-            // DetailType 0普通坐骑，非0奇趣坐骑
-            // DetailType 0头饰，1鞍饰，2足饰，3马饰
-            let type = "";
-            if (item.SubType === 15) {
-                if (item.DetailType === 0) {
-                    type = "普通坐骑";
-                } else {
-                    type = "奇趣坐骑";
-                }
-            } else if (item.SubType === 23) {
-                if (item.DetailType === 0) {
-                    type = "头饰";
-                } else if (item.DetailType === 1) {
-                    type = "鞍饰";
-                } else if (item.DetailType === 2) {
-                    type = "足饰";
-                } else if (item.DetailType === 3) {
-                    type = "马饰";
-                } else {
-                    type = "马具";
-                }
-            }
-            return type;
+            return getHorseType(this.item);
         },
         modeName() {
-            // 双骑
-            let name = "";
-            const item = this.item;
-            if (item.SubType === 15) {
-                if (item.MagicAttributes && item.MagicAttributes.length) {
-                    name = item.MagicAttributes.find((attr) => attr.id === "15650")
-                        ? item.MagicAttributes.find((attr) => attr.id === "15650").name
-                        : "单骑";
-                }
-            }
-            return name;
+            return getHorseModeName(this.item);
         },
         feedName() {
-            const item = this.item;
-            let feed = "";
-            if (item.SubType === 15 && item.Feed) {
-                const start = item.Feed.FeedTip.indexOf("【");
-                const end = item.Feed.FeedTip.indexOf("】");
-                feed = item.Feed.FeedTip.slice(start, end + 1);
-            }
-            return this.isRobot ? feed.replace("【", "").replace("】", "") : feed;
+            return getHorseFeedName(this.item, this.isRobot);
         },
         speedName() {
-            const item = this.item;
-            let speed = "";
-            if (item.MoveSpeed) {
-                speed = item.MoveSpeedDesc.split("移动速度提高")[1];
-            }
-            return speed;
+            return getHorseSpeed(this.item);
         },
         displayType() {
             let type = this.typeName;
@@ -272,7 +227,7 @@ export default {
             });
         },
         replaceByDefault(e) {
-            e.target.src = require("../../../assets/img/horse/horse_item_bg_sm.jpg");
+            handleHorseImgError(e);
         },
         getHorse(id) {
             const params = {
@@ -329,254 +284,12 @@ export default {
                 });
         },
         getImgSrc(item, isAuto = false) {
-            const client = isAuto ? this.client : "std"; // 怀旧服的坐骑图片取正式服的, 没有再根据client获取
-            const path = item.ImgPath;
-            if (path) {
-                let img = path.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-                let name = img?.[1].replace(/\\/g, "/");
-
-                if (img?.[1] == "default") return this.__imgRoot + `homeland/${client}` + "/default/default.png";
-                return this.__imgRoot + `homeland/${client}` + name + ".png";
-            } else {
-                return `${__cdn}/design/horse/${client}/${item.ID}.png`;
-            }
+            return getHorseImgSrc(item, this.client, this.__imgRoot, this.__imgRoot2, isAuto);
         },
         getLink,
     },
 };
 </script>
 <style lang="less">
-.v-miniprogram {
-    .m-main {
-        padding: 0;
-    }
-
-    body {
-        padding: 0 !important;
-    }
-
-    .el-backtop {
-        display: none;
-    }
-
-    .u-attr-popover {
-        border: none;
-        background: #303133;
-        color: #fff;
-        .fz(0.85rem);
-
-        .el-popper__arrow::before {
-            background: #303133;
-        }
-
-        .u-attr-name {
-            color: #00d24b;
-        }
-    }
-}
-
-.p-horse-single_mobile {
-    background: #fafafa;
-    padding: 0.75rem 1.25rem 4.45rem 1.25rem;
-    box-sizing: border-box;
-    overflow: auto;
-    height: 100vh;
-
-    .u-horse-common {
-        .m-more {
-            border-left: none;
-        }
-    }
-
-    .m-info-main {
-        background: #fff;
-        .r(0.75rem);
-        padding: 1rem;
-        box-sizing: border-box;
-
-        .u-top-box {
-            .flex;
-            //justify-content: space-between;
-            gap: 0.5rem;
-            .mb(1rem);
-
-            .u-name {
-                color: @fontColor;
-                .fz(1rem, 1.5rem);
-                .bold(700);
-            }
-
-            .u-id {
-                color: @fontColor;
-                .fz(0.75rem, 1.5rem);
-                .bold(400);
-            }
-
-            .u-img {
-                .size(2.875rem);
-                .r(0.25rem);
-                background: #aaa;
-            }
-        }
-
-        .m-box {
-            .mb(1rem);
-
-            .u-title {
-                color: @fontColor-40;
-                .fz(0.75rem, 1.125rem);
-                .bold(400);
-                .mb(0.25rem);
-            }
-
-            .u-text {
-                color: @fontColor-80;
-                .fz(0.875rem, 1.25rem);
-                .bold(400);
-            }
-        }
-
-        .m-other {
-            .flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-
-            .u-item {
-                .w(calc(calc(100% - 1rem) / 2));
-                flex-shrink: 0;
-            }
-        }
-
-        .m-attrs {
-            .u-attrs {
-                .flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-
-                .u-attr-item {
-                    .size(2.25rem);
-                    .r(0.25rem);
-                    background: #d9d9d9;
-                }
-
-                .u-attr-icon {
-                    .r(0.25rem);
-                }
-            }
-        }
-    }
-
-    //同类坐骑
-    .m-same-horses {
-        margin: 1.25rem 0;
-
-        .m-title {
-            color: @fontColor;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            .mb(0.5rem);
-        }
-
-        .m-horse-card {
-            .flex;
-            gap: 0.75rem;
-            .mb(1rem);
-            flex-wrap: wrap;
-
-            .u-item {
-                padding: 0.5rem;
-                box-sizing: border-box;
-                .w(calc(calc(100% - 1.5rem) / 3));
-                flex-shrink: 0;
-                .flex;
-                flex-direction: column;
-                //.flex(o);
-                background: #fff;
-                .r(0.25rem);
-
-                .u-img {
-                    .w(100%);
-                    border-radius: 0.25rem;
-                    background: #aaa;
-                    .mb(0.5rem);
-                    border: 1px solid #ff2dff;
-                }
-
-                .u-name {
-                    color: @fontColor;
-                    .fz(0.875rem, 1.25rem);
-                    .bold(700);
-                    font-style: normal;
-                }
-
-                .u-id {
-                    color: @fontColor-40;
-                    .fz(0.625rem, 0.938rem);
-                    font-style: normal;
-                    .bold(400);
-                }
-            }
-        }
-
-        .u-more {
-            color: @fontColor-40;
-            .fz(0.75rem, 1.125rem);
-            .bold(400);
-            .x;
-        }
-    }
-}
-
-//@media screen and (width: 414px)
-@media (prefers-color-scheme: dark) {
-    .p-horse-single_mobile {
-        background-color: #000;
-
-        .m-info-main {
-            background: #282828;
-
-            .u-top-box {
-
-                .u-name,
-                .u-id {
-                    color: @fontColor-dark;
-                }
-            }
-
-            .m-box {
-                .u-title {
-                    color: @fontColor-40-dark;
-                }
-
-                .u-text {
-                    color: @fontColor-80-dark;
-                }
-            }
-        }
-
-        .m-same-horses {
-            .m-title {
-                color: @fontColor-80-dark;
-            }
-
-            .m-horse-card {
-                .u-item {
-                    background: #282828;
-
-                    .u-name {
-                        color: @fontColor-dark;
-                    }
-
-                    .u-id {
-                        color: @fontColor-40-dark;
-                    }
-                }
-            }
-
-            .u-more {
-                color: @fontColor-40-dark;
-            }
-        }
-    }
-}
+@import "~@/assets/css/horse/miniprogram/single.less";
 </style>

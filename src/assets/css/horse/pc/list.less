@@ -1,7 +1,23 @@
-@import "./grid_layout.less";
-@import "./pop.less";
+.grid-layout() {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr 0.8fr 2fr;
+    justify-items: center;
+    align-items: center;
+    column-gap: 8px;
+}
 
-.m-horse-item {
+.m-pvx-horse-list-head {
+    .grid-layout;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 15px 0;
+    margin-bottom: 16px;
+    border-bottom: 1px dashed #d7dae2;
+    column-gap: 8px;
+    color: #666;
+}
+
+.m-pvx-horse-item {
     .pointer;
     .fz(14px);
     .r(6px);
@@ -15,7 +31,7 @@
     .grid-layout;
 
     @media screen and (max-width: @phone) {
-        &>.u-level {
+        &>.u-pvx-horse-level {
             .none;
         }
 
@@ -34,7 +50,7 @@
         box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
     }
 
-    .u-map {
+    .u-pvx-horse-map {
         padding: 0 16px;
     }
 
@@ -44,27 +60,27 @@
         }
     }
 
-    .u-name {
-        .u-name-title {
+    .u-pvx-horse-name {
+        .u-pvx-horse-name__title {
             .flex(o);
             width: 100%;
             .bold;
             .fz(16px);
         }
 
-        .u-name-type {
+        .u-pvx-horse-name__type {
             .size(26px);
             .mt(-6px);
             .mr(8px);
         }
 
-        .u-name-school {
+        .u-pvx-horse-name__school {
             .size(30px);
             .mt(-6px);
             .ml(8px);
         }
 
-        .u-name-id {
+        .u-pvx-horse-name__id {
             .fz(12px);
             line-height: 2;
             color: #909399;
@@ -72,22 +88,26 @@
             display: inline-block;
             text-align: center;
         }
-
-
     }
 
-    .u-attr-icon {
+    .u-pvx-horse-attr-icon {
         .w(36px);
     }
 
-    .u-attr-wrap {
+    .u-pvx-horse-attr-wrap {
         .flex;
         justify-content: flex-start;
         flex-direction: row;
         flex-wrap: wrap;
 
-        .u-attr {
+        .u-pvx-horse-attr {
             margin: 2px;
         }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-horse-list-head {
+        .none;
     }
 }

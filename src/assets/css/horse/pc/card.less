@@ -1,0 +1,206 @@
+.u-pvx-horse-attr-pop {
+    width: 200px;
+
+    .u-pvx-horse-attr-name {
+        margin-bottom: 2px;
+        font-size: 14px;
+        color: #00d24b;
+    }
+}
+
+.u-pvx-horse-card-hover() {
+    &:hover {
+        border: 1px solid #e86f00;
+        box-shadow: 0 0 10px 0 rgba(232, 111, 0, 0.4);
+        background-color: rgba(232, 111, 0, 0.1);
+
+        .u-pvx-horse-more {
+            background-color: #fff;
+        }
+    }
+}
+
+.u-pvx-horse-attr-icon-sm() {
+    .u-pvx-horse-attr-icon {
+        .size(30px);
+        box-sizing: border-box;
+    }
+}
+
+.m-pvx-horse-card {
+    .pointer;
+    .r(10px);
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: #fff;
+    box-sizing: border-box;
+    border: 1px solid #fff;
+    padding: 20px;
+    color: #24292e;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-out;
+
+    .u-pvx-horse-card-hover;
+
+    .u-pvx-horse-image {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        .r(10px);
+        overflow: hidden;
+        background-image: url("../../../img/horse/horse_item_bg_sm.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+
+        .u-pvx-horse-image-item {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: all 0.5s;
+        }
+    }
+
+    .u-pvx-horse-name {
+        .mt(10px);
+        .fz(16px);
+        font-weight: 700;
+    }
+
+    .u-pvx-horse-desc {
+        .fz(12px, 1.2);
+        width: 100%;
+        font-weight: 400;
+    }
+
+    .u-pvx-horse-img {
+        .flex;
+        .scrollbar;
+        .mt(10px);
+        .pb(6px);
+        .gap(0 8px);
+        overflow: hidden;
+    }
+
+    .u-pvx-horse-attr-icon-sm;
+
+    .u-pvx-horse-attr-wrap {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: row;
+
+        .u-pvx-horse-attr {
+            position: relative;
+            margin: 2px;
+
+            img {
+                max-width: 36px;
+            }
+        }
+    }
+
+    .u-pvx-horse-more {
+        .flex;
+        .r(5px);
+        .w(100%);
+        font-weight: 400;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        background-color: #f3f4f5;
+    }
+}
+
+.m-pvx-horse-same {
+    .flex;
+    .r(10px);
+    .pointer;
+    width: 100%;
+    height: 128px;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 20px 15px;
+    color: #24292e;
+    background-color: #fff;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    border: 1px solid #fff;
+    transition: 0.3s ease-out;
+
+    .u-pvx-horse-card-hover;
+
+    .m-pvx-horse-same__img {
+        .size(48px);
+        .r(10px);
+        flex-shrink: 0;
+        background-image: url("../../../img/horse/horse_item_bg_sm.jpg");
+        background-size: cover;
+        background-position: center;
+        transition: all 0.5s;
+        box-sizing: border-box;
+
+        .el-image {
+            .size(100%);
+            .r(10px);
+            box-sizing: border-box;
+        }
+    }
+
+    .m-pvx-horse-same__info {
+        .flex;
+        .w(100%);
+        gap: 10px;
+    }
+
+    .m-pvx-horse-same__info-detail {
+        .flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .u-pvx-horse-info-item {
+        .flex;
+        gap: 10px;
+        align-items: center;
+
+        &.name {
+            .fz(14px);
+            font-weight: 700;
+            .break(1);
+        }
+
+        &.id {
+            .fz(12px);
+            color: #999;
+        }
+
+        .u-pvx-horse-attr-icon-sm;
+
+        .u-pvx-horse-more {
+            .flex;
+            .r(5px);
+            .size(100%, 30px);
+            font-weight: 400;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            background-color: #f3f4f5;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-horse-card {
+        width: 100%;
+
+        .u-pvx-horse-more {
+            display: none;
+        }
+    }
+
+    .m-pvx-horse-same {
+        .u-pvx-horse-info-item .u-pvx-horse-more {
+            display: none;
+        }
+    }
+}

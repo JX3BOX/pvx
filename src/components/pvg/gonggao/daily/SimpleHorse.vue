@@ -144,8 +144,8 @@ import servers_origin from "@jx3box/jx3box-data/data/server/server_origin.json";
 import horseSites from "@/assets/data/horse_sites.json";
 import horseBroadcast from "@/assets/data/horse_broadcast.json";
 import { getGameReporter, getChituHorse } from "@/service/pvg/gonggao";
+import { getHorseImgSrc, handleHorseImgError } from "@/utils/horse";
 import dayjs from "@/utils/day";
-import { __imgPath } from "@/utils/config";
 export default {
     name: "WorldHorse",
     data() {
@@ -252,7 +252,7 @@ export default {
                 });
         },
         replaceByDefault(e) {
-            e.target.src = require("@/assets/img/horse/horse_item_bg_sm.jpg");
+            handleHorseImgError(e);
         },
         getLink(horseName) {
             const itemId = horseBroadcast[horseName]?.itemId || 0;
@@ -261,9 +261,9 @@ export default {
             return `/horse/${itemId}?type=${type}`;
         },
         getImgSrc(horseName, isAuto = false) {
-            const client = isAuto ? this.client : "std"; // 怀旧服的坐骑图片取正式服的, 没有再根据client获取
             const id = horseBroadcast[horseName]?.id || 0;
-            return __imgPath + `horse/${client}/` + id + ".png";
+            const item = { ID: id };
+            return getHorseImgSrc(item, this.client, "", "", isAuto);
         },
         getOriginDatas(item) {
             let mapId = "";

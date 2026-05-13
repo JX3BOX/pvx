@@ -1,30 +1,30 @@
 <template>
-    <div class="m-horse-broadcast">
-        <div class="m-horse-broadcast__header">
-            <div class="u-title">抓马播报</div>
+    <div class="m-pvx-horse-broadcast">
+        <div class="m-pvx-horse-broadcast__header">
+            <div class="u-pvx-horse-title">抓马播报</div>
             <el-select class="u-select" v-model="server" placeholder="请选择服务器" size="mini">
                 <el-option v-for="serve in servers" :key="serve" :label="serve" :value="serve"></el-option>
             </el-select>
         </div>
-        <div class="m-horse-broadcast__list" v-if="listData.length && listData[active].map_id">
-            <jx3box-map v-if="listData[active].map_id" class="u-horse-map" :mapId="Number(listData[active].map_id)"
+        <div class="m-pvx-horse-broadcast__list" v-if="listData.length && listData[active].map_id">
+            <jx3box-map v-if="listData[active].map_id" class="u-pvx-horse-map" :mapId="Number(listData[active].map_id)"
                 :key="listData[active].map_id" :overview="false"
                 :datas="(listData[active].mapDatas && listData[active].mapDatas[listData[active].map_id]) || []"></jx3box-map>
-            <div class="m-list">
-                <div class="m-item" v-for="(item, index) in listData" :key="index">
-                    <div class="m-horse" @click="changeHorse(item, index)" v-if="!item.is_chitu"
+            <div class="m-pvx-horse-broadcast__list-items">
+                <div class="m-pvx-horse-broadcast__item" v-for="(item, index) in listData" :key="index">
+                    <div class="m-pvx-horse-broadcast__horse" @click="changeHorse(item, index)" v-if="index < 3 || item.fromTime"
                         :class="{ active: active === index }">
-                        <div class="u-col u-times" :class="item.subtype === 'foreshow' && 'u-times-lately'"
+                        <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times" :class="item.subtype === 'foreshow' && 'u-pvx-horse-broadcast__times--lately'"
                             v-if="item.fromTime">
                             <span>{{ item.fromTime }}</span>
                             <span> ~ </span>
                             <span>{{ item.toTime }}</span>
                         </div>
-                        <span class="u-col u-name">{{ item.map_name }}</span>
-                        <div class="u-col" v-if="item.horses && item.horses.length">
-                            <div class="u-horse" v-for="horse in horseList(item)" :key="horse" @click="go(horse)">
+                        <span class="u-pvx-horse-broadcast__col u-pvx-horse-name">{{ item.map_name }}</span>
+                        <div class="u-pvx-horse-broadcast__col" v-if="item.horses && item.horses.length">
+                            <div class="u-pvx-horse-broadcast__horse-icon" v-for="horse in horseList(item)" :key="horse" @click="go(horse)">
                                 <el-tooltip class="item" effect="dark" :content="horse" placement="top">
-                                    <el-image :src="getImgSrc(horse)" class="u-image">
+                                    <el-image :src="getImgSrc(horse)" class="u-pvx-horse-image">
                                         <template #error>
                                             <div class="image-slot">
                                                 <img :src="getImgSrc(horse, true)" @error="replaceByDefault" />
@@ -36,28 +36,28 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="diluHasExist" class="m-horse is-dilu">
-                    <div class="u-col u-times">
+                <div v-if="diluHasExist" class="m-pvx-horse-broadcast__horse is-dilu">
+                    <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times">
                         <div>本周的卢已刷新</div>
                         <div>{{ diluExistData.time }}</div>
                     </div>
-                    <span class="u-col u-name">{{ diluExistData.map_name }}</span>
-                    <div class="u-col u-horse">
+                    <span class="u-pvx-horse-broadcast__col u-pvx-horse-name">{{ diluExistData.map_name }}</span>
+                    <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__horse-icon">
                         <el-image :src="getImgSrc('的卢')" class="item"></el-image>
                     </div>
                 </div>
-                <span v-else class="m-horse no-horse">本周的卢尚未刷新</span>
-                <div v-if="hasExist" class="m-horse is-chitu">
-                    <div class="u-col u-times">
+                <span v-else class="m-pvx-horse-broadcast__horse m-pvx-horse-broadcast__horse--empty">本周的卢尚未刷新</span>
+                <div v-if="hasExist" class="m-pvx-horse-broadcast__horse is-chitu">
+                    <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times">
                         <div>本CD赤兔已刷新</div>
                         <div>{{ existData.time }}</div>
                     </div>
-                    <span class="u-col u-name">{{ existData.map_name }}</span>
-                    <div class="u-col u-horse">
+                    <span class="u-pvx-horse-broadcast__col u-pvx-horse-name">{{ existData.map_name }}</span>
+                    <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__horse-icon">
                         <el-image :src="getImgSrc('赤兔')" class="item"></el-image>
                     </div>
                 </div>
-                <span v-else class="m-horse no-horse">本CD赤兔尚未刷新</span>
+                <span v-else class="m-pvx-horse-broadcast__horse m-pvx-horse-broadcast__horse--empty">本CD赤兔尚未刷新</span>
             </div>
         </div>
 
@@ -73,11 +73,12 @@ import servers_origin from "@jx3box/jx3box-data/data/server/server_origin.json";
 import horseSites from "@/assets/data/horse_sites.json";
 import horseBroadcast from "@/assets/data/horse_broadcast.json";
 import { getGameReporter, getUserInfo, getHorseReporter } from "@/service/horse";
+import { getHorseImgSrc, handleHorseImgError } from "@/utils/horse";
 import dayjs from "@/plugins/day";
 export default {
     name: "HorseBroadcast",
     components: { Jx3boxMap },
-    inject: ["__imgRoot2"],
+    inject: ["__imgRoot", "__imgRoot2"],
     data() {
         return {
             list: [],
@@ -127,14 +128,15 @@ export default {
             }
         },
         listData() {
-            let column = Math.floor((document.body.clientWidth - 460) / 350);
-            column = column > 2 ? 2 : column;
-            column = column <= 0 ? 1 : column;
             let list = this.list || [];
-            const fillCount = Math.max(0, column * 4 - 2 - list.length);
-            const arr = this.isPhone ? [] : new Array(fillCount).fill({});
             list = list.sort((a, b) => this.convertTime(a.fromTime) - this.convertTime(b.fromTime));
-            return list.concat(arr) || [];
+            const minCount = 3;
+            if (list.length < minCount) {
+                const fillCount = minCount - list.length;
+                const arr = new Array(fillCount).fill({});
+                return list.concat(arr);
+            }
+            return list;
         },
         isPhone() {
             return document.documentElement.clientWidth <= 820;
@@ -264,7 +266,7 @@ export default {
                 });
         },
         replaceByDefault(e) {
-            e.target.src = require("../../assets/img/horse/horse_item_bg_sm.jpg");
+            handleHorseImgError(e);
         },
         go(horseName) {
             const itemId = horseBroadcast[horseName]?.itemId || 0;
@@ -273,10 +275,9 @@ export default {
             this.$router.push({ path: `${itemId}`, query: { type } });
         },
         getImgSrc(horseName, isAuto = false) {
-            // const client = this.client
-            const client = isAuto ? this.client : "std"; // 怀旧服的坐骑图片取正式服的, 没有再根据client获取
             const id = horseBroadcast[horseName]?.id || 0;
-            return this.__imgRoot2 + `${client}/` + id + ".png";
+            const item = { ID: id };
+            return getHorseImgSrc(item, this.client, this.__imgRoot, this.__imgRoot2, isAuto);
         },
         getOriginDatas(item) {
             let mapId = "";
@@ -480,5 +481,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/horse/broadcast.less";
+@import "~@/assets/css/horse/pc/broadcast.less";
 </style>

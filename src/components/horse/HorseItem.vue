@@ -1,6 +1,6 @@
 <template>
-    <div class="m-horse-item" @click="go(item)">
-        <div class="u-name">
+    <div class="m-pvx-horse-item" @click="go(item)">
+        <div class="u-pvx-horse-name">
             <item-icon :item_id="String(item.ItemID)" :size="36" :vertical="true"></item-icon>
         </div>
         <div class="u-desc">{{ item.typeName }}</div>
@@ -9,8 +9,8 @@
         <div class="u-desc">{{ item.speed }}</div>
         <div class="u-desc">{{ item.feedName }}</div>
         <div class="u-desc">{{ item.GetType }}</div>
-        <div class="u-attr-wrap">
-            <div class="u-attr" v-for="(attr, index) in item.MagicAttributes || []" :key="index">
+        <div class="u-pvx-horse-attr-wrap">
+            <div class="u-pvx-horse-attr" v-for="(attr, index) in item.MagicAttributes || []" :key="index">
                 <el-tooltip trigger="hover" placement="top">
                     <template #content>
                         <div class="u-attr-pop">
@@ -20,7 +20,7 @@
                             <div class="u-attr-desc">{{ attr.desc }}</div>
                         </div>
                     </template>
-                    <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
+                    <img class="u-pvx-horse-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
                 </el-tooltip>
             </div>
         </div>
@@ -57,5 +57,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/horse/item.less";
+@import "~@/assets/css/horse/pc/list.less";
 </style>

@@ -1,24 +1,24 @@
 <template>
-    <div class="horse-single-wrapper m-single-wrapper">
+    <div class="p-pvx-horse-single m-single-wrapper">
         <template v-if="!isRobot">
             <div class="back-wrap m-navigation">
-                <div class="u-goback" @click="goBack">返回列表</div>
+                <div class="u-pvx-horse-goback" @click="goBack">返回列表</div>
                 <!-- <el-button @click="goBack">返回列表</el-button> -->
                 <div class="u-back-right">
                     <PvxRobotTip v-if="!isRobot" :type-name="type == 2 ? '马具' : '坐骑'" :reply="item.Name"></PvxRobotTip>
                     <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
             </div>
-            <div class="horse-single-content" v-loading="loading">
+            <div class="m-pvx-horse-single-content" v-loading="loading">
                 <!-- 主要信息 -->
-                <div class="main-info-wrapper">
-                    <div v-if="item.ID" class="main-info-wrap">
-                        <div class="info-wrap">
-                            <div class="info-item">
-                                <span class="u-id">ID: {{ item.ID }}</span>
-                                <span class="u-name">{{ item.Name }}</span>
+                <div class="m-pvx-horse-main-info">
+                    <div v-if="item.ID" class="m-pvx-horse-main-info__wrap">
+                        <div class="m-pvx-horse-main-info__info">
+                            <div class="u-pvx-horse-info-item">
+                                <span class="u-pvx-horse-id">ID: {{ item.ID }}</span>
+                                <span class="u-pvx-horse-name">{{ item.Name }}</span>
                             </div>
-                            <div class="info-item u-desc">
+                            <div class="u-pvx-horse-info-item u-pvx-horse-desc">
                                 <span>
                                     分类:
                                     {{ displayType }}
@@ -28,15 +28,15 @@
                                 <span v-if="type !== '2'">饲料: {{ feedName }}</span>
                             </div>
 
-                            <div class="info-item u-desc">
-                                <div class="u-title">基础属性</div>
+                            <div class="u-pvx-horse-info-item u-pvx-horse-desc">
+                                <div class="u-pvx-horse-title">基础属性</div>
                                 <!-- <div v-if="basicAttrs.length" class="basic-list">
                                 <div class="item" v-for="item in basicAttrs" :key="item.id">
                                     {{ item.desc }}
                                 </div>
                             </div> -->
-                                <div v-if="basicAttrs.length" class="u-list">
-                                    <div class="u-attr" v-for="attr in basicAttrs" :key="attr.id">
+                                <div v-if="basicAttrs.length" class="u-pvx-horse-attr-list">
+                                    <div class="u-pvx-horse-attr" v-for="attr in basicAttrs" :key="attr.id">
                                         <el-tooltip trigger="hover" placement="top">
                                             <template #content>
                                                 <div class="u-attr-pop">
@@ -49,17 +49,17 @@
                                                     <div class="u-attr-desc">{{ attr.desc }}</div>
                                                 </div>
                                             </template>
-                                            <img class="u-attr-icon" style="cursor: default" :src="attr.iconUrl"
+                                            <img class="u-pvx-horse-attr-icon" style="cursor: default" :src="attr.iconUrl"
                                                 :alt="attr.name" />
                                         </el-tooltip>
                                     </div>
                                 </div>
-                                <div v-else class="no-data">无</div>
+                                <div v-else class="u-pvx-horse-no-data">无</div>
                             </div>
-                            <div class="info-item u-desc">
+                            <div class="u-pvx-horse-info-item u-pvx-horse-desc">
                                 <div class="title">特殊属性</div>
-                                <div v-if="magicAttrs.length" class="u-list">
-                                    <div class="u-attr" v-for="(attr, index) in magicAttrs" :key="index">
+                                <div v-if="magicAttrs.length" class="u-pvx-horse-attr-list">
+                                    <div class="u-pvx-horse-attr" v-for="(attr, index) in magicAttrs" :key="index">
                                         <el-tooltip trigger="hover" placement="top">
                                             <template #content>
                                                 <div class="u-attr-pop">
@@ -72,18 +72,18 @@
                                                     <div class="u-attr-desc">{{ attr.desc }}</div>
                                                 </div>
                                             </template>
-                                            <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
+                                            <img class="u-pvx-horse-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
                                         </el-tooltip>
                                     </div>
                                 </div>
-                                <div v-else class="no-data">无</div>
+                                <div v-else class="u-pvx-horse-no-data">无</div>
                             </div>
-                            <a class="u-link" :href="getLink('item', this.id)" target="_blank">
+                            <a class="u-pvx-horse-link" :href="getLink('item', this.id)" target="_blank">
                                 <i class="el-icon-collection-tag"></i>
                                 物品信息
                             </a>
                         </div>
-                        <div class="img-wrap" :class="`u-quality-bg--` + item.Quality">
+                        <div class="m-pvx-horse-main-info__img" :class="`u-quality-bg--` + item.Quality">
                             <el-image v-if="item.SubType === 15" :src="getCdnImgUrl(item.ID)" class="u-image">
                             </el-image>
                             <item-icon v-else class="u-image" :item_id="String(item.ItemID)" :isLink="false" :size="150"
@@ -93,9 +93,9 @@
                     <div v-else>无此信息</div>
                 </div>
                 <!-- 同类坐骑 - 普通坐骑 -->
-                <div v-if="sameList.length" class="same-list-container" v-loading="sameLoading">
+                <div v-if="sameList.length" class="m-pvx-horse-same-list" v-loading="sameLoading">
                     <div class="title">同类坐骑</div>
-                    <div class="m-horse-list">
+                    <div class="m-pvx-horse-list">
                         <HorseCard :item="item" v-for="item in sameList" :key="item.ItemID"
                             @click="getHorse(item.ItemID)"></HorseCard>
                     </div>
@@ -105,7 +105,7 @@
         <template v-else>
             <div class="m-pvx__item m-robot__horse-header">
                 <div class="m-title">
-                    <div class="u-title" :class="`u-title__level-${item.Quality}`">
+                    <div class="u-pvx-horse-title" :class="`u-pvx-horse-title--level-${item.Quality}`">
                         {{ robotTitle }}
                     </div>
                     <div class="m-meta">
@@ -132,7 +132,7 @@
                 </div>
                 <div class="m-right">
                     <div class="m-pvx__item m-attr m-basic-attr">
-                        <div class="u-title">基础属性</div>
+                        <div class="u-pvx-horse-title">基础属性</div>
 
                         <div v-if="basicAttrs.length" class="u-list">
                             <div class="u-attr" v-for="attr in basicAttrs" :key="attr.id">
@@ -148,7 +148,7 @@
                         <div v-else class="no-data">无</div>
                     </div>
                     <div class="m-pvx__item m-attr m-special-attr">
-                        <div class="u-title">特殊属性</div>
+                        <div class="u-pvx-horse-title">特殊属性</div>
 
                         <div class="title">特殊属性</div>
                         <div v-if="magicAttrs.length" class="u-list">
@@ -169,7 +169,7 @@
             </div>
         </template>
         <!-- 捕获地图 -->
-        <div v-if="originDatas.length" class="catch-container" :class="isRobot ? 'is-robot' : ''">
+        <div v-if="originDatas.length" class="m-pvx-horse-catch" :class="isRobot ? 'is-robot' : ''">
             <div class="title">捕获地图</div>
             <!-- 地图组件 -->
             <horse-map :name="item.Name" :list="originDatas" :compact="isRobot" />
@@ -192,6 +192,7 @@ import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";
 import { __imgPath, __dataPath, __cdn } from "@/utils/config";
+import { getHorseType, getHorseModeName, getHorseFeedName, getHorseSpeed, getHorseImgSrc } from "@/utils/horse";
 
 export default {
     name: "Single",
@@ -259,62 +260,16 @@ export default {
                 : [];
         },
         typeName() {
-            const item = this.item;
-            // SubType 15为坐骑 23 为马具
-            // DetailType 0普通坐骑，非0奇趣坐骑
-            // DetailType 0头饰，1鞍饰，2足饰，3马饰
-            let type = "";
-            if (item.SubType === 15) {
-                if (item.DetailType === 0) {
-                    type = "普通坐骑";
-                } else {
-                    type = "奇趣坐骑";
-                }
-            } else if (item.SubType === 23) {
-                if (item.DetailType === 0) {
-                    type = "头饰";
-                } else if (item.DetailType === 1) {
-                    type = "鞍饰";
-                } else if (item.DetailType === 2) {
-                    type = "足饰";
-                } else if (item.DetailType === 3) {
-                    type = "马饰";
-                } else {
-                    type = "马具";
-                }
-            }
-            return type;
+            return getHorseType(this.item);
         },
         modeName() {
-            // 双骑
-            let name = "";
-            const item = this.item;
-            if (item.SubType === 15) {
-                if (item.MagicAttributes && item.MagicAttributes.length) {
-                    name = item.MagicAttributes.find((attr) => attr.id === "15650")
-                        ? item.MagicAttributes.find((attr) => attr.id === "15650").name
-                        : "单骑";
-                }
-            }
-            return name;
+            return getHorseModeName(this.item);
         },
         feedName() {
-            const item = this.item;
-            let feed = "";
-            if (item.SubType === 15 && item.Feed) {
-                const start = item.Feed.FeedTip.indexOf("【");
-                const end = item.Feed.FeedTip.indexOf("】");
-                feed = item.Feed.FeedTip.slice(start, end + 1);
-            }
-            return this.isRobot ? feed.replace("【", "").replace("】", "") : feed;
+            return getHorseFeedName(this.item, this.isRobot);
         },
         speedName() {
-            const item = this.item;
-            let speed = "";
-            if (item.MoveSpeed) {
-                speed = item.MoveSpeedDesc.split("移动速度提高")[1];
-            }
-            return speed;
+            return getHorseSpeed(this.item);
         },
         displayType() {
             let type = this.typeName;
@@ -402,17 +357,7 @@ export default {
                 });
         },
         getImgSrc(item) {
-            const path = item.ImgPath;
-            if (path) {
-                let img = path.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-                let name = img?.[1].replace(/\\/g, "/");
-
-                if (img?.[1] == "default")
-                    return __imgPath + `homeland/homeland/${this.client}` + "/default/default.png";
-                return __imgPath + `homeland/homeland/${this.client}` + name + ".png";
-            } else {
-                return __imgPath + `horse/${this.client}/` + item.ID + ".png";
-            }
+            return getHorseImgSrc(item, this.client, __imgPath + "homeland/", __imgPath + "horse/");
         },
         getLink,
     },
@@ -420,7 +365,7 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/horse/single.less";
+@import "~@/assets/css/horse/pc/single.less";
 @import "~@/assets/css/common/wiki.less";
 
 .m-robot__horse-header {
@@ -431,7 +376,7 @@ export default {
     height: 75px;
     opacity: 1;
 
-    .u-title {
+    .u-pvx-horse-title {
         font-size: 20px;
         .bold;
         color: #fff;
@@ -439,19 +384,19 @@ export default {
         align-items: center;
         gap: 5px;
 
-        &.u-title__level-2 {
+        &.u-pvx-horse-title--level-2 {
             color: rgba(13, 192, 63, 1);
         }
 
-        &.u-title__level-3 {
+        &.u-pvx-horse-title--level-3 {
             color: rgba(0, 133, 255, 1);
         }
 
-        &.u-title__level-4 {
+        &.u-pvx-horse-title--level-4 {
             color: rgba(204, 70, 237, 1);
         }
 
-        &.u-title__level-5 {
+        &.u-pvx-horse-title--level-5 {
             color: rgba(255, 168, 17, 1);
         }
     }
@@ -516,15 +461,15 @@ export default {
         .m-attr {
             min-width: 186px;
 
-            .u-title {
+            .u-pvx-horse-title {
                 font-size: 12px;
             }
 
-            &.m-basic-attr .u-title {
+            &.m-basic-attr .u-pvx-horse-title {
                 color: rgba(255, 168, 17, 1);
             }
 
-            &.m-special-attr .u-title {
+            &.m-special-attr .u-pvx-horse-title {
                 color: rgba(204, 70, 237, 1);
             }
 

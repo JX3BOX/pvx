@@ -1,5 +1,5 @@
 <template>
-    <div class="p-horse_mobile" @scroll="handleScroll">
+    <div class="p-pvx-horse-mobile" @scroll="handleScroll">
         <SuspendCommon :btnOptions="{ showHome: true }"
             :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }" @search="search">
             <template #default>
@@ -72,10 +72,10 @@
         <div v-if="!showAll">
             <!--        普通坐骑-->
             <div class="m-title">普通坐骑</div>
-            <div class="m-horse-card">
+            <div class="m-pvx-horse-card">
                 <div class="u-item" v-for="item in typeList?.[1]?.list" :key="item?.ID" @click="openOther(item, 0)">
-                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
-                    <div class="u-name">
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-pvx-horse-img" />
+                    <div class="u-pvx-horse-name">
                         <scrollingText :showText="item.Name" />
                     </div>
                     <div class="u-id">ID：{{ item.ID }}</div>
@@ -89,7 +89,7 @@
                     <!--                    <img :src="getImgSrc(item, true)"  @error="replaceByDefault" class="u-img" />-->
                     <item-icon :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true"></item-icon>
                     <div class="u-info">
-                        <div class="u-name">
+                        <div class="u-pvx-horse-name">
                             <scrollingText :showText="item.Name" />
                             <!--                            {{ item.Name }}-->
                         </div>
@@ -99,10 +99,10 @@
             </div>
             <!--        奇趣坐骑-->
             <div class="m-title">奇趣坐骑</div>
-            <div class="m-horse-card">
+            <div class="m-pvx-horse-card">
                 <div class="u-item" v-for="item in typeList?.[2]?.list" :key="item?.ID" @click="openOther(item, 1)">
-                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
-                    <div class="u-name">
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-pvx-horse-img" />
+                    <div class="u-pvx-horse-name">
                         <scrollingText :showText="item.Name" />
                     </div>
                     <div class="u-id">ID：{{ item.ID }}</div>
@@ -111,11 +111,11 @@
         </div>
         <div class="m-list" v-else>
             <!--        坐骑类列表-->
-            <div class="m-horse-card" v-if="showHorse">
+            <div class="m-pvx-horse-card" v-if="showHorse">
                 <div class="u-item" v-for="item in listData" :key="'list' + item.ID"
                     @click="openOther(item, listQueryParams.type)">
-                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-img" />
-                    <div class="u-name">
+                    <img :src="getImgSrc(item, true)" @error="replaceByDefault" class="u-pvx-horse-img" />
+                    <div class="u-pvx-horse-name">
                         <scrollingText :showText="item.Name" />
                     </div>
                     <div class="u-id">ID：{{ item.ID }}</div>
@@ -128,7 +128,7 @@
                     @click="openOther(item, 1)">
                     <item-icon :item_id="String(item.ItemID)" :isLink="false" :size="38" :onlyIcon="true"></item-icon>
                     <div class="u-info">
-                        <div class="u-name">
+                        <div class="u-pvx-horse-name">
                             <scrollingText :showText="item.Name" />
                         </div>
                         <div class="u-id">ID：{{ item.ID }}</div>
@@ -147,6 +147,7 @@ import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import ItemIcon from "@/components/common/item_icon.vue";
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { __cdn } from "@/utils/config";
+import { getHorseImgSrc, handleHorseImgError } from "@/utils/horse";
 import scrollingText from "@/components/horse/mobile/scrollingText.vue";
 import { wxNewPage } from "@/utils/minprogram";
 import wx from "weixin-js-sdk";
@@ -220,21 +221,10 @@ export default {
         },
         iconLink,
         replaceByDefault(e) {
-            e.target.src = require("../../../assets/img/horse/horse_item_bg_sm.jpg");
+            handleHorseImgError(e);
         },
         getImgSrc(item, isAuto = false) {
-            // const client = this.client;
-            const client = isAuto ? this.client : "std"; // 怀旧服的坐骑图片取正式服的, 没有再根据client获取
-            const path = item.ImgPath;
-            if (path) {
-                let img = path.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-                let name = img?.[1].replace(/\\/g, "/");
-
-                if (img?.[1] == "default") return this.__imgRoot + `homeland/${client}` + "/default/default.png";
-                return this.__imgRoot + `homeland/${client}` + name + ".png";
-            } else {
-                return `${__cdn}/design/horse/${client}/${item.ID}.png`;
-            }
+            return getHorseImgSrc(item, this.client, this.__imgRoot, this.__imgRoot2, isAuto);
         },
         openOther(item, type) {
             wxNewPage(`/horse/${item.ItemID}?type=${type}`);
@@ -401,385 +391,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/common/drawer.less";
-@fontcolor: rgba (28, 28, 28, 0.80);
-@fontColor40: rgba(28, 28, 28, 0.4);
-@fontColor-dark2: rgba(255, 255, 255, 0.8);
-@fontColor-dark3: rgba(255, 255, 255, 0.4);
-
-.v-miniprogram {
-    .m-main {
-        padding: 0;
-    }
-
-    body {
-        padding: 0 !important;
-    }
-
-    .m-cut {
-        .w(calc(100% - 1.5rem));
-        margin: 0 auto;
-
-        .u-cut-all {
-            background: rgba(255, 255, 255, 0.05);
-            color: @fontColor-dark2;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            padding: 0.75rem 1rem;
-            box-sizing: border-box;
-            .r(0.75rem);
-            .flex;
-            .flex(o);
-            .mb(1rem);
-
-            &.is-active {
-                background: #fedaa3;
-                color: #24292e;
-            }
-        }
-
-        .u-cut-box {
-            .flex;
-            align-content: center;
-            justify-content: space-between;
-            .mb(1rem);
-            gap: 0.75rem;
-
-            .u-cut-item {
-                .w(calc(100% / 3));
-                .flex;
-                .flex(o);
-                flex-direction: column;
-                background: rgba(255, 255, 255, 0.05);
-                color: @fontColor-dark2;
-                padding: 0.75rem;
-                box-sizing: border-box;
-                .r(0.75rem);
-
-                svg,
-                path {
-                    fill: @fontColor-dark2;
-                    stroke: @fontColor-dark2;
-                }
-
-                &.is-active {
-                    color: #24292e;
-                    background: #fedaa3;
-
-                    svg,
-                    path {
-                        fill: #24292e;
-                        stroke: #24292e;
-                    }
-                }
-            }
-        }
-
-        .u-cut-btn {
-            .flex;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            gap: 1.25rem;
-
-            .u-report-btn {
-                padding: 0.75rem 1rem;
-                box-sizing: border-box;
-                flex-shrink: 0;
-                .r(0.75rem);
-                background: rgba(255, 255, 255, 0.05);
-                color: @fontColor-dark2;
-            }
-
-            .u-confirm-btn {
-                flex: 1;
-                padding: 0.75rem 1rem;
-                box-sizing: border-box;
-                .r(0.75rem);
-                background: rgba(255, 255, 255, 0.05);
-                color: @fontColor-dark3;
-                .x;
-
-                &.active {
-                    background: #fedaa3;
-                    color: #24292e;
-                }
-            }
-        }
-    }
-
-    .m-no-body {
-        .flex;
-        .flex(o);
-        flex-direction: column;
-
-        .u-tips {
-            color: @fontColor-dark3;
-            .fz(0.875rem, 1.25rem);
-            .bold(700);
-            .flex;
-            .flex(o);
-        }
-
-        .u-btn {
-            .flex;
-            .flex(o);
-            .mt(1.25rem);
-            padding: 0.75rem 1rem;
-            gap: 0.5rem;
-            align-self: stretch;
-            .r(0.75rem);
-            background: rgba(255, 255, 255, 0.1);
-            color: @fontColor-dark3;
-        }
-    }
-
-    //筛选切换
-    .m-filtrate {
-        padding: 0.75rem;
-        box-sizing: border-box;
-
-        .u-filtrate-title {
-            .mb(0.75rem);
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .u-box {
-            .flex;
-            align-items: center;
-            justify-content: space-between;
-            .mb(0.75rem);
-            gap: 0.5rem;
-            flex-wrap: wrap;
-
-            &.attr {
-                height: 30vh;
-                overflow-y: auto;
-            }
-
-            .u-item {
-                .w(calc(calc(100% - 1rem) / 3));
-                flex-shrink: 0;
-                color: #fff;
-                .fz(0.875rem, 1.25rem);
-                .bold(400);
-                background: rgba(255, 255, 255, 0.05);
-                color: @fontColor-dark2;
-                .r(0.75rem);
-
-                .flex;
-                .flex(o);
-                padding: 0.5rem;
-                box-sizing: border-box;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-
-                //border: 1px solid #000;
-                &.active {
-                    color: #24292e;
-                    background: #fedaa3;
-                }
-            }
-        }
-
-        .u-btn {
-            .flex;
-            .fz(1rem, 1.5rem);
-            .bold(700);
-            gap: 1.25rem;
-
-            .u-report-btn {
-                padding: 0.75rem 1rem;
-                box-sizing: border-box;
-                flex-shrink: 0;
-                .r(0.75rem);
-                background: rgba(255, 255, 255, 0.05);
-                color: @fontColor-dark2;
-            }
-
-            .u-confirm-btn {
-                flex: 1;
-                padding: 0.75rem 1rem;
-                box-sizing: border-box;
-                .r(0.75rem);
-                background: rgba(255, 255, 255, 0.05);
-                color: @fontColor-dark3;
-                .x;
-
-                &.active {
-                    background: #fedaa3;
-                    color: #24292e;
-                }
-            }
-        }
-    }
-}
-
-.p-horse_mobile {
-    background: #fafafa;
-    height: 100vh;
-    padding: 0.45rem 1.25rem 4.45rem 1.25rem;
-    box-sizing: border-box;
-    overflow: auto;
-
-    .m-base {
-        .w(100%);
-    }
-
-    .m-suspend-btn {
-        .flex;
-        align-items: center;
-
-        .u-btn-item {
-            .flex;
-            .flex(o);
-            gap: 0.5rem;
-            //.w(7.5rem);
-            flex: 1;
-
-            &.line {
-                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
-            }
-
-            .u-icon {
-                .size(1.25rem, 1.25rem);
-
-                svg,
-                path {
-                    fill: #fedaa3;
-                    stroke: #fedaa3;
-                }
-            }
-        }
-    }
-
-    .m-title {
-        color: @fontColor;
-        .fz(1rem, 1.5rem);
-        .bold(700);
-        .mb(0.5rem);
-    }
-
-    .m-horse-card {
-        .flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        .mb(1.5rem);
-
-        .u-item {
-            padding: 0.5rem;
-            box-sizing: border-box;
-            .w(calc(calc(100% - 1.5rem) / 3));
-            .flex;
-            flex-direction: column;
-            //.flex(o);
-            background: #fff;
-            .r(0.25rem);
-
-            .u-img {
-                .w(100%);
-                border-radius: 0.25rem;
-                background: #aaa;
-                .mb(0.5rem);
-                border: 1px solid #ff2dff;
-            }
-
-            .u-name {
-                color: @fontColor;
-                .fz(0.875rem, 1.25rem);
-                .bold(700);
-                font-style: normal;
-            }
-
-            .u-id {
-                color: @fontColor40;
-                .fz(0.625rem, 0.938rem);
-                font-style: normal;
-                .bold(400);
-            }
-        }
-    }
-
-    .m-harness-card {
-        .flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-        .mb(1.5rem);
-
-        .u-harness-item {
-            padding: 0.5rem;
-            box-sizing: border-box;
-            .w(calc(calc(100% - 0.75rem) / 2));
-            .flex;
-            gap: 0.5rem;
-            .flex(o);
-            background: #fff;
-            .r(0.25rem);
-
-            .u-info {
-                .w(calc(calc(100% - 38px) - 0.5rem));
-                .flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
-            .u-name {
-                color: @fontColor;
-                .fz(0.875rem, 1.25rem);
-                .bold(700);
-                font-style: normal;
-                .w(100%);
-                overflow: hidden;
-                white-space: nowrap;
-            }
-
-            .u-id {
-                .mt(0.25rem);
-                color: @fontColor40;
-                .fz(0.625rem, 0.938rem);
-                font-style: normal;
-                .bold(400);
-            }
-        }
-    }
-}
-
-//@media screen and (width: 414px)
-@media (prefers-color-scheme: dark) {
-    .p-horse_mobile {
-        background-color: #000;
-
-        .m-title {
-            color: @fontColor-dark2;
-        }
-
-        .m-horse-card {
-            .u-item {
-                background: #282828;
-
-                .u-name {
-                    color: @fontColor-dark2;
-                }
-
-                .u-id {
-                    color: @fontColor-dark3;
-                }
-            }
-        }
-
-        .m-harness-card {
-            .u-harness-item {
-                background: #282828;
-
-                .u-name {
-                    color: @fontColor-dark2;
-                }
-
-                .u-id {
-                    color: @fontColor-dark3;
-                }
-            }
-        }
-    }
-}
+@import "~@/assets/css/horse/miniprogram/index.less";
 </style>

@@ -1,15 +1,15 @@
 <template>
-    <div class="horse-home-wrapper">
-        <PvxSearch v-if="searchReady" class="m-horse-tabs" :items="searchItems" :initValue="searchInitValue"
+    <div class="p-pvx-horse">
+        <PvxSearch v-if="searchReady" class="m-pvx-horse-tabs" :items="searchItems" :initValue="searchInitValue"
             @search="handleSearch">
         </PvxSearch>
-        <div class="m-horse-content" ref="listRef" v-loading="loading">
+        <div class="m-pvx-horse-content" ref="listRef" v-loading="loading">
             <!-- 全部模式 -->
             <template v-if="active === ''">
                 <!-- 抓马播报 -->
                 <HorseBroadcastV2 v-if="client === 'std'"></HorseBroadcastV2>
                 <!-- 普通坐骑、奇趣坐骑、马具 -->
-                <div v-for="(item, i) in typeList" :key="i" class="m-list-wrapper">
+                <div v-for="(item, i) in typeList" :key="i" class="m-pvx-horse-list-wrapper">
                     <template v-if="item.list && item.list.length">
                         <CardBannerList :count="count" :data="{ ...itemData, type: item.type }"
                             @update:load="handleLoad" :items="item.list">
@@ -32,18 +32,19 @@
                 </div>
             </template>
             <!-- 列表模式 -->
-            <div class="m-horse-list" v-else>
-                <div class="u-type u-pvx-all-type">
-                    <div class="u-title">{{ typeName }}</div>
-                    <div v-if="active !== ''" class="m-operate">
-                        <div class="m-item" :class="showType === item.value && 'active'" :key="item.value"
+            <div class="m-pvx-horse-list" v-else>
+                <div class="u-pvx-horse-type u-pvx-all-type">
+                    <div class="u-pvx-horse-title">{{ typeName }}</div>
+                    <div v-if="active !== ''" class="m-pvx-horse-operate">
+                        <div class="m-pvx-horse-operate__item" :class="showType === item.value && 'active'" :key="item.value"
                             v-for="item in showTypes" @click="showType = item.value">
                             {{ item.label }}
                         </div>
                     </div>
                 </div>
                 <template v-if="subList.length">
-                    <div class="m-horse-list--card" v-if="showType === 'card'">
+                    <div class="m-pvx-horse-list__card" v-if="showType === 'card'"
+                        :style="`grid-template-columns: repeat(${count}, 1fr)`">
                         <template v-if="active !== 2">
                             <HorseCard v-for="item in subList" :key="item.ID" :item="item"
                                 :reporter="{ aggregate: listId(subList) }" />
@@ -53,15 +54,15 @@
                                 :reporter="{ aggregate: listId(item.list) }" />
                         </template>
                     </div>
-                    <div class="m-horse-list--list" v-if="showType === 'list'">
+                    <div class="m-pvx-horse-list__list" v-if="showType === 'list'">
                         <ListHead></ListHead>
                         <HorseItem v-for="item in subList" :key="item.ID" :item="item"
                             :reporter="{ aggregate: listId(subList) }" />
                     </div>
                 </template>
-                <el-button class="m-archive-more" v-show="hasNextPage" type="primary" plain @click="appendPage"
+                <el-button class="m-pvx-horse-archive-more" v-show="hasNextPage" type="primary" plain @click="appendPage"
                     :loading="loading" icon="el-icon-arrow-down">加载更多</el-button>
-                <el-pagination class="m-archive-pages" background layout="total, prev, pager, next, jumper"
+                <el-pagination class="m-pvx-horse-archive-pages" background layout="total, prev, pager, next, jumper"
                     :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
                     @current-change="changePage"></el-pagination>
             </div>
@@ -78,9 +79,10 @@ import HorseCard from "@/components/horse/HorseCard";
 import SameItem from "@/components/horse/SameItem.vue";
 import ListHead from "@/components/horse/ListHead";
 import HorseItem from "@/components/horse/HorseItem";
-import { omit, cloneDeep, concat, isEqual } from "lodash";
+import { omit, cloneDeep, concat, isEqual, debounce } from "lodash";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import CardBannerList from "@/components/common/card_banner_list.vue";
+import { getHorseType, getHorseModeName, getHorseSpeed } from "@/utils/horse";
 const { list, searchType, showTypes } = horseData;
 
 export default {
@@ -244,50 +246,9 @@ export default {
             });
         },
         getFeed(item) {
-            let feed = "";
-            if (item.SubType === 15) {
-                const feedItem = this.feeds.find((fitem) => fitem.id === item.DetailType);
-                feed = feedItem ? feedItem.label : "";
-            }
-            return feed;
-        },
-        // 可否双骑
-        canDouble(item) {
-            let name = "";
-            if (item.SubType === 15) {
-                if (item.MagicAttributes && item.MagicAttributes.length) {
-                    name = item.MagicAttributes.find((attr) => attr.id === "15650")
-                        ? item.MagicAttributes.find((attr) => attr.id === "15650").name
-                        : "单骑";
-                }
-            }
-            return name;
-        },
-        getType(item) {
-            // SubType 15为坐骑 23 为马具
-            // DetailType 0普通坐骑，非0奇趣坐骑, 非0决定feed
-            // DetailType 0头饰，1鞍饰，2足饰，3马饰
-            let type = "";
-            if (item.SubType === 15) {
-                if (item.DetailType === 0) {
-                    type = "普通坐骑";
-                } else {
-                    type = "奇趣坐骑";
-                }
-            } else if (item.SubType === 23) {
-                if (item.DetailType === 0) {
-                    type = "头饰";
-                } else if (item.DetailType === 1) {
-                    type = "鞍饰";
-                } else if (item.DetailType === 2) {
-                    type = "足饰";
-                } else if (item.DetailType === 3) {
-                    type = "马饰";
-                } else {
-                    type = "马具";
-                }
-            }
-            return type;
+            if (item.SubType !== 15) return "";
+            const feedItem = this.feeds.find((f) => f.id === item.DetailType);
+            return feedItem ? feedItem.label : "";
         },
         listId(list) {
             if (!list?.length) return [];
@@ -322,7 +283,7 @@ export default {
         },
         handleLoad(type, append) {
             const page = this.typeList.filter((e) => e.type === type)[0].page;
-            let params = cloneDeep(this.params);
+            let params = { ...this.params };
             params.page = page + 1;
             params.per = append ? this.count * 3 : this.count;
             params.type = type;
@@ -346,30 +307,27 @@ export default {
             }
         },
         loadList(params, key) {
-            const index = this.typeList.findIndex((e) => e.type === key);
-            if (this.typeList[index].pages < params.page && this.active === "") params.page = 1;
+            const typeEntry = this.typeList.find((e) => e.type === key);
+            if (!typeEntry) return;
+            if (typeEntry.pages < params.page && this.active === "") params.page = 1;
             getHorses(params)
                 .then((res) => {
                     const { list, total, pages, page, per } = res.data;
-                    const _list = this.appendMode ? concat(this.typeList[index].list, list) : list;
-                    const newList = _list.map((item) => {
-                        item.typeName = this.getType(item);
-                        item.modeName = this.canDouble(item);
-                        item.feedName = this.getFeed(item);
-                        if (item.MoveSpeed) {
-                            item.speed = item.MoveSpeedDesc.split("移动速度提高")[1];
-                        }
-                        if (item.MagicAttributes && item.MagicAttributes.length) {
-                            item.MagicAttributes.map((mItem) => {
-                                mItem.iconUrl = this.iconLink(mItem.icon);
-                                return mItem;
-                            });
-                        }
-                        return item;
-                    });
-                    this.typeList[index].list = newList || [];
-                    this.typeList[index].page = page || 1;
-                    this.typeList[index].pages = pages || 1;
+                    const _list = this.appendMode ? concat(typeEntry.list, list) : list;
+                    const newList = _list.map((item) => ({
+                        ...item,
+                        typeName: getHorseType(item),
+                        modeName: getHorseModeName(item),
+                        feedName: this.getFeed(item),
+                        speed: getHorseSpeed(item),
+                        MagicAttributes: item.MagicAttributes?.map((mItem) => ({
+                            ...mItem,
+                            iconUrl: this.iconLink(mItem.icon),
+                        })),
+                    }));
+                    typeEntry.list = newList || [];
+                    typeEntry.page = page || 1;
+                    typeEntry.pages = pages || 1;
                     if (this.active !== "") this.page = page || 1;
                     this.total = total;
                     this.per = per;
@@ -396,7 +354,7 @@ export default {
 
             // 检查参数是否变化
             if (isEqual(data, this.queryParams)) return;
-            this.queryParams = cloneDeep(data);
+            this.queryParams = { ...data };
 
             const { type, keyword, feed, attr } = data;
             this.keyword = keyword || "";
@@ -440,15 +398,6 @@ export default {
             // 调用 loadData
             this.loadData(params);
         },
-        debounce(fn, delay = 300) {
-            let timer = null;
-            return (...args) => {
-                if (timer) clearTimeout(timer);
-                timer = setTimeout(() => {
-                    fn.apply(this, args);
-                }, delay);
-            };
-        },
     },
     mounted() {
         this.showCount();
@@ -459,7 +408,7 @@ export default {
             this.loadData();
         });
 
-        this.handleResize = this.debounce(this.showCount, 300);
+        this.handleResize = debounce(this.showCount, 300);
         window.addEventListener("resize", this.handleResize);
     },
     beforeUnmount() {
@@ -471,9 +420,9 @@ export default {
 <style lang="less">
 @import "~@/assets/css/common/search.less";
 @import "~@/assets/css/common/tabs.less";
-@import "~@/assets/css/horse/index.less";
+@import "~@/assets/css/horse/pc/index.less";
 @media screen and (max-width: @ipad-y) {
-    .horse-home-wrapper {
+    .p-pvx-horse {
         .type-list {
             width: 100%;
 
