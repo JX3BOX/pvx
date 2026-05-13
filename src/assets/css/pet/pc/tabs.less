@@ -1,0 +1,91 @@
+@pet-active-color: #d16400;
+
+.m-pet-tabs {
+    .m-pet-tabs-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        padding: 10px 15px;
+        background: #fff;
+
+        .pvx-search-wrapper {
+            box-shadow: none;
+            padding: 0;
+            height: auto;
+            flex: 1;
+
+            .search-group {
+                flex-wrap: nowrap;
+                align-items: center;
+            }
+
+            // 覆盖PvxSearch默认选中色为pet主题色
+            .type-item {
+                &.is-active,
+                &:hover {
+                    background-color: @pet-active-color !important;
+
+                    .el-radio-button__inner {
+                        background-color: @pet-active-color !important;
+                        color: #fff !important;
+                    }
+                }
+            }
+        }
+    }
+
+    .m-pet-tabs-selectors {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-shrink: 0;
+
+        .u-select {
+            width: 160px;
+
+            .el-select__wrapper {
+                border-radius: 30px;
+                height: 40px;
+                border: 2px solid #f3f4f5;
+                background: #f3f4f5;
+                color: #b0b0b0;
+                box-shadow: none;
+
+                &.is-focused {
+                    background: rgba(209, 100, 0, 0.1);
+                    border: 2px solid @pet-active-color;
+                    box-shadow: none !important;
+
+                    .el-select__prefix {
+                        color: @pet-active-color;
+                    }
+                }
+            }
+
+            .el-select__input {
+                font-weight: 700;
+                color: #000;
+            }
+        }
+    }
+
+    .m-pet-tabs-selectors__mobile {
+        margin-top: 10px;
+        padding: 10px 15px;
+        box-sizing: border-box;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        background: #fff;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .m-pet-tabs {
+        .m-pet-tabs-wrapper {
+            flex-wrap: wrap;
+            padding: 10px 15px;
+        }
+    }
+}

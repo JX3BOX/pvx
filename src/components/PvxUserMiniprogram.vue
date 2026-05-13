@@ -568,6 +568,11 @@ export default {
 
             .m-panel-title {
                 color: @brand2-dark !important;
+
+                .u-txt,
+                span {
+                    color: @brand2-dark !important;
+                }
             }
 
             .m-panel-body {

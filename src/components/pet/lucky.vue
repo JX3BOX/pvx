@@ -11,16 +11,14 @@
 <script>
 import { __cdn } from "@/utils/config";
 import {resolveImagePath} from '@jx3box/jx3box-common/js/utils'
+import { isPhone } from "@/utils";
 export default {
     name: "luckyItem",
     props: ["item"],
-    data: function () {
-        return {
-
-            isPhone: window.innerWidth <= 768,
-        };
-    },
     computed: {
+        isPhone() {
+            return isPhone();
+        },
         imgPath() {
             return `${__cdn}design/pet/std/${this.item.source_id}.png`;
         }
@@ -37,5 +35,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/pet/item.less";
+@import "~@/assets/css/pet/pc/item.less";
 </style>

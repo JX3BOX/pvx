@@ -22,7 +22,7 @@
                     <div class="u-title">{{ item.name }}</div>
                     <div class="u-all" @click="setActive(item.class)">查看全部</div>
                 </div>
-                <div class="m-pet-list">
+                <div class="m-pet-list" :style="listGridStyle">
                     <pet-item v-for="pet in item.list" :key="pet.id" :petObject="pet" />
                 </div>
             </div>
@@ -33,7 +33,7 @@
             <div class="m-pet-title u-type">
                 <div class="u-title">{{ typeName }}</div>
             </div>
-            <div class="m-pet-list">
+            <div class="m-pet-list" :style="listGridStyle">
                 <pet-item v-for="pet in list" :key="pet.id" :petObject="pet" />
             </div>
             <!-- 加载更多按钮 -->
@@ -55,7 +55,7 @@ import PublicNotice from "@/components/PublicNotice";
 import petTabs from "@/components/pet/tabs";
 import petItem from "@/components/pet/item";
 import luckyItem from "@/components/pet/lucky";
-import { clone } from "lodash";
+import { clone, debounce } from "lodash";
 import { isPhone } from "@/utils/index";
 import Type from "@/assets/data/pet_type.json";
 import Source from "@/assets/data/pet_source.json";
@@ -88,6 +88,7 @@ export default {
             typeName: "",          // 当前分类名称
             showAllList: false,    // 是否显示单分类全部列表
             mapList: [],           // 地图列表
+            count: 0,              // 每行卡片数
             // 分类宠物列表（首页按分类展示）
             list_type: [
                 { class: 1, type: 1, name: "水族", list: [] },
@@ -120,6 +121,11 @@ export default {
         isPhone() {
             return isPhone();
         },
+        // 列表grid动态列数样式
+        listGridStyle() {
+            if (!this.count) return {};
+            return { gridTemplateColumns: `repeat(${this.count}, 1fr)` };
+        },
     },
     watch: {
         // 监听参数变化，重新加载数据
@@ -135,10 +141,19 @@ export default {
     mounted() {
         this.getPetLucky();
         this.getMapList();
+        this.showCount(1);
         // 首次加载数据
         this.$nextTick(() => {
             this.getPetListInit();
         });
+
+        this.handleResize = debounce(() => {
+            this.showCount(this.active ? 3 : 1);
+        }, 300);
+        window.addEventListener("resize", this.handleResize);
+    },
+    beforeUnmount() {
+        window.removeEventListener("resize", this.handleResize);
     },
     methods: {
         /**
@@ -195,7 +210,7 @@ export default {
          */
         getPetListInit() {
             if (!this.params.Class) {
-                // 无分类时，加载各分类的首页数据
+                // 无分类时，加载各分类的首页数据（每分类1行）
                 this.showCount(1);
                 this.showAllList = false;
                 this.list_type.forEach((e) => {
@@ -205,8 +220,8 @@ export default {
                     this.getPetList(params);
                 });
             } else {
-                // 有分类时，加载该分类的全部数据
-                this.showCount(4);
+                // 有分类时，加载该分类的全部数据（3行数据量）
+                this.showCount(3);
                 const params = clone(this.params);
                 params.per = this.per_page;
                 this.getPetList(params);
@@ -312,9 +327,9 @@ export default {
             const isEvent = data instanceof Event;
             if (isEvent) return;
 
-            // 如果 Class 参数存在且与当前 active 不同，更新 active
-            if (data.Class && data.Class !== this.active) {
-                this.active = data.Class;
+            const newClass = data.Class ?? "";
+            if (newClass !== this.active) {
+                this.active = newClass;
                 this.typeName = this.getTypeName();
                 this.Type = [...Type];
                 document.documentElement.scrollTop = 0;
@@ -325,23 +340,29 @@ export default {
         },
 
         /**
-         * 按宽度显示个数
-         * 根据容器宽度计算每页显示的宠物数量
-         * @param {Number} num - 基础倍数
+         * 按宽度计算每行卡片数和每页显示数量
+         * 参考horse模块的showCount逻辑
+         * @param {Number} num - 行数倍数（首页1行，分类页3行）
          */
         showCount(num = 1) {
-            if (this.isPhone) num += 8;
             const listWidth = this.$refs.listRef?.clientWidth;
-            // 确保有有效的宽度值，否则使用默认值
             const width = listWidth || 1030;
-            const calculatedPerPage = Math.floor(width / 206) * num;
-            // 确保每页至少显示一定数量的数据
-            this.per_page = Math.max(calculatedPerPage, 10);
+
+            if (width <= 520) {
+                this.count = 1;
+                this.per_page = num;
+                return;
+            }
+
+            // 卡片最小宽度180px + 间距20px
+            this.count = Math.floor((width + 20) / 200);
+            // 确保per_page是count的整数倍，保证每行占满
+            this.per_page = Math.max(this.count * num, this.count);
         },
     },
 };
 </script>
 
 <style lang="less">
-@import "~@/assets/css/pet/list.less";
+@import "~@/assets/css/pet/pc/list.less";
 </style>

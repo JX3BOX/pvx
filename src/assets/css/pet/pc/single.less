@@ -1,11 +1,6 @@
 .m-pet-navigation {
-    // .pr;
     padding: 40px 0 20px 0;
     display: flex;
-    // position: sticky;
-    // top: @header-height;
-    // background-color: rgba(255, 255, 255, 0.8);
-    // backdrop-filter: blur(12px);
     .flex;
     align-items: center;
     justify-content: space-between;
@@ -24,7 +19,7 @@
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 
         &:hover {
-            background: #d16400;
+            background: @petColor;
         }
     }
 
@@ -123,7 +118,6 @@
 
         i {
             .dbi;
-            // .y(1px);
         }
     }
 
@@ -177,10 +171,10 @@
 }
 
 .m-pet-skill {
-    border-radius: 3px;
-    border: 1px solid #132221;
-    background: rgba(#132221f3);
-    padding: 10px;
+    border-radius: 3px !important;
+    border: 1px solid #132221 !important;
+    background: rgba(19, 34, 33, 0.95) !important;
+    padding: 10px !important;
 
     .u-skill-name {
         color: #ff0;
@@ -188,6 +182,10 @@
 
     .u-skill-desc {
         color: #eee;
+    }
+
+    .el-popper__arrow::before {
+        background: rgba(19, 34, 33, 0.95) !important;
     }
 }
 

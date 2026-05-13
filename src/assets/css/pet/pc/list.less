@@ -17,7 +17,6 @@
     }
 }
 
-// 福缘宠物
 .m-lucky-list {
     .flex;
     .w(100%);
@@ -47,7 +46,7 @@
     .active .el-input .el-input__inner,
     .el-select .el-input.is-focus .el-input__inner {
         .bold;
-        border: 2px solid #d16400;
+        border: 2px solid @petColor;
         background: rgba(209, 100, 0, 0.1);
         color: #000;
 
@@ -57,7 +56,7 @@
     }
 
     .active .el-input__prefix {
-        color: #d16400;
+        color: @petColor;
     }
 
     .c-public-notice {
@@ -67,7 +66,6 @@
 
 .m-pet-list {
     .grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     .mt(20px);
     gap: 20px;
     flex-wrap: wrap;
@@ -103,8 +101,17 @@
 .m-archive-pages {
     overflow-x: auto;
 
-    .active {
-        background-color: @petColor  !important;
+    .el-pager li {
+        &.is-active {
+            background-color: @petColor !important;
+        }
+    }
+
+    .btn-prev,
+    .btn-next {
+        &:hover {
+            color: @petColor;
+        }
     }
 }
 

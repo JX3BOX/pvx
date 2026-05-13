@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { __iconPath } from "@/utils/config";
+import { getPetImgSrc, getPetFrameSrc, isPetLucky, replacePetImgDefault } from "@/utils/pet";
 export default {
 	props: {
 		petObject: {},
@@ -39,42 +39,18 @@ export default {
 	},
 	methods: {
 		replaceByDefault(e) {
-			e.target.src = this.__imgRoot + 'pets/' + this.client + '/3d_bg.png'
+			replacePetImgDefault(e, this.client);
 		},
-		// 获取宠物图片路径
-		getImgSrc: function (path) {
-			let img_name = path.match(/.*[\/,\\](.*?).tga/);
-            console.log(img_name)
-			return this.__imgRoot + `pets/${this.client}/` + img_name[1] + ".png";
+		getImgSrc(path) {
+			return getPetImgSrc(path, this.client);
 		},
-		// 获取宠物边框图片路径
-		getFrameSrc: function (quality) {
-			let frameName = "";
-			if (quality) {
-				switch (quality) {
-					case 2:
-						frameName = "/greenborder.png";
-						break;
-					case 3:
-						frameName = "/blueborder.png";
-						break;
-					case 4:
-						frameName = "/purpleborder.png";
-						break;
-					case 5:
-						frameName = "/purpleborder.png";
-						break;
-				}
-				return this.__imgRoot + "frame" + frameName;
-			}
+		getFrameSrc(quality) {
+			return getPetFrameSrc(quality, this.__imgRoot);
 		},
-		// 判断福缘
-		getLucky: function (index) {
-			return this.lucky.indexOf(index.toString()) != -1;
+		getLucky(index) {
+			return isPetLucky(index, this.lucky, this.client);
 		},
-		// 宠物链接
 		getLink(pet_id) {
-			// return `/pet/${pet_id}`
 			this.$router.push({ name: "single", params: { id: pet_id } });
 		},
 	},
@@ -82,5 +58,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/pet/item.less";
+@import "~@/assets/css/pet/pc/item.less";
 </style>

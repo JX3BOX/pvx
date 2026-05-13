@@ -84,11 +84,10 @@
 </template>
 <script>
 import { getPet, getPets, getShopInfo, getPetSkill, getSkill, getPetLucky } from "@/service/pet";
-import petType from "@/assets/data/pet_type.json";
-import petSource from "@/assets/data/pet_source.json";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import PvxUserMiniprogram from "@/components/PvxUserMiniprogram.vue";
 import PvxSuspension from "@/components/PvxSuspension.vue";
+import { getPetTypeName, getPetSourceName, parsePetDesc, cleanResourceText as _cleanResourceText } from "@/utils/pet";
 
 
 export default {
@@ -195,44 +194,24 @@ export default {
                 });
             });
         },
-        // 获取宠物种类
         getPetType: function (typeId) {
-            const _petType = petType.find((item) => item.class === typeId);
-            return _petType?.name || "";
+            return getPetTypeName(typeId);
         },
-        // 获取宠物途径
         getPetSource: function (sourceId) {
-            const _petSource = petSource.find((item) => ~~sourceId === ~~item.source);
-            return _petSource?.name || "";
+            return getPetSourceName(sourceId);
         },
-        // 获取宠物描述
         getPetDesc: function (str) {
-            const regex = /<text>text=(.*?)font=(\d+).*?<\/text>/gimsy;
-            let matches = [];
-            let match;
-            while ((match = regex.exec(str))) {
-                matches.push(match);
-            }
-
-            // 格式化分段
-            let result = [];
-            for (let group of matches) {
-                result.push({
-                    font: ~~group[2],
-                    text: group[1].slice(1, -2).replace(/[\\n]/g, ""),
-                });
-            }
-            return result;
+            return parsePetDesc(str);
         },
         iconLink,
         cleanResourceText: function (str) {
-            return str && str.startsWith("获取线索：") ? str.replace("获取线索：", "") : str;
+            return _cleanResourceText(str);
         },
     }
 }
 </script>
 <style lang="less">
-@import "~@/assets/css/pet/mobileSingle.less";
+@import "~@/assets/css/pet/miniprogram/single.less";
 .v-miniprogram {
     .m-main {
         padding: 0;

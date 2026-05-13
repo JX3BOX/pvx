@@ -74,5 +74,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/pet/fetter.less";
+@import "~@/assets/css/pet/pc/fetter.less";
 </style>

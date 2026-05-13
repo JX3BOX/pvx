@@ -27,7 +27,7 @@
 
 <script>
 import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
-import { __iconPath } from "@/utils/config";
+import { getPetFrameClass, parsePetDesc } from "@/utils/pet";
 export default {
     props: {
         petObject: {},
@@ -46,7 +46,7 @@ export default {
     },
     methods: {
         iconLink,
-        renderTextHtml: function (Text) {
+        renderTextHtml(Text) {
             let result = Text;
             const matches = Text.match(/<Text>(.*?)<\/text>/gims);
             if (!matches) return Text;
@@ -57,31 +57,13 @@ export default {
             }
             return result;
         },
-        // 获取宠物边框样式
-        getFrameClass: function (quality) {
-            let className = "";
-            if (quality) {
-                switch (quality) {
-                    case 2:
-                        className = "pet-level-2";
-                        break;
-                    case 3:
-                        className = "pet-level-3";
-                        break;
-                    case 4:
-                        className = "pet-level-4";
-                        break;
-                    case 5:
-                        className = "pet-level-5";
-                        break;
-                }
-                return className;
-            }
+        getFrameClass(quality) {
+            return getPetFrameClass(quality);
         },
     },
 };
 </script>
 
 <style lang="less">
-@import "~@/assets/css/pet/item.less";
+@import "~@/assets/css/pet/pc/item.less";
 </style>

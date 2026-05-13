@@ -274,7 +274,7 @@ export default {
 }
 </script>
 <style lang="less">
-@import "~@/assets/css/pet/mobileList.less";
+@import "~@/assets/css/pet/miniprogram/list.less";
 
 .v-miniprogram {
     .m-main {
