@@ -97,10 +97,16 @@
     }
 
     .m-furniture-list {
-        .flex;
+        display: grid;
+        grid-template-columns: repeat(var(--furniture-cols, 5), 1fr);
         .pt(20px);
         gap: 20px;
-        flex-wrap: wrap;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        .m-furniture-set {
+            min-width: 0;
+        }
 
         .u-image {
             .flex;
@@ -122,6 +128,31 @@
 
         .m-archive-more {
             width: 100%;
+            background-color: @furnitureColor;
+            color: #fff;
+            border-color: @furnitureColor;
+
+            &:hover {
+                background-color: darken(@furnitureColor, 10%);
+                border-color: darken(@furnitureColor, 10%);
+            }
+        }
+
+        .m-archive-pages {
+            margin-top: 20px;
+
+            .el-pager li {
+                &.is-active {
+                    background-color: @furnitureColor !important;
+                }
+            }
+
+            .btn-prev,
+            .btn-next {
+                &:hover {
+                    color: @furnitureColor;
+                }
+            }
         }
     }
 

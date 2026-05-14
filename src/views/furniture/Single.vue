@@ -132,6 +132,7 @@
 import furnitureSet from "@/components/furniture/furniture_set.vue";
 import Wiki from "@/components/wiki/Wiki.vue";
 import furnitureMaterials from "@/components/furniture/furniture_materials.vue";
+import Fav from "@jx3box/jx3box-ui/src/interact/Fav.vue";
 
 import { getLink } from "@jx3box/jx3box-common/js/utils";
 
@@ -139,6 +140,7 @@ import { getFurnitureDetail, getSetList, getFurnitureColor } from "@/service/fur
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 // import ListCross from "@/components/ListCross.vue";
 import { getFurnitureCategory } from "@/service/homeland.js";
+import { formatFurnitureImg } from "@/utils/furniture";
 import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 
 export default {
@@ -149,6 +151,7 @@ export default {
         Wiki,
         furnitureSet,
         furnitureMaterials,
+        Fav,
         // ListCross,
         WikiComments,
     },
@@ -252,12 +255,7 @@ export default {
         },
         // 图片链接转换
         formatImg(link) {
-            if (!link) return;
-            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-            let name = img?.[1].replace(/\\/g, "/");
-
-            if (img?.[1] == "default") return this.__imgRoot + "homeland/std/default/default.png";
-            return this.__imgRoot + "homeland/std" + name + ".png";
+            return formatFurnitureImg(link, this.__imgRoot);
         },
 
         scaleRange(str) {
@@ -275,5 +273,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/furniture/single.less";
+@import "~@/assets/css/furniture/pc/single.less";
 </style>

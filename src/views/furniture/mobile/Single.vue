@@ -106,6 +106,7 @@ import { wxNewPage } from "@/utils/minprogram";
 import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 import Wiki from "@/components/wiki/Wiki.vue";
 import { getLink } from "@jx3box/jx3box-common/js/utils";
+import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import User from "@jx3box/jx3box-common/js/user";
 import { addFav, delFav, hasFav } from "@jx3box/jx3box-ui/service/fav";
 
@@ -259,23 +260,10 @@ export default {
         },
         // 图片链接转换
         formatImg(link) {
-            if (!link) return;
-            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-            let name = img?.[1].replace(/\\/g, "/");
-
-            if (img?.[1] == "default") return this.__imgRoot + "homeland/std/default/default.png";
-            return this.__imgRoot + "homeland/std" + name + ".png";
+            return formatFurnitureImg(link, this.__imgRoot);
         },
         getType(data) {
-            const Category1 = data.nCatag1Index;
-            const Category2 = data.nCatag2Index;
-            const name1 = this.category[Category1]?.name || "";
-            let name2 = "";
-            if (name1) {
-                const list = this.category[Category1]?.children || [];
-                name2 = list.find((item) => ~~item.nCatag2Index === Category2)?.szName || "";
-            }
-            return name1 + "-" + name2;
+            return getFurnitureType(data, this.category);
         },
         scaleRange(str) {
             return str?.split(";");
@@ -439,12 +427,14 @@ export default {
                     .fz(0.875rem,1.25rem);
                     .bold(700);
                     font-style: normal;
+                    .nobreak;
                 }
                 .u-id {
                     color: @fontColor-40;
                     .fz(0.625rem,0.938rem);
                     font-style: normal;
                     .bold(400);
+                    .nobreak;
                 }
             }
         }

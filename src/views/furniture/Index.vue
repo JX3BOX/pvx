@@ -23,7 +23,7 @@
                 {{ item.szName }}
             </div>
         </div>
-        <div v-if="list.length" class="m-furniture-list" :class="!childCategory.length && 'm-no-child'">
+        <div v-if="list.length" class="m-furniture-list" :style="`--furniture-cols: ${count}`" :class="!childCategory.length && 'm-no-child'">
             <furnitureSet :data="item" v-for="item in list" :key="item.ID" :category="categoryObj" :copy="hasCopy" />
             <div class="m-furniture-null" v-if="!list.length">
                 <el-alert center title="没有对应的家具" show-icon type="info" />
@@ -39,8 +39,7 @@
             </div>
         </div>
         <div v-if="list.length" class="m-furniture-pages">
-            <el-button class="m-archive-more" v-show="hasNextPage" @click="appendPage" :loading="loading"
-                :style="{ width: buttonWidth ? buttonWidth + 'px' : '100%' }">
+            <el-button class="m-archive-more" v-show="hasNextPage" @click="appendPage" :loading="loading">
                 <el-icon class="el-icon--left">
                     <ArrowDown />
                 </el-icon>
@@ -61,12 +60,12 @@ import furnitureSet from "@/components/furniture/furniture_set.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
 
 import { __imgPath, __dataPath } from "@/utils/config";
-import { getFurnitureCategory, getFurnitureMatch } from "@/service/homeland.js";
+import { getFurnitureCategory } from "@/service/homeland.js";
 import { getFurniture, getFurnitureSet } from "@/service/furniture.js";
 import { deleteNull, isPhone } from "@/utils/index";
 import furnitureData from "@/assets/data/furniture.json";
-
-import dayjs from "@/plugins/day";
+import { debounce } from "lodash";
+import { loadFurnitureMatch } from "@/utils/furniture";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
 
 export default {
@@ -84,6 +83,7 @@ export default {
             per: 20,
             pages: 0,
             total: 0,
+            count: 0,
             categoryObj: {},
             category: [],
             childCategory: [],
@@ -167,7 +167,6 @@ export default {
             active: "",
             childActive: "",
             furniture: [],
-            buttonWidth: 0,
             versions: [
                 {
                     name: "丝路风雨(130级)",
@@ -238,7 +237,6 @@ export default {
     },
     watch: {
         active(type) {
-            // 重置子类
             this.childActive = "";
             delete this.search.nCatag2Index;
             this.page = 1;
@@ -276,8 +274,9 @@ export default {
         },
         search: {
             deep: true,
-            handler: function (val) {
-                this.showCount();
+            handler: function () {
+                this.page = 1;
+                this.getData();
             },
         },
     },
@@ -405,53 +404,26 @@ export default {
                 this.search = newData;
             }
         },
-        setFurniture(res) {
-            let data = res.data.data.filter((item) => item);
-
-            try {
-                this.furniture = data;
-            } catch (e) {
-                this.furniture = [];
-            }
-        },
-        // 园宅会赛
         loadFurniture() {
-            try {
-                let furniture = sessionStorage.getItem("furniture");
-
-                furniture = furniture && JSON.parse(furniture);
-
-                if (furniture) {
-                    this.setFurniture(furniture);
-                } else {
-                    const params = {
-                        subtypes: "category,property,next_match",
-                        start: dayjs.tz().startOf("isoWeek").format("YYYY-MM-DD"),
-                        end: dayjs.tz().endOf("isoWeek").format("YYYY-MM-DD"),
-                    };
-                    getFurnitureMatch(params).then((res) => {
-                        this.setFurniture(res);
-
-                        res.data?.data?.length && sessionStorage.setItem("furniture", JSON.stringify(res));
-                    });
-                }
-            } catch (e) {
-                console.error(e);
-                this.furniture = [];
-            }
+            loadFurnitureMatch().then((data) => {
+                this.furniture = data;
+            });
+        },
+        // 仅计算每行列数和每页条数，不加载数据
+        calcCount() {
+            const listEl = this.$refs.listRef;
+            const listWidth = listEl?.clientWidth || 1200;
+            const paddingLeft = parseFloat(getComputedStyle(listEl).paddingLeft) || 0;
+            const paddingRight = parseFloat(getComputedStyle(listEl).paddingRight) || 0;
+            const contentWidth = listWidth - paddingLeft - paddingRight;
+            const cardWidth = 160;
+            this.count = Math.floor(contentWidth / cardWidth) || 5;
+            this.per = this.count * 4;
         },
         // 列表card模式下按宽度显示个数
         showCount() {
-            this.$nextTick(() => {
-                const listWidth = this.$refs.listRef?.clientWidth;
-                const base = 348;
-                this.per = Math.floor(listWidth / base) * 4;
-                // 加载更多按钮的实际宽度
-                if (!this.isPhone) {
-                    this.buttonWidth = (this.per / 4) * (base + 20) - 20;
-                }
-                this.getData();
-            });
+            this.calcCount();
+            this.getData();
         },
         getFurnitureSet() {
             this.list = [];
@@ -480,12 +452,20 @@ export default {
         this.getFurnitureSet();
         this.getCategory();
         this.loadFurniture();
+        this.$nextTick(() => {
+            this.calcCount();
+        });
+        this.handleResize = debounce(this.showCount, 300);
+        window.addEventListener("resize", this.handleResize);
+    },
+    beforeUnmount() {
+        window.removeEventListener("resize", this.handleResize);
     },
 };
 </script>
 
 <style lang="less">
-@import "~@/assets/css/furniture/index.less";
+@import "~@/assets/css/furniture/pc/index.less";
 @import "~@/assets/css/miniprogram.less";
 
 .pvx-search-wrapper .search-group .search-item.filter-wrap {

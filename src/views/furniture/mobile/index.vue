@@ -103,14 +103,14 @@ import { getFurnitureCategory, getFurnitureMatch } from "@/service/homeland.js";
 import { getFurniture, getFurnitureSet } from "@/service/furniture.js";
 import furnitureData from "@/assets/data/furniture.json";
 import { deleteNull } from "@/utils/index";
-import dayjs from "@/plugins/day";
 import { omit, cloneDeep, concat } from "lodash";
+import { formatFurnitureImg, getFurnitureType, loadFurnitureMatch } from "@/utils/furniture";
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { wxNewPage } from "@/utils/minprogram";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
 
 export default {
-    name: "HorseHome",
+    name: "FurnitureHome",
     components: { SuspendCommon },
     inject: ["__imgRoot"],
     data() {
@@ -287,12 +287,7 @@ export default {
             }
         },
         formatImg(link) {
-            if (!link) return;
-            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-            let name = img?.[1].replace(/\\/g, "/");
-
-            if (img?.[1] == "default") return this.__imgRoot + `homeland/${this.client}` + "/default/default.png";
-            return this.__imgRoot + `homeland/${this.client}` + name + ".png";
+            return formatFurnitureImg(link, this.__imgRoot, this.client);
         },
         openOther(item) {
             wxNewPage(`/furniture/${item.dwID}`);
@@ -403,15 +398,7 @@ export default {
             }
         },
         getType(data) {
-            const Category1 = data.nCatag1Index;
-            const Category2 = data.nCatag2Index;
-            const name1 = this.categoryObj[Category1]?.name || "";
-            let name2 = "";
-            if (name1) {
-                const list = this.categoryObj[Category1]?.children || [];
-                name2 = list.find((item) => ~~item.nCatag2Index === Category2)?.szName || "";
-            }
-            return name1 + "-" + name2;
+            return getFurnitureType(data, this.categoryObj);
         },
         getCategory() {
             getFurnitureCategory().then((res) => {
@@ -445,40 +432,10 @@ export default {
                     this.loading = false;
                 });
         },
-        setFurniture(res) {
-            let data = res.data.data.filter((item) => item);
-
-            try {
-                this.furniture = data;
-            } catch (e) {
-                this.furniture = [];
-            }
-        },
-        // 园宅会赛
         loadFurniture() {
-            try {
-                let furniture = sessionStorage.getItem("furniture");
-
-                furniture = furniture && JSON.parse(furniture);
-
-                if (furniture) {
-                    this.setFurniture(furniture);
-                } else {
-                    const params = {
-                        subtypes: "category,property,next_match",
-                        start: dayjs.tz().startOf("isoWeek").format("YYYY-MM-DD"),
-                        end: dayjs.tz().endOf("isoWeek").format("YYYY-MM-DD"),
-                    };
-                    getFurnitureMatch(params).then((res) => {
-                        this.setFurniture(res);
-
-                        res.data?.data?.length && sessionStorage.setItem("furniture", JSON.stringify(res));
-                    });
-                }
-            } catch (e) {
-                console.error(e);
-                this.furniture = [];
-            }
+            loadFurnitureMatch().then((data) => {
+                this.furniture = data;
+            });
         },
     },
 };
@@ -687,6 +644,7 @@ export default {
                 .fz(0.875rem, 1.25rem);
                 .bold(700);
                 font-style: normal;
+                .nobreak;
             }
 
             .u-id {
@@ -694,6 +652,7 @@ export default {
                 .fz(0.625rem, 0.938rem);
                 font-style: normal;
                 .bold(400);
+                .nobreak;
             }
         }
     }
@@ -727,8 +686,7 @@ export default {
                 .bold(700);
                 font-style: normal;
                 .w(100%);
-                overflow: hidden;
-                white-space: nowrap;
+                .nobreak;
             }
 
             .u-id {

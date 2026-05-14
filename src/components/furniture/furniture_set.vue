@@ -10,6 +10,7 @@
     </div>
 </template>
 <script>
+import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 export default {
     name: "Set",
     props: ["data", "category"],
@@ -27,30 +28,17 @@ export default {
             return id ? "quality_" + id : "";
         },
         formatImg(link) {
-            if (!link) return;
-            let img = link.toLowerCase().match(/.*[\/,\\]homeland(.*?).tga/);
-            let name = img?.[1].replace(/\\/g, "/");
-
-            if (img?.[1] == "default") return this.__imgRoot + `homeland/${this.client}` + "/default/default.png";
-            return this.__imgRoot + `homeland/${this.client}` + name + ".png";
+            return formatFurnitureImg(link, this.__imgRoot, this.client);
         },
         getType(data) {
-            const Category1 = data.nCatag1Index;
-            const Category2 = data.nCatag2Index;
-            const name1 = this.category[Category1]?.name || "";
-            let name2 = "";
-            if (name1) {
-                const list = this.category[Category1]?.children || [];
-                name2 = list.find((item) => ~~item.nCatag2Index === Category2)?.szName || "";
-            }
-            return name1 + "-" + name2;
+            return getFurnitureType(data, this.category);
         },
     },
     created() {},
 };
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
 .m-furniture-set {
     .r(10px);
     padding: 10px;
@@ -58,9 +46,9 @@ export default {
     border: 1px solid transparent;
     transition: 0.3s ease-out;
     &:hover {
-        border: 1px solid #E86F00;
-        box-shadow: 0px 0px 10px 0px #E86F0066;
-        background: #E86F001A;
+        border: 1px solid @furnitureColor;
+        box-shadow: 0px 0px 10px 0px fade(@furnitureColor, 40%);
+        background: fade(@furnitureColor, 10%);
     }
     .u-item {
         .flex;
@@ -69,19 +57,18 @@ export default {
         gap: 10px;
         padding: 10px;
         transition: all 0.1s ease-in-out;
-        width: 140px;
-        height: 200px;
+        width: 100%;
         border-radius: 10px;
         box-sizing: border-box;
-        overflow: hidden;
         .u-image {
             background-image: url("../../assets/img/horse/horse_item_bg_sm.jpg");
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-            width: 120px;
-            height: 120px;
+            width: 100%;
+            aspect-ratio: 1 / 1;
             border-radius: 10px;
+            flex-shrink: 0;
         }
     }
     .u-name {

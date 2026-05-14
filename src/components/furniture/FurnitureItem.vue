@@ -97,5 +97,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/furniture/furniture_item.less";
+@import "~@/assets/css/furniture/pc/furniture_item.less";
 </style>
