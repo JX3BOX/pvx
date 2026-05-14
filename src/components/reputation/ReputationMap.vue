@@ -1,5 +1,5 @@
 <template>
-    <div class="m-reputation-map">
+    <div class="m-pvx-reputation-map">
         <el-carousel v-if="list.length > 1" :autoplay="false" :height="height">
             <el-carousel-item v-for="(datas, mapID) in mapDatas" :key="mapID">
                 <jx3box-map :mapId="Number(mapID)" :overview="false" :datas="datas" @resize="handleResize"></jx3box-map>

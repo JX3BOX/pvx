@@ -1,0 +1,199 @@
+.v-miniprogram {
+    .m-pvx-reputation-tabs {
+        .none;
+    }
+
+    .m-pvx-reputation-tabs--miniprogram {
+        .flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+
+        .u-tab {
+            .w(calc(50% - 0.375rem));
+            .r(0.75rem);
+            background: rgba(255, 255, 255, 0.10);
+            padding: 0.75rem 1rem;
+            .flex;
+            .flex(o);
+            box-sizing: border-box;
+            flex-shink: 0;
+            color: rgba(255, 255, 255, 0.40);
+            .fz(1rem, 1.5rem);
+
+            &.active {
+                color: @pvx-text-primary;
+                background: @pvx-dark-text;
+            }
+        }
+    }
+
+    .m-home-box {
+        justify-content: space-between;
+    }
+
+    .m-base {
+        flex: 1;
+    }
+
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            flex: 1;
+            gap: 0.5rem;
+            white-space: nowrap;
+
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+
+            .u-icon {
+                .size(1.25rem, 1.25rem);
+
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
+                }
+            }
+        }
+    }
+
+    .u-pvx-reputation-title--not-all {
+        .none;
+    }
+
+    .el-backtop {
+        bottom: 80px !important;
+    }
+
+    .p-pvx-reputation {
+        padding-top: 0;
+        padding: 0 12px 60px 12px;
+        box-sizing: border-box;
+    }
+
+    .p-pvx-reputation .m-pvx-reputation__group .u-pvx-reputation-title {
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: @pvx-text-primary;
+    }
+
+    .p-pvx-reputation .m-pvx-reputation-list {
+        margin-top: 0;
+        gap: 12px;
+    }
+
+    .p-pvx-reputation .m-pvx-reputation__group {
+        padding-top: 12px;
+        padding-bottom: 2.25rem;
+    }
+
+    .u-pvx-reputation-icon {
+        .none;
+    }
+
+    .u-pvx-reputation-icon--miniprogram {
+        .db;
+        display: flex;
+        padding: 6px 10px;
+        .size(30px);
+        box-sizing: border-box;
+        justify-content: center;
+        align-items: center;
+        .r(30px);
+        background-color: @pvx-text-primary;
+        color: @pvx-dark-text;
+
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 24px;
+
+        @media (prefers-color-scheme: dark) {
+            color: @pvx-text-primary;
+            background-color: @pvx-dark-text;
+        }
+    }
+
+    .m-pvx-reputation-item {
+        gap: 12px;
+        background-color: #fff;
+        border-color: #fff;
+        box-shadow: none;
+
+        @media (prefers-color-scheme: dark) {
+            background-color: @pvx-dark-card;
+            border-color: @pvx-dark-card;
+        }
+    }
+
+    .m-pvx-reputation-item .m-pvx-reputation-name {
+        margin-left: 0;
+    }
+
+    .m-pvx-reputation-item .m-pvx-reputation-name .u-pvx-reputation-name {
+        color: @pvx-text-primary;
+
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 20px;
+        margin: 0;
+        height: 80px;
+        .flex;
+        align-items: center;
+
+        @media (prefers-color-scheme: dark) {
+            color: @pvx-dark-text;
+        }
+    }
+
+    .u-pvx-reputation-progress {
+        .none;
+    }
+
+    .u-pvx-reputation-desc--miniprogram {
+        .db;
+        color: @pvx-text-80;
+
+        font-family: "Microsoft YaHei";
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 15px;
+
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        @media (prefers-color-scheme: dark) {
+            color: @pvx-dark-text-80;
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .v-miniprogram {
+        &::after {
+            content: "";
+            display: block;
+            position: fixed;
+            .lt(0);
+            .rb(0);
+            z-index: -1;
+            background-color: #000;
+        }
+
+        .p-pvx-reputation .m-pvx-reputation__group .u-pvx-reputation-title {
+            color: @pvx-dark-text;
+        }
+    }
+}

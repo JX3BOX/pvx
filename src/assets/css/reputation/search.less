@@ -1,0 +1,106 @@
+.m-pvx-reputation-search {
+    height: 100%;
+    background: #fafafa;
+    padding: 0 12px;
+    box-sizing: border-box;
+
+    .u-search {
+        .mt(15px);
+    }
+
+    .u-select {
+        .mb(10px);
+        .w(100%);
+
+        .el-input__inner {
+            .pl(50px);
+        }
+
+        .el-input__prefix {
+            .flex;
+            align-items: center;
+            gap: 6px;
+
+            .u-text {
+                .fz(16px);
+            }
+        }
+    }
+
+    .m-pvx-reputation-list {
+        height: calc(100% - 100px);
+        overflow-y: auto;
+        .pt(10px);
+        .flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        background: #fafafa;
+
+        &::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        .u-pvx-reputation-title {
+            .fz(16px);
+        }
+
+        .m-pvx-reputation-show-list {
+            .w(100%);
+
+            .u-title {
+                .fz(16px);
+                color: @pvx-text-primary;
+            }
+
+            .u-list {
+                .mt(10px);
+                .flex;
+                flex-direction: column;
+                gap: 10px;
+                background: #fafafa;
+            }
+        }
+
+        .m-pvx-reputation-item {
+            .w(100%);
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .v-miniprogram {
+        &::after {
+            content: "";
+            display: block;
+            position: fixed;
+            .lt(0);
+            .rb(0);
+            z-index: -1;
+            background-color: #000;
+        }
+    }
+
+    .m-pvx-reputation-search {
+        background: #000;
+
+        .u-search {
+            background: #000;
+        }
+
+        .m-pvx-reputation-list {
+            background: #000;
+
+            .m-pvx-reputation-show-list {
+                .u-title {
+                    color: @pvx-dark-text;
+                }
+
+                .u-list {
+                    background: #000;
+                }
+            }
+        }
+    }
+}

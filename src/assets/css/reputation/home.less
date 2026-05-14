@@ -1,7 +1,7 @@
-.reputation-container {
+.p-pvx-reputation {
     .pt(40px);
 
-    .m-reputation-tabs {
+    .m-pvx-reputation-tabs {
         .u-select {
             height: 40px;
             width: 260px;
@@ -12,7 +12,7 @@
         }
 
         .u-item {
-            background-color: #d16400;
+            background-color: @pvx-color-reputation;
             color: #fff;
         }
 
@@ -36,7 +36,7 @@
                     .bold;
                     border: none;
                     background: rgba(209, 100, 0, 0.1);
-                    color: #000;
+                    color: @pvx-text-primary;
                     box-shadow: none;
                 }
 
@@ -45,22 +45,22 @@
                 }
 
                 &.active .el-select__prefix {
-                    color: #d16400;
+                    color: @pvx-color-reputation;
                 }
 
                 .el-select__input {
                     font-weight: 700;
-                    color: #000;
+                    color: @pvx-text-primary;
                 }
             }
         }
 
         .u-tab {
-            transition: 0.3s ease-out;
+            transition: @pvx-transition-normal;
 
             &.active,
             &:hover {
-                background-color: @active-color;
+                background-color: @pvx-color-active;
                 color: #fff;
             }
         }
@@ -78,22 +78,22 @@
                 border: none;
                 background-color: #f3f4f5;
                 padding: 0 40px 0 20px;
-                color: #000;
+                color: @pvx-text-primary;
             }
         }
     }
 
-    .reputation-list-wrapper {
+    .m-pvx-reputation__group {
         .pt(40px);
 
-        .reputation-title {
+        .u-pvx-reputation-title {
             .fz(28px);
             .bold;
-            color: #24292e;
+            color: @pvx-text-primary;
         }
     }
 
-    .reputation-list {
+    .m-pvx-reputation-list {
         .flex;
         flex-wrap: wrap;
         align-items: center;
@@ -103,7 +103,7 @@
 }
 
 @media screen and (max-width: @phone) {
-    .reputation-container {
+    .p-pvx-reputation {
         .m-common-tabs {
             flex-direction: column;
 
@@ -116,14 +116,14 @@
             }
         }
 
-        .reputation-list .reputation-item {
+        .m-pvx-reputation-list .m-pvx-reputation-item {
             .w(100%);
 
-            .reputation-icon {
+            .u-pvx-reputation-icon {
                 flex-shrink: 0;
             }
 
-            .progress-wrap {
+            .u-pvx-reputation-progress {
                 width: 100%;
             }
         }

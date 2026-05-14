@@ -1,4 +1,4 @@
-.reputation-item {
+.m-pvx-reputation-item {
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -7,61 +7,69 @@
     width: 300px;
     height: 80px;
     border-radius: 10px;
-    background-color: #fff;
-    border: 1px solid #fff;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    background-color: @pvx-bg-white;
+    border: 1px solid @pvx-bg-white;
+    box-shadow: @pvx-shadow-sm;
     cursor: pointer;
-    transition: 0.3s ease-out;
-    .reputation-icon {
+    transition: @pvx-transition-normal;
+
+    .u-pvx-reputation-icon {
         width: 42px;
         height: 54px;
+
         img,
-        .no-img {
+        .u-pvx-reputation-no-img {
             width: 42px;
             height: 54px;
         }
     }
-    .reputation-name-wrap {
+
+    .m-pvx-reputation-name {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
         margin-left: 6px;
         width: 211px;
-        height: 54px; 
-        .reputation-name {
+        height: 54px;
+
+        .u-pvx-reputation-name {
             margin-top: 2px;
             margin-bottom: 11px;
             font-size: 16px;
             font-weight: bold;
-            color: #422b00;
+            color: @pvx-color-reputation-name;
         }
-        .progress-wrap {
+
+        .u-pvx-reputation-progress {
             .clip;
             position: relative;
             width: 211px;
             height: 5px;
             border-radius: 10px;
             background-color: #e8e8e8;
-            transition: 0.3s ease-out;
-            .progress-value {
+            transition: @pvx-transition-normal;
+
+            .u-pvx-reputation-progress-value {
                 position: absolute;
                 left: 0;
                 top: 0;
                 bottom: 0;
                 width: 5%;
                 height: 5px;
-                border-radius: 10px; 
+                border-radius: 10px;
                 background-image: linear-gradient(to right, #ff8039, #ffd5bd);
             }
         }
     }
+
     &.active,
     &:hover {
-        border: 1px solid #e86f00;
-        background: #e86f0019; 
-        .progress-wrap {
-            background-color: #fff;
+        border: 1px solid @pvx-color-reputation-active;
+        background: rgba(232, 111, 0, 0.1);
+
+        .u-pvx-reputation-progress {
+            background-color: @pvx-bg-white;
         }
     }
 }

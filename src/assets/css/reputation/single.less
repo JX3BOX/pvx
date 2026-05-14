@@ -1,7 +1,7 @@
 @import "~@/assets/css/common/back.less";
 
-.m-reputation-wrapper {
-    .u-goback {
+.m-pvx-reputation-wrapper {
+    .u-pvx-reputation-goback {
         .pointer;
         .r(30px);
         .fz(16px, 40px);
@@ -10,7 +10,7 @@
         margin-right: 10px;
         .color(#fff);
         border: none;
-        background: #24292e;
+        background: @pvx-text-primary;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
 
         &:hover {
@@ -18,28 +18,55 @@
         }
     }
 
-    .reputation-reward-wrapper {
+    .m-pvx-reputation-reward {
         margin-top: 40px;
         margin-bottom: 40px;
 
-        .title {
+        .u-pvx-reputation-title {
             font-size: 28px;
-            color: #24292e;
+            color: @pvx-text-primary;
             font-weight: 700;
             height: 42px;
             line-height: 42px;
         }
 
-        .reward-content {
+        .m-pvx-reputation-reward-content {
             display: flex;
             width: 100%;
             min-height: 400px;
             margin-top: 20px;
 
-            .reward-desc-list {
+            .m-pvx-reputation-reward-desc {
                 flex: 1;
                 min-height: 400px;
                 margin-right: 20px;
+
+                .u-pvx-reputation-from-to {
+                    .fz(16px);
+                    margin-right: 20px;
+                    font-weight: 700;
+                    flex-shrink: 0;
+                }
+
+                .u-pvx-reputation-desc {
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    width: inherit;
+
+                    .u-pvx-reputation-desc-title {
+                        .fz(16px);
+                        margin-right: 10px;
+                        font-weight: 700;
+                        width: 90px;
+                    }
+
+                    .u-pvx-reputation-desc-content {
+                        width: inherit;
+                        .fz(14px, 24px);
+                        font-weight: 300;
+                    }
+                }
 
                 .item {
                     display: flex;
@@ -49,51 +76,24 @@
                     margin-bottom: 20px;
                     width: 100%;
                     box-sizing: border-box;
-                    color: #000;
-                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+                    color: @pvx-text-primary;
+                    box-shadow: @pvx-shadow-sm;
                     border-radius: 10px;
-                    border: 1px #fff solid;
-                    transition: 0.3s ease-out;
+                    border: 1px @pvx-bg-white solid;
+                    transition: @pvx-transition-normal;
                     cursor: pointer;
-
-                    .from-to {
-                        .fz(16px);
-                        margin-right: 20px;
-                        font-weight: 700;
-                        flex-shrink: 0;
-                    }
-
-                    .desc {
-                        display: flex;
-                        justify-content: flex-start;
-                        align-items: flex-start;
-                        width: inherit;
-
-                        .desc-title {
-                            .fz(16px);
-                            margin-right: 10px;
-                            font-weight: 700;
-                            width: 90px;
-                        }
-
-                        .desc-content {
-                            width: inherit;
-                            .fz(14px, 24px);
-                            font-weight: 300;
-                        }
-                    }
 
                     &.active,
                     &:hover {
-                        background: #e86f0019;
-                        color: #d16400;
-                        border: 1px #e86f00 solid;
+                        background: rgba(232, 111, 0, 0.1);
+                        color: @pvx-color-reputation;
+                        border: 1px @pvx-color-reputation-active solid;
                         box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
                     }
                 }
             }
 
-            .stage-reward-list {
+            .m-pvx-reputation-stage-reward {
                 padding: 20px;
                 width: 414px;
                 height: 380px;
@@ -101,12 +101,12 @@
                 border-radius: 10px;
                 overflow: hidden;
                 overflow-y: auto;
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-                border: 1px #fff solid;
-                transition: 0.3s ease-out;
+                box-shadow: @pvx-shadow-sm;
+                border: 1px @pvx-bg-white solid;
+                transition: @pvx-transition-normal;
                 cursor: pointer;
 
-                .stage-title {
+                .u-pvx-reputation-stage-title {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -114,16 +114,16 @@
                     span {
                         font-size: 16px;
                         font-weight: 700;
-                        color: #000;
+                        color: @pvx-text-primary;
                     }
 
-                    .page-list {
+                    .u-pvx-reputation-page-list {
                         display: flex;
                         justify-content: flex-end;
                         align-items: center;
                         gap: 10px;
 
-                        .page-item {
+                        .u-pvx-reputation-page-item {
                             width: 20px;
                             height: 20px;
                             line-height: 18px;
@@ -131,15 +131,15 @@
                             font-weight: 700;
                             text-align: center;
                             color: #fff;
-                            background-color: #d16400;
-                            border: 2px solid #d16400;
+                            background-color: @pvx-color-reputation;
+                            border: 2px solid @pvx-color-reputation;
                             box-sizing: border-box;
                             .pointer;
 
                             &.active,
                             &:hover {
-                                background-color: #fff;
-                                color: #d16400;
+                                background-color: @pvx-bg-white;
+                                color: @pvx-color-reputation;
                             }
                         }
                     }
@@ -154,32 +154,32 @@
                     gap: 10px;
                 }
 
-                .no-data {
+                .u-pvx-reputation-no-data {
                     margin-top: 20px;
                     width: 36px;
                     height: 36px;
                     line-height: 36px;
                     text-align: center;
-                    background-color: #d16400;
+                    background-color: @pvx-color-reputation;
                     color: #fff;
                     font-weight: 700;
                     border-radius: 5px;
                 }
 
                 &.active {
-                    background: #e86f0019;
-                    color: #d16400;
-                    border: 1px #e86f00 solid;
+                    background: rgba(232, 111, 0, 0.1);
+                    color: @pvx-color-reputation;
+                    border: 1px @pvx-color-reputation-active solid;
                     box-shadow: 0px 0px 10px rgba(232, 111, 0, 0.4);
 
-                    .stage-title {
+                    .u-pvx-reputation-stage-title {
                         span {
-                            color: #d16400;
+                            color: @pvx-color-reputation;
                         }
                     }
 
-                    .no-data {
-                        background-color: #d16400;
+                    .u-pvx-reputation-no-data {
+                        background-color: @pvx-color-reputation;
                         color: #fff;
                     }
                 }
@@ -199,8 +199,7 @@
     }
 }
 
-// 内容
-.m-reputation-content {
+.m-pvx-reputation-content {
     .pr;
     .flex;
     .size(100%, auto);
@@ -209,12 +208,12 @@
     gap: 20px;
     color: #9f6000;
 
-    .title {
+    .u-pvx-reputation-title {
         display: flex;
         justify-content: flex-start;
         align-items: flex-end;
         font-size: 28px;
-        color: #24292e;
+        color: @pvx-text-primary;
         font-weight: 700;
         height: 42px;
         line-height: 42px;
@@ -227,21 +226,21 @@
         }
     }
 
-    .info-wrapper {
+    .m-pvx-reputation-info {
         .flex;
         .r(10px);
         flex: 1;
         padding: 20px;
         gap: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        box-shadow: @pvx-shadow-sm;
 
-        .m-content {
+        .m-pvx-reputation-content-block {
             .flex;
             .fz(14px, 24px);
             .pt(70px);
             gap: 20px;
 
-            &.m-content-info {
+            &.m-pvx-reputation-content-block--info {
                 .pt(0);
                 gap: 0px;
                 flex-direction: column;
@@ -249,20 +248,20 @@
                 flex-shrink: 0;
             }
 
-            .sub-title {
+            .u-pvx-reputation-sub-title {
                 .flex;
                 .bold;
                 margin: 20px 0 10px 0;
                 gap: 5px;
                 align-items: center;
-                color: #000;
+                color: @pvx-text-primary;
 
-                &.sub-name {
+                &.u-pvx-reputation-sub-name {
                     .fz(20px);
                 }
             }
 
-            .detail-wrap {
+            .u-pvx-reputation-detail {
                 .flex;
                 flex-direction: column;
 
@@ -271,17 +270,17 @@
                 }
             }
 
-            .img-wrap {
+            .u-pvx-reputation-img {
                 .w(150px);
                 flex-shrink: 0;
             }
         }
     }
 
-    .map-wrapper {
+    .m-pvx-reputation-map-wrapper {
         .r(10px);
         padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        box-shadow: @pvx-shadow-sm;
         height: fit-content;
 
         .map-content {
@@ -291,7 +290,7 @@
             height: 260px;
             overflow: hidden;
 
-            .m-reputation-map {
+            .m-pvx-reputation-map {
                 &>div {
                     height: 275px;
                 }
@@ -344,55 +343,55 @@
     .mb(20px);
 
     .w-boxcoin-records-list {
-        background-color: #fff;
+        background-color: @pvx-bg-white;
     }
 }
 
 @media screen and (max-width: @ipad) {
-    .m-reputation-content {
+    .m-pvx-reputation-content {
         flex-direction: column;
 
-        .title {
+        .u-pvx-reputation-title {
             .fz(20px, 28px);
             flex-direction: column;
             height: auto;
             align-items: flex-start;
         }
 
-        .info-wrapper {
+        .m-pvx-reputation-info {
             padding: 0;
             box-shadow: 0 0 0 0;
             flex-direction: column;
 
-            .m-content {
+            .m-pvx-reputation-content-block {
                 .r(10px);
                 flex-direction: column;
-                padding: 20px !important;
+                padding: 20px;
                 box-sizing: border-box;
                 .pt(0);
 
-                &.m-content-info {
+                &.m-pvx-reputation-content-block--info {
                     .w(100%);
                 }
 
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                box-shadow: @pvx-shadow-sm;
 
-                .img-wrap {
+                .u-pvx-reputation-img {
                     order: 1;
                     .auto(x);
                 }
             }
         }
 
-        .map-wrapper .map-content {
+        .m-pvx-reputation-map-wrapper .map-content {
             .w(100%);
         }
     }
 
-    .m-reputation-wrapper .reputation-reward-wrapper .reward-content {
+    .m-pvx-reputation-wrapper .m-pvx-reputation-reward .m-pvx-reputation-reward-content {
         flex-direction: column;
 
-        .reward-desc-list {
+        .m-pvx-reputation-reward-desc {
             margin: 0;
 
             .item {
@@ -402,18 +401,18 @@
                 height: auto;
                 align-items: flex-start;
 
-                .desc {
+                .u-pvx-reputation-desc {
                     align-items: flex-start;
                     font-weight: normal;
 
-                    .desc-title {
+                    .u-pvx-reputation-desc-title {
                         flex-shrink: 0;
                     }
                 }
             }
         }
 
-        .stage-reward-list {
+        .m-pvx-reputation-stage-reward {
             .w(100%);
             padding: 10px;
             height: auto;
