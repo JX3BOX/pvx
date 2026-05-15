@@ -91,7 +91,7 @@ import { getPetTypeName, getPetSourceName, parsePetDesc, cleanResourceText as _c
 
 
 export default {
-    name: 'PetMobileSingle',
+    name: 'PetMiniprogramSingle',
     components: { PvxSuspension, PvxUserMiniprogram },
     data: function () {
         return {
@@ -135,7 +135,6 @@ export default {
 
     },
     methods: {
-        // 获取宠物详情
         getPetInfo: function () {
             this.loading = true;
             getPet(this.id, this.params)
@@ -144,14 +143,11 @@ export default {
                     this.medalList = res.data.medal_list;
                     this.loadPetSkills(res.data.__skills);
                     this.getShopInfo();
-                    // this.getPetMedal();
                 })
                 .finally(() => {
                     this.loading = false;
-
                 });
         },
-        // 获取宠物商城价格
         getShopInfo() {
             const params = {
                 item_type: this.pet.ItemTabType,
@@ -161,7 +157,6 @@ export default {
                 this.shopInfo = res?.data || "";
             });
         },
-        // 获取宠物技能信息
         loadPetSkills: function (data) {
             const levelIds = [];
             const skillIds = [];
@@ -169,11 +164,9 @@ export default {
             this.petSkills = [];
 
             for (const key in data) {
-                // 技能等级
                 if (key.startsWith("Level") && data[key]) {
                     levelIds.push(data[key]);
                 }
-                // 技能id
                 if (key.startsWith("SkillID") && data[key]) {
                     skillIds.push(data[key]);
                 }

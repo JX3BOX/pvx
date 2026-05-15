@@ -88,7 +88,7 @@ import dayjs from "@/plugins/day";
 import PvxSuspension from "@/components/PvxSuspension.vue";
 
 export default {
-    name: 'PetMobileList',
+    name: 'PetMiniprogramList',
     components: { PvxSuspension },
     data() {
         return {
@@ -224,7 +224,6 @@ export default {
                 this.page=this.page+1;
             }
         },
-        // 获取宠物列表
         getPetList: function (params) {
             this.loading = true;
             getPets(params)
@@ -237,7 +236,6 @@ export default {
                         this.list = this.list.concat(newList);
                         if(this.list.length==this.total)this.finished=true;
                     } else {
-                        //分别赋值
                         const typesMap = {
                             1: () => (this.list_type[0].list = newList || []),
                             2: () => (this.list_type[1].list = newList || []),
@@ -256,17 +254,13 @@ export default {
                     this.loading = false;
                 });
         },
-        // 获取福缘宠物id
         getPetLucky: function () {
-            // 只有正式服有这玩意
             if (this.client === "std")
                 getPetLucky(this.client).then((res) => {
                     let data = res.data;
                     let dateIndex = dayjs.tz(new Date()).format("MDD");
-                    // this.luckyList = data[dateIndex];
                     getSliders("slider", this.client, data[dateIndex].toString()).then((res) => {
                         this.luckyList = res.data.data.list || [];
-                        console.log(this.luckyList);
                     });
                 });
         },

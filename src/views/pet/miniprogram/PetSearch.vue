@@ -229,7 +229,6 @@ export default {
                 this.getPetListInit();
             }
         },
-        // 获取宠物列表
         getPetList: function (params) {
             this.loading = true;
             getPets(params)
@@ -242,7 +241,6 @@ export default {
                         if(this.list.length==this.total)this.finished=true;
                     } else {
 
-                        //分别赋值
                         const typesMap = {
                             1: () => (this.list_type[0].list = newList || []),
                             2: () => (this.list_type[1].list = newList || []),
@@ -348,7 +346,6 @@ export default {
                 .u-icon-name{
                     .flex;
                     align-items: center;
-                    //justify-content: space-between;
                     gap: 0.5rem;
                     .fz(0.875rem, 1.25rem);
                     .bold(700);
@@ -391,7 +388,6 @@ export default {
         }
     }
 }
-//@media screen and (width: 390px)
 @media (prefers-color-scheme: dark){
     .m-pvx-pet-search {
         background: #000000;
