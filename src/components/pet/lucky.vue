@@ -1,5 +1,5 @@
 <template>
-    <div class="m-luckey-item">
+    <div class="m-pvx-pet-lucky-item">
         <a class="u-pet" :href="getPetLink(item)" :target="isPhone ? '_self' : '_blank'">
             <i class="u-img">
                 <img class="u-pic" :src="imgPath" loading="lazy" @error="onError" />

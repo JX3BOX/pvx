@@ -1,16 +1,16 @@
 <template>
-    <div class="m-pet-tabs">
-        <div class="m-pet-tabs-wrapper">
+    <div class="m-pvx-pet-tabs">
+        <div class="m-pvx-pet-tabs__wrapper">
             <PvxSearch :items="searchItems" :initValue="initFormData" @search="handleSearch" />
-            <div v-if="!isMininote" class="m-pet-tabs-selectors">
-                <el-select v-model="formData.map" :class="{ active: formData.map }" filterable class="u-select"
+            <div v-if="!isMininote" class="m-pvx-pet-tabs__selectors">
+                <el-select v-model="formData.map" :class="{ 'is-active': formData.map }" filterable class="u-select"
                     clearable placeholder="全部">
                     <el-option label="全部" value=""></el-option>
                     <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
                     </el-option>
                     <template #prefix>地图</template>
                 </el-select>
-                <el-select v-model="formData.Source" :class="{ active: formData.Source }" filterable class="u-select"
+                <el-select v-model="formData.Source" :class="{ 'is-active': formData.Source }" filterable class="u-select"
                     clearable placeholder="全部">
                     <el-option v-for="(item, index) in Source" :key="'laiyuan' + index" :label="item.name"
                         :value="item.source">
@@ -19,15 +19,15 @@
                 </el-select>
             </div>
         </div>
-        <div v-if="isMininote" class="m-pet-tabs-selectors m-pet-tabs-selectors__mobile">
-            <el-select v-model="formData.map" :class="{ active: formData.map }" filterable class="u-select" clearable
+        <div v-if="isMininote" class="m-pvx-pet-tabs__selectors m-pvx-pet-tabs__selectors--mobile">
+            <el-select v-model="formData.map" :class="{ 'is-active': formData.map }" filterable class="u-select" clearable
                 placeholder="全部">
                 <el-option label="全部" value=""></el-option>
                 <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
                 </el-option>
                 <template #prefix>地图</template>
             </el-select>
-            <el-select v-model="formData.Source" :class="{ active: formData.Source }" filterable class="u-select"
+            <el-select v-model="formData.Source" :class="{ 'is-active': formData.Source }" filterable class="u-select"
                 clearable placeholder="全部">
                 <el-option v-for="(item, index) in Source" :key="'laiyuan' + index" :label="item.name"
                     :value="item.source">

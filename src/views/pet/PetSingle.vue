@@ -1,7 +1,7 @@
 <template>
-    <div class="p-pet-single" v-if="pet" v-loading="loading">
+    <div class="p-pvx-pet-single" v-if="pet" v-loading="loading">
         <template v-if="!isRobot">
-            <div class="m-pet-navigation m-navigation">
+            <div class="m-pvx-pet-navigation m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
                 <div class="u-back-right">
                     <PvxRobotTip v-if="!isRobot" type-name="宠物" :reply="pet.Name"></PvxRobotTip>
@@ -10,13 +10,13 @@
             </div>
 
             <PublicNotice bckey="pet_ac" />
-            <div class="m-pet-content flex">
+            <div class="m-pvx-pet-content flex">
                 <petCard :petObject="pet" :lucky="luckyList"></petCard>
-                <div class="m-pet-info">
+                <div class="m-pvx-pet-info">
                     <h1 class="u-title">
                         <span class="u-name">{{ pet.Name }}</span>
                         <!-- <span class="u-type">{{ getPetType(pet.Class) }} · {{ getPetSource(pet.Source) }}</span> -->
-                        <div class="m-pet-links">
+                        <div class="m-pvx-pet-links">
                             <a class="u-link u-item" :href="getLink('item', item_id)" target="_blank"><i
                                     class="el-icon-collection-tag"></i>物品信息</a>
                             <template v-if="achievement_id">
@@ -67,9 +67,9 @@
                         </div>
                     </div>
                     <!-- 宠物技能 -->
-                    <div class="m-pet-skills">
+                    <div class="m-pvx-pet-skills">
                         <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
-                            <el-popover trigger="hover" popper-class="m-pet-skill" :visible-arrow="false"
+                            <el-popover trigger="hover" popper-class="m-pvx-pet-skill" :visible-arrow="false"
                                 placement="top">
                                 <div class="u-skill-pop">
                                     <div class="u-skill-name">{{ skill.Name }}</div>
@@ -82,14 +82,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="m-pet-map" v-show="mapDisplay">
+                <div class="m-pvx-pet-map" v-show="mapDisplay">
                     <span class="u-header"> 捕获地图 </span>
                     <!-- 地图组件 -->
                     <pet-map :petId="parseInt(id)" @loaded="mapLoaded" />
                 </div>
             </div>
             <!-- 宠物羁绊 -->
-            <div class="m-pet-fetters" v-if="medalList && medalList.length">
+            <div class="m-pvx-pet-fetters" v-if="medalList && medalList.length">
                 <WikiPanel>
                     <template #head-title>
                         <img class="u-icon" svg-inline src="@/assets/img/common/achievement.svg" />
@@ -105,19 +105,19 @@
             <!-- <div class="u-map-title">捕获地图/获取攻略</div> -->
         </template>
         <template v-else>
-            <div class="m-pvx__item m-robot__pet-header">
+            <div class="m-pvx__item m-pvx-pet-robot__header">
                 <div class="m-title">
-                    <div class="u-title" :class="`u-title__level-${pet.Quality}`">
+                    <div class="u-title" :class="`u-title--level-${pet.Quality}`">
                         {{ robotTitle }}
                         <i class="u-stars">
                             <i class="el-icon-star-on" v-for="count in pet.Star" :key="count"></i>
                         </i>
                     </div>
                     <div class="m-meta">
-                        <div class="u-meta u-score" :class="`u-score-${getScoreClass(pet.Score)}`">
+                        <div class="u-meta u-score" :class="`u-score--${getScoreClass(pet.Score)}`">
                             {{ pet.Score || 0 }}分
                         </div>
-                        <div class="u-meta u-class" :class="`u-class-${pet.Class}`">{{ getPetType(pet.Class) }}</div>
+                        <div class="u-meta u-class" :class="`u-class--${pet.Class}`">{{ getPetType(pet.Class) }}</div>
                         <div class="u-meta">ID: {{ id }}</div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                     <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_pet.svg" />
                 </div>
             </div>
-            <div class="m-robot__pet-info">
+            <div class="m-pvx-pet-robot__info">
                 <div class="u-logo">
                     <img :src="getImgSrc(pet.BgPath)" class="u-image" @error="replaceByDefault" />
                 </div>
@@ -163,11 +163,11 @@
             </div> -->
             <!-- 宠物羁绊 -->
             <template v-if="medalList && medalList.length">
-                <div class="m-pvx__item m-robot-pet__fetters" v-for="item in medalList" :key="item.ID">
+                <div class="m-pvx__item m-pvx-pet-robot__fetters" v-for="item in medalList" :key="item.ID">
                     <div class="u-title">羁绊 · {{ item.Name }}</div>
                     <div class="u-desc">{{ showPetterDesc(item.Des) }}</div>
                     <span v-for="pet in item.petList" :key="pet.Index" class="u-fetter" :to="'/' + pet.Index">
-                        <i class="u-fetter-icon" :class="['u-quality-' + pet.Quality]">
+                        <i class="u-fetter-icon" :class="['u-quality--' + pet.Quality]">
                             <img :src="iconLink(pet.IconID)" />
                         </i>
                         <span class="u-fetter-name" :class="{ 'is-active': pet.Index == id }">{{ pet.Name }}</span>
@@ -177,7 +177,7 @@
             <div class="m-pvx-pet__map" v-show="mapDisplay">
                 <div class="u-title">捕获地图<span>（以魔盒在线版本为准）</span></div>
                 <!-- 地图组件 -->
-                <pet-map class="m-robot__map" :petId="parseInt(id)" @loaded="mapLoaded" />
+                <pet-map class="m-pvx-pet-robot__map" :petId="parseInt(id)" @loaded="mapLoaded" />
             </div>
         </template>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->

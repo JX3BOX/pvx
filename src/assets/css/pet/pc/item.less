@@ -1,4 +1,4 @@
-.m-luckey-item {
+.m-pvx-pet-lucky-item {
     .r(10px);
     .clip;
     .h(200px);
@@ -19,10 +19,10 @@
         }
     }
 }
-.m-luckey-item:last-child {
+.m-pvx-pet-lucky-item:last-child {
     .mr(0);
 }
-.m-pet-item {
+.m-pvx-pet-item {
     .r(5px);
     .pointer;
     height: 120px;
@@ -35,7 +35,7 @@
     transition: 0.3s ease-out;
     .m-info {
         .flex;
-        gap: 7px;
+        .gap(7px);
         .u-icon {
             .size(45px);
         }
@@ -51,7 +51,7 @@
         .u-rate {
             .flex;
             .h(18px);
-            gap: 4px;
+            .gap(4px);
             align-items: center;
         }
         .u-star {
@@ -71,28 +71,28 @@
             .ml(-2px);
         }
     }
-    &.pet-level-2 {
+    &.m-pvx-pet-item--level-2 {
         &:hover {
             background: rgba(13, 192, 63, 0.1);
             border: 1px solid rgba(13, 192, 63, 1);
             box-shadow: 0px 0px 10px rgba(13, 192, 63, 0.2);
         }
     }
-    &.pet-level-3 {
+    &.m-pvx-pet-item--level-3 {
         &:hover {
             background: rgba(0, 133, 255, 0.1);
             border: 1px solid rgba(0, 133, 255, 1);
             box-shadow: 0px 0px 10px rgba(0, 133, 255, 0.2);
         }
     }
-    &.pet-level-4 {
+    &.m-pvx-pet-item--level-4 {
         &:hover {
             background: rgba(204, 70, 237, 0.1);
             border: 1px solid rgba(204, 70, 237, 1);
             box-shadow: 0px 0px 10px rgba(204, 70, 237, 0.2);
         }
     }
-    &.pet-level-5 {
+    &.m-pvx-pet-item--level-5 {
         &:hover {
             background: rgba(255, 168, 17, 0.1);
             border: 1px solid rgba(255, 168, 17, 1);
@@ -102,7 +102,7 @@
 }
 
 @media screen and (max-width: @phone) {
-    .m-pet-item {
+    .m-pvx-pet-item {
         .w(100%);
     }
 }

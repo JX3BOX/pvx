@@ -39,7 +39,7 @@ export function getPetFrameSrc(quality, imgRoot) {
  * @returns {String} CSS类名
  */
 export function getPetFrameClass(quality) {
-    const classMap = { 2: "pet-level-2", 3: "pet-level-3", 4: "pet-level-4", 5: "pet-level-5" };
+    const classMap = { 2: "m-pvx-pet-item--level-2", 3: "m-pvx-pet-item--level-3", 4: "m-pvx-pet-item--level-4", 5: "m-pvx-pet-item--level-5" };
     return classMap[quality] || "";
 }
 

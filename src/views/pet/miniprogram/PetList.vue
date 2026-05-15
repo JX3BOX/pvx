@@ -1,14 +1,14 @@
 <template>
-    <div class="m-pet-mobile">
+    <div class="m-pvx-pet-mobile">
         <PvxSuspension isType='list' type="pet" searchRouter="/search"/>
-        <div class="m-pet-tabs__content">
-            <div class="u-tab" :class="{ active: active==0 }" @click="toAll">全部</div>
-            <div class="u-tab" v-for="item in list_type" :class="{ active: active == item.type }" :key="item.type"
+        <div class="m-pvx-pet-tabs__content">
+            <div class="u-tab" :class="{ 'is-active': active==0 }" @click="toAll">全部</div>
+            <div class="u-tab" v-for="item in list_type" :class="{ 'is-active': active == item.type }" :key="item.type"
                  @click="changePetType(item)">
                 {{ item.name }}
             </div>
         </div>
-        <div class="m-pet-list" v-if="active==0">
+        <div class="m-pvx-pet-list" v-if="active==0">
             <!--        今日福缘-->
             <div class="u-card-title">今日福缘</div>
             <div class="u-lucky">
@@ -50,7 +50,7 @@
             </div>
         </div>
 <!--        单独分类-->
-        <div class="m-pet-list" v-else>
+        <div class="m-pvx-pet-list" v-else>
             <div class="u-list u-list-all"  @scroll="handleScroll">
                 <div class="u-item" v-for="pet in list" :key="pet.id">
                     <a  :href="getPetLink(pet)" >

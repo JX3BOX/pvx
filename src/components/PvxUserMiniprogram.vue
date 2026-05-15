@@ -581,8 +581,15 @@ export default {
                         color: rgba(@color-dark, 0.4) !important;
                     }
                 }
+            }
 
-                .c-article-tinymce {
+            .c-article-tinymce {
+                color: @black-80-dark !important;
+
+                p,
+                p[style],
+                div:not([class]),
+                span:not([class]) {
                     color: @black-80-dark !important;
                 }
             }

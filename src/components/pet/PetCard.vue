@@ -1,12 +1,12 @@
 <template>
-    <div class="m-pet-card">
+    <div class="m-pvx-pet-card">
         <!--宠物卡片图-->
         <img :src="getImgSrc(petObject.BgPath)" class="u-image" @error="replaceByDefault" />
         <!--宠物边框图-->
         <img :src="getFrameSrc(petObject.Quality)" class="u-frame" />
         <!-- 宠物星级 -->
         <div class="u-stars">
-            <i class="u-star" :class="'u-star-' + petObject.Star"></i>
+            <i class="u-star" :class="'u-star--' + petObject.Star"></i>
         </div>
         <!--福缘-->
         <i class="u-lucky" v-if="getLucky(petObject.Index)"></i>

@@ -1,9 +1,9 @@
 <template>
-    <div class="m-pet-mobile_single">
+    <div class="m-pvx-pet-mobile-single">
         <PvxSuspension isType='single' type="pet" :id="id" :title="pet.Name" searchRouter="/search"
                      />
 <!--        顶部卡片-->
-        <div class="m-pet-card m-top">
+        <div class="m-pvx-pet-card m-pvx-pet-mobile-single__top">
             <div class="u-icon-name">
                 <div class="u-icon">
                     <el-image :src="iconLink(pet.IconID, client)" fit="fit"></el-image>
@@ -38,7 +38,7 @@
                     <div class="u-label">获取方式</div>
                     <div class="u-text">{{ getPetSource(pet.Source) }}</div>
                 </div>
-                <div class="u-content w-100">
+                <div class="u-content u-content--full-width">
                     <div class="u-label">获取线索</div>
                     <div class="u-text">
                         <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
@@ -46,7 +46,7 @@
                         </template>
                     </div>
                 </div>
-                <div class="u-content  w-100">
+                <div class="u-content u-content--full-width">
                     <div class="u-label">宠物说明</div>
                     <div class="u-text">
                         <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
@@ -54,11 +54,11 @@
                         </template>
                     </div>
                 </div>
-                <div class="u-content  w-100 u-pet-skill">
+                <div class="u-content u-content--full-width u-pet-skill">
                     <div class="u-label">宠物招式</div>
                     <div class="u-skill-list">
                         <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
-                            <el-popover trigger="hover" popper-class="m-pet-skill" :visible-arrow="false" placement="top">
+                            <el-popover trigger="hover" popper-class="m-pvx-pet-skill" :visible-arrow="false" placement="top">
                                 <div class="u-skill-pop">
                                     <div class="u-skill-name">{{ skill.Name }}</div>
                                     <div class="u-skill-desc">{{ skill.Desc }}</div>

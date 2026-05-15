@@ -1,10 +1,10 @@
 @pet-active-color: #d16400;
 
-.m-pet-tabs {
-    .m-pet-tabs-wrapper {
+.m-pvx-pet-tabs {
+    .m-pvx-pet-tabs__wrapper {
         display: flex;
         align-items: center;
-        gap: 10px;
+        .gap(10px);
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
         border-radius: 10px;
         padding: 10px 15px;
@@ -36,9 +36,9 @@
         }
     }
 
-    .m-pet-tabs-selectors {
+    .m-pvx-pet-tabs__selectors {
         display: flex;
-        gap: 10px;
+        .gap(10px);
         align-items: center;
         flex-shrink: 0;
 
@@ -71,7 +71,7 @@
         }
     }
 
-    .m-pet-tabs-selectors__mobile {
+    .m-pvx-pet-tabs__selectors--mobile {
         margin-top: 10px;
         padding: 10px 15px;
         box-sizing: border-box;
@@ -82,8 +82,8 @@
 }
 
 @media screen and (max-width: 1280px) {
-    .m-pet-tabs {
-        .m-pet-tabs-wrapper {
+    .m-pvx-pet-tabs {
+        .m-pvx-pet-tabs__wrapper {
             flex-wrap: wrap;
             padding: 10px 15px;
         }

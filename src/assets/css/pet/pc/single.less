@@ -1,4 +1,4 @@
-.m-pet-navigation {
+.m-pvx-pet-navigation {
     padding: 40px 0 20px 0;
     display: flex;
     .flex;
@@ -26,12 +26,12 @@
     .u-back-right {
         .flex;
         align-items: center;
-        gap: 10px;
+        .gap(10px);
         justify-content: flex-end;
     }
 }
 
-.m-pet-links {
+.m-pvx-pet-links {
     .u-link {
         .fz(14px);
         color: @v4text;
@@ -50,19 +50,19 @@
     }
 }
 
-.m-pet-content {
+.m-pvx-pet-content {
     .pr;
     .pt(20px);
     .mb(40px);
-    gap: 20px;
+    .gap(20px);
     justify-content: space-between;
 
-    .m-pet-card {
+    .m-pvx-pet-card {
         .mb(0);
     }
 }
 
-.m-pet-info {
+.m-pvx-pet-info {
     .r(10px);
     flex: 1;
     height: 380px;
@@ -82,7 +82,7 @@
 
     .u-stars {
         .flex;
-        gap: 4px;
+        .gap(4px);
 
         .u-star {
             .size(21px);
@@ -93,7 +93,7 @@
         .flex;
         flex-direction: column;
         margin-top: 20px;
-        gap: 8px;
+        .gap(8px);
 
         .u-meta {
             .fz(14px);
@@ -113,7 +113,7 @@
         .pa;
         .rt(0, 40px);
         .flex;
-        gap: 10px;
+        .gap(10px);
         flex-direction: column;
 
         i {
@@ -128,7 +128,7 @@
     .u-price-item {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        .gap(5px);
 
         i {
             .size(18px);
@@ -149,7 +149,7 @@
     }
 }
 
-.m-pet-wiki {
+.m-pvx-pet-wiki {
     .r(10px);
     margin-top: 20px;
 }
@@ -160,17 +160,17 @@
     margin: 20px 0 10px 0;
 }
 
-.m-pet-skills {
+.m-pvx-pet-skills {
     .flex;
     margin-top: 20px;
-    gap: 10px;
+    .gap(10px);
 
     .u-skill {
         .size(38px);
     }
 }
 
-.m-pet-skill {
+.m-pvx-pet-skill {
     border-radius: 3px !important;
     border: 1px solid #132221 !important;
     background: rgba(19, 34, 33, 0.95) !important;
@@ -189,7 +189,7 @@
     }
 }
 
-.m-pet-comment {
+.m-pvx-pet-comment {
     .mt(20px);
     background: #ffffff;
     .r(10px);
@@ -209,25 +209,25 @@
 }
 
 @media screen and (max-width: @ipad-y) {
-    .m-pet-content {
+    .m-pvx-pet-content {
         justify-content: center;
         margin-bottom: 15px;
         flex-wrap: wrap;
 
-        .m-pet-links {
+        .m-pvx-pet-links {
             .w(100%);
             flex-shrink: 0;
         }
 
-        .m-pet-card {
+        .m-pvx-pet-card {
             .mb(15px);
             .mr(0);
         }
 
-        .m-pet-map {
+        .m-pvx-pet-map {
             .size(100%, auto);
 
-            .m-pet-map-box {
+            .m-pvx-pet-map__box {
                 .size(100%, auto);
             }
 
@@ -238,7 +238,7 @@
         }
     }
 
-    .m-pet-info {
+    .m-pvx-pet-info {
         .size(100%, auto);
 
         .u-title {

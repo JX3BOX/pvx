@@ -1,5 +1,5 @@
 <template>
-    <div class="p-pet-list p-common-list" v-loading="loading" ref="listRef">
+    <div class="p-pvx-pet-list p-common-list" v-loading="loading" ref="listRef">
         <!-- 宠物筛选标签组件 -->
         <petTabs @change="handleTabChange" :types="Type" :active="active" :Source="Source" :mapList="mapList" />
         <!-- 公告组件 -->
@@ -7,10 +7,10 @@
 
         <!-- 福缘宠物列表（仅首页显示） -->
         <template v-if="luckyList.length > 0 && !showAllList">
-            <div class="m-pet-title u-type u-lucky-title">
+            <div class="m-pvx-pet-title u-type u-lucky-title">
                 <div class="u-title">今日福缘</div>
             </div>
-            <div class="m-lucky-list">
+            <div class="m-pvx-pet-lucky-list">
                 <luckyItem v-for="item in luckyList" :key="item.id" :item="item"></luckyItem>
             </div>
         </template>
@@ -18,11 +18,11 @@
         <!-- 分类宠物列表（首页显示） -->
         <template v-if="!showAllList">
             <div v-for="(item, index) in list_type" :key="'l' + index">
-                <div class="m-pet-title u-type" v-if="item.list.length > 0">
+                <div class="m-pvx-pet-title u-type" v-if="item.list.length > 0">
                     <div class="u-title">{{ item.name }}</div>
                     <div class="u-all" @click="setActive(item.class)">查看全部</div>
                 </div>
-                <div class="m-pet-list" :style="listGridStyle">
+                <div class="m-pvx-pet-list" :style="listGridStyle">
                     <pet-item v-for="pet in item.list" :key="pet.id" :petObject="pet" />
                 </div>
             </div>
@@ -30,10 +30,10 @@
 
         <!-- 单分类全部列表（查看全部时显示） -->
         <template v-else>
-            <div class="m-pet-title u-type">
+            <div class="m-pvx-pet-title u-type">
                 <div class="u-title">{{ typeName }}</div>
             </div>
-            <div class="m-pet-list" :style="listGridStyle">
+            <div class="m-pvx-pet-list" :style="listGridStyle">
                 <pet-item v-for="pet in list" :key="pet.id" :petObject="pet" />
             </div>
             <!-- 加载更多按钮 -->

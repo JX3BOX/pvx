@@ -19,7 +19,7 @@
                     </slot>
                 </div>
             </div>
-            <div class="m-cardlist-replace" :style="{ height: height + 'px' }" @click="update">
+            <div class="m-cardlist-replace" @click="update">
                 <img svg-inline src="@/assets/img/common/replace.svg" />
             </div>
         </div>
@@ -95,7 +95,7 @@ export default {
     .m-card-banner-list_box {
         .flex;
         gap: 10px;
-        align-items: center;
+        align-items: stretch;
         justify-content: space-between;
         width: 100%;
 
@@ -122,6 +122,7 @@ export default {
             justify-content: center;
             align-items: center;
             flex-shrink: 0;
+            align-self: center;
 
             svg {
                 transition: 0.3s ease-out;

@@ -6,19 +6,28 @@
  * @Description: 各个地方都有用到的，后端没有联物品表，只提供了物品id，通过该组件展示物品
 -->
 <template>
-    <el-popover placement="right-start" trigger="hover" :visible-arrow="false" popper-class="u-item__popup">
+    <el-popover placement="right-start" :trigger="trigger" :visible-arrow="false" popper-class="u-item__popup">
         <template v-slot:reference>
             <div class="u-item__wrapper" :class="{ background: !onlyIcon, is_vertical: vertical }">
-                <a class="u-item-icon" target="_blank" :style="`height:${size}px; width:${size}px`"
-                    :href="isLink ? getLink('item', source.id) : noLink()" v-if="!onlyName">
+                <a v-if="isLink" class="u-item-icon" target="_blank" :style="`height:${size}px; width:${size}px`"
+                    :href="getLink('item', source.id)" v-show="!onlyName">
                     <img class="u-item-icon__img"
-                        :style="{ height: size + 'px', width: size + 'px', cursor: isLink ? 'pointer' : 'default' }"
+                        :style="{ height: size + 'px', width: size + 'px', cursor: 'pointer' }"
                         :src="iconLink(source.IconID, client)" />
                     <div class="u-item-icon__quality"
                         :style="{ backgroundImage: item_border(source), opacity: source.Quality == 5 ? 0.9 : 1 }"></div>
                     <div class="u-item-icon__quest" :style="{ backgroundImage: item_border_quest(source) }"></div>
                     <span class="u-item-icon__count" v-if="display_amount !== 1">{{ display_amount }}</span>
                 </a>
+                <div v-else class="u-item-icon" :style="`height:${size}px; width:${size}px`" v-show="!onlyName">
+                    <img class="u-item-icon__img"
+                        :style="`height:${size}px; width:${size}px`"
+                        :src="iconLink(source.IconID, client)" />
+                    <div class="u-item-icon__quality"
+                        :style="{ backgroundImage: item_border(source), opacity: source.Quality == 5 ? 0.9 : 1 }"></div>
+                    <div class="u-item-icon__quest" :style="{ backgroundImage: item_border_quest(source) }"></div>
+                    <span class="u-item-icon__count" v-if="display_amount !== 1">{{ display_amount }}</span>
+                </div>
                 <div v-if="!onlyIcon" class="u-item-name" :class="`e-jx3-item__q${source.Quality}`">
                     {{ source.Name }}
                 </div>
@@ -75,11 +84,12 @@ export default {
             type: Boolean,
             default: true,
         },
+        trigger: {
+            type: String,
+            default: "hover",
+        },
     },
     methods: {
-        noLink() {
-            return false;
-        },
         get_data(item_id) {
             if (item_id) {
                 get_item(item_id, this.client)

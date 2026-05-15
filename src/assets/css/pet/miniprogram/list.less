@@ -1,12 +1,12 @@
 @color-light: #1c1c1c;
 @bg-light: #f9f9f9;
 @color-dark: #ffffff;
-.m-pet-mobile{
+.m-pvx-pet-mobile{
     background-color: #f9f9f9;
     padding:0.75rem 1.1rem;
     box-sizing: border-box;
     height:100vh;
-    .m-pet-tabs__content {
+    .m-pvx-pet-tabs__content {
         .flex;
         flex-wrap: nowrap;
         align-items: center;
@@ -16,7 +16,8 @@
             .fz(1.125rem, 1.5rem);
             .bold(700);
             color: @color-light;
-            &.active {
+            padding-bottom: 0.375rem;
+            &.is-active {
                 position: relative;
                 &::after {
                     position: absolute;
@@ -34,7 +35,7 @@
         }
     }
 
-    .m-pet-list {
+    .m-pvx-pet-list {
         .mt(1.25rem);
         .u-card-title {
             .mb(0.5rem);
@@ -123,19 +124,19 @@
     }
 }
 @media (prefers-color-scheme: dark){
-    .m-pet-mobile{
+    .m-pvx-pet-mobile{
         background: #000000;
-        .m-pet-tabs__content{
+        .m-pvx-pet-tabs__content{
             .u-tab{
                 color: @color-dark;
-                    &.active {
+                    &.is-active {
                         &::after {
                             background-color: @color-dark;
                         }
                     }
             }
         }
-        .m-pet-list{
+        .m-pvx-pet-list{
             .u-card-title{
                 color: @color-dark;
             }

@@ -5,19 +5,19 @@
             <el-collapse v-model="activeNames" accordion>
                 <el-collapse-item name="1" title="搜索条件">
 <!--                  此处为搜索条件集合界面-->
-                    <el-select v-model="params.Class" :class="{ active: params.Class }" class="u-select" clearable filterable>
+                    <el-select v-model="params.Class" :class="{ 'is-active': params.Class }" class="u-select" clearable filterable>
 
                         <el-option v-for="item in Type" :key="item.value" :label="item.name" :value="item.class">
                         </el-option>
                         <template #prefix> 类别 </template>
                     </el-select>
-                    <el-select v-model="params.mapId" :class="{ active: params.mapId }" class="u-select" clearable filterable>
+                    <el-select v-model="params.mapId" :class="{ 'is-active': params.mapId }" class="u-select" clearable filterable>
                         <el-option label="全部" value=""></el-option>
                         <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                         <template #prefix> 地图 </template>
                     </el-select>
-                    <el-select v-model="params.petSource" :class="{ active: params.petSource }" class="u-select" clearable filterable>
+                    <el-select v-model="params.petSource" :class="{ 'is-active': params.petSource }" class="u-select" clearable filterable>
                         <el-option
                             v-for="(item, index) in Source"
                             :key="'laiyuan' + index"
@@ -37,7 +37,7 @@
             </el-collapse>
         </div>
 <!--        搜索结果内容区域-->
-        <div v-if="!showAllList" class="m-pet-list">
+        <div v-if="!showAllList" class="m-pvx-pet-list">
 
             <div v-for="item in list_type" :key="item.type">
                 <div class="u-card-title">{{ item.name }}</div>
@@ -68,7 +68,7 @@
             </div>
         </div>
         <!--        单独分类-->
-        <div v-else class="m-pet-list" >
+        <div v-else class="m-pvx-pet-list" >
             <div class="u-list u-list-all"  @scroll="handleScroll">
                 <div v-for="pet in list" :key="pet.id" class="u-item">
                     <a  :href="getPetLink(pet)" >
@@ -271,148 +271,5 @@ export default {
 </script>
 
 <style lang="less">
-@color-light: #1c1c1c;
-@bg-light: #f9f9f9;
-@color-dark: #ffffff;
-.v-miniprogram {
-    .m-main {
-        padding: 0;
-    }
-}
-
-.m-pvx-pet-search {
-    background-color: #f9f9f9;
-    padding:0.75rem 1.1rem;
-    box-sizing: border-box;
-    height:100vh;
-    .u-search{
-        position: fixed;
-        .lt(0);
-        .z(3);
-        .w(100vw);
-        padding: 0 1.25rem;
-        box-sizing: border-box;
-        background-color: #fff;
-        .el-collapse-item__content{
-            background-color: #fff;
-        }
-        .u-select{
-            .mt(0.5rem);
-            .flex;
-            align-items: center;
-            .el-input__inner{
-                .pl(36px);
-            }
-            .el-input__prefix{
-                .flex;
-                align-items: center;
-            }
-        }
-        .input-with-select{
-            .mt(0.5rem);
-        }
-        .u-btn{
-            .flex;
-            .flex(o);
-            .mt(1rem);
-        }
-    }
-    .m-pet-list {
-        .mt(50px);
-        .u-card-title {
-            .mb(0.5rem);
-            color: @color-light;
-            .fz(1rem, 1.556rem);
-            .bold(700);
-        }
-        .u-list{
-            .flex;
-            gap:0.75rem;
-            .size(100%,4.625rem);
-            overflow:auto;
-            box-sizing: border-box;
-            .mb(1.25rem);
-            &::-webkit-scrollbar {
-                width: 0;
-                height: 0;
-            }
-            .u-item{
-                padding: 0.5rem;
-                box-sizing: border-box;
-                border-radius: 0.5rem;
-                background: #ffffff;
-                .size(9.5rem,100%);
-                flex-shrink: 0;
-                .u-icon-name{
-                    .flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    .fz(0.875rem, 1.25rem);
-                    .bold(700);
-                    color: @color-light;
-                    .u-icon{
-                        .size(2rem);
-                    }
-                    .u-rate{
-                        height: 10px;
-                        .flex;
-                        align-items: center;
-                    }
-                    .u-star{
-                        width: 10px;
-                        height: 10px;
-                    }
-
-                }
-                .u-desc{
-                    color: @color-light;
-                    .mt(0.5rem);
-                    .fz(0.75rem, 1rem);
-                    overflow:hidden;
-                    text-overflow:ellipsis;
-                    white-space:nowrap;
-                }
-
-
-            }
-        }
-        .u-list-all{
-            .mb(0);
-            height: calc(calc(100vh - 2.6rem) - 50px);
-            overflow: auto;
-            flex-wrap: wrap;
-            .u-item{
-                .w(calc(50% - 0.375rem));
-                .h(4.625rem);
-            }
-        }
-    }
-}
-@media (prefers-color-scheme: dark){
-    .m-pvx-pet-search {
-        background: #000000;
-        .u-search{
-            background: #282828;
-            .el-collapse-item__header,.el-collapse-item__wrap,.el-collapse-item__content{
-                background-color: #282828;
-                color: #fff;
-                border: none;
-            }
-            .el-collapse{
-                border: none;
-                .mb(0)
-            }
-        }
-        .m-pet-list{
-            .u-card-title{
-                color: @color-dark;
-            }
-            .u-list{
-                .u-item{
-
-                }
-            }
-        }
-    }
-}
+@import "~@/assets/css/pet/miniprogram/search.less";
 </style>

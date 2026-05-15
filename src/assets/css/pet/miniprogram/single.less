@@ -3,14 +3,14 @@
 @color-dark: rgba(255, 255, 255, 0.80);
 @color-light-40: rgba(28, 28, 28, 0.40);
 
-.m-pet-mobile_single {
+.m-pvx-pet-mobile-single {
     min-height: 100vh;
     background-color: #f9f9f9;
     padding: 0.75rem 1.1rem;
     box-sizing: border-box;
     overflow: auto;
 
-    .m-pet-card {
+    .m-pvx-pet-card {
         border-radius: 0.75rem;
         border: 1px solid rgba(40, 40, 40, 0.05);
         background: #ffffff;
@@ -20,7 +20,7 @@
 
     }
 
-    .m-top {
+    .m-pvx-pet-mobile-single__top {
         .u-icon-name {
             .flex;
             align-items: center;
@@ -69,7 +69,7 @@
                     .bold(400);
                 }
 
-                &.w-100 {
+                &.u-content--full-width {
                     .w(100%);
                 }
 
@@ -90,7 +90,7 @@
     }
 }
 
-.m-pet-skill {
+.m-pvx-pet-skill {
     border-radius: 3px !important;
     border: 1px solid #132221 !important;
     background: #303133 !important;
@@ -111,14 +111,14 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .m-pet-mobile_single {
+    .m-pvx-pet-mobile-single {
         background: #000000;
 
-        .m-pet-card {
+        .m-pvx-pet-card {
             background: #282828;
         }
 
-        .m-top {
+        .m-pvx-pet-mobile-single__top {
             .u-icon-name {
                 color: @color-dark;
             }

@@ -1,15 +1,15 @@
 <template>
-    <div class="m-fetters">
+    <div class="m-pvx-pet-fetters__content">
         <!-- 羁绊信息 -->
-        <div class="m-fetters-title">
+        <div class="m-pvx-pet-fetters__title">
             <div class="u-title"><i class="el-icon-star-on"></i>{{ info.Name }}</div>
             <div class="u-desc">{{ showPetterDesc(info.Des) }}</div>
         </div>
 
-        <div class="m-fetters-list">
+        <div class="m-pvx-pet-fetters__list">
             <el-popover
                 placement="top"
-                popper-class="m-pet-pop"
+                popper-class="m-pvx-pet-pop"
                 width="auto"
                 :visible-arrow="false"
                 trigger="hover"
@@ -20,7 +20,7 @@
             >
                 <template #reference>
                     <router-link class="u-fetter" :to="'/' + pet.Index">
-                        <i class="u-fetter-icon" :class="['u-quality-' + pet.Quality]">
+                        <i class="u-fetter-icon" :class="['u-quality--' + pet.Quality]">
                             <img :src="iconLink(pet.IconID)" />
                         </i>
                         <span class="u-fetter-name">{{ pet.Name }}</span>

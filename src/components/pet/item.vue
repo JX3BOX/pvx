@@ -1,6 +1,6 @@
 <template>
     <router-link
-        class="m-pet-item"
+        class="m-pvx-pet-item"
         :to="'/' + petObject.Index"
         :class="getFrameClass(petObject.Quality)"
         :target="isPhone ? '_self' : '_blank'"

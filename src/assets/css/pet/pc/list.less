@@ -1,4 +1,4 @@
-.m-pet-title {
+.m-pvx-pet-title {
     .flex;
     .mt(40px);
     justify-content: space-between;
@@ -17,33 +17,33 @@
     }
 }
 
-.m-lucky-list {
+.m-pvx-pet-lucky-list {
     .flex;
     .w(100%);
     .scrollbar(2px);
     padding: 10px;
     .ml(-10px);
-    gap: 20px;
+    .gap(20px);
     overflow-x: auto;
     overflow-y: hidden;
 
-    .m-luckey-item {
+    .m-pvx-pet-lucky-item {
         flex-shrink: 0;
     }
 
-    .m-luckey-item:last-child {
+    .m-pvx-pet-lucky-item:last-child {
         .mr(0);
     }
 }
 
-.p-pet-list {
+.p-pvx-pet-list {
     .el-select .el-input .el-input__inner {
         border: 2px solid #f3f4f5;
         background: #f3f4f5;
         color: #b0b0b0;
     }
 
-    .active .el-input .el-input__inner,
+    .is-active .el-input .el-input__inner,
     .el-select .el-input.is-focus .el-input__inner {
         .bold;
         border: 2px solid @petColor;
@@ -55,7 +55,7 @@
         }
     }
 
-    .active .el-input__prefix {
+    .is-active .el-input__prefix {
         color: @petColor;
     }
 
@@ -64,10 +64,10 @@
     }
 }
 
-.m-pet-list {
+.m-pvx-pet-list {
     .grid;
     .mt(20px);
-    gap: 20px;
+    .gap(20px);
     flex-wrap: wrap;
 }
 
@@ -116,7 +116,7 @@
 }
 
 @media screen and (max-width: @ipad) {
-    .p-pet {
+    .p-pvx-pet {
         .u-type {
             .mt(20px);
         }
@@ -128,7 +128,7 @@
 }
 
 @media screen and (max-width: @phone) {
-    .p-pet {
+    .p-pvx-pet {
         .u-select {
             width: 100% !important;
         }
@@ -141,16 +141,16 @@
             .fz(24px);
         }
 
-        .m-pet-tabs {
-            gap: 20px;
+        .m-pvx-pet-tabs {
+            .gap(20px);
 
             .m-common-card {
                 justify-content: flex-start;
             }
         }
 
-        .m-pet-tabs,
-        .m-lucky-list {
+        .m-pvx-pet-tabs,
+        .m-pvx-pet-lucky-list {
             .scrollbar(2px);
         }
     }

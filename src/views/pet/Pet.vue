@@ -1,5 +1,5 @@
 <template>
-    <div id="app" class="p-pet">
+    <div id="app" class="p-pvx-pet">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">

@@ -1,5 +1,5 @@
 <template>
-    <div class="m-book-card" @click="go(item.idKey)">
+    <div class="m-pvx-book-item" @click="go(item.idKey)">
         <div class="u-name">
             <item-icon :item_id="String(item.ItemID)" :size="36" :vertical="true"></item-icon>
         </div>
@@ -19,11 +19,8 @@
 </template>
 
 <script>
-import ItemIcon from "../common/item_icon.vue";
-import { __imgPath } from "@/utils/config";
-import bookProfession from "@/assets/data/book_profession.json";
-import bookMapInfoStd from "@/assets/data/stele_std_fwd.json";
-import bookMapInfoOrigin from "@/assets/data/stele_origin_fwd.json";
+import ItemIcon from "@/components/common/item_icon.vue";
+import { getOrigin as _getOrigin, getProfessionType as _getProfessionType, getBookMapInfo } from "@/utils/book";
 
 export default {
     name: "BookCard",
@@ -37,36 +34,12 @@ export default {
         },
     },
     methods: {
-        getProfessionType(type) {
-            return bookProfession.find((item) => item.id === Number(type))
-                ? bookProfession.find((item) => item.id === Number(type)).name
-                : "";
-        },
+        getProfessionType: _getProfessionType,
         go(id) {
             this.$router.push(`/${id}`);
         },
         getOrigin(item) {
-            const tempId = item.DoodadTemplateID;
-            const ShopNames = item.ShopNames;
-            const drops = item.drops || [];
-            const quests = item?.Quests;
-            let orgin = "";
-            if (tempId) {
-                orgin = orgin + (orgin ? "/" : "") + (this.bookMapInfo[tempId] ? "碑铭" : "其它");
-            }
-            if (ShopNames) {
-                orgin = orgin + (orgin ? "/" : "") + "商店";
-            }
-            if (drops.length) {
-                orgin = orgin + (orgin ? "/" : "") + "秘境";
-            }
-            if (quests) {
-                orgin = orgin + (orgin ? "/" : "") + "任务";
-            }
-            if (!orgin) {
-                orgin = "其它";
-            }
-            return orgin;
+            return _getOrigin(item, this.bookMapInfo);
         },
     },
     computed: {
@@ -74,7 +47,7 @@ export default {
             return this.$store.state.client;
         },
         bookMapInfo() {
-            return this.client === "std" ? bookMapInfoStd : bookMapInfoOrigin;
+            return getBookMapInfo(this.client);
         },
     },
 };
