@@ -7,7 +7,7 @@ const routes = [
         path: "/",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/horse/mobile/Index.vue")
+                ? () => import("@/views/horse/miniprogram/Index.vue")
                 : () => import("@/views/horse/Index.vue"),
         meta: {
             i18n: {
@@ -22,7 +22,7 @@ const routes = [
         path: "/:id([0-9]_\\d+)",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/horse/mobile/HorseSingle.vue")
+                ? () => import("@/views/horse/miniprogram/HorseSingle.vue")
                 : () => import("@/views/horse/HorseSingle.vue"),
         meta: {
             i18n: {

@@ -7,7 +7,7 @@ const routes = [
         path: "/",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/pet/mobile/PetList.vue")
+                ? () => import("@/views/pet/miniprogram/PetList.vue")
                 : () => import("@/views/pet/PetList.vue"),
         meta: {
             i18n: {
@@ -22,7 +22,7 @@ const routes = [
         path: "/:id(\\d+)",
         component:
             isMiniProgram() || isApp()
-                ? () => import("@/views/pet/mobile/PetSingle.vue")
+                ? () => import("@/views/pet/miniprogram/PetSingle.vue")
                 : () => import("@/views/pet/PetSingle.vue"),
         meta: {
             i18n: {
@@ -35,7 +35,7 @@ const routes = [
     {
         name: "search",
         path: "/search",
-        component: () => import("@/views/pet/mobile/PetSearch.vue"),
+        component: () => import("@/views/pet/miniprogram/PetSearch.vue"),
         meta: {
             i18n: {
                 title: "pages.pet.search.title",
