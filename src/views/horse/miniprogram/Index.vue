@@ -148,7 +148,7 @@ import ItemIcon from "@/components/common/item_icon.vue";
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { __cdn } from "@/utils/config";
 import { getHorseImgSrc, handleHorseImgError } from "@/utils/horse";
-import scrollingText from "@/components/horse/mobile/scrollingText.vue";
+import scrollingText from "@/components/horse/miniprogram/scrollingText.vue";
 import { wxNewPage } from "@/utils/minprogram";
 import wx from "weixin-js-sdk";
 const { list, searchType, showTypes } = horseData;
