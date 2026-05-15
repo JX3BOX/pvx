@@ -233,7 +233,7 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/reputation/single-miniprogram.less";
+@import "~@/assets/css/reputation/miniprogram/single.less";
 @import "~@/assets/css/miniprogram.less";
 @import "~@/assets/css/common/drawer.less";
 </style>

@@ -1,31 +1,6 @@
 <template>
     <div class="p-pvx-reputation" v-loading="loading">
-        <SuspendCommon :btnOptions="{ showHome: true }"
-            :drawerOptions="{ hideType: ['collect', 'rss', 'laterOn', 'pin', 'user', 'report'] }" @search="search"
-            v-if="isMiniProgram">
-            <template #default>
-                <div class="m-suspend-btn">
-                    <div class="u-btn-item line" @click="showForm = true">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/switch_touchbar.svg" svg-inline />
-                        {{ versionLabel }}
-                    </div>
-                    <div class="u-btn-item" @click="search">
-                        <img class="u-icon" src="@/assets/img/pvxsuspension/search.svg" svg-inline />
-                        搜索
-                    </div>
-                </div>
-            </template>
-        </SuspendCommon>
-        <el-drawer v-model="showForm" direction="btt" :with-header="false" custom-class="u-drawer"
-            :modal-append-to-body="false" append-to-body class="c-drawer">
-            <div class="m-pvx-reputation-tabs--miniprogram">
-                <div class="u-tab" v-for="item in versions" :class="{ active: dlc === item.value }" :key="item.value"
-                    @click="switchVersion(item.value)">
-                    {{ item.label.replace(/\([^)]*\)/g, "") }}
-                </div>
-            </div>
-        </el-drawer>
-        <CommonToolbar class="m-pvx-reputation-tabs" color="#d16400" search @update="updateToolbar" v-if="!isMiniProgram">
+        <CommonToolbar class="m-pvx-reputation-tabs" color="#d16400" search @update="updateToolbar">
             <template v-slot:prefix>
                 <div class="m-toolbar-item">
                     <div class="u-item" :class="{ active: isAll }" @click="toAll">全部</div>
@@ -38,7 +13,7 @@
             </template>
         </CommonToolbar>
 
-        <div v-if="isAll && !keyword && !isMiniProgram" class="m-pvx-reputation__group">
+        <div v-if="isAll && !keyword" class="m-pvx-reputation__group">
             <div class="u-pvx-reputation-title">资料片新增</div>
             <div class="m-pvx-reputation-list">
                 <reputation-item :item="item" v-for="item in newsList" :key="item.dwForceID"></reputation-item>
@@ -56,8 +31,6 @@
 </template>
 
 <script>
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import CommonToolbar from "@/components/common/toolbar.vue";
 import ReputationItem from "@/components/reputation/ReputationItem.vue";
 import { loadReputationList } from "@/service/reputation-data";
@@ -65,7 +38,7 @@ import { cloneDeep } from "lodash";
 
 export default {
     name: "Index",
-    components: { ReputationItem, CommonToolbar, SuspendCommon },
+    components: { ReputationItem, CommonToolbar },
     data() {
         return {
             loading: false,
@@ -75,10 +48,6 @@ export default {
             isAll: true,
             keyword: "",
             dlc: "",
-            showForm: false,
-            versionLabel: "版本",
-            intervalId: null,
-            isMiniProgram: isMiniProgram() || isApp(),
         };
     },
     computed: {
@@ -108,21 +77,6 @@ export default {
         },
     },
     methods: {
-        versionLabelChange() {
-            clearInterval(this.intervalId);
-            let label = "";
-            if (this.dlc) {
-                const item = this.versionList.find((item) => item.value === Number(this.dlc));
-                label = item.label.replace(/\([^)]*\)/g, "");
-            }
-            this.versionLabel = label;
-            this.intervalId = setInterval(() => {
-                this.versionLabel = this.versionLabel === label ? "版本" : label;
-            }, 5000);
-        },
-        search() {
-            this.$router.push({ name: "search" });
-        },
         updateToolbar(data) {
             const { search } = data;
             this.keyword = search;
@@ -131,16 +85,6 @@ export default {
             this.isAll = true;
             this.dlc = "";
         },
-        switchVersion(dlc) {
-            if (!dlc) {
-                this.isAll = true;
-                this.dlc = "";
-            } else {
-                this.dlc = dlc;
-            }
-            this.showForm = false;
-            this.versionLabelChange();
-        },
         loadData() {
             this.loading = true;
             loadReputationList(this.client, 50)
@@ -148,10 +92,6 @@ export default {
                     this.versions = versions;
                     this.newsList = newsList;
                     this.versionList = versionList;
-                    if (this.isMiniProgram) {
-                        this.dlc = this.versionList?.[0]?.value;
-                        this.versionLabelChange();
-                    }
                 })
                 .finally(() => {
                     this.loading = false;
@@ -166,7 +106,4 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/reputation/home.less";
-@import "~@/assets/css/reputation/home-miniprogram.less";
-@import "~@/assets/css/miniprogram.less";
-@import "~@/assets/css/common/drawer.less";
 </style>

@@ -33,7 +33,7 @@
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SinglePc from "./SinglePc.vue";
 import SingleRobot from "./SingleRobot.vue";
-import SingleMiniprogram from "./SingleMiniprogram.vue";
+import SingleMiniprogram from "./miniprogram/SingleMiniprogram.vue";
 import { getInfo } from "@/service/reputation";
 import { getReputationIcon, getLevelDesc, LOST_RESPECT_UNAVAILABLE } from "@/utils/reputation";
 

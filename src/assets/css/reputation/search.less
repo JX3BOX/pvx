@@ -68,39 +68,3 @@
         }
     }
 }
-
-@media (prefers-color-scheme: dark) {
-    .v-miniprogram {
-        &::after {
-            content: "";
-            display: block;
-            position: fixed;
-            .lt(0);
-            .rb(0);
-            z-index: -1;
-            background-color: #000;
-        }
-    }
-
-    .m-pvx-reputation-search {
-        background: #000;
-
-        .u-search {
-            background: #000;
-        }
-
-        .m-pvx-reputation-list {
-            background: #000;
-
-            .m-pvx-reputation-show-list {
-                .u-title {
-                    color: @pvx-dark-text;
-                }
-
-                .u-list {
-                    background: #000;
-                }
-            }
-        }
-    }
-}

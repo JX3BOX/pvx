@@ -16,7 +16,7 @@
             .flex;
             .flex(o);
             box-sizing: border-box;
-            flex-shink: 0;
+            flex-shrink: 0;
             color: rgba(255, 255, 255, 0.40);
             .fz(1rem, 1.5rem);
 
@@ -92,91 +92,6 @@
     .p-pvx-reputation .m-pvx-reputation__group {
         padding-top: 12px;
         padding-bottom: 2.25rem;
-    }
-
-    .u-pvx-reputation-icon {
-        .none;
-    }
-
-    .u-pvx-reputation-icon--miniprogram {
-        .db;
-        display: flex;
-        padding: 6px 10px;
-        .size(30px);
-        box-sizing: border-box;
-        justify-content: center;
-        align-items: center;
-        .r(30px);
-        background-color: @pvx-text-primary;
-        color: @pvx-dark-text;
-
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 24px;
-
-        @media (prefers-color-scheme: dark) {
-            color: @pvx-text-primary;
-            background-color: @pvx-dark-text;
-        }
-    }
-
-    .m-pvx-reputation-item {
-        gap: 12px;
-        background-color: #fff;
-        border-color: #fff;
-        box-shadow: none;
-
-        @media (prefers-color-scheme: dark) {
-            background-color: @pvx-dark-card;
-            border-color: @pvx-dark-card;
-        }
-    }
-
-    .m-pvx-reputation-item .m-pvx-reputation-name {
-        margin-left: 0;
-    }
-
-    .m-pvx-reputation-item .m-pvx-reputation-name .u-pvx-reputation-name {
-        color: @pvx-text-primary;
-
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: 20px;
-        margin: 0;
-        height: 80px;
-        .flex;
-        align-items: center;
-
-        @media (prefers-color-scheme: dark) {
-            color: @pvx-dark-text;
-        }
-    }
-
-    .u-pvx-reputation-progress {
-        .none;
-    }
-
-    .u-pvx-reputation-desc--miniprogram {
-        .db;
-        color: @pvx-text-80;
-
-        font-family: "Microsoft YaHei";
-        font-size: 10px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 15px;
-
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        @media (prefers-color-scheme: dark) {
-            color: @pvx-dark-text-80;
-        }
     }
 }
 
