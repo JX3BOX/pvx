@@ -14,7 +14,7 @@
                             <div @click="setActive(item.value)">查看全部</div>
                         </template>
                         <template v-slot="{ item }">
-                            <AdventureItem :key="item.id" :item="item" />
+                            <AdventureItem :key="item.id" :item="item" :useWxNav="true" />
                         </template>
                     </CardBannerList>
                 </template>
@@ -24,19 +24,64 @@
             <div class="u-type u-pvx-all-type">
                 <div class="u-title">{{ typeName + "奇遇" }}</div>
             </div>
-            <div class="m-pvx-face-list--all" v-if="subList.length"
-                :style="`grid-template-columns: repeat(${count}, 1fr)`">
-                <AdventureItem v-for="item in subList" :key="item.id" :item="item" />
+            <div class="m-pvx-face-list--all" v-if="subList.length">
+                <AdventureItem v-for="item in subList" :key="item.id" :item="item" :useWxNav="true" />
             </div>
-            <el-button class="m-pvx-adventure-more" v-show="hasNextPage" type="primary" @click="appendPage"
-                :loading="loading" icon="el-icon-arrow-down">加载更多</el-button>
-            <el-pagination class="m-pvx-adventure-pages" background layout="total, prev, pager, next, jumper"
-                :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
-                @current-change="changePage"></el-pagination>
+            <div class="m-get-more" v-if="hasNextPage">
+                <el-link type="primary" @click="appendPage">加载更多</el-link>
+            </div>
         </div>
         <div class="u-archive-alert" v-if="noList || (subList && !subList.length)">
             <el-alert title="没有对应的奇遇，请重新查找" type="info" center show-icon />
         </div>
+
+        <SuspendCommon :btnOptions="{ showHome: true }" :drawerOptions="{ hideType: hideType }">
+            <template #default>
+                <div class="m-suspend-btn">
+                    <div class="u-btn-item line" @click="showTypeForm = true">
+                        <img class="u-icon" src="@/assets/img/adventure/switch_icon.svg" />
+                        <span>{{ typeName }}</span>
+                    </div>
+                    <div class="u-btn-item" @click="showSearchForm = true">
+                        <img class="u-icon" src="@/assets/img/pvxsuspension/search.svg" svg-inline />
+                        <span>搜索</span>
+                    </div>
+                </div>
+            </template>
+        </SuspendCommon>
+
+        <!-- 奇遇切换 -->
+        <el-drawer v-model="showTypeForm" direction="btt" :with-header="false" :modal-append-to-body="false"
+            append-to-body class="c-drawer p-adventure-drawer-type">
+            <div class="u-drawer-title">类型</div>
+            <div class="m-drawer-content">
+                <div class="m-type-item" :class="{ 'is-active': active === 'all' }" @click="setActive('all')">
+                    <img class="u-type-icon" src="@/assets/img/pvxsuspension/all.svg" svg-inline />
+                    <div class="u-type-name">全部</div>
+                </div>
+                <div class="m-type-item" :class="{ 'is-active': active === 'perfect' }" @click="setActive('perfect')">
+                    <img class="u-type-icon" src="@/assets/img/adventure/perfect.svg" svg-inline />
+                    <div class="u-type-name">绝世</div>
+                </div>
+                <div class="m-type-item" :class="{ 'is-active': active === 'normal' }" @click="setActive('normal')">
+                    <img class="u-type-icon" src="@/assets/img/adventure/normal.svg" svg-inline />
+                    <div class="u-type-name">普通</div>
+                </div>
+                <div class="m-type-item" :class="{ 'is-active': active === 'pet' }" @click="setActive('pet')">
+                    <img class="u-type-icon" src="@/assets/img/adventure/pet.svg" svg-inline />
+                    <div class="u-type-name">宠物</div>
+                </div>
+            </div>
+        </el-drawer>
+
+        <!-- 奇遇搜索 -->
+        <el-drawer v-model="showSearchForm" direction="btt" :with-header="false" :modal-append-to-body="false"
+            append-to-body class="c-drawer p-adventure-drawer-type">
+            <div class="u-drawer-title">搜索</div>
+            <div class="m-search-input">
+                <input type="text" class="u-input" placeholder="请输入搜索内容" @input="onMiniSearch" />
+            </div>
+        </el-drawer>
     </div>
 </template>
 
@@ -45,14 +90,14 @@ import CardBannerList from "@/components/common/card_banner_list.vue";
 import AdventureTabs from "@/components/adventure/tabs.vue";
 import AdventureItem from "@/components/adventure/item.vue";
 import { getAdventures } from "@/service/adventure/adventure";
-import { isPhone } from "@/utils/index";
-import dayjs from "@/utils/day";
+import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 export default {
-    name: "adventureList",
+    name: "adventureListMini",
     props: [],
-    components: { CardBannerList, AdventureTabs, AdventureItem },
+    components: { CardBannerList, AdventureTabs, AdventureItem, SuspendCommon },
     data: function () {
         return {
+            hideType: ["collect", "rss", "laterOn", "pin", "user", "report"],
             loading: false,
             tabsData: {},
             list: [
@@ -65,13 +110,15 @@ export default {
             page: 1,
             total: 0,
             per: 8,
-            count: 0,
+            count: 2,
             appendMode: false,
             itemData: {
                 color: "#E86F00",
                 width: "220",
                 height: "224",
             },
+            showTypeForm: false,
+            showSearchForm: false,
         };
     },
     computed: {
@@ -95,9 +142,6 @@ export default {
             const pages = this.list.filter((e) => e.value == this.active)[0].pages;
             return pages > 1 && this.page < pages;
         },
-        camp() {
-            return dayjs.tz().date() % 2 ? 1 : 2;
-        },
     },
     watch: {
         active: {
@@ -111,9 +155,8 @@ export default {
         setActive(val) {
             if (val === this.active) return;
             this.active = val;
-            this.showCount();
             this.page = 1;
-            document.documentElement.scrollTop = 0;
+            this.showTypeForm = false;
             this.loadData();
         },
         loadData() {
@@ -149,10 +192,6 @@ export default {
                     this.appendMode = false;
                 });
         },
-        changePage(i) {
-            this.page = i;
-            this.loadData();
-        },
         appendPage() {
             this.appendMode = true;
             this.handleLoad(this.active);
@@ -164,25 +203,10 @@ export default {
             this.tabsData = params;
             this.loadData();
         },
-        handleResize() {
-            this.showCount();
-        },
-        showCount() {
-            if (isPhone()) {
-                this.per = 8;
-                return;
-            }
-            const listWidth = this.$refs.listRef?.clientWidth || 1200;
-            const cardWidth = Number(this.itemData.width);
-            const gridGap = 12;
-            if (this.active === "all") {
-                const availableWidth = listWidth - 120;
-                this.count = Math.max(Math.floor(availableWidth / (cardWidth + gridGap)), 1);
-                this.per = this.count;
-            } else {
-                this.count = Math.max(Math.floor(listWidth / (cardWidth + gridGap)), 1);
-                this.per = this.count * 3;
-            }
+        onMiniSearch(event) {
+            this.page = 1;
+            this.tabsData = { name: event.target.value, type: this.active };
+            this.loadData();
         },
         handleLoad(type) {
             const page = this.list.filter((e) => e.value == type)[0].page;
@@ -194,17 +218,12 @@ export default {
         },
     },
     mounted: function () {
-        this.showCount();
         this.loadData();
-        window.addEventListener("resize", this.handleResize);
-    },
-    beforeUnmount() {
-        window.removeEventListener("resize", this.handleResize);
     },
 };
 </script>
 
 <style lang="less">
-@import "~@/assets/css/adventure/pc/list.less";
+@import "~@/assets/css/adventure/miniprogram/list.less";
 @import "~@/assets/css/common/drawer.less";
 </style>

@@ -1,0 +1,158 @@
+// ===========================================
+// 页面级样式 - p-adventure-List (PC端)
+// ===========================================
+.p-adventure-List {
+    .u-type {
+        .flex;
+        .mb(20px);
+        justify-content: space-between;
+        align-items: flex-end;
+
+        .u-all {
+            cursor: pointer;
+            color: #a5a5a5;
+            .fz(16px, 21px);
+        }
+    }
+
+    .u-title {
+        .fz(28px, 42px);
+        .bold(700);
+        color: #24292e;
+    }
+}
+
+// ===========================================
+// 模块级样式 - m-pvx-adventure-list (PC端)
+// ===========================================
+.m-pvx-adventure-list {
+    .mt(40px);
+
+    .u-shade-btn {
+        .pointer;
+        .pa;
+        z-index: 12;
+        .flex;
+        .flex(x);
+        align-items: center;
+        .size(60px, 200px);
+        .fz(26px);
+        visibility: hidden;
+        background-color: rgba(0, 0, 0, 0.7);
+
+        i {
+            color: #fff;
+        }
+
+        &:hover {
+            background-color: #d16400;
+
+            i,
+            svg {
+                color: #fff;
+            }
+        }
+    }
+
+    .u-shade-btn-left {
+        border-radius: 10px 0 0 10px;
+    }
+
+    .u-shade-btn-right {
+        border-radius: 0 10px 10px 0;
+        right: 0;
+    }
+
+    .u-disabled {
+        cursor: not-allowed;
+        background-color: rgba(163, 152, 152, 0.7);
+
+        &:hover {
+            background-color: rgba(163, 152, 152, 0.7);
+        }
+    }
+}
+
+// ===========================================
+// 分类列表样式 (PC端)
+// ===========================================
+.u-pvx-all-type {
+    margin-top: 20px !important;
+}
+
+// ===========================================
+// 全部列表样式 (PC端)
+// ===========================================
+.m-pvx-face-list--all {
+    .mb(40px);
+    .grid;
+    .gap(12px);
+    width: 100%;
+}
+
+// ===========================================
+// 分页与加载更多 (PC端)
+// ===========================================
+.m-pvx-adventure-more {
+    width: 100%;
+    .mb(40px);
+    background-color: #d16400;
+    border-color: #d16400;
+
+    &:hover {
+        background-color: darken(#d16400, 10%);
+        border-color: darken(#d16400, 10%);
+    }
+}
+
+.m-pvx-adventure-pages {
+    .el-pager li {
+        &.is-active {
+            background-color: #d16400 !important;
+        }
+    }
+
+    .btn-prev,
+    .btn-next {
+        &:hover {
+            color: #d16400;
+        }
+    }
+}
+
+// ===========================================
+// 其他模块样式 (PC端)
+// ===========================================
+.m-type-list {
+    display: none;
+}
+
+.m-pvx-adventure-item {
+    .u-name {
+        display: none;
+    }
+}
+
+// ===========================================
+// 平板端响应式适配 (PC端)
+// ===========================================
+@media screen and (max-width: @ipad) {
+    .m-adventure {
+        .u-type {
+            .mt(20px);
+        }
+
+        .u-title {
+            .fz(24px);
+        }
+
+        .u-pvx-all-type {
+            margin-top: 0 !important;
+        }
+    }
+
+    .m-common-list {
+        overflow-x: auto;
+        .scrollbar(2px);
+    }
+}

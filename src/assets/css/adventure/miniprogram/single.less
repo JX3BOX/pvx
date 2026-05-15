@@ -1,0 +1,206 @@
+// ===========================================
+// 奇遇详情页 - 小程序端样式
+// ===========================================
+.v-miniprogram {
+    .p-adventure-single {
+        padding-bottom: 80px;
+
+        &::after {
+            content: "";
+            display: block;
+            position: fixed;
+            .lt(0);
+            .rb(0);
+            z-index: -1;
+            background-color: #fafafa;
+        }
+
+        .m-pvx-adventure-content {
+            overflow-x: scroll;
+            padding: 20px;
+            border-radius: 0;
+            box-shadow: none;
+            margin-left: -20px;
+            margin-right: -20px;
+            .mb(0);
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            .m-pvx-adventure-task {
+                width: max-content;
+                border-radius: 10px;
+            }
+        }
+
+        .m-pvx-adventure-header {
+            text-align: center;
+            margin: 0 -20px;
+            position: sticky;
+            top: 0;
+            background-color: #fafafa;
+            z-index: 5;
+            display: none;
+
+            .u-pvx-adventure-title {
+                .fz(16px, 48px);
+                color: @pvx-dark-surface;
+            }
+
+            .m-trigger-links {
+                display: none;
+            }
+        }
+
+        .m-base {
+            .w(100%);
+        }
+
+        // task
+        .m-pvx-task-container {
+            display: flex;
+            overflow-x: scroll;
+            align-items: center;
+            flex-wrap: nowrap;
+            .gap(20px);
+            user-select: none;
+            flex-grow: 1;
+
+            .m-task-item-box {
+                .size(240px, 460px);
+                flex-shrink: 0;
+                box-sizing: border-box;
+                padding: 20px;
+                background-color: @pvx-bg-white;
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                color: @pvx-text-80;
+
+                .u-task-item-img {
+                    .size(160px);
+                }
+
+                .u-task-item-name {
+                    .bold;
+                    text-align: center;
+                }
+            }
+
+            .m-pvx-task-header {
+                justify-content: center;
+                align-items: center;
+
+                .u-task-name {
+                    .fz(16px, 80px);
+                    .mt(12px);
+                }
+            }
+
+            .m-pvx-task-item {
+                .m-task-icon {
+                    display: block;
+                    margin: 0 auto;
+                }
+
+                .m-pvx-task-content {
+                    .mt(12px);
+                    flex: 1;
+                    overflow-y: scroll;
+
+                    &::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .u-pvx-task-goal {
+                        .fz(14px, 20px);
+                    }
+
+                    .u-task-desc {
+                        .mt(12px);
+                        .fz(12px, 18px);
+                    }
+                }
+            }
+        }
+
+        .c-wiki-comments {
+            margin: 20px 0 60px 0;
+        }
+    }
+
+    // 以下选择器不能嵌套在 .p-adventure-single 内，
+    // 因为它们要么是父级/同级元素，要么是 append-to-body 的 drawer
+
+    .m-main {
+        padding-top: 0;
+        margin: 0;
+    }
+
+    // 悬浮按钮
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
+
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            .gap(0.5rem);
+            flex: 1;
+
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+
+            .u-icon {
+                .size(1.25rem, 1.25rem);
+
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
+                }
+            }
+        }
+    }
+
+    // 抽屉样式 - 导航目录（append-to-body，不在页面组件内）
+    .p-adventure-drawer {
+        background-color: #24292e !important;
+        border-radius: 1.25rem 1.25rem 0 0;
+        padding: 1.25rem 0.75rem 2.5rem 0.75rem;
+        height: auto !important;
+
+        .el-drawer__body {
+            padding: 0;
+        }
+
+        .u-drawer-title {
+            .fz(18px, 28px);
+            .bold;
+            color: #fedaa3;
+        }
+
+        .m-drawer-nav {
+            display: flex;
+            flex-direction: column;
+            .gap(8px);
+            .mt(16px);
+
+            .u-nav-item {
+                .fz(14px, 20px);
+                padding: 12px 20px;
+                border-radius: 12px;
+                background-color: rgba(255, 255, 255, 0.05);
+                color: white;
+
+                &.is-active {
+                    color: #32ade6;
+                }
+            }
+        }
+    }
+}
+
+@import "../dark-mode.less";

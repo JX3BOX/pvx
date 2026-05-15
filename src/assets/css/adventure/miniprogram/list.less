@@ -1,0 +1,277 @@
+// ===========================================
+// 奇遇列表页 - 小程序端样式
+// ===========================================
+.v-miniprogram {
+    .p-adventure-List {
+        padding-bottom: 80px;
+
+        &::after {
+            content: "";
+            display: block;
+            position: fixed;
+            .lt(0);
+            .rb(0);
+            z-index: -1;
+            background-color: #fafafa;
+        }
+
+        .m-common-toolbar,
+        .m-card-banner-list .u-action {
+            display: none;
+        }
+
+        // 奇遇列表
+        .m-pvx-adventure-list {
+            .mt(20px);
+            padding: 0 4px;
+
+            .u-pvx-all-type {
+                .mt(20px);
+                .mb(8px);
+
+                .u-title {
+                    .fz(16px, 24px);
+                    color: @pvx-text-80;
+                }
+            }
+
+            .m-card-banner-list {
+                .m-card-banner-list_header {
+                    .mb(8px);
+
+                    .u-title {
+                        .fz(16px, 24px);
+                        color: @pvx-text-80;
+                    }
+                }
+
+                .m-card-banner-list_box {
+                    .m-cardlist-items {
+                        grid-template-columns: repeat(8, minmax(156px, 1fr)) !important;
+                        gap: 12px;
+                        padding-bottom: 28px;
+
+                        .m-cardlist-item {
+                            background-color: transparent;
+                            border: none;
+
+                            .m-pvx-adventure-item {
+                                height: auto;
+                                aspect-ratio: 1 / 1.1;
+                                overflow: initial;
+                                box-shadow: none;
+                                border-radius: 8px;
+                                border: 1px solid rgba(40, 40, 40, 0.05);
+
+                                &:hover {
+                                    background-color: transparent;
+                                    box-shadow: none;
+                                }
+
+                                .u-title {
+                                    bottom: 10px;
+                                }
+
+                                .u-name {
+                                    position: absolute;
+                                    bottom: -8px;
+                                    transform: translateY(100%);
+                                    left: 0;
+                                    line-height: 20px;
+                                    font-size: 14px;
+                                    color: @pvx-text-primary;
+                                    display: block;
+                                }
+                            }
+
+                            &:nth-of-type(n + 9) {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 分页样式
+        .m-pvx-adventure-pages {
+            background-color: #fedaa3;
+
+            .el-pager {
+                background-color: #fedaa3;
+
+                .is-active {
+                    background-color: #fedaa3 !important;
+                }
+            }
+        }
+
+        // 全部列表
+        .m-pvx-face-list--all {
+            .flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 12px;
+            margin-bottom: 0;
+
+            .m-pvx-adventure-item {
+                .size(calc(50% - 8px), auto);
+                aspect-ratio: 1 / 1.1;
+                margin: 0 4px 28px;
+                overflow: initial;
+                box-shadow: none;
+                border: 1px solid rgba(40, 40, 40, 0.05);
+
+                .u-title {
+                    bottom: 10px;
+                }
+
+                .u-name {
+                    position: absolute;
+                    bottom: -8px;
+                    transform: translateY(100%);
+                    left: 0;
+                    line-height: 20px;
+                    font-size: 14px;
+                    color: @pvx-text-primary;
+                    display: block;
+                }
+            }
+        }
+
+        // 加载更多
+        .m-get-more {
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .m-base {
+            .w(100%);
+        }
+    }
+
+    // 以下选择器不能嵌套在 .p-adventure-List 内，
+    // 因为它们要么是父级/同级元素，要么是 append-to-body 的 drawer
+
+    .m-main {
+        padding-right: 0;
+        padding-top: 0;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+
+    .p-common-list {
+        padding-top: 0;
+    }
+
+    // 悬浮按钮
+    .m-suspend-btn {
+        .flex;
+        align-items: center;
+
+        .u-btn-item {
+            .flex;
+            .flex(o);
+            .gap(0.5rem);
+            flex: 1;
+
+            &.line {
+                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
+            }
+
+            .u-icon {
+                .size(1.25rem, 1.25rem);
+
+                svg,
+                path {
+                    fill: #fedaa3;
+                    stroke: #fedaa3;
+                }
+            }
+        }
+    }
+
+    // 抽屉样式 - 类型切换（append-to-body，不在页面组件内）
+    .p-adventure-drawer-type {
+        background-color: #24292e !important;
+        border-radius: 1.25rem 1.25rem 0 0;
+        padding: 1.25rem 0.75rem 2.5rem 0.75rem;
+        height: auto !important;
+
+        .el-drawer__body {
+            padding: 0;
+        }
+
+        .u-drawer-title {
+            .fz(18px, 20px);
+            .bold();
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .m-drawer-content {
+            .mt(12px);
+            display: flex;
+            .gap(8px);
+
+            .m-type-item {
+                flex: 1;
+                padding: 16px 0;
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+
+                .u-type-icon {
+                    display: block;
+                    margin: 0 auto;
+                    .size(60px, 60px);
+
+                    svg,
+                    path {
+                        fill: rgba(255, 255, 255, 0.8);
+                        stroke: rgba(255, 255, 255, 0.8);
+                    }
+                }
+
+                .u-type-name {
+                    .mt(8px);
+                    .fz(14px, 20px);
+                    .bold();
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.6);
+                }
+
+                &.is-active {
+                    background-color: #fedaa3;
+
+                    .u-type-icon {
+                        svg,
+                        path {
+                            fill: #24292e;
+                            stroke: #24292e;
+                        }
+                    }
+
+                    .u-type-name {
+                        color: #24292e;
+                    }
+                }
+            }
+        }
+
+        .m-search-input {
+            .mt(12px);
+
+            .u-input {
+                .fz(14px, 20px);
+                width: 100%;
+                box-sizing: border-box;
+                background-color: transparent;
+                color: #fedaa3;
+                background-color: rgba(255, 255, 255, 0.1);
+                border: none;
+                padding: 12px;
+                border-radius: 6px;
+            }
+        }
+    }
+}
+
+@import "../dark-mode.less";

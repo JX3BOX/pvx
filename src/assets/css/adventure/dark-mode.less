@@ -1,86 +1,164 @@
 @media (prefers-color-scheme: dark) {
     .v-miniprogram {
-        &::after {
-            background-color: #000;
-        }
+        .p-adventure-List,
+        .p-adventure-single {
+            &::after {
+                background-color: #000;
+            }
 
-        .m-type-list {
-            color: @pvx-dark-text-40;
-            background-color: #000;
+            .m-type-list {
+                color: @pvx-dark-text-40;
+                background-color: #000;
 
-            .u-type-item {
-                &.is-active {
-                    color: @pvx-bg-white;
+                .u-type-item {
+                    &.is-active {
+                        color: @pvx-bg-white;
 
-                    &::after {
-                        background-color: @pvx-bg-white;
+                        &::after {
+                            background-color: @pvx-bg-white;
+                        }
                     }
                 }
             }
-        }
 
-        .m-pvx-adventure-list {
-            .u-pvx-all-type {
-                .u-title {
-                    color: @pvx-dark-text-80;
-                }
-            }
-
-            .m-card-banner-list {
-                .m-card-banner-list_header {
+            .m-pvx-adventure-list {
+                .u-pvx-all-type {
                     .u-title {
                         color: @pvx-dark-text-80;
                     }
                 }
 
-                .m-card-banner-list_box {
-                    .m-cardlist-items {
-                        .m-cardlist-item {
-                            background-color: transparent;
-                            border-color: transparent;
+                .m-card-banner-list {
+                    .m-card-banner-list_header {
+                        .u-title {
+                            color: @pvx-dark-text-80;
+                        }
+                    }
 
-                            .m-pvx-adventure-item {
-                                background-color: @pvx-dark-card;
+                    .m-card-banner-list_box {
+                        .m-cardlist-items {
+                            .m-cardlist-item {
+                                background-color: transparent;
                                 border-color: transparent;
 
-                                .u-name {
-                                    color: @pvx-dark-text;
+                                .m-pvx-adventure-item {
+                                    background-color: @pvx-dark-card;
+                                    border-color: transparent;
+
+                                    .u-name {
+                                        color: @pvx-dark-text;
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        .m-pvx-face-list--all {
-            .m-pvx-adventure-item {
-                background-color: @pvx-dark-card;
-                border-color: transparent;
+            .m-pvx-face-list--all {
+                .m-pvx-adventure-item {
+                    background-color: @pvx-dark-card;
+                    border-color: transparent;
 
-                .u-name {
-                    color: @pvx-dark-text;
+                    .u-name {
+                        color: @pvx-dark-text;
+                    }
+                }
+            }
+
+            .m-pvx-adventure-header {
+                background-color: #000;
+
+                .u-pvx-adventure-title {
+                    .fz(16px, 48px);
+                    color: @pvx-bg-white;
+                }
+
+                .m-trigger-links {
+                    display: none;
+                }
+            }
+
+            .m-pvx-task-container {
+                .m-task-item-box {
+                    background-color: @pvx-dark-card;
+                    color: @pvx-dark-text-80;
+                }
+            }
+
+            .m-get-more {
+                .el-link {
+                    color: #fedaa3;
+
+                    &:hover {
+                        color: darken(#fedaa3, 10%);
+                    }
                 }
             }
         }
 
-        .m-pvx-adventure-header {
-            background-color: #000;
+        // 以下选择器针对 append-to-body 的 drawer，不能嵌套在页面选择器内
+        .p-adventure-drawer-type {
+            background-color: #000 !important;
 
-            .u-pvx-adventure-title {
-                .fz(16px, 48px);
-                color: @pvx-bg-white;
+            .u-drawer-title {
+                color: @pvx-dark-text-80;
             }
 
-            .m-trigger-links {
-                display: none;
+            .m-drawer-content {
+                .m-type-item {
+                    background-color: rgba(255, 255, 255, 0.05);
+
+                    .u-type-name {
+                        color: @pvx-dark-text-80;
+                    }
+
+                    &.is-active {
+                        background-color: #fedaa3;
+
+                        .u-type-name {
+                            color: #24292e;
+                        }
+                    }
+                }
+            }
+
+            .m-search-input {
+                .u-input {
+                    color: @pvx-dark-text-80;
+                    background-color: rgba(255, 255, 255, 0.05);
+                }
             }
         }
 
-        .m-pvx-task-container {
-            .m-task-item-box {
-                background-color: @pvx-dark-card;
-                color: @pvx-dark-text-80;
+        .p-adventure-drawer {
+            background-color: #000 !important;
+
+            .u-drawer-title {
+                color: #fedaa3;
+            }
+
+            .m-drawer-nav {
+                .u-nav-item {
+                    background-color: rgba(255, 255, 255, 0.05);
+                    color: @pvx-dark-text-80;
+
+                    &.is-active {
+                        color: #32ade6;
+                    }
+                }
+            }
+        }
+
+        .m-suspend-btn {
+            .u-btn-item {
+                .u-icon {
+                    svg,
+                    path {
+                        fill: #fedaa3;
+                        stroke: #fedaa3;
+                    }
+                }
             }
         }
     }

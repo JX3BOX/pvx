@@ -35,11 +35,11 @@
                 </div>
             </div>
             <div class="u-btn">
-                <span @click="crosswiseScrool($event, 'task-box', 1, 600)" :class="isDisabled('task-box', 1, isUpdate)">
+                <span @click="crosswiseScroll($event, 'task-box', 1, 600)" :class="isDisabled('task-box', 1, isUpdate)">
                     <i class="el-icon-arrow-left"></i>
                 </span>
                 <span
-                    @click="crosswiseScrool($event, 'task-box', -1, 600)"
+                    @click="crosswiseScroll($event, 'task-box', -1, 600)"
                     :class="isDisabled('task-box', -1, isUpdate)"
                     >继续 <i class="el-icon-arrow-right"></i>
                 </span>
@@ -130,16 +130,16 @@ export default {
         },
         isDisabled(id, detail) {
             const nav = this.$refs.taskBox;
-            if (!nav) return;
-            if (nav.scrollLeft == 0 && detail == 1) {
+            if (!nav) return "";
+            if (nav.scrollLeft === 0 && detail === 1) {
                 return "u-disabled";
             }
-            if (nav.scrollLeft != 0 && nav.scrollWidth <= nav.scrollLeft + nav.clientWidth && detail == -1) {
+            if (nav.scrollLeft !== 0 && nav.scrollWidth <= nav.scrollLeft + nav.clientWidth && detail === -1) {
                 return "u-disabled";
             }
             return "";
         },
-        crosswiseScrool(event, id, detail, distance) {
+        crosswiseScroll(event, id, detail, distance) {
             if (isPhone()) {
                 return;
             }
