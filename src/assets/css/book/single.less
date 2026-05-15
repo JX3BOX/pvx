@@ -1,6 +1,6 @@
 @import "~@/assets/css/common/back.less";
 
-.book-single-wrapper {
+.m-pvx-book-single {
 
     .u-goback {
         .pointer;
@@ -19,10 +19,10 @@
         }
     }
 
-    .book-single-content {
+    .m-pvx-book-single__content {
         padding-top: 40px;
 
-        .book-header {
+        .m-pvx-book-single__header {
             margin-bottom: 20px;
 
             h2,
@@ -31,23 +31,23 @@
                 color: #24292e;
             }
 
-            .book-title {
+            .u-pvx-book-title {
                 font-size: 28px;
                 font-weight: 700;
             }
 
-            .book-desc {
+            .u-pvx-book-desc {
                 .fz(12px, 1.5);
             }
         }
 
-        .book-detail-wrapper {
+        .m-pvx-book-single__detail {
             .flex;
             .mb(40px);
             gap: 20px;
             flex-shrink: 1;
 
-            .book-content-wrapper {
+            .m-pvx-book-single__content-wrapper {
                 .pr;
                 .pr(34px);
                 .h(316px);
@@ -60,7 +60,7 @@
                 background: url("../../img/book/line.png") no-repeat top right #324148;
                 background-size: contain;
 
-                .book-content {
+                .u-pvx-book-content {
                     .pr;
                     .size(100%, 288px);
                     .fz(14px);
@@ -231,7 +231,7 @@
                     }
                 }
 
-                &.book-content-wrapper-9 {
+                &.m-pvx-book-single__content-wrapper-9 {
                     // 佛学
                     background-color: #947d2e;
 
@@ -248,7 +248,7 @@
                     }
                 }
 
-                &.book-content-wrapper-10 {
+                &.m-pvx-book-single__content-wrapper-10 {
                     // 道学
                     background-color: #194372;
 
@@ -265,13 +265,13 @@
                     }
                 }
 
-                &.book-content-wrapper-11 {
+                &.m-pvx-book-single__content-wrapper-11 {
                     // 杂集
                     background-color: #324148;
                 }
             }
 
-            .book-info {
+            .m-pvx-book-single__info {
                 .pr;
                 .r(10px);
                 .w(380px);
@@ -333,7 +333,7 @@
             }
         }
 
-        .m-book-list {
+        .m-pvx-book-list {
             position: relative;
             margin-bottom: 40px;
 
@@ -350,7 +350,7 @@
                     color: #24292e;
                 }
 
-                .book-achievement {
+                .u-pvx-book-achievement {
                     margin-left: 10px;
                     display: flex;
                     justify-content: center;
@@ -374,14 +374,14 @@
                 }
             }
 
-            .book-list-content {
+            .m-pvx-book-list__content {
                 .ml(-10px);
                 .flex;
                 padding: 20px 10px;
                 gap: 20px;
                 overflow: auto;
 
-                .m-book-card {
+                .m-pvx-book-card {
                     flex-shrink: 0;
                 }
             }
@@ -402,20 +402,20 @@
     margin: 5px 0;
 }
 
-.book-fb {
+.u-pvx-book-fb {
     color: #f18b8b;
 }
 
-.book-shop,
-.book-achievement {
+.u-pvx-book-shop,
+.u-pvx-book-achievement {
     color: #007eff;
 }
 
-.book-achievement:hover {
+.u-pvx-book-achievement:hover {
     color: #d60036;
 }
 
-.book-quest {
+.u-pvx-book-quest {
     a {
         color: #8b4dff;
 
@@ -425,21 +425,21 @@
     }
 }
 
-.book-special {
+.u-pvx-book-special {
     color: #fba524;
 }
 
 @media screen and (max-width: @phone) {
-    .book-single-wrapper .book-single-content {
-        .book-detail-wrapper {
+    .m-pvx-book-single .m-pvx-book-single__content {
+        .m-pvx-book-single__detail {
             flex-direction: column-reverse;
 
-            .book-info {
+            .m-pvx-book-single__info {
                 .w(100%);
             }
         }
 
-        .m-book-list .u-title {
+        .m-pvx-book-list .u-title {
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;

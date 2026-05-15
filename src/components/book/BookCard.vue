@@ -1,5 +1,5 @@
 <template>
-    <div class="m-book-card">
+    <div class="m-pvx-book-card">
         <a
             class="u-book-info"
             :class="`u-profession-bg--` + item.ExtendProfessionID1"

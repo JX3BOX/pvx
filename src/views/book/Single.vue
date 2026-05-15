@@ -1,5 +1,5 @@
 <template>
-    <div ref="bookSingleWrap" class="book-single-wrapper m-single-wrapper">
+    <div ref="bookSingleWrap" class="m-pvx-book-single m-single-wrapper">
         <template v-if="!isRobot">
             <div class="back-wrap m-navigation">
                 <div class="u-goback" @click="goBack">返回列表</div>
@@ -8,13 +8,13 @@
                     <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
             </div>
-            <div v-if="book" class="book-single-content" v-loading="loading">
-                <div class="book-header">
-                    <h2 class="book-title">{{ book.Name }}</h2>
-                    <p class="book-desc" v-html="book.Desc"></p>
+            <div v-if="book" class="m-pvx-book-single__content" v-loading="loading">
+                <div class="m-pvx-book-single__header">
+                    <h2 class="u-pvx-book-title">{{ book.Name }}</h2>
+                    <p class="u-pvx-book-desc" v-html="book.Desc"></p>
                 </div>
-                <div class="book-detail-wrapper">
-                    <div class="book-info">
+                <div class="m-pvx-book-single__detail">
+                    <div class="m-pvx-book-single__info">
                         <p class="u-subtitle">
                             <img svg-inline src="@/assets/img/book/book-info.svg" />
                             <span>书籍信息</span>
@@ -27,15 +27,15 @@
                                         <div>
                                             <template v-if="getOrigin(book).indexOf('秘境') > -1">
                                                 <div class="u-detail-item">秘境</div>
-                                                <div class="book-fb" v-html="getBossOrigin(book)"></div>
+                                                <div class="u-pvx-book-fb" v-html="getBossOrigin(book)"></div>
                                             </template>
                                             <template v-if="getOrigin(book).indexOf('商店') > -1">
                                                 <div class="u-detail-item">商店</div>
-                                                <div class="book-shop" v-html="getShopOrigin(book)"></div>
+                                                <div class="u-pvx-book-shop" v-html="getShopOrigin(book)"></div>
                                             </template>
                                             <template v-if="getOrigin(book).indexOf('任务') > -1">
                                                 <div class="u-detail-item">任务</div>
-                                                <div class="book-quest">
+                                                <div class="u-pvx-book-quest">
                                                     <div
                                                         class="quest-item"
                                                         v-for="item in getQuestOrigin(book)"
@@ -49,13 +49,13 @@
                                             </template>
                                         </div>
                                     </template>
-                                    <span :class="getOrigin(book) !== '其它' && 'book-special'">{{
+                                    <span :class="getOrigin(book) !== '其它' && 'u-pvx-book-special'">{{
                                         getOrigin(book)
                                     }}</span>
                                 </el-tooltip>
                             </div>
                             <div v-else class="u-info-item">
-                                来源：<span v-if="getOrigin(book) === '碑铭'" class="book-special"
+                                来源：<span v-if="getOrigin(book) === '碑铭'" class="u-pvx-book-special"
                                     >{{ getOrigin(book) }}
                                     <a
                                         class="look-site"
@@ -113,19 +113,19 @@
                     </div>
                     <div
                         v-if="book.contentInfo"
-                        class="book-content-wrapper"
-                        :class="`book-content-wrapper-${book.ExtendProfessionID1}`"
+                        class="m-pvx-book-single__content-wrapper"
+                        :class="`m-pvx-book-single__content-wrapper-${book.ExtendProfessionID1}`"
                     >
                         <div class="right-div"></div>
                         <div
                             v-if="/^\d+$/g.test(book.contentInfo)"
-                            class="book-content"
+                            class="u-pvx-book-content"
                             :class="/^\d+$/g.test(book.contentInfo) && 'img-content'"
                         >
                             <img :src="iconLink(book.contentInfo, client)" :alt="iconLink(book.contentInfo, client)" />
                         </div>
                         <template v-else>
-                            <div ref="bookWrap" class="book-content" :class="isVertical ? 'vertical' : 'row'">
+                            <div ref="bookWrap" class="u-pvx-book-content" :class="isVertical ? 'vertical' : 'row'">
                                 <div ref="bookTitle" class="title">{{ book.Name }}</div>
                                 <div ref="bookContent" class="content" v-html="book.contentInfo"></div>
                             </div>
@@ -144,12 +144,12 @@
                     </div>
                 </div>
                 <!-- 套书列表 -->
-                <div v-if="bookList.length" class="m-book-list" v-loading="listLoading">
+                <div v-if="bookList.length" class="m-pvx-book-list" v-loading="listLoading">
                     <div class="u-title">
                         <span class="title">套书·{{ book.BookName }}</span>
                         <a
                             v-if="book.AchievementID"
-                            class="book-achievement"
+                            class="u-pvx-book-achievement"
                             target="_blank"
                             :href="getLink('achievement', book.AchievementID)"
                         >
@@ -158,8 +158,8 @@
                             <span>该套书有成就</span>
                         </a>
                     </div>
-                    <div class="book-list-wrapper">
-                        <div class="book-list-content">
+                    <div class="m-pvx-book-list__wrapper">
+                        <div class="m-pvx-book-list__content">
                             <BookCard :item="item" v-for="(item, index) in bookList" :key="item.idKey + index">
                             </BookCard>
                         </div>
@@ -179,30 +179,30 @@
             </div>
         </template>
         <template v-else>
-            <div class="m-pvx__item m-robot__book-header">
+            <div class="m-pvx__item m-pvx-robot-book-header">
                 <div class="m-title">
                     <div class="u-title">书籍 · {{ book?.Name || "" }}</div>
                     <div class="m-meta">
                         <div class="u-meta u-class" :class="`u-class-${book.ExtendProfessionID1}`">
                             {{ bookTypeMap?.[book.ExtendProfessionID1] || "" }}
                         </div>
-                        <div class="book-desc" v-html="book.Desc"></div>
+                        <div class="u-pvx-book-desc" v-html="book.Desc"></div>
                     </div>
                 </div>
                 <div class="u-right">
                     <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_book.svg" />
                 </div>
             </div>
-            <div class="m-robot__book-info">
+            <div class="m-pvx-robot-book-info">
                 <div class="m-pvx__item m-book-info">
                     <div class="u-title">书籍信息</div>
                     <div class="m-list">
                         <div v-if="!['其它', '碑铭'].includes(getOrigin(book))" class="u-item book-origin">
                             来源：
-                            <span :class="getOrigin(book) !== '其它' && 'book-special'">{{ getOrigin(book) }}</span>
+                            <span :class="getOrigin(book) !== '其它' && 'u-pvx-book-special'">{{ getOrigin(book) }}</span>
                         </div>
                         <div v-else class="u-info-item">
-                            来源：<span v-if="getOrigin(book) === '碑铭'" class="book-special"
+                            来源：<span v-if="getOrigin(book) === '碑铭'" class="u-pvx-book-special"
                                 >{{ getOrigin(book) }}
                             </span>
                             <!-- 其它 -->
@@ -244,7 +244,7 @@
                     </div>
                 </div>
             </div>
-            <div class="m-robot__book-pack">
+            <div class="m-pvx-robot-book-pack">
                 <div class="u-title">同套书籍 · {{ book.BookName }}</div>
                 <div class="m-pvx__item m-book-pack">
                     <div class="u-item" v-for="(item, index) in bookList" :key="item.idKey + index">
@@ -252,7 +252,7 @@
                     </div>
                 </div>
             </div>
-            <div class="m-robot__book-content">
+            <div class="m-pvx-robot-book-content">
                 <div class="m-pvx-book-content">
                     <div class="u-content" v-for="(item, i) in contentList" :key="i">
                         <div class="u-title" v-if="!i">《{{ book.Name }}》</div>
@@ -285,20 +285,11 @@
 
 <script>
 import Jx3boxMap from "@jx3box/jx3box-map/src/components/Map.vue";
-import ItemIcon from "@/components/book/common/item_icon.vue";
+import ItemIcon from "@/components/common/item_icon.vue";
 import BookCard from "@/components/book/BookCard";
 import PvxUser from "@/components/PvxUser.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
-
-import bookProfession from "@/assets/data/book_profession.json";
-// 碑铭坐标json
-import bookMapInfoStd from "@/assets/data/stele_std_fwd.json";
-import bookMapInfoOrigin from "@/assets/data/stele_origin_fwd.json";
-
-// 副本地图json
-import maps_std from "@jx3box/jx3box-data/data/fb/fb_map.json";
-import maps_orgin from "@jx3box/jx3box-data/data/fb/fb_map_origin.json";
 
 import { __imgPath } from "@/utils/config";
 
@@ -306,6 +297,15 @@ import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 
 import { getInfo, getList } from "@/service/book";
 import { isPhone } from "@/utils/index";
+import {
+    getOrigin as _getOrigin,
+    getProfessionType as _getProfessionType,
+    getBossOrigin as _getBossOrigin,
+    getShopOrigin as _getShopOrigin,
+    getQuestOrigin as _getQuestOrigin,
+    getBookMapInfo,
+    BOOK_TYPE_MAP,
+} from "@/utils/book";
 
 export default {
     name: "bookSingle",
@@ -334,11 +334,7 @@ export default {
             noMore: false,
             // 是否还可以返回
             noBack: true,
-            bookTypeMap: {
-                11: "杂集",
-                10: "道学",
-                9: "佛学",
-            },
+            bookTypeMap: BOOK_TYPE_MAP,
         };
     },
     methods: {
@@ -434,87 +430,14 @@ export default {
         },
         iconLink,
         getBossOrigin(book) {
-            const fbMaps = this.client === "std" ? maps_std : maps_orgin;
-            const maps = Object.values(fbMaps)
-                .map((item) => Object.values(item.dungeon))
-                .reduce(function (a, b) {
-                    return a.concat(b);
-                })
-                .map((item) => {
-                    return item.maps.map((mItem) => {
-                        return {
-                            map_id: Number(mItem.map_id),
-                            name: mItem.mode + item.name,
-                        };
-                    });
-                })
-                .flat();
-            const drops = book?.drops;
-            if (drops && drops.length) {
-                let orgin = "";
-                drops.forEach((item) => {
-                    orgin =
-                        orgin +
-                        (orgin ? "<br />" : "") +
-                        ("[" + item.BossName + "]") +
-                        (maps.find((mItem) => mItem.map_id === item.MapID)
-                            ? "(" + maps.find((mItem) => mItem.map_id === item.MapID).name + ")"
-                            : "");
-                });
-                return orgin;
-            }
-            return "";
+            return _getBossOrigin(book, this.client);
         },
-        getShopOrigin(book) {
-            let shopNames = book?.ShopNames;
-            if (shopNames) {
-                shopNames = shopNames.replace(/\|/g, "<br />");
-            }
-            return shopNames;
-        },
-        getQuestOrigin(book) {
-            const quests = book?.Quests;
-            let questList = [];
-            if (quests) {
-                questList = quests.split(";").map((item) => {
-                    if (item.indexOf(":") > -1) {
-                        return {
-                            questId: item.split(":")[0],
-                            questName: item.split(":")[1],
-                        };
-                    }
-                });
-            }
-            return questList;
-        },
+        getShopOrigin: _getShopOrigin,
+        getQuestOrigin: _getQuestOrigin,
         getOrigin(item) {
-            const tempId = item.DoodadTemplateID;
-            const ShopNames = item?.ShopNames;
-            const drops = item.drops || [];
-            const quests = item?.Quests;
-            let orgin = "";
-            if (tempId) {
-                orgin = orgin + (orgin ? "/" : "") + (this.bookMapInfo[tempId] ? "碑铭" : "其它");
-            }
-            if (ShopNames) {
-                orgin = orgin + (orgin ? "/" : "") + "商店";
-            }
-            if (drops.length) {
-                orgin = orgin + (orgin ? "/" : "") + "秘境";
-            }
-            if (quests) {
-                orgin = orgin + (orgin ? "/" : "") + "任务";
-            }
-            if (!orgin) {
-                orgin = "其它";
-            }
-            return orgin;
+            return _getOrigin(item, this.bookMapInfo);
         },
-        getProfessionType(type) {
-            return bookProfession.find((item) => item.id === Number(type))
-                ? bookProfession.find((item) => item.id === Number(type)).name
-                : "";
-        },
+        getProfessionType: _getProfessionType,
         getData() {
             this.loading = true;
             getInfo({
@@ -654,7 +577,7 @@ export default {
             return this.$store.state.client;
         },
         bookMapInfo() {
-            return this.client === "std" ? bookMapInfoStd : bookMapInfoOrigin;
+            return getBookMapInfo(this.client);
         },
         contentList() {
             return this.splitText(this.book.contentInfo);
@@ -701,191 +624,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/book/single.less";
-
-.m-robot__book-header {
-    .flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    height: 75px;
-    opacity: 1;
-
-    .u-title {
-        font-size: 20px;
-        .bold;
-        color: #fff;
-        .flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .m-meta {
-        margin-top: 4px;
-        .flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 4px;
-
-        .u-meta {
-            .r(4px);
-            background: rgba(89, 89, 89, 1);
-            padding: 0 4px;
-            font-size: 10px;
-            color: #fff;
-            height: 15px;
-            line-height: 15px;
-            box-sizing: border-box;
-
-            &.u-class-11 {
-                background: rgba(50, 65, 72, 1);
-            }
-
-            &.u-class-10 {
-                background: rgba(25, 67, 114, 1);
-            }
-
-            &.u-class-9 {
-                background: rgba(148, 125, 46, 1);
-            }
-        }
-    }
-}
-
-.m-robot__book-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 10px;
-
-    .u-title {
-        .bold;
-        color: rgba(255, 206, 92, 1);
-        font-size: 12px;
-    }
-
-    .m-list {
-        gap: 4px;
-        margin-top: 4px;
-        color: #fff;
-
-        .book-special {
-            color: #fff;
-        }
-    }
-
-    .m-book-info {
-        .m-list {
-            .flex;
-            flex-direction: column;
-        }
-    }
-
-    .m-book-write {
-        .m-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .u-info-item,
-        .u-material {
-            .flex;
-            align-items: center;
-            flex-wrap: wrap;
-            font-size: 10px;
-            color: #fff;
-        }
-
-        .m-materials {
-            margin-top: 4px;
-        }
-
-        .u-material {
-            margin-right: 4px;
-        }
-
-        .u-item-name {
-            padding-left: 0 !important;
-            font-size: 10px;
-        }
-
-        .u-num {
-            margin-left: 4px;
-        }
-    }
-}
-
-.m-robot__book-pack {
-    margin-top: 10px;
-
-    .u-title {
-        .bold;
-        color: #fff;
-        font-size: 16px;
-    }
-
-    .m-book-pack {
-        .flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-
-        .u-item {
-            background: rgba(148, 125, 46, 1);
-            .r(4px);
-            height: 18px;
-            line-height: 18px;
-            padding: 0 4px;
-        }
-    }
-}
-
-.m-robot__book-content {
-    margin-top: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    background: linear-gradient(139.71deg, rgba(255, 245, 222, 1) 0%, rgba(242, 235, 225, 1) 99.31%);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 12px 0;
-    color: rgba(69, 41, 30, 1);
-
-    .u-title {
-        font-size: 16px;
-        .bold;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .m-pvx-book-content {
-        display: grid;
-        align-items: flex-start;
-        justify-content: center;
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .u-content {
-        padding: 0 12px;
-        box-sizing: border-box;
-        font-size: 10px;
-
-        &:nth-child(2) {
-            border-left: 1px solid rgba(194, 187, 161, 1);
-            border-right: 1px solid rgba(194, 187, 161, 1);
-        }
-    }
-}
-
-.book-single-wrapper {
-    .u-book-info .u-item-icon {
-        .pr;
-        .u-item-icon__count {
-            .pa;
-            .rb(0);
-            color: #fff;
-        }
-    }
-}
+@import "~@/assets/css/book/robot.less";
 </style>

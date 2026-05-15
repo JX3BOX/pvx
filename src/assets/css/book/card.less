@@ -1,10 +1,11 @@
-.m-book-card {
+.m-pvx-book-card {
     .r(10px);
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     .u-book-info {
         .pr;
-        .size(100%,280px);
+        .w(100%);
+        aspect-ratio: 2 / 3;
         .pointer;
         background-position: top right;
         background-repeat: no-repeat;
@@ -86,10 +87,18 @@
         }
     }
 }
-.cross-wrapper,
-.m-book-all,
-.book-list-wrapper {
-    .m-book-card {
+.cross-wrapper {
+    .m-pvx-book-card {
+        .w(190px);
+    }
+}
+.m-pvx-book-all {
+    .m-pvx-book-card {
+        .w(100%);
+    }
+}
+.m-pvx-book-list__wrapper {
+    .m-pvx-book-card {
         .w(190px);
     }
 }

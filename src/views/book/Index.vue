@@ -1,14 +1,14 @@
 <template>
-    <div class="p-book">
+    <div class="p-pvx-book">
         <CommonToolbar class="m-reputation-tabs" color="#d16400" search :types="professions" @update="updateToolbar" />
         <div class="m-content" ref="listRef" v-loading="loading">
             <template v-if="active === 0">
-                <div v-for="(item, i) in list" :key="item.label + i" class="m-book-list">
+                <div v-for="(item, i) in list" :key="item.label + i" class="m-pvx-book-list">
                     <template v-if="item.list.length">
                         <CardBannerList
                             v-if="item.id !== 8"
                             :count="count"
-                            :minw="190"
+                            :minw="220"
                             :data="{ ...itemData, type: item.id }"
                             @update:load="handleLoad"
                             :items="item.list"
@@ -28,23 +28,28 @@
                                 <BookCard :item="item" @click="setItem(item)" />
                             </template>
                         </CardBannerList>
-                        <list-cross v-else key="recentRead" ref="recentRead" :list="item.list" :radius="10" :gap="20">
-                            <template v-slot="data">
-                                <BookCard :item="data.item"></BookCard>
-                            </template>
-                        </list-cross>
+                        <template v-if="item.id === 8">
+                            <div class="m-pvx-book-list__reading-header">
+                                <div class="u-title">【{{ item.label }}】</div>
+                            </div>
+                            <list-cross key="recentRead" ref="recentRead" :list="item.list" :radius="10" :gap="20">
+                                <template v-slot="data">
+                                    <BookCard :item="data.item"></BookCard>
+                                </template>
+                            </list-cross>
+                        </template>
                     </template>
                 </div>
             </template>
-            <div v-else class="m-book-all">
-                <div class="m-book-list">
+            <div v-else class="m-pvx-book-all">
+                <div class="m-pvx-book-list">
                     <div class="u-type u-pvx-all-type">
                         <div class="u-title">{{ typeName }}</div>
                         <div v-if="active !== 0" class="m-operate">
                             <div
                                 class="m-item"
                                 :class="showType === item.value && 'active'"
-                                :key="item.value + Math.random()"
+                                :key="item.value"
                                 v-for="item in showTypes"
                                 @click="showType = item.value"
                             >
@@ -53,12 +58,13 @@
                         </div>
                     </div>
                     <template v-if="subList.length">
-                        <div class="m-book-list--card" v-if="showType === 'card'">
-                            <BookCard v-for="item in subList" :key="item.ID + Math.random()" :item="item" />
-                        </div>
-                        <div class="m-book-list--list" v-if="showType === 'list'">
+                        <div class="m-pvx-book-list--card" v-if="showType === 'card'"
+                        :style="`grid-template-columns: repeat(${count}, 1fr)`">
+                        <BookCard v-for="item in subList" :key="item.ID" :item="item" />
+                    </div>
+                        <div class="m-pvx-book-list--list" v-if="showType === 'list'">
                             <ListHead></ListHead>
-                            <BookItem v-for="item in subList" :key="item.ID + Math.random()" :item="item" />
+                            <BookItem v-for="item in subList" :key="item.ID" :item="item" />
                         </div>
                     </template>
                     <el-button
@@ -93,7 +99,7 @@ import CardBannerList from "@/components/common/card_banner_list.vue";
 import CommonToolbar from "@/components/common/toolbar.vue";
 import professions from "@/assets/data/book_profession.json";
 import { isPhone } from "@/utils/index";
-import { omit, cloneDeep, concat } from "lodash";
+import { omit, cloneDeep, concat, debounce } from "lodash";
 import BookItem from "@/components/book/result/book_item.vue";
 import BookCard from "@/components/book/BookCard.vue";
 import ListHead from "@/components/book/result/list_head.vue";
@@ -111,8 +117,7 @@ export default {
             data: [],
             itemData: {
                 color: "#324148",
-                width: "250",
-                height: "380",
+                width: "220",
             },
             list: [
                 {
@@ -212,7 +217,9 @@ export default {
         params: {
             deep: true,
             handler() {
-                this.loadData();
+                if (this.count > 0) {
+                    this.loadData();
+                }
             },
         },
         active: {
@@ -257,9 +264,22 @@ export default {
                 this.count = 8;
                 return;
             }
-            const listWidth = this.$refs.listRef?.clientWidth - 120;
-            this.count = Math.floor(listWidth / this.itemData.width);
-            this.per = this.count;
+            const listWidth = this.$refs.listRef?.clientWidth || 1200;
+            const cardWidth = 220;
+
+            if (listWidth <= 520) {
+                this.count = 1;
+                this.per = 16;
+                return;
+            }
+            if (listWidth <= 1024) {
+                this.count = 2;
+                this.per = 32;
+                return;
+            }
+
+            this.count = Math.floor((listWidth - 120) / cardWidth);
+            this.per = this.count * 2;
         },
         appendPage() {
             this.appendMode = true;
@@ -269,7 +289,7 @@ export default {
             const page = this.list.filter((e) => e.id == type)[0].page;
             let params = cloneDeep(this.params);
             params.page = page + 1;
-            params.per = append ? this.count * 3 : this.per;
+            params.per = append ? this.count * 3 : this.count;
             params.profession = type;
             this.loadList(params, type);
         },
@@ -281,7 +301,7 @@ export default {
                 list.forEach((e) => {
                     params.page = e.page;
                     params.profession = e.id;
-                    params.per = this.per;
+                    params.per = this.count;
                     this.loadList(params, e.id);
                 });
             } else {
@@ -318,6 +338,12 @@ export default {
             this.list[0].list = this.recentReadList;
             this.list[0].total = this.recentReadList.length;
         }
+        this.loadData();
+        this.handleResize = debounce(this.showCount, 300);
+        window.addEventListener("resize", this.handleResize);
+    },
+    beforeUnmount() {
+        window.removeEventListener("resize", this.handleResize);
     },
 };
 </script>

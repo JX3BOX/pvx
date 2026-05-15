@@ -4,7 +4,7 @@
  * @Description: 小程序书籍
  -->
 <template>
-    <div class="p-book-single-mobile">
+    <div class="p-pvx-book-single-mobile">
         <SuspendCommon
             :btnOptions="{ showHome: true }"
             :drawerOptions="{
@@ -17,7 +17,7 @@
             class="u-horse-common"
         >
             <template #default>
-                <div class="m-suspend-btn">
+                <div class="m-pvx-book-suspend-btn">
                     <div class="u-btn-item line" @click="doFav">
                         <img
                             class="u-icon"
@@ -32,7 +32,7 @@
             </template>
         </SuspendCommon>
 
-        <div class="m-info-main">
+        <div class="m-pvx-book-info-main">
             <div class="m-box u-top-content">
                 <div class="m-title">{{ book.Name }}</div>
                 <div :class="{ 'u-box': isShadow }">
@@ -53,14 +53,14 @@
                     <div class="u-item" v-if="!['其它', '碑铭'].includes(getOrigin(book))">
                         <div class="u-title">来源</div>
                         <div class="u-text">
-                            <span :class="getOrigin(book) !== '其它' && 'book-special'">{{ getOrigin(book) }}</span>
+                            <span :class="getOrigin(book) !== '其它' && 'u-pvx-book-special'">{{ getOrigin(book) }}</span>
                         </div>
                     </div>
 
                     <div class="u-item" v-else>
                         <div class="u-title">来源</div>
                         <div class="u-text">
-                            <span v-if="getOrigin(book) === '碑铭'" class="book-special">{{ getOrigin(book) }} </span>
+                            <span v-if="getOrigin(book) === '碑铭'" class="u-pvx-book-special">{{ getOrigin(book) }} </span>
                             <!-- 其它 -->
                             <span v-else>{{ getOrigin(book) }}</span>
                         </div>
@@ -109,6 +109,8 @@
                                 :size="28"
                                 :amount="material.count"
                                 :onlyIcon="true"
+                                trigger="click"
+                                :isLink="false"
                             ></item-icon>
                         </div>
                     </div>
@@ -116,18 +118,18 @@
             </div>
         </div>
         <!--        其他列表-->
-        <div class="m-other-list">
+        <div class="m-pvx-book-other-list">
             <div class="m-title">套书·{{ book.BookName }}</div>
             <div class="u-item">
                 <div class="u-list">
                     <div
-                        class="u-book-item"
+                        class="u-pvx-book-item"
                         v-for="(item2, index) in showMore ? bookList : bookList.slice(0, 3)"
                         :key="index"
                         @click="openOther(item2)"
                     >
-                        <div class="u-cover" :style="{ background: getBookCoverColor() }">
-                            <div class="u-book-name">
+                        <div class="u-pvx-book-cover" :style="{ background: getBookCoverColor() }">
+                            <div class="u-pvx-book-name">
                                 <div class="u-text">
                                     <!--                                    <div class="u-name-vertical"  :class="{scroll:item2.Name.length>5}">-->
                                     <!--                                        {{item2.Name}}-->
@@ -139,11 +141,11 @@
                                     }}
                                 </div>
                             </div>
-                            <div class="u-book-line">
+                            <div class="u-pvx-book-line">
                                 <img src="../../../assets/img/book/line.png" />
                             </div>
                         </div>
-                        <div class="u-name">{{ item2.Name }}</div>
+                        <div class="u-name"><span class="u-name-text">{{ item2.Name }}</span></div>
                         <div class="u-desc">{{ item2.Desc }}</div>
                     </div>
                 </div>
@@ -169,23 +171,24 @@
 <script>
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 
-import bookProfession from "@/assets/data/book_profession.json";
-// 碑铭坐标json
-import bookMapInfoStd from "@/assets/data/stele_std_fwd.json";
-import bookMapInfoOrigin from "@/assets/data/stele_origin_fwd.json";
-
-// 副本地图json
-import maps_std from "@jx3box/jx3box-data/data/fb/fb_map.json";
-import maps_orgin from "@jx3box/jx3box-data/data/fb/fb_map_origin.json";
-
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { getInfo, getList } from "@/service/book";
 import { addFav, delFav, hasFav } from "@jx3box/jx3box-ui/service/fav";
 import User from "@jx3box/jx3box-common/js/user";
-import ItemIcon from "@/components/book/common/item_icon_v2.vue";
+import ItemIcon from "@/components/common/item_icon.vue";
 import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 import Wiki from "@/components/wiki/Wiki.vue";
 import { wxNewPage } from "@/utils/minprogram";
+import {
+    getOrigin as _getOrigin,
+    getProfessionType as _getProfessionType,
+    getBossOrigin as _getBossOrigin,
+    getShopOrigin as _getShopOrigin,
+    getQuestOrigin as _getQuestOrigin,
+    getBookMapInfo,
+    BOOK_TYPE_MAP,
+    BOOK_TABS,
+} from "@/utils/book";
 
 export default {
     name: "bookSingle",
@@ -215,20 +218,41 @@ export default {
             listLoading: false,
             bookList: [],
 
-            bookTypeMap: {
-                11: "杂集",
-                10: "道学",
-                9: "佛学",
-            },
-            tabs: [
-                { id: 11, label: "杂集", bgColod: "#324148" },
-                { id: 10, label: "道学", bgColod: "#194372" },
-                { id: 9, label: "佛学", bgColod: "#947d2e" },
-            ],
+            bookTypeMap: BOOK_TYPE_MAP,
+            tabs: BOOK_TABS,
         };
     },
     methods: {
         iconLink,
+        checkNameScroll() {
+            this.$nextTick(() => {
+                const nameEls = this.$el.querySelectorAll(".u-name");
+                nameEls.forEach((el) => {
+                    const textEl = el.querySelector(".u-name-text");
+                    if (!textEl) return;
+                    const overflow = textEl.scrollWidth - el.clientWidth;
+                    if (overflow > 0) {
+                        textEl.classList.add("is-scroll");
+                        textEl.style.setProperty("--scroll-offset", `-${overflow}px`);
+                        textEl.style.setProperty("--scroll-duration", `${Math.max(3, overflow / 20)}s`);
+                    } else {
+                        textEl.classList.remove("is-scroll");
+                    }
+                });
+
+                const bookNameEls = this.$el.querySelectorAll(".u-pvx-book-name .u-text");
+                bookNameEls.forEach((el) => {
+                    const overflow = el.scrollHeight - el.clientHeight;
+                    if (overflow > 0) {
+                        el.classList.add("is-scroll");
+                        el.style.setProperty("--vscroll-offset", `-${overflow}px`);
+                        el.style.setProperty("--vscroll-duration", `${Math.max(4, overflow / 10)}s`);
+                    } else {
+                        el.classList.remove("is-scroll");
+                    }
+                });
+            });
+        },
         openOther(item) {
             wxNewPage(`/book/${item.idKey}`);
         },
@@ -268,87 +292,14 @@ export default {
             });
         },
         getBossOrigin(book) {
-            const fbMaps = this.client === "std" ? maps_std : maps_orgin;
-            const maps = Object.values(fbMaps)
-                .map((item) => Object.values(item.dungeon))
-                .reduce(function (a, b) {
-                    return a.concat(b);
-                })
-                .map((item) => {
-                    return item.maps.map((mItem) => {
-                        return {
-                            map_id: Number(mItem.map_id),
-                            name: mItem.mode + item.name,
-                        };
-                    });
-                })
-                .flat();
-            const drops = book?.drops;
-            if (drops && drops.length) {
-                let orgin = "";
-                drops.forEach((item) => {
-                    orgin =
-                        orgin +
-                        (orgin.length ? "<br />" : "") +
-                        ("[" + item.BossName + "]") +
-                        (maps.find((mItem) => mItem.map_id === item.MapID)
-                            ? "(" + maps.find((mItem) => mItem.map_id === item.MapID).name + ")"
-                            : "");
-                });
-                return orgin;
-            }
-            return "";
+            return _getBossOrigin(book, this.client);
         },
-        getShopOrigin(book) {
-            let shopNames = book?.ShopNames;
-            if (shopNames) {
-                shopNames = shopNames.replace(/\|/g, "<br />");
-            }
-            return shopNames;
-        },
-        getQuestOrigin(book) {
-            const quests = book?.Quests;
-            let questList = [];
-            if (quests) {
-                questList = quests.split(";").map((item) => {
-                    if (item.indexOf(":") > -1) {
-                        return {
-                            questId: item.split(":")[0],
-                            questName: item.split(":")[1],
-                        };
-                    }
-                });
-            }
-            return questList;
-        },
+        getShopOrigin: _getShopOrigin,
+        getQuestOrigin: _getQuestOrigin,
         getOrigin(item) {
-            const tempId = item.DoodadTemplateID;
-            const ShopNames = item?.ShopNames;
-            const drops = item.drops || [];
-            const quests = item?.Quests;
-            let orgin = "";
-            if (tempId) {
-                orgin = orgin + (orgin ? "/" : "") + (this.bookMapInfo[tempId] ? "碑铭" : "其它");
-            }
-            if (ShopNames) {
-                orgin = orgin + (orgin ? "/" : "") + "商店";
-            }
-            if (drops.length) {
-                orgin = orgin + (orgin ? "/" : "") + "秘境";
-            }
-            if (quests) {
-                orgin = orgin + (orgin ? "/" : "") + "任务";
-            }
-            if (!orgin) {
-                orgin = "其它";
-            }
-            return orgin;
+            return _getOrigin(item, this.bookMapInfo);
         },
-        getProfessionType(type) {
-            return bookProfession.find((item) => item.id === Number(type))
-                ? bookProfession.find((item) => item.id === Number(type)).name
-                : "";
-        },
+        getProfessionType: _getProfessionType,
         getData() {
             this.loading = true;
             getInfo({
@@ -398,7 +349,9 @@ export default {
                 .then((res) => {
                     this.bookList = res.data.list || [];
                 })
-                .finally(() => {});
+                .finally(() => {
+                    this.checkNameScroll();
+                });
         },
         getLink,
     },
@@ -417,7 +370,7 @@ export default {
             return this.$store.state.client;
         },
         bookMapInfo() {
-            return this.client === "std" ? bookMapInfoStd : bookMapInfoOrigin;
+            return getBookMapInfo(this.client);
         },
     },
     watch: {},
@@ -425,291 +378,5 @@ export default {
 </script>
 
 <style lang="less">
-.v-miniprogram {
-    .m-main {
-        padding: 0;
-    }
-    body {
-        padding: 0 !important;
-    }
-    .el-backtop {
-        display: none;
-    }
-    .u-attr-popover {
-        border: none;
-        background: #303133;
-        color: #fff;
-        .fz(0.85rem);
-        .u-attr-name {
-            color: #00d24b;
-        }
-    }
-}
-.p-book-single-mobile {
-    background: #fafafa;
-    padding: 0.75rem 1.25rem 4.45rem 1.25rem;
-    box-sizing: border-box;
-    overflow: auto;
-    height: 100vh;
-    .m-base {
-        .w(100%);
-    }
-
-    .m-suspend-btn {
-        .flex;
-        align-items: center;
-
-        .u-btn-item {
-            .flex;
-            .flex(o);
-            gap: 0.5rem;
-            //.w(7.5rem);
-            flex: 1;
-            &.line {
-                border-right: 0.5px solid rgba(254, 218, 163, 0.2);
-            }
-            .u-icon {
-                .size(1.25rem, 1.25rem);
-            }
-        }
-    }
-    .m-info-main {
-        .m-title {
-            color: @fontcolor-80;
-            .fz(1rem,1.5rem);
-            .bold(700);
-            &.m-title-other {
-                .mt(1rem);
-            }
-        }
-        .u-top-content {
-            .u-box {
-                .pr;
-                &::before {
-                    content: "";
-                    .pa;
-                    z-index: 3;
-                    bottom: 0;
-                    background: linear-gradient(0deg, #fff 0%, rgba(255, 255, 255, 0) 181.45%);
-                    height: 4rem;
-                    .w(100%);
-                }
-            }
-            .u-content {
-                height: 15rem;
-                overflow: auto;
-                scrollbar-width: none;
-
-                &::-webkit-scrollbar {
-                    width: 0;
-                    height: 0;
-                }
-                &.scroll {
-                    margin-top: 1rem;
-                }
-            }
-        }
-        .m-box {
-            background: #fff;
-            .r(0.75rem);
-            padding: 1rem;
-            box-sizing: border-box;
-            &.m-other {
-                .mt(1.25rem);
-                .u-other-box {
-                    .flex;
-                    flex-wrap: wrap;
-                    gap: 1rem;
-                    .u-item {
-                        .w(calc(calc(100% - 1rem) / 2));
-                        flex-shrink: 0;
-                        .mt(0.75rem);
-                        .u-title {
-                            color: @fontcolor-40;
-                            .fz(0.75rem,1.25rem);
-                            .bold(400);
-                        }
-                        .u-text {
-                            color: @fontcolor-80;
-                            .fz(0.875rem,1.25rem);
-                            .bold(400);
-                        }
-                        .u-copy-list {
-                            .flex;
-                            //gap:0.5r/em
-                            .u-item {
-                                .w(2rem);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    .m-other-list {
-        .mt(1.25rem);
-        .mb(1.25rem);
-        .u-more {
-            color: @fontcolor-40;
-            .fz(0.75rem,1.125rem);
-            .bold(400);
-            .x;
-        }
-        .m-title {
-            color: @fontColor;
-            .fz(1rem,1.5rem);
-            .bold(700);
-            .mb(0.5rem);
-        }
-
-        .u-item {
-            .mb(0.75rem);
-        }
-        .u-list {
-            .flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-
-            .u-book-item {
-                .w(calc(calc(100% - 1.5rem) / 3));
-                flex-shrink: 0;
-                .u-name {
-                    color: @fontColor;
-                    .fz(0.875rem,1.25rem);
-                    .bold(700);
-                    font-style: normal;
-                    .mt(0.5rem);
-                }
-                .u-desc {
-                    color: @fontcolor-40;
-                    .fz(0.625rem,0.938rem);
-                    font-style: normal;
-                    .bold(400);
-                }
-                .u-cover {
-                    border-radius: 4px;
-                    background: #324148;
-                    overflow: hidden;
-                    .pr;
-                    .w(100%);
-                    aspect-ratio: 312/335;
-                    .flex;
-                    justify-content: space-between;
-                }
-                .u-book-name {
-                    background: url("../../../assets/img/book/title.png") center center no-repeat;
-                    background-size: contain;
-                    margin: 0.5rem;
-                    height: calc(100% - 1rem);
-                    padding: 0.5rem;
-                    box-sizing: border-box;
-                    overflow: hidden;
-                    //.dbi;
-                    .u-text {
-                        .h(100%);
-                        overflow: hidden;
-                        display: flex;
-
-                        .fz(0.875rem);
-                        .bold(600);
-                        writing-mode: vertical-lr;
-                        text-orientation: upright;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                        word-break: break-all;
-                        align-items: center; /* 水平居中 */
-                        justify-content: center; /* 垂直居中 */
-                        letter-spacing: 0.2rem;
-                        //.u-name-vertical{
-                        //    .fz(0.875rem);
-                        //    .bold(600);
-                        //    color:#000;
-                        //    writing-mode: vertical-lr;
-                        //    text-orientation: upright;
-                        //    white-space: nowrap;
-                        //    //position: relative;
-                        //    word-break: break-all;
-                        //    .w(0.875rem);
-                        //    .flex;
-                        //    align-items: center;
-                        //    justify-content: center;
-                        //    //&.scroll{
-                        //    //
-                        //    //    /* 动画设置 */
-                        //    //    animation: verticalScroll 10s ease-in-out infinite;
-                        //    //}
-                        //}
-                    }
-                    @keyframes verticalScroll {
-                        0% {
-                            transform: translateY(0);
-                        }
-                        50% {
-                            transform: translateY(-100%);
-                        }
-                        100% {
-                            transform: translateY(0);
-                        }
-                    }
-                }
-                .u-book-line {
-                    .h(100%);
-                    //.pa;
-                    //.rt(0);
-                    img {
-                        .h(100%);
-                        object-fit: contain;
-                    }
-                }
-            }
-        }
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    .p-book-single-mobile {
-        background-color: #000;
-
-        .m-info-main {
-            .m-box {
-                background: #282828;
-                .m-title {
-                    color: @fontcolor-80-dark;
-                }
-                .u-box {
-                    &::before {
-                        background: linear-gradient(0deg, #282828 0%, rgba(40, 40, 40, 0) 181.45%);
-                    }
-                }
-                .u-content {
-                    color: @fontcolor-80-dark;
-                }
-
-                .u-item {
-                    .u-title {
-                        color: @fontcolor-40-dark !important;
-                    }
-                    .u-text {
-                        color: @fontcolor-80-dark !important;
-                    }
-                }
-            }
-        }
-        .m-other-list {
-            .m-title {
-                color: @fontcolor-80-dark;
-            }
-            .u-item {
-                .u-list {
-                    .u-name {
-                        color: @fontcolor-40-dark;
-                    }
-                    .u-desc {
-                        color: @fontcolor-80-dark !important;
-                    }
-                }
-            }
-        }
-    }
-}
+@import "~@/assets/css/book/mobile/single.less";
 </style>
