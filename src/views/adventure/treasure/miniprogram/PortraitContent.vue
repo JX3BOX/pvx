@@ -135,7 +135,7 @@
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import { __cdn } from "@/utils/config";
 export default {
-    name: "landscapeContent",
+    name: "portraitContent",
     props: {
         userAchievement: {
             type: [Object, Boolean],
@@ -175,7 +175,7 @@ export default {
             return `${__cdn}design/treasure/${img}`;
         },
         getImgUrl(item) {
-            const client = "std"; // 怀旧服的奇遇图片先取正式服的
+            const client = "std";
             let tgaPath = item.szOpenRewardPath?.toLowerCase();
             if (!tgaPath) return "";
             tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
@@ -183,7 +183,6 @@ export default {
                 let pngPath = tgaPath.replace(/\.tga$/, ".png");
                 return `${this.__imgRoot}adventure/${client}/${pngPath}`;
             }
-            // 传给组件的数据是修改过的
             tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
             if (item.szRewardType === "camp")
                 return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
@@ -195,5 +194,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/adventure/portrait.less";
+@import "~@/assets/css/adventure/treasure/miniprogram/portrait.less";
 </style>

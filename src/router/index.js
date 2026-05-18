@@ -34,7 +34,7 @@ const routes = [
     {
         name: "landscape",
         path: "/codex/adventure/landscape",
-        component: () => import("@/views/adventure/landscape.vue"),
+        component: () => import("@/views/adventure/treasure/pc/Landscape.vue"),
         meta: {
             name: "横屏",
             i18n: {
@@ -48,7 +48,7 @@ const routes = [
     {
         name: "portrait",
         path: "/codex/adventure/portrait",
-        component: () => import("@/views/adventure/portrait.vue"),
+        component: () => import("@/views/adventure/treasure/miniprogram/Portrait.vue"),
         meta: {
             name: "竖屏",
             i18n: {

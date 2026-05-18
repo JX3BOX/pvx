@@ -81,7 +81,7 @@
                 </div>
 
                 <div id="capture" ref="capture" v-if="!noRole">
-                    <portraitContent
+                    <PortraitContent
                         :__img-root="__imgRoot"
                         :user-achievement="userAchievement"
                         :role-info="roleInfo"
@@ -89,31 +89,28 @@
                         :is-over="isOver"
                         :content-zoom="contentZoom"
                         :current-camp="currentCamp"
-                    ></portraitContent>
+                    ></PortraitContent>
                 </div>
-                <!-- <button v-if="isOver" @click="saveAsImage" class="u-btn m-hide el-button el-button--primary">
-                保存图片
-            </button> -->
             </template>
         </div>
     </div>
 </template>
 
 <script>
-import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure.js";
+import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure/index.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
-import getData from "@/assets/js/treasure.js";
+import getData from "@/assets/js/treasure/index.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
 import { __cdn, __Root } from "@/utils/config";
-import portraitContent from "./portraitContent.vue";
+import PortraitContent from "./PortraitContent.vue";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { wxGoLogin } from "@/utils/minprogram";
 export default {
     name: "portrait",
     inject: ["__imgRoot", "__imgPath"],
     components: {
-        portraitContent,
+        PortraitContent,
     },
     data: () => ({
         addClass: false,
@@ -164,16 +161,9 @@ export default {
                 el.style.removeProperty("font-size");
                 el.style.fontSize = "16px";
             }
-
-            // 这段代码会让webview在小程序里面 页面比例不正确
-            // 需要重新评估一下原来问题的解决方式 不要这么粗暴改viewport啊
-            // let metaViewport = document.querySelector('meta[name="viewport"]');
-            // metaViewport.setAttribute("content", "");
-            // metaViewport.remove();
         }
     },
     mounted() {
-        // 输出ua
         getUserRoles().then((res) => {
             if (res.data.data.list.length) {
                 this.noRole = false;
@@ -215,27 +205,27 @@ export default {
                         resolve();
                     });
                 });
-                const element = this.$refs.capture; // 获取需要保存为图片的元素
+                const element = this.$refs.capture;
                 const canvas = await html2canvas(element, {
                     allowTaint: true,
                     useCORS: true,
                     width: element.offsetWidth,
                     height: element.offsetHeight,
-                }); // 将元素转换成canvas
+                });
 
                 this.contentZoom = oldZoom;
-                const img = canvas.toDataURL("image/png"); // 将canvas转换成图片数据
-                const a = document.createElement("a"); // 创建一个a标签
-                a.href = img; // 设置下载链接
-                a.download = "downloaded-image.png"; // 设置下载文件名
-                a.click(); // 模拟点击触发下载
+                const img = canvas.toDataURL("image/png");
+                const a = document.createElement("a");
+                a.href = img;
+                a.download = "downloaded-image.png";
+                a.click();
             } catch (error) {
                 console.error("Error saving image:", error);
             }
         },
         loadRole(userJx3Id) {
             getData(userJx3Id).then((res) => {
-                this.isSync = !!userJx3Id; // 是否在游戏中同步
+                this.isSync = !!userJx3Id;
                 this.userAchievement = res;
                 this.addClass = false;
                 this.isOver = false;
@@ -255,11 +245,10 @@ export default {
             this.handleScreenWidthChange();
         },
         isVirtual() {
-            // 是否是虚拟角色 - 魔盒账号
             return !this.currentRole?.jx3id;
         },
         getImgUrl(item) {
-            const client = "std"; // 怀旧服的奇遇图片先取正式服的
+            const client = "std";
             let tgaPath = item.szOpenRewardPath?.toLowerCase();
             if (!tgaPath) return "";
             tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
@@ -267,7 +256,6 @@ export default {
                 let pngPath = tgaPath.replace(/\.tga$/, ".png");
                 return `${this.__imgRoot}adventure/${client}/${pngPath}`;
             }
-            // 传给组件的数据是修改过的
             tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
             if (item.szRewardType === "camp")
                 return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
@@ -295,5 +283,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/app.less";
-@import "~@/assets/css/adventure/treasure.less";
+@import "~@/assets/css/adventure/treasure/miniprogram/treasure.less";
 </style>

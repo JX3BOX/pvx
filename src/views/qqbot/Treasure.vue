@@ -34,17 +34,17 @@
 </template>
 
 <script>
-import { getRoleGameAchievementsByRoleAndServer, getUserRoles } from "@/service/adventure/treasure";
+import { getRoleGameAchievementsByRoleAndServer, getUserRoles } from "@/service/adventure/treasure/index.js";
 import { __imgPath } from "@/utils/config";
-import treasureCommon from "@/assets/js/treasure.js";
-import landscapeContent from "@/views/adventure/landscapeContent.vue";
-import portraitContent from "@/views/adventure/portraitContent.vue";
+import treasureCommon from "@/assets/js/treasure/index.js";
+import LandscapeContent from "@/views/adventure/treasure/pc/LandscapeContent.vue";
+import PortraitContent from "@/views/adventure/treasure/miniprogram/PortraitContent.vue";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "QQBotTreasure",
     components: {
-        landscapeContent,
-        portraitContent,
+        LandscapeContent,
+        PortraitContent,
     },
     data() {
         return {

@@ -66,7 +66,7 @@
                     </el-button>
                 </div>
                 <div id="capture" ref="capture">
-                    <landscapeContent
+                    <LandscapeContent
                         :__img-root="__imgRoot"
                         :user-achievement="userAchievement"
                         :role-info="roleInfo"
@@ -75,7 +75,7 @@
                         :content-zoom="contentZoom"
                         :current-camp="currentCamp"
                         :reel-add-class="reelAddClass"
-                    ></landscapeContent>
+                    ></LandscapeContent>
                 </div>
 
                 <div class="m-treasure-footer">
@@ -91,19 +91,19 @@
 </template>
 
 <script>
-import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure.js";
+import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure/index.js";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
-import treasureCommon from "@/assets/js/treasure.js";
+import treasureCommon from "@/assets/js/treasure/index.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
 import { __Links, __cdn, __Root } from "@/utils/config";
-import landscapeContent from "./landscapeContent.vue";
+import LandscapeContent from "./LandscapeContent.vue";
 import CommonNav from "@/components/Nav_v5.vue";
 export default {
     name: "landscape",
     inject: ["__imgRoot", "__imgPath"],
     components: {
-        landscapeContent,
+        LandscapeContent,
         CommonNav,
     },
     data: () => ({
@@ -195,27 +195,27 @@ export default {
                     });
                 });
 
-                const element = this.$refs.capture; // 获取需要保存为图片的元素
+                const element = this.$refs.capture;
                 const canvas = await html2canvas(element, {
                     allowTaint: true,
                     useCORS: true,
                     width: element.offsetWidth,
                     height: element.offsetHeight,
-                }); // 将元素转换成canvas
+                });
 
                 this.contentZoom = oldZoom;
-                const img = canvas.toDataURL("image/png"); // 将canvas转换成图片数据
-                const a = document.createElement("a"); // 创建一个a标签
-                a.href = img; // 设置下载链接
-                a.download = "downloaded-image.png"; // 设置下载文件名
-                a.click(); // 模拟点击触发下载
+                const img = canvas.toDataURL("image/png");
+                const a = document.createElement("a");
+                a.href = img;
+                a.download = "downloaded-image.png";
+                a.click();
             } catch (error) {
                 console.error("Error saving image:", error);
             }
         },
         loadRole(userJx3Id) {
             treasureCommon(userJx3Id).then((res) => {
-                this.isSync = !!userJx3Id; // 是否在游戏中同步
+                this.isSync = !!userJx3Id;
                 res.pet = this.splitArrayIntoChunks(res.pet, 5);
                 res.normal = this.splitArrayIntoChunks(res.normal, 3);
                 this.userAchievement = res;
@@ -237,16 +237,12 @@ export default {
                 this.addClass = false;
                 this.reelAddClass = "";
             }, 3000);
-            // window.addEventListener("resize", this.handleScreenWidthChange);
-            // window.addEventListener("load", this.handleScreenWidthChange);
-            // this.handleScreenWidthChange();
         },
         isVirtual() {
-            // 是否是虚拟角色 - 魔盒账号
             return !this.currentRole?.jx3id;
         },
         getImgUrl(item) {
-            const client = "std"; // 怀旧服的奇遇图片先取正式服的
+            const client = "std";
             let tgaPath = item.szOpenRewardPath?.toLowerCase();
             if (!tgaPath) return "";
             tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
@@ -254,7 +250,6 @@ export default {
                 let pngPath = tgaPath.replace(/\.tga$/, ".png");
                 return `${this.__imgRoot}adventure/${client}/${pngPath}`;
             }
-            // 传给组件的数据是修改过的
             tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
             if (item.szRewardType === "camp")
                 return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
@@ -293,5 +288,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/app.less";
-@import "~@/assets/css/adventure/treasure.less";
+@import "~@/assets/css/adventure/treasure/pc/treasure.less";
 </style>

@@ -1,4 +1,4 @@
-import { getRoleGameAchievements, getAdventures, getAchievements } from "@/service/adventure/treasure.js";
+import { getRoleGameAchievements, getAdventures, getAchievements } from "@/service/adventure/treasure/index.js";
 
 const perfectAchievement = {
     1: { hasClass: "sssh", zIndex: 1 },
@@ -57,9 +57,7 @@ let getData = (userJx3Id) => {
             } else {
                 returnData.updated_at = "暂无记录";
             }
-            // 定义奇遇类型数组
             const adventureTypes = ["pet", "normal", "perfect"];
-            // 创建 Promise 数组来存储所有奇遇数据的 Promise
             const adventurePromises = adventureTypes.map((type) => {
                 return getAdventures({
                     type,
@@ -96,7 +94,6 @@ let getData = (userJx3Id) => {
                 });
             });
 
-            // 所有奇遇数据的 Promise 执行完成后，调用 inspectionResult
             Promise.all(adventurePromises)
                 .then(() => {
                     returnData.progress =
@@ -106,7 +103,7 @@ let getData = (userJx3Id) => {
                     resolve(returnData);
                 })
                 .catch((error) => {
-                    reject(error); // 处理错误
+                    reject(error);
                 });
         });
     });

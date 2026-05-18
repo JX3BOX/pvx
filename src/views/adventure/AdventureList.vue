@@ -6,7 +6,7 @@
                 :class="`m-pvx-adventure-list-${index}`">
                 <template v-if="item.list.length">
                     <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="212"
-                        :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
+                        :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list.slice(0, count)">
                         <template v-slot:title>
                             <div>{{ item.label + "奇遇" }}</div>
                         </template>
@@ -185,10 +185,16 @@ export default {
             }
         },
         handleLoad(type) {
-            const page = this.list.filter((e) => e.value == type)[0].page;
+            const entry = this.list.filter((e) => e.value == type)[0];
+            const page = entry.page;
             let params = { ...this.params };
-            params.per = this.count * 3;
-            params.page = page + 1;
+            if (this.active === "all") {
+                params.per = this.count;
+                params.page = page + 1 > entry.pages ? 1 : page + 1;
+            } else {
+                params.per = this.count * 3;
+                params.page = page + 1;
+            }
             params.type = type;
             this.loadList(params, type);
         },

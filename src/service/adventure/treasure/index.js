@@ -2,7 +2,6 @@ import { $cms, $team, $next, $node } from "@jx3box/jx3box-common/js/api";
 
 const client = location.href.includes("origin") ? "origin" : "std";
 
-// 获取用户信息
 export function getUserInfo() {
     return $cms().get(`api/cms/user/my/info`, {
         params: {
@@ -11,17 +10,14 @@ export function getUserInfo() {
     });
 }
 
-// 获取用户角色
 export function getUserRoles() {
     return $team().get(`api/team/my-game-roles?nopage`);
 }
 
-// 刷新奇遇卷轴生成任务
 export function refreshAchievementsTask(data) {
     return $next().post(`/api/next2/qqbot/picture-task/refresh/role-achievements`, data);
 }
 
-// 获取角色的成就状态
 export function getRoleGameAchievements(jx3id) {
     return $next().get(`/api/next2/user-achievements`, {
         params: {
@@ -30,14 +26,12 @@ export function getRoleGameAchievements(jx3id) {
     });
 }
 
-// 根据服务器和角色名获取角色成就
 export function getRoleGameAchievementsByRoleAndServer(params) {
     return $next().get(`/api/next2/user-achievements/by-role-and-server`, {
         params,
     });
 }
 
-// 获取奇遇列表
 export function getAdventures(params) {
     return $node().get(`/serendipities`, {
         params: {
@@ -47,7 +41,6 @@ export function getAdventures(params) {
     });
 }
 
-// 获取用户奇遇映射表
 export function getAchievements() {
     return $node().get(`/serendipity/achievements`, {
         client,
