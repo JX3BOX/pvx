@@ -1077,7 +1077,7 @@ export default {
 
     .m-cj-list,
     .el-table__body-wrapper {
-        height: 560px;
+        height: 540px;
         overflow-y: auto;
 
         /* 针对Webkit内核的浏览器 */
