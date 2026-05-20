@@ -175,7 +175,8 @@ export default {
             // 从sessionStorage获取自己的角色列表，使用try catch处理异常
             try {
                 // 从sessionStorage获取自己的角色列表
-                let roles = JSON.parse(sessionStorage.getItem("wiki_my_roles")) || [];
+                let sessionRoles= sessionStorage.getItem("wiki_my_roles")
+                let roles = sessionRoles?JSON.parse(sessionRoles) : [];
                 if (roles.length === 0) {
                     this.roles = await getUserRolesList();
                 } else {

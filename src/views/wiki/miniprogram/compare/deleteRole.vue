@@ -39,7 +39,7 @@ export default {
     props: {
         role: {
             type: Object,
-            default: () => { },
+            default: () => ({}),
         },
         visible: {
             type: Boolean,

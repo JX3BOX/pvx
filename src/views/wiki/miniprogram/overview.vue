@@ -97,7 +97,7 @@
             </div>
         </div>
         <!-- 角色列表 -->
-        <RoleListVue v-model="drawerVisible" :roles="roleList" :currentRole="currentRole"
+        <RoleListVue v-model:visible="drawerVisible" :roles="roleList" :currentRole="currentRole"
             @confirmSelection="handleConfirmSelection">
         </RoleListVue>
     </div>
@@ -718,7 +718,15 @@ export default {
                 }
             }
         }
-
+ // 亲友对比/渡劫方案区域
+    .friend-comparison {
+          .section-title {
+             background: #fedaa3;
+              .title-content {
+                color: #24292e;
+              }
+          }
+    }
         // 总进度条
         .total-progress {
             background-color: #fedaa3;

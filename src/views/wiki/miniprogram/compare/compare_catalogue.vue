@@ -48,12 +48,12 @@
             </div>
         </div>
         <!-- 分类卡片抽屉 -->
-        <CataloguePop v-model="drawerCatalogueVisible" :category="currentCategory" :compareRoles="compareRoles"
+        <CataloguePop v-model:visible="drawerCatalogueVisible" :category="currentCategory" :compareRoles="compareRoles"
              @handleDetailClick="handleDetailClick" :showDetailBtn="showDetailBtn" />
         <!-- 添加对比好友 -->
-        <AddFriend v-model="drawerVisible" @confirmSelection="handleConfirmSelection" />
+        <AddFriend v-model:visible="drawerVisible" @confirmSelection="handleConfirmSelection" />
         <!-- 删除对比角色 -->
-        <DeleteRole v-model="delDrawerVisible" :role="deleteRoleInfo" @deleteRole="handleDeleteRoleConfirm" />
+        <DeleteRole v-model:visible="delDrawerVisible" :role="deleteRoleInfo" @deleteRole="handleDeleteRoleConfirm" />
     </div>
 </template>
 

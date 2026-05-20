@@ -80,11 +80,11 @@ export default {
     props: {
         category: {
             type: Object,
-            default: () => { },
+            default: () => ({}),
         },
         compareRoles: {
             type: Array,
-            default: () => { },
+            default: () => [],
         },
         visible: {
             type: Boolean,
