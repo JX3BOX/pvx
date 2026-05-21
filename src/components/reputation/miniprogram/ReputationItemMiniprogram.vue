@@ -5,7 +5,7 @@
         </div>
         <div class="m-pvx-reputation-name">
             <div class="u-pvx-reputation-name">{{ item.szName }}</div>
-            <div class="u-pvx-reputation-desc--miniprogram">{{ item.szDesc }}</div>
+            <div class="u-pvx-reputation-desc--miniprogram">{{ descText }}</div>
         </div>
     </div>
 </template>
@@ -17,6 +17,11 @@ export default {
     name: "ReputationItemMiniprogram",
     props: {
         item: { type: Object, required: true },
+    },
+    computed: {
+        descText() {
+            return (this.item.szDesc || "").replace(/\\n/g, "");
+        },
     },
     methods: {
         go(id) {
