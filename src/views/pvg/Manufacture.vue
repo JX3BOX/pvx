@@ -205,7 +205,7 @@ export default {
             } else {
                 this.server = this.$store.state.server;
             }
-        });
+        }).catch(() => {});
     },
 };
 </script>
