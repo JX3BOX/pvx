@@ -27,6 +27,7 @@
 
 <script>
 import * as echarts from "echarts";
+import { validateEChartsOption } from "@/utils/echarts-option-validator.js";
 
 export default {
     name: "GoodsPrice",
@@ -61,25 +62,28 @@ export default {
     methods: {
         // 初始化自适应图表
         initChart() {
-            // 创建实例
             this.myChart = echarts.init(this.$refs.chart);
-            // 监听resize事件
             const resizeHandle = () => {
-                this.myChart.resize();
+                if (!this.myChart) return;
+                try {
+                    this.myChart.resize();
+                } catch (e) {
+                    console.error('图表resize失败：', e);
+                }
             };
-            // 监听resize事件
             window.addEventListener("resize", resizeHandle);
             this.resizeHandle = resizeHandle;
         },
         // 设置图表配置项
         setOption() {
             if (!this.myChart) return;
-            if (!this.item.data.length) return;
+            if (!this.item.data || !this.item.data.length) return;
             const { beforeYesterday, yesterday, lastDay } = this.item;
-            const data = [beforeYesterday, yesterday, lastDay];
+            const data = [beforeYesterday, yesterday, lastDay].filter(function (v) { return v !== null && v !== undefined; });
+            if (data.length === 0) return;
             const min = Math.min(...data);
             const max = Math.max(...data);
-            this.myChart.setOption({
+            const option = {
                 xAxis: {
                     show: false,
                     type: "category",
@@ -91,7 +95,6 @@ export default {
                     right: 5,
                     bottom: 5,
                     top: 5,
-                    // containLabel: true,
                 },
                 yAxis: {
                     show: false,
@@ -114,7 +117,14 @@ export default {
                         silent: true,
                     },
                 ],
-            });
+            };
+            const safeOption = validateEChartsOption(option);
+            if (!safeOption) return;
+            try {
+                this.myChart.setOption(safeOption);
+            } catch (error) {
+                console.error('设置图表选项失败：', error);
+            }
         },
     },
     beforeUnmount() {

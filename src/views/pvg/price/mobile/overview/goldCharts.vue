@@ -42,10 +42,11 @@ export default {
             let list = [];
             for (const key in channelMap) {
                 const data = channelMap[key];
-                const lastDay = data[data.length - 1].average.toFixed(2);
-                const yesterday = data[data.length - 2]?.average?.toFixed(2) || 0;
-                const beforeYesterday = data[data.length - 3]?.average?.toFixed(2) || 0;
-                const sum = data.reduce((total, item) => total + item.average, 0);
+                if (!Array.isArray(data) || data.length < 3) continue;
+                const lastDay = data[data.length - 1]?.average?.toFixed(2) ?? 0;
+                const yesterday = data[data.length - 2]?.average?.toFixed(2) ?? 0;
+                const beforeYesterday = data[data.length - 3]?.average?.toFixed(2) ?? 0;
+                const sum = data.reduce((total, item) => total + (item?.average || 0), 0);
                 let recommend;
                 if (key === "DD373") {
                     recommend = ((+lastDay + +yesterday + +beforeYesterday) / 0.9405 / 3).toFixed(2);
@@ -74,7 +75,11 @@ export default {
             this.loading = true;
             getGoldPriceData()
                 .then((res) => {
-                    this.goldPriceData = res.data;
+                    if (res.data && typeof res.data === 'object') {
+                        this.goldPriceData = res.data;
+                    } else {
+                        this.goldPriceData = {};
+                    }
                 })
                 .finally(() => {
                     this.loading = false;

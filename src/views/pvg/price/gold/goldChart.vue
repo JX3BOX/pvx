@@ -34,6 +34,7 @@
 <script>
 import * as echarts from "echarts";
 import { getGoldPriceData } from "@/service/pvg/price.js";
+import { validateEChartsOption } from "@/utils/echarts-option-validator.js";
 let timer;
 export default {
     props: { server: {} },
@@ -72,10 +73,10 @@ export default {
                     continue;
                 }
 
-                const lastDay = data[data.length - 1].average.toFixed(2);
-                const yesterday = data[data.length - 2].average.toFixed(2);
-                const beforeYesterday = data[data.length - 3].average.toFixed(2);
-                const sum = data.reduce((total, item) => total + item.average, 0);
+                const lastDay = data[data.length - 1]?.average?.toFixed(2) ?? 0;
+                const yesterday = data[data.length - 2]?.average?.toFixed(2) ?? 0;
+                const beforeYesterday = data[data.length - 3]?.average?.toFixed(2) ?? 0;
+                const sum = data.reduce((total, item) => total + (item?.average || 0), 0);
                 const newItem = {
                     name: key === "WBL" ? "万宝楼" : key,
                     key,
@@ -215,13 +216,10 @@ export default {
                     return;
                 }
 
-                const seriesData = list.map((item) => {
-                    // 防御性检查
-                    if (!item || typeof item.average !== 'number') {
-                        return null;
-                    }
-
-                    const value = item.average.toFixed(2);
+                const seriesData = list
+                    .filter(function (item) { return item != null && item.average != null; })
+                    .map((item) => {
+                        const value = item.average.toFixed(2);
                     if (value >= maxV) maxV = value;
                     if (value <= minV) minV = value;
                     const date = item.date ? item.date.substring(5) : '';
@@ -231,7 +229,7 @@ export default {
                         name: date,
                         color: this.colorMap[key],
                     };
-                }).filter(item => item !== null); // 过滤掉无效数据
+                });
 
                 series.push({
                     name: key,
@@ -356,8 +354,10 @@ export default {
                 series,
             };
 
+            const safeOption = validateEChartsOption(option);
+            if (!safeOption) return;
             try {
-                this.myChart.setOption(option, true);
+                this.myChart.setOption(safeOption, true);
             } catch (error) {
                 console.error('设置图表选项失败：', error);
                 // 设置失败时销毁图表，防止后续 resize 在损坏状态下触发错误
