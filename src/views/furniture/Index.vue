@@ -83,7 +83,7 @@ export default {
             per: 20,
             pages: 0,
             total: 0,
-            count: 0,
+            count: 5,
             categoryObj: {},
             category: [],
             childCategory: [],
@@ -267,6 +267,9 @@ export default {
                 this.$refs.search.formData.name = "";
                 this.childActive = "";
                 this.active = "";
+                this.search = {};
+                this.list = [];
+                this.childCategory = [];
                 this.getFurnitureSet();
             } else if (this.search.name) {
                 this.$refs.search.formData.nCatag1Index = "1";
@@ -274,7 +277,8 @@ export default {
         },
         search: {
             deep: true,
-            handler: function () {
+            handler: function (val) {
+                if (!val || !Object.keys(val).length) return;
                 this.page = 1;
                 this.getData();
             },
@@ -396,13 +400,17 @@ export default {
                 });
         },
         searchEvent(data) {
-            // 广记会将search置空
-            let isAllEmpty = Object.values(data).every((item) => !item);
-            if (!isAllEmpty) {
-                this.active = data.nCatag1Index;
-                const newData = this.doPrams(data);
-                this.search = newData;
+            if (!data.nCatag1Index) {
+                this.active = "";
+                this.search = {};
+                this.list = [];
+                this.childCategory = [];
+                this.getFurnitureSet();
+                return;
             }
+            this.active = data.nCatag1Index;
+            const newData = this.doPrams(data);
+            this.search = newData;
         },
         loadFurniture() {
             loadFurnitureMatch().then((data) => {

@@ -69,6 +69,13 @@ export default {
             aspect-ratio: 1 / 1;
             border-radius: 10px;
             flex-shrink: 0;
+            overflow: hidden;
+
+            .u-pic {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
         }
     }
     .u-name {

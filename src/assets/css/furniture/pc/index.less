@@ -111,8 +111,9 @@
         .u-image {
             .flex;
             .flex(o);
+            overflow: hidden;
 
-            img {
+            .u-pic {
                 object-fit: contain;
             }
         }
@@ -237,7 +238,11 @@
             .u-furniture-list {
                 .flex;
                 flex-wrap: wrap;
-                gap: 20px;
+                .gap(20px);
+
+                .m-furniture-set {
+                    .w(calc(calc(100% - 140px) / 8));
+                }
 
                 .u-img {
                     .flex;
