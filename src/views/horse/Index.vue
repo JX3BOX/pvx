@@ -36,8 +36,8 @@
                 <div class="u-pvx-horse-type u-pvx-all-type">
                     <div class="u-pvx-horse-title">{{ typeName }}</div>
                     <div v-if="active !== ''" class="m-pvx-horse-operate">
-                        <div class="m-pvx-horse-operate__item" :class="showType === item.value && 'active'" :key="item.value"
-                            v-for="item in showTypes" @click="showType = item.value">
+                        <div class="m-pvx-horse-operate__item" :class="showType === item.value && 'active'"
+                            :key="item.value" v-for="item in showTypes" @click="showType = item.value">
                             {{ item.label }}
                         </div>
                     </div>
@@ -60,8 +60,8 @@
                             :reporter="{ aggregate: listId(subList) }" />
                     </div>
                 </template>
-                <el-button class="m-pvx-horse-archive-more" v-show="hasNextPage" type="primary" plain @click="appendPage"
-                    :loading="loading" icon="el-icon-arrow-down">加载更多</el-button>
+                <el-button class="m-pvx-horse-archive-more" v-show="hasNextPage" type="primary" plain
+                    @click="appendPage" :loading="loading" icon="el-icon-arrow-down">加载更多</el-button>
                 <el-pagination class="m-pvx-horse-archive-pages" background layout="total, prev, pager, next, jumper"
                     :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
                     @current-change="changePage"></el-pagination>
@@ -418,48 +418,49 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/search.less";
-@import "~@/assets/css/common/tabs.less";
-@import "~@/assets/css/horse/pc/index.less";
-@media screen and (max-width: @ipad-y) {
-    .p-pvx-horse {
-        .type-list {
-            width: 100%;
+    @import "~@/assets/css/common/search.less";
+    @import "~@/assets/css/common/tabs.less";
+    @import "~@/assets/css/horse/pc/index.less";
 
-            .type-item {
-                &:first-child {
-                    margin-right: 0 !important;
-                    width: 100% !important;
-                    flex-shrink: 0;
-                }
+    @media screen and (max-width: @ipad-y) {
+        .p-pvx-horse {
+            .type-list {
+                width: 100%;
 
-                &:not(:first-child) {
-                    width: calc(50% - 20px) !important;
+                .type-item {
+                    &:first-child {
+                        margin-right: 0 !important;
+                        width: 100% !important;
+                        flex-shrink: 0;
+                    }
+
+                    &:not(:first-child) {
+                        width: calc(50% - 20px) !important;
+                    }
                 }
             }
-        }
 
-        .pvx-search-wrapper {
-            flex-direction: column;
-            height: auto;
+            .pvx-search-wrapper {
+                flex-direction: column;
+                height: auto;
 
-            .search-group {
-                flex-wrap: wrap;
-                flex-direction: row;
+                .search-group {
+                    flex-wrap: wrap;
+                    flex-direction: row;
 
-                .filter-wrap {
-                    width: 40px;
-                    flex-shrink: 0;
-                    margin-right: 0;
+                    .filter-wrap {
+                        width: 40px;
+                        flex-shrink: 0;
+                        margin-right: 0;
+                    }
+
+                    .input-wrap {
+                        width: calc(100% - 40px);
+                        flex-shrink: 0;
+                    }
+
                 }
-
-                .input-wrap {
-                    width: calc(100% - 40px);
-                    flex-shrink: 0;
-                }
-
             }
         }
     }
-}
 </style>

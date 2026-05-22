@@ -2,7 +2,7 @@
     <div class="m-pvx-horse-broadcast">
         <div class="m-pvx-horse-broadcast__header">
             <div class="u-pvx-horse-title">抓马播报</div>
-            <el-select class="u-select" v-model="server" placeholder="请选择服务器" size="mini">
+            <el-select class="u-select" v-model="server" placeholder="请选择服务器" size="small">
                 <el-option v-for="serve in servers" :key="serve" :label="serve" :value="serve"></el-option>
             </el-select>
         </div>
@@ -12,9 +12,10 @@
                 :datas="(listData[active].mapDatas && listData[active].mapDatas[listData[active].map_id]) || []"></jx3box-map>
             <div class="m-pvx-horse-broadcast__list-items">
                 <div class="m-pvx-horse-broadcast__item" v-for="(item, index) in listData" :key="index">
-                    <div class="m-pvx-horse-broadcast__horse" @click="changeHorse(item, index)" v-if="index < 3 || item.fromTime"
-                        :class="{ active: active === index }">
-                        <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times" :class="item.subtype === 'foreshow' && 'u-pvx-horse-broadcast__times--lately'"
+                    <div class="m-pvx-horse-broadcast__horse" @click="changeHorse(item, index)"
+                        v-if="index < 3 || item.fromTime" :class="{ active: active === index }">
+                        <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times"
+                            :class="item.subtype === 'foreshow' && 'u-pvx-horse-broadcast__times--lately'"
                             v-if="item.fromTime">
                             <span>{{ item.fromTime }}</span>
                             <span> ~ </span>
@@ -22,7 +23,8 @@
                         </div>
                         <span class="u-pvx-horse-broadcast__col u-pvx-horse-name">{{ item.map_name }}</span>
                         <div class="u-pvx-horse-broadcast__col" v-if="item.horses && item.horses.length">
-                            <div class="u-pvx-horse-broadcast__horse-icon" v-for="horse in horseList(item)" :key="horse" @click="go(horse)">
+                            <div class="u-pvx-horse-broadcast__horse-icon" v-for="horse in horseList(item)" :key="horse"
+                                @click="go(horse)">
                                 <el-tooltip class="item" effect="dark" :content="horse" placement="top">
                                     <el-image :src="getImgSrc(horse)" class="u-pvx-horse-image">
                                         <template #error>
@@ -481,5 +483,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/horse/pc/broadcast.less";
+    @import "~@/assets/css/horse/pc/broadcast.less";
 </style>

@@ -7,13 +7,13 @@
             >修改 [ <b>{{ name }}</b> ] 单价</el-divider
         >
         <div class="u-add">
-            <el-input class="u-input" type="number" size="mini" v-model="newPrice.jin"></el-input>
+            <el-input class="u-input" type="number" size="small" v-model="newPrice.jin"></el-input>
             <img :src="`${img}/jin.png`" alt="金" />
-            <el-input class="u-input" type="number" size="mini" v-model="newPrice.yin"></el-input>
+            <el-input class="u-input" type="number" size="small" v-model="newPrice.yin"></el-input>
             <img :src="`${img}/yin.png`" alt="银" />
-            <el-input class="u-input" type="number" size="mini" v-model="newPrice.tong"></el-input>
+            <el-input class="u-input" type="number" size="small" v-model="newPrice.tong"></el-input>
             <img :src="`${img}/tong.png`" alt="铜" />
-            <el-button class="u-button" size="mini" @click="onUpdateCustomPrice">确定</el-button>
+            <el-button class="u-button" size="small" @click="onUpdateCustomPrice">确定</el-button>
         </div>
         <template v-slot:reference>
             <div class="m-price-item">

@@ -10,7 +10,7 @@
                 class="u-del"
                 plain
                 type="info"
-                size="mini"
+                size="small"
                 icon="Delete"
                 @click="onRemove()"
             >
@@ -130,7 +130,7 @@
                                 <el-input-number
                                     :disabled="item.is_material"
                                     v-model="item.yield_count"
-                                    size="mini"
+                                    size="small"
                                     :step="1"
                                     :min="1"
                                     step-strictly
@@ -140,7 +140,7 @@
                                 <span>制作次数：</span>
                                 <el-input-number
                                     v-model="item.count"
-                                    size="mini"
+                                    size="small"
                                     :step="1"
                                     :min="1"
                                     @change="onChangeItemCount(item)"

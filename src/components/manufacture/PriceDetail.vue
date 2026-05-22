@@ -144,7 +144,6 @@ export default {
 
         .u-price {
             flex-grow: 1;
-            width: 0;
             text-align: right;
 
             & > .u-edit {

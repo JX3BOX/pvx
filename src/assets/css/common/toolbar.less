@@ -233,6 +233,19 @@
             box-shadow: @toolbar-shadow;
         }
     }
+    .m-content{
+        .m-daily{
+            .w(100%);
+                .m-daily-item{
+                    .size(100%,auto);
+                    .m-daily-content{
+                      .size(100%,auto);
+                    }
+                }
+        }
+
+    }
+   
 }
 
 // ============================================
@@ -258,10 +271,11 @@
 // ============================================
 
 .v-miniprogram {
+
     .m-common-toolbar {
         .m-toolbar-item {
             .flex;
-            flex-direction: column;
+            // flex-direction: column;
         }
 
         .m-toolbar-item__mobile {
