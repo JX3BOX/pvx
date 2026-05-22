@@ -295,4 +295,50 @@
             background-color: @petColor !important;
         }
     }
+
+    .filter-wrap {
+        .filter-img {
+            &.active {
+                svg {
+                    fill: #fff;
+                    background-color: @petColor;
+                }
+            }
+        }
+    }
+}
+
+.u-pvx-horse-filter {
+    .filter-content {
+        .filter-item {
+            .check-box-wrapper {
+                .el-checkbox-button,
+                .el-radio-button {
+                    &:hover {
+                        .el-checkbox-button__inner,
+                        .el-radio-button__inner {
+                            background-color: @petColor;
+                            color: #fff;
+                        }
+                    }
+
+                    &.is-checked {
+                        .el-checkbox-button__inner {
+                            box-shadow: none;
+                            background-color: @petColor;
+                            color: #fff;
+                        }
+                    }
+
+                    &.is-active {
+                        .el-radio-button__inner {
+                            box-shadow: none;
+                            background-color: @petColor;
+                            color: #fff;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

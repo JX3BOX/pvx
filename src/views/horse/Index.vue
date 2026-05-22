@@ -1,6 +1,6 @@
 <template>
     <div class="p-pvx-horse">
-        <PvxSearch v-if="searchReady" class="m-pvx-horse-tabs" :items="searchItems" :initValue="searchInitValue"
+        <PvxSearch v-if="searchReady" class="m-pvx-horse-tabs" popperClass="u-pvx-horse-filter" :items="searchItems" :initValue="searchInitValue"
             @search="handleSearch">
         </PvxSearch>
         <div class="m-pvx-horse-content" ref="listRef" v-loading="loading">
