@@ -328,7 +328,7 @@ export default {
             if (!User.isLogin()) {
                 this.$confirm("请先登录").then(() => {
                     User.toLogin(window.location.href);
-                });
+                }).catch(() => {});
                 return;
             }
 

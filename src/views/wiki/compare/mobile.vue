@@ -267,7 +267,7 @@ export default {
             if (!User.isLogin()) {
                 this.$confirm("请先登录").then((_) => {
                     User.toLogin(window.location.href);
-                });
+                }).catch(() => {});
                 return;
             }
             getUserRoles().then((res) => {
