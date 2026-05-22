@@ -18,7 +18,6 @@ export default {
         mobile() {
             const userAgent = navigator.userAgent.toLowerCase();
             const mobileKeywords = ["android", "iphone", "ipad", "ipod", "windows phone"];
-console.log(userAgent,mobileKeywords)
             console.log(mobileKeywords.some((keyword) => userAgent.includes(keyword)));
             return mobileKeywords.some((keyword) => userAgent.includes(keyword));
         },

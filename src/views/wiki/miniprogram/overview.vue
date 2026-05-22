@@ -242,7 +242,9 @@ export default {
         },
         getUserInfo() {
             if (!User.isLogin()) {
-                this.$confirm("请先登录再使用");
+                this.$confirm("请先登录再使用").then((_) => {
+                  
+                }).catch(() => {});
                 return;
             }
             getMyInfo().then((res) => {
