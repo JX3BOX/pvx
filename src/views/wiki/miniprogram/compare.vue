@@ -158,27 +158,33 @@ export default {
         async init() {
             //设置加载中
             this.loading = true;
-            //初始化菜单及成就点列表
-            let menuAndPoints = await getMenuAndPoints(this.$store.state.client);
-            this.menuList = menuAndPoints.menuList || [];
-            this.pointsData = menuAndPoints.pointsList || [];
-            //初始化我的角色列表
-            this.roles = await getUserRolesList();
-            //获取jx3id
-            let jx3id = this.$route.query.jx3id;
-            if (jx3id) {
-                let role = this.roles.find(role => role.jx3id == jx3id);
-                if (role) {
-                    this.compareRoles.push(role);
+            try {
+                //初始化菜单及成就点列表
+                let menuAndPoints = await getMenuAndPoints(this.$store.state.client);
+                this.menuList = menuAndPoints.menuList || [];
+                this.pointsData = menuAndPoints.pointsList || [];
+                //初始化我的角色列表
+                this.roles = await getUserRolesList();
+                //获取jx3id
+                let jx3id = this.$route.query.jx3id;
+                if (jx3id) {
+                    let role = this.roles.find(role => role.jx3id == jx3id);
+                    if (role) {
+                        this.compareRoles.push(role);
+                    }
+                } else {
+                    //如果没有jx3id，默认对比第一个角色
+                    if (this.roles.length > 0) {
+                        this.compareRoles.push(this.roles[0]);
+                    }
                 }
-            } else {
-                //如果没有jx3id，默认对比第一个角色
-                if (this.roles.length > 0) {
-                    this.compareRoles.push(this.roles[0]);
+                //初始化我的角色成就信息
+                if (this.compareRoles.length > 0) {
+                    await this.loadRoleAchievements(this.compareRoles[0].jx3id);
                 }
+            } catch (e) {
+                console.error(e);
             }
-            //初始化我的角色成就信息
-            await this.loadRoleAchievements(this.compareRoles[0].jx3id)
             //设置加载完成
             this.loading = false;
         },
@@ -315,7 +321,7 @@ export default {
                     allAchievements: allData.allAchievements, //根据菜单梳理所有成就ID
                     ownAchievements: allData.ownAchievements, //角色在该分类下完成的成就
                     ownPoints: allData.ownPoints, //当前菜单完成的成就点数
-                    progress: (allData.ownPoints / allData.allPoints * 100).toFixed(2), //当前菜单完成进度
+                    progress: allData.allPoints ? (allData.ownPoints / allData.allPoints * 100).toFixed(2) : '0.00', //当前菜单完成进度
                 }) //角色的成就数据
                 return {
                     sub: item.sub,
@@ -344,7 +350,7 @@ export default {
             this.compareRoles[index].totalOwnAchievements = totalOwnAchievements;
             this.compareRoles[index].totalAllPoints = list.reduce((acc, item) => acc + item.allPoints, 0);
             this.compareRoles[index].totalOwnPoints = this.compareAchievements.reduce((acc, item) => acc + (this.pointsData[item] || 0), 0);
-            this.compareRoles[index].totalProgress = (this.compareRoles[index].totalOwnPoints / this.compareRoles[index].totalAllPoints * 100).toFixed(2);
+            this.compareRoles[index].totalProgress = this.compareRoles[index].totalAllPoints ? (this.compareRoles[index].totalOwnPoints / this.compareRoles[index].totalAllPoints * 100).toFixed(2) : '0.00';
         },
         // 回调获取所有成就
         getAllAchievementsData(
