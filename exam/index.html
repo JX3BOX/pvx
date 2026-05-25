@@ -1,4 +1,16 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta name="renderer" content="webkit"/><title>剑三考试 - JX3BOX</title><link rel="icon" href="https://cdn.jx3box.com/static/pvx/favicon.ico"/><script defer="defer" src="https://cdn.jx3box.com/static/pvx/js/chunk-vendors.aa02243e.js"></script><script defer="defer" src="https://cdn.jx3box.com/static/pvx/js/chunk-common.057c75bd.js"></script><script defer="defer" src="https://cdn.jx3box.com/static/pvx/js/exam.aaadc976.js"></script><link href="https://cdn.jx3box.com/static/pvx/css/chunk-vendors.3e70b7a3.css" rel="stylesheet"><link href="https://cdn.jx3box.com/static/pvx/css/exam.111c97c5.css" rel="stylesheet"></head><body><div id="app"></div><div id="c-ie-tips" style="display: none;
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta name="renderer" content="webkit"/><title>剑三考试 - JX3BOX</title><link rel="icon" href="https://cdn.jx3box.com/static/pvx/favicon.ico"/><script>// 安全拦截 JSON.parse，防止 sessionStorage/localStorage 中的脏数据导致运行时崩溃
+            // 必须在 webpack 模块加载之前执行，否则 @jx3box/jx3box-ui 等第三方组件的裸 JSON.parse 会报错
+            (function () {
+                var _orig = JSON.parse;
+                var unsafe = { undefined: 1 };
+                JSON.parse = function (text, reviver) {
+                    if (unsafe[text] === 1) {
+                        console.warn('[safeJSONParse] 拦截无效 JSON: "' + text + '"\n' + new Error().stack);
+                        return reviver ? _orig.call(JSON, '{}', reviver) : {};
+                    }
+                    return _orig.call(JSON, text, reviver);
+                };
+            })();</script><script defer="defer" src="https://cdn.jx3box.com/static/pvx/js/chunk-vendors.7261f477.js"></script><script defer="defer" src="https://cdn.jx3box.com/static/pvx/js/chunk-common.6c82982a.js"></script><script defer="defer" src="https://cdn.jx3box.com/static/pvx/js/exam.c5a40ebd.js"></script><link href="https://cdn.jx3box.com/static/pvx/css/chunk-vendors.fe2034b9.css" rel="stylesheet"><link href="https://cdn.jx3box.com/static/pvx/css/exam.774d3b40.css" rel="stylesheet"></head><body><div id="app"></div><div id="c-ie-tips" style="display: none;
                 background-color: #fef0f0;
                 color: #f56c6c;
                 padding: 10px;
