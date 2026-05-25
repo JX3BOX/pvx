@@ -164,6 +164,7 @@ export default {
         }
     },
     mounted() {
+        if (!this.isLogin) return;
         getUserRoles().then((res) => {
             if (res.data.data.list.length) {
                 this.noRole = false;
@@ -176,7 +177,11 @@ export default {
                 }
             } else {
                 this.noRole = true;
-                this.$message.error("未获取到角色信息");
+                try {
+                    this.$message.error("未获取到角色信息");
+                } catch (e) {
+                    console.log(e);
+                }
             }
         });
     },

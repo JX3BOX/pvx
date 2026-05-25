@@ -8,9 +8,8 @@
                 <slot name="action"> </slot>
             </div>
         </div>
-        <div class="m-card-banner-list_box" :count="count" :minw="minw" :isPhone="isPhone()">
-            <div class="m-cardlist-items" :style="`grid-template-columns: repeat( ${isPhone() ? 8 : count}, ${isPhone() ? minw + 'px' : '1fr'
-                }  )`">
+        <div class="m-card-banner-list_box" :count="count" :minw="minw">
+            <div class="m-cardlist-items" :style="`grid-template-columns: repeat(${count}, 1fr)`">
                 <div class="m-cardlist-item" v-for="(item, index) in list" :key="index">
                     <!-- 调用渲染函数来渲染子元素 -->
                     <slot :item="item" :index="index">
@@ -27,8 +26,6 @@
 </template>
 
 <script>
-import { isPhone } from "@/utils";
-
 export default {
     name: "CardBannerList",
     props: ["data", "count", "items", "minw"],
@@ -37,7 +34,6 @@ export default {
         return {
             fill: "#E1E1E1",
             number: 0,
-            isPhone,
         };
     },
     computed: {

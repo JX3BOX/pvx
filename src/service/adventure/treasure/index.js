@@ -43,6 +43,8 @@ export function getAdventures(params) {
 
 export function getAchievements() {
     return $node().get(`/serendipity/achievements`, {
-        client,
+        params: {
+            client,
+        },
     });
 }

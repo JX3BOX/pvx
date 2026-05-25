@@ -45,7 +45,6 @@ import CardBannerList from "@/components/common/card_banner_list.vue";
 import AdventureTabs from "@/components/adventure/tabs.vue";
 import AdventureItem from "@/components/adventure/item.vue";
 import { getAdventures } from "@/service/adventure/adventure";
-import { isPhone } from "@/utils/index";
 import dayjs from "@/utils/day";
 export default {
     name: "adventureList",
@@ -168,13 +167,21 @@ export default {
             this.showCount();
         },
         showCount() {
-            if (isPhone()) {
-                this.per = 8;
-                return;
-            }
             const listWidth = this.$refs.listRef?.clientWidth || 1200;
             const cardWidth = Number(this.itemData.width);
             const gridGap = 12;
+
+            if (listWidth <= 520) {
+                this.count = 1;
+                this.per = 8;
+                return;
+            }
+            if (listWidth <= 1024) {
+                this.count = 2;
+                this.per = 16;
+                return;
+            }
+
             if (this.active === "all") {
                 const availableWidth = listWidth - 120;
                 this.count = Math.max(Math.floor(availableWidth / (cardWidth + gridGap)), 1);
