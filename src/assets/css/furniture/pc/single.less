@@ -352,3 +352,271 @@
 .m-furniture-wiki {
     .mt(20px);
 }
+
+.p-furniture-single.is-robot {
+    padding: 0;
+
+    .m-pvx-furniture-robot__header {
+        .flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        min-height: 72px;
+
+        .m-title {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .u-title {
+            .bold;
+            font-size: 22px;
+            line-height: 1.35;
+            color: #fff;
+            word-break: break-all;
+
+            &.quality_2 {
+                color: #00d24b;
+            }
+
+            &.quality_3 {
+                color: #007eff;
+            }
+
+            &.quality_4 {
+                color: #ff2dff;
+            }
+
+            &.quality_5 {
+                color: #ffa500;
+            }
+        }
+
+        .m-meta {
+            .flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .u-meta {
+            .dbi;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 3px 6px;
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 11px;
+            line-height: 16px;
+        }
+
+    }
+
+    .m-pvx-furniture-robot__body {
+        .flex;
+        gap: 10px;
+        margin-top: 10px;
+
+        .m-pvx__item {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    .m-pvx-furniture-robot__attrs,
+    .m-pvx-furniture-robot__info,
+    .m-pvx-furniture-robot__source,
+    .m-pvx-furniture-robot__set {
+        .u-title {
+            .bold;
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 14px;
+            line-height: 20px;
+        }
+    }
+
+    .m-pvx-furniture-robot__attrs {
+        .u-attrs {
+            .flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .u-attr {
+            .dbi;
+            min-width: 64px;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 12px;
+            line-height: 20px;
+        }
+
+        .u-label {
+            .dbi;
+            .r(3px);
+            min-width: 30px;
+            margin-right: 5px;
+            padding: 1px 4px;
+            color: #fff;
+            font-size: 11px;
+            line-height: 18px;
+            text-align: center;
+        }
+
+        .blue {
+            background: #4f8cab;
+        }
+
+        .pink {
+            background: #b85a78;
+        }
+
+        .yellow {
+            background: #a98250;
+        }
+
+        .green {
+            background: #4a9a82;
+        }
+
+        .purple {
+            background: #8d5aaa;
+        }
+    }
+
+    .m-pvx-furniture-robot__info {
+        .u-list {
+            display: grid;
+            gap: 6px;
+        }
+
+        .u-item {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 12px;
+            line-height: 20px;
+        }
+
+        .u-scale {
+            b::after {
+                content: "~";
+            }
+
+            b:last-child::after {
+                content: "";
+            }
+        }
+
+        .u-dyes {
+            .dbi;
+            vertical-align: -3px;
+        }
+
+        .u-dye {
+            .dbi;
+            .size(14px);
+            .r(50%);
+            margin-right: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+    }
+
+    .m-pvx-furniture-robot__set {
+        margin-top: 10px;
+
+        .u-desc {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .u-set-list {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .u-set-item {
+            .r(6px);
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            box-sizing: border-box;
+
+            &.is-current {
+                border-color: rgba(255, 168, 0, 0.7);
+                background: rgba(255, 168, 0, 0.12);
+            }
+        }
+
+        .u-set-img {
+            .size(56px);
+            .r(6px);
+            .flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 6px;
+            background: url("../../../../assets/img/horse/horse_item_bg_sm.jpg") center center / cover no-repeat;
+            overflow: hidden;
+
+            img {
+                max-width: 50px;
+                max-height: 50px;
+                display: block;
+            }
+        }
+
+        .u-set-name {
+            .nobreak;
+            color: rgba(255, 255, 255, 0.86);
+            font-size: 11px;
+            line-height: 16px;
+            text-align: center;
+        }
+
+        .u-set-type {
+            .nobreak;
+            margin-top: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            line-height: 14px;
+            text-align: center;
+        }
+    }
+
+    .m-pvx-furniture-robot__source {
+        .u-source {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 12px;
+            line-height: 20px;
+            word-break: break-all;
+        }
+    }
+
+    .m-pvx-furniture-robot__wiki {
+        margin-top: 10px;
+
+        .u-wiki-title {
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+
+            span {
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 12px;
+                font-weight: normal;
+            }
+        }
+    }
+
+    .u-empty {
+        color: rgba(255, 255, 255, 0.48);
+        font-size: 12px;
+        line-height: 20px;
+    }
+
+    .w-pvx-user > div {
+        margin-top: 10px !important;
+    }
+}

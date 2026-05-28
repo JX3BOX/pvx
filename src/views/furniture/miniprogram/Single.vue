@@ -89,8 +89,8 @@
                 :source_id="wiki_source_id"
                 :type="type"
                 :id="id"
-                title="家具攻略"
-                :source_title="data.szName"
+                :title="wiki_title"
+                :source_title="wiki_source_title"
             ></Wiki>
         </div>
         <WikiComments
@@ -158,14 +158,24 @@ export default {
         },
         wiki_source_type: function () {
             if (!this.data) return "";
-            return this.other_id ? "item" : "";
+            if (this.other_id) return "item";
+            if (this.achieve_id) return "achievement";
+            return "";
         },
         wiki_source_id: function () {
             if (!this.data) return "";
-            return this.other_id ? this.item_id : "";
+            if (this.other_id) return this.item_id;
+            if (this.achieve_id) return this.achieve_id;
+            return "";
         },
         wiki_source_key: function () {
             return `${this.wiki_source_type}-${this.wiki_source_id}`;
+        },
+        wiki_title: function () {
+            return this.wiki_source_type === "achievement" ? "成就攻略" : "家具攻略";
+        },
+        wiki_source_title: function () {
+            return this.wiki_source_type === "achievement" ? this.setData?.szName || this.data?.szName : this.data?.szName;
         },
         comment_source_type: function () {
             return this.wiki_source_type;
@@ -252,6 +262,8 @@ export default {
         // ==============
         getData() {
             this.loading = true;
+            this.setData = "";
+            this.colorData = "";
             getFurnitureDetail(this.id)
                 .then((res) => {
                     this.data = res.data;
