@@ -82,17 +82,24 @@
             </div>
         </div>
         <!-- 攻略 -->
-        <div class="m-furniture-wiki" v-if="other_id">
+        <div class="m-furniture-wiki" v-if="wiki_source_id">
             <Wiki
-                source_type="item"
-                :source_id="item_id"
+                :key="wiki_source_key"
+                :source_type="wiki_source_type"
+                :source_id="wiki_source_id"
                 :type="type"
                 :id="id"
                 title="家具攻略"
                 :source_title="data.szName"
             ></Wiki>
         </div>
-        <WikiComments type="item" :source-id="String(id)" />
+        <WikiComments
+            v-if="comment_source_id"
+            :key="comment_source_key"
+            :type="comment_source_type"
+            :source-id="String(comment_source_id)"
+        />
+        <Comment v-else-if="id" :key="'furniture-comment-' + id" :id="id" :category="type" order="desc" />
     </div>
 </template>
 <script>
@@ -109,10 +116,11 @@ import { getLink } from "@jx3box/jx3box-common/js/utils";
 import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import User from "@jx3box/jx3box-common/js/user";
 import { addFav, delFav, hasFav } from "@jx3box/jx3box-ui/service/fav";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 
 export default {
     name: "FurnitureSingle",
-    components: { WikiComments, Wiki, SuspendCommon },
+    components: { WikiComments, Wiki, SuspendCommon, Comment },
     inject: ["__imgRoot"],
     data() {
         return {
@@ -147,6 +155,32 @@ export default {
         },
         set_id: function () {
             return this.data?.SetID;
+        },
+        wiki_source_type: function () {
+            if (!this.data) return "";
+            return this.other_id ? "item" : "";
+        },
+        wiki_source_id: function () {
+            if (!this.data) return "";
+            return this.other_id ? this.item_id : "";
+        },
+        wiki_source_key: function () {
+            return `${this.wiki_source_type}-${this.wiki_source_id}`;
+        },
+        comment_source_type: function () {
+            return this.wiki_source_type;
+        },
+        comment_source_id: function () {
+            return this.wiki_source_id;
+        },
+        comment_source_key: function () {
+            return `${this.comment_source_type}-${this.comment_source_id}`;
+        },
+        fav_title: function () {
+            return this.data?.szName || this.setData?.szName || "";
+        },
+        fav_author_id: function () {
+            return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
         },
 
         has_extend: function () {
@@ -200,7 +234,7 @@ export default {
             });
         },
         addFav: function () {
-            addFav(this.type, this.id, this.setData.szName).then((res) => {
+            addFav(this.type, this.id, this.fav_title, this.fav_author_id).then((res) => {
                 this.favorite = res.id;
             });
         },

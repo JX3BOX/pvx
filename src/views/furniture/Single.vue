@@ -75,7 +75,13 @@
                         成就信息
                     </a>
                     <!-- 收藏按钮 -->
-                    <Fav class="u-collect" post-type="furniture" :post-id="id" :post-title="data && data.szName" />
+                    <Fav
+                        class="u-collect"
+                        post-type="furniture"
+                        :post-id="id"
+                        :post-title="data && data.szName"
+                        :author_id="fav_author_id"
+                    />
                 </div>
             </div>
             <div class="u-img">
@@ -114,17 +120,24 @@
         </div>
 
         <!-- 攻略 -->
-        <div class="m-furniture-wiki" v-if="other_id">
+        <div class="m-furniture-wiki" v-if="wiki_source_id">
             <Wiki
-                source_type="item"
-                :source_id="item_id"
+                :key="wiki_source_key"
+                :source_type="wiki_source_type"
+                :source_id="wiki_source_id"
                 :type="type"
                 :id="id"
                 title="家具攻略"
                 :source_title="data.szName"
             ></Wiki>
         </div>
-        <WikiComments type="item" :source-id="String(id)" />
+        <WikiComments
+            v-if="comment_source_id"
+            :key="comment_source_key"
+            :type="comment_source_type"
+            :source-id="String(comment_source_id)"
+        />
+        <Comment v-else-if="id" :key="'furniture-comment-' + id" :id="id" :category="type" order="desc" />
     </div>
 </template>
 
@@ -133,8 +146,10 @@ import furnitureSet from "@/components/furniture/furniture_set.vue";
 import Wiki from "@/components/wiki/Wiki.vue";
 import furnitureMaterials from "@/components/furniture/furniture_materials.vue";
 import Fav from "@jx3box/jx3box-ui/src/interact/Fav.vue";
+import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 
 import { getLink } from "@jx3box/jx3box-common/js/utils";
+import User from "@jx3box/jx3box-common/js/user";
 
 import { getFurnitureDetail, getSetList, getFurnitureColor } from "@/service/furniture.js";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
@@ -152,6 +167,7 @@ export default {
         furnitureSet,
         furnitureMaterials,
         Fav,
+        Comment,
         // ListCross,
         WikiComments,
     },
@@ -183,6 +199,29 @@ export default {
         },
         set_id: function () {
             return this.data?.SetID;
+        },
+        wiki_source_type: function () {
+            if (!this.data) return "";
+            return this.other_id ? "item" : "";
+        },
+        wiki_source_id: function () {
+            if (!this.data) return "";
+            return this.other_id ? this.item_id : "";
+        },
+        wiki_source_key: function () {
+            return `${this.wiki_source_type}-${this.wiki_source_id}`;
+        },
+        comment_source_type: function () {
+            return this.wiki_source_type;
+        },
+        comment_source_id: function () {
+            return this.wiki_source_id;
+        },
+        comment_source_key: function () {
+            return `${this.comment_source_type}-${this.comment_source_id}`;
+        },
+        fav_author_id: function () {
+            return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
         },
 
         has_extend: function () {
