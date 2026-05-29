@@ -99,7 +99,6 @@
             :type="comment_source_type"
             :source-id="String(comment_source_id)"
         />
-        <Comment v-else-if="id" :key="'furniture-comment-' + id" :id="id" :category="type" order="desc" />
     </div>
 </template>
 <script>
@@ -116,11 +115,10 @@ import { getLink } from "@jx3box/jx3box-common/js/utils";
 import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import User from "@jx3box/jx3box-common/js/user";
 import { addFav, delFav, hasFav } from "@jx3box/jx3box-ui/service/fav";
-import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 
 export default {
     name: "FurnitureSingle",
-    components: { WikiComments, Wiki, SuspendCommon, Comment },
+    components: { WikiComments, Wiki, SuspendCommon },
     inject: ["__imgRoot"],
     data() {
         return {
@@ -172,7 +170,9 @@ export default {
             return `${this.wiki_source_type}-${this.wiki_source_id}`;
         },
         wiki_title: function () {
-            return this.wiki_source_type === "achievement" ? "成就攻略" : "家具攻略";
+            if (this.wiki_source_type === "item") return "物品攻略";
+            if (this.wiki_source_type === "achievement") return "成就攻略";
+            return "";
         },
         wiki_source_title: function () {
             return this.wiki_source_type === "achievement" ? this.setData?.szName || this.data?.szName : this.data?.szName;

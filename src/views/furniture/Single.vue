@@ -138,7 +138,6 @@
             :type="comment_source_type"
             :source-id="String(comment_source_id)"
         />
-        <Comment v-else-if="id" :key="'furniture-comment-' + id" :id="id" :category="type" order="desc" />
         </template>
         <template v-else>
             <div class="m-pvx__item m-pvx-furniture-robot__header">
@@ -226,10 +225,6 @@
                 :type="robot_wiki_type"
                 :is-robot="true"
             />
-            <div class="m-pvx-furniture-robot__wiki" v-else-if="data && id">
-                <div class="u-wiki-title">家具攻略<span>（以魔盒在线版本为准）</span></div>
-                <div class="m-wiki-post-empty is-robot-empty">暂无相关攻略，欢迎热心侠士前往补充。</div>
-            </div>
         </template>
     </div>
 </template>
@@ -239,7 +234,6 @@ import furnitureSet from "@/components/furniture/furniture_set.vue";
 import Wiki from "@/components/wiki/Wiki.vue";
 import furnitureMaterials from "@/components/furniture/furniture_materials.vue";
 import Fav from "@jx3box/jx3box-ui/src/interact/Fav.vue";
-import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import PvxUser from "@/components/PvxUser.vue";
 
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
@@ -275,7 +269,6 @@ export default {
         furnitureSet,
         furnitureMaterials,
         Fav,
-        Comment,
         PvxUser,
         // ListCross,
         WikiComments,
@@ -329,7 +322,9 @@ export default {
             return `${this.wiki_source_type}-${this.wiki_source_id}`;
         },
         wiki_title: function () {
-            return this.wiki_source_type === "achievement" ? "成就攻略" : "家具攻略";
+            if (this.wiki_source_type === "item") return "物品攻略";
+            if (this.wiki_source_type === "achievement") return "成就攻略";
+            return "";
         },
         wiki_source_title: function () {
             return this.wiki_source_type === "achievement" ? this.setData?.szName || this.data?.szName : this.data?.szName;
@@ -350,7 +345,7 @@ export default {
             return this.wiki_source_id;
         },
         robot_wiki_name: function () {
-            return this.robot_wiki_type === "achievement" ? "成就" : "家具";
+            return this.robot_wiki_type === "achievement" ? "成就" : "物品";
         },
         fav_author_id: function () {
             return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
