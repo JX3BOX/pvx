@@ -81,6 +81,12 @@ const pages = {
         template: "public/index.html",
         filename: "qqbot/index.html",
     },
+    jxl: {
+        title: "剑侠录 - JX3BOX",
+        entry: "src/pages/jxl/index.js",
+        template: "public/index.html",
+        filename: "jxl/index.html",
+    },
 };
 
 const path = require("path");

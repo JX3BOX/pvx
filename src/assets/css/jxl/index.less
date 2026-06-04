@@ -1,0 +1,96 @@
+// ============================================
+// 剑侠录模块样式 - 主入口
+// ============================================
+// 命名规范：p-pvx-jxl（页面级前缀）
+// 模块级：m-jxl-xxx
+// 元素级：u-jxl-xxx
+// ============================================
+
+// ==================== 变量定义 ====================
+// 以下数值根据 Figma 设计稿精确还原
+
+// 左侧导航栏宽度（精确值）
+// Component 18 宽度: 280px
+@jxl-sidebar-width: 280px;
+@jxl-sidebar-width-ipad: 240px;
+@jxl-sidebar-width-phone: 200px;
+@jxl-sidebar-width-miniprogram: 5rem;
+
+// 主内容区域间距
+// Figma 节点 3135-240: padding=40px 40px 32px 40px, gap=40px
+@jxl-main-gap: 40px;
+
+// ==================== 页面主容器 ====================
+
+.p-pvx-jxl {
+
+    // 页面导航栏
+    .p-nav {
+        // 导航栏样式覆写（如需要）
+    }
+
+    // 主内容区域
+    // Figma 节点 3135-240: 使用 flex 布局，padding=140px 40px 40px, gap=40px
+    .m-main {
+        min-height: 100vh;
+        padding: 40px 40px 32px 40px;
+        box-sizing: border-box;
+        display: flex;
+        position: relative;
+
+        // 左侧导航栏：固定定位，在 sidebar.less 中定义
+        // .m-pvx-jxl-sidebar
+
+        // 右侧内容区：自适应布局
+        // Figma 节点 3135-240: margin-left = sidebar-width + gap
+        .m-pvx-jxl-content {
+            flex: 1;
+            margin-left: @jxl-sidebar-width + @jxl-main-gap;
+            min-width: 0; // 防止 flex 子项溢出
+            box-sizing: border-box;
+        }
+    }
+}
+
+// ==================== 响应式适配 - iPad ====================
+@media screen and (max-width: @ipad) {
+    .p-pvx-jxl {
+        .m-main {
+            padding-left: 20px;
+            padding-right: 20px;
+
+            .m-pvx-jxl-content {
+                margin-left: @jxl-sidebar-width-ipad + 15px; // iPad 端 gap 调整为 15px
+            }
+        }
+    }
+}
+
+// ==================== 响应式适配 - Phone ====================
+@media screen and (max-width: @phone) {
+    .p-pvx-jxl {
+        .m-main {
+            padding-left: 15px;
+            padding-right: 15px;
+
+            .m-pvx-jxl-content {
+                margin-left: @jxl-sidebar-width-phone + 10px; // Phone 端 gap 调整为 10px
+            }
+        }
+    }
+}
+
+// ==================== 小程序端适配 ====================
+.v-miniprogram {
+    .p-pvx-jxl {
+        .m-main {
+            padding-top: 0;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+
+            .m-pvx-jxl-content {
+                margin-left: @jxl-sidebar-width-miniprogram + 0.5rem; // 小程序端 gap 调整为 0.5rem
+            }
+        }
+    }
+}

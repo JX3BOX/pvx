@@ -14,6 +14,19 @@ const routes = [
             },
         },
     },
+    // ===== 剑侠录 =====
+    {
+        name: "jxl",
+        path: "/jxl",
+        component: () => import("@/views/jxl/Index.vue"),
+        meta: {
+            i18n: {
+                title: "pages.jxl.title",
+                keywords: "pages.jxl.keywords",
+                description: "pages.jxl.description",
+            },
+        },
+    },
     // ===== 奇遇珍卷 =====
     {
         name: "adventure",
