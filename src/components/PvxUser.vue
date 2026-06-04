@@ -324,6 +324,18 @@ export default {
         .none;
     }
 
+    .m-wiki-post-panel.is-robot {
+        .c-wiki-panel {
+            color: #24292e;
+        }
+
+        .m-wiki-metas {
+            .u-value {
+                color: #24292e;
+            }
+        }
+    }
+
     .m-pvx-wiki-title {
         margin-top: 10px;
 

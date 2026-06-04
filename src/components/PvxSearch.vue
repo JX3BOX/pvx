@@ -213,10 +213,8 @@ export default {
             const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
             filterOptions.forEach((item) => {
                 if (item.type === "radio") {
-                    const firstOption = item.options[0];
-                    if (firstOption) {
-                        this.formData[item.key] = firstOption.key;
-                    }
+                    const resetOption = item.options.find((option) => option.key === "" || option.value === "全部");
+                    this.formData[item.key] = resetOption ? resetOption.key : "";
                 } else if (item.type === "checkbox") {
                     const allOption = item.options.find((opt) => opt.value === "all");
                     if (allOption) {

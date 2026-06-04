@@ -1,25 +1,5 @@
 import { getRoleGameAchievements, getAdventures, getAchievements } from "@/service/adventure/treasure/index.js";
-
-const perfectAchievement = {
-    1: { hasClass: "sssh", zIndex: 1 },
-    90: { hasClass: "lnrh", zIndex: 2 },
-    135: { hasClass: "fgzm", zIndex: 3 },
-    111: { hasClass: "zhg", zIndex: 4 },
-    154: { hasClass: "gdsg", zIndex: 5 },
-    3: { hasClass: "yylj", zIndex: 6 },
-    21: { hasClass: "swbj", zIndex: 7 },
-    126: { hasClass: "swxf", zIndex: 8 },
-    88: { hasClass: "xxjt", zIndex: 9 },
-    142: { hasClass: "gsyj", zIndex: 10 },
-    136: { hasClass: "kwyh", zIndex: 11 },
-    106: { hasClass: "qqj", zIndex: 12 },
-    83: { hasClass: "zzwg", zIndex: 13 },
-    66: { hasClass: "jcs", zIndex: 14 },
-    2: { hasClass: "scqf", zIndex: 15 },
-    78: { hasClass: "tjh", zIndex: 16 },
-    121: { hasClass: "rjg", zIndex: 17 },
-    104: { hasClass: "wldg", zIndex: 18 },
-};
+import { getAdventureTreasureLayout, getTreasurePerfectItems } from "@/assets/js/treasure/layout.js";
 
 let formatDateTime = (dateTimeString) => {
     const dateTime = new Date(dateTimeString);
@@ -34,79 +14,106 @@ let formatDateTime = (dateTimeString) => {
     return formattedDateTime;
 };
 
-let getData = (userJx3Id) => {
-    return new Promise((resolve, reject) => {
-        var returnData = {
-            pet: [],
-            normal: [],
-            perfect: [],
-        };
+function getAchievedAdventureIds(achievements = "", achievementMap = []) {
+    const achievementIds = String(achievements || "").split(",");
+    return new Set(
+        (achievementMap || [])
+            .filter((item) => achievementIds.includes(String(item.achievement_id)))
+            .map((item) => Number(item.adventure_id))
+    );
+}
 
-        Promise.all([getRoleGameAchievements(userJx3Id), getAchievements()]).then(([res, mapRule]) => {
-            const achievements = res.data?.data?.achievements || "";
-            let list = achievements.split(",");
-            let newList = [];
-            mapRule.data.map((item) => {
-                if (list.includes(String(item.achievement_id))) {
-                    newList.push(item.adventure_id);
-                }
-            });
-            list = newList;
-            if (res.data?.data?.updated_at) {
-                returnData.updated_at = formatDateTime(res.data?.data?.updated_at);
-            } else {
-                returnData.updated_at = "暂无记录";
-            }
-            const adventureTypes = ["pet", "normal", "perfect"];
-            const adventurePromises = adventureTypes.map((type) => {
-                return getAdventures({
-                    type,
-                    _no_page: 1,
-                }).then((res) => {
-                    const achievementsList = [];
-                    let actNum = 0;
-                    let unNum = 0;
-                    res?.data?.list?.forEach((item) => {
-                        if (type == "perfect") {
-                            try {
-                                item.isAct = false;
-                                if (list.includes(item.dwID)) {
-                                    item.isAct = true;
-                                    actNum++;
-                                }
-                                achievementsList.push({
-                                    ...item,
-                                    ...perfectAchievement[item.dwID],
-                                });
-                            } catch (error) {
-                                unNum++;
-                            }
-                        } else {
-                            if (list.includes(item.dwID)) {
-                                achievementsList.push(item);
-                                actNum++;
-                            }
-                        }
-                    });
-                    returnData[`${type}AllNum`] = (res?.data?.list?.length || 0) - unNum;
-                    returnData[`${type}NowNum`] = actNum;
-                    returnData[type] = achievementsList;
-                });
-            });
+function buildPerfectAchievements(adventureList = [], achievedIds, layout) {
+    const adventureMap = (adventureList || []).reduce((map, item) => {
+        const id = Number(item.dwID);
+        if (id) map[id] = item;
+        return map;
+    }, {});
+    const achievementsList = [];
+    let actNum = 0;
 
-            Promise.all(adventurePromises)
-                .then(() => {
-                    returnData.progress =
-                        (returnData.petNowNum + returnData.normalNowNum + returnData.perfectNowNum) /
-                        (returnData.petAllNum + returnData.normalAllNum + returnData.perfectAllNum);
-                    returnData.progress = (returnData.progress * 100).toFixed(2);
-                    resolve(returnData);
-                })
-                .catch((error) => {
-                    reject(error);
-                });
+    getTreasurePerfectItems(layout).forEach((layoutItem) => {
+        const id = Number(layoutItem.id || layoutItem.dwID);
+        const adventure = adventureMap[id];
+        if (!id || !adventure) return;
+
+        const isAct = achievedIds.has(id);
+        if (isAct) actNum++;
+        achievementsList.push({
+            ...adventure,
+            isAct,
+            hasClass: layoutItem.key || "",
+            zIndex: layoutItem.zIndex,
+            layout: layoutItem,
         });
     });
+
+    return {
+        achievementsList,
+        actNum,
+        allNum: achievementsList.length,
+    };
+}
+
+let getData = async (userJx3Id) => {
+    const returnData = {
+        pet: [],
+        normal: [],
+        perfect: [],
+    };
+
+    const [res, mapRule, layout] = await Promise.all([
+        getRoleGameAchievements(userJx3Id),
+        getAchievements(),
+        getAdventureTreasureLayout(),
+    ]);
+    const achievements = res.data?.data?.achievements || "";
+    const achievedIds = getAchievedAdventureIds(achievements, mapRule?.data);
+
+    returnData.layout = layout;
+    if (res.data?.data?.updated_at) {
+        returnData.updated_at = formatDateTime(res.data?.data?.updated_at);
+    } else {
+        returnData.updated_at = "暂无记录";
+    }
+
+    const adventureTypes = ["pet", "normal", "perfect"];
+    const adventurePromises = adventureTypes.map((type) => {
+        return getAdventures({
+            type,
+            _no_page: 1,
+        }).then((res) => {
+            const adventureList = res?.data?.list || [];
+            const achievementsList = [];
+            let actNum = 0;
+
+            if (type == "perfect") {
+                const perfectData = buildPerfectAchievements(adventureList, achievedIds, layout);
+                returnData[`${type}AllNum`] = perfectData.allNum;
+                returnData[`${type}NowNum`] = perfectData.actNum;
+                returnData[type] = perfectData.achievementsList;
+                return;
+            }
+
+            adventureList.forEach((item) => {
+                if (achievedIds.has(Number(item.dwID))) {
+                    achievementsList.push(item);
+                    actNum++;
+                }
+            });
+            returnData[`${type}AllNum`] = adventureList.length;
+            returnData[`${type}NowNum`] = actNum;
+            returnData[type] = achievementsList;
+        });
+    });
+
+    await Promise.all(adventurePromises);
+
+    const totalNow = returnData.petNowNum + returnData.normalNowNum + returnData.perfectNowNum;
+    const totalAll = returnData.petAllNum + returnData.normalAllNum + returnData.perfectAllNum;
+    returnData.progress = totalAll ? ((totalNow / totalAll) * 100).toFixed(2) : "0.00";
+
+    return returnData;
 };
 
 export default getData;

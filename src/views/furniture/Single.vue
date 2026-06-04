@@ -1,5 +1,6 @@
 <template>
-    <div class="p-furniture-single m-single-wrapper" v-loading="loading">
+    <div class="p-furniture-single m-single-wrapper" :class="{ 'is-robot': isRobot }" v-loading="loading">
+        <template v-if="!isRobot">
         <div class="m-navigation">
             <div class="u-goback" @click="goBack">返回列表</div>
         </div>
@@ -75,7 +76,13 @@
                         成就信息
                     </a>
                     <!-- 收藏按钮 -->
-                    <Fav class="u-collect" post-type="furniture" :post-id="id" :post-title="data && data.szName" />
+                    <Fav
+                        class="u-collect"
+                        post-type="furniture"
+                        :post-id="id"
+                        :post-title="data && data.szName"
+                        :author_id="fav_author_id"
+                    />
                 </div>
             </div>
             <div class="u-img">
@@ -114,17 +121,111 @@
         </div>
 
         <!-- 攻略 -->
-        <div class="m-furniture-wiki" v-if="other_id">
+        <div class="m-furniture-wiki" v-if="wiki_source_id">
             <Wiki
-                source_type="item"
-                :source_id="item_id"
+                :key="wiki_source_key"
+                :source_type="wiki_source_type"
+                :source_id="wiki_source_id"
                 :type="type"
                 :id="id"
-                title="家具攻略"
-                :source_title="data.szName"
+                :title="wiki_title"
+                :source_title="wiki_source_title"
             ></Wiki>
         </div>
-        <WikiComments type="item" :source-id="String(id)" />
+        <WikiComments
+            v-if="comment_source_id"
+            :key="comment_source_key"
+            :type="comment_source_type"
+            :source-id="String(comment_source_id)"
+        />
+        </template>
+        <template v-else>
+            <div class="m-pvx__item m-pvx-furniture-robot__header">
+                <div class="m-title">
+                    <div class="u-title" :class="'quality_' + data.Quality">家具 · {{ data.szName || id }}</div>
+                    <div class="m-meta">
+                        <span class="u-meta">ID: {{ id }}</span>
+                        <span class="u-meta" v-if="furniture_type">{{ furniture_type }}</span>
+                        <span class="u-meta" v-if="data.szSource">{{ data.szSource }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="m-pvx-furniture-robot__body">
+                <div class="m-pvx__item m-pvx-furniture-robot__attrs">
+                    <div class="u-title">家具属性</div>
+                    <div class="u-attrs" v-if="furniture_attrs.length">
+                        <span class="u-attr" v-for="item in furniture_attrs" :key="item.key">
+                            <span class="u-label" :class="item.className">{{ item.label }}</span>
+                            {{ item.value }}
+                        </span>
+                    </div>
+                    <div class="u-empty" v-else>暂无属性</div>
+                </div>
+
+                <div class="m-pvx__item m-pvx-furniture-robot__info">
+                    <div class="u-title">摆放信息</div>
+                    <div class="u-list">
+                        <div class="u-item" v-if="data.LevelLimit">摆放等级：{{ data.LevelLimit }}级</div>
+                        <div class="u-item" v-if="data.MaxAmountPerLand">摆放上限：{{ data.MaxAmountPerLand }}</div>
+                        <div class="u-item" v-if="data.szScaleRange">
+                            缩放大小：
+                            <span class="u-scale">
+                                <b v-for="(item, index) in scaleRange(data.szScaleRange)" :key="index">{{ item }}</b>
+                            </span>
+                        </div>
+                        <div class="u-item" v-if="color_list.length">
+                            染色选项：
+                            <span class="u-dyes">
+                                <i
+                                    v-for="item in color_list"
+                                    :key="item"
+                                    class="u-dye"
+                                    :style="{ backgroundColor: `rgb(${item})` }"
+                                ></i>
+                            </span>
+                        </div>
+                        <div class="u-item" v-if="data.bInteract">可交互家具</div>
+                    </div>
+                </div>
+
+                <div class="m-pvx__item m-pvx-furniture-robot__source">
+                    <div class="u-title">来源途径</div>
+                    <div class="u-source">{{ data.szSource || "暂无来源" }}</div>
+                </div>
+            </div>
+
+            <div class="m-pvx__item m-pvx-furniture-robot__set" v-if="setData">
+                <div class="u-title">套组 · {{ setData.szName }}</div>
+                <div class="u-desc" v-if="data.szTip" v-html="description_filter(data.szTip)"></div>
+                <div class="u-set-list" v-if="set_furnitures.length">
+                    <div
+                        class="u-set-item"
+                        :class="{ 'is-current': item.dwID == id }"
+                        v-for="item in set_furnitures"
+                        :key="item.ID || item.dwID"
+                    >
+                        <div class="u-set-img">
+                            <img v-if="getFurnitureImg(item)" :src="getFurnitureImg(item)" :alt="item.szName" />
+                        </div>
+                        <div class="u-set-name">{{ item.szName }}</div>
+                        <div class="u-set-type">{{ getType(item) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="m-pvx__item m-pvx-furniture-robot__set" v-else-if="data.szTip">
+                <div class="u-title">家具说明</div>
+                <div class="u-desc" v-html="description_filter(data.szTip)"></div>
+            </div>
+
+            <PvxUser
+                v-if="robot_wiki_id"
+                :id="robot_wiki_id"
+                :name="robot_wiki_name"
+                :type="robot_wiki_type"
+                :is-robot="true"
+            />
+        </template>
     </div>
 </template>
 
@@ -133,25 +234,42 @@ import furnitureSet from "@/components/furniture/furniture_set.vue";
 import Wiki from "@/components/wiki/Wiki.vue";
 import furnitureMaterials from "@/components/furniture/furniture_materials.vue";
 import Fav from "@jx3box/jx3box-ui/src/interact/Fav.vue";
+import PvxUser from "@/components/PvxUser.vue";
 
-import { getLink } from "@jx3box/jx3box-common/js/utils";
+import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
+import User from "@jx3box/jx3box-common/js/user";
 
 import { getFurnitureDetail, getSetList, getFurnitureColor } from "@/service/furniture.js";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 // import ListCross from "@/components/ListCross.vue";
 import { getFurnitureCategory } from "@/service/homeland.js";
-import { formatFurnitureImg } from "@/utils/furniture";
+import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
+import { __imgPath } from "@/utils/config";
 import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 
 export default {
     name: "FurnitureSingle",
-    props: [],
-    inject: ["__imgRoot"],
+    props: {
+        isRobot: {
+            type: Boolean,
+            default: false,
+        },
+        sourceId: {
+            type: [String, Number],
+            default: "",
+        },
+    },
+    inject: {
+        __imgRoot: {
+            default: __imgPath + "homeland/",
+        },
+    },
     components: {
         Wiki,
         furnitureSet,
         furnitureMaterials,
         Fav,
+        PvxUser,
         // ListCross,
         WikiComments,
     },
@@ -163,11 +281,15 @@ export default {
             setData: "",
             colorData: "", // 染色数据
             category: {},
+            imagesLoaded: false,
         };
     },
     computed: {
+        client: function () {
+            return this.$store.state.client;
+        },
         id: function () {
-            return ~~this.$route.params.id;
+            return ~~(this.$route.params.id || this.sourceId);
         },
         other_id: function () {
             return this.data?.__manufactureID;
@@ -184,6 +306,63 @@ export default {
         set_id: function () {
             return this.data?.SetID;
         },
+        wiki_source_type: function () {
+            if (!this.data) return "";
+            if (this.other_id) return "item";
+            if (this.achieve_id) return "achievement";
+            return "";
+        },
+        wiki_source_id: function () {
+            if (!this.data) return "";
+            if (this.other_id) return this.item_id;
+            if (this.achieve_id) return this.achieve_id;
+            return "";
+        },
+        wiki_source_key: function () {
+            return `${this.wiki_source_type}-${this.wiki_source_id}`;
+        },
+        wiki_title: function () {
+            if (this.wiki_source_type === "item") return "物品攻略";
+            if (this.wiki_source_type === "achievement") return "成就攻略";
+            return "";
+        },
+        wiki_source_title: function () {
+            return this.wiki_source_type === "achievement" ? this.setData?.szName || this.data?.szName : this.data?.szName;
+        },
+        comment_source_type: function () {
+            return this.wiki_source_type;
+        },
+        comment_source_id: function () {
+            return this.wiki_source_id;
+        },
+        comment_source_key: function () {
+            return `${this.comment_source_type}-${this.comment_source_id}`;
+        },
+        robot_wiki_type: function () {
+            return this.wiki_source_type;
+        },
+        robot_wiki_id: function () {
+            return this.wiki_source_id;
+        },
+        robot_wiki_name: function () {
+            return this.robot_wiki_type === "achievement" ? "成就" : "物品";
+        },
+        fav_author_id: function () {
+            return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
+        },
+        furniture_type: function () {
+            if (!this.data || !Object.keys(this.category).length) return "";
+            return getFurnitureType(this.data, this.category);
+        },
+        furniture_attrs: function () {
+            return [
+                { key: "view", label: "观赏", value: this.data?.Attribute1, className: "blue" },
+                { key: "practical", label: "实用", value: this.data?.Attribute2, className: "pink" },
+                { key: "strong", label: "坚固", value: this.data?.Attribute3, className: "yellow" },
+                { key: "fengshui", label: "风水", value: this.data?.Attribute4, className: "green" },
+                { key: "interest", label: "趣味", value: this.data?.Attribute5, className: "purple" },
+            ].filter((item) => item.value);
+        },
 
         has_extend: function () {
             return this.data.szTip || this.setData || (this.data.szSource == "生活技能" && this.data.__manufactureID);
@@ -198,6 +377,9 @@ export default {
                 }
             }
             return list;
+        },
+        set_furnitures: function () {
+            return this.setData?.furnitures || [];
         },
     },
     watch: {
@@ -215,6 +397,9 @@ export default {
         // ==============
         getData() {
             this.loading = true;
+            this.data = "";
+            this.setData = "";
+            this.colorData = "";
             getFurnitureDetail(this.id)
                 .then((res) => {
                     this.data = res.data;
@@ -225,20 +410,23 @@ export default {
                     postStat(this.type, this.id);
                 })
                 .then(() => {
-                    this.represent_id && this.getColorData();
-                    this.set_id && this.getSetData();
+                    const tasks = [];
+                    if (this.represent_id) tasks.push(this.getColorData());
+                    if (this.set_id) tasks.push(this.getSetData());
+                    return Promise.all(tasks);
                 })
                 .finally(() => {
                     this.loading = false;
+                    if (this.isRobot && !this.robot_wiki_id) this.preloadRobotImages();
                 });
         },
         getColorData() {
-            getFurnitureColor(this.represent_id).then((res) => {
+            return getFurnitureColor(this.represent_id).then((res) => {
                 this.colorData = res.data;
             });
         },
         getSetData() {
-            getSetList(this.set_id).then((res) => {
+            return getSetList(this.set_id).then((res) => {
                 this.setData = res.data;
             });
         },
@@ -255,11 +443,40 @@ export default {
         },
         // 图片链接转换
         formatImg(link) {
-            return formatFurnitureImg(link, this.__imgRoot);
+            return formatFurnitureImg(link, this.__imgRoot || __imgPath + "homeland/", this.client);
+        },
+        getFurnitureImg(data) {
+            return data?.Path ? this.formatImg(data.Path) : iconLink(data?.nRepresentID, this.client);
+        },
+        getType(data) {
+            return getFurnitureType(data, this.category);
         },
 
         scaleRange(str) {
             return str?.split(";");
+        },
+        preloadRobotImages() {
+            this.$nextTick(() => {
+                const images = Array.from(this.$el?.querySelectorAll("img") || []);
+                if (!images.length) {
+                    this.setGlobalReady();
+                    return;
+                }
+
+                Promise.all(
+                    images.map((img) => {
+                        if (img.complete) return Promise.resolve();
+                        return new Promise((resolve) => {
+                            img.onload = img.onerror = resolve;
+                        });
+                    })
+                ).then(() => this.setGlobalReady());
+            });
+        },
+        setGlobalReady() {
+            if (this.imagesLoaded) return;
+            this.imagesLoaded = true;
+            window.__READY__ = true;
         },
 
         goBack() {

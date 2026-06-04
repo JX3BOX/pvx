@@ -6,6 +6,7 @@
             <HorseSingle v-if="type === 'horse'" :is-robot="true" :source-id="id"></HorseSingle>
             <ReputationSingle v-if="type === 'reputation'" :is-robot="true" :source-id="id"></ReputationSingle>
             <BookSingle v-if="type === 'book'" :is-robot="true" :source-id="id"></BookSingle>
+            <FurnitureSingle v-if="type === 'furniture'" :is-robot="true" :source-id="id"></FurnitureSingle>
             <RobotBottom :type="type" :id="id"></RobotBottom>
         </div>
     </div>
@@ -18,6 +19,7 @@ import PetSingle from "@/views/pet/PetSingle.vue";
 import HorseSingle from "@/views/horse/HorseSingle.vue";
 import ReputationSingle from "@/views/reputation/Single.vue";
 import BookSingle from "@/views/book/Single.vue";
+import FurnitureSingle from "@/views/furniture/Single.vue";
 import RobotBottom from "./Bottom.vue";
 import Treasure from "./Treasure.vue";
 export default {
@@ -28,6 +30,7 @@ export default {
         HorseSingle,
         ReputationSingle,
         BookSingle,
+        FurnitureSingle,
         RobotBottom,
         Treasure,
     },

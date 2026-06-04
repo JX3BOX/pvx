@@ -31,25 +31,34 @@
 
         <template v-if="userAchievement">
             <!-- 绝世奇遇 -->
-            <div class="m-world">
-                <img class="u-world__bg" :src="getCdnImgUrl('world/world_bg.svg')" />
-                <div class="m-world-count">
-                    <img class="u-count__img" :src="getCdnImgUrl('portrait/world_qy_bg.png')" />
-                    <div class="m-count-info">
-                        {{ userAchievement.perfectNowNum + "/" + userAchievement.perfectAllNum }}
+            <div class="m-world" :style="worldStageStyle">
+                <img class="u-world__bg" :src="getCdnImgUrl(perfectLayout.worldBackground.src)" :style="worldBgStyle" />
+                <div class="m-world-count" :style="perfectCountStyle">
+                    <img
+                        class="u-count__img"
+                        :src="getCdnImgUrl(perfectLayout.countBadge)"
+                        :style="perfectCountImageStyle"
+                    />
+                    <div class="m-count-info" :style="perfectCountTextStyle">
+                        <template v-if="perfectLayout.countFormat === 'stack'">
+                            <div>{{ userAchievement.perfectNowNum }}</div>
+                            <div>/</div>
+                            <div>{{ userAchievement.perfectAllNum }}</div>
+                        </template>
+                        <template v-else>
+                            {{ userAchievement.perfectNowNum + "/" + userAchievement.perfectAllNum }}
+                        </template>
                     </div>
                 </div>
                 <template v-for="(item, index) in userAchievement.perfect" :key="`group-${item.dwID}-${index}`">
                     <img
                         class="u-item__img"
-                        :class="item.hasClass"
-                        :style="{
-                            zIndex: item.zIndex,
-                        }"
-                        :src="getCdnImgUrl(`world/${item.dwID}${item.isAct ? '_act' : ''}.png`)"
+                        :class="perfectItemClass(item)"
+                        :style="perfectImageStyle(item)"
+                        :src="getCdnImgUrl(perfectItemImage(item))"
                     />
-                    <div class="m-item__text" :class="item.hasClass">
-                        <img class="u-item__bg" :src="getCdnImgUrl(`world/text_bg${item.isAct ? '_act' : ''}.png`)" />
+                    <div class="m-item__text" :class="perfectItemClass(item)" :style="perfectLabelStyle(item)">
+                        <img class="u-item__bg" :src="getCdnImgUrl(perfectTextBackground(item))" />
                         <span class="u-item__text">{{ item.szName }}</span>
                     </div>
                 </template>
@@ -134,6 +143,12 @@
 <script>
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import { __cdn } from "@/utils/config";
+import {
+    getTreasurePerfectItemMap,
+    getTreasurePerfectLayout,
+    toTreasureCssStyle,
+    treasurePerfect,
+} from "@/assets/js/treasure/layout.js";
 export default {
     name: "portraitContent",
     props: {
@@ -169,10 +184,77 @@ export default {
     data() {
         return {};
     },
+    computed: {
+        treasureLayout() {
+            return this.userAchievement?.layout || treasurePerfect;
+        },
+        perfectItemMap() {
+            return getTreasurePerfectItemMap(this.treasureLayout);
+        },
+        perfectLayout() {
+            return getTreasurePerfectLayout(this.treasureLayout, "portrait");
+        },
+        worldStageStyle() {
+            const stage = this.perfectLayout.stage || {};
+            return {
+                width: `${Number(stage.width || 700)}px`,
+                height: `${Number(stage.height || 700)}px`,
+            };
+        },
+        worldBgStyle() {
+            return toTreasureCssStyle(this.perfectLayout.worldBackground?.style);
+        },
+        perfectCountStyle() {
+            return toTreasureCssStyle(this.perfectLayout.countStyle);
+        },
+        perfectCountImageStyle() {
+            return toTreasureCssStyle(this.perfectLayout.countImageStyle);
+        },
+        perfectCountTextStyle() {
+            return toTreasureCssStyle(this.perfectLayout.countTextStyle);
+        },
+    },
     methods: {
         showSchoolIcon,
         getCdnImgUrl(img) {
             return `${__cdn}design/treasure/${img}`;
+        },
+        perfectItemLayout(item = {}) {
+            const baseLayout = item.layout || this.perfectItemMap[Number(item.dwID)] || {};
+            const modeLayout = baseLayout.layouts?.portrait || {};
+            return {
+                ...baseLayout,
+                ...modeLayout,
+                imageStyle: {
+                    ...(baseLayout.imageStyle || {}),
+                    ...(modeLayout.imageStyle || {}),
+                },
+                labelStyle: {
+                    ...(baseLayout.labelStyle || {}),
+                    ...(modeLayout.labelStyle || {}),
+                },
+            };
+        },
+        perfectItemClass(item = {}) {
+            return this.perfectItemLayout(item).key || item.hasClass || "";
+        },
+        perfectImageStyle(item = {}) {
+            const layout = this.perfectItemLayout(item);
+            return {
+                ...toTreasureCssStyle(layout.imageStyle),
+                zIndex: Number(layout.zIndex || item.zIndex || 1),
+            };
+        },
+        perfectLabelStyle(item = {}) {
+            return toTreasureCssStyle(this.perfectItemLayout(item).labelStyle);
+        },
+        perfectItemImage(item = {}) {
+            const layout = this.perfectItemLayout(item);
+            if (item.isAct && layout.activeImage) return layout.activeImage;
+            return layout.image || `world/${item.dwID}${item.isAct ? "_act" : ""}.png`;
+        },
+        perfectTextBackground(item = {}) {
+            return item.isAct ? this.perfectLayout.textActiveBackground : this.perfectLayout.textBackground;
         },
         getImgUrl(item) {
             const client = "std";

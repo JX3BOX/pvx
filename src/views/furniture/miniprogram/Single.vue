@@ -82,17 +82,23 @@
             </div>
         </div>
         <!-- 攻略 -->
-        <div class="m-furniture-wiki" v-if="other_id">
+        <div class="m-furniture-wiki" v-if="wiki_source_id">
             <Wiki
-                source_type="item"
-                :source_id="item_id"
+                :key="wiki_source_key"
+                :source_type="wiki_source_type"
+                :source_id="wiki_source_id"
                 :type="type"
                 :id="id"
-                title="家具攻略"
-                :source_title="data.szName"
+                :title="wiki_title"
+                :source_title="wiki_source_title"
             ></Wiki>
         </div>
-        <WikiComments type="item" :source-id="String(id)" />
+        <WikiComments
+            v-if="comment_source_id"
+            :key="comment_source_key"
+            :type="comment_source_type"
+            :source-id="String(comment_source_id)"
+        />
     </div>
 </template>
 <script>
@@ -148,6 +154,44 @@ export default {
         set_id: function () {
             return this.data?.SetID;
         },
+        wiki_source_type: function () {
+            if (!this.data) return "";
+            if (this.other_id) return "item";
+            if (this.achieve_id) return "achievement";
+            return "";
+        },
+        wiki_source_id: function () {
+            if (!this.data) return "";
+            if (this.other_id) return this.item_id;
+            if (this.achieve_id) return this.achieve_id;
+            return "";
+        },
+        wiki_source_key: function () {
+            return `${this.wiki_source_type}-${this.wiki_source_id}`;
+        },
+        wiki_title: function () {
+            if (this.wiki_source_type === "item") return "物品攻略";
+            if (this.wiki_source_type === "achievement") return "成就攻略";
+            return "";
+        },
+        wiki_source_title: function () {
+            return this.wiki_source_type === "achievement" ? this.setData?.szName || this.data?.szName : this.data?.szName;
+        },
+        comment_source_type: function () {
+            return this.wiki_source_type;
+        },
+        comment_source_id: function () {
+            return this.wiki_source_id;
+        },
+        comment_source_key: function () {
+            return `${this.comment_source_type}-${this.comment_source_id}`;
+        },
+        fav_title: function () {
+            return this.data?.szName || this.setData?.szName || "";
+        },
+        fav_author_id: function () {
+            return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
+        },
 
         has_extend: function () {
             return this.data.szTip || this.setData || (this.data.szSource == "生活技能" && this.data.__manufactureID);
@@ -200,7 +244,7 @@ export default {
             });
         },
         addFav: function () {
-            addFav(this.type, this.id, this.setData.szName).then((res) => {
+            addFav(this.type, this.id, this.fav_title, this.fav_author_id).then((res) => {
                 this.favorite = res.id;
             });
         },
@@ -218,6 +262,8 @@ export default {
         // ==============
         getData() {
             this.loading = true;
+            this.setData = "";
+            this.colorData = "";
             getFurnitureDetail(this.id)
                 .then((res) => {
                     this.data = res.data;

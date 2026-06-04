@@ -400,7 +400,13 @@ export default {
                 });
         },
         searchEvent(data) {
-            if (!data.nCatag1Index) {
+            const newData = this.doPrams(data);
+            const hasSearchValue = Object.values(newData || {}).some((value) => {
+                if (Array.isArray(value)) return value.length;
+                return ![undefined, null, ""].includes(value);
+            });
+
+            if (!hasSearchValue) {
                 this.active = "";
                 this.search = {};
                 this.list = [];
@@ -409,7 +415,6 @@ export default {
                 return;
             }
             this.active = data.nCatag1Index;
-            const newData = this.doPrams(data);
             this.search = newData;
         },
         loadFurniture() {
