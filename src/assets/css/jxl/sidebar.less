@@ -54,8 +54,8 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    // 高度过渡动画
-    transition: height @jxl-transition-duration ease-out;
+    // 高度过渡动画 - 使用 ease-in-out 缓动函数
+    transition: height 0.4s ease-in-out, max-height 0.4s ease-in-out;
 
     // 展开状态：最大高度 600px，小于 600px 时根据内容自适应
     &.is-expanded {
@@ -157,12 +157,10 @@
                     letter-spacing: 0;
                 }
 
-                // 折叠展开箭头
-                // Figma: font-size=14px, 位于右侧
+                // 折叠展开箭头（SVG 图标）
                 .u-jxl-season-arrow {
-                    display: flex;
-                    align-items: center;
-                    font-size: 14px;
+                    width: 11px;
+                    height: 9px;
                     transition: transform @jxl-transition-duration ease-out;
 
                     // 展开状态箭头旋转 180deg
@@ -256,11 +254,10 @@
             background: rgba(107, 82, 255, 0.05);
         }
 
+        // 展开/折叠箭头（SVG 图标）
         .u-jxl-toggle-arrow {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            color: @jxl-color-primary;
+            width: 11px;
+            height: 9px;
             transition: transform @jxl-transition-duration ease-out;
 
             // 展开状态箭头旋转 180deg
@@ -272,10 +269,12 @@
 }
 
 // ==================== 折叠展开动画 ====================
+// 使用 ease-in-out 缓动函数，让动画更平滑自然
 .jxl-expand-enter-active,
 .jxl-expand-leave-active {
-    transition: all @jxl-transition-duration ease-out;
+    transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out;
     max-height: 1000px;
+    opacity: 1;
 }
 
 .jxl-expand-enter-from,

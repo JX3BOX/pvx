@@ -29,29 +29,30 @@
 
         <!-- 内容主体区域 -->
         <div class="m-jxl-content__body">
-            <!-- 标题区块 -->
-            <div class="m-jxl-content__header">
-                <h1 class="u-title">{{ pageTitle }}</h1>
-                <!-- <div class="u-subtitle">{{ pageSubtitle }}</div> -->
-            </div>
+            <!-- 标题和图片区块（阴影容器） -->
+            <div class="m-jxl-content__header-image">
+                <!-- 标题 -->
+                <div class="m-jxl-content__header">
+                    <h1 class="u-title">{{ chapterData?.szTitle || '-' }}</h1>
+                </div>
 
-            <!-- 图片展示区块：地图背景 + 信息标签浮层 -->
-            <div class="m-jxl-content__image" v-if="sectionDetail?.Chapter?.imagePath">
-                <img :src="getImageUrl(sectionDetail.Chapter.imagePath, sectionDetail.Chapter.imageFrame)"
-                    :alt="pageTitle" class="u-image" />
-                <div class="m-jxl-content__map-info">
-                    <div class="u-map-info-item" v-if="sectionDetail.Chapter.title">
-                        <span class="u-map-info-text">{{ sectionDetail.Chapter.title }}</span>
-                    </div>
-                    <div class="u-map-info-item" v-if="sectionDetail.Chapter.time">
-                        <span class="u-map-info-text">{{ sectionDetail.Chapter.time }}</span>
+                <!-- 图片展示区块：地图背景 + 信息标签浮层 -->
+                <div class="m-jxl-content__image" v-if="sectionDetail?.Chapter?.imagePath">
+                    <img :src="getImageUrl(sectionDetail.Chapter.imagePath, sectionDetail.Chapter.imageFrame)"
+                        :alt="pageTitle" class="u-image" />
+                    <div class="m-jxl-content__map-info">
+                        <div class="u-map-info-item" v-if="sectionDetail.Chapter.title">
+                            <span class="u-map-info-text">{{ sectionDetail.Chapter.title }}</span>
+                        </div>
+                        <div class="u-map-info-item" v-if="sectionDetail.Chapter.time">
+                            <span class="u-map-info-text">{{ sectionDetail.Chapter.time }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- 章节列表展示 -->
             <div class="m-jxl-content__chapters" v-if="chapterSections.length > 0">
-                <div class="u-chapter-title">章节列表</div>
                 <div class="m-chapter-list">
                     <div v-for="(section, index) in chapterSections" :key="section.nSectionID" class="u-chapter-item"
                         :class="{ 'is-active': activeSectionId === section.nSectionID }"

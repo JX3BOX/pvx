@@ -34,12 +34,9 @@
                 <!-- 资料片标题（紫底白字） -->
                 <div class="u-jxl-season-header" @click="toggleSeason(season.nSeasonID)">
                     <span class="u-jxl-season-name">{{ season.szTitle }}</span>
-                    <i class="u-jxl-season-arrow"
-                        :class="{ 'is-expanded': expandedSeasons.includes(season.nSeasonID) }">
-                        <el-icon>
-                            <ArrowDown />
-                        </el-icon>
-                    </i>
+                    <img class="u-jxl-season-arrow"
+                        :class="{ 'is-expanded': expandedSeasons.includes(season.nSeasonID) }"
+                        src="@/assets/img/jxl/arrow-expand.svg" alt="展开" />
                 </div>
 
                 <!-- 大章节列表（折叠展开区域） -->
@@ -59,24 +56,20 @@
 
         <!-- 展开/折叠按钮 -->
         <div class="m-jxl-sidebar__toggle" @click="toggleSidebarExpand">
-            <i class="u-jxl-toggle-arrow" :class="{ 'is-expanded': isSidebarExpanded }">
-                <el-icon>
-                    <ArrowDown />
-                </el-icon>
-            </i>
+            <img class="u-jxl-toggle-arrow" :class="{ 'is-expanded': isSidebarExpanded }"
+                src="@/assets/img/jxl/arrow-expand.svg" alt="展开" />
         </div>
     </div>
 </template>
 
 <script>
-import { Search, ArrowDown } from "@element-plus/icons-vue";
+import { Search } from "@element-plus/icons-vue";
 import { getMenu } from "@/service/jxl";
 
 export default {
     name: "JxlSidebar",
     components: {
         Search,
-        ArrowDown,
     },
     data() {
         return {
