@@ -32,7 +32,7 @@
             <!-- 标题区块 -->
             <div class="m-jxl-content__header">
                 <h1 class="u-title">{{ pageTitle }}</h1>
-                <div class="u-subtitle">{{ pageSubtitle }}</div>
+                <!-- <div class="u-subtitle">{{ pageSubtitle }}</div> -->
             </div>
 
             <!-- 图片展示区块：地图背景 + 信息标签浮层 -->
@@ -45,9 +45,6 @@
                     </div>
                     <div class="u-map-info-item" v-if="sectionDetail.Chapter.time">
                         <span class="u-map-info-text">{{ sectionDetail.Chapter.time }}</span>
-                    </div>
-                    <div class="u-map-info-item" v-if="chapterSections.length > 0 && currentSectionIndex >= 0">
-                        <span class="u-map-info-text">{{ currentSectionIndex + 1 }}/{{ chapterSections.length }}节</span>
                     </div>
                 </div>
             </div>

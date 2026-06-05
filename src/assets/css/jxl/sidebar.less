@@ -46,14 +46,22 @@
     left: 40px;
     top: calc(40px + @header-height);
     width: @jxl-sidebar-width;
-    height: auto;
-    max-height: 600px;
+    // 未展开时高度 300px
+    height: 300px;
     background: @jxl-color-text-white;
     box-shadow: @jxl-shadow-sidebar;
     z-index: 100;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    // 高度过渡动画
+    transition: height @jxl-transition-duration ease-out;
+
+    // 展开状态：最大高度 600px，小于 600px 时根据内容自适应
+    &.is-expanded {
+        height: auto;
+        max-height: 600px;
+    }
 
     // ==================== 搜索框模块 ====================
     // Figma: padding=20px, border-bottom=1px solid rgba(0,0,0,0.1)
@@ -224,6 +232,40 @@
                         text-overflow: ellipsis;
                     }
                 }
+            }
+        }
+    }
+
+    // ==================== 展开/折叠按钮 ====================
+    .m-jxl-sidebar__toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // 固定高度，防止被 flex 容器拉伸
+        height: 40px;
+        min-height: 40px;
+        flex-shrink: 0;
+        // 与资料片标题位置保持一致（列表 padding 20px + 标题 padding 20px = 40px）
+        padding: 0 40px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all @jxl-transition-duration ease-out;
+        box-sizing: border-box;
+
+        &:hover {
+            background: rgba(107, 82, 255, 0.05);
+        }
+
+        .u-jxl-toggle-arrow {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: @jxl-color-primary;
+            transition: transform @jxl-transition-duration ease-out;
+
+            // 展开状态箭头旋转 180deg
+            &.is-expanded {
+                transform: rotate(180deg);
             }
         }
     }
