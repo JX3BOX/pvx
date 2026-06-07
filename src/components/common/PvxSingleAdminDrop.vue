@@ -42,6 +42,9 @@ export default {
                 task_type = match[1];
                 task_target_id = match[2];
             }
+            if (task_type === "horse" && new URLSearchParams(location.search).get("type") === "2") {
+                task_target_id = `${task_target_id}_2`;
+            }
             if (task_type && task_target_id) {
                 refreshQQBotImage({
                     task_type,
