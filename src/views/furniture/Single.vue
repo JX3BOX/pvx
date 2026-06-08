@@ -3,6 +3,7 @@
         <template v-if="!isRobot">
         <div class="m-navigation">
             <div class="u-goback" @click="goBack">返回列表</div>
+            <PvxSingleAdminDrop></PvxSingleAdminDrop>
         </div>
 
         <div class="m-furniture-content">
@@ -235,6 +236,7 @@ import Wiki from "@/components/wiki/Wiki.vue";
 import furnitureMaterials from "@/components/furniture/furniture_materials.vue";
 import Fav from "@jx3box/jx3box-ui/src/interact/Fav.vue";
 import PvxUser from "@/components/PvxUser.vue";
+import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";
@@ -270,6 +272,7 @@ export default {
         furnitureMaterials,
         Fav,
         PvxUser,
+        PvxSingleAdminDrop,
         // ListCross,
         WikiComments,
     },
