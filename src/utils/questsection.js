@@ -18,7 +18,7 @@
  * // 输入: imagePath="MainPlotMap10.UITex", nImageFrame=0
  * // 输出: "https://img.jx3box.com/image/questsection/std/mainplotmap/mainplotmap10_0.png"
  */
-export function getJxlImageUrl(imagePath, nImageFrame) {
+export function getQuestsectionImageUrl(imagePath, nImageFrame) {
     if (!imagePath) return "";
 
     // 将路径中的 / 替换为 \（统一路径格式）
@@ -58,7 +58,7 @@ export function getJxlImageUrl(imagePath, nImageFrame) {
  */
 export function getChapterImageUrl(chapter) {
     if (!chapter || !chapter.imagePath) return "";
-    return getJxlImageUrl(chapter.imagePath, chapter.nImageFrame);
+    return getQuestsectionImageUrl(chapter.imagePath, chapter.nImageFrame);
 }
 
 /**
@@ -70,7 +70,7 @@ export function getChapterImageUrl(chapter) {
  */
 export function getSeasonImageUrl(season) {
     if (!season || !season.imagePath) return "";
-    return getJxlImageUrl(season.imagePath, season.nImageFrame);
+    return getQuestsectionImageUrl(season.imagePath, season.nImageFrame);
 }
 
 /**
@@ -84,9 +84,9 @@ export function getSeasonImageUrl(season) {
  *
  * @example
  * // 输入: "<G>你选择继续留在寺中修习。\\n<G>你到塔林却只见道恒的尸首。"
- * // 输出: "<span class='jxl-highlight'>你选择继续留在寺中修习。</span><br><span class='jxl-highlight'>你到塔林却只见道恒的尸首。</span>"
+ * // 输出: "<span class='questsection-highlight'>你选择继续留在寺中修习。</span><br><span class='questsection-highlight'>你到塔林却只见道恒的尸首。</span>"
  */
-export function formatJxlDetail(detail) {
+export function formatQuestsectionDetail(detail) {
     if (!detail) return "";
 
     let formattedDetail = detail;
@@ -97,7 +97,7 @@ export function formatJxlDetail(detail) {
     // 处理 <G> 标签，转换为高亮文本
     // <G> 标签后面是高亮内容，直到遇到下一个 <G> 或 <br> 或字符串结束
     // 使用正则一次性匹配：<G>后面直到<br>或字符串结束的内容
-    formattedDetail = formattedDetail.replace(/<G>([^<]*?)(<br>|$)/g, '<span class="jxl-highlight">$1</span>$2');
+    formattedDetail = formattedDetail.replace(/<G>([^<]*?)(<br>|$)/g, '<span class="questsection-highlight">$1</span>$2');
 
     return formattedDetail;
 }

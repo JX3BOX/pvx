@@ -1,5 +1,5 @@
 <!--
- * JXL Sidebar - 剑侠录左侧导航栏组件
+ * QuestSection Sidebar - 剑侠录左侧导航栏组件
  *
  * @description 剑侠录模块的左侧导航栏，包含搜索框和资料片-大章节折叠列表
  * @version 1.0.0
@@ -15,39 +15,39 @@
  * - select: 选择大章节时触发，参数为 { season, chapter }
 -->
 <template>
-    <div class="m-pvx-jxl-sidebar" :class="{ 'is-expanded': isSidebarExpanded }">
+    <div class="m-pvx-questsection-sidebar" :class="{ 'is-expanded': isSidebarExpanded }">
         <!-- 搜索框模块 -->
-        <div class="m-jxl-sidebar__search">
-            <el-input v-model="searchKeyword" class="u-jxl-search-input" placeholder="搜索资料片或大章节" clearable
+        <div class="m-questsection-sidebar__search">
+            <el-input v-model="searchKeyword" class="u-questsection-search-input" placeholder="搜索资料片或大章节" clearable
                 @input="handleSearch">
                 <template #suffix>
-                    <el-icon class="u-jxl-search-icon">
+                    <el-icon class="u-questsection-search-icon">
                         <Search />
                     </el-icon>
                 </template>
             </el-input>
         </div>
 
-        <!-- 资料片列表模块 -->
-        <div class="m-jxl-sidebar__list">
-            <div class="m-jxl-season" v-for="season in filteredSeasons" :key="season.nSeasonID">
+        <!-- 料片列表模块 -->
+        <div class="m-questsection-sidebar__list">
+            <div class="m-questsection-season" v-for="season in filteredSeasons" :key="season.nSeasonID">
                 <!-- 资料片标题（紫底白字） -->
-                <div class="u-jxl-season-header" @click="toggleSeason(season.nSeasonID)">
-                    <span class="u-jxl-season-name">{{ season.szTitle }}</span>
-                    <img class="u-jxl-season-arrow"
+                <div class="u-questsection-season-header" @click="toggleSeason(season.nSeasonID)">
+                    <span class="u-questsection-season-name">{{ season.szTitle }}</span>
+                    <img class="u-questsection-season-arrow"
                         :class="{ 'is-expanded': expandedSeasons.includes(season.nSeasonID) }"
-                        src="@/assets/img/jxl/arrow-expand.svg" alt="展开" />
+                        src="@/assets/img/questsection/arrow-expand.svg" alt="展开" />
                 </div>
 
                 <!-- 大章节列表（折叠展开区域） -->
-                <transition name="jxl-expand">
-                    <div class="m-jxl-season__chapters" v-show="expandedSeasons.includes(season.nSeasonID)">
-                        <div class="u-jxl-chapter" v-for="chapter in getFilteredChapters(season)"
+                <transition name="questsection-expand">
+                    <div class="m-questsection-season__chapters" v-show="expandedSeasons.includes(season.nSeasonID)">
+                        <div class="u-questsection-chapter" v-for="chapter in getFilteredChapters(season)"
                             :key="chapter.nChapterID" :class="{
                                 'is-active': selectedChapter?.nChapterID === chapter.nChapterID
                             }" @click="selectChapter(season, chapter)" @mouseenter="handleChapterHover(chapter, true)"
                             @mouseleave="handleChapterHover(chapter, false)">
-                            <span class="u-jxl-chapter-name">{{ chapter.szTitle }}</span>
+                            <span class="u-questsection-chapter-name">{{ chapter.szTitle }}</span>
                         </div>
                     </div>
                 </transition>
@@ -55,19 +55,19 @@
         </div>
 
         <!-- 展开/折叠按钮 -->
-        <div class="m-jxl-sidebar__toggle" @click="toggleSidebarExpand">
-            <img class="u-jxl-toggle-arrow" :class="{ 'is-expanded': isSidebarExpanded }"
-                src="@/assets/img/jxl/arrow-expand.svg" alt="展开" />
+        <div class="m-questsection-sidebar__toggle" @click="toggleSidebarExpand">
+            <img class="u-questsection-toggle-arrow" :class="{ 'is-expanded': isSidebarExpanded }"
+                src="@/assets/img/questsection/arrow-expand.svg" alt="展开" />
         </div>
     </div>
 </template>
 
 <script>
 import { Search } from "@element-plus/icons-vue";
-import { getMenu } from "@/service/jxl";
+import { getMenu } from "@/service/questsection.js";
 
 export default {
-    name: "JxlSidebar",
+    name: "QuestsectionSidebar",
     components: {
         Search,
     },
@@ -274,5 +274,5 @@ export default {
 </script>
 
 <style lang="less">
-    @import "~@/assets/css/jxl/sidebar.less";
+    @import "~@/assets/css/questsection/sidebar.less";
 </style>

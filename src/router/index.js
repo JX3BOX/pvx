@@ -16,14 +16,27 @@ const routes = [
     },
     // ===== 剑侠录 =====
     {
-        name: "jxl",
-        path: "/jxl",
-        component: () => import("@/views/jxl/Index.vue"),
+        name: "questsection",
+        path: "/questsection",
+        component: () => import("@/views/questsection/Index.vue"),
         meta: {
             i18n: {
-                title: "pages.jxl.title",
-                keywords: "pages.jxl.keywords",
-                description: "pages.jxl.description",
+                title: "pages.questsection.title",
+                keywords: "pages.questsection.keywords",
+                description: "pages.questsection.description",
+            },
+        },
+    },
+    // ===== 侠客行 =====
+    {
+        name: "swordsman",
+        path: "/swordsman",
+        component: () => import("@/views/swordsman/Index.vue"),
+        meta: {
+            i18n: {
+                title: "pages.swordsman.title",
+                keywords: "pages.swordsman.keywords",
+                description: "pages.swordsman.description",
             },
         },
     },

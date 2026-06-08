@@ -81,11 +81,17 @@ const pages = {
         template: "public/index.html",
         filename: "qqbot/index.html",
     },
-    jxl: {
+    questsection: {
         title: "剑侠录 - JX3BOX",
-        entry: "src/pages/jxl/index.js",
+        entry: "src/pages/questsection/index.js",
         template: "public/index.html",
-        filename: "jxl/index.html",
+        filename: "questsection/index.html",
+    },
+    swordsman: {
+        title: "侠客行 - JX3BOX",
+        entry: "src/pages/swordsman/index.js",
+        template: "public/index.html",
+        filename: "swordsman/index.html",
     },
 };
 

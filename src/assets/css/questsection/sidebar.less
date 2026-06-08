@@ -1,55 +1,55 @@
 // ============================================
 // 剑侠录模块样式 - 左侧导航栏
 // ============================================
-// 命名规范：m-pvx-jxl-sidebar（模块级前缀）
-// 子模块：m-jxl-sidebar__xxx
-// 元素级：u-jxl-xxx
+// 命名规范：m-pvx-questsection-sidebar（模块级前缀）
+// 子模块：m-questsection-sidebar__xxx
+// 元素级：u-questsection-xxx
 // ============================================
 
 // ==================== 变量定义 ====================
 // 以下数值根据 Figma 设计稿精确还原
 
 // 颜色变量（精确值，不使用 rgba）
-@jxl-color-primary: #6B52FF;
-@jxl-color-season-bg: #6B52FF;
-@jxl-color-text-white: #FFFFFF;
-@jxl-color-text-black: #000000;
-@jxl-color-border: #E1E4E8;
-@jxl-color-chapter-default-bg: #F5F5F5; // rgba(0, 0, 0, 0.05) 的十六进制近似值
+@questsection-color-primary: #6B52FF;
+@questsection-color-season-bg: #6B52FF;
+@questsection-color-text-white: #FFFFFF;
+@questsection-color-text-black: #000000;
+@questsection-color-border: #E1E4E8;
+@questsection-color-chapter-default-bg: #F5F5F5; // rgba(0, 0, 0, 0.05) 的十六进制近似值
 
 // 阴影变量（精确参数）
 // Component 18 阴影: x=0, y=2, blur=8, spread=0, color=rgba(0,0,0,0.1)
-@jxl-shadow-sidebar: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
+@questsection-shadow-sidebar: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
 // 大章节 default 阴影: x=0, y=2, blur=6, spread=0, color=rgba(0,0,0,0.08)
-@jxl-shadow-chapter: 0px 2px 6px 0px rgba(0, 0, 0, 0.08);
+@questsection-shadow-chapter: 0px 2px 6px 0px rgba(0, 0, 0, 0.08);
 // 大章节 active/hover 阴影: x=0, y=4, blur=12, spread=0, color=rgba(107,82,255,0.25)
-@jxl-shadow-active: 0px 4px 12px 0px rgba(107, 82, 255, 0.25);
+@questsection-shadow-active: 0px 4px 12px 0px rgba(107, 82, 255, 0.25);
 
 // 尺寸变量（精确值）
 // Component 18 宽度: 280px
-@jxl-sidebar-width: 280px;
+@questsection-sidebar-width: 280px;
 // 资料片标题高度: 48px
-@jxl-season-header-height: 48px;
+@questsection-season-header-height: 48px;
 // 大章节项高度: 40px
-@jxl-chapter-item-height: 40px;
+@questsection-chapter-item-height: 40px;
 // 圆角: 8px（搜索框、大章节）
-@jxl-radius: 8px;
+@questsection-radius: 8px;
 
 // 动画变量
-@jxl-transition-duration: 300ms;
+@questsection-transition-duration: 300ms;
 
 // ==================== 主模块 ====================
 
-.m-pvx-jxl-sidebar {
+.m-pvx-questsection-sidebar {
     // 固定定位，左侧固定宽度
     position: fixed;
     left: 40px;
     top: calc(40px + @header-height);
-    width: @jxl-sidebar-width;
+    width: @questsection-sidebar-width;
     // 未展开时高度 300px
     height: 300px;
-    background: @jxl-color-text-white;
-    box-shadow: @jxl-shadow-sidebar;
+    background: @questsection-color-text-white;
+    box-shadow: @questsection-shadow-sidebar;
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -65,30 +65,30 @@
 
     // ==================== 搜索框模块 ====================
     // Figma: padding=20px, border-bottom=1px solid rgba(0,0,0,0.1)
-    .m-jxl-sidebar__search {
+    .m-questsection-sidebar__search {
         padding: 20px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         box-sizing: border-box;
 
         // 搜索输入框样式
         // Figma: height=40px, border-radius=8px, padding=12px 16px
-        .u-jxl-search-input {
+        .u-questsection-search-input {
             width: 100%;
             height: 40px;
 
             .el-input__wrapper {
                 height: 40px;
-                border-radius: @jxl-radius;
+                border-radius: @questsection-radius;
                 box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1) inset;
-                transition: all @jxl-transition-duration ease-out;
+                transition: all @questsection-transition-duration ease-out;
                 box-sizing: border-box;
 
                 &:hover {
-                    box-shadow: 0 0 0 1px @jxl-color-primary inset;
+                    box-shadow: 0 0 0 1px @questsection-color-primary inset;
                 }
 
                 &.is-focus {
-                    box-shadow: 0 0 0 1px @jxl-color-primary inset;
+                    box-shadow: 0 0 0 1px @questsection-color-primary inset;
                 }
             }
 
@@ -97,7 +97,7 @@
                 font-size: 14px;
                 font-weight: 400;
                 line-height: 40px;
-                color: @jxl-color-text-black;
+                color: @questsection-color-text-black;
                 padding-left: 16px;
 
                 &::placeholder {
@@ -108,49 +108,49 @@
         }
 
         // 搜索图标
-        .u-jxl-search-icon {
+        .u-questsection-search-icon {
             color: rgba(0, 0, 0, 0.4);
             font-size: 16px;
             cursor: pointer;
-            transition: color @jxl-transition-duration ease-out;
+            transition: color @questsection-transition-duration ease-out;
 
             &:hover {
-                color: @jxl-color-primary;
+                color: @questsection-color-primary;
             }
         }
     }
 
     // ==================== 资料片列表模块 ====================
-    .m-jxl-sidebar__list {
+    .m-questsection-sidebar__list {
         flex: 1;
         overflow-y: auto;
         padding: 10px 20px;
         box-sizing: border-box;
 
         // 资料片容器
-        .m-jxl-season {
+        .m-questsection-season {
             margin-bottom: 8px;
 
-            // ==================== 资料片标题 ====================
+            // ==================== 料片标题 ====================
             // Figma: 紫底白字，height=48px, padding=0 20px, font-size=16px, font-weight=600
-            .u-jxl-season-header {
+            .u-questsection-season-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                height: @jxl-season-header-height;
+                height: @questsection-season-header-height;
                 padding: 0 20px;
-                background: @jxl-color-season-bg;
-                color: @jxl-color-text-white;
+                background: @questsection-color-season-bg;
+                color: @questsection-color-text-white;
                 cursor: pointer;
-                transition: background @jxl-transition-duration ease-out;
+                transition: background @questsection-transition-duration ease-out;
                 box-sizing: border-box;
-                border-radius: @jxl-radius;
+                border-radius: @questsection-radius;
 
                 &:hover {
                     background: #5A42E5; // darken(#6B52FF, 5%)
                 }
 
-                .u-jxl-season-name {
+                .u-questsection-season-name {
                     font-size: 16px;
                     font-weight: 600;
                     line-height: 24px; // 1.5 倍率
@@ -158,10 +158,10 @@
                 }
 
                 // 折叠展开箭头（SVG 图标）
-                .u-jxl-season-arrow {
+                .u-questsection-season-arrow {
                     width: 11px;
                     height: 9px;
-                    transition: transform @jxl-transition-duration ease-out;
+                    transition: transform @questsection-transition-duration ease-out;
 
                     // 展开状态箭头旋转 180deg
                     &.is-expanded {
@@ -172,56 +172,56 @@
 
             // ==================== 大章节列表 ====================
             // Figma: padding=8px 12px
-            .m-jxl-season__chapters {
+            .m-questsection-season__chapters {
                 overflow: hidden;
                 padding: 8px 12px;
                 box-sizing: border-box;
 
                 // 大章节项
                 // Figma: height=40px, padding=0 16px, margin-bottom=6px, border-radius=8px
-                .u-jxl-chapter {
+                .u-questsection-chapter {
                     display: flex;
                     align-items: center;
-                    height: @jxl-chapter-item-height;
+                    height: @questsection-chapter-item-height;
                     padding: 8px 10px;
                     margin-bottom: 8px;
                     cursor: pointer;
-                    border-radius: @jxl-radius;
-                    transition: all @jxl-transition-duration ease-out;
+                    border-radius: @questsection-radius;
+                    transition: all @questsection-transition-duration ease-out;
                     box-sizing: border-box;
 
                     // default 状态
                     // Figma: background=rgba(0,0,0,0.05), color=#000, shadow=0px 2px 6px rgba(0,0,0,0.08)
-                    background: @jxl-color-chapter-default-bg;
-                    color: @jxl-color-text-black;
-                    box-shadow: @jxl-shadow-chapter;
+                    background: @questsection-color-chapter-default-bg;
+                    color: @questsection-color-text-black;
+                    box-shadow: @questsection-shadow-chapter;
 
                     // hover 状态
                     // Figma: 300ms 动画过渡，样式等同于 active
                     &:hover {
-                        background: @jxl-color-primary;
-                        color: @jxl-color-text-white;
-                        box-shadow: @jxl-shadow-active;
+                        background: @questsection-color-primary;
+                        color: @questsection-color-text-white;
+                        box-shadow: @questsection-shadow-active;
                     }
 
                     // active 状态
                     // Figma: 紫底(#6B52FF)白字(#FFF)带阴影
                     &.is-active {
-                        background: @jxl-color-primary;
-                        color: @jxl-color-text-white;
+                        background: @questsection-color-primary;
+                        color: @questsection-color-text-white;
                         font-weight: 500;
-                        box-shadow: @jxl-shadow-active;
+                        box-shadow: @questsection-shadow-active;
 
                         // active 状态下 hover 保持不变
                         &:hover {
-                            background: @jxl-color-primary;
-                            color: @jxl-color-text-white;
+                            background: @questsection-color-primary;
+                            color: @questsection-color-text-white;
                         }
                     }
 
                     // 大章节名称
                     // Figma: font-size=14px, line-height=21px (1.5倍率)
-                    .u-jxl-chapter-name {
+                    .u-questsection-chapter-name {
                         font-size: 14px;
                         font-weight: 400;
                         line-height: 21px;
@@ -235,7 +235,7 @@
     }
 
     // ==================== 展开/折叠按钮 ====================
-    .m-jxl-sidebar__toggle {
+    .m-questsection-sidebar__toggle {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -247,7 +247,7 @@
         padding: 0 40px;
         border-top: 1px solid rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        transition: all @jxl-transition-duration ease-out;
+        transition: all @questsection-transition-duration ease-out;
         box-sizing: border-box;
 
         &:hover {
@@ -255,10 +255,10 @@
         }
 
         // 展开/折叠箭头（SVG 图标）
-        .u-jxl-toggle-arrow {
+        .u-questsection-toggle-arrow {
             width: 11px;
             height: 9px;
-            transition: transform @jxl-transition-duration ease-out;
+            transition: transform @questsection-transition-duration ease-out;
 
             // 展开状态箭头旋转 180deg
             &.is-expanded {
@@ -270,15 +270,15 @@
 
 // ==================== 折叠展开动画 ====================
 // 使用 ease-in-out 缓动函数，让动画更平滑自然
-.jxl-expand-enter-active,
-.jxl-expand-leave-active {
+.questsection-expand-enter-active,
+.questsection-expand-leave-active {
     transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out;
     max-height: 1000px;
     opacity: 1;
 }
 
-.jxl-expand-enter-from,
-.jxl-expand-leave-to {
+.questsection-expand-enter-from,
+.questsection-expand-leave-to {
     max-height: 0;
     opacity: 0;
 }
@@ -287,13 +287,13 @@
 
 // ==================== 响应式适配 - iPad ====================
 @media screen and (max-width: @ipad) {
-    .m-pvx-jxl-sidebar {
+    .m-pvx-questsection-sidebar {
         width: 240px;
 
-        .m-jxl-sidebar__search {
+        .m-questsection-sidebar__search {
             padding: 15px;
 
-            .u-jxl-search-input {
+            .u-questsection-search-input {
                 height: 36px;
 
                 .el-input__wrapper {
@@ -307,27 +307,27 @@
             }
         }
 
-        .m-jxl-sidebar__list {
-            .m-jxl-season {
-                .u-jxl-season-header {
+        .m-questsection-sidebar__list {
+            .m-questsection-season {
+                .u-questsection-season-header {
                     height: 44px;
                     padding: 0 15px;
 
-                    .u-jxl-season-name {
+                    .u-questsection-season-name {
                         font-size: 15px;
                         line-height: 22px;
                     }
                 }
 
-                .m-jxl-season__chapters {
+                .m-questsection-season__chapters {
                     padding: 6px 10px;
 
-                    .u-jxl-chapter {
+                    .u-questsection-chapter {
                         height: 36px;
                         padding: 0 12px;
                         margin-bottom: 5px;
 
-                        .u-jxl-chapter-name {
+                        .u-questsection-chapter-name {
                             font-size: 13px;
                             line-height: 20px;
                         }
@@ -340,14 +340,14 @@
 
 // ==================== 响应式适配 - Phone ====================
 @media screen and (max-width: @phone) {
-    .m-pvx-jxl-sidebar {
+    .m-pvx-questsection-sidebar {
         width: 200px;
         top: @header-height;
 
-        .m-jxl-sidebar__search {
+        .m-questsection-sidebar__search {
             padding: 12px;
 
-            .u-jxl-search-input {
+            .u-questsection-search-input {
                 height: 32px;
 
                 .el-input__wrapper {
@@ -366,31 +366,31 @@
             }
         }
 
-        .m-jxl-sidebar__list {
-            .m-jxl-season {
-                .u-jxl-season-header {
+        .m-questsection-sidebar__list {
+            .m-questsection-season {
+                .u-questsection-season-header {
                     height: 40px;
                     padding: 0 12px;
 
-                    .u-jxl-season-name {
+                    .u-questsection-season-name {
                         font-size: 14px;
                         line-height: 21px;
                     }
 
-                    .u-jxl-season-arrow {
+                    .u-questsection-season-arrow {
                         font-size: 12px;
                     }
                 }
 
-                .m-jxl-season__chapters {
+                .m-questsection-season__chapters {
                     padding: 5px 8px;
 
-                    .u-jxl-chapter {
+                    .u-questsection-chapter {
                         height: 32px;
                         padding: 0 10px;
                         margin-bottom: 4px;
 
-                        .u-jxl-chapter-name {
+                        .u-questsection-chapter-name {
                             font-size: 12px;
                             line-height: 18px;
                         }
@@ -403,40 +403,40 @@
 
 // ==================== 小程序端适配 ====================
 .v-miniprogram {
-    .m-pvx-jxl-sidebar {
+    .m-pvx-questsection-sidebar {
         width: 5rem;
         top: 0;
         height: 100vh;
 
-        .m-jxl-sidebar__search {
+        .m-questsection-sidebar__search {
             display: none;
         }
 
-        .m-jxl-sidebar__list {
-            .m-jxl-season {
-                .u-jxl-season-header {
+        .m-questsection-sidebar__list {
+            .m-questsection-season {
+                .u-questsection-season-header {
                     height: 2.5rem;
                     padding: 0 0.5rem;
 
-                    .u-jxl-season-name {
+                    .u-questsection-season-name {
                         font-size: 0.75rem;
                         line-height: 1.5;
                     }
 
-                    .u-jxl-season-arrow {
+                    .u-questsection-season-arrow {
                         font-size: 0.625rem;
                     }
                 }
 
-                .m-jxl-season__chapters {
+                .m-questsection-season__chapters {
                     padding: 0.25rem 0.375rem;
 
-                    .u-jxl-chapter {
+                    .u-questsection-chapter {
                         height: 2rem;
                         padding: 0 0.5rem;
                         margin-bottom: 0.25rem;
 
-                        .u-jxl-chapter-name {
+                        .u-questsection-chapter-name {
                             font-size: 0.625rem;
                             line-height: 1.5;
                         }

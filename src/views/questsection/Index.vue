@@ -1,5 +1,5 @@
 <!--
- * JXL - 剑侠录模块主入口组件
+ * QuestSection - 剑侠录模块主入口组件
  *
  * @description 剑侠录模块的根组件，整合左侧导航栏和右侧内容区
  * @version 1.0.0
@@ -19,10 +19,10 @@
  * - 默认加载"风起稻香"第一个大章节的第一个小节
  *
  * @routes
- * - /jxl: 剑侠录列表页
+ * - /questsection: 剑侠录列表页
  -->
 <template>
-    <div id="app" class="p-pvx-jxl">
+    <div id="app" class="p-pvx-questsection">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
@@ -48,7 +48,7 @@ import Sidebar from "./Sidebar.vue";
 import Content from "./Content.vue";
 
 export default {
-    name: "JxlIndex",
+    name: "QuestsectionIndex",
     components: {
         Nav,
         Sidebar,
@@ -97,7 +97,7 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/miniprogram.less";
-@import "~@/assets/css/jxl/index.less";
+@import "~@/assets/css/questsection/index.less";
 
 // 小程序端适配
 .v-miniprogram {

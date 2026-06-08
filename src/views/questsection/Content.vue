@@ -1,5 +1,5 @@
 <!--
- * JXL - 剑侠录右侧内容区域组件
+ * QuestSection - 剑侠录右侧内容区域组件
  *
  * @description 展示剑侠录章节详情内容，包含固定按钮区域、标题、图片、章节列表和章节内容
  * @version 1.0.0
@@ -15,9 +15,9 @@
  * - section-change: 小节选中变化时触发，参数为选中的小节对象
  -->
 <template>
-    <div class="m-pvx-jxl-content">
+    <div class="m-pvx-questsection-content">
         <!-- 右上角固定按钮区域 -->
-        <div class="m-jxl-content__toolbar">
+        <div class="m-questsection-content__toolbar">
             <PvxRobotTip reply="剑侠录" typeName="剑侠录" hidden />
             <div class="u-feedback">
                 <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" class="u-btn u-btn--feedback">
@@ -28,19 +28,19 @@
         </div>
 
         <!-- 内容主体区域 -->
-        <div class="m-jxl-content__body">
+        <div class="m-questsection-content__body">
             <!-- 标题和图片区块（阴影容器） -->
-            <div class="m-jxl-content__header-image">
+            <div class="m-questsection-content__header-image">
                 <!-- 标题 -->
-                <div class="m-jxl-content__header">
+                <div class="m-questsection-content__header">
                     <h1 class="u-title">{{ chapterData?.szTitle || '-' }}</h1>
                 </div>
 
                 <!-- 图片展示区块：地图背景 + 信息标签浮层 -->
-                <div class="m-jxl-content__image" v-if="sectionDetail?.Chapter?.imagePath">
+                <div class="m-questsection-content__image" v-if="sectionDetail?.Chapter?.imagePath">
                     <img :src="getImageUrl(sectionDetail.Chapter.imagePath, sectionDetail.Chapter.imageFrame)"
                         :alt="pageTitle" class="u-image" />
-                    <div class="m-jxl-content__map-info">
+                    <div class="m-questsection-content__map-info">
                         <div class="u-map-info-item" v-if="sectionDetail.Chapter.title">
                             <span class="u-map-info-text">{{ sectionDetail.Chapter.title }}</span>
                         </div>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- 章节列表展示 -->
-            <div class="m-jxl-content__chapters" v-if="chapterSections.length > 0">
+            <div class="m-questsection-content__chapters" v-if="chapterSections.length > 0">
                 <div class="m-chapter-list">
                     <div v-for="(section, index) in chapterSections" :key="section.nSectionID" class="u-chapter-item"
                         :class="{ 'is-active': activeSectionId === section.nSectionID }"
@@ -63,17 +63,17 @@
             </div>
 
             <!-- 章节内容展示区块 -->
-            <div class="m-jxl-content__detail" v-if="sectionDetail">
+            <div class="m-questsection-content__detail" v-if="sectionDetail">
                 <div class="u-detail-content" v-html="formattedDetail"></div>
             </div>
 
             <!-- 空状态展示 -->
-            <div class="m-jxl-content__empty" v-if="!sectionDetail && !loading">
+            <div class="m-questsection-content__empty" v-if="!sectionDetail && !loading">
                 <div class="u-empty-text">暂无内容</div>
             </div>
 
             <!-- 加载状态 -->
-            <div class="m-jxl-content__loading" v-if="loading">
+            <div class="m-questsection-content__loading" v-if="loading">
                 <el-icon class="is-loading">
                     <Loading />
                 </el-icon>
@@ -85,12 +85,12 @@
 
 <script>
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
-import { getDetail } from "@/service/jxl.js";
+import { getDetail } from "@/service/questsection.js";
 import { Loading } from "@element-plus/icons-vue";
-import { getChapterImageUrl, formatJxlDetail } from "@/utils/jxl.js";
+import { getQuestsectionImageUrl, formatQuestsectionDetail } from "@/utils/questsection.js";
 
 export default {
-    name: "JxlContent",
+    name: "QuestsectionContent",
     components: {
         PvxRobotTip,
         Loading,
@@ -146,7 +146,7 @@ export default {
         // 格式化后的详情内容
         formattedDetail() {
             if (!this.sectionDetail || !this.sectionDetail.szDetail) return "";
-            return formatJxlDetail(this.sectionDetail.szDetail);
+            return formatQuestsectionDetail(this.sectionDetail.szDetail);
         },
     },
     watch: {
@@ -170,19 +170,14 @@ export default {
     methods: {
         /**
          * 获取图片完整URL
-         * - 使用 getChapterImageUrl 处理章节图片路径
+         * - 使用 getQuestsectionImageUrl 处理章节图片路径
          * @param {String} imagePath - 图片路径（如 "ui\\Image\\WorldMap\\MainPlotMap\\MainPlotMap10.UITex"）
          * @param {Number} nImageFrame - 图片帧数
          * @returns {String} 完整的图片URL
          */
         getImageUrl(imagePath, nImageFrame) {
-            if (!imagePath) return "";
-
-            // 使用剑侠录专用的图片处理函数
-            return getChapterImageUrl({
-                imagePath: imagePath,
-                nImageFrame: nImageFrame
-            });
+            // 直接传入两个参数，而不是对象
+            return getQuestsectionImageUrl(imagePath, nImageFrame);
         },
 
         /**
@@ -227,5 +222,5 @@ export default {
 </script>
 
 <style lang="less">
-    @import "~@/assets/css/jxl/content.less";
+    @import "~@/assets/css/questsection/content.less";
 </style>
