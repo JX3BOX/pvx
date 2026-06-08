@@ -1,0 +1,78 @@
+@import (reference) "./index.less";
+
+.m-pvx-swordsman-bio {
+    flex: 1;
+    background: @swordsman-color-text-white;
+    border-radius: @swordsman-radius-lg;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        width: 15px;
+    }
+    &::-webkit-scrollbar-track {
+        background: @swordsman-color-scrollbar-thumb;
+        border-radius: @swordsman-radius-pill;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: @swordsman-color-scrollbar-track;
+        border-radius: @swordsman-radius-pill;
+        min-height: 53px;
+    }
+
+    .u-swordsman-bio-empty {
+        text-align: center;
+        color: @swordsman-color-text-muted;
+        font-size: 14px;
+        line-height: 21px;
+        padding: 40px 0;
+        width: 100%;
+    }
+
+    .m-swordsman-bio-collapse.el-collapse {
+        border-bottom: none;
+
+        .el-collapse-item {
+            margin-bottom: 12px;
+            border-radius: @swordsman-radius;
+            overflow: hidden;
+        }
+
+        .el-collapse-item__header {
+            border-radius: 8px;
+            background: @swordsman-color-primary-hover;
+            color: @swordsman-color-text-black;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 22px;
+            padding: 0 16px;
+            height: 44px;
+            border: none;
+            transition: all @swordsman-transition-duration ease-out;
+        }
+
+        .el-collapse-item__wrap {
+            background: transparent;
+            border: none;
+            margin-top: 12px;
+        }
+
+        .el-collapse-item__content {
+            padding: 16px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            color: @swordsman-color-text-black;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .el-collapse-item.is-active {
+            .el-collapse-item__header {
+                background: @swordsman-color-primary;
+                color: @swordsman-color-text-white;
+            }
+        }
+    }
+}

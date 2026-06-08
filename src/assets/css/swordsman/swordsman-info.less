@@ -1,0 +1,271 @@
+// ============================================
+// 侠客行模块样式 - 右侧信息 TAB
+// ============================================
+// 对齐 Figma Frame 290 (Component 14) 设计稿
+// 命名规范：m-pvx-swordsman-info
+// ============================================
+
+@import (reference) "./index.less";
+
+// ==================== 右侧面板容器（Figma: Frame 304） ====================
+// 垂直布局, gap 20px, 交叉轴 MAX（底部对齐）
+.m-pvx-swordsman-right {
+    position: fixed;
+    right: 43px;
+    top: calc(40px + @header-height);
+    width: @swordsman-info-width;
+    height: calc(100vh - @header-height - 80px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+// ==================== 顶部工具栏（Figma: Frame 287） ====================
+// 圆角10px, 阴影, 白色背景, padding 10px 15px, 宽度自适应内容，居右显示
+.m-swordsman-right__topbar {
+    flex-shrink: 0;
+    background: @swordsman-color-text-white;
+    box-shadow: @swordsman-shadow-default;
+    border-radius: @swordsman-radius-lg;
+    padding: 10px 15px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+
+    .u-swordsman-topbar-nav {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .u-swordsman-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 21px;
+        color: @swordsman-color-text-black;
+        background: @swordsman-color-default-bg;
+        text-decoration: none;
+        transition: all @swordsman-transition-duration ease-out;
+        white-space: nowrap;
+        cursor: pointer;
+        box-sizing: border-box;
+
+        &:hover {
+            background: @swordsman-color-primary;
+            color: @swordsman-color-text-white;
+        }
+
+        i {
+            font-size: 16px;
+        }
+    }
+}
+
+// ==================== 内容面板（Figma: Frame 289 / Component 14） ====================
+// Figma: display: inline-flex, padding: 20px 10px 10px 20px, flex-direction: column, align-items: flex-start, gap: 8px
+// border-radius: 10px, background: #FFF, box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.20)
+.m-pvx-swordsman-info {
+    flex: 1;
+    background: @swordsman-color-text-white;
+    box-shadow: @swordsman-shadow-default;
+    border-radius: @swordsman-radius-lg;
+    box-sizing: border-box;
+    display: inline-flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 20px 10px 10px 20px;
+
+    // ==================== 内容滚动区（Figma: Frame 317） ====================
+    // 垂直布局, gap 20px
+    .m-swordsman-info__body {
+        flex: 1;
+        overflow-y: auto;
+        box-sizing: border-box;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: @swordsman-color-scrollbar-track;
+            border-radius: 4px;
+        }
+    }
+
+    // ==================== 结识方式 ====================
+    .m-swordsman-intro {
+        margin-bottom: 20px;
+
+        .u-swordsman-intro-title {
+            display: block;
+            width: 100%;
+            padding: 8px 10px;
+            background: @swordsman-color-primary;
+            color: @swordsman-color-text-white;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18.48px;
+            font-family: "Microsoft YaHei", sans-serif;
+            border-radius: @swordsman-radius;
+            margin-bottom: 12px;
+        }
+
+        .u-swordsman-intro-map {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 21.12px;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: @swordsman-color-text-black;
+            margin-bottom: 8px;
+        }
+
+        .u-swordsman-intro-desc {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18.48px;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: @swordsman-color-text-muted;
+            margin-bottom: 12px;
+        }
+
+        // 道具列表：Figma Frame 301, #F2F2F2, 圆角4px, padding 8px
+        .m-swordsman-intro-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: @swordsman-color-attr-bg;
+            border-radius: 4px;
+            padding: 8px;
+
+            .u-swordsman-intro-item {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 4px 10px;
+                background: @swordsman-color-text-white;
+                color: @swordsman-color-pink;
+                border-radius: 4px;
+                font-size: 12px;
+                line-height: 18px;
+                text-decoration: none;
+                border: 1px solid @swordsman-color-border-soft;
+                transition: all @swordsman-transition-duration ease-out;
+
+                &:hover {
+                    background: @swordsman-color-primary-hover;
+                    border-color: @swordsman-color-primary;
+                }
+            }
+        }
+    }
+
+    // ==================== 武学境界 + 属性 同行两列 ====================
+    .m-swordsman-info__row {
+        display: flex;
+        gap: 20px;
+        width: 100%;
+
+        .m-swordsman-info__col {
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    // ==================== 武学招式 / 境界 ====================
+    .m-swordsman-skills {
+        margin-bottom: 20px;
+
+        .u-swordsman-section-title {
+            display: inline-block;
+            padding: 8px 10px;
+            background: @swordsman-color-primary;
+            color: @swordsman-color-text-white;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18.48px;
+            font-family: "Microsoft YaHei", sans-serif;
+            border-radius: @swordsman-radius;
+            margin: 0 0 12px;
+        }
+    }
+
+    // ==================== 属性表 ====================
+    .m-swordsman-attrs {
+        margin-bottom: 16px;
+
+        .u-swordsman-section-title {
+            display: inline-block;
+            padding: 8px 10px;
+            background: @swordsman-color-primary;
+            color: @swordsman-color-text-white;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18.48px;
+            font-family: "Microsoft YaHei", sans-serif;
+            border-radius: @swordsman-radius;
+            margin: 0 0 12px;
+        }
+
+        // Figma: Frame 301, #F2F2F2, 圆角4px
+        .m-swordsman-attr-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            line-height: 18.48px;
+            border-radius: 4px;
+            overflow: hidden;
+
+            tr {
+                transition: background @swordsman-transition-duration ease-out;
+
+                &:hover {
+                    background: rgba(107, 82, 255, 0.05);
+                }
+
+                &:last-child td {
+                    border-bottom: none;
+                }
+            }
+
+            td {
+                padding: 8px 12px;
+                border-bottom: 1px solid @swordsman-color-border;
+                box-sizing: border-box;
+                font-family: "Microsoft YaHei", sans-serif;
+            }
+
+            .u-swordsman-attr-label {
+                color: rgba(0, 0, 0, 0.6);
+                width: 50%;
+            }
+
+            .u-swordsman-attr-value {
+                color: @swordsman-color-text-dark;
+                text-align: right;
+                font-weight: 400;
+            }
+        }
+    }
+}
+
+// ==================== 响应式适配 - iPad ====================
+@media screen and (max-width: @ipad) {
+    .m-pvx-swordsman-right {
+        width: 300px;
+    }
+}
+
+// ==================== 响应式适配 - Phone ====================
+@media screen and (max-width: @phone) {
+    .m-pvx-swordsman-right {
+        display: none;
+    }
+}

@@ -1,0 +1,32 @@
+// ============================================
+// 侠客行模块样式 - 中间立绘
+// ============================================
+// 命名规范：m-pvx-swordsman-portrait
+// ============================================
+
+// 仅引用 index.less 中的变量（reference 模式不会把页面级 CSS 规则输出到本文件）
+@import (reference) "./index.less";
+
+.m-pvx-swordsman-portrait {
+    flex: 1;
+    min-height: @swordsman-portrait-min-height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    .u-swordsman-portrait-img {
+        max-width: 100%;
+        max-height: calc(100vh - @header-height - 40px);
+        object-fit: contain;
+        display: block;
+    }
+
+    .u-swordsman-portrait-empty {
+        font-size: 14px;
+        color: @swordsman-color-text-muted;
+        line-height: 21px;
+    }
+}

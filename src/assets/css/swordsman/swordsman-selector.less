@@ -1,0 +1,258 @@
+// ============================================
+// 侠客行模块样式 - 左侧选择区
+// ============================================
+// 对齐 Figma Component 15 设计稿
+// 命名规范：m-pvx-swordsman-selector
+// 元素级：u-swordsman-*
+// ============================================
+
+@import (reference) "./index.less";
+
+.m-pvx-swordsman-selector {
+    position: fixed;
+    left: 43px;
+    top: calc(40px + @header-height);
+    width: @swordsman-sidebar-width;
+    background: @swordsman-color-text-white;
+    box-shadow: @swordsman-shadow-default;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    border-radius: @swordsman-radius-lg;
+    overflow: hidden;
+
+    // 列表容器（高度由 expanded 控制）
+    .m-swordsman-selector__body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+        gap: 20px;
+        padding: 10px 15px 0;
+        box-sizing: border-box;
+        transition: max-height @swordsman-transition-duration ease-out;
+
+        // 自定义滚动条（Figma: Frame 315, 15px宽, 圆角30px）
+        &::-webkit-scrollbar {
+            width: 15px;
+        }
+        &::-webkit-scrollbar-track {
+            background: @swordsman-color-scrollbar-thumb;
+            border-radius: @swordsman-radius-pill;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: @swordsman-color-scrollbar-track;
+            border-radius: @swordsman-radius-pill;
+            min-height: 53px;
+        }
+    }
+
+    // ==================== 搜索框 ====================
+    // Figma: "前进后退", 40px高, 圆角30px, 背景 rgba(243,244,245,0.96)
+    .m-swordsman-selector__search {
+        padding: 0;
+        flex-shrink: 0;
+
+        .u-swordsman-search-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 40px;
+            padding: 0px 20px;
+            background: @swordsman-color-search-bg;
+            border-radius: @swordsman-radius-pill;
+            box-sizing: border-box;
+            transition: all @swordsman-transition-duration ease-out;
+
+            &:hover {
+                background: rgba(243, 244, 245, 1);
+            }
+
+            .u-swordsman-search-input {
+                flex: 1;
+                border: none;
+                background: transparent;
+                font-size: 16px;
+                font-weight: 700;
+                font-family: "Microsoft YaHei", sans-serif;
+                color: @swordsman-color-text-black;
+                outline: none;
+
+                &::placeholder {
+                    color: @swordsman-color-placeholder;
+                    font-size: 16px;
+                    font-weight: 700;
+                    font-family: "Microsoft YaHei", sans-serif;
+                }
+            }
+
+            .u-swordsman-search-icon {
+                color: @swordsman-color-text-dark;
+                width: 24px;
+                height: 24px;
+                flex-shrink: 0;
+                cursor: pointer;
+            }
+        }
+    }
+
+    // ==================== 分类标签卡片区域 ====================
+    // Figma: Frame 323, 水平布局, gap 20px, clipsContent
+    .m-swordsman-selector__categories {
+        flex: 1;
+        overflow-y: auto;
+
+        // 自定义滚动条
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: @swordsman-color-scrollbar-track;
+            border-radius: 4px;
+        }
+
+        // 标签行（Figma: Frame 289/291, 水平布局, gap 20px）
+        .m-swordsman-category-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 4px;
+        }
+
+        // 分类卡片（Figma: "主页" 节点, 100px宽, 圆角30px, 垂直居中）
+        .u-swordsman-category-item {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100px;
+            padding: 12px 10px;
+            border-radius: @swordsman-radius-pill;
+            cursor: pointer;
+            transition: all @swordsman-transition-duration ease-out;
+            box-sizing: border-box;
+
+            // 圆形头像（Figma: Ellipse 4, 75x75, 灰色占位 #D9D9D9）
+            .u-swordsman-category-avatar {
+                width: 75px;
+                height: 75px;
+                border-radius: 50%;
+                background: @swordsman-color-dropdown;
+                overflow: hidden;
+                flex-shrink: 0;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+
+            // 名字（Figma: 未选中 Regular 14px 黑 opacity 0.6）
+            .u-swordsman-category-name {
+                font-size: 14px;
+                font-weight: 400;
+                font-family: "Microsoft YaHei", sans-serif;
+                color: @swordsman-color-text-black;
+                opacity: 0.6;
+                text-align: center;
+                line-height: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 80px;
+            }
+
+            // 选中态（Figma: 背景 #4F46E5, 白字 Bold 16px）
+            &.is-active {
+                background: @swordsman-color-primary;
+
+                .u-swordsman-category-name {
+                    color: @swordsman-color-text-white;
+                    font-size: 16px;
+                    font-weight: 700;
+                    opacity: 1;
+                }
+            }
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+
+        // 空态
+        .u-swordsman-category-empty {
+            text-align: center;
+            color: @swordsman-color-text-muted;
+            font-size: 14px;
+            line-height: 21px;
+            padding: 20px 0;
+        }
+    }
+
+    // ==================== 展开 / 收起 ====================
+    .m-swordsman-selector__toggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 40px;
+        min-height: 40px;
+        flex-shrink: 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: background @swordsman-transition-duration ease-out;
+        box-sizing: border-box;
+
+        &:hover {
+            background: rgba(107, 82, 255, 0.05);
+        }
+
+        .u-swordsman-toggle-arrow {
+            transition: transform @swordsman-transition-duration ease-out;
+
+            &.is-collapsed {
+                transform: rotate(180deg);
+            }
+        }
+    }
+}
+
+// ==================== 响应式适配 - iPad ====================
+@media screen and (max-width: @ipad) {
+    .m-pvx-swordsman-selector {
+        width: 240px;
+
+        .u-swordsman-category-item {
+            width: 85px;
+
+            .u-swordsman-category-avatar {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    }
+}
+
+// ==================== 响应式适配 - Phone ====================
+@media screen and (max-width: @phone) {
+    .m-pvx-swordsman-selector {
+        width: 200px;
+        top: @header-height;
+
+        .u-swordsman-category-item {
+            width: 75px;
+
+            .u-swordsman-category-avatar {
+                width: 50px;
+                height: 50px;
+            }
+
+            .u-swordsman-category-name {
+                font-size: 12px;
+            }
+        }
+    }
+}

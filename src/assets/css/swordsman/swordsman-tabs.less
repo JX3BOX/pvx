@@ -1,0 +1,104 @@
+// ============================================
+// 侠客行模块样式 - 信息头部 + TAB 切换
+// ============================================
+// 对齐 Figma Frame 292 (Tabs) + Frame 307 (Header 包含名字+ID+Tabs)
+// 命名规范：m-swordsman-info-header / m-swordsman-info__tabs / u-swordsman-tab
+// ============================================
+
+@import (reference) "./index.less";
+
+// ==================== 头部整体布局 ====================
+// Figma: Frame 307, 水平 SPACE_BETWEEN, align-items: center
+.m-swordsman-info-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+
+    // 左侧：名字 + ID
+    .m-swordsman-info__name-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .u-swordsman-name {
+            // Figma: 24px Bold, #000000
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 31.68px;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: @swordsman-color-text-black;
+            margin: 0;
+        }
+
+        .u-swordsman-id {
+            color: #000;
+            font-family: "Microsoft YaHei";
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+        }
+    }
+
+    // 右侧：Tab 容器
+    .m-swordsman-info__tabs {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        // Figma Frame 292: 水平布局, gap 20px
+        .u-swordsman-tab {
+            // Figma: 16px Bold, #000000, Microsoft YaHei
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 21.12px;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: @swordsman-color-text-black;
+            cursor: pointer;
+            white-space: nowrap;
+
+            // 未选中态：opacity 0.2
+            opacity: 0.2;
+            transition: opacity @swordsman-transition-duration ease-out;
+
+            &:hover {
+                opacity: 0.5;
+            }
+
+            // 选中态：opacity 1.0
+            &.is-active {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+// ==================== 旧版 Tabs 兼容（InfoTabs.vue 旧用法） ====================
+// 保留原 m-pvx-swordsman-tabs 类名以防其他地方引用
+.m-pvx-swordsman-tabs {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    .u-swordsman-tab {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 21.12px;
+        font-family: "Microsoft YaHei", sans-serif;
+        color: @swordsman-color-text-black;
+        cursor: pointer;
+        opacity: 0.2;
+        transition: opacity @swordsman-transition-duration ease-out;
+
+        &:hover {
+            opacity: 0.5;
+        }
+
+        &.is-active {
+            opacity: 1;
+        }
+    }
+}
