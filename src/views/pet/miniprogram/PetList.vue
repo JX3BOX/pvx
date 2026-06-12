@@ -83,7 +83,7 @@ import { __cdn } from "@/utils/config";
 import { extractTextContent, iconLink, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 
 import { clone } from "lodash";
-import { getPetLucky, getPets, getSliders } from "@/service/pet";
+import { getPetLucky, getPetSearchOptions, getPets, getSliders } from "@/service/pet";
 import dayjs from "@/plugins/day";
 import PvxSuspension from "@/components/PvxSuspension.vue";
 
@@ -101,31 +101,8 @@ export default {
             pages: 1,
             total: 0,
             luckyList:[],
-            list_type: [
-                {
-                    class: 1,
-                    type: 1,
-                    name: "水族",
-                    list: [],
-                },
-                {
-                    class: 2,
-                    type: 2,
-                    name: "禽鸟",
-                    list: [],
-                },
-                {
-                    class: 3,
-                    type: 3,
-                    name: "走兽",
-                    list: [],
-                },
-                {
-                    class: 4,
-                    type: 4,
-                    name: "机关",
-                    list: [],
-                },]
+            searchReady: false,
+            list_type: [],
         };
     },
     computed: {
@@ -148,12 +125,14 @@ export default {
             deep: true,
             immediate: true,
             handler(val) {
+                if (!this.searchReady) return;
                 this.getPetListInit();
             },
         },
     },
     created() {
         this.getPetLucky();
+        this.getPetSearchOptions();
     },
     methods: {
         iconLink,
@@ -182,7 +161,12 @@ export default {
             return result;
         },
         toAll(){
-            this.active=0;
+            this.active = 0;
+            this.list = [];
+            this.finished = false;
+            this.page = 1;
+            this.total = 0;
+            this.tabsData = {};
         },
         changePetType(item) {
             this.active = item.type;
@@ -190,16 +174,34 @@ export default {
             this.list = [];
             this.finished=false
             this.page=1;
-            this.tabsData = {
-                class: item.class,
-                type: item.type,
-                name: item.name
-            };
+            this.total = 0;
+            this.tabsData = {};
         },
         setActive(val) {
             this.active = val;
             this.page = 1;
             document.documentElement.scrollTop = 0;
+        },
+        getPetSearchOptions() {
+            getPetSearchOptions()
+                .then((res) => {
+                    const data = Array.isArray(res.data) ? res.data : [];
+                    this.list_type = data
+                        .filter((item) => item.Type === 1 && item.TypeName)
+                        .map((item) => ({
+                            class: item.ID,
+                            type: item.ID,
+                            name: item.TypeName,
+                            list: [],
+                        }));
+                })
+                .catch((err) => {
+                    console.error("获取宠物筛选项失败", err);
+                })
+                .finally(() => {
+                    this.searchReady = true;
+                    this.getPetListInit();
+                });
         },
 
         getPetListInit() {
@@ -236,13 +238,10 @@ export default {
                         this.list = this.list.concat(newList);
                         if(this.list.length==this.total)this.finished=true;
                     } else {
-                        const typesMap = {
-                            1: () => (this.list_type[0].list = newList || []),
-                            2: () => (this.list_type[1].list = newList || []),
-                            3: () => (this.list_type[2].list = newList || []),
-                            4: () => (this.list_type[3].list = newList || []),
-                        };
-                        typesMap[params.Class]();
+                        const typeIndex = this.list_type.findIndex((item) => item.class === params.Class);
+                        if (typeIndex !== -1) {
+                            this.list_type[typeIndex].list = newList || [];
+                        }
                     }
                     if (this.params.Class) {
                         this.total = res.data.total;

@@ -12,7 +12,7 @@
                 </el-select>
                 <el-select v-model="formData.Source" :class="{ 'is-active': formData.Source }" filterable class="u-select"
                     clearable placeholder="全部">
-                    <el-option v-for="(item, index) in Source" :key="'laiyuan' + index" :label="item.name"
+                    <el-option v-for="(item, index) in sourceOptions" :key="'laiyuan' + index" :label="item.name"
                         :value="item.source">
                     </el-option>
                     <template #prefix>来源</template>
@@ -29,7 +29,7 @@
             </el-select>
             <el-select v-model="formData.Source" :class="{ 'is-active': formData.Source }" filterable class="u-select"
                 clearable placeholder="全部">
-                <el-option v-for="(item, index) in Source" :key="'laiyuan' + index" :label="item.name"
+                <el-option v-for="(item, index) in sourceOptions" :key="'laiyuan' + index" :label="item.name"
                     :value="item.source">
                 </el-option>
                 <template #prefix>来源</template>
@@ -82,8 +82,14 @@ export default {
         },
         typeOptions() {
             return this.types.map(item => ({
-                type: item.class,
-                name: item.name
+                type: item.class ?? item.ID,
+                name: item.name || item.TypeName
+            }));
+        },
+        sourceOptions() {
+            return this.Source.map(item => ({
+                source: item.source ?? item.ID,
+                name: item.name || item.TypeName
             }));
         },
         searchItems() {
