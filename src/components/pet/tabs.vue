@@ -82,8 +82,8 @@ export default {
         },
         typeOptions() {
             return this.types.map(item => ({
-                type: item.class ?? item.ID,
-                name: item.name || item.TypeName
+                type: item.class,
+                name: item.name
             }));
         },
         sourceOptions() {

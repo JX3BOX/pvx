@@ -57,6 +57,7 @@ import petItem from "@/components/pet/item";
 import luckyItem from "@/components/pet/lucky";
 import { clone, debounce } from "lodash";
 import { isPhone } from "@/utils/index";
+import Type from "@/assets/data/pet_type.json";
 import { getPets, getPetSearchOptions, getPetLucky, getSliders, getMapList } from "@/service/pet";
 import dayjs from "@/plugins/day";
 
@@ -72,7 +73,7 @@ export default {
         return {
             tabsData: {},          // 标签筛选数据
             active: "",            // 当前激活的分类ID
-            Type: [],              // 宠物类型配置
+            Type,                  // 宠物类型配置
             Source: [],            // 宠物来源配置
             list: [],              // 单分类宠物列表
             page: 1,               // 当前页码
@@ -88,7 +89,12 @@ export default {
             count: 0,              // 每行卡片数
             searchReady: false,    // 筛选项是否已加载
             // 分类宠物列表（首页按分类展示）
-            list_type: [],
+            list_type: [
+                { class: 1, type: 1, name: "水族", list: [] },
+                { class: 2, type: 2, name: "禽鸟", list: [] },
+                { class: 3, type: 3, name: "走兽", list: [] },
+                { class: 4, type: 4, name: "机关", list: [] },
+            ],
         };
     },
     computed: {
@@ -152,19 +158,12 @@ export default {
     methods: {
         /**
          * 获取宠物筛选项
-         * 种类对应宠物 Class 字段，来源对应宠物 Source 字段
+         * 来源对应宠物 Source 字段；种类仍遵循本地 Class 配置
          */
         getPetSearchOptions() {
             return getPetSearchOptions()
                 .then((res) => {
                     const data = Array.isArray(res.data) ? res.data : [];
-                    const typeOptions = data
-                        .filter((item) => item.Type === 1 && item.TypeName)
-                        .map((item) => ({
-                            class: item.ID,
-                            type: item.ID,
-                            name: item.TypeName,
-                        }));
                     const sourceOptions = data
                         .filter((item) => item.Type === 2 && item.TypeName)
                         .map((item) => ({
@@ -172,12 +171,7 @@ export default {
                             name: item.TypeName,
                         }));
 
-                    this.Type = [{ class: "", type: 0, name: "所有种类" }, ...typeOptions];
                     this.Source = [{ source: "", name: "所有途径" }, ...sourceOptions];
-                    this.list_type = typeOptions.map((item) => ({
-                        ...item,
-                        list: [],
-                    }));
                 })
                 .catch((err) => {
                     console.error("获取宠物筛选项失败", err);

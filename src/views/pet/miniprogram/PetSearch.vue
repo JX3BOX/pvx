@@ -98,6 +98,7 @@
 </template>
 
 <script>
+import Type from "@/assets/data/pet_type.json";
 import { getPets, getPetSearchOptions, getMapList } from "@/service/pet";
 import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { cloneDeep } from "lodash";
@@ -107,7 +108,7 @@ export default {
     data() {
         return {
             activeNames: "",
-            Type: [],
+            Type,
             Source: [],
             tabsData:{},
             list: [],
@@ -123,7 +124,31 @@ export default {
                 Name: "",
                 Class:'',
             },
-            list_type: [],
+            list_type: [
+                {
+                    class: 1,
+                    type: 1,
+                    name: "水族",
+                    list: [],
+                },
+                {
+                    class: 2,
+                    type: 2,
+                    name: "禽鸟",
+                    list: [],
+                },
+                {
+                    class: 3,
+                    type: 3,
+                    name: "走兽",
+                    list: [],
+                },
+                {
+                    class: 4,
+                    type: 4,
+                    name: "机关",
+                    list: [],
+                },],
             mapList:[]
         };
     },
@@ -174,13 +199,6 @@ export default {
             getPetSearchOptions()
                 .then((res) => {
                     const data = Array.isArray(res.data) ? res.data : [];
-                    const typeOptions = data
-                        .filter((item) => item.Type === 1 && item.TypeName)
-                        .map((item) => ({
-                            class: item.ID,
-                            type: item.ID,
-                            name: item.TypeName,
-                        }));
                     const sourceOptions = data
                         .filter((item) => item.Type === 2 && item.TypeName)
                         .map((item) => ({
@@ -188,12 +206,7 @@ export default {
                             name: item.TypeName,
                         }));
 
-                    this.Type = [{ class: "", type: 0, name: "所有种类" }, ...typeOptions];
                     this.Source = [{ source: "", name: "所有途径" }, ...sourceOptions];
-                    this.list_type = typeOptions.map((item) => ({
-                        ...item,
-                        list: [],
-                    }));
                 })
                 .catch((err) => {
                     console.error("获取宠物筛选项失败", err);

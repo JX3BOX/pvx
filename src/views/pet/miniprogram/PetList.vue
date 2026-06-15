@@ -83,7 +83,7 @@ import { __cdn } from "@/utils/config";
 import { extractTextContent, iconLink, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 
 import { clone } from "lodash";
-import { getPetLucky, getPetSearchOptions, getPets, getSliders } from "@/service/pet";
+import { getPetLucky, getPets, getSliders } from "@/service/pet";
 import dayjs from "@/plugins/day";
 import PvxSuspension from "@/components/PvxSuspension.vue";
 
@@ -101,8 +101,31 @@ export default {
             pages: 1,
             total: 0,
             luckyList:[],
-            searchReady: false,
-            list_type: [],
+            list_type: [
+                {
+                    class: 1,
+                    type: 1,
+                    name: "水族",
+                    list: [],
+                },
+                {
+                    class: 2,
+                    type: 2,
+                    name: "禽鸟",
+                    list: [],
+                },
+                {
+                    class: 3,
+                    type: 3,
+                    name: "走兽",
+                    list: [],
+                },
+                {
+                    class: 4,
+                    type: 4,
+                    name: "机关",
+                    list: [],
+                },]
         };
     },
     computed: {
@@ -125,14 +148,12 @@ export default {
             deep: true,
             immediate: true,
             handler(val) {
-                if (!this.searchReady) return;
                 this.getPetListInit();
             },
         },
     },
     created() {
         this.getPetLucky();
-        this.getPetSearchOptions();
     },
     methods: {
         iconLink,
@@ -181,27 +202,6 @@ export default {
             this.active = val;
             this.page = 1;
             document.documentElement.scrollTop = 0;
-        },
-        getPetSearchOptions() {
-            getPetSearchOptions()
-                .then((res) => {
-                    const data = Array.isArray(res.data) ? res.data : [];
-                    this.list_type = data
-                        .filter((item) => item.Type === 1 && item.TypeName)
-                        .map((item) => ({
-                            class: item.ID,
-                            type: item.ID,
-                            name: item.TypeName,
-                            list: [],
-                        }));
-                })
-                .catch((err) => {
-                    console.error("获取宠物筛选项失败", err);
-                })
-                .finally(() => {
-                    this.searchReady = true;
-                    this.getPetListInit();
-                });
         },
 
         getPetListInit() {
