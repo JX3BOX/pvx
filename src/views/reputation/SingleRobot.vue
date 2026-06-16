@@ -16,7 +16,12 @@
     </div>
     <div class="m-pvx-reputation-robot-info m-pvx__item">
         <div class="u-reputation-logo">
-            <img v-if="getBotIcon(reputation.szIconPath)" width="28" :src="getBotIcon(reputation.szIconPath)" />
+            <img
+                v-if="getBotIcon(reputation.szIconPath)"
+                width="28"
+                :src="getBotIcon(reputation.szIconPath)"
+                @error="replaceReputationIconByDefault"
+            />
         </div>
         <div class="u-intro" v-html="reputation.szDesc"></div>
     </div>
@@ -75,7 +80,13 @@
 <script>
 import PvxUser from "@/components/PvxUser.vue";
 import ItemIcon from "@/components/common/item_icon.vue";
-import { getReputationIcon, getBotIcon, getReputationPath, LOST_RESPECT_UNAVAILABLE } from "@/utils/reputation";
+import {
+    DEFAULT_REPUTATION_ICON,
+    getReputationIcon,
+    getBotIcon,
+    getReputationPath,
+    LOST_RESPECT_UNAVAILABLE,
+} from "@/utils/reputation";
 
 export default {
     name: "SingleRobot",
@@ -106,6 +117,9 @@ export default {
     methods: {
         getReputationIcon,
         getBotIcon,
+        replaceReputationIconByDefault(e) {
+            e.target.src = DEFAULT_REPUTATION_ICON;
+        },
         replaceByDefault(e) {
             e.target.src = require("@/assets/img/reputation/sw-null.jpg");
         },

@@ -58,9 +58,7 @@ import luckyItem from "@/components/pet/lucky";
 import { clone, debounce } from "lodash";
 import { isPhone } from "@/utils/index";
 import Type from "@/assets/data/pet_type.json";
-import Source from "@/assets/data/pet_source.json";
-import { __imgPath } from "@/utils/config";
-import { getPets, getPetLucky, getSliders, getMapList } from "@/service/pet";
+import { getPets, getPetSearchOptions, getPetLucky, getSliders, getMapList } from "@/service/pet";
 import dayjs from "@/plugins/day";
 
 export default {
@@ -76,7 +74,7 @@ export default {
             tabsData: {},          // 标签筛选数据
             active: "",            // 当前激活的分类ID
             Type,                  // 宠物类型配置
-            Source,                // 宠物来源配置
+            Source: [],            // 宠物来源配置
             list: [],              // 单分类宠物列表
             page: 1,               // 当前页码
             per_page: 50,          // 每页显示数量
@@ -89,6 +87,7 @@ export default {
             showAllList: false,    // 是否显示单分类全部列表
             mapList: [],           // 地图列表
             count: 0,              // 每行卡片数
+            searchReady: false,    // 筛选项是否已加载
             // 分类宠物列表（首页按分类展示）
             list_type: [
                 { class: 1, type: 1, name: "水族", list: [] },
@@ -142,9 +141,10 @@ export default {
         this.getPetLucky();
         this.getMapList();
         this.showCount(1);
-        // 首次加载数据
-        this.$nextTick(() => {
-            this.getPetListInit();
+        this.getPetSearchOptions().finally(() => {
+            this.$nextTick(() => {
+                this.getPetListInit();
+            });
         });
 
         this.handleResize = debounce(() => {
@@ -156,6 +156,31 @@ export default {
         window.removeEventListener("resize", this.handleResize);
     },
     methods: {
+        /**
+         * 获取宠物筛选项
+         * 来源对应宠物 Source 字段；种类仍遵循本地 Class 配置
+         */
+        getPetSearchOptions() {
+            return getPetSearchOptions()
+                .then((res) => {
+                    const data = Array.isArray(res.data) ? res.data : [];
+                    const sourceOptions = data
+                        .filter((item) => item.Type === 2 && item.TypeName)
+                        .map((item) => ({
+                            source: item.ID,
+                            name: item.TypeName,
+                        }));
+
+                    this.Source = [{ source: "", name: "所有途径" }, ...sourceOptions];
+                })
+                .catch((err) => {
+                    console.error("获取宠物筛选项失败", err);
+                })
+                .finally(() => {
+                    this.searchReady = true;
+                });
+        },
+
         /**
          * 获取地图列表
          * 用于筛选组件中的地图下拉框
@@ -175,6 +200,7 @@ export default {
          * @returns {Boolean} 是否无结果
          */
         isNoRes() {
+            if (!this.searchReady || this.loading) return false;
             if (this.params.Class) {
                 return this.list.length === 0;
             }
@@ -190,7 +216,6 @@ export default {
             this.page = 1;
             document.documentElement.scrollTop = 0;
             this.typeName = this.getTypeName();
-            this.Type = [...Type];
             // 同步更新 tabsData 中的 Class
             this.tabsData = { ...this.tabsData, Class: val };
         },
@@ -331,7 +356,6 @@ export default {
             if (newClass !== this.active) {
                 this.active = newClass;
                 this.typeName = this.getTypeName();
-                this.Type = [...Type];
                 document.documentElement.scrollTop = 0;
             }
 

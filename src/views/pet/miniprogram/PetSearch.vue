@@ -7,7 +7,7 @@
 <!--                  此处为搜索条件集合界面-->
                     <el-select v-model="params.Class" :class="{ 'is-active': params.Class }" class="u-select" clearable filterable>
 
-                        <el-option v-for="item in Type" :key="item.value" :label="item.name" :value="item.class">
+                        <el-option v-for="item in Type" :key="item.class" :label="item.name" :value="item.class">
                         </el-option>
                         <template #prefix> 类别 </template>
                     </el-select>
@@ -99,8 +99,7 @@
 
 <script>
 import Type from "@/assets/data/pet_type.json";
-import Source from "@/assets/data/pet_source.json";
-import { getPets, getPetLucky, getSliders, getMapList } from "@/service/pet";
+import { getPets, getPetSearchOptions, getMapList } from "@/service/pet";
 import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { cloneDeep } from "lodash";
 export default {
@@ -110,7 +109,7 @@ export default {
         return {
             activeNames: "",
             Type,
-            Source,
+            Source: [],
             tabsData:{},
             list: [],
             finished: false,
@@ -163,7 +162,7 @@ export default {
     },
     created() {
         this.getMapList();
-        this.getPetListInit()
+        this.getPetSearchOptions();
     },
     mounted() {
 
@@ -191,14 +190,38 @@ export default {
                mapId: "",
                Name: "",
                Class:'',
-           }
+            }
+            this.finished = false;
+            this.total = 0;
             this.getPetListInit(true);
+        },
+        getPetSearchOptions() {
+            getPetSearchOptions()
+                .then((res) => {
+                    const data = Array.isArray(res.data) ? res.data : [];
+                    const sourceOptions = data
+                        .filter((item) => item.Type === 2 && item.TypeName)
+                        .map((item) => ({
+                            source: item.ID,
+                            name: item.TypeName,
+                        }));
+
+                    this.Source = [{ source: "", name: "所有途径" }, ...sourceOptions];
+                })
+                .catch((err) => {
+                    console.error("获取宠物筛选项失败", err);
+                })
+                .finally(() => {
+                    this.getPetListInit();
+                });
         },
         getPetListInit(isClear = false) {
             if(isClear){
                 this.activeNames = "";
                 this.list = [];
                 this.page = 1;
+                this.finished = false;
+                this.total = 0;
                 document.documentElement.scrollTop = 0;
             }
             if (this.params.Class=="") {
@@ -241,13 +264,10 @@ export default {
                         if(this.list.length==this.total)this.finished=true;
                     } else {
 
-                        const typesMap = {
-                            1: () => (this.list_type[0].list = newList || []),
-                            2: () => (this.list_type[1].list = newList || []),
-                            3: () => (this.list_type[2].list = newList || []),
-                            4: () => (this.list_type[3].list = newList || []),
-                        };
-                        typesMap[params.Class]();
+                        const typeIndex = this.list_type.findIndex((item) => item.class === params.Class);
+                        if (typeIndex !== -1) {
+                            this.list_type[typeIndex].list = newList || [];
+                        }
                     }
                     if (this.showAllList ) {
                         this.total = res.data.total;

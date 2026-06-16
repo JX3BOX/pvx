@@ -12,6 +12,10 @@ function getPets(params) {
     });
 }
 
+function getPetSearchOptions() {
+    return $.get("/pet/search");
+}
+
 function getPet(petid, params) {
     return $.get(`/pet/${petid}`, {
         params,
@@ -61,4 +65,4 @@ function getSliders(type, client, source_ids, per = 10) {
 function getMapList() {
     return axios.get(__imgPath + "map/data/map_index.json");
 }
-export { getPets, getPet, getPetSkill, getShopInfo, getPetLucky, getSkill, getSliders, getMapList };
+export { getPets, getPetSearchOptions, getPet, getPetSkill, getShopInfo, getPetLucky, getSkill, getSliders, getMapList };

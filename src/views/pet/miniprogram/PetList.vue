@@ -182,7 +182,12 @@ export default {
             return result;
         },
         toAll(){
-            this.active=0;
+            this.active = 0;
+            this.list = [];
+            this.finished = false;
+            this.page = 1;
+            this.total = 0;
+            this.tabsData = {};
         },
         changePetType(item) {
             this.active = item.type;
@@ -190,11 +195,8 @@ export default {
             this.list = [];
             this.finished=false
             this.page=1;
-            this.tabsData = {
-                class: item.class,
-                type: item.type,
-                name: item.name
-            };
+            this.total = 0;
+            this.tabsData = {};
         },
         setActive(val) {
             this.active = val;
@@ -236,13 +238,10 @@ export default {
                         this.list = this.list.concat(newList);
                         if(this.list.length==this.total)this.finished=true;
                     } else {
-                        const typesMap = {
-                            1: () => (this.list_type[0].list = newList || []),
-                            2: () => (this.list_type[1].list = newList || []),
-                            3: () => (this.list_type[2].list = newList || []),
-                            4: () => (this.list_type[3].list = newList || []),
-                        };
-                        typesMap[params.Class]();
+                        const typeIndex = this.list_type.findIndex((item) => item.class === params.Class);
+                        if (typeIndex !== -1) {
+                            this.list_type[typeIndex].list = newList || [];
+                        }
                     }
                     if (this.params.Class) {
                         this.total = res.data.total;

@@ -1,8 +1,7 @@
 <template>
     <div class="m-pvx-reputation-item" @click="go(item.dwForceID)" v-if="!item.bHide">
         <div class="u-pvx-reputation-icon">
-            <img v-if="getReputationIcon(item.szIconPath)" :src="getReputationIcon(item.szIconPath)" />
-            <div v-else class="u-pvx-reputation-no-img"></div>
+            <img :src="getReputationIcon(item.szIconPath)" @error="replaceByDefault" />
         </div>
         <div class="m-pvx-reputation-name">
             <div class="u-pvx-reputation-name">{{ item.szName }}</div>
@@ -14,7 +13,7 @@
 </template>
 
 <script>
-import { getReputationIcon } from "@/utils/reputation";
+import { DEFAULT_REPUTATION_ICON, getReputationIcon } from "@/utils/reputation";
 
 export default {
     name: "ReputationItem",
@@ -26,6 +25,9 @@ export default {
     },
     methods: {
         getReputationIcon,
+        replaceByDefault(e) {
+            e.target.src = DEFAULT_REPUTATION_ICON;
+        },
         go(id) {
             window.open(`/reputation/${id}`, "_self");
         },
