@@ -152,8 +152,9 @@ export default {
                                     value: "庐园广记",
                                 },
                                 {
-                                    key: "isMatch",
-                                    value: "园宅会赛",
+                                    key: "scoreCostPerformance",
+                                    value: "评分性价比",
+                                    disabled: true,
                                 },
                             ],
                         },

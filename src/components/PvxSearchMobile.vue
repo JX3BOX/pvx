@@ -103,10 +103,12 @@
                                             class="type-item"
                                             :class="{ active: radioItem.value === formData[fItem.key] }"
                                             v-for="radioItem in fItem.options"
-                                            :key="radioItem.type"
+                                            :key="radioItem.key || radioItem.value"
                                             :label="radioItem.key"
-                                            >{{ radioItem.value }}</el-radio-button
+                                            :disabled="radioItem.disabled"
                                         >
+                                            {{ radioItem.value }}
+                                        </el-radio-button>
                                     </el-radio-group>
                                 </div>
                             </div>

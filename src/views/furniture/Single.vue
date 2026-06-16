@@ -12,21 +12,16 @@
                     {{ data.szName }}
                     <i class="u-interact" v-if="data.bInteract"></i>
                 </div>
-                <div class="u-attrs">
-                    <span class="u-attr" v-if="data.Attribute1"
-                        ><span class="u-label blue">观赏</span>{{ data.Attribute1 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute2"
-                        ><span class="u-label pink">实用</span>{{ data.Attribute2 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute3"
-                        ><span class="u-label yellow">坚固</span>{{ data.Attribute3 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute4"
-                        ><span class="u-label green">风水</span>{{ data.Attribute4 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute5"
-                        ><span class="u-label purple">趣味</span>{{ data.Attribute5 }}</span
+                <!-- <div class="u-attrs">
+                    <span class="u-attr" v-if="data.Attribute1"><span class="u-label blue">观赏</span>{{ data.Attribute1 }}</span>
+                    <span class="u-attr" v-if="data.Attribute2"><span class="u-label pink">实用</span>{{ data.Attribute2 }}</span>
+                    <span class="u-attr" v-if="data.Attribute3"><span class="u-label yellow">坚固</span>{{ data.Attribute3 }}</span>
+                    <span class="u-attr" v-if="data.Attribute4"><span class="u-label green">风水</span>{{ data.Attribute4 }}</span>
+                    <span class="u-attr" v-if="data.Attribute5"><span class="u-label purple">趣味</span>{{ data.Attribute5 }}</span>
+                </div> -->
+                <div class="u-attrs" v-if="data.Record || data.Record === 0">
+                    <span class="u-attr"
+                        ><span class="u-label score">装修评分</span>{{ data.Record }}</span
                     >
                 </div>
                 <div class="u-metas">

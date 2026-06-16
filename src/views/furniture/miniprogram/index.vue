@@ -39,10 +39,15 @@
                         <div v-for="(item, index) in searchProps" :key="index">
                             <div class="u-filtrate-title">{{ item.name }}</div>
                             <div class="u-box">
-                                <div class="u-item" :class="{ active: getActiveStatus(item, item2) }"
-                                    v-for="(item2, index2) in item.options" :key="index2" @click="
+                                <div
+                                    class="u-item"
+                                    :class="{ active: getActiveStatus(item, item2), disabled: item2.disabled }"
+                                    v-for="(item2, index2) in item.options"
+                                    :key="index2"
+                                    @click="
                                         setSearchParams(item.key == 'nCatag1Index' ? item.key : item2.paramsKey, item2)
-                                        ">
+                                    "
+                                >
                                     {{ item.key == "nCatag1Index" ? item2.name : item2.value }}
                                 </div>
                             </div>
@@ -200,9 +205,9 @@ export default {
                             paramsKey: "isSet",
                         },
                         {
-                            key: "1",
-                            value: "园宅会赛",
-                            paramsKey: "isMatch",
+                            key: "scoreCostPerformance",
+                            value: "评分性价比",
+                            disabled: true,
                         },
                     ],
                 },
@@ -300,6 +305,8 @@ export default {
             return item_c.key == this.queryParams[item_c.paramsKey];
         },
         setSearchParams(key, item2) {
+            if (item2.disabled) return;
+
             if (key == "nCatag1Index") {
                 this.queryParams[key] = item2.id;
                 return;
@@ -505,6 +512,12 @@ export default {
                 &.active {
                     color: #24292e;
                     background: #fedaa3;
+                }
+
+                &.disabled {
+                    cursor: not-allowed;
+                    color: @fontColor-dark3;
+                    background: rgba(255, 255, 255, 0.03);
                 }
 
                 &.top {
