@@ -29,14 +29,14 @@ const routes = [
     },
     // ===== 侠客行 =====
     {
-        name: "swordsman",
-        path: "/swordsman",
-        component: () => import("@/views/swordsman/Index.vue"),
+        name: "partner",
+        path: "/partner",
+        component: () => import("@/views/partner/Index.vue"),
         meta: {
             i18n: {
-                title: "pages.swordsman.title",
-                keywords: "pages.swordsman.keywords",
-                description: "pages.swordsman.description",
+                title: "pages.partner.title",
+                keywords: "pages.partner.keywords",
+                description: "pages.partner.description",
             },
         },
     },

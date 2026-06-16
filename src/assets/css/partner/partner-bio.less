@@ -1,9 +1,9 @@
-@import (reference) "./index.less";
+@import (reference) "~@/assets/css/partner/index.less";
 
-.m-pvx-swordsman-bio {
+.m-pvx-partner-bio {
     flex: 1;
-    background: @swordsman-color-text-white;
-    border-radius: @swordsman-radius-lg;
+    background: @partner-color-text-white;
+    border-radius: @partner-radius-lg;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -13,44 +13,44 @@
         width: 15px;
     }
     &::-webkit-scrollbar-track {
-        background: @swordsman-color-scrollbar-thumb;
-        border-radius: @swordsman-radius-pill;
+        background: @partner-color-scrollbar-thumb;
+        border-radius: @partner-radius-pill;
     }
     &::-webkit-scrollbar-thumb {
-        background: @swordsman-color-scrollbar-track;
-        border-radius: @swordsman-radius-pill;
+        background: @partner-color-scrollbar-track;
+        border-radius: @partner-radius-pill;
         min-height: 53px;
     }
 
-    .u-swordsman-bio-empty {
+    .u-partner-bio-empty {
         text-align: center;
-        color: @swordsman-color-text-muted;
+        color: @partner-color-text-muted;
         font-size: 14px;
         line-height: 21px;
         padding: 40px 0;
         width: 100%;
     }
 
-    .m-swordsman-bio-collapse.el-collapse {
+    .m-partner-bio-collapse.el-collapse {
         border-bottom: none;
 
         .el-collapse-item {
             margin-bottom: 12px;
-            border-radius: @swordsman-radius;
+            border-radius: @partner-radius;
             overflow: hidden;
         }
 
         .el-collapse-item__header {
             border-radius: 8px;
-            background: @swordsman-color-primary-hover;
-            color: @swordsman-color-text-black;
+            background: @partner-color-primary-hover;
+            color: @partner-color-text-black;
             font-size: 15px;
             font-weight: 600;
             line-height: 22px;
             padding: 0 16px;
             height: 44px;
             border: none;
-            transition: all @swordsman-transition-duration ease-out;
+            transition: all @partner-transition-duration ease-out;
         }
 
         .el-collapse-item__wrap {
@@ -63,15 +63,15 @@
             padding: 16px;
             border-radius: 8px;
             background: rgba(0, 0, 0, 0.05);
-            color: @swordsman-color-text-black;
+            color: @partner-color-text-black;
             font-size: 14px;
             line-height: 1.7;
         }
 
         .el-collapse-item.is-active {
             .el-collapse-item__header {
-                background: @swordsman-color-primary;
-                color: @swordsman-color-text-white;
+                background: @partner-color-primary;
+                color: @partner-color-text-white;
             }
         }
     }

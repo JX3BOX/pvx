@@ -1,5 +1,5 @@
 <!--
- * Swordsman InfoTabs - 侠客信息头部 TAB 切换
+ * Partner InfoTabs - 侠客信息头部 TAB 切换
  *
  * @description 对齐 Figma Frame 292 + Frame 307
  * 结构：左侧名字+ID + 右侧 3 个 Tab（基础信息、武学境界、传记）
@@ -8,19 +8,19 @@
  * 无下划线、无底色，仅用 opacity 区分
  -->
 <template>
-    <div class="m-swordsman-info-header">
+    <div class="m-partner-info-header">
         <!-- 左侧：名字 + ID -->
-        <div class="m-swordsman-info__name-group">
-            <h2 class="u-swordsman-name">{{ name }}</h2>
-            <div v-if="id" class="u-swordsman-id">ID {{ id }}</div>
+        <div class="m-partner-info__name-group">
+            <h2 class="u-partner-name">{{ name }}</h2>
+            <div v-if="id" class="u-partner-id">ID {{ id }}</div>
         </div>
 
         <!-- 右侧：Tab 切换 -->
-        <div class="m-swordsman-info__tabs">
+        <div class="m-partner-info__tabs">
             <div
                 v-for="tab in tabs"
                 :key="tab.key"
-                class="u-swordsman-tab"
+                class="u-partner-tab"
                 :class="{ 'is-active': active === tab.key }"
                 @click="$emit('change', tab.key)"
             >
@@ -32,7 +32,7 @@
 
 <script>
 export default {
-    name: "SwordsmanInfoTabs",
+    name: "PartnerInfoTabs",
     props: {
         // 当前激活的 TAB key
         active: {
@@ -60,5 +60,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/swordsman/swordsman-tabs.less";
+@import "~@/assets/css/partner/partner-tabs.less";
 </style>

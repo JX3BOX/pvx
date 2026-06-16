@@ -1,5 +1,5 @@
 <!--
- * Swordsman Index - 侠客行模块主入口
+ * Partner Index - 侠客行模块主入口
  *
  * @description 三栏布局：左侧选择（Selector） + 中间立绘（Portrait） + 右侧信息 / 传记（Info / Bio）
  * 对齐 jxl/Index.vue 的整体结构
@@ -20,13 +20,13 @@
  * - Index 通过 activeTab 控制右侧显示 Info / Bio
  -->
 <template>
-    <div id="app" class="p-pvx-swordsman">
+    <div id="app" class="p-pvx-partner">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
             <div class="m-main">
                 <!-- 三栏布局 -->
-                <div class="m-swordsman-layout">
+                <div class="m-partner-layout">
                     <!-- 左侧选择 -->
                     <Selector
                         :partner-list="partnerList"
@@ -42,12 +42,12 @@
                     <Portrait :partner="selectedPartner" />
 
                     <!-- 右侧面板（Figma: Frame 304 = 顶部工具栏 + 内容面板） -->
-                    <div class="m-pvx-swordsman-right">
+                    <div class="m-pvx-partner-right">
                         <!-- 顶部工具栏（Figma: Frame 287, 前进/后退 + 标题） -->
-                        <div class="m-swordsman-right__topbar">
-                            <div class="u-swordsman-topbar-nav">
+                        <div class="m-partner-right__topbar">
+                            <div class="u-partner-topbar-nav">
                                 <PvxRobotTip reply="侠客行" typeName="侠客行" hidden />
-                                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" rel="noopener" class="u-swordsman-btn">
+                                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" rel="noopener" class="u-partner-btn">
                                     <i class="el-icon-warning-outline"></i>
                                     <span>错误反馈</span>
                                 </a>
@@ -55,9 +55,9 @@
                         </div>
 
                         <!-- 内容面板（Figma: Frame 290, 名字+ID+TAB+内容） -->
-                        <div class="m-pvx-swordsman-info">
+                        <div class="m-pvx-partner-info">
                             <!-- 头部：名字+ID + TAB（Figma: Frame 307, 水平 SPACE_BETWEEN） -->
-                            <SwordsmanTabs
+                            <PartnerTabs
                                 :active="activeTab"
                                 :tabs="infoTabs"
                                 :name="selectedPartner?.name || '—'"
@@ -66,7 +66,7 @@
                             />
 
                             <!-- 内容区域 -->
-                            <div class="m-swordsman-info__body">
+                            <div class="m-partner-info__body">
                                 <!-- 基础信息 TAB（含结识方式+武学招式+武学境界+属性） -->
                                 <Info v-if="activeTab === 'info'" :partner="selectedPartner" />
                                 <!-- 传记 TAB -->
@@ -88,13 +88,13 @@ import Selector from "./Selector.vue";
 import Portrait from "./Portrait.vue";
 import Info from "./Info.vue";
 import Bio from "./Bio.vue";
-import SwordsmanTabs from "./InfoTabs.vue";
-import { getPartnerList, getPartnerDetail, getPartnerSkillDetail, PARTNER_SKILL_FIELDS } from "@/service/swordsman";
-import { mapPartnerListItem, mapPartnerDetail, resolveSkillIcon } from "@/utils/swordsman";
+import PartnerTabs from "./InfoTabs.vue";
+import { getPartnerList, getPartnerDetail, getPartnerSkillDetail, PARTNER_SKILL_FIELDS } from "@/service/partner";
+import { mapPartnerListItem, mapPartnerDetail, resolveSkillIcon } from "@/utils/partner";
 import { INFO_TABS } from "./const";
 
 export default {
-    name: "SwordsmanIndex",
+    name: "PartnerIndex",
     components: {
         Nav,
         PvxRobotTip,
@@ -102,7 +102,7 @@ export default {
         Portrait,
         Info,
         Bio,
-        SwordsmanTabs,
+        PartnerTabs,
     },
     data() {
         return {
@@ -163,7 +163,7 @@ export default {
                     this.handleSelect(this.partnerList[0]);
                 }
             } catch (err) {
-                console.error("[swordsman] 拉取列表失败:", err);
+                console.error("[partner] 拉取列表失败:", err);
                 this.partnerList = [];
             } finally {
                 this.loading = false;
@@ -259,13 +259,13 @@ export default {
                             });
                         }
                     } catch (skillErr) {
-                        console.error("[swordsman] 拉取技能详情失败:", skillErr);
+                        console.error("[partner] 拉取技能详情失败:", skillErr);
                     }
                 }
 
                 this.selectedPartner = partner;
             } catch (err) {
-                console.error("[swordsman] 拉取详情失败:", err);
+                console.error("[partner] 拉取详情失败:", err);
                 this.selectedPartner = null;
             } finally {
                 this.loading = false;
@@ -297,7 +297,7 @@ export default {
                     : [];
                 this.partnerList = this.partnerList.filter((p) => !p.isAll);
             } catch (err) {
-                console.error("[swordsman] 搜索失败:", err);
+                console.error("[partner] 搜索失败:", err);
             }
         },
         /**
@@ -311,7 +311,7 @@ export default {
          */
         handleFilterChange(filterKey) {
             // 当前仅"全部"筛选，后续可扩展其他筛选逻辑
-            console.log("[swordsman] 筛选标签切换:", filterKey);
+            console.log("[partner] 筛选标签切换:", filterKey);
         },
         /**
          * 处理 TAB 切换
@@ -326,5 +326,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/miniprogram.less";
-@import "~@/assets/css/swordsman/index.less";
+@import "~@/assets/css/partner/index.less";
 </style>

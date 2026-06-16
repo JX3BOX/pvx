@@ -4,7 +4,7 @@ cleanInvalidStorage();
 
 // 1.Create APP
 import { createApp } from "vue";
-import App from "@/views/swordsman/Index.vue";
+import App from "@/views/partner/Index.vue";
 const app = createApp(App);
 
 // 2.Router

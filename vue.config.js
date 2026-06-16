@@ -87,11 +87,11 @@ const pages = {
         template: "public/index.html",
         filename: "questsection/index.html",
     },
-    swordsman: {
-        title: "侠客行 - JX3BOX",
-        entry: "src/pages/swordsman/index.js",
+    partner: {
+        title: "红尘侠影 - JX3BOX",
+        entry: "src/pages/partner/index.js",
         template: "public/index.html",
-        filename: "swordsman/index.html",
+        filename: "partner/index.html",
     },
 };
 

@@ -1,5 +1,5 @@
 <!--
- * Swordsman Selector - 侠客行左侧选择组件
+ * Partner Selector - 侠客行左侧选择组件
  *
  * @description 侠客行模块的左侧选择区，包含搜索框、分类标签卡片、展开/收起
  * 对齐 Figma Component 15 设计稿
@@ -16,57 +16,57 @@
  * - filterChange: 筛选标签切换时触发
  -->
 <template>
-    <div class="m-pvx-swordsman-selector">
-        <div class="m-swordsman-selector__body" :style="bodyStyle">
+    <div class="m-pvx-partner-selector">
+        <div class="m-partner-selector__body" :style="bodyStyle">
             <!-- 搜索框（Figma: 前进后退, 40px高, 圆角30px, 背景 rgba(243,244,245,0.96)） -->
-            <div class="m-swordsman-selector__search">
-                <div class="u-swordsman-search-box">
+            <div class="m-partner-selector__search">
+                <div class="u-partner-search-box">
                     <input
                         v-model="searchKeyword"
-                        class="u-swordsman-search-input"
+                        class="u-partner-search-input"
                         placeholder="输入关键词搜索"
                         @input="handleSearch"
                     />
-                    <el-icon class="u-swordsman-search-icon">
+                    <el-icon class="u-partner-search-icon">
                         <Search />
                     </el-icon>
                 </div>
             </div>
 
             <!-- 分类标签卡片区域（Figma: Frame 323, 水平布局, gap 20px） -->
-            <div class="m-swordsman-selector__categories">
+            <div class="m-partner-selector__categories">
                 <!-- 标签行（每行2个，Figma: Frame 289/291） -->
                 <div
                     v-for="(row, rowIndex) in categoryRows"
                     :key="rowIndex"
-                    class="m-swordsman-category-row"
+                    class="m-partner-category-row"
                 >
                     <div
                         v-for="partner in row"
                         :key="partner.id"
-                        class="u-swordsman-category-item"
+                        class="u-partner-category-item"
                         :class="{ 'is-active': selectedId === partner.id }"
                         @click="handleSelect(partner)"
                     >
                         <!-- 圆形头像（Figma: Ellipse 4, 75x75, 灰色占位） -->
-                        <div class="u-swordsman-category-avatar">
+                        <div class="u-partner-category-avatar">
                             <img v-if="partner.avatar" :src="partner.avatar" :alt="partner.name" />
                         </div>
                         <!-- 名字（Figma: 选中 Bold 16px 白, 未选中 Regular 14px 黑 opacity 0.6） -->
-                        <span class="u-swordsman-category-name">{{ partner.name }}</span>
+                        <span class="u-partner-category-name">{{ partner.name }}</span>
                     </div>
                 </div>
 
                 <!-- 空态 -->
-                <div v-if="filteredList.length === 0" class="u-swordsman-category-empty">
+                <div v-if="filteredList.length === 0" class="u-partner-category-empty">
                     暂无匹配侠客
                 </div>
             </div>
         </div>
 
         <!-- 展开 / 收起（Figma: Frame 290, 居中三角形 12x12, 底部 padding 10px） -->
-        <div class="m-swordsman-selector__toggle" @click="toggleExpand">
-            <svg class="u-swordsman-toggle-arrow" :class="{ 'is-collapsed': !expanded }" width="12" height="12" viewBox="0 0 12 12" fill="#D9D9D9">
+        <div class="m-partner-selector__toggle" @click="toggleExpand">
+            <svg class="u-partner-toggle-arrow" :class="{ 'is-collapsed': !expanded }" width="12" height="12" viewBox="0 0 12 12" fill="#D9D9D9">
                 <polygon points="6,2 10,8 2,8" />
             </svg>
         </div>
@@ -78,7 +78,7 @@ import { Search } from "@element-plus/icons-vue";
 import { LIST_EXPANDED_MAX_HEIGHT, LIST_COLLAPSED_MIN_HEIGHT } from "./const";
 
 export default {
-    name: "SwordsmanSelector",
+    name: "PartnerSelector",
     components: {
         Search,
     },
@@ -153,5 +153,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/swordsman/swordsman-selector.less";
+@import "~@/assets/css/partner/partner-selector.less";
 </style>

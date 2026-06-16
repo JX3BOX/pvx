@@ -92,6 +92,20 @@
                 "icon": "el-icon-files",
                 "key": "codexachievement",
                 "status": true
+            },
+            {
+                "path": "/questsection",
+                "label": "剑侠录",
+                "icon": "el-icon-files",
+                "key": "questsection",
+                "status": true
+            },
+            {
+                "path": "/partner",
+                "label": "红尘侠影",
+                "icon": "el-icon-files",
+                "key": "partner",
+                "status": true
             }
         ]
     },

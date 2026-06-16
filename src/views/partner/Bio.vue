@@ -1,6 +1,6 @@
 <template>
-    <div class="m-pvx-swordsman-bio">
-        <el-collapse v-model="activeNames" class="m-swordsman-bio-collapse">
+    <div class="m-pvx-partner-bio">
+        <el-collapse v-model="activeNames" class="m-partner-bio-collapse">
             <el-collapse-item
                 v-for="(bio, index) in bios"
                 :key="bio.id || index"
@@ -11,17 +11,17 @@
             </el-collapse-item>
 
             <el-collapse-item v-if="voiceText" name="voice" title="语音">
-                <div class="m-swordsman-voice-text">{{ voiceText }}</div>
+                <div class="m-partner-voice-text">{{ voiceText }}</div>
             </el-collapse-item>
         </el-collapse>
 
-        <div v-if="!hasContent" class="u-swordsman-bio-empty">暂无传记</div>
+        <div v-if="!hasContent" class="u-partner-bio-empty">暂无传记</div>
     </div>
 </template>
 
 <script>
 export default {
-    name: "SwordsmanBio",
+    name: "PartnerBio",
     props: {
         partner: {
             type: Object,
@@ -62,9 +62,9 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/swordsman/swordsman-bio.less";
+@import "~@/assets/css/partner/partner-bio.less";
 
-.m-swordsman-voice-text {
+.m-partner-voice-text {
     white-space: pre-wrap;
     word-break: break-all;
 }

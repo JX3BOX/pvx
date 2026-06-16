@@ -1,7 +1,7 @@
 // 侠客行模块工具函数 —— URL 生成 + 数据转换
 // 字段名对齐 docx 文档（红尘侠影.docx）中的游戏原始字段名
 
-import { KUNGFU_INDEX, SKILL_TYPE, SKILL_SHAPE } from "@/views/swordsman/const";
+import { KUNGFU_INDEX, SKILL_TYPE, SKILL_SHAPE } from "@/views/partner/const";
 
 // ==================== URL 生成 ====================
 // TODO 调整：仅需修改 4 个常量即可，业务代码无需变动
@@ -72,8 +72,8 @@ export function resolveImagePath(path) {
     } else if (normalizedPath.toLowerCase().startsWith(PARTNER_PATH_PREFIX.toLowerCase().replace(/\//g, "\\"))) {
         normalizedPath = normalizedPath.slice(PARTNER_PATH_PREFIX.length);
     }
-    //移除路径后缀的.tga
-    normalizedPath = normalizedPath.replace(/\.tga$/, "");
+    //移除路径后缀的.tga（不区分大小写）
+    normalizedPath = normalizedPath.replace(/\.tga$/i, "");
 
     // 将路径转为小写
     normalizedPath = normalizedPath.toLowerCase();

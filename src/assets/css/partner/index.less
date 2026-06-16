@@ -1,0 +1,104 @@
+// ============================================
+// 侠客行模块样式 - 主入口
+// ============================================
+// 命名规范：p-pvx-partner（页面级前缀）
+// 模块级：m-partner-*
+// 元素级：u-pvx-*
+// ============================================
+
+// ==================== 变量定义 ====================
+// 以下数值根据 Figma 设计稿精确还原
+// Figma 文件：PVX3.0 / 红尘 / 侠客行
+
+// 颜色变量（对齐 Figma designTokens）
+@partner-color-primary: #4F46E5;
+@partner-color-primary-soft: rgba(79, 70, 229, 0.1);
+@partner-color-primary-hover: rgba(79, 70, 229, 0.05);
+@partner-color-text-white: #FFFFFF;
+@partner-color-text-black: #000000;
+@partner-color-text-muted: rgba(0, 0, 0, 0.6);
+@partner-color-text-dark: #24292E;
+@partner-color-placeholder: #B0B0B0;
+@partner-color-default-bg: #F5F5F5;
+@partner-color-border: #E1E4E8;
+@partner-color-border-soft: rgba(0, 0, 0, 0.1);
+@partner-color-collapse-content: rgba(0, 0, 0, 0.6);
+@partner-color-search-bg: rgba(243, 244, 245, 0.96);
+@partner-color-attr-bg: #F2F2F2;
+@partner-color-skill-card-bg: rgba(0, 0, 0, 0.05);
+@partner-color-pink: #FE569C;
+@partner-color-gold: #FFD492;
+@partner-color-error: #E54059;
+@partner-color-dropdown: #D9D9D9;
+@partner-color-scrollbar-track: rgba(0, 0, 0, 0.12);
+@partner-color-scrollbar-thumb: rgba(0, 0, 0, 0.05);
+
+// 阴影变量（Figma: 0 0 10px rgba(0,0,0,0.2))
+@partner-shadow-default: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+@partner-shadow-active: 0px 4px 12px 0px rgba(79, 70, 229, 0.25);
+
+// 尺寸变量（Figma: 左285 / 右497）
+@partner-sidebar-width: 285px;
+@partner-info-width: 497px;
+@partner-portrait-min-height: 600px;
+@partner-radius: 8px;
+@partner-radius-lg: 10px;
+@partner-radius-pill: 30px;
+
+// 动画变量
+@partner-transition-duration: 300ms;
+
+// ==================== 页面主容器 ====================
+
+.p-pvx-partner {
+
+    // 主内容区域
+    .m-main {
+        min-height: 100vh;
+        padding: 0;
+        box-sizing: border-box;
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+    }
+}
+
+// ==================== 三栏布局 ====================
+// Figma: Frame 288 (1840x886), HORIZONTAL, SPACE_BETWEEN, gap 40px
+// 左选择（fixed）+ 中立绘（flex:1）+ 右详情（fixed）
+// 注意：左右为 fixed 定位，需要通过 padding 预留空间
+
+.m-partner-layout {
+    position: relative;
+    display: flex;
+    align-items: center; // 垂直居中
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1840px;
+    min-height: calc(100vh - @header-height - 80px);
+    margin: 0 auto;
+    box-sizing: border-box;
+    gap: 40px;
+    padding: 0 43px;
+    // 预留左右 fixed 元素的空间，让中间 Portrait 不会被覆盖
+    padding-left: @partner-sidebar-width + 43px + 40px; // 左侧固定宽度 + 左边距 + gap
+    padding-right: @partner-info-width + 43px + 40px; // 右侧固定宽度 + 右边距 + gap
+}
+
+// ==================== 响应式适配 - iPad ====================
+@media screen and (max-width: @ipad) {
+    .m-partner-layout {
+        padding-left: 240px;
+        padding-right: 300px;
+    }
+}
+
+// ==================== 响应式适配 - Phone ====================
+@media screen and (max-width: @phone) {
+    .m-partner-layout {
+        padding-left: 200px;
+        padding-right: 0;
+        // Phone 端右侧详情改为底部 / 抽屉，本次不实现，默认排版
+    }
+}
