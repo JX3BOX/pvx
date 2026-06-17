@@ -69,6 +69,18 @@ import { loadFurnitureMatch } from "@/utils/furniture";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
 const COST_PERFORMANCE_KEY = "__costPerf";
 const COST_PERFORMANCE_SOURCE = "\u56ed\u5b85\u5e01";
+const COST_PERFORMANCE_FILTER = "scoreCostPerformance";
+
+function getSourceOptions(locked = false) {
+    return sourceList.map((item) => {
+        const key = item.name === "全部" ? "" : item.name;
+        return {
+            key,
+            value: item.name,
+            disabled: locked && key !== COST_PERFORMANCE_SOURCE,
+        };
+    });
+}
 
 export default {
     name: "Index",
@@ -124,7 +136,7 @@ export default {
                             name: "装修评分",
                             options: [
                                 {
-                                    key: "scoreCostPerformance",
+                                    key: COST_PERFORMANCE_FILTER,
                                     value: "性价比",
                                 },
                             ],
@@ -133,12 +145,7 @@ export default {
                             key: "szSource",
                             type: "radio",
                             name: "来源途径",
-                            options: sourceList.map((item) => {
-                                return {
-                                    key: item.name === "全部" ? "" : item.name,
-                                    value: item.name,
-                                };
-                            }),
+                            options: getSourceOptions(),
                         },
                         {
                             key: "LevelLimit",
@@ -175,6 +182,7 @@ export default {
             ],
             active: "",
             childActive: "",
+            isSourceLockedByCostPerformance: false,
             furniture: [],
             versions: [
                 {
@@ -311,7 +319,7 @@ export default {
             if (newData.other === "isSet") {
                 newData.isSet = 1;
             }
-            if (newData.decorationScore === "scoreCostPerformance") {
+            if (newData.decorationScore === COST_PERFORMANCE_FILTER) {
                 newData.szSource = COST_PERFORMANCE_SOURCE;
                 newData.order_key = COST_PERFORMANCE_KEY;
                 newData.order_by = "DESC";
@@ -360,6 +368,43 @@ export default {
         setIndex(i) {
             this.childActive = i;
             this.search.nCatag2Index = i;
+        },
+        setCostPerformanceSourceLocked(locked) {
+            const filter = this.searchProps.find((item) => item.type === "filter");
+            const sourceFilter = filter?.options.find((item) => item.key === "szSource");
+            if (!sourceFilter) return;
+            sourceFilter.options = getSourceOptions(locked);
+        },
+        setSearchSourceValue(value) {
+            const refs = [this.$refs.search, this.$refs.searchMobile].filter(Boolean);
+            refs.forEach((item) => {
+                if (Object.prototype.hasOwnProperty.call(item.formData || {}, "szSource")) {
+                    item.formData.szSource = value;
+                }
+            });
+        },
+        syncCostPerformanceSource(data) {
+            const isCostPerformance = data?.decorationScore === COST_PERFORMANCE_FILTER;
+            this.setCostPerformanceSourceLocked(isCostPerformance);
+
+            if (isCostPerformance) {
+                this.isSourceLockedByCostPerformance = true;
+                if (data.szSource !== COST_PERFORMANCE_SOURCE) {
+                    this.setSearchSourceValue(COST_PERFORMANCE_SOURCE);
+                    return true;
+                }
+                return false;
+            }
+
+            if (this.isSourceLockedByCostPerformance) {
+                this.isSourceLockedByCostPerformance = false;
+                if (data.szSource) {
+                    this.setSearchSourceValue("");
+                    return true;
+                }
+            }
+
+            return false;
         },
         getCategory() {
             getFurnitureCategory().then((res) => {
@@ -415,6 +460,7 @@ export default {
                 });
         },
         searchEvent(data) {
+            if (this.syncCostPerformanceSource(data)) return;
             const newData = this.doPrams(data);
             const hasSearchValue = Object.values(newData || {}).some((value) => {
                 if (Array.isArray(value)) return value.length;

@@ -41,7 +41,7 @@
                             <div class="u-box">
                                 <div
                                     class="u-item"
-                                    :class="{ active: getActiveStatus(item, item2), disabled: item2.disabled }"
+                                    :class="{ active: getActiveStatus(item, item2), disabled: isSearchOptionDisabled(item, item2) }"
                                     v-for="(item2, index2) in item.options"
                                     :key="index2"
                                     @click="
@@ -314,8 +314,13 @@ export default {
 
             return item_c.key == this.queryParams[item_c.paramsKey];
         },
+        isSearchOptionDisabled(item, item_c) {
+            if (item_c.disabled) return true;
+            return item.key === "szSource" && this.queryParams.order_key === COST_PERFORMANCE_KEY && item_c.key !== COST_PERFORMANCE_SOURCE;
+        },
         setSearchParams(key, item2) {
             if (item2.disabled) return;
+            if (key === "szSource" && this.queryParams.order_key === COST_PERFORMANCE_KEY && item2.key !== COST_PERFORMANCE_SOURCE) return;
 
             if (key == "nCatag1Index") {
                 this.queryParams[key] = item2.id;
