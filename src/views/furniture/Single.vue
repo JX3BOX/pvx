@@ -28,7 +28,7 @@
                     <span class="u-meta"
                         ><img src="../../assets/img/furniture/origin.svg" svg-inline /><span class="u-label"
                             >来源途径：</span
-                        >{{ data.szSource }}</span
+                        >{{ source_text }}</span
                     >
                     <span v-if="data.LevelLimit" class="u-meta"
                         ><img src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label"
@@ -187,7 +187,7 @@
 
                 <div class="m-pvx__item m-pvx-furniture-robot__source">
                     <div class="u-title">来源途径</div>
-                    <div class="u-source">{{ data.szSource || "暂无来源" }}</div>
+                    <div class="u-source">{{ source_text || "暂无来源" }}</div>
                 </div>
             </div>
 
@@ -243,6 +243,8 @@ import { getFurnitureCategory } from "@/service/homeland.js";
 import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import { __imgPath } from "@/utils/config";
 import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
+
+const HOMELAND_COIN_SOURCE = "\u56ed\u5b85\u5e01";
 
 export default {
     name: "FurnitureSingle",
@@ -347,6 +349,14 @@ export default {
         },
         fav_author_id: function () {
             return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
+        },
+        is_architecture_cost_visible: function () {
+            const cost = this.data?.Architecture;
+            return this.data?.szSource === HOMELAND_COIN_SOURCE && ![undefined, null, ""].includes(cost);
+        },
+        source_text: function () {
+            if (this.is_architecture_cost_visible) return `${this.data.szSource}（${this.data.Architecture}）`;
+            return this.data?.szSource || "";
         },
         furniture_type: function () {
             if (!this.data || !Object.keys(this.category).length) return "";

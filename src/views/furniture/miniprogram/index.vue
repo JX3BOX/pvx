@@ -113,6 +113,8 @@ import { formatFurnitureImg, getFurnitureType, loadFurnitureMatch } from "@/util
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { wxNewPage } from "@/utils/minprogram";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
+const COST_PERFORMANCE_KEY = "__costPerf";
+const COST_PERFORMANCE_SOURCE = "\u56ed\u5b85\u5e01";
 
 export default {
     name: "FurnitureHome",
@@ -144,6 +146,8 @@ export default {
                 bInteract: null, //🉑交互
                 isSet: null, //庐园广记
                 isMatch: null, //园宅会赛
+                order_key: null,
+                order_by: null,
                 Attribute1: null, //观赏
                 Attribute2: null, //实用
                 Attribute3: null, //坚固
@@ -168,6 +172,17 @@ export default {
                 //         };
                 //     }),
                 // },
+                {
+                    key: "order_key",
+                    name: "装修评分",
+                    options: [
+                        {
+                            key: COST_PERFORMANCE_KEY,
+                            value: "性价比",
+                            paramsKey: "order_key",
+                        },
+                    ],
+                },
                 {
                     key: "szSource",
                     name: "来源途径",
@@ -203,11 +218,6 @@ export default {
                             key: "1",
                             value: "庐园广记",
                             paramsKey: "isSet",
-                        },
-                        {
-                            key: "scoreCostPerformance",
-                            value: "评分性价比",
-                            disabled: true,
                         },
                     ],
                 },
@@ -311,7 +321,17 @@ export default {
                 this.queryParams[key] = item2.id;
                 return;
             }
-            this.queryParams[key] = item2[key];
+            if (key === "order_key" && item2.key === COST_PERFORMANCE_KEY) {
+                this.queryParams.order_key = COST_PERFORMANCE_KEY;
+                this.queryParams.order_by = "DESC";
+                this.queryParams.szSource = COST_PERFORMANCE_SOURCE;
+                return;
+            }
+            if (key === "szSource" && item2.key !== COST_PERFORMANCE_SOURCE) {
+                this.queryParams.order_key = null;
+                this.queryParams.order_by = null;
+            }
+            this.queryParams[key] = item2.key ?? item2[key];
         },
         versionChange(value) {
             this.version = value;
@@ -338,6 +358,8 @@ export default {
                     bInteract: null, //🉑交互
                     isSet: null, //庐园广记
                     isMatch: null, //园宅会赛
+                    order_key: null,
+                    order_by: null,
                 };
                 let name = this.categoryObj[this.queryParams.nCatag1Index]?.name;
                 this.switchTitle = `家具(${name})`;
@@ -374,6 +396,8 @@ export default {
                 bInteract: null, //🉑交互
                 isSet: null, //庐园广记
                 isMatch: null, //园宅会赛
+                order_key: null,
+                order_by: null,
             };
             const cache = sessionStorage.getItem(`FurnitureSet_${this.version}`);
             if (cache) {

@@ -67,6 +67,8 @@ import furnitureData from "@/assets/data/furniture.json";
 import { debounce } from "lodash";
 import { loadFurnitureMatch } from "@/utils/furniture";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
+const COST_PERFORMANCE_KEY = "__costPerf";
+const COST_PERFORMANCE_SOURCE = "\u56ed\u5b85\u5e01";
 
 export default {
     name: "Index",
@@ -105,16 +107,27 @@ export default {
                     key: "filter",
                     name: "过滤",
                     options: [
+                        // {
+                        //     key: "attribute",
+                        //     type: "radio",
+                        //     name: "家具属性",
+                        //     options: categoryList.map((item) => {
+                        //         return {
+                        //             key: item.key,
+                        //             value: item.name,
+                        //         };
+                        //     }),
+                        // },
                         {
-                            key: "attribute",
+                            key: "decorationScore",
                             type: "radio",
-                            name: "家具属性",
-                            options: categoryList.map((item) => {
-                                return {
-                                    key: item.key,
-                                    value: item.name,
-                                };
-                            }),
+                            name: "装修评分",
+                            options: [
+                                {
+                                    key: "scoreCostPerformance",
+                                    value: "性价比",
+                                },
+                            ],
                         },
                         {
                             key: "szSource",
@@ -150,11 +163,6 @@ export default {
                                 {
                                     key: "isSet",
                                     value: "庐园广记",
-                                },
-                                {
-                                    key: "scoreCostPerformance",
-                                    value: "评分性价比",
-                                    disabled: true,
                                 },
                             ],
                         },
@@ -303,6 +311,11 @@ export default {
             if (newData.other === "isSet") {
                 newData.isSet = 1;
             }
+            if (newData.decorationScore === "scoreCostPerformance") {
+                newData.szSource = COST_PERFORMANCE_SOURCE;
+                newData.order_key = COST_PERFORMANCE_KEY;
+                newData.order_by = "DESC";
+            }
             if (newData.other === "isMatch") {
                 newData = Object.assign({}, this.setMatch());
             }
@@ -315,6 +328,7 @@ export default {
                 newData[`Attribute${newData.attribute}`] = 1;
                 delete newData.attribute;
             }
+            delete newData.decorationScore;
             delete newData.other;
             return newData;
         },
