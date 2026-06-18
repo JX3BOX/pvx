@@ -171,6 +171,10 @@ export default {
                                     key: "isSet",
                                     value: "庐园广记",
                                 },
+                                {
+                                    key: "isMatch",
+                                    value: "园宅会赛",
+                                },
                             ],
                         },
                     ],

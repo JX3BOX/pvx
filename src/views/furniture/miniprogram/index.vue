@@ -219,6 +219,11 @@ export default {
                             value: "庐园广记",
                             paramsKey: "isSet",
                         },
+                        {
+                            key: "1",
+                            value: "园宅会赛",
+                            paramsKey: "isMatch",
+                        },
                     ],
                 },
             ],
