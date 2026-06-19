@@ -9,8 +9,9 @@
         "postinstall": "patch-package",
         "build": "npm run build:prod",
         "build:dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 VUE_APP_PROXY_ENABLE=0 BUILD_PREVIEW=1 vue-cli-service build --mode development",
-        "build:prod": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vue-cli-service build --mode production",
+        "build:prod": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vue-cli-service build --mode production && npm run verify:legacy-js",
         "lint": "vue-cli-service lint",
+        "verify:legacy-js": "node scripts/verify-legacy-js.js",
         "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-ui@latest @jx3box/jx3box-editor@latest @jx3box/jx3box-facedat@latest"
     },
     "eslintConfig": {
@@ -82,10 +83,13 @@
     "devDependencies": {
         "@babel/core": "^7.12.16",
         "@babel/eslint-parser": "^7.28.6",
+        "@babel/plugin-transform-nullish-coalescing-operator": "^7.28.6",
+        "@babel/plugin-transform-optional-chaining": "^7.28.6",
         "@tailwindcss/postcss": "^4.2.1",
         "@vue/cli-plugin-babel": "~5.0.0",
         "@vue/cli-plugin-eslint": "~5.0.0",
         "@vue/cli-service": "~5.0.0",
+        "acorn": "^8.16.0",
         "autoprefixer": "^10.4.27",
         "cross-env": "^7.0.3",
         "csslab": "^6.0.5",
