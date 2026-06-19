@@ -341,7 +341,7 @@ export default {
                 this.queryParams.order_key = null;
                 this.queryParams.order_by = null;
             }
-            this.queryParams[key] = item2.key ?? item2[key];
+            this.queryParams[key] = item2.key || item2[key];
         },
         versionChange(value) {
             this.version = value;

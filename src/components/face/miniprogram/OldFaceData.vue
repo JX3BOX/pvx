@@ -214,10 +214,10 @@ export default {
     mounted() {},
     methods: {
         getBoneMin(type) {
-            return this.bone_range[this.body_type]?.[type]?.min ?? -128;
+            return this.bone_range[this.body_type]?.[type]?.min || -128;
         },
         getBoneMax(type) {
-            return this.bone_range[this.body_type]?.[type]?.max ?? 128;
+            return this.bone_range[this.body_type]?.[type]?.max || 128;
         },
         checkdecal_prop: function (key) {
             return decal_group.origin.includes(key);

@@ -352,7 +352,7 @@ export default {
             const isEvent = data instanceof Event;
             if (isEvent) return;
 
-            const newClass = data.Class ?? "";
+            const newClass = data.Class || "";
             if (newClass !== this.active) {
                 this.active = newClass;
                 this.typeName = this.getTypeName();

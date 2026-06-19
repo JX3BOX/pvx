@@ -522,7 +522,7 @@ export default {
 
             const params = {
                 keyword: this.searchKeyword,
-                scene: this.selectedMap?.[1] ?? "",
+                scene: this.selectedMap?.[1] || "",
                 client: this.$store.state.client,
                 _no_page: 1,
                 limit: 99999,

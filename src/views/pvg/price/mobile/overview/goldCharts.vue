@@ -43,9 +43,9 @@ export default {
             for (const key in channelMap) {
                 const data = channelMap[key];
                 if (!Array.isArray(data) || data.length < 3) continue;
-                const lastDay = data[data.length - 1]?.average?.toFixed(2) ?? 0;
-                const yesterday = data[data.length - 2]?.average?.toFixed(2) ?? 0;
-                const beforeYesterday = data[data.length - 3]?.average?.toFixed(2) ?? 0;
+                const lastDay = data[data.length - 1]?.average?.toFixed(2) || 0;
+                const yesterday = data[data.length - 2]?.average?.toFixed(2) || 0;
+                const beforeYesterday = data[data.length - 3]?.average?.toFixed(2) || 0;
                 const sum = data.reduce((total, item) => total + (item?.average || 0), 0);
                 let recommend;
                 if (key === "DD373") {
