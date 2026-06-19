@@ -86,6 +86,7 @@ export default {
             return hostname.includes("origin") || client.includes("origin");
         },
         buildLegacyPageUrl(achievementId) {
+            // 构建经典页面 URL，携带必要的查询参数
             const target = new URL(LEGACY_PAGE_URL);
             target.searchParams.set("type", "achievement");
             target.searchParams.set("id", achievementId);
