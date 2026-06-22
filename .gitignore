@@ -7,7 +7,6 @@
 /src/mock
 .gitkeep
 
-package-lock.json
 yarn.lock
 
 # local env files

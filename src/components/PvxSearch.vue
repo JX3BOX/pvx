@@ -58,10 +58,16 @@
                                 <div v-if="fItem.type === 'radio'" class="check-box-wrapper">
                                     <div class="name">{{ fItem.name }}</div>
                                     <el-radio-group v-model="formData[fItem.key]">
-                                        <el-radio-button class="type-item"
+                                        <el-radio-button
+                                            class="type-item"
                                             :class="{ active: radioItem.value === formData[fItem.key] }"
-                                            v-for="radioItem in fItem.options" :key="radioItem.type"
-                                            :label="radioItem.key">{{ radioItem.value }}</el-radio-button>
+                                            v-for="radioItem in fItem.options"
+                                            :key="radioItem.key || radioItem.value"
+                                            :label="radioItem.key"
+                                            :disabled="radioItem.disabled"
+                                        >
+                                            {{ radioItem.value }}
+                                        </el-radio-button>
                                     </el-radio-group>
                                 </div>
                             </div>

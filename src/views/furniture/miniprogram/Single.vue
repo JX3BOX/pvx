@@ -38,7 +38,7 @@
             <div class="m-box m-other">
                 <div class="u-item">
                     <div class="u-title">来源途径</div>
-                    <div class="u-text">{{ data.szSource }}</div>
+                    <div class="u-text">{{ source_text }}</div>
                 </div>
                 <div class="u-item" v-if="data.LevelLimit">
                     <div class="u-title">摆放等级</div>
@@ -116,6 +116,8 @@ import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import User from "@jx3box/jx3box-common/js/user";
 import { addFav, delFav, hasFav } from "@jx3box/jx3box-ui/service/fav";
 
+const HOMELAND_COIN_SOURCE = "\u56ed\u5b85\u5e01";
+
 export default {
     name: "FurnitureSingle",
     components: { WikiComments, Wiki, SuspendCommon },
@@ -191,6 +193,14 @@ export default {
         },
         fav_author_id: function () {
             return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
+        },
+        is_architecture_cost_visible: function () {
+            const cost = this.data?.Architecture;
+            return this.data?.szSource === HOMELAND_COIN_SOURCE && ![undefined, null, ""].includes(cost);
+        },
+        source_text: function () {
+            if (this.is_architecture_cost_visible) return `${this.data.szSource}（${this.data.Architecture}）`;
+            return this.data?.szSource || "";
         },
 
         has_extend: function () {

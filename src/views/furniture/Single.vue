@@ -12,28 +12,19 @@
                     {{ data.szName }}
                     <i class="u-interact" v-if="data.bInteract"></i>
                 </div>
-                <div class="u-attrs">
-                    <span class="u-attr" v-if="data.Attribute1"
-                        ><span class="u-label blue">观赏</span>{{ data.Attribute1 }}</span
+                <div class="u-attrs" v-if="data.Record || data.Record === 0 || furniture_attrs.length">
+                    <span class="u-attr" v-if="data.Record || data.Record === 0"
+                        ><span class="u-label score">装修评分</span>{{ data.Record }}</span
                     >
-                    <span class="u-attr" v-if="data.Attribute2"
-                        ><span class="u-label pink">实用</span>{{ data.Attribute2 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute3"
-                        ><span class="u-label yellow">坚固</span>{{ data.Attribute3 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute4"
-                        ><span class="u-label green">风水</span>{{ data.Attribute4 }}</span
-                    >
-                    <span class="u-attr" v-if="data.Attribute5"
-                        ><span class="u-label purple">趣味</span>{{ data.Attribute5 }}</span
+                    <span class="u-attr" v-for="item in furniture_attrs" :key="item.key"
+                        ><span class="u-label" :class="item.className">{{ item.label }}</span>{{ item.value }}</span
                     >
                 </div>
                 <div class="u-metas">
                     <span class="u-meta"
                         ><img src="../../assets/img/furniture/origin.svg" svg-inline /><span class="u-label"
                             >来源途径：</span
-                        >{{ data.szSource }}</span
+                        >{{ source_text }}</span
                     >
                     <span v-if="data.LevelLimit" class="u-meta"
                         ><img src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label"
@@ -192,7 +183,7 @@
 
                 <div class="m-pvx__item m-pvx-furniture-robot__source">
                     <div class="u-title">来源途径</div>
-                    <div class="u-source">{{ data.szSource || "暂无来源" }}</div>
+                    <div class="u-source">{{ source_text || "暂无来源" }}</div>
                 </div>
             </div>
 
@@ -248,6 +239,8 @@ import { getFurnitureCategory } from "@/service/homeland.js";
 import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import { __imgPath } from "@/utils/config";
 import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
+
+const HOMELAND_COIN_SOURCE = "\u56ed\u5b85\u5e01";
 
 export default {
     name: "FurnitureSingle",
@@ -353,18 +346,35 @@ export default {
         fav_author_id: function () {
             return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
         },
+        is_architecture_cost_visible: function () {
+            const cost = this.data?.Architecture;
+            return this.data?.szSource === HOMELAND_COIN_SOURCE && ![undefined, null, ""].includes(cost);
+        },
+        source_text: function () {
+            if (this.is_architecture_cost_visible) return `${this.data.szSource}（${this.data.Architecture}）`;
+            return this.data?.szSource || "";
+        },
         furniture_type: function () {
             if (!this.data || !Object.keys(this.category).length) return "";
             return getFurnitureType(this.data, this.category);
         },
         furniture_attrs: function () {
+            const hasAttrValue = (value) => ![undefined, null, ""].includes(value);
+            const useDefaultAttrs =
+                Number(this.data?.nFurnitureType) === 2 &&
+                !this.data?.Attribute1 &&
+                !this.data?.Attribute2 &&
+                !this.data?.Attribute3 &&
+                !this.data?.Attribute4 &&
+                !this.data?.Attribute5;
+
             return [
-                { key: "view", label: "观赏", value: this.data?.Attribute1, className: "blue" },
-                { key: "practical", label: "实用", value: this.data?.Attribute2, className: "pink" },
-                { key: "strong", label: "坚固", value: this.data?.Attribute3, className: "yellow" },
-                { key: "fengshui", label: "风水", value: this.data?.Attribute4, className: "green" },
-                { key: "interest", label: "趣味", value: this.data?.Attribute5, className: "purple" },
-            ].filter((item) => item.value);
+                { key: "view", label: "观赏", value: useDefaultAttrs ? 1 : this.data?.Attribute1, className: "blue" },
+                { key: "practical", label: "实用", value: useDefaultAttrs ? 1 : this.data?.Attribute2, className: "pink" },
+                { key: "strong", label: "坚固", value: useDefaultAttrs ? 1 : this.data?.Attribute3, className: "yellow" },
+                { key: "fengshui", label: "风水", value: useDefaultAttrs ? 1 : this.data?.Attribute4, className: "green" },
+                { key: "interest", label: "趣味", value: useDefaultAttrs ? 1 : this.data?.Attribute5, className: "purple" },
+            ].filter((item) => hasAttrValue(item.value));
         },
 
         has_extend: function () {

@@ -39,10 +39,15 @@
                         <div v-for="(item, index) in searchProps" :key="index">
                             <div class="u-filtrate-title">{{ item.name }}</div>
                             <div class="u-box">
-                                <div class="u-item" :class="{ active: getActiveStatus(item, item2) }"
-                                    v-for="(item2, index2) in item.options" :key="index2" @click="
+                                <div
+                                    class="u-item"
+                                    :class="{ active: getActiveStatus(item, item2), disabled: isSearchOptionDisabled(item, item2) }"
+                                    v-for="(item2, index2) in item.options"
+                                    :key="index2"
+                                    @click="
                                         setSearchParams(item.key == 'nCatag1Index' ? item.key : item2.paramsKey, item2)
-                                        ">
+                                    "
+                                >
                                     {{ item.key == "nCatag1Index" ? item2.name : item2.value }}
                                 </div>
                             </div>
@@ -108,6 +113,8 @@ import { formatFurnitureImg, getFurnitureType, loadFurnitureMatch } from "@/util
 import SuspendCommon from "@jx3box/jx3box-ui/src/SuspendCommon";
 import { wxNewPage } from "@/utils/minprogram";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
+const COST_PERFORMANCE_KEY = "__costPerf";
+const COST_PERFORMANCE_SOURCE = "\u56ed\u5b85\u5e01";
 
 export default {
     name: "FurnitureHome",
@@ -139,6 +146,8 @@ export default {
                 bInteract: null, //🉑交互
                 isSet: null, //庐园广记
                 isMatch: null, //园宅会赛
+                order_key: null,
+                order_by: null,
                 Attribute1: null, //观赏
                 Attribute2: null, //实用
                 Attribute3: null, //坚固
@@ -163,6 +172,17 @@ export default {
                 //         };
                 //     }),
                 // },
+                {
+                    key: "order_key",
+                    name: "装修评分",
+                    options: [
+                        {
+                            key: COST_PERFORMANCE_KEY,
+                            value: "性价比",
+                            paramsKey: "order_key",
+                        },
+                    ],
+                },
                 {
                     key: "szSource",
                     name: "来源途径",
@@ -299,12 +319,29 @@ export default {
 
             return item_c.key == this.queryParams[item_c.paramsKey];
         },
+        isSearchOptionDisabled(item, item_c) {
+            if (item_c.disabled) return true;
+            return item.key === "szSource" && this.queryParams.order_key === COST_PERFORMANCE_KEY && item_c.key !== COST_PERFORMANCE_SOURCE;
+        },
         setSearchParams(key, item2) {
+            if (item2.disabled) return;
+            if (key === "szSource" && this.queryParams.order_key === COST_PERFORMANCE_KEY && item2.key !== COST_PERFORMANCE_SOURCE) return;
+
             if (key == "nCatag1Index") {
                 this.queryParams[key] = item2.id;
                 return;
             }
-            this.queryParams[key] = item2[key];
+            if (key === "order_key" && item2.key === COST_PERFORMANCE_KEY) {
+                this.queryParams.order_key = COST_PERFORMANCE_KEY;
+                this.queryParams.order_by = "DESC";
+                this.queryParams.szSource = COST_PERFORMANCE_SOURCE;
+                return;
+            }
+            if (key === "szSource" && item2.key !== COST_PERFORMANCE_SOURCE) {
+                this.queryParams.order_key = null;
+                this.queryParams.order_by = null;
+            }
+            this.queryParams[key] = item2.key || item2[key];
         },
         versionChange(value) {
             this.version = value;
@@ -331,6 +368,8 @@ export default {
                     bInteract: null, //🉑交互
                     isSet: null, //庐园广记
                     isMatch: null, //园宅会赛
+                    order_key: null,
+                    order_by: null,
                 };
                 let name = this.categoryObj[this.queryParams.nCatag1Index]?.name;
                 this.switchTitle = `家具(${name})`;
@@ -367,6 +406,8 @@ export default {
                 bInteract: null, //🉑交互
                 isSet: null, //庐园广记
                 isMatch: null, //园宅会赛
+                order_key: null,
+                order_by: null,
             };
             const cache = sessionStorage.getItem(`FurnitureSet_${this.version}`);
             if (cache) {
@@ -505,6 +546,12 @@ export default {
                 &.active {
                     color: #24292e;
                     background: #fedaa3;
+                }
+
+                &.disabled {
+                    cursor: not-allowed;
+                    color: @fontColor-dark3;
+                    background: rgba(255, 255, 255, 0.03);
                 }
 
                 &.top {

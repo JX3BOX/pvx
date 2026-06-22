@@ -19,7 +19,7 @@ function withSuffix(title) {
     // 注意：suffix 由业务侧在 settings.js 中定义，可能包含刻意的前后空格
     // 这里不要对 suffix 做 trim/replace，保持原样拼接
     const base = String(title || "").trim();
-    const suffix = String(settings?.suffix ?? "");
+    const suffix = String(settings?.suffix || "");
     if (!base) return "";
     if (!suffix) return base;
     if (base.endsWith(suffix)) return base;
