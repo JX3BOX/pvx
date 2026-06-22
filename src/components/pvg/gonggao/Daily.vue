@@ -43,6 +43,7 @@
                 <div class="u-title">抓马播报</div>
                 <SimpleHorse class="m-daily-content"></SimpleHorse>
             </div>
+            <!-- 美人图模块暂不露出
             <div class="m-daily-item">
                 <div class="u-title">
                     <div class="u-mrt-title">
@@ -55,8 +56,9 @@
                 </div>
                 <SimpleMrt class="m-daily-content" :server="currentServer"></SimpleMrt>
             </div>
+            -->
         </template>
-        <MrtDialog :visible="visible" :currentServer="currentServer" @close="visible = false"></MrtDialog>
+        <!-- <MrtDialog :visible="visible" :currentServer="currentServer" @close="visible = false"></MrtDialog> -->
     </div>
 </template>
 
@@ -71,8 +73,8 @@ import SimpleCelebrity from "./daily/SimpleCelebrity.vue";
 // import SimpleReputation from "./daily/SimpleReputation.vue";
 // import SimpleFurniture from "./daily/SimpleFurniture.vue";
 import SimpleHorse from "./daily/SimpleHorse.vue";
-import SimpleMrt from "./daily/SimpleMrt.vue";
-import MrtDialog from "./daily/MrtDialog.vue";
+// import SimpleMrt from "./daily/SimpleMrt.vue";
+// import MrtDialog from "./daily/MrtDialog.vue";
 
 import dailyKeys from "@/assets/data/daily_keys.json";
 import servers_std from "@jx3box/jx3box-data/data/server/server_std.json";
@@ -89,8 +91,8 @@ export default {
         // SimpleWeek,
         // SimpleFurniture,
         SimpleHorse,
-        SimpleMrt,
-        MrtDialog,
+        // SimpleMrt,
+        // MrtDialog,
     },
     data() {
         return {

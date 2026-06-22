@@ -10,6 +10,10 @@
 <script>
 import { getMyFocusServers, getAllServers } from "@/service/pvg/server.js";
 import CommonToolbar from "@/components/common/toolbar.vue";
+import serverStd from "@jx3box/jx3box-data/data/server/server_std.json";
+import serverOrigin from "@jx3box/jx3box-data/data/server/server_origin.json";
+import serverInternational from "@jx3box/jx3box-data/data/server/server_international.json";
+
 export default {
     name: "Gonggao",
     components: { CommonToolbar },
@@ -64,18 +68,23 @@ export default {
         uid() {
             return this.$store.state.uid;
         },
+        client() {
+            return this.$store.state.client;
+        },
     },
     methods: {
         // 获取服务器列表
         loadAllServers() {
             getAllServers().then((res) => {
-                let mainServerList = res.data?.map((server) => {
-                    return {
-                        ...server,
-                        connect_state_name: this.heatStateArr.find((item) => item.value === server.heat)?.label || "",
-                        connect_state_class: this.heatStateArr.find((item) => item.value === server.heat)?.class || "",
-                    };
-                });
+                let mainServerList = (res.data || [])
+                    .map((server) => {
+                        return {
+                            ...server,
+                            connect_state_name: this.heatStateArr.find((item) => item.value === server.heat)?.label || "",
+                            connect_state_class: this.heatStateArr.find((item) => item.value === server.heat)?.class || "",
+                        };
+                    })
+                    .filter((server) => this.cansee(server));
 
                 this.serverList = mainServerList;
                 this.$store.commit("setServerList", this.serverList);
@@ -85,6 +94,13 @@ export default {
                     });
                 }
             });
+        },
+        cansee(server) {
+            const zoneName = server?.zone_name || "";
+            const serverName = server?.main_server || server?.server_name || "";
+            const clientType = zoneName === "缘起大区" ? "origin" : "std";
+            const serverList = clientType === "origin" ? serverOrigin : [...serverStd, ...serverInternational];
+            return this.client === clientType && serverList.includes(serverName);
         },
         //转服务器数据 str转换成obj
         serverFav(data) {

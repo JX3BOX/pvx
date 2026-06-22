@@ -3,7 +3,8 @@
         <div class="m-daily-content">
             <lucky-pet :date="date" :client="client"></lucky-pet>
             <furniture v-if="isCurrentWeek" :date="date" :client="client"></furniture>
-            <meirentu :client="client" :today="today"></meirentu>
+            <!-- 美人图模块暂不露出 -->
+            <!-- <meirentu :client="client" :today="today"></meirentu> -->
         </div>
     </div>
 </template>
@@ -12,14 +13,14 @@
 import dayjs from "@/utils/day";
 import luckyPet from "./lucky_pet";
 import furniture from "./furniture";
-import meirentu from "./meirentu.vue";
+// import meirentu from "./meirentu.vue";
 
 export default {
     name: "daily-special",
     components: {
         luckyPet,
         furniture,
-        meirentu,
+        // meirentu,
     },
     props: {
         date: {
