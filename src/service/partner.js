@@ -1,4 +1,4 @@
-import { $node } from "@jx3box/jx3box-common/js/api";
+import { $node, $cms } from "@jx3box/jx3box-common/js/api";
 const $ = $node();
 
 /**
@@ -39,7 +39,7 @@ export function getPartnerDetail(id, params = {}) {
  * - Desc: 技能描述
  * - Type: 技能类型（用于判断圆/方图标）
  */
-export const PARTNER_SKILL_FIELDS = ["IconID", "Name", "Desc", "Type"];
+export const PARTNER_SKILL_FIELDS = ["SkillID", "IconID", "Name", "Desc", "Type"];
 
 /**
  * 获取侠客技能详情
@@ -82,4 +82,55 @@ export function getPartnerSkillDetail(ids, fields = PARTNER_SKILL_FIELDS) {
     const fieldPart = shouldFilter ? `[${Array.isArray(fields) ? fields.join(",") : fields}]` : "";
 
     return $.get(`resource/std/skill.${idPart}.${fieldPart}`);
+}
+
+/**
+ * 获取物品详情（结识道具）
+ * 接口格式：https://cms.jx3box.com/api/cms/wiki/post/type/item/source/{sourceId}?client=std
+ *
+ * @param {string|number} sourceId - 物品 source ID（如 "5_45838"）
+ * @param {Object} [params]
+ * @param {string} [params.client='std'] - 客户端类型
+ * @returns {Promise} 返回物品详情数据
+ *
+ * @example
+ * getPartnerItemDetail("5_45838")
+ */
+export function getPartnerItemDetail(sourceId, params = {}) {
+    if (!sourceId) {
+        return Promise.reject(new Error("必须传入物品 source ID"));
+    }
+    return $cms().get(`/api/cms/wiki/post/type/item/source/${sourceId}`, { params: { client: "std", ...params } });
+}
+
+/**
+ * 批量获取物品详情（结识道具列表）
+ * 支持传入多个 sourceId，返回对应的物品数据
+ *
+ * @param {Array<string|number>} sourceIds - 物品 source ID 数组
+ * @returns {Promise<Object>} 返回以 sourceId 为 key 的物品详情对象
+ */
+export function getPartnerItemsDetail(sourceIds) {
+    const idList = Array.isArray(sourceIds) ? sourceIds : [sourceIds];
+    if (idList.length === 0) {
+        return Promise.resolve({});
+    }
+
+    // 并行请求所有物品详情，使用 Promise.allSettled 确保单个失败不影响其他
+    const requests = idList.map((id) =>
+        getPartnerItemDetail(id)
+            .then((res) => ({ id, data: res?.data || null, success: true }))
+            .catch((err) => ({ id, data: null, success: false, error: err }))
+    );
+
+    return Promise.allSettled(requests).then((results) => {
+        const itemsMap = {};
+        results.forEach((result, index) => {
+            const item = result.value || result.reason;
+            if (item && item.success && item.data) {
+                itemsMap[item.id] = item.data;
+            }
+        });
+        return itemsMap;
+    });
 }

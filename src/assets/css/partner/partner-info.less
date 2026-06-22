@@ -136,33 +136,60 @@
             margin-bottom: 12px;
         }
 
-        // 道具列表：Figma Frame 301, #F2F2F2, 圆角4px, padding 8px
-        .m-partner-intro-items {
+        // ==================== 结识道具网格布局（参考武学招式） ====================
+        // 使用 flex 网格布局 + 圆形图标
+        .m-partner-item-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            background: @partner-color-attr-bg;
-            border-radius: 4px;
-            padding: 8px;
+            gap: 20px;
+            margin-bottom: 16px;
+            padding-left: 10px; // 避免左侧遮挡
+        }
 
-            .u-partner-intro-item {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 4px 10px;
-                background: @partner-color-text-white;
-                color: @partner-color-pink;
-                border-radius: 4px;
-                font-size: 12px;
-                line-height: 18px;
-                text-decoration: none;
-                border: 1px solid @partner-color-border-soft;
-                transition: all @partner-transition-duration ease-out;
+        // 圆形图标（类似武学招式 .u-partner-skill-icon）
+        .u-partner-item-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: @partner-color-default-bg;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all @partner-transition-duration ease-out;
+            box-sizing: border-box;
+            border: 2px solid transparent;
+            text-decoration: none;
 
-                &:hover {
-                    background: @partner-color-primary-hover;
-                    border-color: @partner-color-primary;
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            // 无图标时的 fallback 文字（显示首字）
+            .u-partner-item-fallback {
+                font-size: 14px;
+                color: rgba(0, 0, 0, 0.4);
+            }
+
+            // 圆形样式
+            &.is-circle {
+                border-radius: 50%;
+            }
+
+            // 加载状态
+            &--loading {
+                cursor: wait;
+                i {
+                    font-size: 16px;
+                    color: rgba(0, 0, 0, 0.4);
                 }
+            }
+
+            // hover 效果
+            &:hover {
+                transform: translateY(-1px);
             }
         }
     }
@@ -259,6 +286,7 @@
 // ==================== 响应式适配 - iPad ====================
 @media screen and (max-width: @ipad) {
     .m-pvx-partner-right {
+        right: 20px; // iPad 端右边距缩减为 20px
         width: 300px;
     }
 }
@@ -266,6 +294,101 @@
 // ==================== 响应式适配 - Phone ====================
 @media screen and (max-width: @phone) {
     .m-pvx-partner-right {
+        right: 10px; // Phone 端右边距缩减为 10px
         display: none;
+    }
+}
+
+// ==================== 响应式适配 - 大屏幕缩减 ====================
+// 当窗口宽度小于 1400px 时，缩减右边距
+@media screen and (max-width: 1400px) {
+    .m-pvx-partner-right {
+        right: 20px;
+    }
+}
+
+// 当窗口宽度小于 1200px 时，进一步缩减右边距
+@media screen and (max-width: 1200px) {
+    .m-pvx-partner-right {
+        right: 10px;
+    }
+}
+
+// ==================== 物品详情 Popover 样式（全局作用域）====================
+// 对齐截图：深色背景 + 蓝色标题/白色元信息/绿色描述/黄色来源
+.m-pvx-item-popover {
+    padding: 12px !important;
+    background: #2b2b2b !important; // 深色背景
+    border: 1px solid #555 !important;
+    border-radius: @partner-radius !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+
+    // 箭头样式（与 popover 背景一致）
+    .el-popper__arrow,
+    .popper__arrow {
+        &::before {
+            background: #2b2b2b !important; // 箭头背景与 popover 一致
+            border: 1px solid #555 !important; // 箭头边框与 popover 一致
+        }
+    }
+
+    // 箭头位置调整（确保箭头指向正确）
+    &[data-popper-placement="top"] .el-popper__arrow::before,
+    &[data-popper-placement="top"] .popper__arrow::before {
+        border-top-color: #555 !important;
+        border-left-color: #555 !important;
+        border-right-color: #555 !important;
+        border-bottom-color: transparent !important;
+    }
+
+    .m-pvx-item-detail {
+        color: #fff;
+
+        // 物品名称（蓝色）
+        .u-pvx-item-name {
+            margin: 0 0 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #4a9eff; // 蓝色标题
+            line-height: 22px;
+        }
+
+        // 物品元信息（白色）
+        .u-pvx-item-meta {
+            margin-bottom: 10px;
+
+            p {
+                margin: 4px 0;
+                font-size: 13px;
+                color: #fff; // 白色文字
+                line-height: 19px;
+                font-family: "Microsoft YaHei", sans-serif;
+            }
+        }
+
+        // 使用说明（绿色）
+        .u-pvx-item-desc {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-size: 13px;
+            color: #00ff88; // 绿色使用说明
+            line-height: 20px;
+            word-break: break-all;
+
+            :deep(br) {
+                display: block;
+                margin: 2px 0;
+            }
+        }
+
+        // 来源描述（黄色）
+        .u-pvx-item-source {
+            font-size: 13px;
+            color: #ffd700; // 黄色来源描述
+            line-height: 20px;
+            word-break: break-all;
+        }
     }
 }

@@ -223,6 +223,7 @@
 // ==================== 响应式适配 - iPad ====================
 @media screen and (max-width: @ipad) {
     .m-pvx-partner-selector {
+        left: 20px; // iPad 端左边距缩减为 20px
         width: 240px;
 
         .u-partner-category-item {
@@ -239,6 +240,7 @@
 // ==================== 响应式适配 - Phone ====================
 @media screen and (max-width: @phone) {
     .m-pvx-partner-selector {
+        left: 10px; // Phone 端左边距缩减为 10px
         width: 200px;
         top: @header-height;
 
@@ -254,5 +256,20 @@
                 font-size: 12px;
             }
         }
+    }
+}
+
+// ==================== 响应式适配 - 大屏幕缩减 ====================
+// 当窗口宽度小于 1400px 时，缩减左边距
+@media screen and (max-width: 1400px) {
+    .m-pvx-partner-selector {
+        left: 20px;
+    }
+}
+
+// 当窗口宽度小于 1200px 时，进一步缩减左边距
+@media screen and (max-width: 1200px) {
+    .m-pvx-partner-selector {
+        left: 10px;
     }
 }

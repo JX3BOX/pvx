@@ -7,11 +7,11 @@ import { KUNGFU_INDEX, SKILL_TYPE, SKILL_SHAPE } from "@/views/partner/const";
 // TODO 调整：仅需修改 4 个常量即可，业务代码无需变动
 
 // 物品百科（占位）
-const ITEM_WIKI_BASE_URL = "https://wiki.example.com";
+const ITEM_WIKI_BASE_URL = "xxx";
 const ITEM_WIKI_PATH_PREFIX = "/item/";
 
 // 武学数据库（占位）
-const SKILL_DB_BASE_URL = "https://db.example.com";
+const SKILL_DB_BASE_URL = "xxx";
 const SKILL_DB_PATH_PREFIX = "/skill/";
 
 /**
@@ -249,21 +249,20 @@ export function mapPartnerDetail(detail) {
         }));
 
     // 武学招式：添加名称占位
-    const skills = (detail.Skills || [])
-        .map((s, index) => ({
-            id: s.skillID,
-            // 技能名称占位（后续会被 getPartnerSkillDetail 覆盖）
-            name: `招式 ${s.skillID}`,
-            desc: `武学招式，类型: ${s.type === SKILL_TYPE.NORMAL ? "被动" : "主动"}`,
-            level: s.level,
-            type: s.type,
-            typeLabel: s.type === SKILL_TYPE.NORMAL ? "被动" : "主动",
-            shape: getSkillShape(s.type),
-            openStage: s.openStage,
-            // 如果原始数据已有 IconID 则直接使用，否则留空等待 skill detail API 补充
-            icon: s.IconID ? resolveSkillIcon(s.IconID) : "",
-            iconId: s.IconID || null,
-        }));
+    const skills = (detail.Skills || []).map((s, index) => ({
+        id: s.skillID,
+        // 技能名称占位（后续会被 getPartnerSkillDetail 覆盖）
+        name: `招式 ${s.skillID}`,
+        desc: `武学招式，类型: ${s.type === SKILL_TYPE.NORMAL ? "被动" : "主动"}`,
+        level: s.level,
+        type: s.type,
+        typeLabel: s.type === SKILL_TYPE.NORMAL ? "被动" : "主动",
+        shape: getSkillShape(s.type),
+        openStage: s.openStage,
+        // 如果原始数据已有 IconID 则直接使用，否则留空等待 skill detail API 补充
+        icon: s.IconID ? resolveSkillIcon(s.IconID) : "",
+        iconId: s.IconID || null,
+    }));
 
     // 基础属性（从接口数据提取）
     const attrs = [

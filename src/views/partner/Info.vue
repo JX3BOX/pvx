@@ -3,6 +3,11 @@
  *
  * @description 结识方式 + 武学招式 + 武学境界 + 属性
  * TAB 和头部（名字+ID）已移到 Index.vue 统一管理
+ *
+ * @features
+ * - 结识道具：从 API 获取物品详情，展示图标 + 悬停 popover
+ * - 加载状态：道具加载中显示 loading 效果
+ * - 错误处理：API 失败时优雅降级，仍可点击跳转
  -->
 <template>
     <div class="m-partner-info-content">
@@ -13,12 +18,63 @@
                 {{ partner.introduce }}
             </div>
             <div v-if="partner?.limitTip" class="u-partner-intro-desc" v-html="formatDesc(partner.limitTip)"></div>
-            <div v-if="partner?.drawItems && partner.drawItems.length" class="m-partner-intro-items">
-                <a v-for="it in partner.drawItems" :key="it.itemId" :href="getItemWikiUrl(it.itemId)" target="_blank"
-                    rel="noopener" class="u-partner-intro-item">
-                    道具 {{ it.itemId }}
-                </a>
+
+            <!-- 结识道具列表（网格布局 + 圆形图标 + 悬停 popover） -->
+            <div v-if="partner?.drawItems && partner.drawItems.length" class="m-partner-item-grid">
+                <template v-for="it in partner.drawItems" :key="getSourceId(it)">
+                    <!-- 有物品详情时显示带 popover 的圆形图标 -->
+                    <el-popover v-if="itemDetails[getSourceId(it)]" :key="'pop-' + getSourceId(it)" placement="top"
+                        trigger="hover" width="400" popper-class="m-pvx-item-popover">
+                        <template #reference>
+                            <!-- 圆形图标（类似武学招式） -->
+                            <div class="u-partner-item-icon is-circle" :title="getItemName(it)">
+                                <img v-if="getItemIconId(it)" :src="resolveSkillIcon(getItemIconId(it))"
+                                    :alt="getItemName(it)" @error="handleImageError" />
+                                <span v-else class="u-partner-item-fallback">{{ getItemFallback(it) }}</span>
+                            </div>
+                        </template>
+                        <!-- Popover 内容区域 -->
+                        <div class="m-pvx-item-detail">
+                            <h4 class="u-pvx-item-name">{{ getItemName(it) }}</h4>
+                            <div class="u-pvx-item-meta">
+                                <p v-if="getBindType(getItemSource(it)) !== null">
+                                    {{ getBindType(getItemSource(it)) }}
+                                </p>
+                                <p v-if="getTimeLimit(getItemSource(it))">
+                                    限时时间：{{ getTimeLimit(getItemSource(it)) }}天
+                                </p>
+                                <p v-if="getMaxStack(getItemSource(it))">
+                                    最大拥有数：{{ getMaxStack(getItemSource(it)) }}
+                                </p>
+                            </div>
+                            <!-- 描述内容：优先使用 post.content（HTML 格式） -->
+                            <div v-if="getItemPost(it)?.content" class="u-pvx-item-desc"
+                                v-html="getItemPost(it).content">
+                            </div>
+                            <div v-else-if="getDesc(getItemSource(it))" class="u-pvx-item-desc"
+                                v-html="formatItemDesc(getDesc(getItemSource(it)))">
+                            </div>
+                            <div v-if="getSourceText(getItemSource(it))" class="u-pvx-item-source">
+                                {{ getSourceText(getItemSource(it)) }}
+                            </div>
+                        </div>
+                    </el-popover>
+
+                    <!-- 加载中的道具 -->
+                    <div v-else-if="loadingItems.includes(getSourceId(it))" :key="'load-' + getSourceId(it)"
+                        class="u-partner-item-icon is-circle u-partner-item-icon--loading"
+                        :title="`道具 ${getSourceId(it)} 加载中...`">
+                        <i class="el-icon-loading"></i>
+                    </div>
+
+                    <!-- 加载失败或无数据的降级显示 -->
+                    <a v-else :key="'fallback-' + getSourceId(it)" :href="getItemWikiUrl(getSourceId(it))"
+                        target="_blank" rel="noopener" class="u-partner-item-icon is-circle" :title="getItemName(it)">
+                        <span class="u-partner-item-fallback">{{ getItemFallback(it) }}</span>
+                    </a>
+                </template>
             </div>
+
             <div v-if="!hasIntro" class="u-partner-intro-desc">暂无结识信息</div>
         </div>
 
@@ -40,7 +96,8 @@
 <script>
 import SkillList from "./SkillList.vue";
 import AttributeTable from "./AttributeTable.vue";
-import { getItemWikiUrl } from "@/utils/partner";
+import { getItemWikiUrl, resolveSkillIcon } from "@/utils/partner";
+import { getPartnerItemsDetail } from "@/service/partner";
 
 export default {
     name: "PartnerInfo",
@@ -55,6 +112,14 @@ export default {
             default: () => null,
         },
     },
+    data() {
+        return {
+            // 物品详情缓存 { itemId: itemData }
+            itemDetails: {},
+            // 正在加载的物品 ID 列表
+            loadingItems: [],
+        };
+    },
     computed: {
         hasIntro() {
             const p = this.partner;
@@ -62,12 +127,204 @@ export default {
             return !!(p.introduce || p.limitTip || (p.drawItems && p.drawItems.length));
         },
     },
+    watch: {
+        // 监听侠客变化时重新获取物品详情
+        "partner.drawItems": {
+            handler(items) {
+                if (items && items.length > 0) {
+                    this.fetchItemDetails(items);
+                } else {
+                    this.itemDetails = {};
+                    this.loadingItems = [];
+                }
+            },
+            immediate: true, // 初始化时也触发
+            deep: true,
+        },
+    },
     methods: {
         formatDesc(desc) {
             if (!desc) return "";
             return String(desc).replace(/\n/g, "<br>");
         },
+        /**
+         * 格式化物品描述（支持 \n 和 \\n 换行）
+         */
+        formatItemDesc(content) {
+            if (!content) return "";
+            return String(content)
+                .replace(/\\n/g, "<br>")
+                .replace(/\n/g, "<br>");
+        },
+        /**
+         * 获取完整的 sourceId（tableId_itemId 格式，如 "5_45838"）
+         * 用于 API 查询和作为缓存 key
+         */
+        getSourceId(item) {
+            if (!item) return "";
+            // 组合 tableId 和 itemId 为完整 sourceId
+            return `${item.tableId}_${item.itemId}`;
+        },
+        /**
+         * 获取物品详情中的 source 对象
+         * API 返回数据结构：itemDetails[sourceId] = { code, msg, data: { source, post, ... } }
+         * 正确路径：detail.data.source
+         */
+        getItemSource(item) {
+            const sourceId = this.getSourceId(item);
+            const detail = this.itemDetails[sourceId];
+            // 正确提取路径：detail.data.source
+            return detail?.data?.source || null;
+        },
+        /**
+         * 获取物品详情中的 post 对象（用户编辑的内容）
+         * API 返回数据结构：detail.data.post
+         */
+        getItemPost(item) {
+            const sourceId = this.getSourceId(item);
+            const detail = this.itemDetails[sourceId];
+            return detail?.data?.post || null;
+        },
+        /**
+         * 获取物品 IconID（从 source 对象中提取）
+         */
+        getItemIconId(item) {
+            const source = this.getItemSource(item);
+            return source?.IconID || null;
+        },
+        /**
+         * 获取物品显示名称（优先使用 post.title，其次 source.Name）
+         */
+        getItemName(item) {
+            const post = this.getItemPost(item);
+            const source = this.getItemSource(item);
+            // 优先使用用户编辑的标题
+            if (post?.title) return post.title;
+            if (source?.Name) return source.Name;
+            const sourceId = this.getSourceId(item);
+            return sourceId ? `道具 ${sourceId}` : "未知道具";
+        },
+        /**
+         * 获取物品 fallback 文本（无图标时显示首字）
+         */
+        getItemFallback(item) {
+            const name = this.getItemName(item);
+            return name.slice(0, 1);
+        },
+        /**
+         * 获取绑定类型文本（从 source 对象中提取）
+         * BindType: null=可交易, 0=不可交易, 3=拾取绑定
+         */
+        getBindType(source) {
+            if (!source) return null;
+            const bindType = source.BindType;
+            if (bindType === undefined || bindType === null) return "可交易";
+            if (bindType === 0) return "不可交易";
+            if (bindType === 3) return "拾取绑定";
+            return `绑定类型${bindType}`;
+        },
+        /**
+         * 获取限时时间（从 source.MaxExistTime 计算，单位秒）
+         */
+        getTimeLimit(source) {
+            if (!source) return null;
+            const maxExistTime = source.MaxExistTime;
+            if (!maxExistTime) return null;
+            // 转换秒为天
+            return Math.floor(maxExistTime / 86400);
+        },
+        /**
+         * 获取最大拥有数（从 source 对象中提取）
+         */
+        getMaxStack(source) {
+            if (!source) return null;
+            return source.MaxExistAmount || source.MaxStack || null;
+        },
+        /**
+         * 获取物品描述（优先使用 post.content，其次 source.Desc）
+         * post.content 是用户编辑的 HTML 内容
+         * source.Desc 是原始游戏数据（XML 格式）
+         */
+        getDesc(source) {
+            // 注意：此方法接收的是 source 对象，但需要从 post 获取内容
+            // 在模板中通过 getItemPost(it) 获取 post 对象
+            if (!source) return "";
+            // source.Desc 是 XML 格式，需要特殊处理
+            return source.Desc ?? "";
+        },
+        /**
+         * 获取物品来源文本（从 source.Source 字段）
+         */
+        getSourceText(source) {
+            if (!source) return "";
+            const sourceType = source.Source;
+            if (!sourceType) return "";
+            // 映射来源类型
+            const sourceMap = {
+                other: "其他途径获取",
+                drop: "掉落获取",
+                quest: "任务获取",
+                craft: "制作获取",
+                shop: "商店购买",
+            };
+            return sourceMap[sourceType] || sourceType;
+        },
+        /**
+         * 获取物品品质颜色（从 source.Quality 字段）
+         * Quality: 1-5 对应白/绿/蓝/紫/金
+         */
+        getQualityColor(source) {
+            if (!source) return null;
+            const quality = source.Quality;
+            if (!quality) return null;
+            const colors = {
+                1: "#ffffff", // 白
+                2: "#00ff88", // 绿
+                3: "#4a9eff", // 蓝
+                4: "#ff6b6b", // 紫
+                5: "#ffd700", // 金
+            };
+            return colors[quality] || null;
+        },
+        /**
+         * 获取结识道具的详细信息
+         * 使用完整的 sourceId（tableId_itemId）作为 API 查询参数
+         */
+        async fetchItemDetails(drawItems) {
+            if (!drawItems || drawItems.length === 0) return;
+
+            // 提取所有道具的完整 sourceId（如 "5_45838"）
+            const sourceIds = drawItems.map((it) => this.getSourceId(it)).filter(Boolean);
+
+            // 设置加载状态
+            this.loadingItems = [...new Set([...this.loadingItems, ...sourceIds])];
+
+            try {
+                // 批量请求物品详情（使用完整 sourceId）
+                const details = await getPartnerItemsDetail(sourceIds);
+
+                // 调试日志：打印 API 返回数据结构，便于排查问题
+                console.log("[partner] 物品详情数据:", details);
+
+                // 更新物品详情缓存
+                this.itemDetails = { ...this.itemDetails, ...details };
+            } catch (err) {
+                console.error("[partner] 获取物品详情失败:", err);
+                // 错误时不清空已有数据，保持降级显示
+            } finally {
+                // 移除加载状态
+                this.loadingItems = this.loadingItems.filter((id) => !sourceIds.includes(id));
+            }
+        },
+        /**
+         * 图片加载失败处理
+         */
+        handleImageError(event) {
+            // 隐藏损坏的图片
+            event.target.style.display = "none";
+        },
         getItemWikiUrl,
+        resolveSkillIcon,
     },
 };
 </script>

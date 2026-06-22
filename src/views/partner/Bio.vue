@@ -11,7 +11,7 @@
             </el-collapse-item>
 
             <el-collapse-item v-if="voiceText" name="voice" title="语音">
-                <div class="m-partner-voice-text">{{ voiceText }}</div>
+                <div class="m-partner-voice-text" v-html="formatDesc(voiceText)"></div>
             </el-collapse-item>
         </el-collapse>
 
@@ -30,7 +30,7 @@ export default {
     },
     data() {
         return {
-            activeNames: [0],
+            activeNames: [],
         };
     },
     computed: {
@@ -43,19 +43,36 @@ export default {
         hasContent() {
             return this.bios.length > 0 || !!this.voiceText;
         },
+        // 计算默认展开项：传记第一项或语音（传记为空时）
+        defaultActiveName() {
+            if (this.bios.length > 0) {
+                return [0]; // 有传记时展开第一项
+            }
+            if (this.voiceText) {
+                return ["voice"]; // 无传记有语音时展开语音
+            }
+            return [];
+        },
     },
     watch: {
         partner: {
             handler() {
-                this.activeNames = [0];
+                // 切换侠客时重置为默认展开状态
+                this.activeNames = this.defaultActiveName;
             },
             deep: true,
+            immediate: true, // 初始化时也设置默认展开
         },
     },
     methods: {
         formatDesc(content) {
             if (!content) return "";
-            return String(content).replace(/\n/g, "<br>");
+            // 处理两种换行符形式：
+            // 1. 字符串形式的转义字符 \\n（数据中存储为 "\n" 字符串）
+            // 2. 真正的换行符 \n
+            return String(content)
+                .replace(/\\n/g, "<br>") // 处理字符串形式的 \n
+                .replace(/\n/g, "<br>"); // 处理真正的换行符
         },
     },
 };

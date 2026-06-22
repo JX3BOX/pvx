@@ -28,15 +28,9 @@
                 <!-- 三栏布局 -->
                 <div class="m-partner-layout">
                     <!-- 左侧选择 -->
-                    <Selector
-                        :partner-list="partnerList"
-                        :selected-id="selectedPartnerId"
-                        :expanded="listExpanded"
-                        @select="handleSelect"
-                        @search="handleSearch"
-                        @toggleExpand="handleToggleExpand"
-                        @filterChange="handleFilterChange"
-                    />
+                    <Selector :partner-list="partnerList" :selected-id="selectedPartnerId" :expanded="listExpanded"
+                        @select="handleSelect" @search="handleSearch" @toggleExpand="handleToggleExpand"
+                        @filterChange="handleFilterChange" />
 
                     <!-- 中间立绘 -->
                     <Portrait :partner="selectedPartner" />
@@ -47,7 +41,8 @@
                         <div class="m-partner-right__topbar">
                             <div class="u-partner-topbar-nav">
                                 <PvxRobotTip reply="侠客行" typeName="侠客行" hidden />
-                                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" rel="noopener" class="u-partner-btn">
+                                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" rel="noopener"
+                                    class="u-partner-btn">
                                     <i class="el-icon-warning-outline"></i>
                                     <span>错误反馈</span>
                                 </a>
@@ -57,13 +52,8 @@
                         <!-- 内容面板（Figma: Frame 290, 名字+ID+TAB+内容） -->
                         <div class="m-pvx-partner-info">
                             <!-- 头部：名字+ID + TAB（Figma: Frame 307, 水平 SPACE_BETWEEN） -->
-                            <PartnerTabs
-                                :active="activeTab"
-                                :tabs="infoTabs"
-                                :name="selectedPartner?.name || '—'"
-                                :id="selectedPartner?.id || null"
-                                @change="handleTabChange"
-                            />
+                            <PartnerTabs :active="activeTab" :tabs="infoTabs" :name="selectedPartner?.name || '—'"
+                                :id="selectedPartner?.id || null" @change="handleTabChange" />
 
                             <!-- 内容区域 -->
                             <div class="m-partner-info__body">
@@ -207,15 +197,17 @@ export default {
                         const skillRes = await getPartnerSkillDetail(uniqueIds);
                         // 兼容两种响应格式:
                         //   1. { data: { "id": {...} } }  — 对象以 ID 为 key
-                        //   2. [ {IconID,Name,Desc,Type}, ... ] — 数组按请求顺序返回，无 ID 字段
+                        //   2. [ {SkillID,IconID,Name,Desc,Type}, ... ] — 数组通过 SkillID 字段匹配
                         let skillData = skillRes?.data;
                         if (skillData?.data) skillData = skillData.data;
                         const skillMap = {};
                         if (Array.isArray(skillData)) {
-                            // 数组格式：按请求顺序匹配
-                            uniqueIds.forEach((id, index) => {
-                                const item = skillData[index];
-                                if (item) skillMap[id] = item;
+                            // 数组格式：通过 SkillID 字段匹配（接口返回顺序不保证）
+                            skillData.forEach((item) => {
+                                const skillId = item.SkillID;
+                                if (skillId && uniqueIds.includes(skillId)) {
+                                    skillMap[skillId] = item;
+                                }
                             });
                         } else if (skillData && typeof skillData === "object") {
                             Object.assign(skillMap, skillData);
@@ -277,6 +269,8 @@ export default {
         handleSelect(partner) {
             if (!partner) return;
             this.selectedPartnerId = partner.id;
+            // 切换侠客时重置为基础信息 TAB
+            this.activeTab = "info";
             this.fetchPartnerDetail(partner.id);
         },
         /**
@@ -324,7 +318,7 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/app.less";
-@import "~@/assets/css/miniprogram.less";
-@import "~@/assets/css/partner/index.less";
+    @import "~@/assets/css/app.less";
+    @import "~@/assets/css/miniprogram.less";
+    @import "~@/assets/css/partner/index.less";
 </style>
