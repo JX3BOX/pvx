@@ -1,10 +1,13 @@
 .pvx-search-wrapper {
     .flex;
     .z(12);
+    .r(10px);
     height: auto;
     box-sizing: border-box;
+    padding: 10px 15px;
     align-items: center;
     gap: 40px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
 
     .search-group {
         position: relative;
@@ -51,7 +54,7 @@
                     line-height: 40px;
                     border-radius: 30px;
                     color: #949494;
-                    background-color: transparent;
+                    background-color: #fff;
                     font-weight: bold;
                     text-align: center;
                     cursor: pointer;
@@ -87,7 +90,7 @@
             }
 
             &.filter-wrap {
-                margin-right: 0;
+                margin-right: 20px;
 
                 .filter-img {
                     cursor: pointer;
@@ -95,6 +98,8 @@
 
                     svg {
                         fill: #949494;
+                        background-color: #fff;
+                        border-radius: 50%;
                     }
 
                     &.active {
@@ -112,7 +117,7 @@
 
                 .el-input__wrapper {
                     border: none;
-                    background-color: transparent;
+                    background-color: #f3f4f5;
                     border-radius: 30px;
                     box-shadow: none;
                 }
@@ -145,7 +150,7 @@
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
-                background: transparent;
+                background: #f3f4f5;
                 border-radius: 20px;
                 width: 227px;
                 height: 40px;
@@ -164,7 +169,7 @@
                     color: #24292e;
                     width: 170px;
                     border-radius: 30px;
-                    background: transparent;
+                    background: #f3f4f5;
 
                     &::placeholder {
                         font-weight: normal;
