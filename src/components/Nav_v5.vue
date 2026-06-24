@@ -13,25 +13,16 @@
                             {{ group.menuTitle }}
                         </div>
                         <div class="m-nav-item-box">
-                            <div
-                                class="m-nav-item"
-                                v-for="item in group.submenus"
-                                :key="item.key"
-                                :class="[{ 'is-active': active == item.key }, item.key]"
-                                v-show="item.status"
-                            >
+                            <div class="m-nav-item" v-for="item in group.submenus" :key="item.key"
+                                :class="[{ 'is-active': active == item.key }, item.key]" v-show="item.status">
                                 <a :href="item.path" :target="item.target || '_self'">
                                     <div class="u-nav-icon">
-                                        <img
-                                            svg-inline
-                                            :src="require(`../assets/img/nav/${item.key}.svg`)"
-                                            class="u-icon"
-                                        />
-                                        <img
-                                            svg-inline
-                                            :src="require(`../assets/img/nav/${item.key}2.svg`)"
-                                            class="u-icon-hover"
-                                        />
+                                        <img svg-inline
+                                            :src="require(`../assets/img/nav/${item.menuKey || item.key}.svg`)"
+                                            class="u-icon" />
+                                        <img svg-inline
+                                            :src="require(`../assets/img/nav/${item.menuKey || item.key}2.svg`)"
+                                            class="u-icon-hover" />
                                     </div>
 
                                     <span class="u-nav-label">{{ item.label }}</span>
@@ -161,5 +152,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/nav_v5.less";
+    @import "~@/assets/css/common/nav_v5.less";
 </style>

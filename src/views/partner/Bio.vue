@@ -1,16 +1,11 @@
 <template>
     <div class="m-pvx-partner-bio">
         <el-collapse v-model="activeNames" class="m-partner-bio-collapse">
-            <el-collapse-item
-                v-for="(bio, index) in bios"
-                :key="bio.id || index"
-                :name="index"
-                :title="bio.title"
-            >
+            <el-collapse-item v-for="(bio, index) in bios" :key="bio.id || index" :name="index" :title="bio.title">
                 <div v-html="formatDesc(bio.content)"></div>
             </el-collapse-item>
 
-            <el-collapse-item v-if="voiceText" name="voice" title="语音">
+            <el-collapse-item v-if="voiceText" name="voice" title="语音（仅文字展示）">
                 <div class="m-partner-voice-text" v-html="formatDesc(voiceText)"></div>
             </el-collapse-item>
         </el-collapse>
@@ -79,10 +74,10 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/partner/partner-bio.less";
+    @import "~@/assets/css/partner/partner-bio.less";
 
-.m-partner-voice-text {
-    white-space: pre-wrap;
-    word-break: break-all;
-}
+    .m-partner-voice-text {
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <CommonHeader></CommonHeader>
     <Nav @statusChange="statusChange"></Nav>
-    <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+    <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true" class="c-pvx-main">
         <div class="m-main">
             <div class="p-index p-index--pvx">
                 <div class="m-index-category" v-for="(menu, index) in menus" :key="index" :class="'index' + index">
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import { __cdn } from "@/utils/config";
 import menus from "@/assets/data/menus.json";
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
@@ -40,7 +41,7 @@ export default {
     computed: {},
     methods: {
         getNavIcon(key) {
-            return require(`@/assets/img/nav/${key}2.svg`);
+            return `${__cdn}logo/logo-light/${key}.svg`;
         },
         statusChange(navStatusClass) {
             // this.navStatusClass = navStatusClass;
@@ -56,6 +57,6 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/app.less";
-@import "~@/assets/css/index.less";
+    @import "~@/assets/css/app.less";
+    @import "~@/assets/css/index.less";
 </style>

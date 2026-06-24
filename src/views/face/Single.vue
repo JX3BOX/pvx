@@ -68,8 +68,11 @@
             :client="post.client" />
 
         <div class="m-pvx-comments m-pvx-single__content-box">
-            <el-divider content-position="left">讨论</el-divider>
-            <CommonComment :id="id" category="face" />
+            <div class="u-pvx-comments-title">评论</div>
+            <div class="u-pvx-comments-subtitle">请文明用语，共创美好社区。</div>
+            <div class="m-pvx-comments__box">
+                <CommonComment :id="id" category="face" />
+            </div>
         </div>
     </div>
 </template>

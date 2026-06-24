@@ -5,8 +5,65 @@
  */
 
 @import (reference) "_variables.less";
-
+.p-face-header{
+    .pa;
+}
 // ==================== 列表页基础样式 ====================
+
+.p-pvx-face-list,
+.p-pvx-body-list {
+    // PvxSearch 容器透明化（设计稿 Frame 290）
+    .pvx-search-wrapper {
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        .r(0);
+        gap: 40px;
+        height: 80px;
+
+        .search-group {
+            gap: 40px;
+            height: 80px;
+        }
+
+        // 每个搜索项独立白色胶囊容器（设计稿 Frame 287/288/289: height=80, padding=20/30）
+        .search-group .search-item {
+            background-color: #fff;
+            border: 1px solid @pvx-border-color;
+            border-radius: @pvx-radius-pill;
+            box-shadow: @pvx-shadow-light;
+            padding: 10px 30px;
+            height: 60px;
+            box-sizing: border-box;
+
+            &.input-wrap {
+                .el-input__wrapper {
+                    border-radius: 30px;
+                    background: rgba(243, 244, 245, 0.96) !important;
+                    box-shadow: none !important;
+                }
+            }
+
+            &.select-wrap {
+                background: #fff;
+            }
+
+            &.type-list {
+                .type-item {
+                    background-color: transparent;
+                }
+            }
+
+            &.filter-wrap {
+                .filter-img {
+                    svg {
+                        background-color: transparent;
+                    }
+                }
+            }
+        }
+    }
+}
 
 .p-pvx-list-base {
     .pr;
@@ -16,6 +73,18 @@
         &.none,
         &.is-hidden {
             display: none;
+        }
+    }
+
+    // 推荐区域 2x2 网格布局（设计稿 Frame 308/309: 一行2个大容器, gap=40）
+    .m-pvx-recommend__grid {
+        .flex;
+        flex-wrap: wrap;
+        gap: 40px;
+
+        .m-pvx-type__container {
+            flex: 1 1 calc(50% - 20px);
+            min-width: calc(50% - 20px);
         }
     }
 
@@ -49,6 +118,14 @@
     }
 }
 
+// 公告栏胶囊形样式（设计稿：radius=100, 白色背景, 轻阴影）
+.p-pvx-list-base .c-public-notice,
+.p-pvx-face-list .c-public-notice,
+.p-pvx-body-list .c-public-notice {
+    .r(@pvx-radius-capsule);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
 .p-pvx-list-base .m-pvx-type__title {
     margin-top: 20px;
 }
@@ -56,6 +133,16 @@
 .m-pvx-recommend__box,
 .m-pvx-type__box {
     margin-top: 24px;
+
+    // 推荐区域大圆角白色卡片容器（设计稿 Frame 292/293）
+    &.m-pvx-type__container {
+        .r(@pvx-radius-xl-large);
+        background: @pvx-bg-white;
+        border: 1px solid @pvx-border-color;
+        box-shadow: @pvx-shadow-light;
+        padding: 30px;
+        box-sizing: border-box;
+    }
 
     .u-pvx-shade-btn {
         .pointer;
@@ -133,12 +220,18 @@
 .m-pvx-archive__more {
     margin-top: 24px;
     .w(100%);
-    background-color: var(--pvx-module-color, @pvx-color-primary);
+    .r(10px);
+    background-color: #f8f9fc;
+    border: 1px solid @pvx-border-color;
+    box-shadow: @pvx-shadow-light;
+    color: #9ba3bc;
 
     &:hover,
     &:focus {
-        background-color: var(--pvx-module-color, @pvx-color-primary);
-        border-color: var(--pvx-module-color, @pvx-color-primary);
+        background-color: #f8f9fc;
+        border-color: @pvx-border-color;
+        color: #9ba3bc;
+        filter: brightness(0.95);
     }
 }
 
@@ -146,7 +239,29 @@
     margin-top: 24px;
     overflow: auto;
 
-    // !important: 覆写 ElementPlus 分页组件内置样式，无法通过选择器优先级替代
+    // 分页器样式匹配设计稿（30x30按钮, radius=4, 当前页紫色背景）
+    .el-pagination {
+        .btn-prev,
+        .btn-next,
+        .el-pager li {
+            .r(4px);
+            min-width: 30px;
+            .h(30px);
+            line-height: 30px;
+            background-color: #f8f9fc;
+            border: 1px solid @pvx-border-color;
+            color: #000;
+            margin: 0 5px;
+        }
+
+        .el-pager li.is-active {
+            background-color: var(--pvx-module-color, @pvx-color-primary);
+            border-color: var(--pvx-module-color, @pvx-color-primary);
+            color: #fff;
+        }
+    }
+
+    // !important: 覆写 ElementPlus 分页组件内置样式
     .active {
         background-color: var(--pvx-module-color, @pvx-color-primary) !important;
     }
@@ -165,18 +280,18 @@
     gap: 12px;
     box-sizing: border-box;
     background: #fff;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid @pvx-border-color;
+    box-shadow: @pvx-shadow-light;
     transition: all 0.3s ease;
 
-    // 使用 CSS 变量设置尺寸
+    // 使用 CSS 变量设置尺寸（face/body 差异保留）
     width: var(--pvx-module-card-width, 190px);
     height: var(--pvx-module-card-height, 280px);
 
     &:hover {
         background: rgba(222, 216, 255, 0.5);
-        border: 2px solid var(--pvx-module-color, @pvx-color-primary);
-        box-shadow: 0 4px 16px rgba(107, 82, 255, 0.3);
+        border: 1px solid var(--pvx-module-color, @pvx-color-primary);
+        box-shadow: @pvx-shadow-heavy;
     }
 
     &.is-no-name {
@@ -240,10 +355,10 @@
     }
 
     .u-pvx-tag--type {
-        background-color: #409eff;
+        background-color: @pvx-tag-stylized;
 
         &.u-pvx-new-face {
-            background-color: #67c23a;
+            background-color: @pvx-tag-realistic;
         }
     }
 
@@ -259,7 +374,7 @@
     }
 
     .u-pvx-tag--pay {
-        background-color: #f1b65c;
+        background-color: @pvx-tag-paid;
         padding: 3px;
         .flex;
 
@@ -309,10 +424,67 @@
     }
 }
 
+// ==================== "查看全部"卡片样式（设计稿 Frame 292: 32:5992）====================
+// 和 m-pvx-type__item 保持同样尺寸，浅灰背景，居中显示文字
+.u-pvx-view-all {
+    .flex;
+    .pointer;
+    .r(10px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background: #f8f9fc;
+    border: 1px solid @pvx-border-color;
+    box-shadow: @pvx-shadow-light;
+    transition: all 0.3s ease;
+    width: var(--pvx-module-card-width, 190px);
+    height: var(--pvx-module-card-height, 280px);
+    color: #9ba3bc;
+    .fz(16px);
+
+    &:hover {
+        border-color: var(--pvx-module-color, @pvx-color-primary);
+        box-shadow: @pvx-shadow-heavy;
+        color: var(--pvx-module-color, @pvx-color-primary);
+    }
+}
+
 // ==================== 脸型列表页样式 ====================
 
 .p-pvx-face-list {
     &:extend(.p-pvx-list-base all);
+
+    // 全部模式：CardBannerList 每行固定190px卡片 + 查看全部拉伸填充
+    .m-card-banner-list .m-cardlist-items {
+        // JS动态计算: repeat(per, 190px) 1fr，覆盖组件内联style
+        grid-template-columns: var(--pvx-face-grid, repeat(3, 190px) 1fr) !important;
+        gap: 20px !important;
+        overflow-x: hidden !important;
+        padding: 0 !important;
+    }
+
+    // 卡片固定宽度190px（恢复原始固定宽度）
+    .m-card-banner-list .m-cardlist-item {
+        width: var(--pvx-module-card-width, 190px);
+        min-width: 0;
+
+        .m-pvx-type__item {
+            width: var(--pvx-module-card-width, 190px);
+            min-width: 0;
+        }
+
+        // 查看全部卡片：宽度100%填满1fr列，取剩余所有空间
+        &.m-cardlist-replace--inline {
+            width: 100%;
+            min-width: 0;
+
+            .u-pvx-view-all {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+    }
 }
 
 // ==================== 体型列表页样式 ====================

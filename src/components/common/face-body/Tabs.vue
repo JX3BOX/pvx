@@ -30,9 +30,9 @@
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
             ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover">
             <template #extra>
-                <div class="m-pvx-toolbar__item m-pvx-toolbar__publish">
-                    <a :href="link.data" target="_blank">
-                        <el-button type="primary" class="u-pvx-analysis"> 数据解析 </el-button>
+                <div class="m-pvx-toolbar__btn-group">
+                    <a :href="link.data" target="_blank" class="u-pvx-analysis-link">
+                        <div class="u-pvx-analysis">数据解析</div>
                     </a>
                     <a :href="publish_link(link.key)" target="_blank">
                         <div class="u-pvx-fb-publish">
@@ -287,25 +287,39 @@ export default {
             .filter-img {
                 svg {
                     fill: #949494;
-                    background-color: #fff;
-                    border-radius: 50%;
                 }
             }
         }
     }
 
-    .m-pvx-toolbar__publish {
+    // 操作按钮组白色圆角容器（设计稿 Frame 276: height=60, padding=10/10/10/15）
+    .m-pvx-toolbar__btn-group {
         .flex;
+        align-items: center;
+        gap: 20px;
+        .r(10px);
+        padding: 10px 10px 10px 15px;
+        background-color: #fff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
+        box-sizing: border-box;
+    }
+
+    .u-pvx-analysis-link {
+        text-decoration: none;
     }
 
     .u-pvx-analysis {
+        .flex;
+        align-items: center;
+        justify-content: center;
         .r(5px);
         .fz(16px);
-        .h(38px);
+        .size(100px, 40px);
         background-color: #e54059;
-        border-color: #e54059;
+        color: #fff;
+        cursor: pointer;
         transition: 0.3s ease-out;
-        margin-right: 10px;
 
         &:hover {
             filter: brightness(1.1);
@@ -316,21 +330,26 @@ export default {
         .pr;
         .pointer;
         .bold;
+        .flex;
+        justify-content: flex-end;
+        align-items: center;
         .pr(10px);
-        .size(130px, 38px);
-        .fz(16px, 38px);
+        .size(120px, 39px);
+        .fz(16px);
         .r(5px);
         background: @pvx-color-face;
         color: #fff;
 
         span {
-            .fr;
+            .pr;
+            z-index: 1;
         }
 
         .u-pvx-img {
             .pa;
             .lb(0);
             .w(65px);
+            z-index: 0;
         }
 
         &:hover {
@@ -414,7 +433,7 @@ export default {
             }
         }
 
-        .m-pvx-toolbar__publish {
+        .m-pvx-toolbar__btn-group {
             order: -1;
             flex-direction: row-reverse;
             justify-content: space-between;

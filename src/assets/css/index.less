@@ -1,3 +1,7 @@
+.c-pvx-main {
+    background: #F6F8FA;
+}
+
 .p-index {
     .flex;
     padding: 40px 0 0;
@@ -9,23 +13,31 @@
     }
 
     .m-index-category {
-        .r(10px);
+        border-radius: 48px;
         box-sizing: border-box;
         min-height: calc(100vh - 248px);
         width: calc(100% / 3);
         padding: 30px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(226, 232, 240, 0.60);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        background-color: #fff;
 
         &.index0 {
-            background: url("@{design_url}pvx/index0.svg") no-repeat bottom left;
+            background-image: url("@{design_url}pvx/index0.svg");
+            background-repeat: no-repeat;
+            background-position: bottom left;
         }
 
         &.index1 {
-            background: url("@{design_url}pvx/index1.svg") no-repeat bottom right;
+            background-image: url("@{design_url}pvx/index1.svg");
+            background-repeat: no-repeat;
+            background-position: bottom right;
         }
 
         &.index2 {
-            background: url("@{design_url}pvx/index2.svg") no-repeat bottom right;
+            background-image: url("@{design_url}pvx/index2.svg");
+            background-repeat: no-repeat;
+            background-position: bottom right;
         }
 
         .u-index-category-title {
@@ -37,7 +49,7 @@
         .m-child-category-list {
             .flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 30px;
 
             .u-img {
                 .size(50px);
@@ -56,7 +68,10 @@
 
                 box-sizing: border-box;
                 padding: 20px;
-                border: 1px solid transparent;
+                border-radius: 8px;
+                background: #fff;
+                border: 1px solid #F0F0F0;
+                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
                 transition: 0.3s ease-out;
 
                 .u-image {
@@ -79,21 +94,18 @@
                     }
 
                     &.child-0 {
-                        background-color: #5b40ff0d;
-                        border: 1px solid #6b52ff80;
-                        box-shadow: 0px 0px 10px 0px #6b52ff66;
+                        border: 1px solid #FDF1E6;
+                        box-shadow: 0 4px 12px 0 rgba(107, 82, 255, 0.20);
                     }
 
                     &.child-1 {
-                        background-color: #e86f001a;
                         border: 1px solid #e86f00;
-                        box-shadow: 0px 0px 10px 0px #e86f0066;
+                        box-shadow: 0 4px 12px 0 rgba(232, 111, 0, 0.20);
                     }
 
                     &.child-2 {
-                        background-color: #53b27f0d;
-                        border: 1px solid #53b27f;
-                        box-shadow: 0px 0px 10px 0px #53b27f66;
+                        border: 1px solid #E7F7EB;
+                        box-shadow: 0 4px 12px 0 rgba(83, 178, 127, 0.20);
                     }
                 }
             }
@@ -135,7 +147,11 @@
                 .m-child-category {
                     box-sizing: border-box;
                     padding: 5px 20px;
-                    border: 1px solid transparent;
+                    border-radius: 8px;
+                    background: #fff;
+                    border: 1px solid #F0F0F0;
+                    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                    transition: 0.3s ease-out;
                     width: 100%;
 
                     .u-image {

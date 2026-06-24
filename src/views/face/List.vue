@@ -27,8 +27,8 @@
     <div class="p-pvx-face-list" v-loading="loading" ref="listRef">
         <faceTabs :body_types="list" :active="active" :link="link" @change="handleFaceTabChange" />
         <PublicNotice bckey="face_ac" />
-        <template v-if="active === -1">
-            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
+        <div class="m-pvx-recommend__grid" :style="{ '--pvx-face-grid': `repeat(${per}, 190px) 1fr` }" v-if="active === -1">
+            <div v-for="(item, index) in recommendList" :key="'l' + index" class="m-pvx-type__box m-pvx-type__container"
                 :class="{ none: !item.list.length }">
                 <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190"
                     :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
@@ -36,23 +36,23 @@
                         <div>{{ item.label + "脸型" }}</div>
                         <div></div>
                     </template>
-                    <template v-slot:action>
-                        <div @click="setActive(item.value)">查看全部</div>
-                    </template>
                     <template v-slot="{ item }">
                         <ListItem type="face" :key="item.id" :item="item" />
                     </template>
+                    <template v-slot:replace>
+                        <div class="u-pvx-view-all">查看全部</div>
+                    </template>
                 </CardBannerList>
             </div>
-        </template>
-        <div class="m-pvx-type__box" v-else>
+        </div>
+        <div class="m-pvx-type__box m-pvx-type__container" v-else>
             <div class="m-pvx-type__title u-pvx-type">
                 <div class="u-pvx-title">{{ typeName + "脸型" }}</div>
             </div>
             <div class="m-pvx-type__list--all">
                 <ListItem type="face" v-for="item in subList" :key="item.id" :item="item" />
             </div>
-            <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
+            <el-button class="m-pvx-archive__more" v-show="hasNextPage" @click="appendPage"
                 :loading="loading">
                 <el-icon class="el-icon--left">
                     <ArrowDown />
@@ -71,6 +71,7 @@ import CardBannerList from "@/components/common/card_banner_list.vue";
 import faceTabs from "@/components/common/face-body/Tabs";
 import ListItem from "@/components/common/face-body/ListItem.vue";
 import pcListMixin from "@/components/common/face-body/mixins/pc-list-mixin";
+import { isPhone } from "@/utils/index";
 import { concat } from "lodash";
 import { getFaceList } from "@/service/face";
 import { ArrowDown } from '@element-plus/icons-vue';
@@ -112,6 +113,11 @@ export default {
             };
         },
 
+        // 推荐列表：排除"全部"分类，只显示具体类型（成男/成女/正太/萝莉）
+        recommendList() {
+            return this.list.filter((item) => item.value !== -1);
+        },
+
         alertTitle() {
             if (this.tabsData.title) return "没找到对应的捏脸，请重新选择条件或关键词搜索";
             return "没有找到相关的捏脸";
@@ -141,6 +147,51 @@ export default {
                     this.loading = false;
                     this.appendMode = false;
                 });
+        },
+
+        // 动态计算列数和每页数量，保证每页填满完整行
+        showCount() {
+            if (isPhone()) {
+                this.per = 8;
+                this.count = 8;
+                return;
+            }
+
+            if (this.active === -1) {
+                // 全部模式：每个类别最多6个数据 + 1个查看全部
+                // .m-pvx-recommend__grid 是 flex 布局，两个分类并排(gap:40px)
+                // 每个容器宽度 ≈ (整体宽度 - 40) / 2，再减去容器 padding(30*2=60)
+                const totalWidth = this.$refs.listRef?.clientWidth || 1200;
+                const containerWidth = (totalWidth - 40) / 2 - 60;
+                const cardWidth = 190; // 固定卡片宽度
+                const gridGap = 20; // gap = 20px
+
+                // 计算能完整放下多少个190px卡片（含gap），查看全部占用剩余宽度(1fr)
+                // 不为查看全部预留完整卡片位置，剩余零碎宽度给查看全部即可
+                const maxSlots = Math.floor((containerWidth + gridGap) / (cardWidth + gridGap));
+
+                // 每个类别最多6个数据，最少1个，查看全部吸收剩余宽度
+                this.per = Math.min(Math.max(maxSlots, 1), 6);
+
+                // grid列数 = 数据卡片数 + 查看全部(1fr吸收剩余空间)
+                this.count = this.per + 1;
+            } else {
+                // 非全部模式：按容器宽度动态计算
+                const containerPadding = 60;
+                const listWidth = this.$refs.listRef?.clientWidth - containerPadding;
+                const cardMinWidth = 190;
+                const gridGap = 12;
+
+                this.count = Math.floor((listWidth + gridGap) / (cardMinWidth + gridGap));
+                if (this.count < 1) this.count = 1;
+
+                this.per = this.count * 4;
+            }
+        },
+
+        // 点击"查看全部"卡片时，跳转到该分类
+        handleLoad(type) {
+            this.setActive(type);
         },
 
         handleFaceTabChange(data) {

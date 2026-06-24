@@ -1,13 +1,10 @@
 .pvx-search-wrapper {
     .flex;
     .z(12);
-    .r(10px);
-    height: 60px;
+    height: auto;
     box-sizing: border-box;
-    padding: 10px 15px;
     align-items: center;
-    gap: 10px;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    gap: 40px;
 
     .search-group {
         position: relative;
@@ -15,8 +12,8 @@
         justify-content: flex-start;
         align-items: center;
         flex-wrap: nowrap;
-        width: 100%;
-        gap: 20px;
+        flex: 1;
+        gap: 40px;
 
         .search-item {
             display: flex;
@@ -54,9 +51,8 @@
                     line-height: 40px;
                     border-radius: 30px;
                     color: #949494;
-                    background-color: #fff;
+                    background-color: transparent;
                     font-weight: bold;
-                    // font-size: 16px;
                     text-align: center;
                     cursor: pointer;
                     border: none;
@@ -91,7 +87,7 @@
             }
 
             &.filter-wrap {
-                margin-right: 20px;
+                margin-right: 0;
 
                 .filter-img {
                     cursor: pointer;
@@ -99,8 +95,6 @@
 
                     svg {
                         fill: #949494;
-                        background-color: #fff;
-                        border-radius: 50%;
                     }
 
                     &.active {
@@ -118,8 +112,9 @@
 
                 .el-input__wrapper {
                     border: none;
-                    background-color: #f3f4f5;
+                    background-color: transparent;
                     border-radius: 30px;
+                    box-shadow: none;
                 }
 
                 input {
@@ -150,7 +145,7 @@
                 display: flex;
                 justify-content: flex-start;
                 align-items: center;
-                background: #f3f4f5;
+                background: transparent;
                 border-radius: 20px;
                 width: 227px;
                 height: 40px;
@@ -169,7 +164,7 @@
                     color: #24292e;
                     width: 170px;
                     border-radius: 30px;
-                    background: #f3f4f5;
+                    background: transparent;
 
                     &::placeholder {
                         font-weight: normal;

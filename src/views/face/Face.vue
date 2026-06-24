@@ -27,7 +27,7 @@
  -->
 <template>
     <div id="app" class="p-pvx-face">
-        <CommonHeader></CommonHeader>
+        <CommonHeader class="p-face-header"></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
             <div class="m-main"><router-view></router-view></div>
@@ -204,6 +204,10 @@ export default {
 <style lang="less">
     @import "~@/assets/css/app.less";
     @import "~@/assets/css/miniprogram.less";
+
+    .p-pvx-face {
+        background-color: #f6f8fa;
+    }
 
     .v-miniprogram {
         .m-main {
