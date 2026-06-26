@@ -27,7 +27,8 @@
 .m-partner-right__topbar {
     flex-shrink: 0;
     background: @partner-color-text-white;
-    box-shadow: @partner-shadow-default;
+    border: 1px solid rgba(226, 232, 240, 0.60);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     border-radius: @partner-radius-lg;
     padding: 10px 15px;
     box-sizing: border-box;
@@ -76,8 +77,9 @@
 .m-pvx-partner-info {
     flex: 1;
     background: @partner-color-text-white;
-    box-shadow: @partner-shadow-default;
-    border-radius: @partner-radius-lg;
+    border: @partner-border-light;
+    box-shadow: @partner-shadow-light;
+    border-radius: @partner-radius-pill;
     box-sizing: border-box;
     display: inline-flex;
     flex-direction: column;
@@ -100,6 +102,19 @@
         }
     }
 
+    // ==================== 底部浅色区域 ====================
+    .m-partner-info__footer {
+        flex-shrink: 0;
+        padding: 12px 20px;
+        background: @partner-color-default-bg;
+        border-top: 1px solid @partner-color-border-soft;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 18.48px;
+        color: @partner-color-text-muted;
+        font-family: "Microsoft YaHei", sans-serif;
+    }
+
     // ==================== 结识方式 ====================
     .m-partner-intro {
         margin-bottom: 20px;
@@ -119,9 +134,9 @@
         }
 
         .u-partner-intro-map {
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 21.12px;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18.48px;
             font-family: "Microsoft YaHei", sans-serif;
             color: @partner-color-text-black;
             margin-bottom: 8px;
@@ -141,9 +156,15 @@
         .m-partner-item-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 10px;
             margin-bottom: 16px;
-            padding-left: 10px; // 避免左侧遮挡
+            padding: 8px;
+            border-radius: 4px;
+            background: #F2F2F2;
+            width: 98%;
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
         // 圆形图标（类似武学招式 .u-partner-skill-icon）
@@ -246,9 +267,11 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            font-weight: 400;
             line-height: 18.48px;
             border-radius: 4px;
             overflow: hidden;
+            background: @partner-color-attr-bg;
 
             tr {
                 transition: background @partner-transition-duration ease-out;

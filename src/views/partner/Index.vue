@@ -62,6 +62,11 @@
                                 <!-- 传记 TAB -->
                                 <Bio v-else :partner="selectedPartner" />
                             </div>
+
+                            <!-- 底部浅色区域 -->
+                            <div class="m-partner-info__footer" v-if="selectedPartner?.name">
+                                {{ selectedPartner.name }} · {{ selectedPartner.szNickName || '' }}
+                            </div>
                         </div>
                     </div>
                 </div>

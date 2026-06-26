@@ -1,8 +1,8 @@
 <!--
  * QuestSection - 剑侠录右侧内容区域组件
  *
- * @description 展示剑侠录章节详情内容，包含固定按钮区域、标题、图片、章节列表和章节内容
- * @version 1.0.0
+ * @description 展示剑侠录章节详情内容，包含固定按钮区域、图片、章节分组按钮和章节内容
+ * @version 2.0.0
  *
  * @components
  * - PvxRobotTip: QQ机器人提示组件
@@ -29,46 +29,49 @@
 
         <!-- 内容主体区域 -->
         <div class="m-questsection-content__body">
-            <!-- 标题和图片区块（阴影容器） -->
+            <!-- 图片区块 -->
             <div class="m-questsection-content__header-image">
-                <!-- 标题 -->
-                <div class="m-questsection-content__header">
-                    <h1 class="u-title">{{ chapterData?.szTitle || '-' }}</h1>
-                </div>
-
                 <!-- 图片展示区块：地图背景 + 信息标签浮层 -->
-                <div class="m-questsection-content__image" v-if="sectionDetail?.Chapter?.imagePath">
-                    <img :src="getImageUrl(sectionDetail.Chapter.imagePath, sectionDetail.Chapter.imageFrame)"
+                <div class="m-questsection-content__image" v-if="firstSectionDetail?.Chapter?.imagePath">
+                    <img :src="getImageUrl(firstSectionDetail.Chapter.imagePath, firstSectionDetail.Chapter.imageFrame)"
                         :alt="pageTitle" class="u-image" />
                     <div class="m-questsection-content__map-info">
-                        <div class="u-map-info-item" v-if="sectionDetail.Chapter.title">
-                            <span class="u-map-info-text">{{ sectionDetail.Chapter.title }}</span>
+                        <div class="u-map-info-item" v-if="firstSectionDetail.Chapter.title">
+                            <span class="u-map-info-text">{{ firstSectionDetail.Chapter.title }}</span>
                         </div>
-                        <div class="u-map-info-item" v-if="sectionDetail.Chapter.time">
-                            <span class="u-map-info-text">{{ sectionDetail.Chapter.time }}</span>
+                        <div class="u-map-info-item" v-if="firstSectionDetail.Chapter.time">
+                            <span class="u-map-info-text">{{ firstSectionDetail.Chapter.time }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 章节列表展示 -->
-            <div class="m-questsection-content__chapters" v-if="chapterSections.length > 0">
+            <!-- 章节分组按钮 -->
+            <div class="m-questsection-content__chapters" v-if="chapterGroups.length > 0">
                 <div class="m-chapter-list">
-                    <div v-for="(section, index) in chapterSections" :key="section.nSectionID" class="u-chapter-item"
-                        :class="{ 'is-active': activeSectionId === section.nSectionID }"
-                        @click="handleSectionClick(section)">
-                        <span class="u-chapter-name">章节{{ index + 1 }}：{{ section.szTitle }}</span>
+                    <div v-for="(group, gIndex) in chapterGroups" :key="gIndex" class="u-chapter-group"
+                        :class="{ 'is-active': activeGroupIndex === gIndex }"
+                        @click="handleGroupClick(gIndex)">
+                        <span class="u-chapter-name">{{ group.label }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- 章节内容展示区块 -->
-            <div class="m-questsection-content__detail" v-if="sectionDetail">
-                <div class="u-detail-content" v-html="formattedDetail"></div>
+            <div class="m-questsection-content__detail" v-if="visibleSectionDetails.length > 0">
+                <div v-for="item in visibleSectionDetails" :key="item.sectionId" class="m-section-block">
+                    <h3 class="u-section-title">章节{{ item.sectionIndex + 1 }}：{{ item.sectionTitle }}</h3>
+                    <div class="u-section-detail" v-html="item.formattedDetail"></div>
+                </div>
+
+                <!-- 加载更多按钮 -->
+                <div class="u-load-more" v-if="hasMoreSections" @click="loadMore">
+                    加载更多
+                </div>
             </div>
 
             <!-- 空状态展示 -->
-            <div class="m-questsection-content__empty" v-if="!sectionDetail && !loading">
+            <div class="m-questsection-content__empty" v-if="visibleSectionDetails.length === 0 && !loading">
                 <div class="u-empty-text">暂无内容</div>
             </div>
 
@@ -89,6 +92,8 @@ import { getDetail } from "@/service/questsection.js";
 import { Loading } from "@element-plus/icons-vue";
 import { getQuestsectionImageUrl, formatQuestsectionDetail } from "@/utils/questsection.js";
 
+const SECTION_PAGE_SIZE = 4;
+
 export default {
     name: "QuestsectionContent",
     components: {
@@ -96,12 +101,10 @@ export default {
         Loading,
     },
     props: {
-        // 当前选中的资料片数据
         seasonData: {
             type: Object,
             default: () => null,
         },
-        // 当前选中的大章节数据（包含 sections 小节列表）
         chapterData: {
             type: Object,
             default: () => null,
@@ -109,85 +112,92 @@ export default {
     },
     data() {
         return {
-            // 小节详情数据
-            sectionDetail: null,
-            // 当前激活的小节ID
-            activeSectionId: null,
-            // 加载状态
+            sectionDetailsMap: {},
+            activeGroupIndex: 0,
+            displayCount: SECTION_PAGE_SIZE,
             loading: false,
         };
     },
     computed: {
-        // 页面标题：资料片名称 - 大章节名称
         pageTitle() {
             if (this.seasonData && this.chapterData) {
                 return `${this.seasonData.szTitle} - ${this.chapterData.szTitle}`;
             }
             return "剑侠录";
         },
-        // 页面副标题
-        pageSubtitle() {
-            if (this.sectionDetail) {
-                return this.sectionDetail.szTitle || "";
-            }
-            return "";
-        },
-        // 当前大章节下的所有小节（从 chapterData 中获取）
         chapterSections() {
             return this.chapterData?.Sections || [];
         },
-        // 当前选中的小节索引
-        currentSectionIndex() {
-            if (!this.activeSectionId || !this.chapterSections.length) return -1;
-            return this.chapterSections.findIndex(
-                (section) => section.nSectionID === this.activeSectionId
-            );
+        chapterGroups() {
+            const sections = this.chapterSections;
+            if (!sections.length) return [];
+            const groups = [];
+            for (let i = 0; i < sections.length; i += SECTION_PAGE_SIZE) {
+                const start = i + 1;
+                const end = Math.min(i + SECTION_PAGE_SIZE, sections.length);
+                groups.push({
+                    label: start === end ? `${start}` : `${start}-${end}`,
+                    startIndex: i,
+                    sections: sections.slice(i, i + SECTION_PAGE_SIZE),
+                });
+            }
+            return groups;
         },
-        // 格式化后的详情内容
-        formattedDetail() {
-            if (!this.sectionDetail || !this.sectionDetail.szDetail) return "";
-            return formatQuestsectionDetail(this.sectionDetail.szDetail);
+        currentGroupSections() {
+            if (this.activeGroupIndex >= this.chapterGroups.length) return [];
+            return this.chapterGroups[this.activeGroupIndex]?.sections || [];
+        },
+        visibleSections() {
+            return this.currentGroupSections.slice(0, this.displayCount);
+        },
+        hasMoreSections() {
+            return this.displayCount < this.currentGroupSections.length;
+        },
+        visibleSectionDetails() {
+            return this.visibleSections
+                .map((section, idx) => {
+                    const detail = this.sectionDetailsMap[section.nSectionID];
+                    if (!detail) return null;
+                    const globalIndex = this.chapterGroups[this.activeGroupIndex]?.startIndex + idx;
+                    return {
+                        sectionId: section.nSectionID,
+                        sectionIndex: globalIndex,
+                        sectionTitle: section.szTitle || detail.szTitle || "",
+                        formattedDetail: detail.szDetail
+                            ? formatQuestsectionDetail(detail.szDetail)
+                            : "",
+                    };
+                })
+                .filter(Boolean);
+        },
+        firstSectionDetail() {
+            const firstSection = this.currentGroupSections[0];
+            if (!firstSection) return null;
+            return this.sectionDetailsMap[firstSection.nSectionID] || null;
         },
     },
     watch: {
-        // 监听大章节数据变化，自动加载第一个小节详情
         chapterData: {
             handler(newVal) {
+                this.sectionDetailsMap = {};
+                this.activeGroupIndex = 0;
+                this.displayCount = SECTION_PAGE_SIZE;
                 if (newVal && newVal.Sections?.length > 0) {
-                    // 默认选中第一个小节
-                    const firstSection = newVal.Sections[0];
-                    this.activeSectionId = firstSection.nSectionID;
-                    this.loadSectionDetail(firstSection.nSectionID);
-                } else {
-                    // 清空数据
-                    this.activeSectionId = null;
-                    this.sectionDetail = null;
+                    this.loadGroupSections(0);
                 }
             },
             immediate: true,
         },
     },
     methods: {
-        /**
-         * 获取图片完整URL
-         * - 使用 getQuestsectionImageUrl 处理章节图片路径
-         * @param {String} imagePath - 图片路径（如 "ui\\Image\\WorldMap\\MainPlotMap\\MainPlotMap10.UITex"）
-         * @param {Number} nImageFrame - 图片帧数
-         * @returns {String} 完整的图片URL
-         */
         getImageUrl(imagePath, nImageFrame) {
-            // 直接传入两个参数，而不是对象
             return getQuestsectionImageUrl(imagePath, nImageFrame);
         },
 
-        /**
-         * 加载小节详情
-         * @param {number} sectionId - 小节ID
-         */
         async loadSectionDetail(sectionId) {
-            if (!sectionId) return;
+            if (!sectionId) return null;
+            if (this.sectionDetailsMap[sectionId]) return this.sectionDetailsMap[sectionId];
 
-            this.loading = true;
             try {
                 const params = {
                     client: "std",
@@ -196,26 +206,62 @@ export default {
                 };
                 const res = await getDetail(sectionId, params);
                 if (res.data?.data) {
-                    this.sectionDetail = res.data.data;
+                    this.sectionDetailsMap = {
+                        ...this.sectionDetailsMap,
+                        [sectionId]: res.data.data,
+                    };
+                    return res.data.data;
                 }
             } catch (error) {
                 console.error("加载小节详情失败:", error);
-                this.sectionDetail = null;
-            } finally {
-                this.loading = false;
+            }
+            return null;
+        },
+
+        async loadGroupSections(groupIndex) {
+            const group = this.chapterGroups[groupIndex];
+            if (!group) return;
+
+            this.loading = true;
+            this.activeGroupIndex = groupIndex;
+            this.displayCount = SECTION_PAGE_SIZE;
+
+            const promises = group.sections.map((section) =>
+                this.loadSectionDetail(section.nSectionID)
+            );
+            await Promise.all(promises);
+            this.loading = false;
+        },
+
+        handleGroupClick(groupIndex) {
+            if (this.activeGroupIndex === groupIndex) return;
+            this.loadGroupSections(groupIndex);
+            const group = this.chapterGroups[groupIndex];
+            if (group?.sections?.[0]) {
+                this.$emit("section-change", group.sections[0]);
             }
         },
 
-        /**
-         * 点击章节项
-         * @param {Object} section - 小节数据
-         */
-        handleSectionClick(section) {
-            if (this.activeSectionId === section.nSectionID) return;
-            this.activeSectionId = section.nSectionID;
-            this.loadSectionDetail(section.nSectionID);
-            // 通知父组件选中变化
-            this.$emit("section-change", section);
+        async loadMore() {
+            const currentCount = this.displayCount;
+            this.displayCount = Math.min(
+                currentCount + SECTION_PAGE_SIZE,
+                this.currentGroupSections.length
+            );
+
+            const newSections = this.currentGroupSections.slice(
+                currentCount,
+                this.displayCount
+            );
+            if (newSections.length > 0) {
+                this.loading = true;
+                await Promise.all(
+                    newSections.map((section) =>
+                        this.loadSectionDetail(section.nSectionID)
+                    )
+                );
+                this.loading = false;
+            }
         },
     },
 };

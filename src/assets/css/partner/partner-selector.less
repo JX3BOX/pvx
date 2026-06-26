@@ -14,13 +14,15 @@
     top: calc(40px + @header-height);
     width: @partner-sidebar-width;
     background: @partner-color-text-white;
-    box-shadow: @partner-shadow-default;
+    border: @partner-border-light;
+    box-shadow: @partner-shadow-light;
     z-index: 100;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    border-radius: @partner-radius-lg;
+    border-radius: @partner-radius-pill;
     overflow: hidden;
+    padding-top: 20px;
 
     // 列表容器（高度由 expanded 控制）
     .m-partner-selector__body {

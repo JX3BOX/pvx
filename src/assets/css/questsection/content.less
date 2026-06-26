@@ -11,16 +11,21 @@
 @questsection-shadow-default: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
 @questsection-shadow-active: 0px 4px 12px 0px rgba(107, 82, 255, 0.25);
 @questsection-shadow-chapter: 0px 2px 6px 0px rgba(0, 0, 0, 0.08);
+@questsection-shadow-light: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+@questsection-border-light: 1px solid rgba(226, 232, 240, 0.60);
 
 @questsection-radius: 8px;
 @questsection-radius-lg: 12px;
+@questsection-radius-pill: 30px;
+@questsection-radius-content: 48px;
 @questsection-chapter-item-height: 40px;
 
 // ==================== 工具栏 ====================
 .m-questsection-content__toolbar {
     flex-shrink: 0;
     background: #FFFFFF;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(226, 232, 240, 0.60);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     border-radius: 10px;
     padding: 10px 15px;
     box-sizing: border-box;
@@ -64,29 +69,21 @@
     overflow-y: auto;
     padding: 0 20px 20px;
     box-sizing: border-box;
-    margin-top: 20px;
 
     // ==================== 标题和图片区块（阴影容器） ====================
     .m-questsection-content__header-image {
-        border-radius: 8px;
+        width: fit-content;
+        border-radius: @questsection-radius-pill;
         background: #FFF;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.20);
+        border: @questsection-border-light;
+        box-shadow: @questsection-shadow-light;
         margin-bottom: 30px;
         box-sizing: border-box;
+        padding: 20px 30px;
 
-        // 标题区块
+        // 标题区块（已移除标题，保留结构兼容）
         .m-questsection-content__header {
-            padding: 12px 12px 8px 12px;
-
-            // 标题样式
-            .u-title {
-                font-size: 28px;
-                font-weight: 700;
-                line-height: 39px;
-                color: @questsection-color-text-black;
-                margin: 0;
-                letter-spacing: 0;
-            }
+            display: none;
         }
 
         // 图片展示区块
@@ -147,19 +144,76 @@
             flex-wrap: wrap;
             gap: 12px;
 
-            // 章节项样式
-            // 默认样式：border-radius=8px, background=#FFF, box-shadow=0 0 10px rgba(0,0,0,0.2)
+            // 章节分组按钮
+            .u-chapter-group {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 80px;
+                height: @questsection-chapter-item-height;
+                padding: 8px 20px;
+                border-radius: @questsection-radius-pill;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 21px;
+                cursor: pointer;
+                transition: all 0.3s ease-out;
+                box-sizing: border-box;
+                background: #FFF;
+                color: @questsection-color-text-black;
+                border: @questsection-border-light;
+                box-shadow: @questsection-shadow-light;
+
+                &:hover {
+                    background: @questsection-color-primary;
+                    color: @questsection-color-text-white;
+                    box-shadow: @questsection-shadow-active;
+                    border-color: @questsection-color-primary;
+
+                    .u-chapter-name {
+                        color: #FFF;
+                    }
+                }
+
+                &.is-active {
+                    background: @questsection-color-primary;
+                    color: @questsection-color-text-white;
+                    box-shadow: @questsection-shadow-active;
+                    border-color: @questsection-color-primary;
+
+                    &:hover {
+                        background: @questsection-color-primary;
+                        color: @questsection-color-text-white;
+                    }
+
+                    .u-chapter-name {
+                        color: #FFF;
+                    }
+                }
+
+                .u-chapter-name {
+                    color: #000;
+                    font-size: 14px;
+                    font-weight: 400;
+                    line-height: normal;
+                    white-space: nowrap;
+                    transition: color 0.3s ease-in-out;
+                }
+            }
+
+            // 章节项样式（保留兼容）
+            // 默认样式：border-radius=30px, background=#FFF, border+box-shadow
             .u-chapter-item {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 min-width: 120px;
                 height: @questsection-chapter-item-height;
-                padding: 0 20px;
-                border-radius: 8px;
+                padding: 8px 20px;
+                border-radius: @questsection-radius-pill;
                 font-size: 14px;
                 font-weight: 500;
-                line-height: 21px; // 1.5 倍率
+                line-height: 21px;
                 cursor: pointer;
                 transition: all 0.3s ease-out;
                 box-sizing: border-box;
@@ -167,7 +221,8 @@
                 // default 状态
                 background: #FFF;
                 color: @questsection-color-text-black;
-                box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.20);
+                border: @questsection-border-light;
+                box-shadow: @questsection-shadow-light;
 
                 // hover 状态
                 // Figma: 300ms 动画过渡，样式等同于 active
@@ -225,15 +280,17 @@
         }
     }
 
-    // ==================== 章节内容展示区块 ====================
+    // ==================== 详情展示区域 ====================
     .m-questsection-content__detail {
-        border-radius: 8px;
+        border-radius: @questsection-radius-content;
         background: #FFF;
-        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.20);
+        border: @questsection-border-light;
+        box-shadow: @questsection-shadow-light;
+        padding: 20px 30px;
         display: flex;
-        padding: 12px;
-        justify-content: center;
-        align-items: center;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
         gap: 10px;
         align-self: stretch;
         box-sizing: border-box;
@@ -299,6 +356,85 @@
             h4 {
                 font-size: 16px;
                 line-height: 24px;
+            }
+        }
+
+        // 章节标题
+        .u-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 24px;
+            color: @questsection-color-text-black;
+            margin: 0;
+            padding: 0;
+        }
+
+        // 章节内容块
+        .m-section-block {
+            width: 100%;
+            margin-bottom: 20px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .u-section-title {
+                margin-bottom: 12px;
+            }
+
+            .u-section-detail {
+                color: #000;
+                font-family: "Microsoft YaHei";
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+
+                * {
+                    color: inherit;
+                    font-family: inherit;
+                    font-size: inherit;
+                    font-style: inherit;
+                    font-weight: inherit;
+                    line-height: inherit;
+                }
+
+                .questsection-highlight {
+                    font-weight: 500;
+                    display: inline-block;
+                    margin-bottom: 10px;
+                }
+
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    display: block;
+                    margin: 20px 0;
+                    border-radius: @questsection-radius;
+                }
+
+                p {
+                    margin: 15px 0;
+                }
+            }
+        }
+
+        // 加载更多按钮
+        .u-load-more {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px 0;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: @questsection-color-primary;
+            transition: color 0.3s ease-out;
+
+            &:hover {
+                color: darken(@questsection-color-primary, 10%);
             }
         }
     }
