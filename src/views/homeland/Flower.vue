@@ -76,10 +76,10 @@
  * @description 查询全区服小区的花价信息，支持服务器和花种筛选
  * @author ymg
  * @version 1.0.0
- * 
+ *
  * @example
  * <Flower />
- * 
+ *
  * @notes
  * - 支持服务器筛选（支持搜索）
  * - 支持花种筛选（支持搜索）
@@ -113,12 +113,12 @@ export default {
         return {
             loading: false,
             searched: false,
-            
+
             server: "",
             servers: [],
             flower: "",
             flower_types: flower_types,
-            
+
             result: [],
             activeTab: "list",
         };
@@ -145,20 +145,20 @@ export default {
                 this.$message.warning("请选择花种");
                 return;
             }
-            
+
             this.loading = true;
             this.searched = true;
-            
-            getFlowerPrice({
-                server: this.server,
-                flower: this.flower,
-            })
-                .then((res) => {
-                    this.result = res.data || [];
-                })
-                .finally(() => {
-                    this.loading = false;
-                });
+
+            // getFlowerPrice({
+            //     server: this.server,
+            //     flower: this.flower,
+            // })
+            //     .then((res) => {
+            //         this.result = res.data || [];
+            //     })
+            //     .finally(() => {
+            //         this.loading = false;
+            //     });
         },
         showDetail(row, flower) {
             this.$message.info(`${row.district} - ${row.name}: ${flower.name} 价格 ${flower.price} 金`);
