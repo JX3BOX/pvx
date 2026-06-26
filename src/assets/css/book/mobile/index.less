@@ -233,6 +233,7 @@
                 }
 
                 .u-pvx-book-name {
+                    .w(35%);
                     background: url("../../../img/book/title.png") center center no-repeat;
                     background-size: 100% 100%;
                     margin: 0.5rem;
@@ -244,7 +245,8 @@
                     .u-text {
                         .h(100%);
                         overflow: hidden;
-                        display: flex;
+                        display: grid;
+                        place-items: center;
 
                         .fz(0.875rem);
                         .bold(600);
@@ -252,8 +254,6 @@
                         text-orientation: upright;
                         white-space: nowrap;
                         word-break: break-all;
-                        align-items: center;
-                        justify-content: center;
                         letter-spacing: 0.2rem;
 
                         &.is-scroll {
@@ -272,6 +272,8 @@
                 }
 
                 .u-pvx-book-line {
+                    flex-shrink: 0;
+                    .w(12%);
                     .h(100%);
 
                     img {
