@@ -114,7 +114,7 @@ export default {
         return {
             sectionDetailsMap: {},
             activeGroupIndex: 0,
-            displayCount: SECTION_PAGE_SIZE,
+            loadedGroupsCount: 1,
             loading: false,
         };
     },
@@ -148,20 +148,32 @@ export default {
             return this.chapterGroups[this.activeGroupIndex]?.sections || [];
         },
         visibleSections() {
-            return this.currentGroupSections.slice(0, this.displayCount);
+            const sections = [];
+            for (let i = 0; i < this.loadedGroupsCount; i++) {
+                const groupIndex = this.activeGroupIndex + i;
+                if (groupIndex < this.chapterGroups.length) {
+                    const group = this.chapterGroups[groupIndex];
+                    group.sections.forEach((section, localIdx) => {
+                        sections.push({
+                            ...section,
+                            _globalIndex: group.startIndex + localIdx,
+                        });
+                    });
+                }
+            }
+            return sections;
         },
         hasMoreSections() {
-            return this.displayCount < this.currentGroupSections.length;
+            return this.activeGroupIndex + this.loadedGroupsCount < this.chapterGroups.length;
         },
         visibleSectionDetails() {
             return this.visibleSections
-                .map((section, idx) => {
+                .map((section) => {
                     const detail = this.sectionDetailsMap[section.nSectionID];
                     if (!detail) return null;
-                    const globalIndex = this.chapterGroups[this.activeGroupIndex]?.startIndex + idx;
                     return {
                         sectionId: section.nSectionID,
-                        sectionIndex: globalIndex,
+                        sectionIndex: section._globalIndex,
                         sectionTitle: section.szTitle || detail.szTitle || "",
                         formattedDetail: detail.szDetail
                             ? formatQuestsectionDetail(detail.szDetail)
@@ -181,7 +193,7 @@ export default {
             handler(newVal) {
                 this.sectionDetailsMap = {};
                 this.activeGroupIndex = 0;
-                this.displayCount = SECTION_PAGE_SIZE;
+                this.loadedGroupsCount = 1;
                 if (newVal && newVal.Sections?.length > 0) {
                     this.loadGroupSections(0);
                 }
@@ -224,7 +236,7 @@ export default {
 
             this.loading = true;
             this.activeGroupIndex = groupIndex;
-            this.displayCount = SECTION_PAGE_SIZE;
+            this.loadedGroupsCount = 1;
 
             const promises = group.sections.map((section) =>
                 this.loadSectionDetail(section.nSectionID)
@@ -243,25 +255,18 @@ export default {
         },
 
         async loadMore() {
-            const currentCount = this.displayCount;
-            this.displayCount = Math.min(
-                currentCount + SECTION_PAGE_SIZE,
-                this.currentGroupSections.length
-            );
+            const nextGroupIndex = this.activeGroupIndex + this.loadedGroupsCount;
+            if (nextGroupIndex >= this.chapterGroups.length) return;
 
-            const newSections = this.currentGroupSections.slice(
-                currentCount,
-                this.displayCount
+            const nextGroup = this.chapterGroups[nextGroupIndex];
+            this.loading = true;
+            await Promise.all(
+                nextGroup.sections.map((section) =>
+                    this.loadSectionDetail(section.nSectionID)
+                )
             );
-            if (newSections.length > 0) {
-                this.loading = true;
-                await Promise.all(
-                    newSections.map((section) =>
-                        this.loadSectionDetail(section.nSectionID)
-                    )
-                );
-                this.loading = false;
-            }
+            this.loadedGroupsCount++;
+            this.loading = false;
         },
     },
 };
