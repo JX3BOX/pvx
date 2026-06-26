@@ -49,9 +49,8 @@
 
                 .type-item {
                     margin-right: 20px;
-                    width: 100px;
-                    height: 40px;
-                    line-height: 40px;
+                    padding: 8px 20px;
+                    line-height: 24px;
                     border-radius: 30px;
                     color: #949494;
                     background-color: #fff;
@@ -62,6 +61,7 @@
 
                     &.is-active {
                         background-color: @active-color;
+                        box-shadow: 0 4px 12px 0 rgba(120, 108, 187, 0.20);
 
                         .el-radio-button__inner {
                             background-color: @active-color;
@@ -71,6 +71,7 @@
 
                     &:hover {
                         background-color: @active-color;
+                        box-shadow: 0 4px 12px 0 rgba(120, 108, 187, 0.20);
 
                         .el-radio-button__inner {
                             background-color: @active-color;
@@ -94,12 +95,16 @@
 
                 .filter-img {
                     cursor: pointer;
-                    height: 40px;
+                    .flex;
+                    align-items: center;
+                    justify-content: center;
+                    .size(30px, 30px);
 
                     svg {
                         fill: #949494;
                         background-color: #fff;
                         border-radius: 50%;
+                        .size(24px, 24px);
                     }
 
                     &.active {

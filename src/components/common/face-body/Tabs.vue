@@ -1,27 +1,27 @@
-﻿<!--
+﻿﻿﻿﻿<!--
  * tabs - 列表页标签筛选组件
- * 
+ *
  * @description 用于脸型/体型列表页的搜索和筛选功能，包含搜索框、筛选器、发布入口
  * @author Face & Body 模块优化团队
  * @version 1.0.0
- * 
+ *
  * @features
  * - 支持face和body两种类型
  * - 集成PvxSearch搜索组件
  * - 支持多条件筛选
  * - 支持数据解析入口
  * - 支持发布作品入口
- * 
+ *
  * @props
  * - type: 'face' | 'body' - 模块类型
  * - active: Number - 当前激活标签
  * - searchItems: Array - 搜索项配置
  * - initSearchValue: Object - 初始搜索值
  * - filterOpen: Boolean - 筛选面板是否打开
- * 
+ *
  * @events
  * - change: 筛选条件变化事件
- * 
+ *
  * @styles
  * - 样式文件: assets/css/face/list.less 或 assets/css/body/list.less
  -->
@@ -273,6 +273,7 @@ export default {
                 &.is-active {
                     // !important: 覆写 ElementPlus el-radio-button 内部样式
                     background-color: @pvx-color-face !important;
+                    box-shadow: 0 4px 12px 0 rgba(120, 108, 187, 0.20);
 
                     .el-radio-button__inner {
                         // !important: 覆写 ElementPlus el-radio-button__inner 内联样式
@@ -300,7 +301,7 @@ export default {
         .r(10px);
         padding: 10px 10px 10px 15px;
         background-color: #fff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #EEF1F6;
         box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
         box-sizing: border-box;
     }

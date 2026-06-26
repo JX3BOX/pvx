@@ -1,10 +1,10 @@
-﻿<!--
+﻿﻿<!--
  * List - 脸型模块列表页
- * 
+ *
  * @description 展示脸型列表，支持推荐列表和全部列表两种模式
  * @author Face & Body 模块优化团队
  * @version 2.0.0
- * 
+ *
  * @features
  * - 支持按脸型类型分类展示（写实、写意）
  * - 支持推荐列表和全部列表切换
@@ -12,13 +12,13 @@
  * - 支持搜索筛选
  * - 响应式布局适配
  * - 支持公告展示
- * 
+ *
  * @components
  * - faceTabs: 标签页组件
  * - PublicNotice: 公告组件
  * - CardBannerList: 卡片轮播列表组件
  * - ListItem: 列表项组件
- * 
+ *
  * @styles
  * - 样式文件: assets/css/face/list.less
  * - 样式文件: assets/css/face/item.less
@@ -27,7 +27,7 @@
     <div class="p-pvx-face-list" v-loading="loading" ref="listRef">
         <faceTabs :body_types="list" :active="active" :link="link" @change="handleFaceTabChange" />
         <PublicNotice bckey="face_ac" />
-        <div class="m-pvx-recommend__grid" :style="{ '--pvx-face-grid': `repeat(${per}, 190px) 1fr` }" v-if="active === -1">
+        <div class="m-pvx-recommend__grid" :style="{ '--pvx-face-grid': per > 0 ? `repeat(${per}, 190px) 1fr` : '1fr' }" v-if="active === -1">
             <div v-for="(item, index) in recommendList" :key="'l' + index" class="m-pvx-type__box m-pvx-type__container"
                 :class="{ none: !item.list.length }">
                 <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190"
@@ -158,23 +158,27 @@ export default {
             }
 
             if (this.active === -1) {
-                // 全部模式：每个类别最多6个数据 + 1个查看全部
-                // .m-pvx-recommend__grid 是 flex 布局，两个分类并排(gap:40px)
-                // 每个容器宽度 ≈ (整体宽度 - 40) / 2，再减去容器 padding(30*2=60)
                 const totalWidth = this.$refs.listRef?.clientWidth || 1200;
                 const containerWidth = (totalWidth - 40) / 2 - 60;
-                const cardWidth = 190; // 固定卡片宽度
-                const gridGap = 20; // gap = 20px
+                const cardWidth = 190;
+                const viewAllMinWidth = 80;
+                const gridGap = 20;
 
-                // 计算能完整放下多少个190px卡片（含gap），查看全部占用剩余宽度(1fr)
-                // 不为查看全部预留完整卡片位置，剩余零碎宽度给查看全部即可
                 const maxSlots = Math.floor((containerWidth + gridGap) / (cardWidth + gridGap));
 
-                // 每个类别最多6个数据，最少1个，查看全部吸收剩余宽度
-                this.per = Math.min(Math.max(maxSlots, 1), 6);
+                const remainingAfterCards = containerWidth - maxSlots * cardWidth - (maxSlots - 1) * gridGap;
 
-                // grid列数 = 数据卡片数 + 查看全部(1fr吸收剩余空间)
-                this.count = this.per + 1;
+                if (remainingAfterCards >= viewAllMinWidth) {
+                    this.per = Math.min(Math.max(maxSlots, 1), 6);
+                    this.count = this.per + 1;
+                } else {
+                    this.per = Math.min(Math.max(maxSlots - 1, 0), 6);
+                    if (this.per === 0) {
+                        this.count = 1;
+                    } else {
+                        this.count = this.per + 1;
+                    }
+                }
             } else {
                 // 非全部模式：按容器宽度动态计算
                 const containerPadding = 60;

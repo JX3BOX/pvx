@@ -32,9 +32,10 @@
             border: 1px solid @pvx-border-color;
             border-radius: @pvx-radius-pill;
             box-shadow: @pvx-shadow-light;
-            padding: 10px 30px;
+            padding: 20px 30px;
             height: 60px;
             box-sizing: border-box;
+            font-size: 14px;
 
             &.input-wrap {
                 .el-input__wrapper {
@@ -81,10 +82,15 @@
         .flex;
         flex-wrap: wrap;
         gap: 40px;
+        margin-top: 24px;
 
         .m-pvx-type__container {
             flex: 1 1 calc(50% - 20px);
             min-width: calc(50% - 20px);
+        }
+
+        .m-pvx-type__box {
+            margin-top: 0;
         }
     }
 
@@ -440,6 +446,7 @@
     transition: all 0.3s ease;
     width: var(--pvx-module-card-width, 190px);
     height: var(--pvx-module-card-height, 280px);
+    min-width: 80px;
     color: #9ba3bc;
     .fz(16px);
 
@@ -460,7 +467,6 @@
         // JS动态计算: repeat(per, 190px) 1fr，覆盖组件内联style
         grid-template-columns: var(--pvx-face-grid, repeat(3, 190px) 1fr) !important;
         gap: 20px !important;
-        overflow-x: hidden !important;
         padding: 0 !important;
     }
 

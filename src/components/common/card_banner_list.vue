@@ -104,13 +104,13 @@ export default {
             flex: 1;
             .grid;
             gap: 10px;
-            overflow-x: auto;
+
             padding:10px 0;
 
             .m-cardlist-item {
                 box-sizing: border-box;
                 background: #fff;
-                border: 2px solid #fff;
+                border: none;
                 transition: 0.3s ease-out;
                 // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 

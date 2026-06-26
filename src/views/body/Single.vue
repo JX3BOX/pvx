@@ -1,10 +1,10 @@
 ﻿<!--
  * Single - 体型模块详情页
- * 
+ *
  * @description 展示体型详情信息，包括图片预览、数据分析、购买下载、作者信息等
  * @author Face & Body 模块优化团队
  * @version 2.0.0
- * 
+ *
  * @features
  * - 图片轮播预览
  * - 体型数据分析展示
@@ -43,7 +43,6 @@
             </div>
         </div>
 
-        <div class="u-pvx-about-author">关于作者</div>
         <authorItem :uid="post.user_id" />
         <SingleRandomList :list="randomList" type="body" />
 

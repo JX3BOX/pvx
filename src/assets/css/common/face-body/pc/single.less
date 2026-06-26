@@ -109,11 +109,11 @@
     align-items: flex-start;
     margin-top: 16px;
     gap: 20px;
-    .w(100%);
+    width: fit-content;
 
     // 设计稿 Frame 269: 白色圆角卡片
     .r(@pvx-radius-xl-large);
-    padding: 30px;
+    padding: 30px 180px 30px 30px;
     box-sizing: border-box;
     background: #fff;
     box-shadow: @pvx-shadow-light;
@@ -360,7 +360,6 @@
     box-shadow: @pvx-shadow-light;
     .flex;
     flex-direction: column;
-    gap: 15px;
 }
 
 // 设计稿 Frame 281: 紫色竖条 + 标题
@@ -692,7 +691,7 @@
         height: calc(100% - 40px);
         overflow: hidden;
         background-color: #fff;
-        .r(10px);
+        .r(48px);
     }
 
     .u-pvx-bg {
@@ -730,13 +729,6 @@
             align-items: center;
         }
     }
-}
-
-.u-pvx-about-author {
-    .fz(28px);
-    .bold;
-    margin-top: 24px;
-    color: @pvx-text-primary;
 }
 
 .m-pvx-author__header {
@@ -1258,10 +1250,7 @@
 }
 
 .m-pvx-single__content-box {
-    .r(@pvx-radius-pill);
+    .r(48px);
     background: #fff;
-    border: 1px solid @pvx-border-color;
-    box-shadow: @pvx-shadow-light;
-    padding: 20px;
     box-sizing: border-box;
 }
