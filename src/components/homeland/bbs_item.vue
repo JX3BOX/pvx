@@ -42,7 +42,7 @@
  * - 点击标题或封面跳转到文章详情页
  * - 显示作者头像、名称和发布时间
  */
-import { getLink, showAvatar, formatTime } from "@jx3box/jx3box-common/js/utils";
+import { getLink, showAvatar, ts2str } from "@jx3box/jx3box-common/js/utils";
 
 export default {
     name: "BbsItem",
@@ -66,7 +66,7 @@ export default {
             return this.item.banner || "https://img.jx3box.com/image/bbs/default_banner.png";
         },
         showTime() {
-            return formatTime(this.item.updated || this.item.created);
+            return ts2str(this.item.updated || this.item.created);
         },
     },
 };
