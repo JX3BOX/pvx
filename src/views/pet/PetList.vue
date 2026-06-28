@@ -11,7 +11,7 @@
                 <div class="u-title">今日福缘</div>
             </div>
             <div class="m-pvx-pet-lucky-list">
-                <luckyItem v-for="item in luckyList" :key="item.id" :item="item"></luckyItem>
+                <luckyItem v-for="item in luckyList" :key="item.Index || item.source_id" :item="item"></luckyItem>
             </div>
         </template>
 
@@ -58,7 +58,7 @@ import luckyItem from "@/components/pet/lucky";
 import { clone, debounce } from "lodash";
 import { isPhone } from "@/utils/index";
 import Type from "@/assets/data/pet_type.json";
-import { getPets, getPetSearchOptions, getPetLucky, getSliders, getMapList } from "@/service/pet";
+import { getPets, getPet, getPetSearchOptions, getPetLucky, getMapList } from "@/service/pet";
 import dayjs from "@/plugins/day";
 
 export default {
@@ -328,9 +328,19 @@ export default {
             getPetLucky(this.client).then((res) => {
                 const data = res.data;
                 const dateIndex = dayjs.tz(new Date()).format("MDD");
+                const petIds = data?.[dateIndex] || data?.[this.client]?.[dateIndex] || [];
 
-                getSliders("slider", this.client, data[dateIndex].toString()).then((res) => {
-                    this.luckyList = res.data.data.list || [];
+                Promise.all(
+                    petIds.slice(0, 3).map((id) =>
+                        getPet(id, { client: this.client })
+                            .then((res) => ({
+                                ...res.data,
+                                source_id: id,
+                            }))
+                            .catch(() => null)
+                    )
+                ).then((list) => {
+                    this.luckyList = list.filter(Boolean);
                 });
             });
         },
