@@ -242,7 +242,7 @@ export default {
             const layout = this.perfectItemLayout(item);
             return {
                 ...toTreasureCssStyle(layout.imageStyle),
-                zIndex: Number(layout.zIndex || item.zIndex || 1),
+                zIndex: Number(item.zIndex || layout.zIndex || 1),
             };
         },
         perfectLabelStyle(item = {}) {
