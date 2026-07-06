@@ -32,7 +32,7 @@ function buildPerfectAchievements(adventureList = [], achievedIds, layout) {
     const achievementsList = [];
     let actNum = 0;
 
-    getTreasurePerfectItems(layout).forEach((layoutItem, index) => {
+    getTreasurePerfectItems(layout).forEach((layoutItem) => {
         const id = Number(layoutItem.id || layoutItem.dwID);
         const adventure = adventureMap[id];
         if (!id || !adventure) return;
@@ -43,7 +43,6 @@ function buildPerfectAchievements(adventureList = [], achievedIds, layout) {
             ...adventure,
             isAct,
             hasClass: layoutItem.key || "",
-            zIndex: layoutItem.zIndex || (index + 1),
             layout: layoutItem,
         });
     });

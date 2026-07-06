@@ -13,9 +13,69 @@ function isValidTreasureLayout(layout) {
     return Array.isArray(layout?.perfect?.items);
 }
 
+function getLayoutItems(layout = {}) {
+    return Array.isArray(layout?.perfect?.items) ? layout.perfect.items : [];
+}
+
+function getLayoutItemId(item = {}) {
+    return Number(item.id || item.dwID);
+}
+
+function hasAllBaseItems(baseItems = [], overrideItems = []) {
+    const overrideItemIds = new Set(overrideItems.map(getLayoutItemId).filter(Boolean));
+    return baseItems.every((item) => overrideItemIds.has(getLayoutItemId(item)));
+}
+
+function mergeTreasureLayout(baseLayout = treasurePerfect, overrideLayout = {}) {
+    const baseItems = getLayoutItems(baseLayout);
+    const overrideItems = getLayoutItems(overrideLayout);
+
+    if (hasAllBaseItems(baseItems, overrideItems)) {
+        return {
+            ...baseLayout,
+            ...overrideLayout,
+            perfect: {
+                ...(baseLayout.perfect || {}),
+                ...(overrideLayout.perfect || {}),
+                items: overrideItems,
+            },
+        };
+    }
+
+    const overrideItemMap = overrideItems.reduce((map, item) => {
+        const id = getLayoutItemId(item);
+        if (id) map[id] = item;
+        return map;
+    }, {});
+    const mergedItemIds = new Set();
+    const items = baseItems.map((baseItem) => {
+        const id = getLayoutItemId(baseItem);
+        mergedItemIds.add(id);
+        return {
+            ...baseItem,
+            ...(overrideItemMap[id] || {}),
+        };
+    });
+
+    overrideItems.forEach((item) => {
+        const id = getLayoutItemId(item);
+        if (!mergedItemIds.has(id)) items.push(item);
+    });
+
+    return {
+        ...baseLayout,
+        ...overrideLayout,
+        perfect: {
+            ...(baseLayout.perfect || {}),
+            ...(overrideLayout.perfect || {}),
+            items,
+        },
+    };
+}
+
 function normalizeLayoutResponse(res) {
     const layout = res?.data?.data || res?.data || res;
-    return isValidTreasureLayout(layout) ? layout : treasurePerfect;
+    return isValidTreasureLayout(layout) ? mergeTreasureLayout(treasurePerfect, layout) : treasurePerfect;
 }
 
 export function getAdventureTreasureLayout(options = {}) {
@@ -35,8 +95,8 @@ export function getAdventureTreasureLayout(options = {}) {
 }
 
 export function getTreasurePerfectItems(layout = treasurePerfect) {
-    const items = layout?.perfect?.items;
-    return Array.isArray(items) ? items : treasurePerfect?.perfect?.items || [];
+    const items = getLayoutItems(layout);
+    return items.length ? items : getLayoutItems(treasurePerfect);
 }
 
 export function getTreasurePerfectItemMap(layout = treasurePerfect) {
