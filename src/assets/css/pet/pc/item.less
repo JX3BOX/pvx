@@ -1,22 +1,112 @@
+@font-face {
+    font-family: "zcoolxiaowei";
+    src: url("https://cdn.jx3box.com/design/pet/zcoolxiaowei.otf") format("opentype");
+    font-display: swap;
+}
+
 .m-pvx-pet-lucky-item {
     .r(10px);
     .clip;
     .h(200px);
-    width: calc(33% - 10px);
-    min-width: 400px;
-    max-width: 1200px;
+    width: 733px;
+    min-width: 733px;
+    max-width: 733px;
+    aspect-ratio: 1100 / 300;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+    .u-pet {
+        .db;
+        .size(100%);
+    }
     .u-img {
         .db;
         .pr;
         .size(100%);
         background-color: #f5f8fa;
         .r(4px);
-        .u-pic {
-            .r(4px);
-            .size(100%);
-            object-fit: cover;
-        }
+    }
+    .u-bg,
+    .u-pet-mask,
+    .u-guide,
+    .u-text {
+        .pa;
+    }
+    .u-bg {
+        inset: 0;
+        .size(100%);
+        object-fit: cover;
+        z-index: 2;
+    }
+    .u-pet-mask {
+        left: 16.25%;
+        top: 12%;
+        width: 34.6%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        clip-path: circle(50% at 50% 50%);
+        overflow: hidden;
+        z-index: 1;
+        background-color: #d7e4df;
+    }
+    .u-pet-pic {
+        .pa;
+        left: 50%;
+        top: calc(44% - 10px);
+        width: 126%;
+        height: 126%;
+        max-width: none;
+        max-height: none;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+    }
+    .u-text {
+        left: 52%;
+        right: 4%;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        color: #f1cd8b;
+        font-family: "zcoolxiaowei", "Microsoft YaHei", sans-serif;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+    }
+    .u-guide {
+        left: 62%;
+        top: 23%;
+        z-index: 3;
+        .flex;
+        align-items: center;
+        gap: 7px;
+        color: #f1cd8b;
+        font-family: "zcoolxiaowei", "Microsoft YaHei", sans-serif;
+        .fz(15px, 22px);
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        pointer-events: none;
+    }
+    .u-guide-logo {
+        .size(22px);
+        flex-shrink: 0;
+        color: #f1cd8b;
+        fill: currentColor;
+    }
+    .u-title {
+        .flex;
+        align-items: baseline;
+        min-width: 0;
+    }
+    .u-adventure {
+        .fz(32px, 42px);
+        .nobreak;
+    }
+    .u-name {
+        .fz(12px, 18px);
+        .ml(4px);
+        .nobreak;
+    }
+    .u-desc {
+        .db;
+        .fz(12px, 18px);
+        .nobreak;
     }
 }
 .m-pvx-pet-lucky-item:last-child {
