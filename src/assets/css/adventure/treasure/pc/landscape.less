@@ -65,12 +65,12 @@
     .m-closed-scroll {
         position: absolute;
         left: 50%;
-        top: 0;
+        top: 50%;
         width: 148px;
         height: 940px;
         opacity: 0;
         pointer-events: none;
-        transform: translateY(-100%) translateX(-50%);
+        transform: translateY(-160%) translateX(-50%);
         transform-origin: center;
         z-index: 200;
         .u-closed-paper {
@@ -98,28 +98,28 @@
             right: 0;
         }
         &.start {
-            animation: closedScrollDrop 1.12s forwards;
+            animation: closedScrollDrop 1.45s forwards;
         }
         @keyframes closedScrollDrop {
             0% {
                 opacity: 1;
-                transform: translateY(-100%) translateX(-50%);
+                transform: translateY(-160%) translateX(-50%);
             }
-            73% {
+            56% {
                 opacity: 1;
-                transform: translateY(5%) translateX(-50%);
+                transform: translateY(-46%) translateX(-50%);
             }
-            86% {
+            70% {
                 opacity: 1;
-                transform: translateY(0) translateX(-50%);
+                transform: translateY(-50%) translateX(-50%);
             }
-            96% {
+            88% {
                 opacity: 1;
-                transform: translateY(0) translateX(-50%);
+                transform: translateY(-50%) translateX(-50%);
             }
             100% {
                 opacity: 0;
-                transform: translateY(0) translateX(-50%);
+                transform: translateY(-50%) translateX(-50%);
             }
         }
     }
