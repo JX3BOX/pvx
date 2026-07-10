@@ -46,11 +46,12 @@
         // Figma 节点 3135-240: margin-left = sidebar-width + gap
         .m-pvx-questsection-content {
             flex: 1;
-            margin-left: @questsection-sidebar-width + @questsection-main-gap;
+            margin-left: @questsection-sidebar-width;
             min-width: 0; // 防止 flex 子项溢出
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            gap: 20px;
         }
     }
 }

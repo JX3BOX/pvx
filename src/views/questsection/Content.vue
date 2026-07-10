@@ -47,7 +47,8 @@
             </div>
 
             <!-- 章节分组按钮 -->
-            <div class="m-questsection-content__chapters" v-if="chapterGroups.length > 0">
+            <div ref="chapterNav" class="m-questsection-content__chapters"
+                :class="{ 'is-stuck': isChapterNavStuck }" v-if="chapterGroups.length > 0">
                 <div class="m-chapter-list">
                     <div v-for="(group, gIndex) in chapterGroups" :key="gIndex" class="u-chapter-group"
                         :class="{ 'is-active': activeGroupIndex === gIndex }"
@@ -65,8 +66,15 @@
                 </div>
 
                 <!-- 加载更多按钮 -->
-                <div class="u-load-more" v-if="hasMoreSections" @click="loadMore">
-                    加载更多
+                <div class="u-load-more" :class="{ 'is-loading-state': loading }"
+                    v-if="hasMoreSections || loading" @click="!loading && loadMore()">
+                    <template v-if="loading">
+                        <el-icon class="u-loading-icon is-loading">
+                            <Loading />
+                        </el-icon>
+                        <span>加载中...</span>
+                    </template>
+                    <span v-else>加载更多</span>
                 </div>
             </div>
 
@@ -76,7 +84,7 @@
             </div>
 
             <!-- 加载状态 -->
-            <div class="m-questsection-content__loading" v-if="loading">
+            <div class="m-questsection-content__loading" v-if="loading && visibleSectionDetails.length === 0">
                 <el-icon class="is-loading">
                     <Loading />
                 </el-icon>
@@ -114,8 +122,10 @@ export default {
         return {
             sectionDetailsMap: {},
             activeGroupIndex: 0,
+            displayGroupIndex: 0,
             loadedGroupsCount: 1,
             loading: false,
+            isChapterNavStuck: false,
         };
     },
     computed: {
@@ -150,7 +160,7 @@ export default {
         visibleSections() {
             const sections = [];
             for (let i = 0; i < this.loadedGroupsCount; i++) {
-                const groupIndex = this.activeGroupIndex + i;
+                const groupIndex = this.displayGroupIndex + i;
                 if (groupIndex < this.chapterGroups.length) {
                     const group = this.chapterGroups[groupIndex];
                     group.sections.forEach((section, localIdx) => {
@@ -164,7 +174,7 @@ export default {
             return sections;
         },
         hasMoreSections() {
-            return this.activeGroupIndex + this.loadedGroupsCount < this.chapterGroups.length;
+            return this.displayGroupIndex + this.loadedGroupsCount < this.chapterGroups.length;
         },
         visibleSectionDetails() {
             return this.visibleSections
@@ -183,7 +193,7 @@ export default {
                 .filter(Boolean);
         },
         firstSectionDetail() {
-            const firstSection = this.currentGroupSections[0];
+            const firstSection = this.chapterGroups[this.displayGroupIndex]?.sections?.[0];
             if (!firstSection) return null;
             return this.sectionDetailsMap[firstSection.nSectionID] || null;
         },
@@ -193,15 +203,37 @@ export default {
             handler(newVal) {
                 this.sectionDetailsMap = {};
                 this.activeGroupIndex = 0;
+                this.displayGroupIndex = 0;
                 this.loadedGroupsCount = 1;
                 if (newVal && newVal.Sections?.length > 0) {
                     this.loadGroupSections(0);
                 }
+                this.$nextTick(this.updateChapterNavStickyState);
             },
             immediate: true,
         },
     },
+    mounted() {
+        window.addEventListener("scroll", this.updateChapterNavStickyState, { passive: true });
+        window.addEventListener("resize", this.updateChapterNavStickyState);
+        this.$nextTick(this.updateChapterNavStickyState);
+    },
+    beforeUnmount() {
+        window.removeEventListener("scroll", this.updateChapterNavStickyState);
+        window.removeEventListener("resize", this.updateChapterNavStickyState);
+    },
     methods: {
+        updateChapterNavStickyState() {
+            const chapterNav = this.$refs.chapterNav;
+            if (!chapterNav) {
+                this.isChapterNavStuck = false;
+                return;
+            }
+
+            const stickyTop = Number.parseFloat(window.getComputedStyle(chapterNav).top) || 0;
+            this.isChapterNavStuck = chapterNav.getBoundingClientRect().top <= stickyTop + 0.5;
+        },
+
         getImageUrl(imagePath, nImageFrame) {
             return getQuestsectionImageUrl(imagePath, nImageFrame);
         },
@@ -236,13 +268,17 @@ export default {
 
             this.loading = true;
             this.activeGroupIndex = groupIndex;
-            this.loadedGroupsCount = 1;
 
             const promises = group.sections.map((section) =>
                 this.loadSectionDetail(section.nSectionID)
             );
-            await Promise.all(promises);
-            this.loading = false;
+            try {
+                await Promise.all(promises);
+                this.displayGroupIndex = groupIndex;
+                this.loadedGroupsCount = 1;
+            } finally {
+                this.loading = false;
+            }
         },
 
         handleGroupClick(groupIndex) {
@@ -255,7 +291,9 @@ export default {
         },
 
         async loadMore() {
-            const nextGroupIndex = this.activeGroupIndex + this.loadedGroupsCount;
+            if (this.loading) return;
+
+            const nextGroupIndex = this.displayGroupIndex + this.loadedGroupsCount;
             if (nextGroupIndex >= this.chapterGroups.length) return;
 
             const nextGroup = this.chapterGroups[nextGroupIndex];

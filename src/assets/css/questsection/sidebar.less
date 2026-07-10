@@ -10,8 +10,8 @@
 // 以下数值根据 Figma 设计稿精确还原
 
 // 颜色变量（精确值，不使用 rgba）
-@questsection-color-primary: #6B52FF;
-@questsection-color-season-bg: #6B52FF;
+@questsection-color-primary: #5A50E8;
+@questsection-color-season-bg: #5A50E8;
 @questsection-color-text-white: #FFFFFF;
 @questsection-color-text-black: #000000;
 @questsection-color-border: #E1E4E8;
@@ -22,16 +22,16 @@
 @questsection-shadow-sidebar: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
 // 大章节 default 阴影: x=0, y=2, blur=6, spread=0, color=rgba(0,0,0,0.08)
 @questsection-shadow-chapter: 0px 2px 6px 0px rgba(0, 0, 0, 0.08);
-// 大章节 active/hover 阴影: x=0, y=4, blur=12, spread=0, color=rgba(107,82,255,0.25)
-@questsection-shadow-active: 0px 4px 12px 0px rgba(107, 82, 255, 0.25);
+// 大章节 active/hover 阴影: x=0, y=4, blur=12, spread=0, color=rgba(90,80,232,0.25)
+@questsection-shadow-active: 0px 4px 12px 0px rgba(90, 80, 232, 0.25);
 
 // 尺寸变量（精确值）
-// Component 18 宽度: 280px
-@questsection-sidebar-width: 280px;
-// 资料片标题高度: 48px
-@questsection-season-header-height: 48px;
-// 大章节项高度: 40px
-@questsection-chapter-item-height: 40px;
+// Component 18 宽度: 285px
+@questsection-sidebar-width: 285px;
+// 资料片标题高度: Figma 为 14px 字体 + 上下 8px padding
+@questsection-season-header-height: 34px;
+// 大章节项高度: Figma 为 14px 字体 + 上下 8px padding
+@questsection-chapter-item-height: 34px;
 // 圆角: 8px（搜索框、大章节）
 @questsection-radius: 8px;
 
@@ -44,15 +44,15 @@
     // 固定定位，左侧固定宽度
     position: fixed;
     left: 40px;
-    top: calc(40px + @header-height + 60px);
+    top: calc(40px + @header-height);
     width: @questsection-sidebar-width;
-    // 未展开时高度 300px
-    height: 300px;
+    // Figma Component 18 默认高度 314px
+    height: 314px;
     background: #FFF;
     border: 1px solid rgba(226, 232, 240, 0.60);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     border-radius: 30px;
-    padding-top: 20px;
+    padding: 20px 15px 0;
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -69,55 +69,54 @@
     // ==================== 搜索框模块 ====================
     // Figma: padding=20px, border-bottom=1px solid rgba(0,0,0,0.1)
     .m-questsection-sidebar__search {
-        padding:0 20px 8px 20px ;
+        width: 100%;
+        padding: 0;
+        margin-bottom: 20px;
+        flex-shrink: 0;
         // 搜索输入框样式
         // Figma: height=40px, border-radius=30px, padding=12px 16px
         .u-questsection-search-input {
             width: 100%;
             height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-radius: 30px;
+            background: rgba(243, 244, 245, 0.96);
+            box-sizing: border-box;
+            padding: 0 20px;
 
-            .el-input__wrapper {
-                height: 40px;
-                border-radius: 30px;
-                background: rgba(243, 244, 245, 0.96);
-                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1) inset;
-                transition: all @questsection-transition-duration ease-out;
-                box-sizing: border-box;
-
-                &:hover {
-                    box-shadow: 0 0 0 1px @questsection-color-primary inset;
-                }
-
-                &.is-focus {
-                    box-shadow: 0 0 0 1px @questsection-color-primary inset;
-                }
-            }
-
-            .el-input__inner {
-                height: 40px;
-                font-size: 14px;
-                font-weight: 400;
-                line-height: 40px;
+            .u-questsection-search-field {
+                flex: 1;
+                min-width: 0;
+                height: 100%;
+                padding: 0;
+                border: 0;
+                outline: 0;
+                background: transparent;
+                font-size: 16px;
+                font-weight: 700;
+                line-height: normal;
                 color: @questsection-color-text-black;
-                padding-left: 16px;
+                font-family: "Microsoft YaHei", Arial, sans-serif;
 
                 &::placeholder {
-                    color: rgba(0, 0, 0, 0.4);
-                    font-size: 14px;
+                    color: #B0B0B0;
+                    font-size: 16px;
+                    font-weight: 700;
+                    opacity: 1;
                 }
             }
         }
 
         // 搜索图标
         .u-questsection-search-icon {
-            color: rgba(0, 0, 0, 0.4);
-            font-size: 16px;
+            display: block;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
             cursor: pointer;
-            transition: color @questsection-transition-duration ease-out;
-
-            &:hover {
-                color: @questsection-color-primary;
-            }
         }
     }
 
@@ -125,32 +124,21 @@
     .m-questsection-sidebar__list {
         flex: 1;
         overflow-y: auto;
-        padding: 8px 20px;
+        padding: 0 20px 0 0;
         box-sizing: border-box;
-
-        &::-webkit-scrollbar {
-            width: 4px;
-        }
-        &::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        &::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.12);
-            border-radius: 4px;
-        }
 
         // 资料片容器
         .m-questsection-season {
             margin-bottom: 8px;
 
             // ==================== 料片标题 ====================
-            // Figma: 紫底白字，height=48px, padding=0 20px, font-size=16px, font-weight=600
+            // Figma: 紫底白字，height=34px, padding=8px 10px, font-size=14px
             .u-questsection-season-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 height: @questsection-season-header-height;
-                padding: 0 20px;
+                padding: 8px 10px;
                 background: @questsection-color-season-bg;
                 color: @questsection-color-text-white;
                 cursor: pointer;
@@ -159,13 +147,13 @@
                 border-radius: @questsection-radius;
 
                 &:hover {
-                    background: #5A42E5; // darken(#6B52FF, 5%)
+                    background: #5146D8; // darken(#5A50E8, 5%)
                 }
 
                 .u-questsection-season-name {
-                    font-size: 16px;
-                    font-weight: 600;
-                    line-height: 24px; // 1.5 倍率
+                    font-size: 14px;
+                    font-weight: 400;
+                    line-height: normal;
                     letter-spacing: 0;
                 }
 
@@ -186,17 +174,18 @@
             // Figma: padding=8px 12px
             .m-questsection-season__chapters {
                 overflow: hidden;
-                padding: 8px 20px;
+                padding: 8px 0 0;
                 box-sizing: border-box;
 
                 // 大章节项
-                // Figma: height=40px, padding=0 16px, margin-bottom=6px, border-radius=8px
+                // Figma: height=34px, padding=8px 10px, margin-bottom=8px, border-radius=8px
                 .u-questsection-chapter {
                     display: flex;
                     align-items: center;
                     height: @questsection-chapter-item-height;
-                    padding: 8px 20px;
+                    padding: 8px 10px;
                     margin-bottom: 8px;
+                    margin-left: 10px;
                     cursor: pointer;
                     border-radius: @questsection-radius;
                     transition: all @questsection-transition-duration ease-out;
@@ -206,23 +195,20 @@
                     // Figma: background=rgba(0,0,0,0.05), color=#000, shadow=0px 2px 6px rgba(0,0,0,0.08)
                     background: @questsection-color-chapter-default-bg;
                     color: @questsection-color-text-black;
-                    box-shadow: @questsection-shadow-chapter;
 
                     // hover 状态
                     // Figma: 300ms 动画过渡，样式等同于 active
                     &:hover {
                         background: @questsection-color-primary;
                         color: @questsection-color-text-white;
-                        box-shadow: @questsection-shadow-active;
                     }
 
                     // active 状态
-                    // Figma: 紫底(#6B52FF)白字(#FFF)带阴影
+                    // Figma: 紫底(#5A50E8)白字(#FFF)带阴影
                     &.is-active {
                         background: @questsection-color-primary;
                         color: @questsection-color-text-white;
-                        font-weight: 500;
-                        box-shadow: @questsection-shadow-active;
+                        font-weight: 400;
 
                         // active 状态下 hover 保持不变
                         &:hover {
@@ -252,24 +238,27 @@
         align-items: center;
         justify-content: center;
         // 固定高度，防止被 flex 容器拉伸
-        height: 40px;
-        min-height: 40px;
+        height: 30px;
+        min-height: 30px;
         flex-shrink: 0;
-        // 与资料片标题位置保持一致（列表 padding 20px + 标题 padding 20px = 40px）
-        padding: 0 40px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        margin-top: 1px;
+        margin-right: 20px;
+        padding: 0;
+        border-top: 0;
         cursor: pointer;
         transition: all @questsection-transition-duration ease-out;
         box-sizing: border-box;
 
         &:hover {
-            background: rgba(107, 82, 255, 0.05);
+            background: rgba(90, 80, 232, 0.05);
         }
 
         // 展开/折叠箭头（SVG 图标）
         .u-questsection-toggle-arrow {
-            width: 11px;
-            height: 9px;
+            display: block;
+            width: 12px;
+            height: 12px;
+            object-fit: contain;
             transition: transform @questsection-transition-duration ease-out;
 
             // 展开状态箭头旋转 180deg
@@ -354,7 +343,7 @@
 @media screen and (max-width: @phone) {
     .m-pvx-questsection-sidebar {
         width: 200px;
-        top: @header-height;
+        top: calc(15px + @header-height);
 
         .m-questsection-sidebar__search {
             padding: 12px;

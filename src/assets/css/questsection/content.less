@@ -19,6 +19,11 @@
 @questsection-radius-pill: 30px;
 @questsection-radius-content: 48px;
 @questsection-chapter-item-height: 40px;
+@questsection-header-image-height: 194px;
+@questsection-header-image-min-width: 620px;
+@questsection-map-image-height: 154px;
+@questsection-content-gap: 20px;
+@questsection-section-gap: 40px;
 
 // ==================== 工具栏 ====================
 .m-questsection-content__toolbar {
@@ -66,20 +71,24 @@
 // ==================== 内容主体区域 ====================
 .m-questsection-content__body {
     flex: 1;
-    overflow-y: auto;
     padding: 0 20px 20px;
     box-sizing: border-box;
 
     // ==================== 标题和图片区块（阴影容器） ====================
     .m-questsection-content__header-image {
         width: fit-content;
+        min-width: @questsection-header-image-min-width;
+        height: @questsection-header-image-height;
         border-radius: @questsection-radius-pill;
         background: #FFF;
         border: @questsection-border-light;
         box-shadow: @questsection-shadow-light;
-        margin-bottom: 30px;
+        margin-bottom: @questsection-content-gap;
         box-sizing: border-box;
         padding: 20px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         // 标题区块（已移除标题，保留结构兼容）
         .m-questsection-content__header {
@@ -89,7 +98,7 @@
         // 图片展示区块
         .m-questsection-content__image {
             position: relative;
-            height: 154px;
+            height: @questsection-map-image-height;
             overflow: hidden;
 
             .u-image {
@@ -136,7 +145,23 @@
 
     // ==================== 章节列表展示 ====================
     .m-questsection-content__chapters {
-        margin-bottom: 30px;
+        position: sticky;
+        top: calc(40px + @header-height);
+        z-index: 90;
+        background: #F6F8FA;
+        margin-bottom: 0;
+        padding: 0 0 @questsection-content-gap;
+
+        &.is-stuck::before {
+            content: "";
+            position: fixed;
+            top: @header-height;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #F6F8FA;
+            pointer-events: none;
+        }
 
         // 章节列表容器
         .m-chapter-list {
@@ -291,7 +316,7 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: flex-start;
-        gap: 10px;
+        gap: @questsection-section-gap;
         align-self: stretch;
         box-sizing: border-box;
 
@@ -372,11 +397,7 @@
         // 章节内容块
         .m-section-block {
             width: 100%;
-            margin-bottom: 20px;
-
-            &:last-child {
-                margin-bottom: 0;
-            }
+            margin-bottom: 0;
 
             .u-section-title {
                 margin-bottom: 12px;
@@ -424,17 +445,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
             width: 100%;
-            padding: 12px 0;
-            margin-top: 10px;
+            height: 40px;
+            padding: 0 15px;
+            margin-top: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+            border: @questsection-border-light;
+            border-radius: 10px;
+            background: #F8F9FC;
+            box-shadow: @questsection-shadow-light;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: @questsection-color-primary;
-            transition: color 0.3s ease-out;
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: normal;
+            color: #9BA3BC;
+            transition: color 0.3s ease-out, border-color 0.3s ease-out;
 
             &:hover {
-                color: darken(@questsection-color-primary, 10%);
+                color: @questsection-color-primary;
+                border-color: fade(@questsection-color-primary, 35%);
+            }
+
+            &.is-loading-state {
+                cursor: default;
+
+                &:hover {
+                    color: #9BA3BC;
+                    border-color: rgba(226, 232, 240, 0.60);
+                }
+            }
+
+            .u-loading-icon {
+                font-size: 16px;
             }
         }
     }
@@ -476,6 +521,12 @@
 @media screen and (max-width: 1024px) {
     .m-questsection-content__body {
         padding: 0 15px 15px;
+
+        .m-questsection-content__header-image {
+            width: 100%;
+            max-width: @questsection-header-image-min-width;
+            min-width: 0;
+        }
     }
 }
 
@@ -483,9 +534,19 @@
 @media screen and (max-width: 768px) {
     .m-questsection-content__body {
         padding: 0 10px 10px;
+
+        .m-questsection-content__chapters {
+            top: calc(15px + @header-height);
+
+            &.is-stuck::before {
+                height: 15px;
+            }
+        }
     }
 
     .m-questsection-content__header-image {
+        height: 160px;
+
         .m-questsection-content__header {
             padding: 10px;
 

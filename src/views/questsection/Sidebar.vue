@@ -9,7 +9,7 @@
  * - 搜索框支持搜索资料片和大章节
  * - 资料片折叠展开交互，300ms 动画过渡
  * - 默认展开"风起稻香"资料片，默认选择第一个大章节
- * - 支持整体展开/折叠功能：未展开高度300px，展开后最大600px
+ * - 支持整体展开/折叠功能：未展开高度314px，展开后最大600px
  *
  * @emits
  * - select: 选择大章节时触发，参数为 { season, chapter }
@@ -18,14 +18,15 @@
     <div class="m-pvx-questsection-sidebar" :class="{ 'is-expanded': isSidebarExpanded }">
         <!-- 搜索框模块 -->
         <div class="m-questsection-sidebar__search">
-            <el-input v-model="searchKeyword" class="u-questsection-search-input" placeholder="搜索资料片或大章节" clearable
-                @input="handleSearch">
-                <template #suffix>
-                    <el-icon class="u-questsection-search-icon">
-                        <Search />
-                    </el-icon>
-                </template>
-            </el-input>
+            <div class="u-questsection-search-input">
+                <input
+                    v-model="searchKeyword"
+                    class="u-questsection-search-field"
+                    placeholder="输入资料片或章节关键词"
+                    @input="handleSearch"
+                />
+                <img class="u-questsection-search-icon" src="@/assets/img/questsection/search.svg" alt="" />
+            </div>
         </div>
 
         <!-- 料片列表模块 -->
@@ -63,14 +64,10 @@
 </template>
 
 <script>
-import { Search } from "@element-plus/icons-vue";
 import { getMenu } from "@/service/questsection.js";
 
 export default {
     name: "QuestsectionSidebar",
-    components: {
-        Search,
-    },
     data() {
         return {
             // 搜索关键词
