@@ -519,6 +519,46 @@
 
 // ==================== 响应式适配 - iPad ====================
 @media screen and (max-width: 1024px) {
+    .m-questsection-content__toolbar {
+        width: 100%;
+
+        .m-robot__pvx-tip {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            gap: 0;
+
+            .m-qq {
+                width: 100%;
+                min-width: 0;
+                padding: 0 16px;
+            }
+
+            .u-name {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .u-feedback {
+            flex-shrink: 0;
+
+            .u-btn {
+                width: 41px;
+                height: 41px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+
+                span {
+                    display: none;
+                }
+            }
+        }
+    }
+
     .m-questsection-content__body {
         padding: 0 15px 15px;
 
@@ -532,32 +572,138 @@
 
 // ==================== 响应式适配 - Phone ====================
 @media screen and (max-width: 768px) {
-    .m-questsection-content__body {
-        padding: 0 10px 10px;
+    .m-questsection-content__toolbar {
+        padding: 6px;
+        gap: 8px;
+        border-radius: 12px;
 
-        .m-questsection-content__chapters {
-            top: calc(15px + @header-height);
+        .m-robot__pvx-tip {
+            .m-qq {
+                height: 40px;
+                padding: 0 12px;
+                gap: 8px;
+            }
 
-            &.is-stuck::before {
-                height: 15px;
+            .u-logo {
+                width: 26px;
+                height: 26px;
+            }
+
+            .u-name {
+                font-size: 13px;
+            }
+        }
+
+        .u-feedback {
+            .u-btn {
+                width: 40px;
+                height: 40px;
+                min-height: 40px;
+                font-size: 13px;
             }
         }
     }
 
-    .m-questsection-content__header-image {
-        height: 160px;
+    .m-questsection-content__body {
+        width: 100%;
+        padding: 0;
 
-        .m-questsection-content__header {
-            padding: 10px;
+        .m-questsection-content__chapters {
+            top: @header-height;
+            padding-bottom: 12px;
 
-            .u-title {
-                font-size: 24px;
-                line-height: 33px;
+            &.is-stuck::before {
+                display: none;
+            }
+
+            .m-chapter-list {
+                flex-wrap: nowrap;
+                gap: 8px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 2px 1px 4px;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+
+                &::-webkit-scrollbar {
+                    display: none;
+                }
+
+                .u-chapter-group {
+                    width: 72px;
+                    min-width: 72px;
+                    height: 38px;
+                    padding: 8px 14px;
+                    flex: 0 0 auto;
+                }
             }
         }
 
-        .m-questsection-content__image {
-            height: 120px;
+        .m-questsection-content__header-image {
+            width: 100%;
+            max-width: none;
+            height: 170px;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 20px;
+
+            .m-questsection-content__header {
+                padding: 10px;
+
+                .u-title {
+                    font-size: 20px;
+                    line-height: 28px;
+                }
+            }
+
+            .m-questsection-content__image {
+                width: 100%;
+                height: 146px;
+
+                .u-image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .m-questsection-content__map-info {
+                    padding: 16px;
+                    gap: 4px;
+                }
+
+                .u-map-info-item:first-child {
+                    font-size: 18px;
+                }
+            }
+        }
+
+        .m-questsection-content__detail {
+            padding: 20px 16px;
+            gap: 32px;
+            border-radius: 22px;
+
+            .m-section-block {
+                .u-section-title {
+                    margin-bottom: 10px;
+                }
+
+                .u-section-detail {
+                    font-size: 14px;
+                    line-height: 1.75;
+
+                    * {
+                        line-height: inherit;
+                    }
+
+                    p {
+                        margin: 10px 0;
+                    }
+                }
+            }
+
+            .u-load-more {
+                font-size: 14px;
+            }
         }
     }
 }

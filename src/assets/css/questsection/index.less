@@ -74,11 +74,15 @@
 @media screen and (max-width: @phone) {
     .p-pvx-questsection {
         .m-main {
-            padding-left: 15px;
-            padding-right: 15px;
+            min-height: calc(100vh - @header-height);
+            padding: 16px 12px 24px;
+            flex-direction: column;
+            gap: 16px;
 
             .m-pvx-questsection-content {
-                margin-left: @questsection-sidebar-width-phone + 10px; // Phone 端 gap 调整为 10px
+                width: 100%;
+                margin-left: 0;
+                gap: 12px;
             }
         }
     }

@@ -20,7 +20,8 @@
         <div class="m-questsection-content__toolbar">
             <PvxRobotTip reply="剑侠录" typeName="剑侠录" hidden />
             <div class="u-feedback">
-                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" class="u-btn u-btn--feedback">
+                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" class="u-btn u-btn--feedback"
+                    title="错误反馈" aria-label="错误反馈">
                     <i class="el-icon-warning-outline"></i>
                     <span>错误反馈</span>
                 </a>

@@ -342,36 +342,52 @@
 // ==================== 响应式适配 - Phone ====================
 @media screen and (max-width: @phone) {
     .m-pvx-questsection-sidebar {
-        width: 200px;
-        top: calc(15px + @header-height);
+        position: relative;
+        top: auto;
+        left: auto;
+        width: 100%;
+        height: 280px;
+        padding: 14px 12px 0;
+        border-radius: 20px;
+        z-index: 1;
+
+        &.is-expanded {
+            height: 420px;
+            max-height: 55vh;
+        }
 
         .m-questsection-sidebar__search {
-            padding: 12px;
+            padding: 0;
+            margin-bottom: 12px;
 
             .u-questsection-search-input {
-                height: 32px;
+                height: 40px;
+                padding: 0 14px;
 
-                .el-input__wrapper {
-                    height: 32px;
-                }
-
-                .el-input__inner {
-                    height: 32px;
-                    line-height: 32px;
-                    font-size: 13px;
+                .u-questsection-search-field {
+                    font-size: 14px;
+                    font-weight: 400;
 
                     &::placeholder {
-                        font-size: 13px;
+                        font-size: 14px;
+                        font-weight: 400;
                     }
+                }
+
+                .u-questsection-search-icon {
+                    width: 20px;
+                    height: 20px;
                 }
             }
         }
 
         .m-questsection-sidebar__list {
+            padding-right: 4px;
+
             .m-questsection-season {
                 .u-questsection-season-header {
-                    height: 40px;
-                    padding: 0 12px;
+                    height: 42px;
+                    padding: 0 14px;
 
                     .u-questsection-season-name {
                         font-size: 14px;
@@ -384,20 +400,24 @@
                 }
 
                 .m-questsection-season__chapters {
-                    padding: 5px 8px;
+                    padding: 6px 0 0;
 
                     .u-questsection-chapter {
-                        height: 32px;
-                        padding: 0 10px;
-                        margin-bottom: 4px;
+                        height: 36px;
+                        padding: 0 12px;
+                        margin: 0 0 6px 8px;
 
                         .u-questsection-chapter-name {
-                            font-size: 12px;
-                            line-height: 18px;
+                            font-size: 13px;
+                            line-height: 20px;
                         }
                     }
                 }
             }
+        }
+
+        .m-questsection-sidebar__toggle {
+            margin-right: 0;
         }
     }
 }
