@@ -54,7 +54,7 @@
                     <img
                         class="u-item__img"
                         :class="perfectItemClass(item)"
-                        :style="perfectImageStyle(item)"
+                        :style="perfectImageStyle(item, index)"
                         :src="getCdnImgUrl(perfectItemImage(item))"
                     />
                     <div class="m-item__text" :class="perfectItemClass(item)" :style="perfectLabelStyle(item)">
@@ -238,11 +238,11 @@ export default {
         perfectItemClass(item = {}) {
             return this.perfectItemLayout(item).key || item.hasClass || "";
         },
-        perfectImageStyle(item = {}) {
+        perfectImageStyle(item = {}, index = 0) {
             const layout = this.perfectItemLayout(item);
             return {
                 ...toTreasureCssStyle(layout.imageStyle),
-                zIndex: Number(layout.zIndex || item.zIndex || 1),
+                zIndex: index,
             };
         },
         perfectLabelStyle(item = {}) {

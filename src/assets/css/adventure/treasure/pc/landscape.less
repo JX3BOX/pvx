@@ -56,6 +56,73 @@
         user-select: none;
         overflow: hidden;
     }
+    .m-scroll-scene {
+        position: relative;
+        margin: 0 auto;
+        width: max-content;
+        min-height: 900px;
+    }
+    .m-closed-scroll {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 148px;
+        height: 940px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-160%) translateX(-50%);
+        transform-origin: center;
+        z-index: 200;
+        .u-closed-paper {
+            position: absolute;
+            left: 43px;
+            right: 43px;
+            top: 6px;
+            bottom: 6px;
+            display: block;
+            background: linear-gradient(90deg, #42695f 0%, #7fa396 42%, #365b52 100%);
+            box-shadow: inset 8px 0 14px rgba(28, 56, 49, 0.3), inset -8px 0 14px rgba(28, 56, 49, 0.3);
+        }
+        .u-closed-left,
+        .u-closed-right {
+            position: absolute;
+            top: 0;
+            display: block;
+            height: 940px;
+            pointer-events: none;
+        }
+        .u-closed-left {
+            left: 0;
+        }
+        .u-closed-right {
+            right: 0;
+        }
+        &.start {
+            animation: closedScrollDrop 1.45s forwards;
+        }
+        @keyframes closedScrollDrop {
+            0% {
+                opacity: 1;
+                transform: translateY(-160%) translateX(-50%);
+            }
+            56% {
+                opacity: 1;
+                transform: translateY(-46%) translateX(-50%);
+            }
+            70% {
+                opacity: 1;
+                transform: translateY(-50%) translateX(-50%);
+            }
+            88% {
+                opacity: 1;
+                transform: translateY(-50%) translateX(-50%);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50%) translateX(-50%);
+            }
+        }
+    }
     .m-content {
         position: relative;
         margin: 0 auto;
@@ -85,7 +152,6 @@
         .afterCss {
             content: "";
             width: 1800px;
-            background-color: white;
             display: block;
             position: absolute;
             z-index: 4;

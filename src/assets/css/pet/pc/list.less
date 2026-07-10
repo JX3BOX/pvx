@@ -20,12 +20,17 @@
 .m-pvx-pet-lucky-list {
     .flex;
     .w(100%);
-    .scrollbar(2px);
+    .scrollbar(6px, #f3f4f5, #c7d0d9);
     padding: 10px;
+    padding-bottom: 16px;
     .ml(-10px);
     .gap(20px);
     overflow-x: auto;
     overflow-y: hidden;
+
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
 
     .m-pvx-pet-lucky-item {
         flex-shrink: 0;

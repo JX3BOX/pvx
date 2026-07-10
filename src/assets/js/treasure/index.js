@@ -43,7 +43,6 @@ function buildPerfectAchievements(adventureList = [], achievedIds, layout) {
             ...adventure,
             isAct,
             hasClass: layoutItem.key || "",
-            zIndex: layoutItem.zIndex,
             layout: layoutItem,
         });
     });

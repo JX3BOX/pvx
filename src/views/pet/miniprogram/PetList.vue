@@ -12,7 +12,7 @@
             <!--        今日福缘-->
             <div class="u-card-title">今日福缘</div>
             <div class="u-lucky">
-                <div class="u-lucky-item" v-for="item in luckyList" :key="item.id">
+                <div class="u-lucky-item" v-for="item in luckyList" :key="item.source_id || item.id">
                     <a class="u-pet" :href="getPetLuckLink(item)">
                         <i class="u-img">
                             <img class="u-pic" :src="imgPath(item)" loading="lazy" @error="onError($event,item)" />
