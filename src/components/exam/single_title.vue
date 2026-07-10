@@ -11,7 +11,7 @@
                 </div>
                 <div class="u-info-subblock u-star">
                     <span>难度：</span>
-                    <el-rate v-model="item.hardStar" disabled text-color="#ff9900"></el-rate>
+                    <el-rate :value="item.hardStar" disabled text-color="#ff9900"></el-rate>
                 </div>
                 <div class="u-info-subblock u-tags u-line">
                     <span>标签：</span>
