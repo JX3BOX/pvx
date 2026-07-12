@@ -29,8 +29,9 @@
                             <!-- 圆形图标（类似武学招式） -->
                             <a class="u-partner-item-icon is-circle" :href="getItemWikiUrl(getSourceId(it))"
                                 target="_blank" rel="noopener noreferrer" :title="getItemName(it)">
-                                <img v-if="getItemIconId(it)" :src="resolveSkillIcon(getItemIconId(it))"
-                                    :alt="getItemName(it)" @error="handleImageError" />
+                                <img v-if="getItemIconId(it) && !failedItemIcons[getSourceId(it)]"
+                                    :src="resolveSkillIcon(getItemIconId(it))" :alt="getItemName(it)"
+                                    @error="handleImageError(it)" />
                                 <span v-else class="u-partner-item-fallback">{{ getItemFallback(it) }}</span>
                             </a>
                         </template>
@@ -120,6 +121,7 @@ export default {
             itemDetails: {},
             // 正在加载的物品 ID 列表
             loadingItems: [],
+            failedItemIcons: {},
         };
     },
     computed: {
@@ -138,6 +140,7 @@ export default {
                 } else {
                     this.itemDetails = {};
                     this.loadingItems = [];
+                    this.failedItemIcons = {};
                 }
             },
             immediate: true, // 初始化时也触发
@@ -318,9 +321,8 @@ export default {
         /**
          * 图片加载失败处理
          */
-        handleImageError(event) {
-            // 隐藏损坏的图片
-            event.target.style.display = "none";
+        handleImageError(item) {
+            this.failedItemIcons[this.getSourceId(item)] = true;
         },
         getItemWikiUrl,
         resolveSkillIcon,

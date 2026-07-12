@@ -26,3 +26,9 @@ export function sanitizeBasicHtml(content) {
     });
     return output.innerHTML;
 }
+
+export function sanitizeSkillHtml(content) {
+    if (!content) return "";
+    const protectedContent = String(content).replace(/<(SKILL(?:Ex)?\b[^>]*)>/gi, "&lt;$1&gt;");
+    return sanitizeBasicHtml(protectedContent);
+}

@@ -14,7 +14,8 @@
             <div v-for="(item, index) in skills" :key="item.id || index" class="u-partner-skill-icon"
                 :class="[shapeClass(item), { 'is-active': currentIndex === index }]" :title="item.name"
                 @click="handleSelect(index)">
-                <img v-if="item.icon" :src="item.icon" :alt="item.name" />
+                <img v-if="item.icon && !failedIcons[getIconKey(item, index)]" :src="item.icon" :alt="item.name"
+                    @error="handleIconError(item, index)" />
                 <span v-else class="u-partner-skill-fallback">{{ (item.name || "?").slice(0, 1) }}</span>
             </div>
         </div>
@@ -64,7 +65,7 @@
 import { DataAnalysis } from "@element-plus/icons-vue";
 import { SKILL_SHAPE } from "./const";
 import { getItemWikiUrl, getSkillDbUrl } from "@/utils/partner";
-import { sanitizeBasicHtml } from "@/utils/sanitize-html";
+import { sanitizeSkillHtml } from "@/utils/sanitize-html";
 
 export default {
     name: "PartnerSkillList",
@@ -92,6 +93,7 @@ export default {
     data() {
         return {
             currentIndex: this.defaultIndex,
+            failedIcons: {},
         };
     },
     computed: {
@@ -131,11 +133,21 @@ export default {
         skills: {
             handler() {
                 this.currentIndex = this.defaultIndex;
+                this.failedIcons = {};
             },
             deep: true,
         },
     },
     methods: {
+        formatDesc(desc) {
+            return sanitizeSkillHtml(desc);
+        },
+        getIconKey(item, index) {
+            return item.id || item.skillId || index;
+        },
+        handleIconError(item, index) {
+            this.failedIcons[this.getIconKey(item, index)] = true;
+        },
         /**
          * 计算图标形状（被动：圆；其它：方）
          */
@@ -151,13 +163,6 @@ export default {
         handleSelect(index) {
             if (this.currentIndex === index) return;
             this.currentIndex = index;
-        },
-        /**
-         * 简单富文本处理：换行转 <br>
-         */
-        formatDesc(desc) {
-            if (!desc) return "";
-            return sanitizeBasicHtml(desc);
         },
         getSkillTypeLabel(skill) {
             if (this.isRealm) return this.$t("pages.partner.ui.skillTypes.martialArt");
@@ -311,6 +316,8 @@ export default {
         font-size: 14px;
         line-height: normal;
         color: @partner-color-text-black;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     // Figma Frame 298 底部：ID / Level / iconID 元信息

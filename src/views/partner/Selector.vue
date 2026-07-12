@@ -47,7 +47,8 @@
                     >
                         <!-- 圆形头像（Figma: Ellipse 4, 75x75, 灰色占位） -->
                         <div class="u-partner-category-avatar">
-                            <img v-if="partner.avatar" :src="partner.avatar" :alt="partner.name" />
+                            <img v-if="partner.avatar" :src="partner.avatar" :alt="partner.name"
+                                @error="handleAvatarError" />
                         </div>
                         <!-- 名字（Figma: 选中 Bold 16px 白, 未选中 Regular 14px 黑 opacity 0.6） -->
                         <span class="u-partner-category-name">{{ partner.name }}</span>
@@ -128,6 +129,9 @@ export default {
         },
     },
     methods: {
+        handleAvatarError(event) {
+            event.target.style.display = "none";
+        },
         handleSearch() {
             clearTimeout(this._searchTimer);
             this._searchTimer = setTimeout(() => {

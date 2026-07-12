@@ -81,7 +81,8 @@ export function getPartnerSkillDetail(ids, fields = PARTNER_SKILL_FIELDS) {
     const idPart = `[${idList.join(",")}]`;
     const fieldPart = shouldFilter ? `[${Array.isArray(fields) ? fields.join(",") : fields}]` : "";
 
-    return $.get(`resource/std/skill.${idPart}.${fieldPart}`);
+    const resourcePath = fieldPart ? `resource/std/skill.${idPart}.${fieldPart}` : `resource/std/skill.${idPart}`;
+    return $.get(resourcePath);
 }
 
 /**

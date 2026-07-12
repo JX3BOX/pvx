@@ -10,11 +10,13 @@
     <div class="m-pvx-partner-portrait">
         <!-- 背景图（使用 key 触发过渡动画） -->
         <transition name="fade" mode="out-in">
-            <img v-if="partner?.bgPath" :key="partner.id + '-bg'" :src="partner.bgPath" class="u-partner-portrait-bg" />
+            <img v-if="partner?.bgPath && !bgFailed" :key="partner.id + '-bg'" :src="partner.bgPath"
+                class="u-partner-portrait-bg" @error="bgFailed = true" />
         </transition>
         <!-- 立绘图（优先 unlockAvatar，其次 meetAvatar，使用 key 触发过渡动画） -->
         <transition name="fade" mode="out-in">
-            <img v-if="portraitUrl" :key="partner?.id" :src="portraitUrl" :alt="partner?.name" class="u-partner-portrait-img" />
+            <img v-if="portraitUrl && !portraitFailed" :key="partner?.id" :src="portraitUrl" :alt="partner?.name"
+                class="u-partner-portrait-img" @error="portraitFailed = true" />
             <div v-else class="u-partner-portrait-empty">{{ $t("pages.partner.ui.emptyPortrait") }}</div>
         </transition>
     </div>
@@ -30,10 +32,22 @@ export default {
             default: () => null,
         },
     },
+    data() {
+        return {
+            bgFailed: false,
+            portraitFailed: false,
+        };
+    },
     computed: {
         // 优先解锁立绘，其次水墨圈
         portraitUrl() {
             return this.partner?.unlockAvatar || this.partner?.meetAvatar || "";
+        },
+    },
+    watch: {
+        "partner.id"() {
+            this.bgFailed = false;
+            this.portraitFailed = false;
         },
     },
 };
