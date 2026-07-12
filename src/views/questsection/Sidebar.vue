@@ -22,7 +22,7 @@
                 <input
                     v-model="searchKeyword"
                     class="u-questsection-search-field"
-                    placeholder="输入资料片或章节关键词"
+                    :placeholder="$t('pages.questsection.ui.searchPlaceholder')"
                     @input="handleSearch"
                 />
                 <img class="u-questsection-search-icon" src="@/assets/img/questsection/search.svg" alt="" />
@@ -37,7 +37,8 @@
                     <span class="u-questsection-season-name">{{ season.szTitle }}</span>
                     <img class="u-questsection-season-arrow"
                         :class="{ 'is-expanded': expandedSeasons.includes(season.nSeasonID) }"
-                        src="@/assets/img/questsection/arrow-expand.svg" alt="展开" />
+                        src="@/assets/img/questsection/arrow-expand.svg"
+                        :alt="$t(expandedSeasons.includes(season.nSeasonID) ? 'pages.questsection.ui.collapse' : 'pages.questsection.ui.expand')" />
                 </div>
 
                 <!-- 大章节列表（折叠展开区域） -->
@@ -58,7 +59,8 @@
         <!-- 展开/折叠按钮 -->
         <div class="m-questsection-sidebar__toggle" @click="toggleSidebarExpand">
             <img class="u-questsection-toggle-arrow" :class="{ 'is-expanded': isSidebarExpanded }"
-                src="@/assets/img/questsection/arrow-expand.svg" alt="展开" />
+                src="@/assets/img/questsection/arrow-expand.svg"
+                :alt="$t(isSidebarExpanded ? 'pages.questsection.ui.collapse' : 'pages.questsection.ui.expand')" />
         </div>
     </div>
 </template>

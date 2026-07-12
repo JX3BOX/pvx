@@ -5,12 +5,12 @@
                 <div v-html="formatDesc(bio.content)"></div>
             </el-collapse-item>
 
-            <el-collapse-item v-if="voiceText" name="voice" title="语音（仅文字展示）">
+            <el-collapse-item v-if="voiceText" name="voice" :title="$t('pages.partner.ui.voiceText')">
                 <div class="m-partner-voice-text" v-html="formatDesc(voiceText)"></div>
             </el-collapse-item>
         </el-collapse>
 
-        <div v-if="!hasContent" class="u-partner-bio-empty">暂无传记</div>
+        <div v-if="!hasContent" class="u-partner-bio-empty">{{ $t("pages.partner.ui.emptyBio") }}</div>
     </div>
 </template>
 

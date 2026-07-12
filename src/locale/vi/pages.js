@@ -1,4 +1,41 @@
 export default {
+    partner: {
+        title: "Đồng hành", keywords: "JX3 companion,JX3BOX", description: "Thông tin đồng hành, kỹ năng, thuộc tính và tiểu sử.",
+        detail: { title: "Chi tiết đồng hành", keywords: "JX3 companion details,JX3BOX", description: "Xem kỹ năng, thuộc tính và tiểu sử đồng hành." },
+        ui: {
+            searchPlaceholder: "Tìm đồng hành", noMatchingPartners: "Không có kết quả", feedback: "Báo lỗi", qqRobot: "Thêm QQ bot để xem hướng dẫn", copySuccess: "Đã sao chép",
+            tabs: { info: "Thông tin", bio: "Tiểu sử" }, sections: { introduction: "Cách kết giao", skills: "Kỹ năng", realms: "Cảnh giới", attributes: "Thuộc tính" },
+            emptyPortrait: "Không có hình", voiceText: "Lời thoại (chỉ văn bản)", emptyBio: "Không có tiểu sử", emptyAttributes: "Không có thuộc tính", emptyIntroduction: "Không có thông tin kết giao", emptySkills: "Không có dữ liệu kỹ năng",
+            attributes: { quality: "Phẩm chất", rarity: "Độ hiếm", kungfu: "Loại võ học", nickname: "Tâm pháp" },
+            quality: { 1: "Trắng", 2: "Xanh lá", 3: "Xanh dương", 4: "Tím", 5: "Cam" }, rarity: { 1: "Thường", 2: "Hiếm", 3: "Sử thi", 4: "Huyền thoại" },
+            skillTypes: { passive: "Bị động", active: "Chủ động", martialArt: "Võ học" }, unlockItems: "Vật phẩm mở khóa", openSkillDatabase: "Mở cơ sở dữ liệu kỹ năng",
+            realmFallback: "Cảnh giới {stage}", realmSkillFallback: "Kỹ năng của cảnh giới {title}", itemLoading: "Đang tải vật phẩm {id}...", itemFallback: "Vật phẩm {id}", unknownItem: "Vật phẩm không rõ", timeLimit: "Thời hạn: {days} ngày", maxOwned: "Số lượng tối đa: {count}",
+            bindTypes: { tradeable: "Có thể giao dịch", untradeable: "Không thể giao dịch", bindOnPickup: "Khóa khi nhặt", other: "Loại khóa {type}" },
+            sources: { other: "Nguồn khác", drop: "Rơi", quest: "Nhiệm vụ", craft: "Chế tạo", shop: "Cửa hàng" },
+        },
+    },
+    questsection: {
+        title: "Biên niên sử JX3",
+        keywords: "biên niên sử JX3,JX3BOX,cốt truyện chính,chương truyện,nhiệm vụ",
+        description: "Biên niên sử JX3BOX sắp xếp cốt truyện chính và nội dung nhiệm vụ JX3 theo phiên bản và chương để tiện tra cứu.",
+        detail: {
+            title: "Chi tiết chương truyện",
+            keywords: "chương truyện JX3,cốt truyện chính,nhiệm vụ,JX3BOX",
+            description: "Xem nội dung cốt truyện của phiên bản và chương JX3 đã chọn.",
+        },
+        ui: {
+            searchPlaceholder: "Tìm phiên bản hoặc chương",
+            expand: "Mở rộng",
+            collapse: "Thu gọn",
+            feedback: "Báo lỗi",
+            sectionTitle: "Chương {number}: {title}",
+            loadMore: "Tải thêm",
+            loading: "Đang tải...",
+            empty: "Chưa có nội dung",
+            qqRobot: "Thêm bot QQ để xem hướng dẫn nhanh",
+            copySuccess: "Đã sao chép",
+        },
+    },
     index: {
         title: "Chuyên mục giải trí",
         keywords:

@@ -8,8 +8,8 @@
 @import (reference) "~@/assets/css/partner/index.less";
 
 .m-pvx-partner-portrait {
-    flex: 1;
-    min-width: 400px; // 确保立绘有最小宽度，保证完整显示
+    flex: 1 1 auto;
+    min-width: 0;
     min-height: @partner-portrait-min-height;
     display: flex;
     align-items: center;
@@ -48,5 +48,23 @@
         line-height: 21px;
         position: relative;
         z-index: 2;
+    }
+}
+
+// iPad 的可用宽度优先提供给详情区，避免三栏互相挤压。
+@media screen and (max-width: @ipad) and (min-width: 769px) {
+    .m-pvx-partner-portrait {
+        display: none;
+    }
+}
+
+// Phone 恢复为纵向流式布局中的立绘区。
+@media screen and (max-width: 768px) {
+    .m-pvx-partner-portrait {
+        width: 100%;
+        min-height: 360px;
+        max-height: 60vh;
+        flex: none;
+        border-radius: 20px;
     }
 }

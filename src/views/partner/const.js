@@ -67,10 +67,10 @@ export const INFO_TABS = [
 /**
  * 列表展开高度（开发方案十二.1：已确认固定最大 600px）
  * 折叠状态需露出4个选择区域（2行卡片）
- * 计算：搜索框40px + gap20px + 卡片行(约107px)*2 + 行间距4px ≈ 278px
+ * 计算：搜索框40px + gap20px + 卡片行约127px*2 + 余量10px ≈ 324px
  */
 export const LIST_EXPANDED_MAX_HEIGHT = 600;
-export const LIST_COLLAPSED_MIN_HEIGHT = 280;
+export const LIST_COLLAPSED_MIN_HEIGHT = 324;
 
 /**
  * 主题色（对齐 Figma 设计稿）

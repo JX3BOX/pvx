@@ -1,4 +1,41 @@
 export default {
+    partner: {
+        title: "紅塵俠影", keywords: "劍網3紅塵俠影,劍三俠客,JX3BOX", description: "紅塵俠影資料頁，提供俠客結識方式、武學、境界、屬性與傳記。",
+        detail: { title: "紅塵俠影詳情", keywords: "劍網3俠客詳情,紅塵俠影,JX3BOX", description: "查看紅塵俠影俠客的技能、屬性與傳記。" },
+        ui: {
+            searchPlaceholder: "輸入關鍵詞搜尋", noMatchingPartners: "暫無符合的俠客", feedback: "錯誤回報", qqRobot: "加入QQ機器人，快速取得攻略", copySuccess: "複製成功",
+            tabs: { info: "基礎資訊", bio: "傳記" }, sections: { introduction: "結識方式", skills: "武學招式", realms: "武學境界", attributes: "屬性" },
+            emptyPortrait: "暫無立繪", voiceText: "語音（僅文字展示）", emptyBio: "暫無傳記", emptyAttributes: "暫無屬性", emptyIntroduction: "暫無結識資訊", emptySkills: "暫無武學資料",
+            attributes: { quality: "品質", rarity: "稀有度", kungfu: "武學類型", nickname: "心法" },
+            quality: { 1: "白色", 2: "綠色", 3: "藍色", 4: "紫色", 5: "橙色" }, rarity: { 1: "普通", 2: "稀有", 3: "史詩", 4: "傳說" },
+            skillTypes: { passive: "被動", active: "主動", martialArt: "武學" }, unlockItems: "解鎖道具", openSkillDatabase: "前往資料庫",
+            realmFallback: "境界{stage}", realmSkillFallback: "境界 {title} 對應的武學技能", itemLoading: "道具 {id} 載入中...", itemFallback: "道具 {id}", unknownItem: "未知道具", timeLimit: "限時時間：{days}天", maxOwned: "最大擁有數：{count}",
+            bindTypes: { tradeable: "可交易", untradeable: "不可交易", bindOnPickup: "拾取綁定", other: "綁定類型{type}" },
+            sources: { other: "其他途徑取得", drop: "掉落取得", quest: "任務取得", craft: "製作取得", shop: "商店購買" },
+        },
+    },
+    questsection: {
+        title: "劍俠錄",
+        keywords: "劍網3劍俠錄,劍三劍俠錄,JX3BOX劍俠錄,主線劇情,劇情章節,任務劇情",
+        description: "劍網3魔盒（JX3BOX）劍俠錄，依資料片與章節整理劍網3主線劇情及任務內容，方便玩家查詢與閱讀。",
+        detail: {
+            title: "劍俠錄章節詳情",
+            keywords: "劍網3劍俠錄章節,劍三主線劇情,任務劇情,JX3BOX劍俠錄",
+            description: "劍俠錄章節詳情頁，查看劍網3對應資料片與章節的劇情內容。",
+        },
+        ui: {
+            searchPlaceholder: "輸入資料片或章節關鍵字",
+            expand: "展開",
+            collapse: "收起",
+            feedback: "錯誤回報",
+            sectionTitle: "章節{number}：{title}",
+            loadMore: "載入更多",
+            loading: "載入中...",
+            empty: "暫無內容",
+            qqRobot: "新增QQ機器人，快速取得攻略",
+            copySuccess: "複製成功",
+        },
+    },
     index: {
         title: "休閒欄目",
         keywords:

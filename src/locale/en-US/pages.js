@@ -1,4 +1,41 @@
 export default {
+    partner: {
+        title: "Companions", keywords: "JX3 companions,partner skills,JX3BOX", description: "Companion profiles with recruitment, skills, realms, attributes and biographies.",
+        detail: { title: "Companion Details", keywords: "JX3 companion details,JX3BOX", description: "View companion skills, attributes and biography." },
+        ui: {
+            searchPlaceholder: "Search companions", noMatchingPartners: "No matching companions", feedback: "Report an error", qqRobot: "Add the QQ bot for quick guides", copySuccess: "Copied",
+            tabs: { info: "Information", bio: "Biography" }, sections: { introduction: "How to recruit", skills: "Skills", realms: "Skill Realms", attributes: "Attributes" },
+            emptyPortrait: "No portrait", voiceText: "Voice lines (text only)", emptyBio: "No biography", emptyAttributes: "No attributes", emptyIntroduction: "No recruitment information", emptySkills: "No skill data",
+            attributes: { quality: "Quality", rarity: "Rarity", kungfu: "Martial art type", nickname: "School" },
+            quality: { 1: "White", 2: "Green", 3: "Blue", 4: "Purple", 5: "Orange" }, rarity: { 1: "Common", 2: "Rare", 3: "Epic", 4: "Legendary" },
+            skillTypes: { passive: "Passive", active: "Active", martialArt: "Skill" }, unlockItems: "Unlock items", openSkillDatabase: "Open skill database",
+            realmFallback: "Realm {stage}", realmSkillFallback: "Martial skill for realm {title}", itemLoading: "Loading item {id}...", itemFallback: "Item {id}", unknownItem: "Unknown item", timeLimit: "Time limit: {days} days", maxOwned: "Maximum owned: {count}",
+            bindTypes: { tradeable: "Tradeable", untradeable: "Untradeable", bindOnPickup: "Binds on pickup", other: "Bind type {type}" },
+            sources: { other: "Other sources", drop: "Drop", quest: "Quest", craft: "Crafting", shop: "Shop" },
+        },
+    },
+    questsection: {
+        title: "JX3 Story Archive",
+        keywords: "JX3 story archive,JX3BOX story archive,main story,story chapters,quest story",
+        description: "The JX3BOX Story Archive organizes JX3 main story and quest content by expansion and chapter for easy reference.",
+        detail: {
+            title: "Story Chapter Details",
+            keywords: "JX3 story chapter,main story,quest story,JX3BOX story archive",
+            description: "Read the story content for a selected JX3 expansion and chapter.",
+        },
+        ui: {
+            searchPlaceholder: "Search chapters",
+            expand: "Expand",
+            collapse: "Collapse",
+            feedback: "Report an error",
+            sectionTitle: "Chapter {number}: {title}",
+            loadMore: "Load more",
+            loading: "Loading...",
+            empty: "No content available",
+            qqRobot: "Add the QQ bot for quick guides",
+            copySuccess: "Copied",
+        },
+    },
     index: {
         title: "Leisure",
         keywords:

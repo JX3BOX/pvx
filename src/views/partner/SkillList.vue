@@ -24,11 +24,11 @@
             <div class="m-partner-skill-detail__header">
                 <div class="u-partner-skill-detail-title">
                     <span class="u-partner-skill-name">{{ currentSkill.name }}</span>
-                    <span class="u-partner-skill-id">{{ currentSkill.typeLabel || "武学" }}</span>
+                    <span class="u-partner-skill-id">{{ currentSkill.typeLabel || $t("pages.partner.ui.skillTypes.martialArt") }}</span>
                 </div>
                 <!-- 数据库跳转（右上角）暂时隐藏 -->
                 <a v-if="currentSkill.id" :href="getSkillDbUrl(currentSkill.id)" target="_blank" rel="noopener"
-                    class="u-partner-skill-db" title="跳转数据库" style="display: none;">
+                    class="u-partner-skill-db" :title="$t('pages.partner.ui.openSkillDatabase')" style="display: none;">
                     <el-icon>
                         <DataAnalysis />
                     </el-icon>
@@ -48,7 +48,7 @@
             <!-- 境界：底部展示解锁道具 -->
             <div v-if="isRealm && currentSkill.unlockItems && currentSkill.unlockItems.length"
                 class="m-partner-skill-items">
-                <span class="u-partner-skill-items-label">解锁道具：</span>
+                <span class="u-partner-skill-items-label">{{ $t("pages.partner.ui.unlockItems") }}：</span>
                 <a v-for="it in currentSkill.unlockItems" :key="it.id" :href="getItemWikiUrl(it.id)" target="_blank"
                     rel="noopener" class="u-partner-intro-item">
                     {{ it.name }}
@@ -56,7 +56,7 @@
             </div>
         </div>
 
-        <div v-else class="u-partner-skill-empty">暂无武学数据</div>
+        <div v-else class="u-partner-skill-empty">{{ $t("pages.partner.ui.emptySkills") }}</div>
     </div>
 </template>
 
@@ -98,7 +98,9 @@ export default {
             return this.type === "realm";
         },
         sectionTitle() {
-            return this.isRealm ? "武学境界" : "武学招式";
+            return this.isRealm
+                ? this.$t("pages.partner.ui.sections.realms")
+                : this.$t("pages.partner.ui.sections.skills");
         },
         // 当前展示的招式 / 境界
         currentSkill() {
@@ -109,8 +111,8 @@ export default {
             if (this.isRealm) {
                 return {
                     ...item,
-                    name: item.title || item.skillName || `境界${item.stage}`,
-                    desc: item.skillDesc || `境界 ${item.title} 对应的武学技能`,
+                    name: item.title || item.skillName || this.$t("pages.partner.ui.realmFallback", { stage: item.stage }),
+                    desc: item.skillDesc || this.$t("pages.partner.ui.realmSkillFallback", { title: item.title }),
                     typeLabel: null,
                 };
             }
@@ -265,10 +267,10 @@ export default {
     }
 
     .u-partner-skill-name {
-        font-size: 16px;
-        font-weight: 600;
+        font-size: 14px;
+        font-weight: 700;
         color: @partner-color-text-black;
-        line-height: 24px;
+        line-height: normal;
     }
 
     .u-partner-skill-id {
@@ -296,18 +298,16 @@ export default {
 
     .u-partner-skill-desc {
         font-size: 14px;
-        line-height: 1.7;
-        color: @partner-color-text-muted;
+        line-height: normal;
+        color: @partner-color-text-black;
     }
 
     // Figma Frame 298 底部：ID / Level / iconID 元信息
     .m-partner-skill-meta {
-        margin-top: 12px;
-        padding-top: 10px;
-        border-top: 1px solid @partner-color-border-soft;
+        margin-top: 10px;
         display: flex;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 10px;
 
         .u-partner-skill-meta-item {
             font-size: 12px;
@@ -343,6 +343,16 @@ export default {
         .u-partner-skill-icon {
             width: 28px;
             height: 28px;
+        }
+    }
+
+    // 移动端境界图标与武学招式保持一致，提升触控和识别体验。
+    @media screen and (max-width: 768px) {
+        .m-partner-skills.is-realm {
+            .u-partner-skill-icon {
+                width: 40px;
+                height: 40px;
+            }
         }
     }
 </style>

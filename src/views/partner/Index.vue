@@ -40,11 +40,13 @@
                         <!-- 顶部工具栏（Figma: Frame 287, 前进/后退 + 标题） -->
                         <div class="m-partner-right__topbar">
                             <div class="u-partner-topbar-nav">
-                                <PvxRobotTip reply="侠客行" typeName="侠客行" hidden />
+                                <PvxRobotTip :reply="$t('pages.partner.title')" :typeName="$t('pages.partner.title')"
+                                    :quickGuideText="$t('pages.partner.ui.qqRobot')"
+                                    :copySuccessTitle="$t('pages.partner.ui.copySuccess')" hidden />
                                 <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" rel="noopener"
                                     class="u-partner-btn">
                                     <i class="el-icon-warning-outline"></i>
-                                    <span>错误反馈</span>
+                                    <span>{{ $t("pages.partner.ui.feedback") }}</span>
                                 </a>
                             </div>
                         </div>
@@ -63,10 +65,6 @@
                                 <Bio v-else :partner="selectedPartner" />
                             </div>
 
-                            <!-- 底部浅色区域 -->
-                            <div class="m-partner-info__footer" v-if="selectedPartner?.name">
-                                {{ selectedPartner.name }} · {{ selectedPartner.szNickName || '' }}
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,7 +84,6 @@ import Bio from "./Bio.vue";
 import PartnerTabs from "./InfoTabs.vue";
 import { getPartnerList, getPartnerDetail, getPartnerSkillDetail, PARTNER_SKILL_FIELDS } from "@/service/partner";
 import { mapPartnerListItem, mapPartnerDetail, resolveSkillIcon } from "@/utils/partner";
-import { INFO_TABS } from "./const";
 
 export default {
     name: "PartnerIndex",
@@ -111,13 +108,19 @@ export default {
             selectedPartnerId: null,
             // 当前激活的 TAB
             activeTab: "info",
-            // TAB 列表
-            infoTabs: INFO_TABS,
             // 左侧列表展开状态
             listExpanded: false,
             // 加载状态
             loading: false,
         };
+    },
+    computed: {
+        infoTabs() {
+            return [
+                { key: "info", label: this.$t("pages.partner.ui.tabs.info") },
+                { key: "bio", label: this.$t("pages.partner.ui.tabs.bio") },
+            ];
+        },
     },
     watch: {
         // 监听路由参数 id（独立多页入口支持 /:id(\d+) 直接进入详情）
@@ -230,7 +233,11 @@ export default {
                                         iconId: detail.IconID,
                                         level: detail.Level ?? s.level,
                                         type: detail.Type ?? s.type,
-                                        typeLabel: detail.Type === 1 ? "被动" : detail.Type === 2 ? "主动" : s.typeLabel,
+                                        typeLabel: detail.Type === 1
+                                            ? this.$t("pages.partner.ui.skillTypes.passive")
+                                            : detail.Type === 2
+                                              ? this.$t("pages.partner.ui.skillTypes.active")
+                                              : s.typeLabel,
                                     };
                                 }
                                 return s;

@@ -11,10 +11,10 @@
 // 垂直布局, gap 20px, 交叉轴 MAX（底部对齐）
 .m-pvx-partner-right {
     position: fixed;
-    right: 43px;
+    right: max(@partner-page-gutter, calc((100vw - @partner-layout-max-width) / 2));
     top: calc(40px + @header-height);
     width: @partner-info-width;
-    height: calc(100vh - @header-height - 80px);
+    height: min(769px, calc(100vh - @header-height - 80px));
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -25,6 +25,7 @@
 // ==================== 顶部工具栏（Figma: Frame 287） ====================
 // 圆角10px, 阴影, 白色背景, padding 10px 15px, 宽度自适应内容，居右显示
 .m-partner-right__topbar {
+    width: 100%;
     flex-shrink: 0;
     background: @partner-color-text-white;
     border: 1px solid rgba(226, 232, 240, 0.60);
@@ -41,9 +42,30 @@
         display: flex;
         align-items: center;
         gap: 16px;
+        width: 100%;
+        min-width: 0;
+
+        .m-robot__pvx-tip {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .m-robot__pvx-tip .m-qq {
+            width: 100%;
+            min-width: 0;
+            padding: 0 16px;
+        }
+
+        .m-robot__pvx-tip .u-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 
     .u-partner-btn {
+        flex-shrink: 0;
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -92,6 +114,7 @@
         flex: 1;
         overflow-y: auto;
         box-sizing: border-box;
+        width: 100%;
 
         &::-webkit-scrollbar {
             width: 4px;
@@ -100,19 +123,6 @@
             background: @partner-color-scrollbar-track;
             border-radius: 4px;
         }
-    }
-
-    // ==================== 底部浅色区域 ====================
-    .m-partner-info__footer {
-        flex-shrink: 0;
-        padding: 12px 20px;
-        background: @partner-color-default-bg;
-        border-top: 1px solid @partner-color-border-soft;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 18.48px;
-        color: @partner-color-text-muted;
-        font-family: "Microsoft YaHei", sans-serif;
     }
 
     // ==================== 结识方式 ====================
@@ -134,20 +144,22 @@
         }
 
         .u-partner-intro-map {
-            font-size: 14px;
-            font-weight: 400;
-            line-height: 18.48px;
+            padding: 0 12px;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: normal;
             font-family: "Microsoft YaHei", sans-serif;
             color: @partner-color-text-black;
             margin-bottom: 8px;
         }
 
         .u-partner-intro-desc {
+            padding: 0 12px;
             font-size: 14px;
             font-weight: 400;
             line-height: 18.48px;
             font-family: "Microsoft YaHei", sans-serif;
-            color: @partner-color-text-muted;
+            color: @partner-color-text-black;
             margin-bottom: 12px;
         }
 
@@ -158,6 +170,7 @@
             flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 16px;
+            min-height: 48px;
             padding: 8px;
             border-radius: 4px;
             background: #F2F2F2;
@@ -169,8 +182,8 @@
 
         // 圆形图标（类似武学招式 .u-partner-skill-icon）
         .u-partner-item-icon {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -196,7 +209,7 @@
 
             // 圆形样式
             &.is-circle {
-                border-radius: 50%;
+                border-radius: 4px;
             }
 
             // 加载状态
@@ -224,6 +237,11 @@
         .m-partner-info__col {
             flex: 1;
             min-width: 0;
+
+            &:last-child {
+                flex: 0 0 191px;
+                width: 191px;
+            }
         }
     }
 
@@ -232,7 +250,9 @@
         margin-bottom: 20px;
 
         .u-partner-section-title {
-            display: inline-block;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
             padding: 8px 10px;
             background: @partner-color-primary;
             color: @partner-color-text-white;
@@ -250,7 +270,9 @@
         margin-bottom: 16px;
 
         .u-partner-section-title {
-            display: inline-block;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
             padding: 8px 10px;
             background: @partner-color-primary;
             color: @partner-color-text-white;
@@ -259,42 +281,58 @@
             line-height: 18.48px;
             font-family: "Microsoft YaHei", sans-serif;
             border-radius: @partner-radius;
-            margin: 0 0 12px;
+            margin: 0 0 10px;
         }
 
-        // Figma: Frame 301, #F2F2F2, 圆角4px
+        // Figma: 191px 属性列，12px 字号，行间距 4px，首行浅紫底
         .m-partner-attr-table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
+            display: block;
+            border-collapse: separate;
+            font-size: 12px;
             font-weight: 400;
-            line-height: 18.48px;
-            border-radius: 4px;
-            overflow: hidden;
-            background: @partner-color-attr-bg;
+            line-height: normal;
+            background: transparent;
+
+            tbody {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+            }
 
             tr {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+                min-height: 20px;
+                padding: 2px 8px;
+                box-sizing: border-box;
                 transition: background @partner-transition-duration ease-out;
+
+                &:first-child {
+                    background: rgba(107, 82, 255, 0.05);
+                    border-radius: 4px;
+                }
 
                 &:hover {
                     background: rgba(107, 82, 255, 0.05);
                 }
-
-                &:last-child td {
-                    border-bottom: none;
-                }
             }
 
             td {
-                padding: 8px 12px;
-                border-bottom: 1px solid @partner-color-border;
+                display: block;
+                padding: 0;
+                border: 0;
                 box-sizing: border-box;
                 font-family: "Microsoft YaHei", sans-serif;
+                white-space: nowrap;
             }
 
             .u-partner-attr-label {
                 color: rgba(0, 0, 0, 0.6);
-                width: 50%;
+                min-width: 0;
             }
 
             .u-partner-attr-value {
@@ -334,6 +372,121 @@
 @media screen and (max-width: 1200px) {
     .m-pvx-partner-right {
         right: 10px;
+        width: 420px;
+    }
+}
+
+// iPad：参考剑侠录，左栏固定，详情区占据右侧全部剩余宽度。
+@media screen and (max-width: @ipad) and (min-width: 769px) {
+    .m-pvx-partner-right {
+        right: 20px;
+        width: calc(100vw - 300px);
+        max-width: none;
+    }
+}
+
+// iPad 及以下：工具栏采用剑侠录的自适应结构。
+@media screen and (max-width: @ipad) {
+    .m-partner-right__topbar {
+        width: 100%;
+
+        .u-partner-topbar-nav {
+            width: 100%;
+        }
+
+        .m-robot__pvx-tip {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            gap: 0;
+
+            .m-qq {
+                width: 100%;
+                min-width: 0;
+                padding: 0 16px;
+            }
+
+            .u-name {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .u-partner-btn {
+            width: 41px;
+            height: 41px;
+            flex-shrink: 0;
+            padding: 0;
+            justify-content: center;
+            gap: 0;
+
+            span {
+                display: none;
+            }
+        }
+    }
+}
+
+// Phone：详情区回到文档流，完整展示在选择器和立绘下方。
+@media screen and (max-width: 768px) {
+    .m-pvx-partner-right {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        max-width: none;
+        height: auto;
+        min-height: 620px;
+        display: flex;
+        gap: 12px;
+        z-index: 1;
+    }
+
+    .m-partner-right__topbar {
+        padding: 6px;
+        gap: 8px;
+        border-radius: 12px;
+
+        .u-partner-topbar-nav {
+            gap: 8px;
+        }
+
+        .m-robot__pvx-tip {
+            .m-qq {
+                height: 40px;
+                padding: 0 12px;
+                gap: 8px;
+            }
+
+            .u-logo {
+                width: 26px;
+                height: 26px;
+            }
+
+            .u-name {
+                font-size: 13px;
+            }
+        }
+
+        .u-partner-btn {
+            width: 40px;
+            height: 40px;
+            min-height: 40px;
+            font-size: 13px;
+        }
+    }
+
+    .m-pvx-partner-info {
+        min-height: 560px;
+        padding: 16px 10px 10px 16px;
+        border-radius: 20px;
+    }
+
+    .m-partner-info__row {
+        flex-direction: column;
+        gap: 12px;
     }
 }
 

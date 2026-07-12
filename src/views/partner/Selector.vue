@@ -24,12 +24,10 @@
                     <input
                         v-model="searchKeyword"
                         class="u-partner-search-input"
-                        placeholder="输入关键词搜索"
+                        :placeholder="$t('pages.partner.ui.searchPlaceholder')"
                         @input="handleSearch"
                     />
-                    <el-icon class="u-partner-search-icon">
-                        <Search />
-                    </el-icon>
+                    <img class="u-partner-search-icon" src="@/assets/img/partner/search.svg" alt="" />
                 </div>
             </div>
 
@@ -59,7 +57,7 @@
 
                 <!-- 空态 -->
                 <div v-if="filteredList.length === 0" class="u-partner-category-empty">
-                    暂无匹配侠客
+                    {{ $t("pages.partner.ui.noMatchingPartners") }}
                 </div>
             </div>
         </div>
@@ -74,14 +72,10 @@
 </template>
 
 <script>
-import { Search } from "@element-plus/icons-vue";
 import { LIST_EXPANDED_MAX_HEIGHT, LIST_COLLAPSED_MIN_HEIGHT } from "./const";
 
 export default {
     name: "PartnerSelector",
-    components: {
-        Search,
-    },
     props: {
         // 侠客列表
         partnerList: {

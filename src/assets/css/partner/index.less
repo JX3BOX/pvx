@@ -42,6 +42,9 @@
 // 尺寸变量（Figma: 左285 / 右497）
 @partner-sidebar-width: 285px;
 @partner-info-width: 497px;
+@partner-layout-max-width: 1840px;
+@partner-page-gutter: 43px;
+@partner-layout-gap: 40px;
 @partner-portrait-min-height: 600px;
 @partner-radius: 8px;
 @partner-radius-lg: 10px;
@@ -74,57 +77,66 @@
 // 最小宽度确保左右面板完整显示：左侧285px + 左边距43px + 右侧497px + 右边距43px + 中间缓冲100px ≈ 968px
 
 // 最小宽度变量：确保左右面板完整显示
-@partner-min-width: @partner-sidebar-width + 43px + @partner-info-width + 43px + 100px;
-
 .m-partner-layout {
     position: relative;
     display: flex;
     align-items: center; // 垂直居中
     justify-content: center; // 水平居中，中间立绘处于两侧面板之间
     width: 100%;
-    max-width: 1840px;
-    min-width: @partner-min-width; // 最小宽度限制，确保左右面板完整显示
+    max-width: @partner-layout-max-width;
+    min-width: 0;
     min-height: calc(100vh - @header-height - 80px);
     margin: 0 auto;
     box-sizing: border-box;
-    gap: 40px;
-    padding: 0 43px;
+    gap: @partner-layout-gap;
     // 左侧面板预留空间（左侧 fixed 定位需要预留）
-    padding-left: @partner-sidebar-width + 43px + 40px; // 左侧固定宽度 + 左边距 + gap
+    padding-left: @partner-sidebar-width + @partner-page-gutter + @partner-layout-gap;
     // 右侧面板预留空间
-    padding-right: @partner-info-width + 43px + 40px; // 右侧固定宽度 + 右边距 + gap
+    padding-right: @partner-info-width + @partner-page-gutter + @partner-layout-gap;
 }
 
 // ==================== 响应式适配 - 大屏幕缩减 ====================
 // 当窗口宽度小于 1400px 时，逐步缩减左侧边距
 @media screen and (max-width: 1400px) {
     .m-partner-layout {
-        padding-left: @partner-sidebar-width + 20px + 40px; // 左边距缩减为 20px
+        padding-left: @partner-sidebar-width + 20px + 30px;
+        padding-right: @partner-info-width + 20px + 30px;
     }
 }
 
 // 当窗口宽度小于 1200px 时，进一步缩减左侧边距
 @media screen and (max-width: 1200px) {
     .m-partner-layout {
-        padding-left: @partner-sidebar-width + 10px + 40px; // 左边距缩减为 10px
+        padding-left: @partner-sidebar-width + 10px + 20px;
+        padding-right: 420px + 10px + 20px;
     }
 }
 
 // ==================== 响应式适配 - iPad ====================
 @media screen and (max-width: @ipad) {
     .m-partner-layout {
-        min-width: 240px + 20px + 300px + 20px + 80px; // iPad 端最小宽度重新计算
-        padding-left: 240px + 20px + 30px; // iPad 端左侧面板宽度 240px，边距 20px
-        padding-right: 300px + 20px + 30px; // iPad 端右侧面板宽度 300px
+        min-width: 0;
+        padding-left: 280px;
+        padding-right: 20px;
     }
 }
 
 // ==================== 响应式适配 - Phone ====================
-@media screen and (max-width: @phone) {
+@media screen and (max-width: 768px) {
+    .p-pvx-partner {
+        .m-main {
+            min-height: calc(100vh - @header-height);
+            display: block;
+        }
+    }
+
     .m-partner-layout {
-        min-width: auto; // Phone 端取消最小宽度限制
-        padding-left: 200px + 10px; // Phone 端左侧面板宽度 200px，边距 10px
-        padding-right: 0;
-        // Phone 端右侧详情改为底部 / 抽屉，本次不实现，默认排版
+        min-width: 0;
+        min-height: 0;
+        padding: 16px 12px 24px;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 16px;
     }
 }

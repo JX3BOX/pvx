@@ -18,12 +18,14 @@
     <div class="m-pvx-questsection-content">
         <!-- 右上角固定按钮区域 -->
         <div class="m-questsection-content__toolbar">
-            <PvxRobotTip reply="剑侠录" typeName="剑侠录" hidden />
+            <PvxRobotTip :reply="$t('pages.questsection.title')" :typeName="$t('pages.questsection.title')"
+                :quickGuideText="$t('pages.questsection.ui.qqRobot')"
+                :copySuccessTitle="$t('pages.questsection.ui.copySuccess')" hidden />
             <div class="u-feedback">
                 <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" class="u-btn u-btn--feedback"
-                    title="错误反馈" aria-label="错误反馈">
+                    :title="$t('pages.questsection.ui.feedback')" :aria-label="$t('pages.questsection.ui.feedback')">
                     <i class="el-icon-warning-outline"></i>
-                    <span>错误反馈</span>
+                    <span>{{ $t("pages.questsection.ui.feedback") }}</span>
                 </a>
             </div>
         </div>
@@ -62,7 +64,10 @@
             <!-- 章节内容展示区块 -->
             <div class="m-questsection-content__detail" v-if="visibleSectionDetails.length > 0">
                 <div v-for="item in visibleSectionDetails" :key="item.sectionId" class="m-section-block">
-                    <h3 class="u-section-title">章节{{ item.sectionIndex + 1 }}：{{ item.sectionTitle }}</h3>
+                    <h3 class="u-section-title">{{ $t("pages.questsection.ui.sectionTitle", {
+                        number: item.sectionIndex + 1,
+                        title: item.sectionTitle,
+                    }) }}</h3>
                     <div class="u-section-detail" v-html="item.formattedDetail"></div>
                 </div>
 
@@ -73,15 +78,15 @@
                         <el-icon class="u-loading-icon is-loading">
                             <Loading />
                         </el-icon>
-                        <span>加载中...</span>
+                        <span>{{ $t("pages.questsection.ui.loading") }}</span>
                     </template>
-                    <span v-else>加载更多</span>
+                    <span v-else>{{ $t("pages.questsection.ui.loadMore") }}</span>
                 </div>
             </div>
 
             <!-- 空状态展示 -->
             <div class="m-questsection-content__empty" v-if="visibleSectionDetails.length === 0 && !loading">
-                <div class="u-empty-text">暂无内容</div>
+                <div class="u-empty-text">{{ $t("pages.questsection.ui.empty") }}</div>
             </div>
 
             <!-- 加载状态 -->
@@ -89,7 +94,7 @@
                 <el-icon class="is-loading">
                     <Loading />
                 </el-icon>
-                <span>加载中...</span>
+                <span>{{ $t("pages.questsection.ui.loading") }}</span>
             </div>
         </div>
     </div>
@@ -134,7 +139,7 @@ export default {
             if (this.seasonData && this.chapterData) {
                 return `${this.seasonData.szTitle} - ${this.chapterData.szTitle}`;
             }
-            return "剑侠录";
+            return this.$t("pages.questsection.title");
         },
         chapterSections() {
             return this.chapterData?.Sections || [];

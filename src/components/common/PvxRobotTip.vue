@@ -2,7 +2,7 @@
     <div class="m-robot__pvx-tip">
         <div class="m-qq">
             <img class="u-logo" src="@/assets/img/qqbot/jx3box_qqbot_logo.png" alt="" />
-            <span class="u-name"> 添加QQ机器人，快速获取攻略 </span>
+            <span class="u-name">{{ quickGuideText }}</span>
             <span class="u-qq" @click="copy('3889010020')">
                 <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_qq.svg" alt="" />
                 <span>3889010020</span>
@@ -32,12 +32,20 @@ export default {
             type: Boolean,
             default: false,
         },
+        quickGuideText: {
+            type: String,
+            default: "添加QQ机器人，快速获取攻略",
+        },
+        copySuccessTitle: {
+            type: String,
+            default: "复制成功",
+        },
     },
     methods: {
         copy(txt) {
             navigator.clipboard.writeText(txt).then(() => {
                 this.$notify({
-                    title: "复制成功",
+                    title: this.copySuccessTitle,
                     message: txt,
                     type: "success",
                 });

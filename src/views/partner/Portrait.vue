@@ -15,7 +15,7 @@
         <!-- 立绘图（优先 unlockAvatar，其次 meetAvatar，使用 key 触发过渡动画） -->
         <transition name="fade" mode="out-in">
             <img v-if="portraitUrl" :key="partner?.id" :src="portraitUrl" :alt="partner?.name" class="u-partner-portrait-img" />
-            <div v-else class="u-partner-portrait-empty">暂无立绘</div>
+            <div v-else class="u-partner-portrait-empty">{{ $t("pages.partner.ui.emptyPortrait") }}</div>
         </transition>
     </div>
 </template>

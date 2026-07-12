@@ -6,9 +6,9 @@ import { KUNGFU_INDEX, SKILL_TYPE, SKILL_SHAPE } from "@/views/partner/const";
 // ==================== URL 生成 ====================
 // TODO 调整：仅需修改 4 个常量即可，业务代码无需变动
 
-// 物品百科（占位）
-const ITEM_WIKI_BASE_URL = "xxx";
-const ITEM_WIKI_PATH_PREFIX = "/item/";
+// 物品详情位于主站的独立物品库
+const ITEM_WIKI_BASE_URL = "https://www.jx3box.com";
+const ITEM_WIKI_PATH_PREFIX = "/item/view/";
 
 // 武学数据库（占位）
 const SKILL_DB_BASE_URL = "xxx";
@@ -266,8 +266,8 @@ export function mapPartnerDetail(detail) {
 
     // 基础属性（从接口数据提取）
     const attrs = [
-        { key: "quality", label: "品质", value: getQualityLabel(detail.nQuality) },
-        { key: "rarity", label: "稀有度", value: getRarityLabel(detail.nRarity) },
+        { key: "quality", label: "品质", value: getQualityLabel(detail.nQuality), rawValue: detail.nQuality },
+        { key: "rarity", label: "稀有度", value: getRarityLabel(detail.nRarity), rawValue: detail.nRarity },
         { key: "kungfu", label: "武学类型", value: detail.Kungfu?.name || getKungfuName(detail.nKungfuIndex) },
         { key: "nickname", label: "心法", value: detail.szNickName || "-" },
     ];

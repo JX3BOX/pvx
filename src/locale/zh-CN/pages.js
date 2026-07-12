@@ -1,4 +1,43 @@
 export default {
+    partner: {
+        title: "红尘侠影",
+        keywords: "剑网3红尘侠影,剑三侠客,JX3BOX红尘侠影,侠客技能,侠客传记",
+        description: "剑网3魔盒红尘侠影资料页，提供侠客获取方式、武学招式、境界、属性与传记信息。",
+        detail: { title: "红尘侠影详情", keywords: "剑网3侠客详情,红尘侠影,JX3BOX", description: "查看红尘侠影侠客的技能、属性与传记详情。" },
+        ui: {
+            searchPlaceholder: "输入关键词搜索", noMatchingPartners: "暂无匹配侠客", feedback: "错误反馈", qqRobot: "添加QQ机器人，快速获取攻略", copySuccess: "复制成功",
+            tabs: { info: "基础信息", bio: "传记" }, sections: { introduction: "结识方式", skills: "武学招式", realms: "武学境界", attributes: "属性" },
+            emptyPortrait: "暂无立绘", voiceText: "语音（仅文字展示）", emptyBio: "暂无传记", emptyAttributes: "暂无属性", emptyIntroduction: "暂无结识信息", emptySkills: "暂无武学数据",
+            attributes: { quality: "品质", rarity: "稀有度", kungfu: "武学类型", nickname: "心法" },
+            quality: { 1: "白色", 2: "绿色", 3: "蓝色", 4: "紫色", 5: "橙色" }, rarity: { 1: "普通", 2: "稀有", 3: "史诗", 4: "传说" },
+            skillTypes: { passive: "被动", active: "主动", martialArt: "武学" }, unlockItems: "解锁道具", openSkillDatabase: "跳转数据库",
+            realmFallback: "境界{stage}", realmSkillFallback: "境界 {title} 对应的武学技能", itemLoading: "道具 {id} 加载中...", itemFallback: "道具 {id}", unknownItem: "未知道具", timeLimit: "限时时间：{days}天", maxOwned: "最大拥有数：{count}",
+            bindTypes: { tradeable: "可交易", untradeable: "不可交易", bindOnPickup: "拾取绑定", other: "绑定类型{type}" },
+            sources: { other: "其他途径获取", drop: "掉落获取", quest: "任务获取", craft: "制作获取", shop: "商店购买" },
+        },
+    },
+    questsection: {
+        title: "剑侠录",
+        keywords: "剑网3剑侠录,剑三剑侠录,JX3BOX剑侠录,主线剧情,剧情章节,任务剧情",
+        description: "剑网3魔盒（JX3BOX）剑侠录，按资料片和章节整理剑网3主线剧情与任务内容，方便玩家查询和阅读。",
+        detail: {
+            title: "剑侠录章节详情",
+            keywords: "剑网3剑侠录章节,剑三主线剧情,任务剧情,JX3BOX剑侠录",
+            description: "剑侠录章节详情页，查看剑网3对应资料片与章节的剧情内容。",
+        },
+        ui: {
+            searchPlaceholder: "输入资料片或章节关键词",
+            expand: "展开",
+            collapse: "收起",
+            feedback: "错误反馈",
+            sectionTitle: "章节{number}：{title}",
+            loadMore: "加载更多",
+            loading: "加载中...",
+            empty: "暂无内容",
+            qqRobot: "添加QQ机器人，快速获取攻略",
+            copySuccess: "复制成功",
+        },
+    },
     index: {
         title: "休闲栏目",
         keywords:

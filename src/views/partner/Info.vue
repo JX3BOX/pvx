@@ -13,7 +13,7 @@
     <div class="m-partner-info-content">
         <!-- 结识方式 -->
         <div class="m-partner-intro">
-            <span class="u-partner-intro-title">结识方式</span>
+            <span class="u-partner-intro-title">{{ $t("pages.partner.ui.sections.introduction") }}</span>
             <div v-if="partner?.introduce" class="u-partner-intro-map">
                 {{ partner.introduce }}
             </div>
@@ -27,11 +27,12 @@
                         trigger="hover" width="400" popper-class="m-pvx-item-popover">
                         <template #reference>
                             <!-- 圆形图标（类似武学招式） -->
-                            <div class="u-partner-item-icon is-circle" :title="getItemName(it)">
+                            <a class="u-partner-item-icon is-circle" :href="getItemWikiUrl(getSourceId(it))"
+                                target="_blank" rel="noopener noreferrer" :title="getItemName(it)">
                                 <img v-if="getItemIconId(it)" :src="resolveSkillIcon(getItemIconId(it))"
                                     :alt="getItemName(it)" @error="handleImageError" />
                                 <span v-else class="u-partner-item-fallback">{{ getItemFallback(it) }}</span>
-                            </div>
+                            </a>
                         </template>
                         <!-- Popover 内容区域 -->
                         <div class="m-pvx-item-detail">
@@ -41,10 +42,10 @@
                                     {{ getBindType(getItemSource(it)) }}
                                 </p>
                                 <p v-if="getTimeLimit(getItemSource(it))">
-                                    限时时间：{{ getTimeLimit(getItemSource(it)) }}天
+                                    {{ $t("pages.partner.ui.timeLimit", { days: getTimeLimit(getItemSource(it)) }) }}
                                 </p>
                                 <p v-if="getMaxStack(getItemSource(it))">
-                                    最大拥有数：{{ getMaxStack(getItemSource(it)) }}
+                                    {{ $t("pages.partner.ui.maxOwned", { count: getMaxStack(getItemSource(it)) }) }}
                                 </p>
                             </div>
                             <!-- 描述内容：优先使用 post.content（HTML 格式） -->
@@ -63,19 +64,19 @@
                     <!-- 加载中的道具 -->
                     <div v-else-if="loadingItems.includes(getSourceId(it))" :key="'load-' + getSourceId(it)"
                         class="u-partner-item-icon is-circle u-partner-item-icon--loading"
-                        :title="`道具 ${getSourceId(it)} 加载中...`">
+                        :title="$t('pages.partner.ui.itemLoading', { id: getSourceId(it) })">
                         <i class="el-icon-loading"></i>
                     </div>
 
                     <!-- 加载失败或无数据的降级显示 -->
                     <a v-else :key="'fallback-' + getSourceId(it)" :href="getItemWikiUrl(getSourceId(it))"
-                        target="_blank" rel="noopener" class="u-partner-item-icon is-circle" :title="getItemName(it)">
+                        target="_blank" rel="noopener noreferrer" class="u-partner-item-icon is-circle" :title="getItemName(it)">
                         <span class="u-partner-item-fallback">{{ getItemFallback(it) }}</span>
                     </a>
                 </template>
             </div>
 
-            <div v-if="!hasIntro" class="u-partner-intro-desc">暂无结识信息</div>
+            <div v-if="!hasIntro" class="u-partner-intro-desc">{{ $t("pages.partner.ui.emptyIntroduction") }}</div>
         </div>
 
         <!-- 武学招式（被动默认圆；其它方） -->
@@ -202,7 +203,9 @@ export default {
             if (post?.title) return post.title;
             if (source?.Name) return source.Name;
             const sourceId = this.getSourceId(item);
-            return sourceId ? `道具 ${sourceId}` : "未知道具";
+            return sourceId
+                ? this.$t("pages.partner.ui.itemFallback", { id: sourceId })
+                : this.$t("pages.partner.ui.unknownItem");
         },
         /**
          * 获取物品 fallback 文本（无图标时显示首字）
@@ -218,10 +221,10 @@ export default {
         getBindType(source) {
             if (!source) return null;
             const bindType = source.BindType;
-            if (bindType === undefined || bindType === null) return "可交易";
-            if (bindType === 0) return "不可交易";
-            if (bindType === 3) return "拾取绑定";
-            return `绑定类型${bindType}`;
+            if (bindType === undefined || bindType === null) return this.$t("pages.partner.ui.bindTypes.tradeable");
+            if (bindType === 0) return this.$t("pages.partner.ui.bindTypes.untradeable");
+            if (bindType === 3) return this.$t("pages.partner.ui.bindTypes.bindOnPickup");
+            return this.$t("pages.partner.ui.bindTypes.other", { type: bindType });
         },
         /**
          * 获取限时时间（从 source.MaxExistTime 计算，单位秒）
@@ -261,11 +264,11 @@ export default {
             if (!sourceType) return "";
             // 映射来源类型
             const sourceMap = {
-                other: "其他途径获取",
-                drop: "掉落获取",
-                quest: "任务获取",
-                craft: "制作获取",
-                shop: "商店购买",
+                other: this.$t("pages.partner.ui.sources.other"),
+                drop: this.$t("pages.partner.ui.sources.drop"),
+                quest: this.$t("pages.partner.ui.sources.quest"),
+                craft: this.$t("pages.partner.ui.sources.craft"),
+                shop: this.$t("pages.partner.ui.sources.shop"),
             };
             return sourceMap[sourceType] || sourceType;
         },
