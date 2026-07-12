@@ -29,6 +29,6 @@ export function sanitizeBasicHtml(content) {
 
 export function sanitizeSkillHtml(content) {
     if (!content) return "";
-    const protectedContent = String(content).replace(/<(SKILL(?:Ex)?\b[^>]*)>/gi, "&lt;$1&gt;");
+    const protectedContent = String(content).replace(/<((?:SKILL(?:Ex)?|BUFF)\b[^>]*)>/gi, "&lt;$1&gt;");
     return sanitizeBasicHtml(protectedContent);
 }
