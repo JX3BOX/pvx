@@ -73,20 +73,24 @@
 
                 <!-- 加载更多按钮 -->
                 <div class="u-load-more" :class="{ 'is-loading-state': loading }"
-                    v-if="hasMoreSections || loading" @click="!loading && loadMore()">
+                    v-if="hasMoreSections || loading || loadFailed"
+                    @click="!loading && (loadFailed ? retryFailedLoad() : loadMore())">
                     <template v-if="loading">
                         <el-icon class="u-loading-icon is-loading">
                             <Loading />
                         </el-icon>
                         <span>{{ $t("pages.questsection.ui.loading") }}</span>
                     </template>
-                    <span v-else>{{ $t("pages.questsection.ui.loadMore") }}</span>
+                    <span v-else>{{ $t(loadFailed ? "pages.questsection.ui.retry" : "pages.questsection.ui.loadMore") }}</span>
                 </div>
             </div>
 
             <!-- 空状态展示 -->
             <div class="m-questsection-content__empty" v-if="visibleSectionDetails.length === 0 && !loading">
-                <div class="u-empty-text">{{ $t("pages.questsection.ui.empty") }}</div>
+                <div class="u-empty-text">{{ $t(loadFailed ? "pages.questsection.ui.loadFailed" : "pages.questsection.ui.empty") }}</div>
+                <button v-if="loadFailed" type="button" class="u-empty-retry" @click="retryFailedLoad">
+                    {{ $t("pages.questsection.ui.retry") }}
+                </button>
             </div>
 
             <!-- 加载状态 -->
@@ -132,6 +136,9 @@ export default {
             loadedGroupsCount: 1,
             loading: false,
             isChapterNavStuck: false,
+            requestSequence: 0,
+            loadFailed: false,
+            failedRequest: null,
         };
     },
     computed: {
@@ -211,8 +218,18 @@ export default {
                 this.activeGroupIndex = 0;
                 this.displayGroupIndex = 0;
                 this.loadedGroupsCount = 1;
+                this.requestSequence++;
+                this.loadFailed = false;
+                this.failedRequest = null;
                 if (newVal && newVal.Sections?.length > 0) {
-                    this.loadGroupSections(0);
+                    const routeSectionId = Number(this.$route?.params?.id);
+                    const routeSectionIndex = newVal.Sections.findIndex(
+                        (section) => Number(section.nSectionID) === routeSectionId
+                    );
+                    const initialGroupIndex = routeSectionIndex >= 0
+                        ? Math.floor(routeSectionIndex / SECTION_PAGE_SIZE)
+                        : 0;
+                    this.loadGroupSections(initialGroupIndex);
                 }
                 this.$nextTick(this.updateChapterNavStickyState);
             },
@@ -244,7 +261,7 @@ export default {
             return getQuestsectionImageUrl(imagePath, nImageFrame);
         },
 
-        async loadSectionDetail(sectionId) {
+        async loadSectionDetail(sectionId, requestId) {
             if (!sectionId) return null;
             if (this.sectionDetailsMap[sectionId]) return this.sectionDetailsMap[sectionId];
 
@@ -255,7 +272,7 @@ export default {
                     chapter_id: this.chapterData?.nChapterID,
                 };
                 const res = await getDetail(sectionId, params);
-                if (res.data?.data) {
+                if (requestId === this.requestSequence && res.data?.data) {
                     this.sectionDetailsMap = {
                         ...this.sectionDetailsMap,
                         [sectionId]: res.data.data,
@@ -272,18 +289,30 @@ export default {
             const group = this.chapterGroups[groupIndex];
             if (!group) return;
 
+            const requestId = ++this.requestSequence;
             this.loading = true;
+            this.loadFailed = false;
+            this.failedRequest = null;
             this.activeGroupIndex = groupIndex;
 
             const promises = group.sections.map((section) =>
-                this.loadSectionDetail(section.nSectionID)
+                this.loadSectionDetail(section.nSectionID, requestId)
             );
             try {
-                await Promise.all(promises);
+                const details = await Promise.all(promises);
+                if (requestId !== this.requestSequence) return;
+                if (details.some((detail) => !detail)) {
+                    this.activeGroupIndex = this.displayGroupIndex;
+                    this.loadFailed = true;
+                    this.failedRequest = { type: "group", groupIndex };
+                    return;
+                }
                 this.displayGroupIndex = groupIndex;
                 this.loadedGroupsCount = 1;
             } finally {
-                this.loading = false;
+                if (requestId === this.requestSequence) {
+                    this.loading = false;
+                }
             }
         },
 
@@ -303,14 +332,38 @@ export default {
             if (nextGroupIndex >= this.chapterGroups.length) return;
 
             const nextGroup = this.chapterGroups[nextGroupIndex];
+            const requestId = ++this.requestSequence;
             this.loading = true;
-            await Promise.all(
-                nextGroup.sections.map((section) =>
-                    this.loadSectionDetail(section.nSectionID)
-                )
-            );
-            this.loadedGroupsCount++;
-            this.loading = false;
+            this.loadFailed = false;
+            this.failedRequest = null;
+            try {
+                const details = await Promise.all(
+                    nextGroup.sections.map((section) =>
+                        this.loadSectionDetail(section.nSectionID, requestId)
+                    )
+                );
+                if (requestId !== this.requestSequence) return;
+                if (details.some((detail) => !detail)) {
+                    this.loadFailed = true;
+                    this.failedRequest = { type: "more" };
+                    return;
+                }
+                this.loadedGroupsCount++;
+            } finally {
+                if (requestId === this.requestSequence) {
+                    this.loading = false;
+                }
+            }
+        },
+
+        retryFailedLoad() {
+            const failedRequest = this.failedRequest;
+            if (!failedRequest || this.loading) return;
+            if (failedRequest.type === "group") {
+                this.loadGroupSections(failedRequest.groupIndex);
+            } else {
+                this.loadMore();
+            }
         },
     },
 };

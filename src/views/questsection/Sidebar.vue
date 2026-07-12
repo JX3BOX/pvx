@@ -148,8 +148,24 @@ export default {
         initDefaultSelection() {
             if (this.seasons.length === 0) return;
 
-            // 查找"风起稻香"资料片
-            const defaultSeason = this.seasons.find(
+            const routeSectionId = Number(this.$route?.params?.id);
+            let defaultSeason = null;
+            let defaultChapter = null;
+
+            if (Number.isFinite(routeSectionId)) {
+                for (const season of this.seasons) {
+                    const chapter = season.Chapters?.find((item) =>
+                        item.Sections?.some((section) => Number(section.nSectionID) === routeSectionId)
+                    );
+                    if (chapter) {
+                        defaultSeason = season;
+                        defaultChapter = chapter;
+                        break;
+                    }
+                }
+            }
+
+            defaultSeason = defaultSeason || this.seasons.find(
                 (season) => season.szTitle === "风起稻香"
             ) || this.seasons[0];
 
@@ -160,10 +176,10 @@ export default {
 
                 // 选择第一个大章节
                 if (defaultSeason.Chapters?.length > 0) {
-                    const firstChapter = defaultSeason.Chapters[0];
-                    this.selectedChapter = firstChapter;
+                    const selectedChapter = defaultChapter || defaultSeason.Chapters[0];
+                    this.selectedChapter = selectedChapter;
                     // 触发选择事件
-                    this.emitSelect(defaultSeason, firstChapter);
+                    this.emitSelect(defaultSeason, selectedChapter);
                 }
             }
         },

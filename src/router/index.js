@@ -27,6 +27,18 @@ const routes = [
             },
         },
     },
+    {
+        name: "questsection-detail",
+        path: "/questsection/:id(\\d+)",
+        component: () => import("@/views/questsection/Index.vue"),
+        meta: {
+            i18n: {
+                title: "pages.questsection.detail.title",
+                keywords: "pages.questsection.detail.keywords",
+                description: "pages.questsection.detail.description",
+            },
+        },
+    },
     // ===== 侠客行 =====
     {
         name: "partner",
@@ -37,6 +49,18 @@ const routes = [
                 title: "pages.partner.title",
                 keywords: "pages.partner.keywords",
                 description: "pages.partner.description",
+            },
+        },
+    },
+    {
+        name: "partner-detail",
+        path: "/partner/:id(\\d+)",
+        component: () => import("@/views/partner/Index.vue"),
+        meta: {
+            i18n: {
+                title: "pages.partner.detail.title",
+                keywords: "pages.partner.detail.keywords",
+                description: "pages.partner.detail.description",
             },
         },
     },

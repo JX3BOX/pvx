@@ -24,7 +24,7 @@
             <div class="m-partner-skill-detail__header">
                 <div class="u-partner-skill-detail-title">
                     <span class="u-partner-skill-name">{{ currentSkill.name }}</span>
-                    <span class="u-partner-skill-id">{{ currentSkill.typeLabel || $t("pages.partner.ui.skillTypes.martialArt") }}</span>
+                    <span class="u-partner-skill-id">{{ getSkillTypeLabel(currentSkill) }}</span>
                 </div>
                 <!-- 数据库跳转（右上角）暂时隐藏 -->
                 <a v-if="currentSkill.id" :href="getSkillDbUrl(currentSkill.id)" target="_blank" rel="noopener"
@@ -64,6 +64,7 @@
 import { DataAnalysis } from "@element-plus/icons-vue";
 import { SKILL_SHAPE } from "./const";
 import { getItemWikiUrl, getSkillDbUrl } from "@/utils/partner";
+import { sanitizeBasicHtml } from "@/utils/sanitize-html";
 
 export default {
     name: "PartnerSkillList",
@@ -118,7 +119,11 @@ export default {
             }
 
             // 招式数据
-            return item;
+            return {
+                ...item,
+                name: item.name || this.$t("pages.partner.ui.skillFallback", { id: item.id }),
+                desc: item.desc || this.$t("pages.partner.ui.skillDescFallback"),
+            };
         },
     },
     watch: {
@@ -152,7 +157,13 @@ export default {
          */
         formatDesc(desc) {
             if (!desc) return "";
-            return String(desc).replace(/\\n/g, "\n").replace(/\n/g, "<br>");
+            return sanitizeBasicHtml(desc);
+        },
+        getSkillTypeLabel(skill) {
+            if (this.isRealm) return this.$t("pages.partner.ui.skillTypes.martialArt");
+            if (skill.type === 1) return this.$t("pages.partner.ui.skillTypes.passive");
+            if (skill.type === 2) return this.$t("pages.partner.ui.skillTypes.active");
+            return this.$t("pages.partner.ui.skillTypes.martialArt");
         },
         getItemWikiUrl,
         getSkillDbUrl,

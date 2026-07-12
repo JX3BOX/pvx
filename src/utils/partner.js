@@ -233,11 +233,11 @@ export function mapPartnerDetail(detail) {
         .sort((a, b) => a.stage - b.stage)
         .map((s, index) => ({
             stage: s.stage,
-            title: s.title || `境界${s.stage}`,
+            title: s.title || "",
             // 技能信息（名称需要占位，后续可通过技能接口补充）
             skillId: s.skillID,
-            skillName: `武学技能 ${s.skillID}`,
-            skillDesc: `境界 ${s.title} 对应的武学技能，ID: ${s.skillID}`,
+            skillName: "",
+            skillDesc: "",
             level: s.level,
             // 境界图标形状：圆形（Figma Frame 311 使用 28x28 圆形图标）
             shape: SKILL_SHAPE.CIRCLE,
@@ -252,11 +252,10 @@ export function mapPartnerDetail(detail) {
     const skills = (detail.Skills || []).map((s, index) => ({
         id: s.skillID,
         // 技能名称占位（后续会被 getPartnerSkillDetail 覆盖）
-        name: `招式 ${s.skillID}`,
-        desc: `武学招式，类型: ${s.type === SKILL_TYPE.NORMAL ? "被动" : "主动"}`,
+        name: "",
+        desc: "",
         level: s.level,
         type: s.type,
-        typeLabel: s.type === SKILL_TYPE.NORMAL ? "被动" : "主动",
         shape: getSkillShape(s.type),
         openStage: s.openStage,
         // 如果原始数据已有 IconID 则直接使用，否则留空等待 skill detail API 补充
@@ -268,7 +267,7 @@ export function mapPartnerDetail(detail) {
     const attrs = [
         { key: "quality", label: "品质", value: getQualityLabel(detail.nQuality), rawValue: detail.nQuality },
         { key: "rarity", label: "稀有度", value: getRarityLabel(detail.nRarity), rawValue: detail.nRarity },
-        { key: "kungfu", label: "武学类型", value: detail.Kungfu?.name || getKungfuName(detail.nKungfuIndex) },
+        { key: "kungfu", label: "武学类型", value: detail.Kungfu?.name || "", rawValue: detail.nKungfuIndex },
         { key: "nickname", label: "心法", value: detail.szNickName || "-" },
     ];
 

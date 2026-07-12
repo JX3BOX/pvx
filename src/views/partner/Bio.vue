@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { sanitizeBasicHtml } from "@/utils/sanitize-html";
+
 export default {
     name: "PartnerBio",
     props: {
@@ -65,9 +67,7 @@ export default {
             // 处理两种换行符形式：
             // 1. 字符串形式的转义字符 \\n（数据中存储为 "\n" 字符串）
             // 2. 真正的换行符 \n
-            return String(content)
-                .replace(/\\n/g, "<br>") // 处理字符串形式的 \n
-                .replace(/\n/g, "<br>"); // 处理真正的换行符
+            return sanitizeBasicHtml(content);
         },
     },
 };

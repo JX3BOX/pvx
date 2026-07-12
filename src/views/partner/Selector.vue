@@ -13,7 +13,6 @@
  *
  * @emits
  * - select: 选择侠客时触发，参数为 partner 对象
- * - filterChange: 筛选标签切换时触发
  -->
 <template>
     <div class="m-pvx-partner-selector">
@@ -93,7 +92,7 @@ export default {
             default: false,
         },
     },
-    emits: ["select", "search", "toggleExpand", "filterChange"],
+    emits: ["select", "search", "toggleExpand"],
     data() {
         return {
             searchKeyword: "",

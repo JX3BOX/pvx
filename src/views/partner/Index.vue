@@ -29,8 +29,7 @@
                 <div class="m-partner-layout">
                     <!-- 左侧选择 -->
                     <Selector :partner-list="partnerList" :selected-id="selectedPartnerId" :expanded="listExpanded"
-                        @select="handleSelect" @search="handleSearch" @toggleExpand="handleToggleExpand"
-                        @filterChange="handleFilterChange" />
+                        @select="handleSelect" @search="handleSearch" @toggleExpand="handleToggleExpand" />
 
                     <!-- 中间立绘 -->
                     <Portrait :partner="selectedPartner" />
@@ -112,6 +111,8 @@ export default {
             listExpanded: false,
             // 加载状态
             loading: false,
+            detailRequestId: 0,
+            searchRequestId: 0,
         };
     },
     computed: {
@@ -147,9 +148,11 @@ export default {
          * 第一个元素 szName 为空时显示"全部"
          */
         async fetchPartnerList() {
+            const requestId = ++this.searchRequestId;
             this.loading = true;
             try {
                 const res = await getPartnerList({ client: "std" });
+                if (requestId !== this.searchRequestId) return;
                 const rawData = res?.data?.data || [];
                 // 映射接口字段为组件友好格式，传入 index 参数处理"全部"
                 this.partnerList = Array.isArray(rawData)
@@ -161,10 +164,11 @@ export default {
                     this.handleSelect(this.partnerList[0]);
                 }
             } catch (err) {
+                if (requestId !== this.searchRequestId) return;
                 console.error("[partner] 拉取列表失败:", err);
                 this.partnerList = [];
             } finally {
-                this.loading = false;
+                if (requestId === this.searchRequestId) this.loading = false;
             }
         },
         /**
@@ -174,9 +178,11 @@ export default {
          */
         async fetchPartnerDetail(id) {
             if (!id) return;
+            const requestId = ++this.detailRequestId;
             this.loading = true;
             try {
                 const res = await getPartnerDetail(id, { client: "std", id: id });
+                if (requestId !== this.detailRequestId) return;
                 const rawDetail = res?.data?.data || null;
                 // 映射详情字段
                 const partner = mapPartnerDetail(rawDetail);
@@ -203,6 +209,7 @@ export default {
                     const uniqueIds = [...new Set(skillIds)];
                     try {
                         const skillRes = await getPartnerSkillDetail(uniqueIds);
+                        if (requestId !== this.detailRequestId) return;
                         // 兼容两种响应格式:
                         //   1. { data: { "id": {...} } }  — 对象以 ID 为 key
                         //   2. [ {SkillID,IconID,Name,Desc,Type}, ... ] — 数组通过 SkillID 字段匹配
@@ -233,11 +240,6 @@ export default {
                                         iconId: detail.IconID,
                                         level: detail.Level ?? s.level,
                                         type: detail.Type ?? s.type,
-                                        typeLabel: detail.Type === 1
-                                            ? this.$t("pages.partner.ui.skillTypes.passive")
-                                            : detail.Type === 2
-                                              ? this.$t("pages.partner.ui.skillTypes.active")
-                                              : s.typeLabel,
                                     };
                                 }
                                 return s;
@@ -267,12 +269,13 @@ export default {
                     }
                 }
 
-                this.selectedPartner = partner;
+                if (requestId === this.detailRequestId) this.selectedPartner = partner;
             } catch (err) {
+                if (requestId !== this.detailRequestId) return;
                 console.error("[partner] 拉取详情失败:", err);
                 this.selectedPartner = null;
             } finally {
-                this.loading = false;
+                if (requestId === this.detailRequestId) this.loading = false;
             }
         },
         /**
@@ -283,7 +286,12 @@ export default {
             this.selectedPartnerId = partner.id;
             // 切换侠客时重置为基础信息 TAB
             this.activeTab = "info";
-            this.fetchPartnerDetail(partner.id);
+            if (Number(this.$route.params.id) === Number(partner.id)) {
+                this.fetchPartnerDetail(partner.id);
+                return;
+            }
+            const detailRouteName = this.$router.hasRoute("partner-detail") ? "partner-detail" : "detail";
+            this.$router.push({ name: detailRouteName, params: { id: partner.id } });
         },
         /**
          * 处理搜索（防抖由 Selector 内置）
@@ -293,16 +301,19 @@ export default {
             this.fetchPartnerListWithKeyword(keyword);
         },
         async fetchPartnerListWithKeyword(keyword) {
+            const requestId = ++this.searchRequestId;
             try {
                 const params = { client: "std" };
                 if (keyword) params.keyword = keyword;
                 const res = await getPartnerList(params);
+                if (requestId !== this.searchRequestId) return;
                 const rawData = res?.data?.data || [];
                 this.partnerList = Array.isArray(rawData)
                     ? rawData.map((item, index) => mapPartnerListItem(item, index)).filter(Boolean)
                     : [];
                 this.partnerList = this.partnerList.filter((p) => !p.isAll);
             } catch (err) {
+                if (requestId !== this.searchRequestId) return;
                 console.error("[partner] 搜索失败:", err);
             }
         },
@@ -311,13 +322,6 @@ export default {
          */
         handleToggleExpand(expanded) {
             this.listExpanded = expanded;
-        },
-        /**
-         * 处理筛选标签切换
-         */
-        handleFilterChange(filterKey) {
-            // 当前仅"全部"筛选，后续可扩展其他筛选逻辑
-            console.log("[partner] 筛选标签切换:", filterKey);
         },
         /**
          * 处理 TAB 切换

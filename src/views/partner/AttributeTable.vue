@@ -39,6 +39,9 @@ export default {
             if (row.key === "quality" || row.key === "rarity") {
                 return this.$t(`pages.partner.ui.${row.key}.${row.rawValue}`);
             }
+            if (row.key === "kungfu") {
+                return this.$t(`pages.partner.ui.kungfu.${row.rawValue}`);
+            }
             return row.value;
         },
     },

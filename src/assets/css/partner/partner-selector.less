@@ -74,6 +74,7 @@
 
             .u-partner-search-input {
                 flex: 1;
+                min-width: 0;
                 border: none;
                 background: transparent;
                 font-size: 16px;
@@ -105,6 +106,7 @@
     .m-partner-selector__categories {
         flex: 1;
         overflow-y: auto;
+        overflow-x: hidden;
 
         // 自定义滚动条
         &::-webkit-scrollbar {
@@ -228,12 +230,14 @@
         left: 20px; // iPad 端左边距缩减为 20px
         width: 240px;
 
-        .u-partner-category-item {
-            width: 85px;
+        .m-partner-selector__categories {
+            .u-partner-category-item {
+                width: 85px;
 
-            .u-partner-category-avatar {
-                width: 60px;
-                height: 60px;
+                .u-partner-category-avatar {
+                    width: 60px;
+                    height: 60px;
+                }
             }
         }
     }

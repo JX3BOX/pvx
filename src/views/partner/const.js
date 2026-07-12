@@ -59,11 +59,6 @@ export const SKILL_SHAPE = {
  * 对齐 Figma Component 14: 基础信息、传记
  * 武学境界为"基础信息"tab 内的子区块，非独立 tab
  */
-export const INFO_TABS = [
-    { key: "info", label: "基础信息" },
-    { key: "bio", label: "传记" },
-];
-
 /**
  * 列表展开高度（开发方案十二.1：已确认固定最大 600px）
  * 折叠状态需露出4个选择区域（2行卡片）

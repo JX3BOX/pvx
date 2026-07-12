@@ -486,6 +486,8 @@
 
     // ==================== 空状态展示 ====================
     .m-questsection-content__empty {
+        flex-direction: column;
+        gap: 12px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -494,6 +496,16 @@
         .u-empty-text {
             font-size: 14px;
             color: rgba(0, 0, 0, 0.4);
+        }
+
+        .u-empty-retry {
+            height: 36px;
+            padding: 0 18px;
+            border: @questsection-border-light;
+            border-radius: 18px;
+            background: #FFF;
+            color: @questsection-color-primary;
+            cursor: pointer;
         }
     }
 

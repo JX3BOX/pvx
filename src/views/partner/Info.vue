@@ -99,6 +99,7 @@ import SkillList from "./SkillList.vue";
 import AttributeTable from "./AttributeTable.vue";
 import { getItemWikiUrl, resolveSkillIcon } from "@/utils/partner";
 import { getPartnerItemsDetail } from "@/service/partner";
+import { sanitizeBasicHtml } from "@/utils/sanitize-html";
 
 export default {
     name: "PartnerInfo",
@@ -146,16 +147,14 @@ export default {
     methods: {
         formatDesc(desc) {
             if (!desc) return "";
-            return String(desc).replace(/\n/g, "<br>");
+            return sanitizeBasicHtml(desc);
         },
         /**
          * 格式化物品描述（支持 \n 和 \\n 换行）
          */
         formatItemDesc(content) {
             if (!content) return "";
-            return String(content)
-                .replace(/\\n/g, "<br>")
-                .replace(/\n/g, "<br>");
+            return sanitizeBasicHtml(content);
         },
         /**
          * 获取完整的 sourceId（tableId_itemId 格式，如 "5_45838"）
@@ -305,9 +304,6 @@ export default {
             try {
                 // 批量请求物品详情（使用完整 sourceId）
                 const details = await getPartnerItemsDetail(sourceIds);
-
-                // 调试日志：打印 API 返回数据结构，便于排查问题
-                console.log("[partner] 物品详情数据:", details);
 
                 // 更新物品详情缓存
                 this.itemDetails = { ...this.itemDetails, ...details };

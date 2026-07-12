@@ -89,15 +89,22 @@ export function getSeasonImageUrl(season) {
 export function formatQuestsectionDetail(detail) {
     if (!detail) return "";
 
-    let formattedDetail = detail;
+    // 接口内容最终通过 v-html 渲染，先转义所有原始 HTML，仅开放本函数生成的标签。
+    let formattedDetail = String(detail)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 
-    // 处理 \\n 转义字符，转换为 <br> 标签
-    formattedDetail = formattedDetail.replace(/\\n/g, "<br>");
+    // 同时处理接口中的转义换行和真实换行。
+    formattedDetail = formattedDetail.replace(/\\n|\r?\n/g, "<br>");
 
-    // 处理 <G> 标签，转换为高亮文本
-    // <G> 标签后面是高亮内容，直到遇到下一个 <G> 或 <br> 或字符串结束
-    // 使用正则一次性匹配：<G>后面直到<br>或字符串结束的内容
-    formattedDetail = formattedDetail.replace(/<G>([^<]*?)(<br>|$)/g, '<span class="questsection-highlight">$1</span>$2');
+    // 将已转义的游戏内 <G> 标记转换为唯一允许的高亮标签。
+    formattedDetail = formattedDetail.replace(
+        /&lt;G&gt;([\s\S]*?)(?=&lt;G&gt;|<br>|$)/g,
+        '<span class="questsection-highlight">$1</span>'
+    );
 
     return formattedDetail;
 }
