@@ -109,8 +109,8 @@ export default {
 
         // 显示活动介绍
         showGameTip: function (str) {
-            let output = str?.split("\\n");
-            return output.length > 0 ? output[1] : "";
+            const output = str?.split("\\n");
+            return output?.[1] || "";
         },
     },
     mounted: function () {

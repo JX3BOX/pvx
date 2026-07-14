@@ -3,9 +3,13 @@
  *
  * @description 用于脸型/体型模块PC端列表页的公共逻辑抽取
  * @author Face & Body 模块优化团队
- * @version 1.3.0
+ * @version 1.4.0
  *
  * @changelog
+ * - v1.4.0: 列表请求数量固定为 12
+ *   - 分类总览固定请求 12 条并保持单行横向浏览
+ *   - 全部列表固定每页 12 条并使用响应式折行
+ *   - 移除因容器宽度变化而改变 pageSize 的逻辑
  * - v1.3.0: 彻底解决重复请求问题
  *   - 使用 isChangingActive 标志位，阻止 tabsData 在 active 变化时触发额外请求
  *   - 使用 pendingParams 缓存最新的请求参数，确保只发送一次请求
@@ -14,8 +18,9 @@
  *   - 移除 active watcher 中的 loadData 调用
  *   - params watcher 统一处理所有数据加载
  */
-import { isPhone } from "@/utils/index";
 import { omit, isEqual } from "lodash";
+
+const PAGE_SIZE = 12;
 
 export default {
     data() {
@@ -27,9 +32,9 @@ export default {
             },
             active: -1,
             page: 1,
-            per: 14,
+            per: PAGE_SIZE,
             total: 0,
-            count: 0,
+            count: PAGE_SIZE,
             appendMode: false,
             isInitialized: false,
             // 标志位：是否正在切换 active（用于阻止 tabsData 变化触发的额外请求）
@@ -90,12 +95,7 @@ export default {
             // 设置标志位，阻止 tabsData 变化触发的额外请求
             this.isChangingActive = true;
 
-            // 先更新active，然后重新计算count
-            const oldActive = this.active;
             this.active = val;
-
-            // 重新计算count（因为全部选项和非全部选项使用不同的计算逻辑）
-            this.showCount();
 
             // 更新状态
             this.page = 1;
@@ -125,38 +125,8 @@ export default {
         },
 
         showCount() {
-            if (isPhone()) {
-                this.per = 8;
-                return;
-            }
-
-            // 获取容器宽度（减去左右边距）
-            const listWidth = this.$refs.listRef?.clientWidth - 120;
-
-            // 根据是否是全部选项，使用不同的计算参数
-            if (this.active === -1) {
-                // 全部选项：使用最原始的计算逻辑
-                // CardBannerList组件，gap: 10px
-                const cardMinWidth = Number(this.itemData.width); // 190px
-                const gridGap = 10; // 卡片之间的间距
-
-                this.count = Math.floor(listWidth / (cardMinWidth + gridGap));
-                this.per = this.count;
-            } else {
-                // 非全部选项：使用 .m-pvx-type-list--all 容器
-                // gap: 12px，卡片有 max-width: 220px 限制
-                // CSS Grid使用minmax(190px, 1fr)，但卡片实际最大宽度为220px
-                // 使用220px计算列数，确保与CSS Grid实际渲染一致
-                const cardMaxWidth = 220; // 卡片最大宽度
-                const gridGap = 12; // 卡片之间的间距
-
-                this.count = Math.floor((listWidth + gridGap) / (cardMaxWidth + gridGap));
-                this.per = this.count * 4; // 4行
-            }
-        },
-
-        handleResize() {
-            this.showCount();
+            this.count = PAGE_SIZE;
+            this.per = PAGE_SIZE;
         },
 
         handleLoad(type) {
@@ -251,10 +221,5 @@ export default {
             this.isInitialized = true;
             this.loadData();
         });
-        window.addEventListener("resize", this.handleResize);
-    },
-
-    beforeUnmount() {
-        window.removeEventListener("resize", this.handleResize);
     },
 };

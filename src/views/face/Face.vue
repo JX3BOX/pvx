@@ -29,7 +29,7 @@
     <div id="app" class="p-pvx-face">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main :class="[navStatusClass, { 'c-pvx-modern-list-main': $route.name === 'list' }]" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
             <div class="m-main"><router-view></router-view></div>
         </Main>
         <CommonFooter></CommonFooter>

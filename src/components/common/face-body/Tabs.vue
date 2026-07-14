@@ -26,9 +26,9 @@
  * - 样式文件: assets/css/face/list.less 或 assets/css/body/list.less
  -->
 <template>
-    <div class="m-pvx-fb__tabs">
+    <div class="m-pvx-fb__tabs" :class="{ 'm-pvx-fb__tabs--modern': variant === 'modern' }">
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
-            ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover">
+            ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover" :variant="variant">
             <template #extra>
                 <div class="m-pvx-toolbar__item m-pvx-toolbar__publish">
                     <a :href="link.data" target="_blank">
@@ -71,6 +71,11 @@ export default {
         link: {
             type: Object,
             default: () => ({}),
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
         },
     },
     components: { PvxSearch },
@@ -254,8 +259,16 @@ export default {
     mounted() {
         if (this.$route.query) {
             Object.keys(this.$route.query).forEach((key) => {
-                if (this.hasOwnProperty(key)) {
-                    this[key] = this.$route.query[key];
+                const value = this.$route.query[key];
+                if (key === "body_type") {
+                    const bodyType = Number(value);
+                    if (this.body_types.some((item) => item.value === bodyType)) {
+                        this.localBodyType = bodyType;
+                    }
+                } else if (["is_new_face", "filter_empty_images"].includes(key)) {
+                    this[key] = Number(value);
+                } else if (Object.prototype.hasOwnProperty.call(this, key)) {
+                    this[key] = value;
                 }
             });
         }

@@ -23,22 +23,25 @@
  -->
 <template>
     <div class="p-pvx-body-list" v-loading="loading" ref="listRef">
-        <pvxTabs @change="handleBodyTabChange" :body_types="list" :link="link" :active="active" />
+        <pvxTabs variant="modern" @change="handleBodyTabChange" :body_types="list" :link="link" :active="active" />
         <template v-if="active === -1">
-            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
-                :class="{ none: !item.list.length }">
-                <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="200"
-                    :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
-                    <template v-slot:title>
-                        <div>{{ item.label + "体型" }}</div>
-                    </template>
-                    <template v-slot:action>
-                        <div @click="setActive(item.value)">查看全部</div>
-                    </template>
-                    <template v-slot="{ item }">
-                        <ListItem type="body" :key="item.id" :item="item" />
-                    </template>
-                </CardBannerList>
+            <div class="m-pvx-overview-grid">
+                <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
+                    :class="{ none: !item.list.length }">
+                    <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="200" :show-replace="false"
+                        fixed-item-width limit-to-count
+                        :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
+                        <template v-slot:title>
+                            <div>{{ item.label + "体型" }}</div>
+                        </template>
+                        <template v-slot:action>
+                            <div @click="setActive(item.value)">查看全部</div>
+                        </template>
+                        <template v-slot="{ item }">
+                            <ListItem type="body" variant="modern" :key="item.id" :item="item" />
+                        </template>
+                    </CardBannerList>
+                </div>
             </div>
         </template>
         <div class="m-pvx-type__box" v-else>
@@ -46,7 +49,7 @@
                 <div class="u-pvx-title">{{ typeName + "体型" }}</div>
             </div>
             <div class="m-pvx-type__list--all">
-                <ListItem type="body" v-for="item in subList" :key="item.id" :item="item" />
+                <ListItem type="body" variant="modern" v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">

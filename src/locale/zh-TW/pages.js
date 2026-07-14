@@ -44,6 +44,16 @@ export default {
             "劍網3休閒欄目,JX3BOX休閒欄目,奇遇大全,聲望大全,書籍大全,劍三考試,捏臉數據,體型數據,寵物大全,家具大全,坐騎大全,家園藍圖,QQRobot",
         description:
             "劍網3魔盒（JX3BOX）休閒欄目，提供奇遇、聲望、書籍、考試、捏臉、體型、寵物、家具、坐騎、家園藍圖與 QQRobot 等內容。",
+        ui: {
+            categories: { share: "玩家創作類欄目", rare: "圖鑑百科類欄目", merchants: "資訊查詢類欄目" },
+            menus: {
+                face: "捏臉數據", body: "體型數據", homeland: "家園藍圖",
+                adventure: "奇遇大全", pet: "寵物大全", horse: "坐騎大全", furniture: "家具大全",
+                reputation: "聲望大全", book: "書籍大全", treasure: "奇遇珍卷", seniority: "資歷寶典",
+                questsection: "劍俠錄", partner: "紅塵俠影", exam: "考試大全", manufacture: "技藝助手",
+                price: "價格走勢", gonggao: "活動告示",
+            },
+        },
     },
     adventure: {
         title: "奇遇大全",

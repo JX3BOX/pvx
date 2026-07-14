@@ -117,7 +117,9 @@ export default {
             } else {
                 getHomelandCoord(map_id).then((res) => {
                     this.coords[map_id] = res.data;
-                    this.active_coords = res.data;
+                    if (this.active === map_id) {
+                        this.active_coords = res.data;
+                    }
                 });
             }
         },

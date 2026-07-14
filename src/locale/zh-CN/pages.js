@@ -46,6 +46,20 @@ export default {
             "剑网3休闲栏目,JX3BOX休闲栏目,剑三休闲栏目,奇遇大全,商贾奇才,声望大全,书籍大全,剑三考试,捏脸数据,体型数据,宠物大全,家具大全,坐骑大全,家园蓝图,QQRobot",
         description:
             "剑网3魔盒（JX3BOX）休闲栏目，围绕剑网3玩家日常休闲玩法与资料查询需求，提供奇遇大全、商贾奇才、声望大全、书籍大全、剑三考试、捏脸数据、体型数据、宠物大全、家具大全、坐骑大全、家园蓝图与 QQRobot 等丰富内容。",
+        ui: {
+            categories: {
+                share: "玩家创作类栏目",
+                rare: "图鉴百科类栏目",
+                merchants: "信息查询类栏目",
+            },
+            menus: {
+                face: "捏脸数据", body: "体型数据", homeland: "家园蓝图",
+                adventure: "奇遇大全", pet: "宠物大全", horse: "坐骑大全", furniture: "家具大全",
+                reputation: "声望大全", book: "书籍大全", treasure: "奇遇珍卷", seniority: "资历宝典",
+                questsection: "剑侠录", partner: "红尘侠影", exam: "考试大全", manufacture: "技艺助手",
+                price: "价格走势", gonggao: "活动告示",
+            },
+        },
     },
 
     face: {

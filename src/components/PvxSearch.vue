@@ -1,5 +1,5 @@
 <template>
-    <div class="pvx-search-wrapper">
+    <div class="pvx-search-wrapper" :class="{ 'pvx-search-wrapper--modern': variant === 'modern' }">
         <div class="search-group">
             <slot></slot>
             <div class="search-item" :class="{
@@ -11,7 +11,7 @@
             }" v-for="item in items" :key="item.key">
                 <template v-if="item.type === 'radio'">
                     <el-radio-group v-model="formData[item.key]">
-                        <el-radio-button class="type-item" :class="{ active: typeItem.type === formData[item.type] }"
+                        <el-radio-button class="type-item" :class="{ active: typeItem.type === formData[item.key] }"
                             v-for="typeItem in item.options.filter((rItem) => !rItem.link)" :key="typeItem.type"
                             :label="typeItem.type">{{ typeItem.name }}</el-radio-button>
                     </el-radio-group>
@@ -137,6 +137,11 @@ export default {
         popperClass: {
             type: String,
             default: "",
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
         },
     },
     data() {

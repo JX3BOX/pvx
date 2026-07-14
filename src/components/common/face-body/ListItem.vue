@@ -30,7 +30,7 @@
 <template>
     <a
         class="m-pvx-type__item"
-        :class="{ 'is-only-pic': onlyPic, 'is-no-name': noName }"
+        :class="{ 'is-only-pic': onlyPic, 'is-no-name': noName, 'm-pvx-type__item--modern': variant === 'modern' }"
         :href="`${link}/${item.id}`"
         target="_blank"
     >
@@ -82,7 +82,7 @@
 
         <div class="m-pvx-op">
             <div class="u-pvx-title">{{ item.title }}</div>
-            <div class="m-pvx-author" @click.stop="onAuthorClick">
+            <div class="m-pvx-author" v-if="showAuthor" @click.stop="onAuthorClick">
                 <el-image 
                     v-if="type === 'face'" 
                     class="u-pvx-avatar"
@@ -128,7 +128,12 @@ export default {
         noName: {
             type: Boolean,
             default: false
-        }
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
+        },
     },
     data: function () {
         return {
@@ -172,9 +177,10 @@ export default {
             return getThumbnail(url, 360);
         },
         showAvatar,
-        onAuthorClick() {
-            if (!this.item.original) {
-                window.open(this.item.author_link, "_blank");
+        onAuthorClick(event) {
+            if (!this.item.original && this.item.author_link) {
+                event.preventDefault();
+                window.open(this.item.author_link, "_blank", "noopener,noreferrer");
             }
         },
     },

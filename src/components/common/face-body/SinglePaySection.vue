@@ -157,11 +157,11 @@ export default {
         },
         // 是否需要付费
         needPay() {
-            return this.post.price_type && this.post.price_type !== 0 && !this.hasBuy;
+            return this.post.price_type != null && Number(this.post.price_type) !== 0 && !this.hasBuy;
         },
         // 是否可下载
         canDownload() {
-            return (this.post.price_type && this.post.price_type === 0) || this.hasBuy;
+            return (this.post.price_type != null && Number(this.post.price_type) === 0) || this.hasBuy;
         },
         // 价格文案
         priceText() {

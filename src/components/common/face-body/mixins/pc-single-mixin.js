@@ -166,12 +166,14 @@ export default {
                 return;
             }
 
-            const urlArr = [];
-            this.downFileList.forEach((item) => {
-                if (item && item.uuid) {
-                    urlArr.push(this.getDownUrl(this.id, item.uuid));
-                }
-            });
+            const urlArr = this.downFileList
+                .filter((item) => item?.uuid)
+                .map((item) =>
+                    this.getDownUrl(this.id, item.uuid).then((res) => ({
+                        item,
+                        res,
+                    }))
+                );
 
             if (urlArr.length === 0) {
                 this.$message.warning("没有可下载的文件");
@@ -179,12 +181,12 @@ export default {
             }
 
             Promise.all(urlArr)
-                .then((arr) => {
-                    const downloadFiles = arr
-                        .filter((item) => item.data?.data?.url)
-                        .map((item, index) => ({
-                            name: this.downFileList[index]?.name || `file_${index}`,
-                            url: item.data.data.url,
+                .then((results) => {
+                    const downloadFiles = results
+                        .filter(({ res }) => res.data?.data?.url)
+                        .map(({ item, res }, index) => ({
+                            name: item.name || `file_${index}`,
+                            url: res.data.data.url,
                         }));
                     
                     if (downloadFiles.length > 0) {

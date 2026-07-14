@@ -1,0 +1,48 @@
+/**
+ * PVX 统一设计 mixin
+ *
+ * 本文件不直接输出 CSS，仅供已进入改造阶段的页面显式调用。
+ */
+
+@import (reference) "./_tokens.less";
+
+.pvx-surface-base() {
+    box-sizing: border-box;
+    background: @pvx-surface;
+    border: 1px solid fade(@pvx-border, 60%);
+    box-shadow: @pvx-shadow-xs;
+}
+
+.pvx-surface-interactive() {
+    transition:
+        transform @pvx-duration-normal @pvx-ease-standard,
+        border-color @pvx-duration-normal @pvx-ease-standard,
+        box-shadow @pvx-duration-normal @pvx-ease-standard;
+
+    &:hover {
+        transform: translateY(-1px);
+        border-color: @pvx-border-focus;
+        box-shadow: @pvx-shadow-hover;
+    }
+}
+
+.pvx-focus-ring() {
+    &:focus-visible {
+        outline: none;
+        box-shadow: @pvx-shadow-focus;
+    }
+}
+
+.pvx-text-ellipsis(@lines: 1) when (@lines = 1) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pvx-text-ellipsis(@lines: 2) when (@lines > 1) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: @lines;
+}
+

@@ -44,6 +44,16 @@ export default {
             "JX3BOX leisure,JX3 adventure,reputation,books,exam,face data,body data,pet list,furniture list,horse list,homeland blueprints,QQBot",
         description:
             "JX3BOX cung cấp các nội dung giải trí và tra cứu: kỳ ngộ, danh vọng, sách, đề thi, mặt, vóc dáng, thú cưng, nội thất, tọa kỵ, bản thiết kế gia viên và QQBot.",
+        ui: {
+            categories: { share: "Sáng tạo của người chơi", rare: "Cẩm nang và bộ sưu tập", merchants: "Công cụ và thông tin" },
+            menus: {
+                face: "Dữ liệu khuôn mặt", body: "Dữ liệu vóc dáng", homeland: "Bản thiết kế gia viên",
+                adventure: "Danh sách kỳ ngộ", pet: "Thú cưng", horse: "Tọa kỵ", furniture: "Nội thất",
+                reputation: "Danh vọng", book: "Sách", treasure: "Cuộn kỳ ngộ", seniority: "Cẩm nang thành tựu",
+                questsection: "Biên niên sử", partner: "Đồng hành", exam: "Cẩm nang thi", manufacture: "Trợ lý chế tạo",
+                price: "Xu hướng giá", gonggao: "Thông báo sự kiện",
+            },
+        },
     },
     adventure: {
         title: "Danh sách kỳ ngộ",

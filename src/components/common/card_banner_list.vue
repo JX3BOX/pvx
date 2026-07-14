@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="m-card-banner-list_box" :count="count" :minw="minw">
-            <div class="m-cardlist-items" :style="`grid-template-columns: repeat(${count}, 1fr)`">
+            <div class="m-cardlist-items" :style="gridStyle">
                 <div class="m-cardlist-item" v-for="(item, index) in list" :key="index">
                     <!-- 调用渲染函数来渲染子元素 -->
                     <slot :item="item" :index="index">
@@ -18,7 +18,7 @@
                     </slot>
                 </div>
             </div>
-            <div class="m-cardlist-replace" @click="update">
+            <div v-if="showReplace" class="m-cardlist-replace" @click="update">
                 <img svg-inline src="@/assets/img/common/replace.svg" />
             </div>
         </div>
@@ -28,7 +28,36 @@
 <script>
 export default {
     name: "CardBannerList",
-    props: ["data", "count", "items", "minw"],
+    props: {
+        data: {
+            type: Object,
+            default: () => ({}),
+        },
+        count: {
+            type: Number,
+            default: 1,
+        },
+        items: {
+            type: Array,
+            default: () => [],
+        },
+        minw: {
+            type: [String, Number],
+            default: "",
+        },
+        showReplace: {
+            type: Boolean,
+            default: true,
+        },
+        fixedItemWidth: {
+            type: Boolean,
+            default: false,
+        },
+        limitToCount: {
+            type: Boolean,
+            default: false,
+        },
+    },
     emits: ["update:load"],
     data: function () {
         return {
@@ -47,8 +76,13 @@ export default {
             return this.data?.type;
         },
         list() {
-            // count 只控制网格列数，不限制显示数量
-            return this.items;
+            return this.limitToCount ? this.items.slice(0, this.count) : this.items;
+        },
+        gridStyle() {
+            const columnWidth = this.fixedItemWidth && this.minw ? `${Number(this.minw)}px` : "1fr";
+            return {
+                gridTemplateColumns: `repeat(${this.count}, ${columnWidth})`,
+            };
         },
     },
     mounted() { },
@@ -129,6 +163,7 @@ export default {
                 fill: v-bind(color);
             }
         }
+
     }
 }
 

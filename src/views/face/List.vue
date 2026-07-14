@@ -25,24 +25,27 @@
  -->
 <template>
     <div class="p-pvx-face-list" v-loading="loading" ref="listRef">
-        <faceTabs :body_types="list" :active="active" :link="link" @change="handleFaceTabChange" />
+        <faceTabs variant="modern" :body_types="list" :active="active" :link="link" @change="handleFaceTabChange" />
         <PublicNotice bckey="face_ac" />
         <template v-if="active === -1">
-            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
-                :class="{ none: !item.list.length }">
-                <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190"
-                    :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
-                    <template v-slot:title>
-                        <div>{{ item.label + "脸型" }}</div>
-                        <div></div>
-                    </template>
-                    <template v-slot:action>
-                        <div @click="setActive(item.value)">查看全部</div>
-                    </template>
-                    <template v-slot="{ item }">
-                        <ListItem type="face" :key="item.id" :item="item" />
-                    </template>
-                </CardBannerList>
+            <div class="m-pvx-overview-grid">
+                <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
+                    :class="{ none: !item.list.length }">
+                    <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190" :show-replace="false"
+                        fixed-item-width limit-to-count
+                        :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
+                        <template v-slot:title>
+                            <div>{{ item.label + "脸型" }}</div>
+                            <div></div>
+                        </template>
+                        <template v-slot:action>
+                            <div @click="setActive(item.value)">查看全部</div>
+                        </template>
+                        <template v-slot="{ item }">
+                            <ListItem type="face" variant="modern" :key="item.id" :item="item" />
+                        </template>
+                    </CardBannerList>
+                </div>
             </div>
         </template>
         <div class="m-pvx-type__box" v-else>
@@ -50,7 +53,7 @@
                 <div class="u-pvx-title">{{ typeName + "脸型" }}</div>
             </div>
             <div class="m-pvx-type__list--all">
-                <ListItem type="face" v-for="item in subList" :key="item.id" :item="item" />
+                <ListItem type="face" variant="modern" v-for="item in subList" :key="item.id" :item="item" />
             </div>
             <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">

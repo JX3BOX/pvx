@@ -44,6 +44,16 @@ export default {
             "JX3BOX leisure,JX3 leisure,adventure list,reputation list,book list,exam,face data,body data,pet list,furniture list,horse list,homeland blueprints,QQBot",
         description:
             "JX3BOX leisure hub for casual gameplay and data lookup, covering adventures, business, reputation, books, exams, face data, body data, pets, furniture, mounts, homeland blueprints and QQBot.",
+        ui: {
+            categories: { share: "Player Creations", rare: "Guides & Collections", merchants: "Tools & Information" },
+            menus: {
+                face: "Face Data", body: "Body Data", homeland: "Homeland Blueprints",
+                adventure: "Adventures", pet: "Pets", horse: "Mounts", furniture: "Furniture",
+                reputation: "Reputations", book: "Books", treasure: "Adventure Scroll", seniority: "Achievement Guide",
+                questsection: "Story Archive", partner: "Companions", exam: "Exam Guide", manufacture: "Crafting Assistant",
+                price: "Price Trends", gonggao: "Event Bulletin",
+            },
+        },
     },
     adventure: {
         title: "Adventure List",
