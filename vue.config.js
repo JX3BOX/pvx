@@ -98,7 +98,11 @@ const pages = {
 const path = require("path");
 const fs = require("fs");
 const webpack = require("webpack");
+const autoprefixer = require("autoprefixer");
+const tailwindPostcss = require("@tailwindcss/postcss");
 const commonDomains = require("@jx3box/jx3box-common/data/jx3box.json");
+const postcssConfig = path.resolve(__dirname, "./postcss.config.js");
+const tailwindEntry = path.resolve(__dirname, "./src/assets/css/tailwind.css");
 
 module.exports = {
     productionSourceMap: false,
@@ -191,6 +195,41 @@ module.exports = {
         //💖 import common less var * mixin ~
         const types = ["vue-modules", "vue", "normal-modules", "normal"];
         types.forEach((type) => addStyleResource(config.module.rule("less").oneOf(type)));
+
+        // 依赖包源码可能携带仅供其自身开发使用的 PostCSS 配置。
+        // 统一指定本项目配置，避免构建 node_modules 源码时误加载依赖包的 devDependencies。
+        const styleRules = ["css", "postcss", "scss", "sass", "less", "stylus"];
+        styleRules.forEach((styleRule) => {
+            types.forEach((type) => {
+                config.module
+                    .rule(styleRule)
+                    .oneOf(type)
+                    .use("postcss-loader")
+                    .tap((options = {}) => ({
+                        ...options,
+                        postcssOptions: {
+                            config: postcssConfig,
+                        },
+                    }));
+            });
+        });
+
+        // Tailwind v4 只处理唯一入口，普通 CSS/Less 不进入其增量缓存。
+        types.forEach((type) => {
+            config.module
+                .rule("css")
+                .oneOf(type)
+                .use("postcss-loader")
+                .tap((options = {}) => ({
+                    ...options,
+                    postcssOptions: (loaderContext) => ({
+                        plugins: [
+                            ...(path.resolve(loaderContext.resourcePath) === tailwindEntry ? [tailwindPostcss()] : []),
+                            autoprefixer,
+                        ],
+                    }),
+                }));
+        });
 
         config.externals = {
             tinyMCE: "tinyMCE",
