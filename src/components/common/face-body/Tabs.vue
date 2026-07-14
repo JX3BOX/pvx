@@ -1,27 +1,27 @@
-﻿﻿﻿﻿<!--
+﻿<!--
  * tabs - 列表页标签筛选组件
- *
+ * 
  * @description 用于脸型/体型列表页的搜索和筛选功能，包含搜索框、筛选器、发布入口
  * @author Face & Body 模块优化团队
  * @version 1.0.0
- *
+ * 
  * @features
  * - 支持face和body两种类型
  * - 集成PvxSearch搜索组件
  * - 支持多条件筛选
  * - 支持数据解析入口
  * - 支持发布作品入口
- *
+ * 
  * @props
  * - type: 'face' | 'body' - 模块类型
  * - active: Number - 当前激活标签
  * - searchItems: Array - 搜索项配置
  * - initSearchValue: Object - 初始搜索值
  * - filterOpen: Boolean - 筛选面板是否打开
- *
+ * 
  * @events
  * - change: 筛选条件变化事件
- *
+ * 
  * @styles
  * - 样式文件: assets/css/face/list.less 或 assets/css/body/list.less
  -->
@@ -30,9 +30,9 @@
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
             ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover">
             <template #extra>
-                <div class="m-pvx-toolbar__btn-group">
-                    <a :href="link.data" target="_blank" class="u-pvx-analysis-link">
-                        <div class="u-pvx-analysis">数据解析</div>
+                <div class="m-pvx-toolbar__item m-pvx-toolbar__publish">
+                    <a :href="link.data" target="_blank">
+                        <el-button type="primary" class="u-pvx-analysis"> 数据解析 </el-button>
                     </a>
                     <a :href="publish_link(link.key)" target="_blank">
                         <div class="u-pvx-fb-publish">
@@ -273,7 +273,6 @@ export default {
                 &.is-active {
                     // !important: 覆写 ElementPlus el-radio-button 内部样式
                     background-color: @pvx-color-face !important;
-                    box-shadow: 0 4px 12px 0 rgba(120, 108, 187, 0.20);
 
                     .el-radio-button__inner {
                         // !important: 覆写 ElementPlus el-radio-button__inner 内联样式
@@ -288,39 +287,25 @@ export default {
             .filter-img {
                 svg {
                     fill: #949494;
+                    background-color: #fff;
+                    border-radius: 50%;
                 }
             }
         }
     }
 
-    // 操作按钮组白色圆角容器（设计稿 Frame 276: height=60, padding=10/10/10/15）
-    .m-pvx-toolbar__btn-group {
+    .m-pvx-toolbar__publish {
         .flex;
-        align-items: center;
-        gap: 20px;
-        .r(10px);
-        padding: 10px 10px 10px 15px;
-        background-color: #fff;
-        border: 1px solid #EEF1F6;
-        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
-        box-sizing: border-box;
-    }
-
-    .u-pvx-analysis-link {
-        text-decoration: none;
     }
 
     .u-pvx-analysis {
-        .flex;
-        align-items: center;
-        justify-content: center;
         .r(5px);
         .fz(16px);
-        .size(100px, 40px);
+        .h(38px);
         background-color: #e54059;
-        color: #fff;
-        cursor: pointer;
+        border-color: #e54059;
         transition: 0.3s ease-out;
+        margin-right: 10px;
 
         &:hover {
             filter: brightness(1.1);
@@ -331,26 +316,21 @@ export default {
         .pr;
         .pointer;
         .bold;
-        .flex;
-        justify-content: flex-end;
-        align-items: center;
         .pr(10px);
-        .size(120px, 39px);
-        .fz(16px);
+        .size(130px, 38px);
+        .fz(16px, 38px);
         .r(5px);
         background: @pvx-color-face;
         color: #fff;
 
         span {
-            .pr;
-            z-index: 1;
+            .fr;
         }
 
         .u-pvx-img {
             .pa;
             .lb(0);
             .w(65px);
-            z-index: 0;
         }
 
         &:hover {
@@ -434,7 +414,7 @@ export default {
             }
         }
 
-        .m-pvx-toolbar__btn-group {
+        .m-pvx-toolbar__publish {
             order: -1;
             flex-direction: row-reverse;
             justify-content: space-between;

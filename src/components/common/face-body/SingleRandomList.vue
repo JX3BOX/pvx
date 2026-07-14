@@ -1,6 +1,6 @@
 <template>
-    <div class="m-pvx-random__list" v-if="list && list.length">
-        <div class="u-pvx-list m-pvx-single__content-box m-pvx-author__faces">
+    <div class="m-pvx-random__list">
+        <div class="u-pvx-list m-pvx-single__content-box m-pvx-author__faces" v-if="list && list.length">
             <ListItem
                 class="u-pvx-item"
                 :type="type"
@@ -19,7 +19,7 @@ import ListItem from "@/components/common/face-body/ListItem.vue";
 /**
  * SingleRandomList - 详情页随机推荐列表组件
  * 用于脸型/体型详情页展示作者其他作品推荐
- *
+ * 
  * 样式说明：
  * - 组件使用原有类名 m-random-list、u-list 等
  * - 样式由页面引入的 less 文件控制（body/single.less 或 face/single.less）

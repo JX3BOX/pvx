@@ -17,13 +17,8 @@
                         {{ item }}
                     </slot>
                 </div>
-                <!-- replace slot 放在 grid 内（用于 face 模块的"查看全部"卡片） -->
-                <div class="m-cardlist-item m-cardlist-replace--inline" v-if="$slots.replace" @click="update">
-                    <slot name="replace"></slot>
-                </div>
             </div>
-            <!-- 默认的侧边换一组按钮（body 模块使用） -->
-            <div class="m-cardlist-replace" v-if="!$slots.replace" @click="update">
+            <div class="m-cardlist-replace" @click="update">
                 <img svg-inline src="@/assets/img/common/replace.svg" />
             </div>
         </div>
@@ -104,25 +99,15 @@ export default {
             flex: 1;
             .grid;
             gap: 10px;
-
+            overflow-x: auto;
             padding:10px 0;
 
             .m-cardlist-item {
                 box-sizing: border-box;
                 background: #fff;
-                border: none;
+                border: 2px solid #fff;
                 transition: 0.3s ease-out;
                 // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
-                // replace slot 在 grid 内的容器（用于"查看全部"卡片）
-                &.m-cardlist-replace--inline {
-                    .flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: transparent;
-                    border: none;
-                    cursor: pointer;
-                }
             }
         }
 

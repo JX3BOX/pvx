@@ -11,22 +11,23 @@
     justify-content: space-between;
     align-items: center;
     padding: 27px 0 10px 0;
+    background-color: #fff;
 
     .u-pvx-goback {
         .pointer;
-        .r(@pvx-radius-pill);
+        .r(30px);
         .fz(16px);
         line-height: 40px;
         .size(100px, 40px);
         text-align: center;
         margin-right: 10px;
-        color: rgba(0, 0, 0, 0.5);
-        border: 1px solid @pvx-border-color;
-        background: #fff;
-        box-shadow: @pvx-shadow-light;
+        color: #fff;
+        border: none;
+        background: #24292e;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
 
         &:hover {
-            background: #f8f9fc;
+            background: @pvx-color-primary;
         }
     }
 
@@ -37,14 +38,12 @@
     .m-pvx-type__btn-box {
         .flex;
         .r(10px);
-        padding: 15px 10px 10px 15px;
-        gap: 10px;
-        background-color: #fff;
-        border: 1px solid @pvx-border-color;
-        box-shadow: @pvx-shadow-light;
+        padding: 12px;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
         .u-pvx-btn {
-            .r(5px);
+            .r(6px);
             .w(120px);
             .fz(16px);
 
@@ -58,27 +57,24 @@
         .pr;
         .pointer;
         .bold;
-        .flex;
-        justify-content: flex-end;
-        align-items: center;
         .fz(16px);
-        .pr(10px);
-        .size(120px, 39px);
-        .r(5px);
+        line-height: 39px;
+        .size(130px, 39px);
+        .r(6px);
         background: var(--pvx-module-color, @pvx-color-primary);
         color: #fff;
+        padding-right: 12px;
 
         span,
         .u-fb-publish-text {
-            .pr;
-            z-index: 1;
+            float: right;
         }
 
         .u-pvx-img {
             .pa;
-            .lb(0);
+            .lt(0, auto);
+            bottom: 0;
             .w(65px);
-            z-index: 0;
         }
 
         &:hover {
@@ -87,19 +83,19 @@
     }
 
     .u-pvx-publish {
-        margin-left: 10px;
+        margin-left: 12px;
     }
 
     .u-pvx-manage {
-        .r(5px);
+        .r(6px);
         .fz(16px);
         background: url("../../../../img/face/manage.svg") no-repeat center;
         .size(39px, 39px);
-        background-color: rgba(251, 47, 47, 0.5);
-        border: 1px solid #fb2f2f;
+        background-color: #fb2f2f;
+        border-color: #fb2f2f;
 
         &:hover {
-            filter: brightness(1.1);
+            animation: btnHover 300ms ease-out forwards;
         }
     }
 }
@@ -108,15 +104,7 @@
     .flex;
     align-items: flex-start;
     margin-top: 16px;
-    gap: 20px;
-    width: fit-content;
-
-    // 设计稿 Frame 269: 白色圆角卡片
-    .r(@pvx-radius-xl-large);
-    padding: 30px 180px 30px 30px;
-    box-sizing: border-box;
-    background: #fff;
-    box-shadow: @pvx-shadow-light;
+    gap: 16px;
 
     .m-pvx-avatar {
         .size(160px, 160px);
@@ -152,9 +140,8 @@
         .flex;
         .fz(12px);
         flex-direction: column;
-        gap: 10px;
-        flex: 1;
-        min-width: 0;
+        gap: 8px;
+        width: calc(100% - 300px);
         color: #000;
 
         .u-pvx-status,
@@ -260,53 +247,53 @@
         .u-fb-header-meta {
             .flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 6px;
 
-            // 设计稿 Frame 269: 标签为填充胶囊样式
             i,
             .u-fb-meta-tag {
                 .fz(12px);
-                .r(2px);
+                .r(4px);
                 flex-shrink: 0;
                 user-select: none;
-                padding: 2px 10px;
+                padding: 2px 6px;
                 font-style: normal;
             }
 
             .u-pvx-original {
-                background-color: rgb(255, 108, 152);
-                color: #fff;
+                border: 1px solid #f39;
+                color: #f39;
             }
 
             .u-pvx-is-new-face {
                 &.u-pvx-old {
-                    background-color: #409eff;
-                    color: #fff;
+                    border: 1px solid #409eff;
+                    color: #409eff;
                 }
 
                 &.u-pvx-new {
-                    background-color: #67c23a;
-                    color: #fff;
+                    border: 1px solid #67c23a;
+                    color: #67c23a;
                 }
             }
 
             .u-pvx-fr {
-                background-color: #c00;
-                color: #fff;
+                border: 1px solid #c00;
+                color: #c00;
             }
 
             .u-pvx-mark {
                 background-color: #6f42c1;
+                border: 1px solid #6f42c1;
                 color: #fff;
             }
 
             .u-pvx-client {
-                background-color: #0eb7ce;
-                color: #fff;
+                border: 1px solid #0eb7ce;
+                color: #0eb7ce;
 
                 &.std {
-                    background-color: #f0b400;
-                    color: #fff;
+                    border: 1px solid #f0b400;
+                    color: #f0b400;
                 }
             }
 
@@ -350,48 +337,27 @@
     gap: 16px;
 }
 
-// 设计稿 Frame 281: 独家数据分析白色圆角卡片
 .m-pvx-single__data {
     margin-top: 24px;
-    .r(@pvx-radius-xl-large);
-    padding: 30px;
-    box-sizing: border-box;
-    background: #fff;
-    box-shadow: @pvx-shadow-light;
-    .flex;
-    flex-direction: column;
 }
 
-// 设计稿 Frame 281: 紫色竖条 + 标题
 .m-pvx-single__data-title {
-    .flex;
-    align-items: center;
-    gap: 4px;
-    .fz(18px);
+    .fz(28px);
     .bold;
-    color: @pvx-text-primary;
-
-    &::before {
-        content: "";
-        .db;
-        .size(5px, 18px);
-        .r(60px);
-        background-color: var(--pvx-module-color, @pvx-color-primary);
-        flex-shrink: 0;
-    }
 }
 
 .m-pvx-single__buy-box {
     .flex;
     align-items: center;
-    .r(20px);
+    .r(10px);
+    margin-top: 16px;
     gap: 16px;
     flex-direction: column;
     .h(220px);
     padding: 16px;
     box-sizing: border-box;
-    background: @pvx-color-purple-soft;
-    box-shadow: @pvx-shadow-light;
+    background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
     .m-pvx-type__buy-btn {
         min-height: 60px;
@@ -425,14 +391,14 @@
         min-height: 110px;
         .w(100%);
         .h(110px);
-        .r(20px);
+        .r(10px);
         .fz(14px);
         .bold;
-        box-shadow: @pvx-shadow-light;
-        background: @pvx-color-purple-soft;
+        box-shadow: 0 4px 16px rgba(107, 82, 255, 0.3);
+        background: url("@{pvx-design-url}pvx/face_bg.svg") #d2738f;
 
         &.m-pvx-dowload {
-            background: @pvx-color-purple-soft;
+            background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
         }
 
         .u-pvx-box-img,
@@ -477,7 +443,7 @@
         margin-top: 16px;
         box-sizing: border-box;
         padding: 12px 17px;
-        background: rgba(71, 130, 224, 0.1);
+        background: #4782e01a;
         .flex;
 
         img,
@@ -524,9 +490,9 @@
         .r(10px);
         margin-top: 12px;
         overflow-y: auto;
-        background: #fff;
-        border: 1px solid var(--pvx-module-color, @pvx-color-primary);
-        box-shadow: @pvx-shadow-heavy;
+        background: @pvx-color-primary-bg;
+        border: 1px solid @pvx-color-primary-light;
+        box-shadow: 0 0 10px rgba(107, 82, 255, 0.4);
 
         .u-pvx-label {
             display: block;
@@ -559,8 +525,8 @@
         margin-top: 16px;
         box-sizing: border-box;
         padding: 12px 17px;
-        background-color: rgba(120, 108, 187, 0.1);
-        color: @pvx-color-purple-soft;
+        background-color: #786cbb1a;
+        color: #786cbb;
         .r(10px);
 
         img,
@@ -670,10 +636,8 @@
     justify-content: center;
     .w(100%);
     .h(500px);
-    .r(@pvx-radius-xl-large);
-    background-color: rgb(148, 148, 148);
-    box-shadow: @pvx-shadow-light;
-    overflow: hidden;
+    .r(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
     .u-pvx-no-pic {
         .pa;
@@ -691,7 +655,7 @@
         height: calc(100% - 40px);
         overflow: hidden;
         background-color: #fff;
-        .r(48px);
+        .r(10px);
     }
 
     .u-pvx-bg {
@@ -731,24 +695,19 @@
     }
 }
 
+.u-pvx-about-author {
+    .fz(28px);
+    .bold;
+    margin-top: 24px;
+}
+
 .m-pvx-author__header {
     margin-top: 16px;
-    .r(@pvx-radius-pill);
-    background: #fff;
-    border: 1px solid @pvx-border-color;
-    box-shadow: @pvx-shadow-light;
-    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .m-pvx-random__list {
     overflow: auto;
-    margin-top: 16px;
-    .r(@pvx-radius-pill);
-    background: #fff;
-    border: 1px solid @pvx-border-color;
-    box-shadow: @pvx-shadow-light;
-    padding: 30px;
-    box-sizing: border-box;
 
     .u-pvx-list {
         .flex;
@@ -786,28 +745,17 @@
 
 .m-pvx-thx {
     padding: 16px;
-    .r(@pvx-radius-pill);
-    background: #fff;
-    border: 1px solid @pvx-border-color;
-    box-shadow: @pvx-shadow-light;
 }
 
 .m-pvx-type__download {
     .flex;
     .flex(o);
     margin-top: 24px;
-    .size(100%, 110px);
-    .r(@pvx-radius-xl-large);
+    .size(100%, 120px);
+    .r(10px);
     .bold;
-    box-shadow: @pvx-shadow-heavy;
-    background-color: @pvx-color-purple-soft;
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px);
-    background-size: 20px 20px;
-
-    .m-pvx-type__buy-btn {
-        background: @pvx-color-orange;
-        box-shadow: none;
-    }
+    box-shadow: 0 4px 16px rgba(107, 82, 255, 0.3);
+    background: url("@{pvx-design-url}pvx/face_bg.svg") #786cbb;
 }
 
 .w-thx {
@@ -862,10 +810,11 @@
 // 组件class名无法修改，只能通过外部覆盖调整
 // 注意：.c-facedat-preivew 拼写错误来自源组件，不可修改
 
-// 设计稿 Frame 281: 数据内容区域（radius=10, 白色背景, gap=20）
 .c-facedat-preivew {
-    .r(10px);
+    margin-top: 16px;
+    padding: 16px 12px;
     background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
     .el-tabs__content {
         z-index: 9;
@@ -883,40 +832,6 @@
     .u-title {
         .flex;
         align-items: center;
-    }
-}
-
-// 设计稿 Frame 281: 数据清洗按钮（红色 rgb(255,56,56), radius=5）
-.u-clean-button {
-    .pointer;
-    .flex;
-    align-items: center;
-    .fz(16px);
-    .r(5px);
-    padding: 6px 18px;
-    background-color: rgb(255, 56, 56);
-    color: rgb(255, 56, 56);
-    border: 1px solid rgb(255, 56, 56);
-    background: transparent;
-    transition: all 0.3s ease;
-
-    &:hover {
-        background-color: rgb(255, 56, 56);
-        color: #fff;
-    }
-}
-
-// 设计稿 Frame 281: tab栏容器布局（HORIZONTAL, gap=20）
-.c-facedat-tab {
-    .flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-
-    .el-radio-group {
-        .flex;
-        gap: 20px;
-        flex-wrap: wrap;
     }
 }
 
@@ -1216,41 +1131,4 @@
         line-height: 40.54px;
         color: rgba(36, 41, 46, 1);
     }
-}
-
-// ==================== 评论区样式（设计稿 Frame 265）====================
-
-.m-pvx-comments {
-    margin-top: 24px;
-
-    .u-pvx-comments-title {
-        .fz(32px);
-        .bold;
-        color: @pvx-text-primary;
-        margin-bottom: 4px;
-    }
-
-    .u-pvx-comments-subtitle {
-        .fz(14px);
-        color: @pvx-text-primary;
-    }
-
-    .m-pvx-comments__box {
-        margin-top: 20px;
-        .r(10px);
-        padding: 20px 20px 40px;
-        background: #fff;
-        box-shadow: @pvx-shadow-medium;
-    }
-
-    // 隐藏旧的 el-divider 标题
-    .el-divider {
-        display: none;
-    }
-}
-
-.m-pvx-single__content-box {
-    .r(48px);
-    background: #fff;
-    box-sizing: border-box;
 }

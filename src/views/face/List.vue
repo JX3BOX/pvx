@@ -1,10 +1,10 @@
-﻿﻿<!--
+﻿<!--
  * List - 脸型模块列表页
- *
+ * 
  * @description 展示脸型列表，支持推荐列表和全部列表两种模式
  * @author Face & Body 模块优化团队
  * @version 2.0.0
- *
+ * 
  * @features
  * - 支持按脸型类型分类展示（写实、写意）
  * - 支持推荐列表和全部列表切换
@@ -12,13 +12,13 @@
  * - 支持搜索筛选
  * - 响应式布局适配
  * - 支持公告展示
- *
+ * 
  * @components
  * - faceTabs: 标签页组件
  * - PublicNotice: 公告组件
  * - CardBannerList: 卡片轮播列表组件
  * - ListItem: 列表项组件
- *
+ * 
  * @styles
  * - 样式文件: assets/css/face/list.less
  * - 样式文件: assets/css/face/item.less
@@ -27,8 +27,8 @@
     <div class="p-pvx-face-list" v-loading="loading" ref="listRef">
         <faceTabs :body_types="list" :active="active" :link="link" @change="handleFaceTabChange" />
         <PublicNotice bckey="face_ac" />
-        <div class="m-pvx-recommend__grid" :style="{ '--pvx-face-grid': per > 0 ? `repeat(${per}, 190px) 1fr` : '1fr' }" v-if="active === -1">
-            <div v-for="(item, index) in recommendList" :key="'l' + index" class="m-pvx-type__box m-pvx-type__container"
+        <template v-if="active === -1">
+            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
                 :class="{ none: !item.list.length }">
                 <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190"
                     :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
@@ -36,23 +36,23 @@
                         <div>{{ item.label + "脸型" }}</div>
                         <div></div>
                     </template>
+                    <template v-slot:action>
+                        <div @click="setActive(item.value)">查看全部</div>
+                    </template>
                     <template v-slot="{ item }">
                         <ListItem type="face" :key="item.id" :item="item" />
                     </template>
-                    <template v-slot:replace>
-                        <div class="u-pvx-view-all">查看全部</div>
-                    </template>
                 </CardBannerList>
             </div>
-        </div>
-        <div class="m-pvx-type__box m-pvx-type__container" v-else>
+        </template>
+        <div class="m-pvx-type__box" v-else>
             <div class="m-pvx-type__title u-pvx-type">
                 <div class="u-pvx-title">{{ typeName + "脸型" }}</div>
             </div>
             <div class="m-pvx-type__list--all">
                 <ListItem type="face" v-for="item in subList" :key="item.id" :item="item" />
             </div>
-            <el-button class="m-pvx-archive__more" v-show="hasNextPage" @click="appendPage"
+            <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">
                 <el-icon class="el-icon--left">
                     <ArrowDown />
@@ -71,7 +71,6 @@ import CardBannerList from "@/components/common/card_banner_list.vue";
 import faceTabs from "@/components/common/face-body/Tabs";
 import ListItem from "@/components/common/face-body/ListItem.vue";
 import pcListMixin from "@/components/common/face-body/mixins/pc-list-mixin";
-import { isPhone } from "@/utils/index";
 import { concat } from "lodash";
 import { getFaceList } from "@/service/face";
 import { ArrowDown } from '@element-plus/icons-vue';
@@ -113,11 +112,6 @@ export default {
             };
         },
 
-        // 推荐列表：排除"全部"分类，只显示具体类型（成男/成女/正太/萝莉）
-        recommendList() {
-            return this.list.filter((item) => item.value !== -1);
-        },
-
         alertTitle() {
             if (this.tabsData.title) return "没找到对应的捏脸，请重新选择条件或关键词搜索";
             return "没有找到相关的捏脸";
@@ -147,55 +141,6 @@ export default {
                     this.loading = false;
                     this.appendMode = false;
                 });
-        },
-
-        // 动态计算列数和每页数量，保证每页填满完整行
-        showCount() {
-            if (isPhone()) {
-                this.per = 8;
-                this.count = 8;
-                return;
-            }
-
-            if (this.active === -1) {
-                const totalWidth = this.$refs.listRef?.clientWidth || 1200;
-                const containerWidth = (totalWidth - 40) / 2 - 60;
-                const cardWidth = 190;
-                const viewAllMinWidth = 80;
-                const gridGap = 20;
-
-                const maxSlots = Math.floor((containerWidth + gridGap) / (cardWidth + gridGap));
-
-                const remainingAfterCards = containerWidth - maxSlots * cardWidth - (maxSlots - 1) * gridGap;
-
-                if (remainingAfterCards >= viewAllMinWidth) {
-                    this.per = Math.min(Math.max(maxSlots, 1), 6);
-                    this.count = this.per + 1;
-                } else {
-                    this.per = Math.min(Math.max(maxSlots - 1, 0), 6);
-                    if (this.per === 0) {
-                        this.count = 1;
-                    } else {
-                        this.count = this.per + 1;
-                    }
-                }
-            } else {
-                // 非全部模式：按容器宽度动态计算
-                const containerPadding = 60;
-                const listWidth = this.$refs.listRef?.clientWidth - containerPadding;
-                const cardMinWidth = 190;
-                const gridGap = 12;
-
-                this.count = Math.floor((listWidth + gridGap) / (cardMinWidth + gridGap));
-                if (this.count < 1) this.count = 1;
-
-                this.per = this.count * 4;
-            }
-        },
-
-        // 点击"查看全部"卡片时，跳转到该分类
-        handleLoad(type) {
-            this.setActive(type);
         },
 
         handleFaceTabChange(data) {
