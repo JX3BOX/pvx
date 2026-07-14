@@ -1,11 +1,14 @@
 @import (reference) "../design-system/_tokens.less";
 
 .c-pvx-modern-list-main,
-.c-pvx-modern-list-main .m-main {
+.c-pvx-modern-list-main .m-main,
+.c-pvx-modern-parse-main,
+.c-pvx-modern-parse-main .m-main {
     background: @pvx-page-bg;
 }
 
-.c-pvx-modern-list-main .m-main {
+.c-pvx-modern-list-main .m-main,
+.c-pvx-modern-parse-main .m-main {
     min-height: calc(100vh - 60px);
     padding: 0;
 }
@@ -21,7 +24,7 @@
 
     .m-pvx-fb__tabs--modern {
         position: sticky;
-        top: 12px;
+        top: calc(@header-height + 12px);
         z-index: 20;
     }
 
@@ -29,6 +32,7 @@
         height: auto;
         min-height: 72px;
         padding: @pvx-space-3 @pvx-space-4;
+        gap: @pvx-space-2;
         border: 1px solid @pvx-border;
         border-radius: @pvx-radius-control;
         background: rgba(255, 255, 255, 0.96);
@@ -36,15 +40,22 @@
         backdrop-filter: blur(12px);
 
         .search-group {
-            gap: @pvx-space-3;
+            gap: @pvx-space-2;
         }
 
         .search-item.type-list {
+            gap: @pvx-space-2;
+
+            .el-radio-group {
+                display: flex;
+                gap: @pvx-space-2;
+            }
+
             .type-item {
                 width: auto;
                 min-width: 72px;
                 height: 40px;
-                margin-right: @pvx-space-2;
+                margin-right: 0;
                 padding: 0 @pvx-space-3;
                 border: 1px solid transparent;
                 color: @pvx-text-secondary;
@@ -101,6 +112,59 @@
             }
         }
 
+        .search-item.input-wrap .search-input.el-input-group {
+            overflow: hidden;
+            border: 1px solid @pvx-border-light;
+            border-radius: 12px;
+            background: @pvx-surface-muted;
+            transition:
+                border-color @pvx-duration-fast @pvx-ease-standard,
+                box-shadow @pvx-duration-fast @pvx-ease-standard;
+
+            &:focus-within {
+                border-color: @pvx-border-focus;
+                box-shadow: @pvx-shadow-focus;
+            }
+
+            .el-input-group__prepend {
+                display: flex;
+                height: 40px;
+                align-items: center;
+                justify-content: center;
+                box-sizing: border-box;
+                padding: 0 0 0 14px;
+                border: 0;
+                color: @pvx-text-muted;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            .u-pvx-search-icon {
+                display: block;
+                width: 16px;
+                height: 16px;
+                flex: none;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 1.5;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                transform: translateY(1px);
+            }
+
+            .el-input__wrapper,
+            .el-input__wrapper.is-focus {
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+                box-shadow: none;
+            }
+
+            .el-input__wrapper {
+                padding-left: 8px;
+            }
+        }
+
         .m-pvx-toolbar__publish {
             display: flex;
             gap: @pvx-space-2;
@@ -120,6 +184,10 @@
                 padding: 0 @pvx-space-4;
                 border-radius: 12px;
                 font-weight: 600;
+            }
+
+            .u-pvx-analysis {
+                margin-right: 0;
             }
 
             .u-pvx-fb-publish {
@@ -208,9 +276,13 @@
         }
 
         .m-cardlist-items {
-            gap: @pvx-space-3;
-            overflow-x: auto;
-            padding: 2px 0 @pvx-space-3;
+            gap: 10px;
+            overflow: visible;
+            padding: 0;
+
+            .m-cardlist-item {
+                border: 0;
+            }
         }
 
         .m-cardlist-replace {
@@ -248,15 +320,37 @@
 
         &:hover {
             transform: translateY(-3px);
-            border-color: #c7d2fe;
+            border: 1px solid @pvx-primary;
             background: @pvx-surface;
-            box-shadow: @pvx-shadow-hover;
+            box-shadow:
+                0 0 0 2px rgba(91, 92, 245, 0.12),
+                @pvx-shadow-hover;
+        }
+
+        &:focus-visible {
+            outline: none;
+            border: 1px solid @pvx-primary;
+            box-shadow:
+                0 0 0 2px rgba(91, 92, 245, 0.16),
+                @pvx-shadow-hover;
+        }
+
+        &:active {
+            transform: translateY(-1px);
+            border: 1px solid @pvx-primary-hover;
+            box-shadow:
+                0 0 0 2px rgba(91, 92, 245, 0.18),
+                @pvx-shadow-sm;
         }
 
         .m-pvx-img,
         > .u-pvx-img {
             overflow: hidden;
             border-radius: 12px;
+        }
+
+        > .u-pvx-img {
+            align-self: center;
         }
 
         .m-pvx-op .u-pvx-title {
@@ -271,12 +365,20 @@
     }
 
     .m-pvx-type__list--all {
-        grid-template-columns: repeat(auto-fill, minmax(var(--pvx-module-card-width, 190px), 1fr));
-        gap: @pvx-space-4;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, var(--pvx-module-card-width, 190px));
+        gap: 10px;
+        justify-content: start;
 
         .m-pvx-type__item--modern {
-            width: 100%;
-            max-width: 240px;
+            width: var(--pvx-module-card-width, 190px);
+            max-width: none;
+            margin: 0;
+
+            > .u-pvx-img {
+                width: var(--pvx-module-card-img-width, 156px);
+                height: var(--pvx-module-card-img-height, 160px);
+            }
         }
     }
 
@@ -297,10 +399,176 @@
     }
 }
 
+.p-pvx-body-list {
+    --pvx-module-card-width: 200px;
+}
+
 .m-pvx-fb__filter-popover {
+    padding: 0;
     border: 1px solid @pvx-border;
     border-radius: @pvx-radius-control;
+    background: @pvx-surface;
     box-shadow: @pvx-shadow-hover;
+
+    .el-popper__arrow::before {
+        border-color: @pvx-border;
+        background: @pvx-surface;
+    }
+
+    .filter-content {
+        padding: @pvx-space-5 @pvx-space-5 @pvx-space-3;
+    }
+
+    .filter-content .filter-item {
+        margin-bottom: @pvx-space-5;
+
+        &:last-of-type {
+            margin-bottom: @pvx-space-2;
+        }
+
+        .check-box-wrapper {
+            > .name {
+                margin: 0 0 @pvx-space-2;
+                color: @pvx-text-primary;
+                font-size: 15px;
+                font-weight: 700;
+                line-height: 22px;
+            }
+
+            .el-checkbox-group,
+            .el-radio-group {
+                gap: @pvx-space-2;
+                max-height: none;
+                overflow: visible;
+
+                .el-checkbox-button,
+                .el-radio-button {
+                    margin: 0;
+
+                    .el-checkbox-button__inner,
+                    .el-radio-button__inner {
+                        width: auto;
+                        min-width: 88px;
+                        height: 36px;
+                        padding: 0 @pvx-space-3;
+                        border: 1px solid transparent;
+                        border-radius: @pvx-radius-pill;
+                        color: @pvx-text-secondary;
+                        background: @pvx-surface-muted;
+                        box-shadow: none;
+                        font-size: 14px;
+                        line-height: 34px;
+                        transition:
+                            color @pvx-duration-fast @pvx-ease-standard,
+                            border-color @pvx-duration-fast @pvx-ease-standard,
+                            background-color @pvx-duration-fast @pvx-ease-standard,
+                            transform @pvx-duration-fast @pvx-ease-standard;
+                    }
+
+                    &:hover {
+                        .el-checkbox-button__inner,
+                        .el-radio-button__inner {
+                            border-color: @pvx-primary-hover;
+                            color: @pvx-text-inverse;
+                            background: @pvx-primary-hover;
+                            transform: translateY(-1px);
+                        }
+                    }
+
+                    &.is-checked .el-checkbox-button__inner,
+                    &.is-active .el-radio-button__inner {
+                        border-color: @pvx-primary;
+                        color: @pvx-text-inverse;
+                        background: @pvx-primary;
+                        box-shadow: 0 4px 10px rgba(91, 92, 245, 0.2);
+                    }
+
+                    &.is-checked,
+                    &.is-active {
+                        --el-checkbox-button-checked-bg-color: @pvx-primary;
+                        --el-checkbox-button-checked-border-color: @pvx-primary;
+                        --el-checkbox-button-checked-text-color: @pvx-text-inverse;
+
+                        &:hover,
+                        &:focus,
+                        &.is-focus {
+                            .el-checkbox-button__inner,
+                            .el-radio-button__inner {
+                                border-color: @pvx-primary-hover;
+                                color: @pvx-text-inverse;
+                                background: @pvx-primary-hover;
+                            }
+                        }
+                    }
+
+                    &.is-disabled {
+                        .el-checkbox-button__inner,
+                        .el-radio-button__inner {
+                            border-color: transparent;
+                            color: @pvx-text-muted;
+                            background: @pvx-surface-muted;
+                            transform: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .filter-actions {
+        justify-content: flex-end;
+        padding-top: @pvx-space-2;
+        border-top: 1px solid @pvx-border-light;
+
+        .el-col {
+            width: auto;
+            max-width: none;
+            margin-left: 0;
+            flex: none;
+        }
+
+        .el-button {
+            min-width: 72px;
+            height: 34px;
+            border-color: @pvx-border;
+            border-radius: @pvx-radius-small;
+            color: @pvx-text-secondary;
+            background: @pvx-surface;
+
+            &:hover,
+            &:focus {
+                border-color: @pvx-border-focus;
+                color: @pvx-primary-hover;
+                background: @pvx-primary-soft;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-fb__filter-popover {
+        max-width: calc(100vw - 32px);
+
+        .filter-content {
+            padding: @pvx-space-4;
+        }
+
+        .filter-content .filter-item .check-box-wrapper {
+            .el-checkbox-group,
+            .el-radio-group {
+                gap: @pvx-space-1;
+
+                .el-checkbox-button,
+                .el-radio-button {
+                    .el-checkbox-button__inner,
+                    .el-radio-button__inner {
+                        min-width: 76px;
+                        padding: 0 @pvx-space-2;
+                    }
+                }
+            }
+        }
+    }
 }
 
 @media screen and (max-width: @ipad) {
@@ -345,7 +613,7 @@
 
             .search-group {
                 align-items: stretch;
-                gap: @pvx-space-3;
+                gap: @pvx-space-2;
             }
 
             .search-item.type-list {
@@ -388,15 +656,15 @@
 
         .m-pvx-type__list--all {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: @pvx-space-2;
+            grid-template-columns: repeat(auto-fill, var(--pvx-module-card-width, 190px));
+            gap: 10px;
 
             .m-pvx-type__item--modern {
-                width: 100%;
-                height: auto;
-                min-height: 260px;
+                width: var(--pvx-module-card-width, 190px);
+                height: var(--pvx-module-card-height, 280px);
+                min-height: 0;
                 margin: 0;
-                padding: 10px;
+                padding: 15px;
             }
         }
 

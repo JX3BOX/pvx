@@ -3,9 +3,17 @@
  *
  * @description 用于脸型/体型模块PC端列表页的公共逻辑抽取
  * @author Face & Body 模块优化团队
- * @version 1.4.0
+ * @version 1.6.0
  *
  * @changelog
+ * - v1.6.0: 具体分类复用总览列数并请求两行数据
+ *   - 卡片宽度和间距与“全部”总览保持一致
+ *   - 具体分类 pageSize 按当前列数的两倍计算
+ *   - 容器列数变化时同步刷新总览和具体分类
+ * - v1.5.0: 分类总览按容器宽度动态计算请求数量
+ *   - “全部”状态根据可用宽度、卡片宽度和实际 gap 计算 pageSize
+ *   - 具体分类仍固定每页请求 12 条
+ *   - 容器列数变化时防抖刷新，列数不变时不重复请求
  * - v1.4.0: 列表请求数量固定为 12
  *   - 分类总览固定请求 12 条并保持单行横向浏览
  *   - 全部列表固定每页 12 条并使用响应式折行
@@ -18,9 +26,10 @@
  *   - 移除 active watcher 中的 loadData 调用
  *   - params watcher 统一处理所有数据加载
  */
-import { omit, isEqual } from "lodash";
+import { omit, isEqual, debounce } from "lodash";
 
 const PAGE_SIZE = 12;
+const DEFAULT_CARD_GAP = 12;
 
 export default {
     data() {
@@ -35,12 +44,14 @@ export default {
             per: PAGE_SIZE,
             total: 0,
             count: PAGE_SIZE,
+            overviewItemWidth: 0,
             appendMode: false,
             isInitialized: false,
             // 标志位：是否正在切换 active（用于阻止 tabsData 变化触发的额外请求）
             isChangingActive: false,
             // 缓存上一次的请求参数，用于比较
             lastRequestParams: null,
+            overviewResizeObserver: null,
         };
     },
 
@@ -103,10 +114,17 @@ export default {
             // 滚动到顶部
             document.documentElement.scrollTop = 0;
 
-            // 直接调用 loadData，不依赖 params watcher
-            if (this.isInitialized) {
-                this.loadData();
-            }
+            const loadCurrentTab = () => {
+                this.showCount();
+
+                // 直接调用 loadData，不依赖 params watcher
+                if (this.isInitialized) {
+                    this.loadData();
+                }
+            };
+
+            // 列表 DOM 切换完成后才能取得准确的内容宽度
+            this.$nextTick(loadCurrentTab);
 
             // 在下一个 tick 重置标志位
             this.$nextTick(() => {
@@ -124,9 +142,69 @@ export default {
             this.handleLoad(this.active);
         },
 
-        showCount() {
-            this.count = PAGE_SIZE;
-            this.per = PAGE_SIZE;
+        getListLayout() {
+            const root = this.$refs.listRef;
+            const overview = root?.querySelector(".m-pvx-overview-grid");
+            const section = overview?.querySelector(".m-pvx-type__box") || root?.querySelector(".m-pvx-type__box");
+            const items = section?.querySelector(
+                this.active === -1 ? ".m-cardlist-items" : ".m-pvx-type__list--all"
+            );
+            const cardWidth = Number(this.itemData?.width);
+
+            if (!section || !cardWidth) {
+                return {
+                    count: this.count || 1,
+                    itemWidth: this.overviewItemWidth || cardWidth || 1,
+                };
+            }
+
+            const sectionStyle = window.getComputedStyle(section);
+            const itemsStyle = items ? window.getComputedStyle(items) : null;
+            const horizontalSpace =
+                parseFloat(sectionStyle.paddingLeft) +
+                parseFloat(sectionStyle.paddingRight) +
+                parseFloat(sectionStyle.borderLeftWidth) +
+                parseFloat(sectionStyle.borderRightWidth);
+            const containerWidth = overview
+                ? overview.getBoundingClientRect().width
+                : section.getBoundingClientRect().width;
+            const availableWidth = containerWidth - horizontalSpace;
+            const gap = parseFloat(itemsStyle?.columnGap || itemsStyle?.gap) || DEFAULT_CARD_GAP;
+            const count = Math.max(1, Math.floor((availableWidth + gap) / (cardWidth + gap)));
+
+            return {
+                count,
+                itemWidth: cardWidth,
+            };
+        },
+
+        showCount({ reload = false } = {}) {
+            const { count: nextCount, itemWidth } = this.getListLayout();
+            const hasChanged = nextCount !== this.count;
+
+            this.count = nextCount;
+            this.overviewItemWidth = itemWidth;
+            this.per = this.active === -1 ? nextCount : nextCount * 2;
+
+            if (reload && hasChanged && this.isInitialized) {
+                this.page = 1;
+                this.list.forEach((item) => {
+                    item.page = 1;
+                });
+                this.loadData();
+            }
+        },
+
+        observeOverviewWidth() {
+            const root = this.$refs.listRef;
+            if (!root) return;
+
+            if (typeof ResizeObserver !== "undefined") {
+                this.overviewResizeObserver = new ResizeObserver(this.handleOverviewResize);
+                this.overviewResizeObserver.observe(root);
+            } else {
+                window.addEventListener("resize", this.handleOverviewResize);
+            }
         },
 
         handleLoad(type) {
@@ -215,11 +293,24 @@ export default {
         },
     },
 
+    created() {
+        this.handleOverviewResize = debounce(() => {
+            this.$nextTick(() => this.showCount({ reload: true }));
+        }, 150);
+    },
+
     mounted() {
-        this.showCount();
         this.$nextTick(() => {
+            this.showCount();
             this.isInitialized = true;
             this.loadData();
+            this.observeOverviewWidth();
         });
+    },
+
+    beforeUnmount() {
+        this.overviewResizeObserver?.disconnect();
+        window.removeEventListener("resize", this.handleOverviewResize);
+        this.handleOverviewResize?.cancel();
     },
 };

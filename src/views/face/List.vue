@@ -31,8 +31,8 @@
             <div class="m-pvx-overview-grid">
                 <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
                     :class="{ none: !item.list.length }">
-                    <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190" :show-replace="false"
-                        fixed-item-width limit-to-count
+                    <CardBannerList :class="{ search: tabsData.title }" :count="count" :minw="190"
+                        :item-width="overviewItemWidth" :show-replace="false" stretch-items limit-to-count
                         :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
                         <template v-slot:title>
                             <div>{{ item.label + "脸型" }}</div>

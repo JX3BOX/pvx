@@ -76,6 +76,7 @@ app.use(ElementPlus, {
 });
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    if (key === "Comment") continue;
     app.component(key, component);
 }
 

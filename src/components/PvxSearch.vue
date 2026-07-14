@@ -13,7 +13,7 @@
                     <el-radio-group v-model="formData[item.key]">
                         <el-radio-button class="type-item" :class="{ active: typeItem.type === formData[item.key] }"
                             v-for="typeItem in item.options.filter((rItem) => !rItem.link)" :key="typeItem.type"
-                            :label="typeItem.type">{{ typeItem.name }}</el-radio-button>
+                            :value="typeItem.type">{{ typeItem.name }}</el-radio-button>
                     </el-radio-group>
                     <template v-if="item.options.filter((rItem) => rItem.link).length">
                         <a :href="typeItem.link" target="blank" class="type-item"
@@ -22,7 +22,8 @@
                     </template>
                 </template>
                 <template v-if="item.type === 'filter' && item.options.length">
-                    <el-popover ref="popover" :placement="isPhone() ? 'right' : 'bottom'" :width="!isPhone() && 420"
+                    <el-popover ref="popover" :placement="isPhone() ? 'right' : 'bottom'"
+                        :width="!isPhone() && (variant === 'modern' ? 480 : 420)"
                         trigger="click" v-model="filterValue" :popper-class="popperClass">
                         <div class="filter-content">
                             <div class="filter-item" v-for="fItem in item.options" :key="fItem.key">
@@ -42,7 +43,7 @@
                                     <div class="name">{{ fItem.name }}</div>
                                     <el-checkbox-group v-model="checkboxData[fItem.key]"
                                         @change="checkboxChange(fItem.key)">
-                                        <el-checkbox-button v-for="option in fItem.options" :label="option.value"
+                                        <el-checkbox-button v-for="option in fItem.options" :value="option.value"
                                             :key="option.value" :custom-label="option.label"
                                             @mouseenter="labelSet($event)" @mouseleave="labelRemove($event)">
                                             {{
@@ -63,7 +64,7 @@
                                             :class="{ active: radioItem.value === formData[fItem.key] }"
                                             v-for="radioItem in fItem.options"
                                             :key="radioItem.key || radioItem.value"
-                                            :label="radioItem.key"
+                                            :value="radioItem.key"
                                             :disabled="radioItem.disabled"
                                         >
                                             {{ radioItem.value }}
@@ -71,7 +72,7 @@
                                     </el-radio-group>
                                 </div>
                             </div>
-                            <el-row v-if="item.options.length">
+                            <el-row v-if="item.options.length" class="filter-actions">
                                 <el-col :offset="20" :span="4">
                                     <el-button size="small" type="info" plain @click="reset">重置</el-button>
                                 </el-col>
@@ -101,7 +102,13 @@
                 <template v-if="!item.type">
                     <el-input v-model="formData[item.key]" class="search-input" :placeholder="`输入${item.name}搜索`"
                         clearable>
-                        <template #suffix>
+                        <template v-if="variant === 'modern'" #prepend>
+                            <svg class="u-pvx-search-icon" viewBox="0 0 20 20" aria-hidden="true">
+                                <circle cx="8.5" cy="8.5" r="5.75" />
+                                <path d="M12.75 12.75L17 17" />
+                            </svg>
+                        </template>
+                        <template v-else #suffix>
                             <el-icon>
                                 <Search />
                             </el-icon>

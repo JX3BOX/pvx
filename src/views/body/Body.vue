@@ -25,7 +25,18 @@
     <div id="app">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="[navStatusClass, { 'c-pvx-modern-list-main': $route.name === 'list' }]" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                {
+                    'c-pvx-modern-list-main': $route.name === 'list',
+                    'c-pvx-modern-parse-main': $route.name === 'bodydata',
+                },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main"><router-view></router-view></div>
         </Main>
         <CommonFooter></CommonFooter>

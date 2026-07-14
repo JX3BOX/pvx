@@ -28,8 +28,8 @@
             <div class="m-pvx-overview-grid">
                 <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
                     :class="{ none: !item.list.length }">
-                    <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="200" :show-replace="false"
-                        fixed-item-width limit-to-count
+                    <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="200"
+                        :item-width="overviewItemWidth" :show-replace="false" stretch-items limit-to-count
                         :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
                         <template v-slot:title>
                             <div>{{ item.label + "体型" }}</div>

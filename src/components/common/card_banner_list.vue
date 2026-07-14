@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="m-card-banner-list_box" :count="count" :minw="minw">
-            <div class="m-cardlist-items" :style="gridStyle">
+            <div class="m-cardlist-items" :class="{ 'is-stretched': stretchItems }" :style="gridStyle">
                 <div class="m-cardlist-item" v-for="(item, index) in list" :key="index">
                     <!-- 调用渲染函数来渲染子元素 -->
                     <slot :item="item" :index="index">
@@ -53,6 +53,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        itemWidth: {
+            type: [String, Number],
+            default: "",
+        },
+        stretchItems: {
+            type: Boolean,
+            default: false,
+        },
         limitToCount: {
             type: Boolean,
             default: false,
@@ -79,7 +87,11 @@ export default {
             return this.limitToCount ? this.items.slice(0, this.count) : this.items;
         },
         gridStyle() {
-            const columnWidth = this.fixedItemWidth && this.minw ? `${Number(this.minw)}px` : "1fr";
+            const columnWidth = this.itemWidth
+                ? `${Number(this.itemWidth)}px`
+                : this.fixedItemWidth && this.minw
+                  ? `${Number(this.minw)}px`
+                  : "1fr";
             return {
                 gridTemplateColumns: `repeat(${this.count}, ${columnWidth})`,
             };
@@ -142,6 +154,10 @@ export default {
                 border: 2px solid #fff;
                 transition: 0.3s ease-out;
                 // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            &.is-stretched .m-cardlist-item > * {
+                width: 100%;
             }
         }
 
