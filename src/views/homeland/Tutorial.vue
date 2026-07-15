@@ -33,11 +33,26 @@
                 <el-table :data="level_data" stripe>
                     <el-table-column align="center">
                         <template v-slot:header>
-                            <h2 class="u-header"><i class="el-icon-s-home"></i> 家园升级需求</h2>
+                            <h2 class="u-header">
+                                <i class="el-icon-s-home"></i> {{ $t("pages.homeland.ui.levels.title") }}
+                            </h2>
                         </template>
-                        <el-table-column prop="Level" label="等级" align="center" width="100px"> </el-table-column>
-                        <el-table-column prop="Record" label="收藏分" align="center"> </el-table-column>
-                        <el-table-column prop="Currency" label="园宅币" align="center"> </el-table-column>
+                        <el-table-column
+                            prop="Level"
+                            :label="$t('pages.homeland.ui.levels.level')"
+                            align="center"
+                            width="100px"
+                        ></el-table-column>
+                        <el-table-column
+                            prop="Record"
+                            :label="$t('pages.homeland.ui.levels.collectionScore')"
+                            align="center"
+                        ></el-table-column>
+                        <el-table-column
+                            prop="Currency"
+                            :label="$t('pages.homeland.ui.levels.currency')"
+                            align="center"
+                        ></el-table-column>
                     </el-table-column>
                 </el-table>
             </div>

@@ -29,7 +29,7 @@
                     <div class="m-pvx-type__buy-btn m-pvx-type__buy-btn--copy" v-if="post.code_mode && !canBuy"
                         @click="copy(post.code)">
                         <div class="u-pvx-buy">
-                        <img class="u-fb-buy-icon" :src="require('@/assets/img/face/bxs_copy.svg')" alt="" />复制捏脸码
+                        <img class="u-fb-buy-icon" :src="require('@/assets/img/face/bxs_copy.svg')" alt="" />{{ $t("pages.faceBody.detail.copyFaceCode") }}
                     </div>
                     </div>
                     <div class="u-pvx-type-code u-fb-buy-code" v-if="post.code_mode">{{ post.code }}</div>
@@ -41,35 +41,27 @@
             <div class="m-pvx-single__section-header">
                 <div>
                     <span class="m-pvx-single__eyebrow">DATA ANALYSIS</span>
-                    <h2 class="m-pvx-single__data-title">独家数据分析</h2>
+                    <h2 class="m-pvx-single__data-title">{{ $t("pages.faceBody.detail.dataAnalysis") }}</h2>
                 </div>
-                <span class="u-pvx-single__section-tip">购买后可查看完整参数</span>
+                <span class="u-pvx-single__section-tip">{{ $t("pages.faceBody.detail.analysisHint") }}</span>
             </div>
             <facedata v-if="has_buy && facedata" :data="faceAllData" :lock="true" type="face" />
             <div class="m-pvx-single__buy-box" v-else>
                 <div class="m-pvx-type__buy-btn" @click="pay()" v-if="canBuy">
                     <div class="u-pvx-price">{{ priceText }}</div>
                     <div class="u-pvx-buy">
-                        <img class="u-fb-buy-icon" :src="require('@/assets/img/common/face-body/shopcart.svg')" alt="" />购买
+                        <img class="u-fb-buy-icon" :src="require('@/assets/img/common/face-body/shopcart.svg')" alt="" />{{ $t("pages.faceBody.detail.purchase") }}
                     </div>
                 </div>
-                <div class="u-pvx-type-buy-tip">数据分析将在购买后解锁</div>
+                <div class="u-pvx-type-buy-tip">{{ $t("pages.faceBody.detail.analysisLocked") }}</div>
             </div>
         </section>
-
-        <div class="m-pvx-type__download" v-if="has_buy && facedata">
-            <div class="m-pvx-type__buy-btn" @click="downloadAll">
-                <div class="u-pvx-buy">
-                    <img class="u-fb-buy-icon" :src="require('@/assets/img/common/face-body/download.svg')" alt="" />下载数据
-                </div>
-            </div>
-        </div>
 
         <section class="m-pvx-single__author m-pvx-single__panel">
             <div class="m-pvx-single__section-header">
                 <div>
                     <span class="m-pvx-single__eyebrow">CREATOR</span>
-                    <h2 class="u-pvx-about-author">关于作者</h2>
+                    <h2 class="u-pvx-about-author">{{ $t("pages.faceBody.detail.aboutCreator") }}</h2>
                 </div>
             </div>
             <authorItem :uid="post.user_id" />
@@ -79,18 +71,18 @@
             <div class="m-pvx-single__section-header">
                 <div>
                     <span class="m-pvx-single__eyebrow">MORE WORKS</span>
-                    <h2>更多作品</h2>
+                    <h2>{{ $t("pages.faceBody.detail.moreWorks") }}</h2>
                 </div>
             </div>
             <SingleRandomList :list="randomList" type="face" variant="modern" />
         </section>
 
-        <Thx class="m-pvx-thx m-pvx-single__content-box" :postId="id" postType="face" :postTitle="post.title || '无标题'"
+        <Thx class="m-pvx-thx m-pvx-single__content-box" :postId="id" postType="face" :postTitle="post.title || $t('pages.faceBody.detail.untitled')"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
             :client="post.client" />
 
         <div class="m-pvx-comments m-pvx-single__content-box">
-            <el-divider content-position="left">讨论</el-divider>
+            <el-divider content-position="left">{{ $t("pages.faceBody.detail.discussion") }}</el-divider>
             <CommonComment :id="id" category="face" />
         </div>
     </div>
@@ -113,7 +105,6 @@ import CommonComment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import User from "@jx3box/jx3box-common/js/user";
 import { buildFaceAllData } from "@/utils/data-parser";
 import { pollPayStatus } from "@/utils/pay-polling";
-import { formatPriceText } from "@/utils/price";
 import authorItem from "@/components/common/face-body/Author";
 import SingleNavigation from "@/components/common/face-body/SingleNavigation.vue";
 import SingleHeader from "@/components/common/face-body/SingleHeader.vue";
@@ -145,7 +136,9 @@ export default {
             return this.post.price_type && this.post.price_type != 0 && !this.has_buy;
         },
         priceText() {
-            return formatPriceText(this.post.price_type, this.post.price_count);
+            if (Number(this.post.price_type) === 1) return this.$t("pages.faceBody.detail.priceBoxcoin", { price: this.post.price_count });
+            if (Number(this.post.price_type) === 2) return this.$t("pages.faceBody.detail.priceGold", { price: this.post.price_count });
+            return "";
         },
         faceAllData() {
             return this.facedata;
@@ -185,9 +178,9 @@ export default {
                 User.toLogin();
                 return;
             }
-            this.$confirm("确认购买此捏脸？", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            this.$confirm(this.$t("pages.faceBody.detail.confirmPurchase"), this.$t("pages.faceBody.detail.prompt"), {
+                confirmButtonText: this.$t("pages.faceBody.detail.confirm"),
+                cancelButtonText: this.$t("pages.faceBody.detail.cancel"),
                 type: "warning",
             }).then(() => {
                 const params = {
@@ -203,9 +196,9 @@ export default {
                     .then((res) => this.pollPayStatus(res.data.data.id))
                     .catch((err) => {
                         if (err.response?.data?.code == 40019) {
-                            this.$confirm("余额不足，是否前往充值？", "提示", {
-                                confirmButtonText: "确定",
-                                cancelButtonText: "取消",
+                            this.$confirm(this.$t("pages.faceBody.detail.balanceInsufficient"), this.$t("pages.faceBody.detail.prompt"), {
+                                confirmButtonText: this.$t("pages.faceBody.detail.confirm"),
+                                cancelButtonText: this.$t("pages.faceBody.detail.cancel"),
                                 type: "warning",
                             }).then(() => window.open("/vip/cny", "_blank"));
                         }
@@ -221,7 +214,7 @@ export default {
                 onFail: () => this.handlePayResult(2),
                 onTimeout: () => {
                     this.payBtnLoading = false;
-                    this.$notify.error({ title: "超时", message: "支付结果查询超时，请稍后查看" });
+                    this.$notify.error({ title: this.$t("pages.faceBody.detail.timeout"), message: this.$t("pages.faceBody.detail.paymentTimeout") });
                 },
             });
         },
@@ -231,15 +224,15 @@ export default {
             this.payPollingHandle = null;
             if (status === 1) {
                 this.getData();
-                this.$notify.success({ title: "成功", message: "购买成功" });
+                this.$notify.success({ title: this.$t("pages.faceBody.detail.success"), message: this.$t("pages.faceBody.detail.purchaseSuccess") });
             } else {
-                this.$notify.error({ title: "失败", message: "支付失败" });
+                this.$notify.error({ title: this.$t("pages.faceBody.detail.failure"), message: this.$t("pages.faceBody.detail.purchaseFailed") });
             }
         },
 
         copy(txt) {
             navigator.clipboard.writeText(txt).then(() => {
-                this.$notify({ title: "复制成功", message: txt + "", type: "success" });
+                this.$notify({ title: this.$t("pages.faceBody.detail.copySuccess"), message: txt + "", type: "success" });
             });
         },
     },

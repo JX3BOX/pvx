@@ -18,6 +18,8 @@
 }
 
 .p-pvx-homeland-root {
+    padding-top: 0;
+
     .m-pvx-homeland-layout {
         display: grid;
         gap: @pvx-space-5;
@@ -28,6 +30,21 @@
         background:
             radial-gradient(circle at 92% 0%, rgba(91, 92, 245, 0.12), transparent 30%),
             @pvx-surface;
+    }
+
+    .m-pvx-homeland-header {
+        > div:first-child > div:first-child {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
     }
 
     .u-homeland-badge {
@@ -45,9 +62,13 @@
 
     .m-pvx-homeland-nav {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: @pvx-space-3;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: @pvx-space-1;
         margin-top: @pvx-space-6;
+        padding: @pvx-space-1;
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-control;
+        background: @pvx-surface-muted;
     }
 
     .u-homeland-nav-item {
@@ -55,15 +76,15 @@
         display: flex;
         position: relative;
         min-width: 0;
-        min-height: 84px;
+        min-height: 64px;
         align-items: center;
         gap: @pvx-space-3;
         box-sizing: border-box;
-        padding: @pvx-space-3;
-        border: 1px solid @pvx-border;
-        border-radius: @pvx-radius-control;
+        padding: @pvx-space-2;
+        border: 1px solid transparent;
+        border-radius: @pvx-radius-small;
         color: @pvx-text-regular;
-        background: @pvx-surface-muted;
+        background: transparent;
         font: inherit;
         text-align: left;
         text-decoration: none;
@@ -76,47 +97,46 @@
 
         > .u-icon {
             display: inline-flex;
-            width: 44px;
-            height: 44px;
+            width: 34px;
+            height: 34px;
             flex: none;
             align-items: center;
             justify-content: center;
-            border-radius: 14px;
+            border: 1px solid rgba(91, 92, 245, 0.08);
+            border-radius: 10px;
             color: @pvx-primary;
             background: @pvx-primary-soft;
-            font-size: 22px;
-        }
 
-        b,
-        small {
-            display: block;
+            svg {
+                width: 22px;
+                height: 22px;
+            }
         }
 
         b {
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
             color: @pvx-text-primary;
-            font-size: 16px;
-            line-height: 24px;
-        }
-
-        small {
-            margin-top: 2px;
-            color: @pvx-text-secondary;
-            font-size: 12px;
-            line-height: 18px;
+            font-size: 15px;
+            line-height: 22px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .u-external-icon {
             width: 16px;
             height: 16px;
+            flex: none;
             margin-left: auto;
             color: @pvx-text-muted;
         }
 
         &:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             border-color: @pvx-border-focus;
             background: @pvx-surface;
-            box-shadow: @pvx-shadow-hover;
+            box-shadow: @pvx-shadow-sm;
         }
 
         &.is-active {
@@ -125,89 +145,28 @@
             box-shadow: 0 0 0 2px rgba(91, 92, 245, 0.1);
 
             > .u-icon {
-                color: @pvx-text-inverse;
-                background: @pvx-primary;
+                border-color: rgba(91, 92, 245, 0.2);
+                color: @pvx-primary;
+                background: @pvx-surface;
             }
         }
-    }
 
-    .m-pvx-blueprint-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: @pvx-space-3;
-        margin-top: @pvx-space-5;
-    }
-
-    .u-pvx-blueprint-card {
-        .pvx-focus-ring();
-        .pvx-surface-interactive();
-        display: grid;
-        grid-template-columns: 48px minmax(0, 1fr) auto;
-        align-items: center;
-        gap: @pvx-space-3;
-        min-width: 0;
-        padding: @pvx-space-4;
-        border: 1px solid @pvx-border;
-        border-radius: @pvx-radius-control;
-        color: @pvx-text-regular;
-        background: @pvx-surface;
-        text-decoration: none;
-
-        > .u-icon {
-            display: inline-flex;
-            width: 48px;
-            height: 48px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            color: #047857;
-            background: #ecfdf5;
-            font-size: 24px;
-        }
-
-        .u-content {
-            min-width: 0;
-        }
-
-        b,
-        small {
-            display: block;
-        }
-
-        b {
-            color: @pvx-text-primary;
-            font-size: 16px;
-            line-height: 24px;
-        }
-
-        small {
-            .pvx-text-ellipsis(2);
-            margin-top: 2px;
-            color: @pvx-text-secondary;
-            font-size: 12px;
-            line-height: 18px;
-        }
-
-        .u-external {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            color: @pvx-text-muted;
-            font-size: 11px;
-            white-space: nowrap;
-
-            svg {
-                width: 14px;
-                height: 14px;
+        &--blueprint {
+            > .u-icon {
+                border-color: rgba(4, 120, 87, 0.1);
+                color: #047857;
+                background: #ecfdf5;
             }
         }
 
         &.is-paid > .u-icon {
+            border-color: rgba(180, 83, 9, 0.1);
             color: #b45309;
             background: #fffbeb;
         }
 
         &.is-collection > .u-icon {
+            border-color: rgba(190, 24, 93, 0.1);
             color: #be185d;
             background: #fdf2f8;
         }
@@ -217,18 +176,100 @@
         min-width: 0;
         padding-top: @pvx-space-6;
     }
+
+    .p-homeland-maps {
+        min-width: 0;
+    }
+
+    .m-homeland-maps-tabs {
+        .el-tabs__header {
+            margin: 0 0 @pvx-space-4;
+            padding: @pvx-space-1;
+            border: 1px solid @pvx-border-light;
+            border-radius: @pvx-radius-control;
+            background: @pvx-surface-muted;
+        }
+
+        .el-tabs__nav-wrap::after,
+        .el-tabs__active-bar {
+            display: none;
+        }
+
+        .el-tabs__nav {
+            display: flex;
+            gap: @pvx-space-1;
+        }
+
+        .el-tabs__item {
+            height: 38px;
+            padding: 0 @pvx-space-3 !important;
+            border: 1px solid transparent;
+            border-radius: @pvx-radius-small;
+            color: @pvx-text-secondary;
+            font-size: 14px;
+            font-weight: 600;
+            transition:
+                border-color @pvx-duration-normal @pvx-ease-standard,
+                color @pvx-duration-normal @pvx-ease-standard,
+                background-color @pvx-duration-normal @pvx-ease-standard,
+                box-shadow @pvx-duration-normal @pvx-ease-standard;
+
+            &:hover {
+                color: @pvx-primary;
+                background: @pvx-surface;
+            }
+
+            &.is-active {
+                border-color: @pvx-border-focus;
+                color: @pvx-primary;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-xs;
+            }
+        }
+
+        .el-tabs__content {
+            overflow: visible;
+        }
+    }
+
+    .m-house-map {
+        width: 100%;
+        min-width: 0;
+        overflow-x: auto;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+    }
+
+    .m-house-model {
+        width: 1024px;
+        height: 896px;
+        margin: 0 auto;
+
+        .u-map {
+            overflow: hidden;
+            border: 1px solid @pvx-border;
+            border-radius: 12px;
+            box-shadow: @pvx-shadow-sm;
+        }
+
+        .u-map-bg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
+
+@media screen and (max-width: 1440px) {
+    .p-pvx-homeland-root .m-pvx-homeland-nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media screen and (max-width: @ipad) {
     .p-pvx-homeland-root {
-        .m-pvx-homeland-nav,
-        .m-pvx-blueprint-grid {
+        .m-pvx-homeland-nav {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .u-homeland-nav-item:last-child,
-        .u-pvx-blueprint-card:last-child {
-            grid-column: 1 / -1;
         }
     }
 }
@@ -243,39 +284,40 @@
             display: none;
         }
 
-        .m-pvx-homeland-nav,
-        .m-pvx-blueprint-grid {
+        .m-pvx-homeland-nav {
             grid-template-columns: minmax(0, 1fr);
             margin-top: @pvx-space-4;
         }
 
-        .u-homeland-nav-item:last-child,
-        .u-pvx-blueprint-card:last-child {
-            grid-column: auto;
-        }
-
         .u-homeland-nav-item {
-            min-height: 72px;
+            min-height: 60px;
             padding: @pvx-space-2;
-        }
-
-        .u-pvx-blueprint-card {
-            grid-template-columns: 44px minmax(0, 1fr);
-            padding: @pvx-space-3;
-
-            > .u-icon {
-                width: 44px;
-                height: 44px;
-            }
-
-            .u-external {
-                grid-column: 2;
-                justify-self: start;
-            }
         }
 
         .m-homeland-content {
             padding-top: @pvx-space-4;
+        }
+
+        .m-homeland-maps-tabs {
+            .el-tabs__header {
+                margin-bottom: @pvx-space-3;
+                padding: 6px;
+            }
+
+            .el-tabs__item {
+                height: 36px;
+                padding: 0 @pvx-space-2 !important;
+                font-size: 13px;
+            }
+
+            .el-tabs__nav-prev,
+            .el-tabs__nav-next {
+                display: flex;
+                height: 36px;
+                align-items: center;
+                justify-content: center;
+                line-height: 36px;
+            }
         }
     }
 }

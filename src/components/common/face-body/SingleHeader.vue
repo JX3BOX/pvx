@@ -24,8 +24,8 @@
     <div class="m-pvx-header">
         <div class="m-pvx-header__info">
             <h2 class="u-fb-header-heading">
-                {{ post.title || "无标题" }}
-                <el-tag class="u-pvx-status u-fb-header-status" v-if="post.status != 1" effect="dark" type="danger">已下架</el-tag>
+                {{ post.title || $t("pages.faceBody.detail.untitled") }}
+                <el-tag class="u-pvx-status u-fb-header-status" v-if="post.status != 1" effect="dark" type="danger">{{ $t("pages.faceBody.detail.removed") }}</el-tag>
             </h2>
 
             <div class="u-pvx-author u-fb-header-author">
@@ -42,18 +42,18 @@
                     <el-icon class="u-pvx-edit-icon u-fb-author-icon">
                         <EditPen />
                     </el-icon>
-                    编辑
+                    {{ $t("pages.faceBody.detail.edit") }}
                 </a>
             </div>
 
             <div class="u-pvx-meta u-fb-header-meta">
-                <i class="u-pvx-mark u-fb-meta-tag" v-if="!!post.star">★ 编辑推荐</i>
-                <i class="u-pvx-fr u-fb-meta-tag" v-if="!!post.is_fr">首发</i>
-                <i class="u-pvx-original u-fb-meta-tag" v-if="!!post.original">原创</i>
+                <i class="u-pvx-mark u-fb-meta-tag" v-if="!!post.star">★ {{ $t("pages.faceBody.card.editorChoice") }}</i>
+                <i class="u-pvx-fr u-fb-meta-tag" v-if="!!post.is_fr">{{ $t("pages.faceBody.detail.firstPublished") }}</i>
+                <i class="u-pvx-original u-fb-meta-tag" v-if="!!post.original">{{ $t("pages.faceBody.detail.original") }}</i>
                 <i class="u-pvx-client u-fb-meta-tag" :class="post.client || 'std'">{{ showClientLabel(post.client) }}</i>
                 <template v-if="type === 'face' && post.client === 'std'">
                     <i class="u-pvx-is-new-face u-fb-meta-tag" :class="post.is_new_face === 1 ? 'u-pvx-new' : 'u-pvx-old'">
-                        {{ newFaceMap[post.is_new_face] }}
+                        {{ showFaceStyleLabel(post.is_new_face) }}
                     </i>
                 </template>
                 <i class="u-pvx-bodytype u-fb-meta-tag" :class="'u-pvx-bodytype-' + post.body_type" v-if="post.body_type">
@@ -104,10 +104,7 @@ export default {
         },
     },
     data() {
-        return {
-            client_map: __clients,
-            newFaceMap: ["写意", "写实"],
-        };
+        return { client_map: __clients };
     },
     computed: {
         tvLink() {
@@ -119,10 +116,16 @@ export default {
         authorLink,
         editLink,
         showClientLabel(val) {
-            return this.client_map[val];
+            const key = `pages.faceBody.detail.clients.${val}`;
+            return this.$te(key) ? this.$t(key) : this.client_map[val];
+        },
+        showFaceStyleLabel(val) {
+            return this.$t(val === 1 ? "pages.faceBody.card.realistic" : "pages.faceBody.card.artistic");
         },
         showBodyTypeLabel(val) {
-            return bodyMap[val];
+            const roleKeys = { 1: "male", 2: "female", 5: "boy", 6: "girl" };
+            const roleKey = roleKeys[val];
+            return roleKey ? this.$t(`pages.faceBody.roles.${roleKey}`) : bodyMap[val];
         },
     },
 };

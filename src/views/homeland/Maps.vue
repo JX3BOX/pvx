@@ -3,7 +3,12 @@
         <!-- <h1 class="u-title">家园地图</h1> -->
         <div class="m-homeland-maps-tabs">
             <el-tabs v-model="active">
-                <el-tab-pane v-for="(label, map_id) in data" :key="map_id" :label="label" :name="map_id">
+                <el-tab-pane
+                    v-for="(label, map_id) in data"
+                    :key="map_id"
+                    :label="$t(`pages.homeland.ui.mapNames.${map_id}`)"
+                    :name="map_id"
+                >
                     <div class="m-house-map">
                         <div class="m-house-model">
                             <div class="u-map">
@@ -21,8 +26,10 @@
                                     <template #content>
                                         <span class="u-house-desc">
                                             {{ house.name }} <br />
-                                            面积：{{ house.area }} <br />
-                                            价格：<GamePrice :price="~~house.price * 10000" />
+                                            {{ $t("pages.homeland.ui.house.area") }}：{{ house.area }} <br />
+                                            {{ $t("pages.homeland.ui.house.price") }}：<GamePrice
+                                                :price="~~house.price * 10000"
+                                            />
                                         </span>
                                     </template>
                                     <span class="u-house-item" :class="'u-house-index-' + i" :style="buildStyle(house)">

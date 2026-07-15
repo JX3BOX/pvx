@@ -13,7 +13,7 @@
 .p-pvx-face-single--modern {
     box-sizing: border-box;
     width: 100%;
-    max-width: 1600px;
+    max-width: none;
     min-height: calc(100vh - @header-height);
     margin: 0 auto;
     padding: 30px;
@@ -44,6 +44,7 @@
             align-items: center;
             justify-content: center;
             margin: 0;
+            padding: 0 16px;
             border: 1px solid @pvx-border;
             border-radius: @pvx-radius-control;
             color: @pvx-text-regular;
@@ -51,6 +52,7 @@
             box-shadow: none;
             font-size: 14px;
             line-height: 1;
+            white-space: nowrap;
 
             &:hover {
                 border-color: @pvx-border-focus;
@@ -66,10 +68,25 @@
         }
 
         .u-pvx-type-publish {
+            display: inline-flex;
+            width: auto;
+            min-width: 130px;
             height: 40px;
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 14px 0 66px;
             border-radius: @pvx-radius-control;
             line-height: 40px;
+            white-space: nowrap;
             background: @pvx-primary;
+
+            .u-fb-publish-text {
+                position: relative;
+                z-index: 2;
+                float: none;
+                line-height: 1.2;
+            }
         }
 
         .u-pvx-manage {
@@ -108,6 +125,10 @@
         .u-fb-header-author {
             height: auto;
             color: @pvx-text-secondary;
+
+            .u-fb-author-link {
+                border-bottom: 1px solid transparent;
+            }
         }
 
         .u-pvx-avatar {
@@ -129,7 +150,7 @@
 
     .m-pvx-type__content {
         display: grid;
-        grid-template-columns: minmax(0, 1.55fr) minmax(360px, 0.75fr);
+        grid-template-columns: minmax(0, 1fr) 480px;
         align-items: stretch;
         margin-top: @pvx-space-5;
         gap: @pvx-space-5;
@@ -162,11 +183,21 @@
         width: 100%;
         min-width: 0;
         padding: @pvx-space-4;
+        overflow: visible;
 
         .m-pvx-type__buy {
-            overflow: hidden;
+            overflow: visible;
             border-radius: @pvx-radius-card;
             box-shadow: none;
+
+            &.m-pvx-dowload .m-fb-buy-btn .u-pvx-buy {
+                transform: translateX(-18px);
+            }
+        }
+
+        .u-pvx-type-desc-tab {
+            font-size: 18px;
+            line-height: 26px;
         }
 
         .m-pvx-type__tips,
@@ -221,6 +252,16 @@
         box-shadow: none;
     }
 
+    .m-pvx-thx .w-thx-copyright {
+        width: 100%;
+        max-width: 1120px;
+        box-sizing: border-box;
+        padding: 14px 20px;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
     .m-pvx-type__download {
         height: 96px;
         margin-top: @pvx-space-5;
@@ -249,16 +290,42 @@
 
         .u-pvx-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: none;
+            grid-auto-flow: column;
+            grid-auto-columns: 190px;
+            justify-content: start;
             margin: 0;
-            padding: 0;
-            gap: @pvx-space-4;
+            padding: 4px 0 10px;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
             border: 0;
             box-shadow: none;
+            scrollbar-color: @pvx-border @pvx-surface-muted;
+            scrollbar-width: thin;
 
             .u-pvx-item {
-                width: 100%;
+                width: 190px;
+                max-width: none;
+                height: auto;
+                min-height: 250px;
                 margin: 0;
+
+                > .u-pvx-img {
+                    display: block;
+                    width: 156px;
+                    height: 160px;
+                    flex: none;
+                    overflow: hidden;
+                    border-radius: 12px;
+                }
+
+                > .u-pvx-pinch-marker {
+                    top: 15px;
+                    right: 15px;
+                    width: 30px;
+                    height: 30px;
+                }
             }
         }
     }
@@ -311,6 +378,8 @@
 
             .u-pvx-goback {
                 min-width: 84px;
+                padding: 0 12px;
+                font-size: 13px;
             }
 
             .m-pvx-type__btn-box {
@@ -318,7 +387,11 @@
             }
 
             .u-pvx-type-publish {
-                width: 118px;
+                width: auto;
+                min-width: 118px;
+                padding-right: 12px;
+                padding-left: 52px;
+                font-size: 13px;
             }
         }
 
@@ -372,15 +445,146 @@
         }
 
         .m-pvx-single__author .m-pvx-author__header {
-            min-height: 240px;
+            height: auto;
+            min-height: 0;
+
+            .m-pvx-info {
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: 0;
+                align-items: center;
+                flex-direction: column;
+                padding: @pvx-space-4;
+            }
+
+            .u-pvx-avatar {
+                width: 112px;
+                height: 112px;
+                margin: 0 auto @pvx-space-3;
+            }
+
+            .m-pvx-author__info {
+                width: 100%;
+                min-width: 0;
+                align-items: center;
+                text-align: center;
+            }
+
+            .u-pvx-name {
+                width: 100%;
+                min-width: 0;
+                align-items: center;
+                flex-direction: column;
+                gap: 4px;
+                font-size: 20px;
+                line-height: 28px;
+
+                > * + * {
+                    margin-left: 0;
+                }
+
+                > span:first-child {
+                    max-width: 100%;
+                    overflow-wrap: anywhere;
+                }
+
+                .u-pvx-uid {
+                    font-size: 12px;
+                    line-height: 18px;
+                }
+            }
+
+            .u-pvx-tips {
+                display: flex;
+                height: auto;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: @pvx-space-1;
+                gap: 4px;
+            }
         }
 
         .m-pvx-random__list .u-pvx-list {
             grid-template-columns: 1fr;
+            grid-auto-flow: row;
+            grid-auto-columns: auto;
+            gap: 10px;
+            padding: 0;
+            overflow: visible;
 
-            .m-pvx-type__item--modern {
-                max-width: 220px;
-                margin: 0 auto;
+            .u-pvx-item.m-pvx-type__item--modern {
+                display: grid;
+                grid-template-columns: 126px minmax(0, 1fr);
+                grid-template-rows: minmax(0, 1fr) auto;
+                column-gap: 12px;
+                row-gap: 6px;
+                width: 100%;
+                max-width: none;
+                height: 112px;
+                min-height: 112px;
+                margin: 0;
+                padding: 8px;
+                border-radius: 18px;
+
+                &:hover,
+                &:active {
+                    transform: none;
+                }
+
+                > .u-pvx-img {
+                    grid-column: 1;
+                    grid-row: 1 / span 2;
+                    width: 126px;
+                    height: 96px;
+                    border-radius: 12px;
+                }
+
+                > .u-pvx-pinch-marker {
+                    top: 7px;
+                    right: auto;
+                    left: 112px;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 0 12px 0 0;
+                }
+
+                .m-pvx-op {
+                    grid-column: 2;
+                    grid-row: 1;
+                    min-width: 0;
+                    align-self: start;
+                    padding-top: 4px;
+
+                    .u-pvx-title {
+                        overflow: hidden;
+                        font-size: 15px;
+                        line-height: 22px;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                }
+
+                .m-pvx-tags {
+                    grid-column: 2;
+                    grid-row: 2;
+                    justify-content: flex-start;
+                    align-self: end;
+                    min-width: 0;
+                    height: 20px;
+                    gap: 6px;
+
+                    .m-pvx-tag__left {
+                        min-width: 0;
+                        gap: 6px;
+                    }
+
+                    .u-pvx-tag {
+                        flex-shrink: 0;
+                        border-radius: 4px;
+                    }
+                }
             }
         }
     }

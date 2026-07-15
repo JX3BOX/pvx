@@ -23,7 +23,7 @@
  -->
 <template>
     <div class="m-pvx-navigation">
-        <div class="u-pvx-goback" @click="handleGoBack">返回列表</div>
+        <div class="u-pvx-goback" @click="handleGoBack">{{ $t("pages.faceBody.detail.backToList") }}</div>
 
         <div class="m-pvx-type__btn-box">
             <a :href="publishLink" target="_blank">
@@ -65,7 +65,8 @@ export default {
     computed: {
         // 发布按钮文案
         publishText() {
-            return this.type === "face" ? "发布作品" : "发布体型";
+            const key = this.type === "face" ? "publishFace" : "publishBody";
+            return this.$t(`pages.faceBody.detail.${key}`);
         },
         // 发布链接
         publishLink() {

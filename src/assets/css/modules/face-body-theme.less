@@ -653,17 +653,23 @@ html:lang(vi) {
     }
 }
 
-@media screen and (max-width: 1280px) and (min-width: (@phone + 1px)) {
+@media screen and (max-width: 1440px) and (min-width: (@phone + 1px)) {
     .p-pvx-face-list,
     .p-pvx-body-list {
         .m-pvx-type__box .m-cardlist-items {
+            min-width: 0;
+            max-width: 100%;
             overflow-x: auto;
             overflow-y: hidden;
+            margin-top: -8px;
+            padding-top: 8px;
             scrollbar-width: thin;
         }
     }
+}
 
-    // 英文、越南文标签更长：移动端允许标签换行，并为第二行预留高度。
+@media screen and (max-width: @phone) {
+    // 英文、越南文标签更长：仅移动端允许标签换行，并为第二行预留高度。
     html:lang(en) .p-pvx-face-list,
     html:lang(vi) .p-pvx-face-list {
         .m-pvx-type__item--modern,

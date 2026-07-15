@@ -22,6 +22,8 @@ import { getStat, postStat } from "@jx3box/jx3box-common/js/stat";
 import { downloadZip } from "@/utils/exportFileZip";
 import dayjs from "@/utils/day";
 
+const RANDOM_LIST_LIMIT = 12;
+
 export default {
     data() {
         return {
@@ -62,8 +64,10 @@ export default {
         },
 
         topicText() {
-            return this.topic_info 
-                ? `${dayjs.tz(this.topic_info.created_at).format("YYYY年MM月DD日")}荣登头条` 
+            return this.topic_info
+                ? this.$t("pages.faceBody.detail.topicFeatured", {
+                    date: dayjs.tz(this.topic_info.created_at).format("YYYY-MM-DD"),
+                })
                 : "";
         },
     },
@@ -99,7 +103,7 @@ export default {
 
         handleDownloadFile(item) {
             if (!item || !item.uuid) {
-                this.$message.error("文件信息不完整");
+                this.$message.error(this.$t("pages.faceBody.detail.fileIncomplete"));
                 return;
             }
             
@@ -109,12 +113,12 @@ export default {
                     if (url) {
                         this.downloadfile(url, item.name);
                     } else {
-                        this.$message.error("获取下载地址失败");
+                        this.$message.error(this.$t("pages.faceBody.detail.downloadUrlFailed"));
                     }
                 })
                 .catch((err) => {
                     console.error("获取下载地址失败:", err);
-                    this.$message.error("获取下载地址失败");
+                    this.$message.error(this.$t("pages.faceBody.detail.downloadUrlFailed"));
                 });
         },
 
@@ -156,7 +160,7 @@ export default {
 
         downloadAll() {
             if (!this.downFileList || this.downFileList.length === 0) {
-                this.$message.warning("暂无可下载的文件");
+                this.$message.warning(this.$t("pages.faceBody.detail.noDownloadableFiles"));
                 return;
             }
 
@@ -176,7 +180,7 @@ export default {
                 );
 
             if (urlArr.length === 0) {
-                this.$message.warning("没有可下载的文件");
+                this.$message.warning(this.$t("pages.faceBody.detail.noDownloadableFiles"));
                 return;
             }
 
@@ -192,12 +196,12 @@ export default {
                     if (downloadFiles.length > 0) {
                         downloadZip(downloadFiles, `${this.type}_${this.id}.zip`, "url", "name");
                     } else {
-                        this.$message.error("获取下载地址失败");
+                        this.$message.error(this.$t("pages.faceBody.detail.downloadUrlFailed"));
                     }
                 })
                 .catch((err) => {
                     console.error("批量下载失败:", err);
-                    this.$message.error("下载失败，请重试");
+                    this.$message.error(this.$t("pages.faceBody.detail.downloadFailed"));
                 });
         },
 
@@ -214,11 +218,9 @@ export default {
 
         getRandomList() {
             const { user_id } = this.post;
-            const listWidth = this.$refs.singleRef?.clientWidth - 120;
-            const limit = Math.floor(listWidth / 190);
-            this.fetchRandomList({ user_id, limit }).then((res) => {
+            this.fetchRandomList({ user_id, limit: RANDOM_LIST_LIMIT }).then((res) => {
                 if (res.data.data.list && res.data.data.list.length > 0) {
-                    this.randomList = res.data.data.list;
+                    this.randomList = res.data.data.list.slice(0, RANDOM_LIST_LIMIT);
                 }
             });
         },

@@ -3,63 +3,60 @@
         <div class="m-pvx-homeland-layout">
             <PvxSurface class="m-pvx-homeland-hero" padding="large">
                 <PvxSectionHeader
-                    title="家园蓝图"
-                    description="家园信息、地图工具与蓝图资源的一站式入口"
+                    class="m-pvx-homeland-header"
+                    :title="$t('pages.homeland.ui.title')"
+                    :description="$t('pages.homeland.ui.description')"
                     level="h1"
                 >
-                    <template #icon><House /></template>
-                    <template #action><span class="u-homeland-badge">家园工具箱</span></template>
+                    <template #icon><HomeFilled /></template>
+                    <template #action><span class="u-homeland-badge">{{ $t("pages.homeland.ui.toolkit") }}</span></template>
                 </PvxSectionHeader>
 
-                <nav class="m-pvx-homeland-nav" aria-label="家园功能导航">
+                <nav class="m-pvx-homeland-nav" :aria-label="$t('pages.homeland.ui.navigationLabel')">
                     <button
                         type="button"
                         class="u-homeland-nav-item"
                         :class="{ 'is-active': active === 'info' }"
+                        :title="$t('pages.homeland.ui.tabs.info')"
                         @click="selectSection('info')"
                     >
                         <span class="u-icon"><InfoFilled /></span>
-                        <span><b>家园信息</b><small>日常活动与升级数据</small></span>
+                        <b>{{ $t("pages.homeland.ui.tabs.info") }}</b>
                     </button>
                     <button
                         type="button"
                         class="u-homeland-nav-item"
                         :class="{ 'is-active': active === 'map' }"
+                        :title="$t('pages.homeland.ui.tabs.map')"
                         @click="selectSection('map')"
                     >
                         <span class="u-icon"><MapLocation /></span>
-                        <span><b>家园地图</b><small>查看地图与房屋信息</small></span>
+                        <b>{{ $t("pages.homeland.ui.tabs.map") }}</b>
                     </button>
-                    <a class="u-homeland-nav-item" href="/community?category=心得&page=1">
+                    <a
+                        class="u-homeland-nav-item"
+                        href="/community?category=心得&page=1"
+                        :title="$t('pages.homeland.ui.tabs.guide')"
+                    >
                         <span class="u-icon"><Reading /></span>
-                        <span><b>家园攻略</b><small>前往社区浏览心得</small></span>
+                        <b>{{ $t("pages.homeland.ui.tabs.guide") }}</b>
                         <TopRight class="u-external-icon" />
                     </a>
-                </nav>
-            </PvxSurface>
-
-            <PvxSurface class="m-pvx-homeland-blueprints" padding="large">
-                <PvxSectionHeader title="蓝图广场" description="按资源类型快速前往对应的蓝图平台">
-                    <template #icon><Grid /></template>
-                </PvxSectionHeader>
-                <div class="m-pvx-blueprint-grid">
                     <a
                         v-for="item in blueprintEntries"
                         :key="item.key"
-                        class="u-pvx-blueprint-card"
+                        class="u-homeland-nav-item u-homeland-nav-item--blueprint"
                         :class="`is-${item.key}`"
                         :href="item.link"
+                        :title="item.title"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         <span class="u-icon"><component :is="item.icon" /></span>
-                        <span class="u-content">
-                            <b>{{ item.title }}</b>
-                            <small>{{ item.description }}</small>
-                        </span>
-                        <span class="u-external">外部站点 <TopRight /></span>
+                        <b>{{ item.title }}</b>
+                        <TopRight class="u-external-icon" />
                     </a>
-                </div>
+                </nav>
             </PvxSurface>
 
             <PvxSurface class="m-homeland-content" padding="large">
@@ -94,8 +91,7 @@ import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import {
     CollectionTag,
-    Grid,
-    House,
+    HomeFilled,
     InfoFilled,
     MapLocation,
     Present,
@@ -120,8 +116,7 @@ export default {
         PvxSectionHeader,
         PvxSurface,
         CollectionTag,
-        Grid,
-        House,
+        HomeFilled,
         InfoFilled,
         MapLocation,
         Present,
@@ -139,22 +134,19 @@ export default {
             return [
                 {
                     key: "free",
-                    title: "免费蓝图",
-                    description: "浏览官方平台公开分享的家园蓝图",
+                    title: this.$t("pages.homeland.ui.tabs.freeBlueprint"),
                     link: EXTERNAL_LINKS.free_blueprint,
                     icon: "Present",
                 },
                 {
                     key: "paid",
-                    title: "付费蓝图",
-                    description: "查看官方平台的付费精品蓝图",
+                    title: this.$t("pages.homeland.ui.tabs.paidBlueprint"),
                     link: EXTERNAL_LINKS.paid_blueprint,
                     icon: "Wallet",
                 },
                 {
                     key: "collection",
-                    title: "藏品蓝图",
-                    description: "前往万宝楼查找家园藏品蓝图",
+                    title: this.$t("pages.homeland.ui.tabs.collectionBlueprint"),
                     link: EXTERNAL_LINKS.collection_blueprint,
                     icon: "CollectionTag",
                 },

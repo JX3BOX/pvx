@@ -33,7 +33,7 @@
                 <div class="u-pvx-price">{{ priceText }}</div>
                 <div class="u-pvx-buy">
                     <img class="u-fb-buy-icon" :src="iconShopcart" alt="" />
-                    购买
+                    {{ $t("pages.faceBody.detail.purchase") }}
                 </div>
             </div>
 
@@ -41,12 +41,12 @@
             <div class="m-pvx-type__buy-btn m-fb-buy-btn" v-else @click="handleDownload">
                 <div class="u-pvx-buy">
                     <img class="u-fb-buy-icon" :src="iconDownload" alt="" />
-                    下载数据
+                    {{ $t("pages.faceBody.detail.downloadData") }}
                 </div>
             </div>
 
             <!-- 更新时间 -->
-            <div class="u-pvx-update-time u-fb-buy-update-time">更新时间：{{ post.updated_at }}</div>
+            <div class="u-pvx-update-time u-fb-buy-update-time">{{ $t("pages.faceBody.detail.updatedAt", { time: post.updated_at }) }}</div>
 
             <!-- 装饰图片 -->
             <img class="u-pvx-box-img u-fb-buy-img" src="https://cdn.jx3box.com/design/pvx/stroke.svg" />
@@ -55,22 +55,22 @@
         <!-- 游戏内收费提示 -->
         <div class="m-pvx-type__tips" v-if="post.game_price">
             <img class="u-fb-tips-icon" :src="iconInfo" alt="" />
-            <div class="u-pvx-tips-left u-fb-tips-left">该数据含游戏内收费项目，总计约</div>
-            <div class="u-pvx-tips-right u-fb-tips-right">{{ post.game_price }}通宝</div>
+            <div class="u-pvx-tips-left u-fb-tips-left">{{ $t("pages.faceBody.detail.gamePriceHint") }}</div>
+            <div class="u-pvx-tips-right u-fb-tips-right">{{ $t("pages.faceBody.detail.tongbao", { price: post.game_price }) }}</div>
         </div>
 
         <!-- 说明/数据列表切换标签 -->
         <div class="u-pvx-type-desc-tab">
-            <span class="u-fb-desc-tab-item" @click="activeTab = 'desc'" :class="{ active: activeTab === 'desc' }">说明</span>
+            <span class="u-fb-desc-tab-item" @click="activeTab = 'desc'" :class="{ active: activeTab === 'desc' }">{{ $t("pages.faceBody.detail.description") }}</span>
             <span class="u-fb-desc-tab-item" @click="activeTab = 'data'" v-if="fileList && fileList.length"
-                :class="{ active: activeTab === 'data' }">数据列表</span>
+                :class="{ active: activeTab === 'data' }">{{ $t("pages.faceBody.detail.dataList") }}</span>
         </div>
 
         <!-- 说明内容/文件列表 -->
         <div :class="['m-pvx-type__desc', { 'is-no-desc': !post.remark && activeTab === 'desc', 'has-desc': activeTab === 'desc' }]">
             <!-- 说明内容 -->
             <div v-if="activeTab === 'desc'" class="u-pvx-desc u-fb-header-desc">
-                {{ post.remark || "暂无说明" }}
+                {{ post.remark || $t("pages.faceBody.detail.noDescription") }}
             </div>
 
             <!-- 文件列表 -->
@@ -79,10 +79,10 @@
                     <div class="u-pvx-info u-fb-file-info">
                         <span class="u-pvx-label">{{ item.name }}</span>
                         <span class="u-pvx-label">
-                            备注：<em class="u-fb-info-highlight">{{ item.describe || "无" }}</em>
+                            {{ $t("pages.faceBody.detail.note") }}<em class="u-fb-info-highlight">{{ item.describe || $t("pages.faceBody.detail.none") }}</em>
                         </span>
                     </div>
-                    <a class="u-pvx-action u-fb-file-action" href="" @click.prevent="handleDownloadFile(item)">下载</a>
+                    <a class="u-pvx-action u-fb-file-action" href="" @click.prevent="handleDownloadFile(item)">{{ $t("pages.faceBody.detail.download") }}</a>
                 </div>
             </div>
         </div>
@@ -90,7 +90,7 @@
         <!-- 头条信息 -->
         <div class="m-pvx-type__head" v-if="topicInfo">
             <img class="u-fb-head-icon" :src="iconCup" alt="" />
-            该{{ typeLabel }}于{{ topicInfo.created_at }}荣登头条
+            {{ $t("pages.faceBody.detail.headline", { type: typeLabel, time: topicInfo.created_at }) }}
         </div>
     </div>
 </template>
@@ -100,7 +100,6 @@ import iconShopcart from "@/assets/img/common/face-body/shopcart.svg";
 import iconDownload from "@/assets/img/common/face-body/download.svg";
 import iconInfo from "@/assets/img/common/face-body/info.svg";
 import iconCup from "@/assets/img/common/face-body/cup.svg";
-import { formatPriceText } from "@/utils/price";
 
 /**
  * SinglePaySection - 详情页购买/下载区域组件
@@ -153,7 +152,7 @@ export default {
     computed: {
         // 类型标签
         typeLabel() {
-            return this.type === "face" ? "脸型" : "体型";
+            return this.$t(this.type === "face" ? "pages.faceBody.detail.faceType" : "pages.faceBody.detail.bodyType");
         },
         // 是否需要付费
         needPay() {
@@ -165,7 +164,9 @@ export default {
         },
         // 价格文案
         priceText() {
-            return formatPriceText(this.post.price_type, this.post.price_count);
+            if (Number(this.post.price_type) === 1) return this.$t("pages.faceBody.detail.priceBoxcoin", { price: this.post.price_count });
+            if (Number(this.post.price_type) === 2) return this.$t("pages.faceBody.detail.priceGold", { price: this.post.price_count });
+            return "";
         },
 
     },
