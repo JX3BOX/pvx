@@ -1,0 +1,281 @@
+/**
+ * 家园首页新版主题
+ *
+ * 仅作用于 /homeland/ 桌面端首页，不改变家具大全与家园独立子路由。
+ */
+
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.c-pvx-modern-homeland-main,
+.c-pvx-modern-homeland-main .m-main {
+    background: @pvx-page-bg;
+}
+
+.c-pvx-modern-homeland-main .m-main {
+    min-height: calc(100vh - 60px);
+    padding: 0;
+}
+
+.p-pvx-homeland-root {
+    .m-pvx-homeland-layout {
+        display: grid;
+        gap: @pvx-space-5;
+    }
+
+    .m-pvx-homeland-hero {
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 92% 0%, rgba(91, 92, 245, 0.12), transparent 30%),
+            @pvx-surface;
+    }
+
+    .u-homeland-badge {
+        display: inline-flex;
+        min-height: 30px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border: 1px solid #fde68a;
+        border-radius: @pvx-radius-pill;
+        color: #92400e;
+        background: #fffbeb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .m-pvx-homeland-nav {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: @pvx-space-3;
+        margin-top: @pvx-space-6;
+    }
+
+    .u-homeland-nav-item {
+        .pvx-focus-ring();
+        display: flex;
+        position: relative;
+        min-width: 0;
+        min-height: 84px;
+        align-items: center;
+        gap: @pvx-space-3;
+        box-sizing: border-box;
+        padding: @pvx-space-3;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-control;
+        color: @pvx-text-regular;
+        background: @pvx-surface-muted;
+        font: inherit;
+        text-align: left;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+            transform @pvx-duration-normal @pvx-ease-standard,
+            border-color @pvx-duration-normal @pvx-ease-standard,
+            background-color @pvx-duration-normal @pvx-ease-standard,
+            box-shadow @pvx-duration-normal @pvx-ease-standard;
+
+        > .u-icon {
+            display: inline-flex;
+            width: 44px;
+            height: 44px;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            color: @pvx-primary;
+            background: @pvx-primary-soft;
+            font-size: 22px;
+        }
+
+        b,
+        small {
+            display: block;
+        }
+
+        b {
+            color: @pvx-text-primary;
+            font-size: 16px;
+            line-height: 24px;
+        }
+
+        small {
+            margin-top: 2px;
+            color: @pvx-text-secondary;
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        .u-external-icon {
+            width: 16px;
+            height: 16px;
+            margin-left: auto;
+            color: @pvx-text-muted;
+        }
+
+        &:hover {
+            transform: translateY(-2px);
+            border-color: @pvx-border-focus;
+            background: @pvx-surface;
+            box-shadow: @pvx-shadow-hover;
+        }
+
+        &.is-active {
+            border-color: @pvx-primary;
+            background: @pvx-primary-soft;
+            box-shadow: 0 0 0 2px rgba(91, 92, 245, 0.1);
+
+            > .u-icon {
+                color: @pvx-text-inverse;
+                background: @pvx-primary;
+            }
+        }
+    }
+
+    .m-pvx-blueprint-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: @pvx-space-3;
+        margin-top: @pvx-space-5;
+    }
+
+    .u-pvx-blueprint-card {
+        .pvx-focus-ring();
+        .pvx-surface-interactive();
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: @pvx-space-3;
+        min-width: 0;
+        padding: @pvx-space-4;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-control;
+        color: @pvx-text-regular;
+        background: @pvx-surface;
+        text-decoration: none;
+
+        > .u-icon {
+            display: inline-flex;
+            width: 48px;
+            height: 48px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            color: #047857;
+            background: #ecfdf5;
+            font-size: 24px;
+        }
+
+        .u-content {
+            min-width: 0;
+        }
+
+        b,
+        small {
+            display: block;
+        }
+
+        b {
+            color: @pvx-text-primary;
+            font-size: 16px;
+            line-height: 24px;
+        }
+
+        small {
+            .pvx-text-ellipsis(2);
+            margin-top: 2px;
+            color: @pvx-text-secondary;
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        .u-external {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: @pvx-text-muted;
+            font-size: 11px;
+            white-space: nowrap;
+
+            svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+
+        &.is-paid > .u-icon {
+            color: #b45309;
+            background: #fffbeb;
+        }
+
+        &.is-collection > .u-icon {
+            color: #be185d;
+            background: #fdf2f8;
+        }
+    }
+
+    .m-homeland-content {
+        min-width: 0;
+        padding-top: @pvx-space-6;
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-pvx-homeland-root {
+        .m-pvx-homeland-nav,
+        .m-pvx-blueprint-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .u-homeland-nav-item:last-child,
+        .u-pvx-blueprint-card:last-child {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-pvx-homeland-root {
+        .m-pvx-homeland-layout {
+            gap: @pvx-space-4;
+        }
+
+        .u-homeland-badge {
+            display: none;
+        }
+
+        .m-pvx-homeland-nav,
+        .m-pvx-blueprint-grid {
+            grid-template-columns: minmax(0, 1fr);
+            margin-top: @pvx-space-4;
+        }
+
+        .u-homeland-nav-item:last-child,
+        .u-pvx-blueprint-card:last-child {
+            grid-column: auto;
+        }
+
+        .u-homeland-nav-item {
+            min-height: 72px;
+            padding: @pvx-space-2;
+        }
+
+        .u-pvx-blueprint-card {
+            grid-template-columns: 44px minmax(0, 1fr);
+            padding: @pvx-space-3;
+
+            > .u-icon {
+                width: 44px;
+                height: 44px;
+            }
+
+            .u-external {
+                grid-column: 2;
+                justify-self: start;
+            }
+        }
+
+        .m-homeland-content {
+            padding-top: @pvx-space-4;
+        }
+    }
+}

@@ -1,23 +1,81 @@
 <template>
-    <div class="p-homeland">
-        <PvxSearch :items="searchItems" :initValue="initSearchValue" @search="handleSearch" />
-        <div class="m-homeland-content">
-            <!-- 家园信息 -->
-            <Tutorial v-if="active === 'info'"></Tutorial>
-            <!-- 家园地图 -->
-            <Maps v-if="active === 'map'"></Maps>
-            <!-- 家园花价 -->
-            <Flower v-if="active === 'flower'"></Flower>
-            <!-- 家园攻略 -->
-            <Bbs v-if="active === 'bbs'"></Bbs>
+    <PvxPageShell class="p-homeland p-pvx-homeland-root">
+        <div class="m-pvx-homeland-layout">
+            <PvxSurface class="m-pvx-homeland-hero" padding="large">
+                <PvxSectionHeader
+                    title="家园蓝图"
+                    description="家园信息、地图工具与蓝图资源的一站式入口"
+                    level="h1"
+                >
+                    <template #icon><House /></template>
+                    <template #action><span class="u-homeland-badge">家园工具箱</span></template>
+                </PvxSectionHeader>
+
+                <nav class="m-pvx-homeland-nav" aria-label="家园功能导航">
+                    <button
+                        type="button"
+                        class="u-homeland-nav-item"
+                        :class="{ 'is-active': active === 'info' }"
+                        @click="selectSection('info')"
+                    >
+                        <span class="u-icon"><InfoFilled /></span>
+                        <span><b>家园信息</b><small>日常活动与升级数据</small></span>
+                    </button>
+                    <button
+                        type="button"
+                        class="u-homeland-nav-item"
+                        :class="{ 'is-active': active === 'map' }"
+                        @click="selectSection('map')"
+                    >
+                        <span class="u-icon"><MapLocation /></span>
+                        <span><b>家园地图</b><small>查看地图与房屋信息</small></span>
+                    </button>
+                    <a class="u-homeland-nav-item" href="/community?category=心得&page=1">
+                        <span class="u-icon"><Reading /></span>
+                        <span><b>家园攻略</b><small>前往社区浏览心得</small></span>
+                        <TopRight class="u-external-icon" />
+                    </a>
+                </nav>
+            </PvxSurface>
+
+            <PvxSurface class="m-pvx-homeland-blueprints" padding="large">
+                <PvxSectionHeader title="蓝图广场" description="按资源类型快速前往对应的蓝图平台">
+                    <template #icon><Grid /></template>
+                </PvxSectionHeader>
+                <div class="m-pvx-blueprint-grid">
+                    <a
+                        v-for="item in blueprintEntries"
+                        :key="item.key"
+                        class="u-pvx-blueprint-card"
+                        :class="`is-${item.key}`"
+                        :href="item.link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span class="u-icon"><component :is="item.icon" /></span>
+                        <span class="u-content">
+                            <b>{{ item.title }}</b>
+                            <small>{{ item.description }}</small>
+                        </span>
+                        <span class="u-external">外部站点 <TopRight /></span>
+                    </a>
+                </div>
+            </PvxSurface>
+
+            <PvxSurface class="m-homeland-content" padding="large">
+                <!-- 家园信息 -->
+                <Tutorial v-if="active === 'info'"></Tutorial>
+                <!-- 家园地图 -->
+                <Maps v-if="active === 'map'"></Maps>
+            </PvxSurface>
         </div>
-    </div>
+    </PvxPageShell>
 </template>
 
 <script>
 /**
  * @description 家园模块首页
- * @description 展示家园信息、地图、花价、攻略等内容的入口页面
+ * @description 展示家园信息、地图、攻略和蓝图资源的入口页面
  * @author ymg
  * @version 1.1.0
  * 
@@ -25,16 +83,26 @@
  * <Index />
  * 
  * @notes
- * - 使用 PvxSearch 组件实现标签切换和外部链接跳转
- * - 所有选项统一使用 radio 按钮样式，保证小屏幕换行一致
- * - 内部功能模块：家园信息、家园地图、家园花价、家园攻略
- * - 外部链接模块：免费蓝图、付费蓝图、藏品蓝图（通过 handleSearch 处理跳转）
+ * - 使用独立功能导航切换家园信息与地图
+ * - 家园攻略保留社区入口
+ * - 免费、付费和藏品蓝图使用带外链标识的入口卡
  */
 import Tutorial from "./Tutorial.vue";
 import Maps from "./Maps.vue";
-import Flower from "./Flower.vue";
-import Bbs from "./Bbs.vue";
-import PvxSearch from "@/components/PvxSearch.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import {
+    CollectionTag,
+    Grid,
+    House,
+    InfoFilled,
+    MapLocation,
+    Present,
+    Reading,
+    TopRight,
+    Wallet,
+} from "@element-plus/icons-vue";
 
 // 外部链接配置
 const EXTERNAL_LINKS = {
@@ -48,9 +116,18 @@ export default {
     components: {
         Tutorial,
         Maps,
-        Flower,
-        Bbs,
-        PvxSearch,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        CollectionTag,
+        Grid,
+        House,
+        InfoFilled,
+        MapLocation,
+        Present,
+        Reading,
+        TopRight,
+        Wallet,
     },
     data() {
         return {
@@ -58,47 +135,35 @@ export default {
         };
     },
     computed: {
-        searchItems() {
+        blueprintEntries() {
             return [
                 {
-                    type: "radio",
-                    key: "active",
-                    options: [
-                        { type: "info", name: "家园信息" },
-                        { type: "map", name: "家园地图" },
-                        // { type: "flower", name: "家园花价" },
-                        { type: "bbs", name: "家园攻略" },
-                        { type: "free_blueprint", name: "免费蓝图" },
-                        { type: "paid_blueprint", name: "付费蓝图" },
-                        { type: "collection_blueprint", name: "藏品蓝图" },
-                    ],
+                    key: "free",
+                    title: "免费蓝图",
+                    description: "浏览官方平台公开分享的家园蓝图",
+                    link: EXTERNAL_LINKS.free_blueprint,
+                    icon: "Present",
+                },
+                {
+                    key: "paid",
+                    title: "付费蓝图",
+                    description: "查看官方平台的付费精品蓝图",
+                    link: EXTERNAL_LINKS.paid_blueprint,
+                    icon: "Wallet",
+                },
+                {
+                    key: "collection",
+                    title: "藏品蓝图",
+                    description: "前往万宝楼查找家园藏品蓝图",
+                    link: EXTERNAL_LINKS.collection_blueprint,
+                    icon: "CollectionTag",
                 },
             ];
         },
-        initSearchValue() {
-            return {
-                active: this.active,
-            };
-        },
     },
     methods: {
-        handleSearch(data) {
-            const val = data.active;
-
-            // 处理外部链接跳转
-            if (EXTERNAL_LINKS[val]) {
-                window.open(EXTERNAL_LINKS[val], "_blank");
-                return;
-            }
-
-            // 处理家园攻略跳转到社区
-            if (val === "bbs") {
-                window.open("/community?category=心得&page=1", "_self");
-                return;
-            }
-
-            // 内部模块切换
-            this.active = val;
+        selectSection(section) {
+            this.active = section;
         },
     },
 };
@@ -106,75 +171,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/homeland/index.less";
-
-.p-homeland {
-    .pvx-search-wrapper {
-        .type-list {
-            .el-radio-group {
-                .flex;
-                flex-wrap: wrap;
-            }
-
-            .type-item {
-
-                &.is-active,
-                &:hover {
-                    background-color: @pvx-color-homeland !important;
-
-                    .el-radio-button__inner {
-                        background-color: @pvx-color-homeland !important;
-                    }
-                }
-            }
-        }
-    }
-}
-
-@media screen and (max-width: @phone) {
-    .p-homeland {
-        .pvx-search-wrapper {
-            height: auto;
-
-            .search-group {
-                flex-wrap: wrap;
-
-                >*+* {
-                    margin-top: 10px;
-                }
-
-                .search-item.type-list {
-                    width: 100%;
-
-                    .el-radio-group {
-                        .flex;
-                        flex-wrap: wrap;
-                        gap: 8px;
-                    }
-
-                    .type-item {
-                        flex: 0 0 calc(25% - 6px);
-                        .fz(14px);
-                        min-width: 80px;
-                    }
-                }
-            }
-        }
-    }
-}
-
-@media screen and (max-width: @ipad) {
-    .p-homeland {
-        .pvx-search-wrapper {
-            .search-item.type-list {
-                .el-radio-group {
-                    gap: 8px;
-                }
-
-                .type-item {
-                    .fz(14px);
-                }
-            }
-        }
-    }
-}
+@import "~@/assets/css/modules/homeland-theme.less";
 </style>

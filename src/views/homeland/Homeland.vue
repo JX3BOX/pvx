@@ -2,7 +2,15 @@
     <div id="app">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                { 'c-pvx-modern-homeland-main': $route.name === 'index' && !isMiniProgram() && !isApp() },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main">
                 <router-view></router-view>
             </div>
@@ -28,7 +36,7 @@
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
 import { __imgPath, __dataPath } from "@/utils/config";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
+import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "Homeland",
     components: { Nav, PvxBacktop },
@@ -44,6 +52,7 @@ export default {
     },
     computed: {},
     methods: {
+        isApp,
         isMiniProgram,
         statusChange(navStatusClass) {
             this.navStatusClass = navStatusClass;

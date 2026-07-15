@@ -6,6 +6,7 @@
                 :type="type"
                 :item="item"
                 :noName="true"
+                :variant="variant"
                 v-for="item in list"
                 :key="item.id"
             />
@@ -39,6 +40,11 @@ export default {
             type: String,
             default: "face",
             validator: (val) => ["face", "body"].includes(val),
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
         },
     },
 };

@@ -16,7 +16,7 @@
  * - 感谢/投币功能
  -->
 <template>
-    <div class="p-pvx-face-single" v-loading="loading" ref="singleRef">
+    <div class="p-pvx-face-single p-pvx-face-single--modern" v-loading="loading" ref="singleRef">
         <SingleNavigation type="face" @go-back="goBack" />
         <public-notice bckey="face_ac"></public-notice>
         <SingleHeader :post="post" type="face" :canEdit="canEdit" :topicText="topicText" />
@@ -37,8 +37,14 @@
             </SinglePaySection>
         </div>
 
-        <div class="m-pvx-single__data" v-if="!post.code_mode">
-            <span class="m-pvx-single__data-title">独家数据分析</span>
+        <section class="m-pvx-single__data m-pvx-single__panel" v-if="!post.code_mode">
+            <div class="m-pvx-single__section-header">
+                <div>
+                    <span class="m-pvx-single__eyebrow">DATA ANALYSIS</span>
+                    <h2 class="m-pvx-single__data-title">独家数据分析</h2>
+                </div>
+                <span class="u-pvx-single__section-tip">购买后可查看完整参数</span>
+            </div>
             <facedata v-if="has_buy && facedata" :data="faceAllData" :lock="true" type="face" />
             <div class="m-pvx-single__buy-box" v-else>
                 <div class="m-pvx-type__buy-btn" @click="pay()" v-if="canBuy">
@@ -49,7 +55,7 @@
                 </div>
                 <div class="u-pvx-type-buy-tip">数据分析将在购买后解锁</div>
             </div>
-        </div>
+        </section>
 
         <div class="m-pvx-type__download" v-if="has_buy && facedata">
             <div class="m-pvx-type__buy-btn" @click="downloadAll">
@@ -59,9 +65,25 @@
             </div>
         </div>
 
-        <div class="u-pvx-about-author">关于作者</div>
-        <authorItem :uid="post.user_id" />
-        <SingleRandomList :list="randomList" type="face" />
+        <section class="m-pvx-single__author m-pvx-single__panel">
+            <div class="m-pvx-single__section-header">
+                <div>
+                    <span class="m-pvx-single__eyebrow">CREATOR</span>
+                    <h2 class="u-pvx-about-author">关于作者</h2>
+                </div>
+            </div>
+            <authorItem :uid="post.user_id" />
+        </section>
+
+        <section class="m-pvx-single__recommend m-pvx-single__panel" v-if="randomList && randomList.length">
+            <div class="m-pvx-single__section-header">
+                <div>
+                    <span class="m-pvx-single__eyebrow">MORE WORKS</span>
+                    <h2>更多作品</h2>
+                </div>
+            </div>
+            <SingleRandomList :list="randomList" type="face" variant="modern" />
+        </section>
 
         <Thx class="m-pvx-thx m-pvx-single__content-box" :postId="id" postType="face" :postTitle="post.title || '无标题'"
             :userId="post.user_id" :adminBoxcoinEnable="post.status == 1" :userBoxcoinEnable="post.status == 1"
@@ -226,4 +248,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/face/index.less";
+@import "~@/assets/css/modules/face-detail-theme.less";
 </style>
