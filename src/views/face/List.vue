@@ -25,7 +25,8 @@
  -->
 <template>
     <div class="p-pvx-face-list" v-loading="loading" ref="listRef">
-        <faceTabs variant="modern" :body_types="list" :active="active" :link="link" @change="handleFaceTabChange" />
+        <faceTabs type="face" variant="modern" :body_types="list" :active="active" :link="link"
+            @change="handleFaceTabChange" />
         <PublicNotice bckey="face_ac" />
         <template v-if="active === -1">
             <div class="m-pvx-overview-grid">
@@ -35,11 +36,11 @@
                         :item-width="overviewItemWidth" :show-replace="false" stretch-items limit-to-count
                         :data="{ ...itemData, type: item.value }" :items="item.list" @update:load="handleLoad">
                         <template v-slot:title>
-                            <div>{{ item.label + "脸型" }}</div>
+                            <div>{{ $t("pages.face.ui.sectionTitle", { role: roleLabel(item) }) }}</div>
                             <div></div>
                         </template>
                         <template v-slot:action>
-                            <div @click="setActive(item.value)">查看全部</div>
+                            <div @click="setActive(item.value)">{{ $t("pages.faceBody.actions.viewAll") }}</div>
                         </template>
                         <template v-slot="{ item }">
                             <ListItem type="face" variant="modern" :key="item.id" :item="item" />
@@ -48,9 +49,9 @@
                 </div>
             </div>
         </template>
-        <div class="m-pvx-type__box" v-else>
+        <div class="m-pvx-type__box" v-else-if="subList && subList.length">
             <div class="m-pvx-type__title u-pvx-type">
-                <div class="u-pvx-title">{{ typeName + "脸型" }}</div>
+                <div class="u-pvx-title">{{ $t("pages.face.ui.sectionTitle", { role: roleLabel(activeTab) }) }}</div>
             </div>
             <div class="m-pvx-type__list--all">
                 <ListItem type="face" variant="modern" v-for="item in subList" :key="item.id" :item="item" />
@@ -59,7 +60,7 @@
                 :loading="loading">
                 <el-icon class="el-icon--left">
                     <ArrowDown />
-                </el-icon>加载更多</el-button>
+                </el-icon>{{ $t("pages.faceBody.actions.loadMore") }}</el-button>
             <el-pagination class="m-pvx-archive__pages" background layout="total, prev, pager, next, jumper"
                 :hide-on-single-page="true" @current-change="changePage" @prev-click="changePage"
                 @next-click="changePage" :page-size="per" :total="total" v-model:current-page="page"></el-pagination>
@@ -86,11 +87,11 @@ export default {
     data() {
         return {
             list: [
-                { label: "全部", list: [], value: -1, client: ["std", "origin"], page: 1, pages: 1 },
-                { label: "成男", list: [], value: 1, client: ["std", "origin"], page: 1, pages: 1 },
-                { label: "成女", list: [], value: 2, client: ["std", "origin"], page: 1, pages: 1 },
-                { label: "正太", list: [], value: 5, client: ["std"], page: 1, pages: 1 },
-                { label: "萝莉", list: [], value: 6, client: ["std", "origin"], page: 1, pages: 1 },
+                { labelKey: "pages.faceBody.roles.all", list: [], value: -1, client: ["std", "origin"], page: 1, pages: 1 },
+                { labelKey: "pages.faceBody.roles.male", list: [], value: 1, client: ["std", "origin"], page: 1, pages: 1 },
+                { labelKey: "pages.faceBody.roles.female", list: [], value: 2, client: ["std", "origin"], page: 1, pages: 1 },
+                { labelKey: "pages.faceBody.roles.boy", list: [], value: 5, client: ["std"], page: 1, pages: 1 },
+                { labelKey: "pages.faceBody.roles.girl", list: [], value: 6, client: ["std", "origin"], page: 1, pages: 1 },
             ],
             link: {
                 data: "/face/facedata",
@@ -116,12 +117,15 @@ export default {
         },
 
         alertTitle() {
-            if (this.tabsData.title) return "没找到对应的捏脸，请重新选择条件或关键词搜索";
-            return "没有找到相关的捏脸";
+            if (this.tabsData.title) return this.$t("pages.face.ui.emptySearch");
+            return this.$t("pages.face.ui.empty");
         },
     },
 
     methods: {
+        roleLabel(item) {
+            return item?.labelKey ? this.$t(item.labelKey) : item?.label || "";
+        },
         loadList(params, key) {
             const index = this.list.findIndex((e) => e.value === key);
             if (index === -1) return;

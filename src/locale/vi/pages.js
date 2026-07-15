@@ -80,6 +80,14 @@ export default {
             },
         },
     },
+    faceBody: {
+        roles: { all: "Tất cả", male: "Nam trưởng thành", female: "Nữ trưởng thành", boy: "Thiếu niên", girl: "Thiếu nữ" },
+        actions: { parse: "Phân tích dữ liệu", publish: "Đăng tác phẩm", viewAll: "Xem tất cả", loadMore: "Tải thêm" },
+        filters: { roleCategory: "Loại nhân vật", all: "Tất cả", conditions: "Bộ lọc", featured: "Nổi bật", free: "Miễn phí", recreatable: "Có thể tạo mới", images: "Hình ảnh", withImages: "Có hình" },
+        search: { content: "nội dung", close: "Đóng", reset: "Đặt lại", select: "Vui lòng chọn", inputField: "Nhập {name}", selectField: "Chọn {name}", searchPlaceholder: "Tìm kiếm {name}" },
+        card: { editorChoice: "Biên tập chọn", paid: "Trả phí", recommended: "Đề cử", anonymous: "Ẩn danh", realistic: "Thực", artistic: "Nghệ thuật", recreatable: "Tạo mới" },
+        parse: { localOnly: "Chỉ phân tích cục bộ", complete: "Phân tích hoàn tất", compatibility: "Tương thích tệp", privacy: "Bảo mật", privacyDescription: "Tệp chỉ được đọc trong trình duyệt này và không được tải lên máy chủ", result: "Kết quả phân tích" },
+    },
     body: {
         title: "Dữ liệu vóc dáng",
         keywords: "JX3 body data,body scale,JX3BOX",
@@ -98,6 +106,10 @@ export default {
             title: "Phân tích vóc dáng (Di động)",
             keywords: "body parser mobile,JX3BOX",
             description: "Công cụ phân tích vóc dáng trên di động.",
+        },
+        ui: {
+            sectionTitle: "Vóc dáng {role}", empty: "Không tìm thấy dữ liệu vóc dáng", emptySearch: "Không có dữ liệu vóc dáng phù hợp. Hãy thử bộ lọc hoặc từ khóa khác.",
+            parse: { title: "Trình phân tích dữ liệu vóc dáng", description: "Đọc tệp cục bộ để xem nhanh thông số vóc dáng và các điều chỉnh", importTitle: "Nhập dữ liệu vóc dáng", importDescription: "Chọn tệp dữ liệu vóc dáng JX3; các thông số sẽ hiển thị bên dưới sau khi phân tích.", selectFile: "Chọn tệp dữ liệu vóc dáng", formats: "Hỗ trợ .dat và .jx3dat", guide: "Hướng dẫn nhập và xuất dữ liệu vóc dáng", compatibilityDescription: "Tự động nhận dạng loại nhân vật và tải phạm vi thông số tương ứng", resultDescription: "Chuyển danh mục để xem thông số vóc dáng và xuất dữ liệu khi cần." },
         },
     },
     book: {
@@ -158,6 +170,11 @@ export default {
             title: "Phân tích khuôn mặt (Di động)",
             keywords: "face parser mobile,JX3BOX",
             description: "Công cụ phân tích khuôn mặt trên di động.",
+        },
+        ui: {
+            sectionTitle: "Khuôn mặt {role}", empty: "Không tìm thấy dữ liệu khuôn mặt", emptySearch: "Không có dữ liệu khuôn mặt phù hợp. Hãy thử bộ lọc hoặc từ khóa khác.",
+            filters: { style: "Phong cách khuôn mặt", realistic: "Chân thực", artistic: "Nghệ thuật", faceCode: "Mã khuôn mặt" },
+            parse: { title: "Trình phân tích dữ liệu khuôn mặt", description: "Đọc tệp cục bộ để xem cấu trúc khuôn mặt, trang điểm và thông số", importTitle: "Nhập dữ liệu khuôn mặt", importDescription: "Chọn tệp dữ liệu khuôn mặt JX3; các thông số sẽ hiển thị bên dưới sau khi phân tích.", selectFile: "Chọn tệp dữ liệu khuôn mặt", formats: "Hỗ trợ .dat, .jx3dat và .ini", guide: "Hướng dẫn nhập và xuất dữ liệu khuôn mặt", compatibilityDescription: "Hỗ trợ dữ liệu bản chính thức, bản hoài niệm và trình chỉnh sửa", resultDescription: "Chuyển danh mục để xem thông số khuôn mặt; thanh trượt chỉ minh họa vị trí thông số." },
         },
     },
     furniture: {

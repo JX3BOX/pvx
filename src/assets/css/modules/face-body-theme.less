@@ -80,6 +80,7 @@
             margin-right: 0;
 
             .filter-img {
+                position: relative;
                 display: flex;
                 width: 40px;
                 align-items: center;
@@ -90,6 +91,24 @@
 
                 svg {
                     background: transparent;
+                }
+
+                &::after {
+                    position: absolute;
+                    top: 5px;
+                    right: 5px;
+                    display: none;
+                    width: 8px;
+                    height: 8px;
+                    box-sizing: border-box;
+                    border: 2px solid @pvx-surface;
+                    border-radius: 50%;
+                    background: @pvx-primary;
+                    content: "";
+                }
+
+                &.has-desktop-filters::after {
+                    display: block;
                 }
             }
         }
@@ -400,7 +419,72 @@
 }
 
 .p-pvx-body-list {
-    --pvx-module-card-width: 200px;
+    --pvx-module-card-width: 210px;
+    --pvx-module-card-height: 380px;
+    --pvx-module-card-img-height: 276px;
+
+    .m-pvx-type__item--modern {
+        .m-pvx-img {
+            box-sizing: border-box;
+            border: 1px solid @pvx-border-light;
+            background: @pvx-surface-muted;
+
+            .u-pvx-pic,
+            .el-image__inner,
+            .image-slot,
+            .image-slot img {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+
+            .el-image__inner,
+            .image-slot img {
+                object-fit: cover;
+            }
+        }
+    }
+}
+
+html:lang(vi) {
+    .p-pvx-face-list,
+    .p-pvx-body-list {
+        .pvx-search-wrapper--modern .m-pvx-toolbar__publish {
+            .u-pvx-analysis,
+            .u-pvx-fb-publish {
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            .u-pvx-analysis {
+                padding-right: 12px;
+                padding-left: 12px;
+            }
+
+            .u-pvx-fb-publish {
+                width: 168px;
+                padding-right: 10px;
+                padding-left: 70px;
+            }
+        }
+    }
+}
+
+html:lang(en),
+html:lang(vi) {
+    .p-pvx-face-list .m-pvx-type__item--modern .m-pvx-tags {
+        .m-pvx-tag__left {
+            min-width: 0;
+            gap: 4px;
+        }
+
+        .u-pvx-tag {
+            flex: none;
+            padding-right: 4px;
+            padding-left: 4px;
+            white-space: nowrap;
+        }
+    }
 }
 
 .m-pvx-fb__filter-popover {
@@ -421,6 +505,10 @@
 
     .filter-content .filter-item {
         margin-bottom: @pvx-space-5;
+
+        &.filter-item--phone-only {
+            display: none;
+        }
 
         &:last-of-type {
             margin-bottom: @pvx-space-2;
@@ -521,10 +609,12 @@
         border-top: 1px solid @pvx-border-light;
 
         .el-col {
+            display: flex;
             width: auto;
             max-width: none;
             margin-left: 0;
             flex: none;
+            gap: @pvx-space-2;
         }
 
         .el-button {
@@ -542,28 +632,131 @@
                 background: @pvx-primary-soft;
             }
         }
+
+        .el-button + .el-button {
+            margin-left: 0;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    html:lang(vi) {
+        .p-pvx-face-list,
+        .p-pvx-body-list {
+            .pvx-search-wrapper--modern .m-pvx-toolbar__publish .u-pvx-fb-publish {
+                width: 100%;
+                padding-right: 8px;
+                padding-left: 58px;
+                font-size: 13px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1280px) and (min-width: (@phone + 1px)) {
+    .p-pvx-face-list,
+    .p-pvx-body-list {
+        .m-pvx-type__box .m-cardlist-items {
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+        }
+    }
+
+    // 英文、越南文标签更长：移动端允许标签换行，并为第二行预留高度。
+    html:lang(en) .p-pvx-face-list,
+    html:lang(vi) .p-pvx-face-list {
+        .m-pvx-type__item--modern,
+        .m-pvx-type__list--all > .m-pvx-type__item--modern {
+            grid-template-rows: minmax(0, 1fr) auto;
+            height: 140px;
+            min-height: 140px;
+
+            > .u-pvx-img {
+                height: 124px;
+            }
+
+            .m-pvx-tags {
+                height: auto;
+                align-content: flex-end;
+                align-items: center;
+                flex-wrap: wrap;
+                row-gap: 4px;
+
+                .m-pvx-tag__left {
+                    max-width: 100%;
+                    flex: 1 0 100%;
+                    flex-wrap: wrap;
+                    row-gap: 4px;
+                }
+
+                .u-pvx-tag--star {
+                    order: 2;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-fb__filter-popover {
+        .filter-content .filter-item.filter-item--phone-only {
+            display: block;
+        }
+    }
+
+    .p-pvx-face-list,
+    .p-pvx-body-list {
+        .pvx-search-wrapper--modern .search-item.filter-wrap .filter-img.has-filters::after {
+            display: block;
+        }
+    }
+
+    .p-pvx-face-list,
+    .p-pvx-body-list {
+        .m-pvx-type__box {
+            .m-card-banner-list_box {
+                display: block;
+            }
+
+            .m-cardlist-items {
+                grid-template-columns: var(--pvx-module-card-width, 190px) !important;
+                justify-content: center;
+                overflow: hidden;
+            }
+        }
+
+        .m-pvx-type__list--all {
+            grid-template-columns: var(--pvx-module-card-width, 190px);
+            justify-content: center;
+            overflow: hidden;
+        }
     }
 }
 
 @media screen and (max-width: @phone) {
     .m-pvx-fb__filter-popover {
         max-width: calc(100vw - 32px);
+        box-sizing: border-box;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%);
 
         .filter-content {
-            padding: @pvx-space-4;
+            padding: @pvx-space-3;
         }
 
         .filter-content .filter-item .check-box-wrapper {
             .el-checkbox-group,
             .el-radio-group {
-                gap: @pvx-space-1;
+                gap: 6px;
 
                 .el-checkbox-button,
                 .el-radio-button {
                     .el-checkbox-button__inner,
                     .el-radio-button__inner {
-                        min-width: 76px;
-                        padding: 0 @pvx-space-2;
+                        min-width: 68px;
+                        padding: 0 6px;
                     }
                 }
             }
@@ -602,11 +795,67 @@
     }
 }
 
+// 横屏平板：筛选项、搜索框与操作入口保持同一行，搜索框承担弹性宽度。
+@media screen and (max-width: @ipad) and (min-width: (@ipad-y + 1px)) {
+    .p-pvx-face-list,
+    .p-pvx-body-list {
+        .pvx-search-wrapper--modern {
+            align-items: center;
+
+            .search-group {
+                display: grid;
+                grid-template-columns: max-content 40px minmax(180px, 1fr);
+                width: auto;
+                min-width: 0;
+                flex: 1;
+                flex-wrap: nowrap;
+                gap: @pvx-space-2;
+            }
+
+            .search-item.type-list {
+                min-width: 0;
+
+                .el-radio-group {
+                    display: flex;
+                    flex-wrap: nowrap;
+                }
+            }
+
+            .search-item.filter-wrap {
+                width: 40px;
+            }
+
+            .search-item.input-wrap {
+                width: auto;
+                min-width: 0;
+            }
+
+            .m-pvx-toolbar__publish {
+                flex: none;
+            }
+        }
+    }
+}
+
 @media screen and (max-width: @phone) {
     .p-pvx-face-list,
     .p-pvx-body-list {
+        --pvx-mobile-section-gap: 20px;
         padding: 20px;
         border-radius: 0;
+
+        .c-public-notice {
+            margin-top: var(--pvx-mobile-section-gap);
+        }
+
+        .m-pvx-overview-grid {
+            margin-top: var(--pvx-mobile-section-gap);
+            gap: var(--pvx-mobile-section-gap);
+        }
+
+        > .m-pvx-type__box {
+            margin-top: var(--pvx-mobile-section-gap);
+        }
 
         .pvx-search-wrapper--modern {
             padding: @pvx-space-3;
@@ -656,8 +905,10 @@
 
         .m-pvx-type__list--all {
             display: grid;
-            grid-template-columns: repeat(auto-fill, var(--pvx-module-card-width, 190px));
+            grid-template-columns: var(--pvx-module-card-width, 190px);
             gap: 10px;
+            justify-content: center;
+            overflow: hidden;
 
             .m-pvx-type__item--modern {
                 width: var(--pvx-module-card-width, 190px);
@@ -669,7 +920,157 @@
         }
 
         .m-pvx-archive__pages {
-            justify-content: flex-start;
+            display: none;
+        }
+
+        .m-pvx-type__box .m-cardlist-items {
+            grid-template-columns: var(--pvx-module-card-width, 190px) !important;
+            justify-content: center;
+            overflow: hidden;
+        }
+    }
+
+    // 脸型移动端改为横向信息卡；限定在脸型列表页，避免影响体型及旧页面。
+    .p-pvx-face-list {
+        .m-pvx-type__list--all {
+            grid-template-columns: minmax(0, 1fr);
+            justify-content: stretch;
+            overflow: visible;
+        }
+
+        .m-pvx-type__box .m-cardlist-items {
+            grid-template-columns: minmax(0, 1fr) !important;
+            justify-content: stretch;
+            overflow: visible;
+        }
+
+        .m-cardlist-item {
+            width: 100%;
+        }
+
+        .m-pvx-type__item--modern,
+        .m-pvx-type__list--all > .m-pvx-type__item--modern {
+            display: grid;
+            grid-template-columns: 126px minmax(0, 1fr);
+            grid-template-rows: minmax(0, 1fr) auto;
+            column-gap: 12px;
+            row-gap: 6px;
+            width: 100%;
+            max-width: none;
+            height: 112px;
+            min-height: 112px;
+            margin: 0;
+            padding: 8px;
+            border: 1px solid @pvx-border-light;
+            border-radius: 18px;
+
+            &:hover,
+            &:active {
+                transform: none;
+            }
+
+            > .u-pvx-img {
+                grid-column: 1;
+                grid-row: 1 / span 2;
+                width: 126px;
+                height: 96px;
+                border-radius: 12px;
+            }
+
+            > .u-pvx-pinch-marker {
+                top: 7px;
+                right: auto;
+                left: 112px;
+                display: block;
+                width: 22px;
+                height: 22px;
+                border-radius: 0 12px 0 0;
+            }
+
+            .m-pvx-op {
+                grid-column: 2;
+                grid-row: 1;
+                min-width: 0;
+                align-self: start;
+                padding-top: 4px;
+                gap: 6px;
+
+                .u-pvx-title {
+                    font-size: 15px;
+                    line-height: 22px;
+                }
+            }
+
+            .m-pvx-author {
+                min-width: 0;
+                gap: 6px;
+
+                .u-pvx-name {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            .m-pvx-tags {
+                grid-column: 2;
+                grid-row: 2;
+                justify-content: flex-start;
+                align-self: end;
+                min-width: 0;
+                height: 20px;
+                gap: 6px;
+
+                .m-pvx-tag__left {
+                    gap: 6px;
+                }
+
+                .u-pvx-tag {
+                    flex-shrink: 0;
+                    border-radius: 4px;
+                }
+            }
+        }
+    }
+
+    // 体型素材以纵向全身图为主，移动端使用通栏卡片，充分利用内容区宽度。
+    .p-pvx-body-list {
+        .m-pvx-type__list--all,
+        .m-pvx-type__box .m-cardlist-items {
+            grid-template-columns: minmax(0, 1fr) !important;
+            justify-content: stretch;
+            overflow: visible;
+        }
+
+        .m-cardlist-item {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .m-pvx-type__item--modern,
+        .m-pvx-type__list--all > .m-pvx-type__item--modern {
+            width: 100%;
+            max-width: none;
+            // !important: 覆盖旧版体型卡片固定高度，使卡片随纵向图片内容撑开。
+            height: auto !important;
+            min-height: 0;
+            padding: 12px;
+
+            &:hover,
+            &:active {
+                transform: none;
+            }
+
+            .m-pvx-img {
+                width: 100%;
+            }
+        }
+
+        .m-card-banner-list .m-pvx-type__item--modern .m-pvx-img,
+        .m-pvx-type__list--all > .m-pvx-type__item--modern .m-pvx-img {
+            width: 100%;
+            // !important: 覆盖旧版体型卡片在 list-card.less 中声明的固定图片高度。
+            height: auto !important;
+            aspect-ratio: 3 / 4;
         }
     }
 }

@@ -62,6 +62,23 @@ export default {
         },
     },
 
+    faceBody: {
+        roles: { all: "全部", male: "成男", female: "成女", boy: "正太", girl: "萝莉" },
+        actions: { parse: "数据解析", publish: "发布作品", viewAll: "查看全部", loadMore: "加载更多" },
+        filters: {
+            roleCategory: "角色分类", all: "全部", conditions: "筛选条件", featured: "精选",
+            free: "免费", recreatable: "可新建", images: "图片筛选", withImages: "有图",
+        },
+        search: {
+            content: "搜索内容", close: "关闭", reset: "重置", select: "请选择",
+            inputField: "请输入{name}", selectField: "请选择{name}", searchPlaceholder: "输入{name}搜索",
+        },
+        card: { editorChoice: "编辑推荐", paid: "付费", recommended: "推荐", anonymous: "匿名", realistic: "写实", artistic: "写意", recreatable: "可新建" },
+        parse: {
+            localOnly: "仅在本地解析", complete: "解析完成", compatibility: "文件兼容",
+            privacy: "隐私保护", privacyDescription: "文件只在当前浏览器中读取，不会上传到服务器", result: "解析结果",
+        },
+    },
     face: {
         title: "捏脸数据",
         keywords: "剑网3捏脸数据,剑三捏脸数据,JX3BOX捏脸,剑网3捏脸,剑三捏脸,捏脸数据分享,捏脸参数",
@@ -86,6 +103,16 @@ export default {
             title: "捏脸数据解析（移动版）",
             keywords: "剑网3捏脸数据解析,剑三捏脸解析,捏脸解析移动版,JX3BOX捏脸工具",
             description: "剑网3魔盒（JX3BOX）捏脸数据解析移动版，支持在移动设备上解析与查看剑网3捏脸参数数据。",
+        },
+        ui: {
+            sectionTitle: "{role}脸型", empty: "没有找到相关的捏脸", emptySearch: "没找到对应的捏脸，请重新选择条件或关键词搜索",
+            filters: { style: "脸型风格", realistic: "写实", artistic: "写意", faceCode: "捏脸码" },
+            parse: {
+                title: "捏脸数据解析器", description: "读取本地文件，快速查看脸型骨骼、妆容与参数明细",
+                importTitle: "导入脸型数据文件", importDescription: "选择需要查看的游戏脸型文件，解析完成后将在下方展示详细参数。",
+                selectFile: "选择一个脸型数据文件", formats: "支持 .dat、.jx3dat 与 .ini 格式", guide: "游戏脸型导入导出指南",
+                compatibilityDescription: "支持正式服、怀旧服及编辑器脸型数据", resultDescription: "切换分类查看各项脸型参数，滑杆仅用于直观展示数据位置。",
+            },
         },
     },
     body: {
@@ -112,6 +139,15 @@ export default {
             title: "体型数据解析（移动版）",
             keywords: "剑网3体型数据解析,剑三体型解析,体型数据移动版,JX3BOX体型工具",
             description: "剑网3魔盒（JX3BOX）体型数据解析移动版，支持在移动设备上查看与解析剑网3角色体型参数数据。",
+        },
+        ui: {
+            sectionTitle: "{role}体型", empty: "没有找到相关的体型", emptySearch: "没找到对应的体型，请重新选择条件或关键词搜索",
+            parse: {
+                title: "体型数据解析器", description: "读取本地文件，快速查看体型参数与各部位调节数据",
+                importTitle: "导入体型数据文件", importDescription: "选择需要查看的游戏体型文件，解析完成后将在下方展示详细参数。",
+                selectFile: "选择一个体型数据文件", formats: "支持 .dat 与 .jx3dat 格式", guide: "游戏体型导入导出指南",
+                compatibilityDescription: "自动识别角色体型并加载对应参数范围", resultDescription: "切换分类查看各部位体型参数，并可按原有方式导出数据。",
+            },
         },
     },
     homeland: {

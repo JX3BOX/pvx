@@ -23,7 +23,8 @@
  -->
 <template>
     <div class="p-pvx-body-list" v-loading="loading" ref="listRef">
-        <pvxTabs variant="modern" @change="handleBodyTabChange" :body_types="list" :link="link" :active="active" />
+        <pvxTabs type="body" variant="modern" @change="handleBodyTabChange" :body_types="list" :link="link"
+            :active="active" />
         <template v-if="active === -1">
             <div class="m-pvx-overview-grid">
                 <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-type__box"
@@ -32,10 +33,10 @@
                         :item-width="overviewItemWidth" :show-replace="false" stretch-items limit-to-count
                         :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list">
                         <template v-slot:title>
-                            <div>{{ item.label + "体型" }}</div>
+                            <div>{{ $t("pages.body.ui.sectionTitle", { role: roleLabel(item) }) }}</div>
                         </template>
                         <template v-slot:action>
-                            <div @click="setActive(item.value)">查看全部</div>
+                            <div @click="setActive(item.value)">{{ $t("pages.faceBody.actions.viewAll") }}</div>
                         </template>
                         <template v-slot="{ item }">
                             <ListItem type="body" variant="modern" :key="item.id" :item="item" />
@@ -44,9 +45,9 @@
                 </div>
             </div>
         </template>
-        <div class="m-pvx-type__box" v-else>
+        <div class="m-pvx-type__box" v-else-if="subList && subList.length">
             <div class="m-pvx-type__title u-pvx-type">
-                <div class="u-pvx-title">{{ typeName + "体型" }}</div>
+                <div class="u-pvx-title">{{ $t("pages.body.ui.sectionTitle", { role: roleLabel(activeTab) }) }}</div>
             </div>
             <div class="m-pvx-type__list--all">
                 <ListItem type="body" variant="modern" v-for="item in subList" :key="item.id" :item="item" />
@@ -56,7 +57,7 @@
                 <el-icon>
                     <ArrowDown />
                 </el-icon>
-                加载更多
+                {{ $t("pages.faceBody.actions.loadMore") }}
             </el-button>
             <el-pagination class="m-pvx-archive__pages" background layout="total, prev, pager, next, jumper"
                 :hide-on-single-page="true" @current-change="changePage" @prev-click="changePage"
@@ -76,11 +77,11 @@ import { getBodyList } from "@/service/body";
 import { ArrowDown } from '@element-plus/icons-vue';
 
 const BODY_TYPE_CONFIG = [
-    { label: "全部", value: -1, client: ["std", "origin"] },
-    { label: "成男", value: 1, client: ["std", "origin"] },
-    { label: "成女", value: 2, client: ["std", "origin"] },
-    { label: "正太", value: 5, client: ["std"] },
-    { label: "萝莉", value: 6, client: ["std", "origin"] },
+    { labelKey: "pages.faceBody.roles.all", value: -1, client: ["std", "origin"] },
+    { labelKey: "pages.faceBody.roles.male", value: 1, client: ["std", "origin"] },
+    { labelKey: "pages.faceBody.roles.female", value: 2, client: ["std", "origin"] },
+    { labelKey: "pages.faceBody.roles.boy", value: 5, client: ["std"] },
+    { labelKey: "pages.faceBody.roles.girl", value: 6, client: ["std", "origin"] },
 ];
 
 const initBodyList = () => {
@@ -106,8 +107,8 @@ export default {
             },
             itemData: {
                 color: "#786CBB",
-                width: "200",
-                height: "368",
+                width: "210",
+                height: "380",
             },
         };
     },
@@ -123,13 +124,16 @@ export default {
         },
 
         alertTitle() {
-            return this.tabsData.name
-                ? "没找到对应的体型，请重新选择条件或关键词搜索"
-                : "没有找到相关的体型";
+            return this.tabsData.title
+                ? this.$t("pages.body.ui.emptySearch")
+                : this.$t("pages.body.ui.empty");
         },
     },
 
     methods: {
+        roleLabel(item) {
+            return item?.labelKey ? this.$t(item.labelKey) : item?.label || "";
+        },
         loadList(params, key) {
             const index = this.list.findIndex((e) => e.value === key);
             if (index === -1) return;

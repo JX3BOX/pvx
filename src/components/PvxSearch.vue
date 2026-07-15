@@ -22,15 +22,18 @@
                     </template>
                 </template>
                 <template v-if="item.type === 'filter' && item.options.length">
-                    <el-popover ref="popover" :placement="isPhone() ? 'right' : 'bottom'"
-                        :width="!isPhone() && (variant === 'modern' ? 480 : 420)"
-                        trigger="click" v-model="filterValue" :popper-class="popperClass">
+                    <el-popover ref="popover" :placement="isPhone() && variant !== 'modern' ? 'right' : 'bottom'"
+                        :width="variant === 'modern'
+                            ? 'min(480px, calc(100vw - 32px))'
+                            : (isPhone() ? undefined : 420)"
+                        trigger="click" v-model:visible="filterValue" :popper-class="popperClass">
                         <div class="filter-content">
-                            <div class="filter-item" v-for="fItem in item.options" :key="fItem.key">
+                            <div class="filter-item" :class="{ 'filter-item--phone-only': fItem.phoneOnly }"
+                                v-for="fItem in item.options" :key="fItem.key">
                                 <el-select v-if="fItem.type === 'select'" :id="fItem.remote" class="select-wrapper"
                                     v-model="formData[fItem.key]" :multiple="fItem.multiple"
                                     :collapse-tags="fItem.multiple" clearable :filterable="fItem.filterable"
-                                    :placeholder="`请${fItem.remote ? '输入' : '选择'}${fItem.name}`"
+                                    :placeholder="getFieldPlaceholder(fItem)"
                                     :remote="Boolean(fItem.remote)" :remote-method="remoteMethod"
                                     :loading="selectLoading === fItem.remote" :default-first-option="true"
                                     @focus="selectFocus" style="width: 100%">
@@ -74,12 +77,17 @@
                             </div>
                             <el-row v-if="item.options.length" class="filter-actions">
                                 <el-col :offset="20" :span="4">
-                                    <el-button size="small" type="info" plain @click="reset">重置</el-button>
+                                    <el-button v-if="variant === 'modern'" class="u-filter-close" size="small" plain
+                                        @click="closeFilter">{{ $t("pages.faceBody.search.close") }}</el-button>
+                                    <el-button size="small" type="info" plain @click="reset">{{ $t("pages.faceBody.search.reset") }}</el-button>
                                 </el-col>
                             </el-row>
                         </div>
                         <template #reference>
-                            <div class="filter-img" :class="filterValue && 'active'">
+                            <div class="filter-img" :class="{
+                                'has-filters': hasActiveFilters,
+                                'has-desktop-filters': hasDesktopActiveFilters,
+                            }">
                                 <img svg-inline src="@/assets/img/common/filter.svg" />
                             </div>
                         </template>
@@ -89,7 +97,7 @@
                     <label v-if="item.showLabel">{{ item.name }}</label>
                     <el-select :id="item.remote" class="select-wrapper" v-model="formData[item.key]"
                         :multiple="item.multiple" :collapse-tags="item.multiple" :filterable="item.filterable"
-                        :placeholder="!item.noPlaceholder ? `请${item.remote ? '输入' : '选择'}${item.name}` : '请选择'"
+                        :placeholder="item.noPlaceholder ? $t('pages.faceBody.search.select') : getFieldPlaceholder(item)"
                         :remote="Boolean(item.remote)" :remote-method="remoteMethod"
                         :loading="selectLoading === item.remote" :default-first-option="true" @focus="selectFocus"
                         :style="!item.showLabel && 'width: 100%'">
@@ -100,7 +108,8 @@
                     </el-select>
                 </template>
                 <template v-if="!item.type">
-                    <el-input v-model="formData[item.key]" class="search-input" :placeholder="`输入${item.name}搜索`"
+                    <el-input v-model="formData[item.key]" class="search-input"
+                        :placeholder="$t('pages.faceBody.search.searchPlaceholder', { name: item.name })"
                         clearable>
                         <template v-if="variant === 'modern'" #prepend>
                             <svg class="u-pvx-search-icon" viewBox="0 0 20 20" aria-hidden="true">
@@ -199,7 +208,34 @@ export default {
             },
         },
     },
+    computed: {
+        hasActiveFilters() {
+            const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
+            return filterOptions.some((item) => this.isFilterOptionActive(item));
+        },
+        hasDesktopActiveFilters() {
+            const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
+            return filterOptions.some((item) => !item.phoneOnly && this.isFilterOptionActive(item));
+        },
+    },
     methods: {
+        isFilterOptionActive(item) {
+            if (item.type === "checkbox") {
+                const values = this.checkboxData[item.key] || [];
+                return values.some((value) => value !== "all" && value !== "");
+            }
+
+            const value = this.formData[item.key];
+            if (value === undefined || value === null || value === "") return false;
+
+            if (item.type === "radio") {
+                const defaultOption = item.options.find((option) => option.default);
+                return defaultOption ? String(value) !== String(defaultOption.key) : true;
+            }
+
+            if (Array.isArray(value)) return value.length > 0;
+            return Boolean(value);
+        },
         labelSet(e) {
             const label = e.target.getAttribute("custom-label");
             this.customLabel = label;
@@ -208,6 +244,10 @@ export default {
             this.customLabel = "";
         },
         isPhone,
+        getFieldPlaceholder(item) {
+            const key = item.remote ? "inputField" : "selectField";
+            return this.$t(`pages.faceBody.search.${key}`, { name: item.name });
+        },
         selectFocus(e) {
             this.currentMethod = e.target.id;
         },
@@ -231,7 +271,7 @@ export default {
             const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
             filterOptions.forEach((item) => {
                 if (item.type === "radio") {
-                    const resetOption = item.options.find((option) => option.key === "" || option.value === "全部");
+                    const resetOption = item.options.find((option) => option.default || option.key === "");
                     this.formData[item.key] = resetOption ? resetOption.key : "";
                 } else if (item.type === "checkbox") {
                     const allOption = item.options.find((opt) => opt.value === "all");
@@ -246,6 +286,9 @@ export default {
             });
             this.filterValue = false;
             this.$router.push({ query: "" });
+        },
+        closeFilter() {
+            this.filterValue = false;
         },
         async remoteMethod(query) {
             const currentMethod = this.currentMethod;

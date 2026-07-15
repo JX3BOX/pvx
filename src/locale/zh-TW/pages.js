@@ -80,6 +80,14 @@ export default {
             },
         },
     },
+    faceBody: {
+        roles: { all: "全部", male: "成男", female: "成女", boy: "正太", girl: "蘿莉" },
+        actions: { parse: "資料解析", publish: "發佈作品", viewAll: "查看全部", loadMore: "載入更多" },
+        filters: { roleCategory: "角色分類", all: "全部", conditions: "篩選條件", featured: "精選", free: "免費", recreatable: "可新建", images: "圖片篩選", withImages: "有圖" },
+        search: { content: "搜尋內容", close: "關閉", reset: "重設", select: "請選擇", inputField: "請輸入{name}", selectField: "請選擇{name}", searchPlaceholder: "輸入{name}搜尋" },
+        card: { editorChoice: "編輯推薦", paid: "付費", recommended: "推薦", anonymous: "匿名", realistic: "寫實", artistic: "寫意", recreatable: "可新建" },
+        parse: { localOnly: "僅在本機解析", complete: "解析完成", compatibility: "檔案相容", privacy: "隱私保護", privacyDescription: "檔案只在目前瀏覽器中讀取，不會上傳到伺服器", result: "解析結果" },
+    },
     body: {
         title: "體型數據",
         keywords: "劍網3體型數據,體型展示,體型比例,JX3BOX",
@@ -98,6 +106,10 @@ export default {
             title: "體型數據解析（移動版）",
             keywords: "體型解析移動版,JX3BOX",
             description: "移動端體型數據解析工具。",
+        },
+        ui: {
+            sectionTitle: "{role}體型", empty: "沒有找到相關體型", emptySearch: "找不到對應體型，請重新選擇條件或關鍵字搜尋",
+            parse: { title: "體型資料解析器", description: "讀取本機檔案，快速查看體型參數與各部位調整資料", importTitle: "匯入體型資料檔案", importDescription: "選擇要查看的遊戲體型檔案，解析後將在下方顯示詳細參數。", selectFile: "選擇一個體型資料檔案", formats: "支援 .dat 與 .jx3dat 格式", guide: "遊戲體型匯入匯出指南", compatibilityDescription: "自動辨識角色體型並載入對應參數範圍", resultDescription: "切換分類查看各部位體型參數，並可依原有方式匯出資料。" },
         },
     },
     book: {
@@ -158,6 +170,11 @@ export default {
             title: "捏臉數據解析（移動版）",
             keywords: "捏臉解析移動版,JX3BOX",
             description: "移動端捏臉數據解析工具。",
+        },
+        ui: {
+            sectionTitle: "{role}臉型", empty: "沒有找到相關臉型", emptySearch: "找不到對應臉型，請重新選擇條件或關鍵字搜尋",
+            filters: { style: "臉型風格", realistic: "寫實", artistic: "寫意", faceCode: "捏臉碼" },
+            parse: { title: "捏臉資料解析器", description: "讀取本機檔案，快速查看臉型骨骼、妝容與參數明細", importTitle: "匯入臉型資料檔案", importDescription: "選擇要查看的遊戲臉型檔案，解析後將在下方顯示詳細參數。", selectFile: "選擇一個臉型資料檔案", formats: "支援 .dat、.jx3dat 與 .ini 格式", guide: "遊戲臉型匯入匯出指南", compatibilityDescription: "支援正式服、懷舊服及編輯器臉型資料", resultDescription: "切換分類查看各項臉型參數，滑桿僅用於直觀顯示資料位置。" },
         },
     },
     furniture: {

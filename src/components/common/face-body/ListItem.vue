@@ -43,10 +43,10 @@
                 </template>
             </el-image>
             <div class="m-pvx-mark__left">
-                <i class="u-pvx-mark u-pvx-mark--star" v-if="!!item.star">编辑推荐</i>
-                <i class="u-pvx-mark u-pvx-mark--new" v-if="!!item.is_unlimited">可新建</i>
+                <i class="u-pvx-mark u-pvx-mark--star" v-if="!!item.star">{{ $t("pages.faceBody.card.editorChoice") }}</i>
+                <i class="u-pvx-mark u-pvx-mark--new" v-if="!!item.is_unlimited">{{ $t("pages.faceBody.card.recreatable") }}</i>
             </div>
-            <i class="u-pvx-mark u-pvx-mark--pay" v-if="!!~~item.price_type && !!item.price_count">付费</i>
+            <i class="u-pvx-mark u-pvx-mark--pay" v-if="!!~~item.price_type && !!item.price_count">{{ $t("pages.faceBody.card.paid") }}</i>
         </div>
 
         <el-image 
@@ -66,14 +66,14 @@
         <div class="m-pvx-tags" v-if="type === 'face'">
             <div class="m-pvx-tag__left">
                 <template v-if="client === 'std'">
-                    <i class="u-pvx-tag u-pvx-tag--type u-pvx-new-face" v-if="item.is_new_face">写实</i>
-                    <i class="u-pvx-tag u-pvx-tag--type" v-else>写意</i>
+                    <i class="u-pvx-tag u-pvx-tag--type u-pvx-new-face" v-if="item.is_new_face">{{ $t("pages.faceBody.card.realistic") }}</i>
+                    <i class="u-pvx-tag u-pvx-tag--type" v-else>{{ $t("pages.faceBody.card.artistic") }}</i>
                 </template>
-                <i class="u-pvx-tag u-pvx-tag--new" v-if="!!item.is_unlimited">可新建</i>
+                <i class="u-pvx-tag u-pvx-tag--new" v-if="!!item.is_unlimited">{{ $t("pages.faceBody.card.recreatable") }}</i>
             </div>
 
             <i class="u-pvx-tag u-pvx-tag--star" v-if="!!item.star">
-                <img :src="require('@/assets/img/face/star.svg')" alt="" />推荐
+                <img :src="require('@/assets/img/face/star.svg')" alt="" />{{ $t("pages.faceBody.card.recommended") }}
             </i>
             <i class="u-pvx-tag u-pvx-tag--pay" v-if="!!~~item.price_type && !!item.price_count">
                 <img :src="require('@/assets/img/face/coin.svg')" alt="" />{{ item.price_count }}
@@ -95,7 +95,7 @@
                     :src="showAvatar(item.user_avatar)"
                     :alt="author"
                 />
-                <span class="u-pvx-name"> {{ item.author_name || "匿名" }} </span>
+                <span class="u-pvx-name"> {{ item.author_name || $t("pages.faceBody.card.anonymous") }} </span>
             </div>
         </div>
     </a>
@@ -135,15 +135,6 @@ export default {
             validator: (value) => ["legacy", "modern"].includes(value),
         },
     },
-    data: function () {
-        return {
-            markmap: {
-                newbie: "热门",
-                advanced: "推荐",
-                recommended: "精选",
-            },
-        };
-    },
     computed: {
         itemClasses() {
             const classes = [`m-${this.type}-item`];
@@ -152,7 +143,7 @@ export default {
             return classes;
         },
         author: function () {
-            return this.item.display_name || "匿名";
+            return this.item.display_name || this.$t("pages.faceBody.card.anonymous");
         },
         imgLink: function () {
             if (this.type === 'face') {

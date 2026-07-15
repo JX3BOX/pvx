@@ -83,6 +83,14 @@ export default {
             },
         },
     },
+    faceBody: {
+        roles: { all: "All", male: "Male", female: "Female", boy: "Boy", girl: "Girl" },
+        actions: { parse: "Data Parser", publish: "Publish", viewAll: "View All", loadMore: "Load More" },
+        filters: { roleCategory: "Character Type", all: "All", conditions: "Filters", featured: "Featured", free: "Free", recreatable: "Recreatable", images: "Images", withImages: "With Images" },
+        search: { content: "content", close: "Close", reset: "Reset", select: "Please select", inputField: "Enter {name}", selectField: "Select {name}", searchPlaceholder: "Search {name}" },
+        card: { editorChoice: "Editor's Pick", paid: "Paid", recommended: "Pick", anonymous: "Anonymous", realistic: "Real", artistic: "Stylized", recreatable: "Remake" },
+        parse: { localOnly: "Parsed locally only", complete: "Parsing complete", compatibility: "Compatibility", privacy: "Privacy", privacyDescription: "Files are read only in this browser and are never uploaded", result: "Parsed Result" },
+    },
     body: {
         title: "Body Data",
         keywords: "JX3 body data,body scale,body display,JX3BOX",
@@ -101,6 +109,10 @@ export default {
             title: "Body Data Parser (Mobile)",
             keywords: "JX3 body parser mobile,JX3BOX",
             description: "Mobile body data parser for JX3 body parameters.",
+        },
+        ui: {
+            sectionTitle: "{role} Body Types", empty: "No body data found", emptySearch: "No matching body data. Try different filters or keywords.",
+            parse: { title: "Body Data Parser", description: "Read a local file to inspect body parameters and adjustments", importTitle: "Import Body Data", importDescription: "Choose a JX3 body data file. Parsed parameters will appear below.", selectFile: "Choose a body data file", formats: "Supports .dat and .jx3dat", guide: "Body Data Import & Export Guide", compatibilityDescription: "Automatically detects the character type and loads its parameter ranges", resultDescription: "Switch categories to inspect body parameters and export the data when needed." },
         },
     },
     book: {
@@ -161,6 +173,11 @@ export default {
             title: "Face Data Parser (Mobile)",
             keywords: "JX3 face parser mobile,JX3BOX",
             description: "Mobile face data parser for face parameters.",
+        },
+        ui: {
+            sectionTitle: "{role} Faces", empty: "No face data found", emptySearch: "No matching face data. Try different filters or keywords.",
+            filters: { style: "Face Style", realistic: "Realistic", artistic: "Artistic", faceCode: "Face Code" },
+            parse: { title: "Face Data Parser", description: "Read a local file to inspect facial structure, makeup, and parameters", importTitle: "Import Face Data", importDescription: "Choose a JX3 face data file. Parsed parameters will appear below.", selectFile: "Choose a face data file", formats: "Supports .dat, .jx3dat, and .ini", guide: "Face Data Import & Export Guide", compatibilityDescription: "Supports standard, legacy, and editor face data", resultDescription: "Switch categories to inspect face parameters; sliders visualize parameter positions only." },
         },
     },
     furniture: {

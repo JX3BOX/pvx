@@ -32,12 +32,12 @@
             <template #extra>
                 <div class="m-pvx-toolbar__item m-pvx-toolbar__publish">
                     <a :href="link.data" target="_blank">
-                        <el-button type="primary" class="u-pvx-analysis"> 数据解析 </el-button>
+                        <el-button type="primary" class="u-pvx-analysis">{{ $t("pages.faceBody.actions.parse") }}</el-button>
                     </a>
                     <a :href="publish_link(link.key)" target="_blank">
                         <div class="u-pvx-fb-publish">
                             <img svg-inline src="@/assets/img/face/face-publish.svg" class="u-pvx-img" />
-                            <span>发布作品</span>
+                            <span>{{ $t("pages.faceBody.actions.publish") }}</span>
                         </div>
                     </a>
                 </div>
@@ -117,51 +117,64 @@ export default {
                     key: "body_type",
                     options: this.body_types.map((item) => ({
                         type: item.value,
-                        name: item.label,
+                        name: item.labelKey ? this.$t(item.labelKey) : item.label,
                     })),
                 });
             }
             const filterOptions = [];
+            if (this.body_types && this.body_types.length) {
+                filterOptions.push({
+                    type: "radio",
+                    key: "body_type",
+                    name: this.$t("pages.faceBody.filters.roleCategory"),
+                    phoneOnly: true,
+                    options: this.body_types.map((item) => ({
+                        key: item.value,
+                        value: item.labelKey ? this.$t(item.labelKey) : item.label,
+                        default: item.value === -1,
+                    })),
+                });
+            }
             if (this.client === "std" && this.type === "face") {
                 filterOptions.push({
                     type: "radio",
                     key: "is_new_face",
-                    name: "脸型风格",
+                    name: this.$t("pages.face.ui.filters.style"),
                     options: [
-                        { key: -1, value: "全部" },
-                        { key: 1, value: "写实" },
-                        { key: 0, value: "写意" },
+                        { key: -1, value: this.$t("pages.faceBody.filters.all"), default: true },
+                        { key: 1, value: this.$t("pages.face.ui.filters.realistic") },
+                        { key: 0, value: this.$t("pages.face.ui.filters.artistic") },
                     ],
                 });
             }
             filterOptions.push({
                 type: "checkbox",
                 key: "filter_flags",
-                name: "筛选条件",
+                name: this.$t("pages.faceBody.filters.conditions"),
                 options: [
-                    { label: "全部", value: "all" },
-                    { label: "精选", value: "star" },
-                    { label: "免费", value: "price_type" },
-                    { label: "可新建", value: "is_unlimited" },
+                    { label: this.$t("pages.faceBody.filters.all"), value: "all", default: true },
+                    { label: this.$t("pages.faceBody.filters.featured"), value: "star" },
+                    { label: this.$t("pages.faceBody.filters.free"), value: "price_type" },
+                    { label: this.$t("pages.faceBody.filters.recreatable"), value: "is_unlimited" },
                 ],
             });
             filterOptions.push({
                 type: "radio",
                 key: "filter_empty_images",
-                name: "图片筛选",
+                name: this.$t("pages.faceBody.filters.images"),
                 options: [
-                    { key: 0, value: "全部" },
-                    { key: 1, value: "有图" },
+                    { key: 0, value: this.$t("pages.faceBody.filters.all"), default: true },
+                    { key: 1, value: this.$t("pages.faceBody.filters.withImages") },
                 ],
             });
             if (this.type === "face") {
                 filterOptions.push({
                     type: "radio",
                     key: "code_mode",
-                    name: "捏脸码",
+                    name: this.$t("pages.face.ui.filters.faceCode"),
                     options: [
-                        { key: "", value: "全部" },
-                        { key: 1, value: "捏脸码" },
+                        { key: "", value: this.$t("pages.faceBody.filters.all"), default: true },
+                        { key: 1, value: this.$t("pages.face.ui.filters.faceCode") },
                     ],
                 });
             }
@@ -171,7 +184,7 @@ export default {
             });
             items.push({
                 key: "title",
-                name: "搜索内容",
+                name: this.$t("pages.faceBody.search.content"),
             });
             return items;
         },
@@ -412,18 +425,14 @@ export default {
         .type-list {
             width: 100%;
 
-            .type-item {
-                &:first-child {
-                    // !important: 覆写 ElementPlus el-radio-button 默认 margin 和 width
-                    margin-right: 0 !important;
-                    width: 100% !important;
-                    flex-shrink: 0;
-                }
+            .el-radio-group {
+                flex-wrap: nowrap;
+            }
 
-                &:not(:first-child) {
-                    // !important: 覆写 ElementPlus el-radio-button 默认 width
-                    width: calc(50% - 20px) !important;
-                }
+            .type-item {
+                width: auto !important;
+                min-width: 72px;
+                flex: none;
             }
         }
 
@@ -433,6 +442,31 @@ export default {
             justify-content: space-between;
             width: 100%;
             margin-bottom: 10px;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-fb__tabs {
+        .pvx-search-wrapper .search-group {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr);
+            gap: 8px;
+
+            .type-list {
+                display: none;
+            }
+
+            .filter-wrap {
+                grid-column: 1;
+                width: 40px;
+            }
+
+            .input-wrap {
+                grid-column: 2;
+                width: 100%;
+                min-width: 0;
+            }
         }
     }
 }

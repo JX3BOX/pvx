@@ -30,6 +30,7 @@ import { omit, isEqual, debounce } from "lodash";
 
 const PAGE_SIZE = 12;
 const DEFAULT_CARD_GAP = 12;
+const MIN_OVERVIEW_COUNT = 6;
 
 export default {
     data() {
@@ -170,7 +171,8 @@ export default {
                 : section.getBoundingClientRect().width;
             const availableWidth = containerWidth - horizontalSpace;
             const gap = parseFloat(itemsStyle?.columnGap || itemsStyle?.gap) || DEFAULT_CARD_GAP;
-            const count = Math.max(1, Math.floor((availableWidth + gap) / (cardWidth + gap)));
+            const fittedCount = Math.max(1, Math.floor((availableWidth + gap) / (cardWidth + gap)));
+            const count = Math.max(MIN_OVERVIEW_COUNT, fittedCount);
 
             return {
                 count,
