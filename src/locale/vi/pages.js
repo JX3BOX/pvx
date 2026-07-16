@@ -95,9 +95,10 @@ export default {
             note: "Ghi chú: ", none: "Không", download: "Tải xuống", faceType: "khuôn mặt", bodyType: "vóc dáng", headline: "{type} này được đề cử vào {time}",
             dataAnalysis: "Phân tích dữ liệu độc quyền", analysisHint: "Mua để xem toàn bộ thông số", analysisLocked: "Phân tích dữ liệu sẽ mở sau khi mua",
             aboutCreator: "Về tác giả", moreWorks: "Tác phẩm khác", discussion: "Thảo luận",
-            confirmPurchase: "Mua dữ liệu khuôn mặt này?", prompt: "Thông báo", confirm: "Xác nhận", cancel: "Hủy", balanceInsufficient: "Số dư không đủ. Đi nạp tiền?",
+            confirmPurchase: "Mua dữ liệu khuôn mặt này?", confirmPurchaseBody: "Mua dữ liệu vóc dáng này?", prompt: "Thông báo", confirm: "Xác nhận", cancel: "Hủy", balanceInsufficient: "Số dư không đủ. Đi nạp tiền?",
             timeout: "Hết thời gian", paymentTimeout: "Truy vấn trạng thái thanh toán đã hết thời gian. Vui lòng kiểm tra lại sau.", success: "Thành công", purchaseSuccess: "Mua thành công", failure: "Thất bại", purchaseFailed: "Thanh toán thất bại", copySuccess: "Đã sao chép",
             fileIncomplete: "Thông tin tệp chưa đầy đủ", downloadUrlFailed: "Không lấy được liên kết tải xuống", noDownloadableFiles: "Không có tệp để tải", downloadFailed: "Tải xuống thất bại. Vui lòng thử lại.",
+            noImages: "Chưa có hình ảnh cho {type} này", currentExperience: "Kinh nghiệm hiện tại: {value}", contractedCreator: "Tác giả ký hợp đồng", proMember: "Thành viên Pro", premiumMember: "Thành viên Premium",
         },
     },
     body: {

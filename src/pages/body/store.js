@@ -3,7 +3,7 @@ import { createStore } from "vuex";
 let store = {
     state: {
         client: location.href.includes("origin") ? "origin" : "std",
-        faceSingle: {},
+        bodySingle: {},
         isCollapse: false,
         timezone: "Asia/Shanghai", // 时区
     },
@@ -12,6 +12,9 @@ let store = {
             Object.keys(data).forEach((item) => {
                 state[item] = data[item];
             });
+        },
+        SET_BODY_SINGLE(state, payload) {
+            state.bodySingle = payload;
         },
     },
     getters: {},

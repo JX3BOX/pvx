@@ -95,9 +95,10 @@ export default {
             note: "備註：", none: "無", download: "下載", faceType: "臉型", bodyType: "體型", headline: "此{type}於{time}榮登頭條",
             dataAnalysis: "獨家資料分析", analysisHint: "購買後可查看完整參數", analysisLocked: "資料分析將在購買後解鎖",
             aboutCreator: "關於作者", moreWorks: "更多作品", discussion: "討論",
-            confirmPurchase: "確認購買此臉型？", prompt: "提示", confirm: "確定", cancel: "取消", balanceInsufficient: "餘額不足，是否前往儲值？",
+            confirmPurchase: "確認購買此臉型？", confirmPurchaseBody: "確認購買此體型？", prompt: "提示", confirm: "確定", cancel: "取消", balanceInsufficient: "餘額不足，是否前往儲值？",
             timeout: "逾時", paymentTimeout: "支付結果查詢逾時，請稍後查看", success: "成功", purchaseSuccess: "購買成功", failure: "失敗", purchaseFailed: "支付失敗", copySuccess: "複製成功",
             fileIncomplete: "檔案資訊不完整", downloadUrlFailed: "取得下載網址失敗", noDownloadableFiles: "暫無可下載的檔案", downloadFailed: "下載失敗，請重試",
+            noImages: "此{type}資料暫無圖片", currentExperience: "目前經驗 {value}", contractedCreator: "簽約作者", proMember: "專業版會員", premiumMember: "高級版會員",
         },
     },
     body: {

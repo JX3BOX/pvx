@@ -30,7 +30,7 @@
             <el-icon>
                 <Picture />
             </el-icon>
-            <span>该{{ typeLabel }}数据暂无图片</span>
+            <span>{{ $t("pages.faceBody.detail.noImages", { type: typeLabel }) }}</span>
         </div>
         
         <!-- 图片轮播 -->
@@ -42,11 +42,15 @@
             
             <!-- 轮播组件 -->
             <el-carousel
+                :key="carouselType || 'default'"
+                ref="carouselRef"
                 class="m-pvx-carousel"
                 :interval="4000"
-                type="card"
+                :type="carouselType"
                 arrow="always"
                 @change="handleCarouselChange"
+                @touchstart.passive="handleTouchStart"
+                @touchend.passive="handleTouchEnd"
             >
                 <el-carousel-item v-for="(item, i) in imageList" :key="i">
                     <div class="m-pvx-type__pic">
@@ -56,8 +60,10 @@
                             :src="showPic(item)"
                             class="u-pvx-pic"
                             :preview-src-list="resolvedImageList"
-                            :initial-index="previewIndex"
-                            @click.capture="handlePreviewImage(i)"
+                            :preview-teleported="true"
+                            :initial-index="i"
+                            @show="handlePreviewShow"
+                            @close="unbindPreviewSwipe"
                         />
                     </div>
                 </el-carousel-item>
@@ -96,23 +102,39 @@ export default {
     data() {
         return {
             carouselActive: 0,    // 当前轮播索引
-            previewIndex: 0,      // 预览图片索引
+            touchStartX: 0,
+            touchStartY: 0,
+            cardModeMedia: null,
+            isCardMode: false,
+            previewViewer: null,
+            previewTouchStartX: 0,
+            previewTouchStartY: 0,
         };
     },
     computed: {
         // 类型标签文案
         typeLabel() {
-            return this.type === "face" ? "脸型" : "体型";
+            return this.$t(this.type === "face" ? "pages.faceBody.detail.faceType" : "pages.faceBody.detail.bodyType");
         },
         // 当前激活的图片
         activeImage() {
             return this.imageList[this.carouselActive] || "";
         },
-        // 解析后的图片列表（用于预览）
         resolvedImageList() {
             return this.imageList.map((item) => resolveImagePath(item));
         },
-
+        carouselType() {
+            return this.isCardMode ? "card" : "";
+        },
+    },
+    mounted() {
+        this.cardModeMedia = window.matchMedia("(min-width: 1280px)");
+        this.updateCarouselMode(this.cardModeMedia);
+        this.cardModeMedia.addEventListener("change", this.updateCarouselMode);
+    },
+    beforeUnmount() {
+        this.cardModeMedia?.removeEventListener("change", this.updateCarouselMode);
+        this.unbindPreviewSwipe();
     },
     methods: {
         // 显示图片（解析CDN路径）
@@ -123,9 +145,64 @@ export default {
         handleCarouselChange(index) {
             this.carouselActive = index;
         },
-        // 点击预览图片
-        handlePreviewImage(index) {
-            this.previewIndex = index;
+        updateCarouselMode(event) {
+            this.isCardMode = event.matches;
+        },
+        handlePreviewShow() {
+            this.$nextTick(() => {
+                this.unbindPreviewSwipe();
+                this.previewViewer = document.querySelector("body > .el-image-viewer__wrapper");
+                this.previewViewer?.addEventListener("touchstart", this.handlePreviewTouchStart, {
+                    capture: true,
+                    passive: true,
+                });
+                this.previewViewer?.addEventListener("touchend", this.handlePreviewTouchEnd, {
+                    capture: true,
+                    passive: true,
+                });
+            });
+        },
+        unbindPreviewSwipe() {
+            this.previewViewer?.removeEventListener("touchstart", this.handlePreviewTouchStart, true);
+            this.previewViewer?.removeEventListener("touchend", this.handlePreviewTouchEnd, true);
+            this.previewViewer = null;
+        },
+        handlePreviewTouchStart(event) {
+            const touch = event.touches?.[0];
+            if (!touch) return;
+            this.previewTouchStartX = touch.clientX;
+            this.previewTouchStartY = touch.clientY;
+        },
+        handlePreviewTouchEnd(event) {
+            const touch = event.changedTouches?.[0];
+            if (!touch || this.resolvedImageList.length < 2) return;
+
+            const offsetX = touch.clientX - this.previewTouchStartX;
+            const offsetY = touch.clientY - this.previewTouchStartY;
+            if (Math.abs(offsetX) < 40 || Math.abs(offsetX) <= Math.abs(offsetY)) return;
+
+            const direction = offsetX < 0 ? "next" : "prev";
+            this.previewViewer?.querySelector(`.el-image-viewer__${direction}`)?.click();
+        },
+        handleTouchStart(event) {
+            const touch = event.touches?.[0];
+            if (!touch) return;
+            this.touchStartX = touch.clientX;
+            this.touchStartY = touch.clientY;
+        },
+        handleTouchEnd(event) {
+            const touch = event.changedTouches?.[0];
+            if (!touch || window.innerWidth > 720) return;
+
+            const offsetX = touch.clientX - this.touchStartX;
+            const offsetY = touch.clientY - this.touchStartY;
+            if (Math.abs(offsetX) < 40 || Math.abs(offsetX) <= Math.abs(offsetY)) return;
+
+            if (offsetX < 0) {
+                this.$refs.carouselRef?.next();
+            } else {
+                this.$refs.carouselRef?.prev();
+            }
         },
     },
 };

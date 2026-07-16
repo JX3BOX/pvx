@@ -98,9 +98,10 @@ export default {
             note: "Note: ", none: "None", download: "Download", faceType: "face data", bodyType: "body data", headline: "This {type} was featured on {time}",
             dataAnalysis: "Exclusive Data Analysis", analysisHint: "Purchase to view all parameters", analysisLocked: "Data analysis unlocks after purchase",
             aboutCreator: "About the Creator", moreWorks: "More Works", discussion: "Discussion",
-            confirmPurchase: "Purchase this face data?", prompt: "Notice", confirm: "Confirm", cancel: "Cancel", balanceInsufficient: "Insufficient balance. Go to recharge?",
+            confirmPurchase: "Purchase this face data?", confirmPurchaseBody: "Purchase this body data?", prompt: "Notice", confirm: "Confirm", cancel: "Cancel", balanceInsufficient: "Insufficient balance. Go to recharge?",
             timeout: "Timeout", paymentTimeout: "Payment status timed out. Please check again later.", success: "Success", purchaseSuccess: "Purchase successful", failure: "Failed", purchaseFailed: "Payment failed", copySuccess: "Copied",
             fileIncomplete: "Incomplete file information", downloadUrlFailed: "Failed to get the download URL", noDownloadableFiles: "No downloadable files", downloadFailed: "Download failed. Please try again.",
+            noImages: "No images are available for this {type}", currentExperience: "Current EXP: {value}", contractedCreator: "Contracted Creator", proMember: "Pro Member", premiumMember: "Premium Member",
         },
     },
     body: {

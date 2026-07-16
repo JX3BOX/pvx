@@ -31,6 +31,7 @@
                 {
                     'c-pvx-modern-list-main': $route.name === 'list',
                     'c-pvx-modern-parse-main': $route.name === 'bodydata',
+                    'c-pvx-modern-single-main': $route.name === 'single',
                 },
             ]"
             :withoutRight="true"

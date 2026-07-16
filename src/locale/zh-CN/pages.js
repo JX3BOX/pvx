@@ -86,9 +86,10 @@ export default {
             note: "备注：", none: "无", download: "下载", faceType: "脸型", bodyType: "体型", headline: "该{type}于{time}荣登头条",
             dataAnalysis: "独家数据分析", analysisHint: "购买后可查看完整参数", analysisLocked: "数据分析将在购买后解锁",
             aboutCreator: "关于作者", moreWorks: "更多作品", discussion: "讨论",
-            confirmPurchase: "确认购买此捏脸？", prompt: "提示", confirm: "确定", cancel: "取消", balanceInsufficient: "余额不足，是否前往充值？",
+            confirmPurchase: "确认购买此捏脸？", confirmPurchaseBody: "确认购买此体型？", prompt: "提示", confirm: "确定", cancel: "取消", balanceInsufficient: "余额不足，是否前往充值？",
             timeout: "超时", paymentTimeout: "支付结果查询超时，请稍后查看", success: "成功", purchaseSuccess: "购买成功", failure: "失败", purchaseFailed: "支付失败", copySuccess: "复制成功",
             fileIncomplete: "文件信息不完整", downloadUrlFailed: "获取下载地址失败", noDownloadableFiles: "暂无可下载的文件", downloadFailed: "下载失败，请重试",
+            noImages: "该{type}数据暂无图片", currentExperience: "当前经验 {value}", contractedCreator: "签约作者", proMember: "专业版会员用户", premiumMember: "高级版会员用户",
         },
     },
     face: {

@@ -33,7 +33,7 @@
                     <span class="u-pvx-uid">(UID : {{ data.ID }})</span>
                 </span>
                 <div class="u-pvx-tips">
-                    <el-tooltip :content="`当前经验 ${data.experience || 0}`" placement="top">
+                    <el-tooltip :content="$t('pages.faceBody.detail.currentExperience', { value: data.experience || 0 })" placement="top">
                         <span class="u-pvx-level" :class="'lv-' + level"
                             :style="{ backgroundColor: showLevelColor(level) }">Lv.{{ level }}</span>
                     </el-tooltip>
@@ -42,9 +42,9 @@
                             <i class="u-pvx-icon vip">{{ vipType }}</i>
                         </a>
                     </el-tooltip>
-                    <el-tooltip content="签约作者" v-if="isSuperAuthor" placement="top">
+                    <el-tooltip :content="$t('pages.faceBody.detail.contractedCreator')" v-if="isSuperAuthor" placement="top">
                         <span class="u-pvx-superauthor">
-                            <i class="u-pvx-icon superauthor">签约作者</i>
+                            <i class="u-pvx-icon superauthor">{{ $t("pages.faceBody.detail.contractedCreator") }}</i>
                         </span>
                     </el-tooltip>
                 </div>
@@ -104,7 +104,7 @@ export default {
             return this.isPRO ? "PRO" : "PRE";
         },
         vipTypeTitle: function () {
-            return this.isPRO ? "专业版会员用户" : "高级版会员用户";
+            return this.$t(this.isPRO ? "pages.faceBody.detail.proMember" : "pages.faceBody.detail.premiumMember");
         },
         level: function () {
             return User.getLevel(this.data?.experience || 0);
