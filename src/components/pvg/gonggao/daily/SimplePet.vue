@@ -4,9 +4,11 @@
             v-for="item in luckyList"
             :key="item.Index"
             class="u-pet-item"
-            :class="item.isDone && 'is-done'"
+            :class="[item.isDone && 'is-done', { 'has-description': Boolean(getPetDescription(item)) }]"
             :href="getPetLink(item.Index)"
             target="_blank"
+            rel="noopener noreferrer"
+            :aria-label="getPetAriaLabel(item)"
         >
             <itemIcon
                 :item_id="String(item.ItemTabType + '_' + item.ItemTabIndex)"
@@ -15,7 +17,7 @@
                 :isLink="false"
             ></itemIcon>
             <div class="u-pet-name">{{ item.Name }}</div>
-            <div class="u-pet-desc">{{ item.szTip }}</div>
+            <div v-if="getPetDescription(item)" class="u-pet-desc">{{ getPetDescription(item) }}</div>
         </a>
     </div>
 </template>
@@ -68,6 +70,14 @@ export default {
         // 前往宠物单页
         getPetLink(id) {
             return `/pet/${id}`;
+        },
+        getPetDescription(item) {
+            const name = item?.Name?.trim();
+            const description = item?.szTip?.trim();
+            return description && description !== name ? description : "";
+        },
+        getPetAriaLabel(item) {
+            return [item?.Name, this.getPetDescription(item)].filter(Boolean).join(" · ");
         },
     },
 };

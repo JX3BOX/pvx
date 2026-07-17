@@ -10,7 +10,7 @@
                             :disabled="prevDisabled"
                             @click="toggleYear('prev')"
                             class="u-btn"
-                            title="上一年"
+                            :title="$t('pages.pvg.gonggao.ui.calendar.previousYear')"
                         >
                             <el-icon><ArrowLeft /></el-icon>
                         </el-button>
@@ -20,7 +20,7 @@
                             :disabled="nextDisabled"
                             @click="toggleYear('next')"
                             class="u-btn"
-                            title="下一年"
+                            :title="$t('pages.pvg.gonggao.ui.calendar.nextYear')"
                         >
                             <el-icon><ArrowRight /></el-icon>
                         </el-button>
@@ -29,7 +29,7 @@
                             :disabled="prevDisabled"
                             @click="toggleMonth('prev')"
                             class="u-btn"
-                            title="上一月"
+                            :title="$t('pages.pvg.gonggao.ui.calendar.previousMonth')"
                         >
                             <el-icon><ArrowLeft /></el-icon>
                         </el-button>
@@ -41,7 +41,7 @@
                             :disabled="nextDisabled"
                             @click="toggleMonth('next')"
                             class="u-btn"
-                            title="下一月"
+                            :title="$t('pages.pvg.gonggao.ui.calendar.nextMonth')"
                         >
                             <el-icon><ArrowRight /></el-icon>
                         </el-button>
@@ -49,7 +49,7 @@
                     <!-- <span class="u-contribute" @click="rank_show = true"><i class="el-icon-s-data"></i>剑三日历贡献排行榜</span> -->
                 </div>
                 <!-- 中央海报 -->
-                <div class="u-slogan m-calendar-slogan">
+                <div v-if="getSloganMeta('banner')" class="u-slogan m-calendar-slogan">
                     <a :href="getSloganMeta('url')" target="_blank" :title="getSloganMeta('title')"
                         ><img :src="resolveImagePath(getSloganMeta('banner'))"
                     /></a>

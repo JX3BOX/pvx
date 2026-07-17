@@ -2,7 +2,7 @@
     <div class="m-simple-celebrity" v-loading="loading">
         <div class="m-celebrity-item" v-for="(item, i) in list" :key="i" :class="!i && 'current-item'">
             <div class="u-celebrity-title">
-                <div>{{ i ? item.timeFormat : "当前" }}</div>
+                <div>{{ i ? item.timeFormat : $t("pages.pvg.gonggao.ui.current") }}</div>
                 <div class="u-celebrity-staged">
                     <img :src="`${iconPath}/minimap_${item.icon}.png`" />
                     <span>{{ item.stage }}</span>
@@ -12,7 +12,9 @@
                 <div class="u-map">
                     <b>{{ item.map + " · " }}</b>
                     <span>
-                        <template v-if="type === 1 && item.oldKey === 'y8'"> 特殊事件 · </template>{{ item.site }}
+                        <template v-if="type === 1 && item.oldKey === 'y8'">
+                            {{ $t("pages.pvg.gonggao.ui.celebrities.specialEvent") }} ·
+                        </template>{{ item.site }}
                     </span>
                 </div>
                 <div class="u-desc">

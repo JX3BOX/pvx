@@ -4,7 +4,7 @@
             <div :class="{ 'u-next-match': furnitureNextMatch }" v-html="nextMatch"></div>
         </template>
         <div class="m-special-item m-furniture-item">
-            <div class="u-label">园宅会赛</div>
+            <div class="u-label">{{ $t("pages.pvg.gonggao.ui.calendar.homesteadMatch") }}</div>
             <div>{{ furnitureProperty && furnitureProperty.content }}</div>
             <div class="u-furniture">
                 <a class="u-pet" href="/furniture?match=1" target="_blank">{{
@@ -50,8 +50,8 @@ export default {
         },
         nextMatch: function () {
             return `
-                下期园宅会赛：</br>
-                ${this.nl2br(this.furnitureNextMatch && this.furnitureNextMatch.content) || "暂无数据"}
+                ${this.$t("pages.pvg.gonggao.ui.calendar.nextHomesteadMatch")}：</br>
+                ${this.nl2br(this.furnitureNextMatch && this.furnitureNextMatch.content) || this.$t("pages.pvg.gonggao.ui.common.noData")}
             `;
         },
     },

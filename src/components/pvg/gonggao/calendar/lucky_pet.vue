@@ -1,6 +1,6 @@
 <template>
     <div class="m-special-item m-pet-item">
-        <div>福缘宠物</div>
+        <div>{{ $t("pages.pvg.gonggao.ui.calendar.luckyPets") }}</div>
         <div>
             <a
                 v-for="item in luckyList"

@@ -1,35 +1,56 @@
 <template>
     <div class="m-daily">
-        <div class="m-daily-item">
-            <div class="u-title">公告</div>
+        <PvxSurface class="m-daily-item is-notice" padding="medium" radius="medium">
+            <header class="m-daily-item__header">
+                <div class="m-daily-item__heading">
+                    <span class="u-index">01</span>
+                    <h2>{{ $t("pages.pvg.gonggao.ui.sections.notice") }}</h2>
+                </div>
+            </header>
             <SimpleNotice class="m-daily-content"></SimpleNotice>
-        </div>
-        <div class="m-daily-item">
-            <div class="u-title">服务器状态</div>
+        </PvxSurface>
+        <PvxSurface class="m-daily-item is-server" padding="medium" radius="medium">
+            <header class="m-daily-item__header">
+                <div class="m-daily-item__heading">
+                    <span class="u-index">02</span>
+                    <h2>{{ $t("pages.pvg.gonggao.ui.sections.server") }}</h2>
+                </div>
+            </header>
             <SimpleServer class="m-daily-content"></SimpleServer>
-        </div>
+        </PvxSurface>
         <template v-if="!isOrigin">
-            <div class="m-daily-item">
-                <div class="u-title">家园声望&福缘</div>
+            <PvxSurface class="m-daily-item is-daily" padding="medium" radius="medium">
+                <header class="m-daily-item__header">
+                    <div class="m-daily-item__heading">
+                        <span class="u-index">03</span>
+                        <h2>{{ $t("pages.pvg.gonggao.ui.sections.homeland") }}</h2>
+                    </div>
+                </header>
                 <SimpleDaily class="m-daily-content" :activities="activities"></SimpleDaily>
-            </div>
-            <div class="m-daily-item">
-                <div class="u-title">
-                    <div>{{ celebrityMap[currentCelebrity] }}</div>
-                    <el-dropdown>
-                        <span class="el-dropdown-link"> 切换<i class="el-icon-arrow-down el-icon--right"></i> </span>
+            </PvxSurface>
+            <PvxSurface class="m-daily-item is-celebrity" padding="medium" radius="medium">
+                <header class="m-daily-item__header">
+                    <div class="m-daily-item__heading">
+                        <span class="u-index">04</span>
+                        <h2>{{ celebrityMap[currentCelebrity] }}</h2>
+                    </div>
+                    <el-dropdown trigger="click">
+                        <button type="button" class="u-section-switch">
+                            {{ $t("pages.pvg.gonggao.ui.switch") }}
+                            <i class="el-icon-arrow-down el-icon--right"></i>
+                        </button>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item @click="changeCelebrity(3)">穹野卫</el-dropdown-item>
-                                <el-dropdown-item @click="changeCelebrity(2)">披风会</el-dropdown-item>
-                                <el-dropdown-item @click="changeCelebrity(1)">云从社</el-dropdown-item>
-                                <el-dropdown-item @click="changeCelebrity(0)">楚天社</el-dropdown-item>
+                                <el-dropdown-item @click="changeCelebrity(3)">{{ celebrityMap[3] }}</el-dropdown-item>
+                                <el-dropdown-item @click="changeCelebrity(2)">{{ celebrityMap[2] }}</el-dropdown-item>
+                                <el-dropdown-item @click="changeCelebrity(1)">{{ celebrityMap[1] }}</el-dropdown-item>
+                                <el-dropdown-item @click="changeCelebrity(0)">{{ celebrityMap[0] }}</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
-                </div>
+                </header>
                 <SimpleCelebrity :type="currentCelebrity" class="m-daily-content"></SimpleCelebrity>
-            </div>
+            </PvxSurface>
             <!-- <div class="m-daily-item">
                 <div class="u-title">武林通鉴</div>
                 <SimpleWeek class="m-daily-content" :activities="activities"></SimpleWeek>
@@ -39,10 +60,15 @@
                 <SimpleReputation :activities="activities"></SimpleReputation>
                 <SimpleFurniture :furniture="currentFurniture" :nextFurniture="nextFurniture"></SimpleFurniture>
             </div> -->
-            <div class="m-daily-item">
-                <div class="u-title">抓马播报</div>
+            <PvxSurface class="m-daily-item is-horse" padding="medium" radius="medium">
+                <header class="m-daily-item__header">
+                    <div class="m-daily-item__heading">
+                        <span class="u-index">05</span>
+                        <h2>{{ $t("pages.pvg.gonggao.ui.sections.horse") }}</h2>
+                    </div>
+                </header>
                 <SimpleHorse class="m-daily-content"></SimpleHorse>
-            </div>
+            </PvxSurface>
             <!-- 美人图模块暂不露出
             <div class="m-daily-item">
                 <div class="u-title">
@@ -73,6 +99,7 @@ import SimpleCelebrity from "./daily/SimpleCelebrity.vue";
 // import SimpleReputation from "./daily/SimpleReputation.vue";
 // import SimpleFurniture from "./daily/SimpleFurniture.vue";
 import SimpleHorse from "./daily/SimpleHorse.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 // import SimpleMrt from "./daily/SimpleMrt.vue";
 // import MrtDialog from "./daily/MrtDialog.vue";
 
@@ -91,18 +118,13 @@ export default {
         // SimpleWeek,
         // SimpleFurniture,
         SimpleHorse,
+        PvxSurface,
         // SimpleMrt,
         // MrtDialog,
     },
     data() {
         return {
             currentCelebrity: 3, // 楚天社0 云从社1 披风会 2
-            celebrityMap: {
-                0: "楚天社",
-                1: "云从社",
-                2: "披风会",
-                3: "穹野卫",
-            },
             currentFurniture: {},
             nextFurniture: {},
             activities: [], // 日常配置列表
@@ -111,6 +133,14 @@ export default {
         };
     },
     computed: {
+        celebrityMap() {
+            return {
+                0: this.$t("pages.pvg.gonggao.ui.celebrities.chutian"),
+                1: this.$t("pages.pvg.gonggao.ui.celebrities.yuncong"),
+                2: this.$t("pages.pvg.gonggao.ui.celebrities.pifeng"),
+                3: this.$t("pages.pvg.gonggao.ui.celebrities.qiongye"),
+            };
+        },
         client() {
             return this.$store.state.client || "std";
         },

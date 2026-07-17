@@ -6,6 +6,7 @@
             :key="item.id"
             :href="getItemLink(item.id)"
             target="_blank"
+            rel="noopener noreferrer"
         >
             <el-tooltip class="box-item" effect="dark" :content="item.Desc" placement="top">
                 <div class="u-reputation-item">
@@ -64,10 +65,14 @@ export default {
         loadReputation() {
             const cache = sessionStorage.getItem(`index_reputation_items`);
             if (cache) {
-                const obj = JSON.parse(cache);
-                if (obj.date === this.date) {
-                    this.reputation = obj;
-                    return;
+                try {
+                    const obj = JSON.parse(cache);
+                    if (obj.date === this.date) {
+                        this.reputation = obj;
+                        return;
+                    }
+                } catch {
+                    sessionStorage.removeItem("index_reputation_items");
                 }
             }
             getHomeReputation(this.date, this.$store.state.server).then((res) => {

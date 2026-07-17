@@ -1,6 +1,6 @@
 <template>
     <div class="m-calendar-item" :class="slogan ? slogan.style : ''" :style="sloganStyle" :key="uiKey">
-        <div class="u-day-text">{{ dataWeek.week }}</div>
+        <div class="u-day-text">{{ dataWeek }}</div>
         <span
             class="u-date-text"
             :style="{ backgroundColor: isToday && themeColor, color: isToday && themeColor && '#3d454d' }"
@@ -40,7 +40,7 @@
                         class="u-team-logo"
                         :src="showTeamLogo(item.raid_team_info.logo) || defaultTeamLogo"
                         width="22"
-                        alt="团队"
+                        :alt="$t('pages.pvg.gonggao.ui.calendar.team')"
                     />
                     <span class="u-raid-time">{{ formatTime(item.raid_info) }} -</span>
                     {{ formatRaidInfo(item) }}
@@ -50,7 +50,7 @@
         <div class="u-nothing" v-else>...</div>
         <div class="u-date-count" v-if="countData">
             <b>{{ countData.count }}</b>
-            <span>条纪事</span>
+            <span>{{ $t("pages.pvg.gonggao.ui.calendar.records") }}</span>
         </div>
     </div>
 </template>
@@ -87,9 +87,7 @@ export default {
             const data = this.data;
             const date = data.year + "-" + data.month + "-" + data.date;
             const day = dayjs.tz(date).day();
-            const weeks = ["日", "一", "二", "三", "四", "五", "六"];
-            data.week = "周" + weeks[day];
-            return data;
+            return this.$t(`pages.pvg.gonggao.ui.calendar.weekdays.${day}`);
         },
         links() {
             const events = this.data?.children.filter((child) => child.type == 1) || [];

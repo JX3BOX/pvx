@@ -12,7 +12,9 @@
             <img v-if="banner" :src="showBanner(banner)" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-        <el-button class="u-remove" type="info" size="small" icon="el-icon-circle-close" @click="clearBanner">移除图片</el-button>
+        <el-button class="u-remove" type="info" size="small" icon="el-icon-circle-close" @click="clearBanner">
+            {{ $t("pages.pvg.gonggao.ui.calendar.form.removeImage") }}
+        </el-button>
     </div>
 </template>
 
@@ -24,7 +26,7 @@ import { showBanner as showBannerUtil } from "@jx3box/jx3box-common/js/utils";
 
 export default {
     name: "post_banner",
-    props: ['filed',"data"],
+    props: ["filed", "data"],
     data() {
         return {
             banner: this.data,
@@ -55,7 +57,7 @@ export default {
                 let response = JSON.parse(err.message);
                 this.$message.error(`[${response.code}]${response.msg}`);
             } catch {
-                this.$message.error("网络请求异常");
+                this.$message.error(this.$t("pages.pvg.gonggao.ui.calendar.messages.networkError"));
             }
         },
         clearBanner : function (){

@@ -3,7 +3,7 @@
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
-            <div class="m-main m-pvg-main">
+            <div class="m-main m-pvg-main" :class="{ 'is-modern-gonggao-main': isModernGonggao }">
                 <router-view></router-view>
             </div>
         </Main>
@@ -29,6 +29,9 @@ export default {
         },
         name: function () {
             return this.$route.meta.name;
+        },
+        isModernGonggao() {
+            return ["daily", "calendar", "server"].includes(this.$route.name);
         },
     },
     methods: {

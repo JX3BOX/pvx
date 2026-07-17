@@ -2,12 +2,12 @@
     <div class="m-simple-server">
         <div class="m-my-server">
             <div class="m-server-header">
-                <div class="u-server-title">常用</div>
+                <div class="u-server-title">{{ $t("pages.pvg.gonggao.ui.server.common") }}</div>
                 <div class="m-status">
-                    <div class="u-status is-open">良好</div>
-                    <div class="u-status is-busy">繁忙</div>
-                    <div class="u-status is-full-load">爆满</div>
-                    <div class="u-status">维护</div>
+                    <div class="u-status is-open">{{ $t("pages.pvg.gonggao.ui.server.good") }}</div>
+                    <div class="u-status is-busy">{{ $t("pages.pvg.gonggao.ui.server.busy") }}</div>
+                    <div class="u-status is-full-load">{{ $t("pages.pvg.gonggao.ui.server.full") }}</div>
+                    <div class="u-status">{{ $t("pages.pvg.gonggao.ui.server.maintenance") }}</div>
                 </div>
             </div>
             <div class="m-fav-list">
@@ -19,7 +19,7 @@
             </div>
         </div>
         <div class="m-all-servers">
-            <div class="u-server-title">全部服务器</div>
+            <div class="u-server-title">{{ $t("pages.pvg.gonggao.ui.server.all") }}</div>
             <div class="m-server-list">
                 <div class="m-server-item" v-for="item in serverList" :key="item.main_server">
                     <el-tooltip :class="{ on: item.connect_state }" effect="dark" :content="item.main_server">

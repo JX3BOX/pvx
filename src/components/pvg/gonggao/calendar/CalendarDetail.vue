@@ -12,11 +12,11 @@
         <main class="m-calendar-detail-content">
             <!-- 日常+周常活动 -->
             <section class="m-content-part" v-if="client == 'std'">
-                <div class="u-daily-header">特殊</div>
+                <div class="u-daily-header">{{ $t("pages.pvg.gonggao.ui.calendar.special") }}</div>
                 <daily-special :date="date"></daily-special>
                 <div class="u-daily-header">
                     <!-- <el-divider content-position="left"><i class="el-icon-date"></i> 日常</el-divider> -->
-                    日常
+                    {{ $t("pages.pvg.gonggao.ui.calendar.daily") }}
                 </div>
                 <daily-activity :date="date"></daily-activity>
             </section>
@@ -25,7 +25,7 @@
             <section class="m-content-part">
                 <div class="u-part-header">
                     <el-divider content-position="left"
-                        ><i class="el-icon-s-flag"></i> 活动<span class="u-count"
+                        ><i class="el-icon-s-flag"></i> {{ $t("pages.pvg.gonggao.ui.calendar.activities") }}<span class="u-count"
                             >({{ activities_count }})</span
                         ></el-divider
                     >
@@ -41,7 +41,9 @@
                         />
                     </template>
                     <template v-else>
-                        <div class="u-null"><i class="el-icon-warning-outline"></i>暂时没有任何活动记录</div>
+                        <div class="u-null">
+                            <i class="el-icon-warning-outline"></i>{{ $t("pages.pvg.gonggao.ui.calendar.noActivities") }}
+                        </div>
                     </template>
                 </div>
             </section>
@@ -50,7 +52,7 @@
             <section class="m-content-part">
                 <div class="u-part-header">
                     <el-divider content-position="left"
-                        ><i class="el-icon-collection-tag"></i> 事件<span class="u-count"
+                        ><i class="el-icon-collection-tag"></i> {{ $t("pages.pvg.gonggao.ui.calendar.events") }}<span class="u-count"
                             >({{ events_count }})</span
                         ></el-divider
                     >
@@ -66,7 +68,9 @@
                         />
                     </template>
                     <template v-else>
-                        <div class="u-null"><i class="el-icon-warning-outline"></i>暂时没有任何事件记录</div>
+                        <div class="u-null">
+                            <i class="el-icon-warning-outline"></i>{{ $t("pages.pvg.gonggao.ui.calendar.noEvents") }}
+                        </div>
                     </template>
                 </div>
             </section>
@@ -123,8 +127,7 @@ export default {
             const { year, month, date } = this.dateObj;
             const currentDate = `${year}-${month}-${date}`;
             const datas = dayjs.tz(currentDate).day();
-            const week = ["日", "一", "二", "三", "四", "五", "六"];
-            return "周" + week[datas];
+            return this.$t(`pages.pvg.gonggao.ui.calendar.weekdays.${datas}`);
         },
         currentDate() {
             const { year, month, date } = this.dateObj;
@@ -210,7 +213,7 @@ export default {
             let { data } = res?.data || {};
             if (data) {
                 if (this.isSameDate(data, this.dateObj)) {
-                    data.desc = `(待审核) ${data.desc}`;
+                    data.desc = `(${this.$t("pages.pvg.gonggao.ui.calendar.pending")}) ${data.desc}`;
                     data.user_info = {
                         display_name: User.getInfo().name,
                         user_avatar: User.getInfo().avatar_origin,

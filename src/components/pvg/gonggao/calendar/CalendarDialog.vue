@@ -1,28 +1,28 @@
 <template>
-    <el-dialog :visible="value" @close="cancel" append-to-body>
-        <template v-slot:title>
+    <el-dialog :model-value="modelValue" @close="cancel" append-to-body>
+        <template #header>
             <header>{{ title }}</header>
         </template>
         <main class="u-form">
             <el-form label-position="left" label-width="80px">
-                <el-form-item label="日期" required :error="dateError">
+                <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.date')" required :error="dateError">
                     <div class="m-date">
                         <el-input-number
-                            placeholder="请输入年份"
+                            :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterYear')"
                             :min="2009"
                             :max="maxYear"
                             class="u-date"
                             v-model.number="form.year"
                         ></el-input-number>
                         <el-input-number
-                            placeholder="请输入月份"
+                            :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterMonth')"
                             :min="1"
                             :max="12"
                             class="u-date"
                             v-model.number="form.month"
                         ></el-input-number>
                         <el-input-number
-                            placeholder="请输入日期"
+                            :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterDate')"
                             :min="1"
                             :max="31"
                             class="u-date"
@@ -30,18 +30,18 @@
                         ></el-input-number>
                     </div>
                 </el-form-item>
-                <el-form-item label="类型" required>
+                <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.type')" required>
                     <div class="m-type">
                         <el-radio-group size="small" v-model.number="form.type">
-                            <el-radio-button :label="1">事件</el-radio-button>
-                            <el-radio-button :label="2">活动</el-radio-button>
+                            <el-radio-button :value="1">{{ $t("pages.pvg.gonggao.ui.calendar.events") }}</el-radio-button>
+                            <el-radio-button :value="2">{{ $t("pages.pvg.gonggao.ui.calendar.activities") }}</el-radio-button>
                         </el-radio-group>
                         <!-- 仅在活动时显示 START -->
                         <div class="m-type-icon" v-show="form.type === 2">
                             <el-input
                                 size="small"
                                 v-model.number="form.icon"
-                                placeholder="图标ID"
+                                :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.iconId')"
                                 :minlength="1"
                                 :maxlength="10"
                                 :max="30000"
@@ -55,59 +55,59 @@
                         <!-- 仅在活动时显示 END -->
                     </div>
                 </el-form-item>
-                <el-form-item label="描述" required :error="descError">
-                    <el-input type="textarea" v-model="form.desc" :rows="8" placeholder="输入事件描述"></el-input>
+                <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.description')" required :error="descError">
+                    <el-input type="textarea" v-model="form.desc" :rows="8" :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterDescription')"></el-input>
                 </el-form-item>
-                <el-form-item label="客户端" required>
+                <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.client')" required>
                     <el-radio-group size="small" v-model="form.client">
-                        <el-radio-button label="std">正式服</el-radio-button>
-                        <el-radio-button label="origin">怀旧服</el-radio-button>
-                        <el-radio-button label="all" v-if="form.type == 1">双端</el-radio-button>
+                        <el-radio-button value="std">{{ $t("pages.pvg.gonggao.ui.clients.std") }}</el-radio-button>
+                        <el-radio-button value="origin">{{ $t("pages.pvg.gonggao.ui.clients.origin") }}</el-radio-button>
+                        <el-radio-button value="all" v-if="form.type == 1">{{ $t("pages.pvg.gonggao.ui.clients.all") }}</el-radio-button>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="参考资料">
+                <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.references')">
                     <template v-for="(item, index) in form.link" :key="item.id || index">
                         <div class="m-links">
-                            <el-input class="u-link-item" v-model="item.label" placeholder="请输入标题"></el-input>
-                            <el-input class="u-link-item" v-model="item.url" placeholder="请输入链接"></el-input>
+                            <el-input class="u-link-item" v-model="item.label" :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterTitle')"></el-input>
+                            <el-input class="u-link-item" v-model="item.url" :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterLink')"></el-input>
                             <el-button
                                 class="u-del-icon"
                                 type="text"
                                 icon="el-icon-circle-close"
                                 @click="removeLink(index)"
-                                title="删除参考资料"
+                                :title="$t('pages.pvg.gonggao.ui.calendar.form.removeReference')"
                             ></el-button>
                         </div>
                     </template>
                     <el-button type="primary" size="small" icon="el-icon-plus" @click="addLink" :disabled="addDisabled"
-                        >添加</el-button
+                        >{{ $t("pages.pvg.gonggao.ui.common.add") }}</el-button
                     >
                 </el-form-item>
 
                 <template v-if="isEditor && isEditmode">
-                    <el-divider><i class="el-icon-coordinate"></i> 管理设置</el-divider>
-                    <el-form-item label="格子显示">
+                    <el-divider><i class="el-icon-coordinate"></i> {{ $t("pages.pvg.gonggao.ui.calendar.form.management") }}</el-divider>
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.showInCell')">
                         <el-radio-group size="small" v-model.number="form.is_top">
-                            <el-radio-button :label="0">否</el-radio-button>
-                            <el-radio-button :label="1">是</el-radio-button>
+                            <el-radio-button :value="0">{{ $t("pages.pvg.gonggao.ui.common.no") }}</el-radio-button>
+                            <el-radio-button :value="1">{{ $t("pages.pvg.gonggao.ui.common.yes") }}</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item label="格子简述" v-if="form.is_top">
-                        <el-input type="input" v-model="form.title" placeholder="输入简述（非必填）"></el-input>
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.cellSummary')" v-if="form.is_top">
+                        <el-input type="input" v-model="form.title" :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterSummary')"></el-input>
                     </el-form-item>
-                    <el-form-item label="重要级别">
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.importance')">
                         <el-input-number v-model.number="form.level" :min="0" :max="5"></el-input-number>
                     </el-form-item>
-                    <el-form-item label="样式">
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.style')">
                         <div class="m-style">
                             <div class="m-color-item">
-                                <label class="u-label">背景色</label>
+                                <label class="u-label">{{ $t("pages.pvg.gonggao.ui.calendar.form.backgroundColor") }}</label>
                                 <span class="u-color-value" v-show="form.bgcolor">【{{ form.bgcolor }}】</span>
                                 <el-color-picker v-model="form.bgcolor" size="small" :predefine="predefineColors">
                                 </el-color-picker>
                             </div>
                             <div class="m-color-item">
-                                <label class="u-label">颜色</label>
+                                <label class="u-label">{{ $t("pages.pvg.gonggao.ui.calendar.form.color") }}</label>
                                 <span class="u-color-value" v-show="form.color">【{{ form.color }}】</span>
                                 <el-color-picker v-model="form.color" size="small" :predefine="predefineColors">
                                 </el-color-picker>
@@ -117,24 +117,24 @@
                     <!-- <el-form-item label="海报">
                         <img-upload :data="form.banner" filed="banner" @update="setMeta"></img-upload>
                     </el-form-item> -->
-                    <el-form-item label="图片">
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.image')">
                         <img-upload :data="form.img" filed="img" @update="setMeta"></img-upload>
                     </el-form-item>
-                    <el-form-item label="备注">
-                        <el-input v-model="form.remark" placeholder="请输入备注"></el-input>
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.remark')">
+                        <el-input v-model="form.remark" :placeholder="$t('pages.pvg.gonggao.ui.calendar.form.enterRemark')"></el-input>
                     </el-form-item>
-                    <el-form-item label="操作">
+                    <el-form-item :label="$t('pages.pvg.gonggao.ui.calendar.form.actions')">
                         <el-button icon="el-icon-refresh-left" size="small" @click="recheck" type="warning"
-                            >复审</el-button
+                            >{{ $t("pages.pvg.gonggao.ui.calendar.form.recheck") }}</el-button
                         >
-                        <el-button icon="el-icon-delete" size="small" @click="del" type="danger">删除</el-button>
+                        <el-button icon="el-icon-delete" size="small" @click="del" type="danger">{{ $t("pages.pvg.gonggao.ui.common.delete") }}</el-button>
                     </el-form-item>
                 </template>
             </el-form>
         </main>
         <template v-slot:footer>
-            <el-button @click="cancel">取消</el-button>
-            <el-button type="primary" @click="confirm" :loading="loading">确认</el-button>
+            <el-button @click="cancel">{{ $t("pages.pvg.gonggao.ui.common.cancel") }}</el-button>
+            <el-button type="primary" @click="confirm" :loading="loading">{{ $t("pages.pvg.gonggao.ui.common.confirm") }}</el-button>
         </template>
     </el-dialog>
 </template>
@@ -173,7 +173,7 @@ export default {
     components: {
         "img-upload": img_upload,
     },
-    props: ["value", "dateObj", "selected", "mode", "isSuper"],
+    props: ["modelValue", "dateObj", "selected", "mode", "isSuper"],
     data: function () {
         return {
             form: {
@@ -193,7 +193,9 @@ export default {
 
         // 标题
         title() {
-            return this.isEditmode ? "编辑" : "新增";
+            return this.isEditmode
+                ? this.$t("pages.pvg.gonggao.ui.common.edit")
+                : this.$t("pages.pvg.gonggao.ui.common.add");
         },
 
         // 最大年份
@@ -221,7 +223,7 @@ export default {
                     if (!this.form.link) {
                         this.form.link = [];
                         this.form.link.push({
-                            label: "官网新闻",
+                            label: this.$t("pages.pvg.gonggao.ui.calendar.form.officialNews"),
                             url: val.link_temp,
                         });
                     }
@@ -264,29 +266,29 @@ export default {
 
             const { year, month, date, desc } = this.form;
             if (!year) {
-                this.dateError = "请输入年份";
+                this.dateError = this.$t("pages.pvg.gonggao.ui.calendar.form.enterYear");
             } else {
                 this.dateError = "";
                 if (!month) {
-                    this.dateError = "请输入月份";
+                    this.dateError = this.$t("pages.pvg.gonggao.ui.calendar.form.enterMonth");
                 } else {
-                    this.dateError = !date ? "请输入日期" : "";
+                    this.dateError = !date ? this.$t("pages.pvg.gonggao.ui.calendar.form.enterDate") : "";
                 }
             }
 
-            this.descError = !desc ? "请输入事件描述" : "";
+            this.descError = !desc ? this.$t("pages.pvg.gonggao.ui.calendar.form.enterDescription") : "";
         },
 
         // 表单操作
         // =======================
         reset() {
-            this.$emit("input", false);
+            this.$emit("update:modelValue", false);
             this.form = Object.assign({}, default_data, this.dateObj);
             this.dateError = "";
             this.descError = "";
         },
         cancel() {
-            this.$emit("input", false);
+            this.$emit("update:modelValue", false);
         },
         confirm() {
             this.validate();
@@ -309,8 +311,8 @@ export default {
         post() {
             return addCalendar(this.form).then((res) => {
                 this.$notify({
-                    title: "提交成功",
-                    message: "请耐心等待审核",
+                    title: this.$t("pages.pvg.gonggao.ui.calendar.messages.submitted"),
+                    message: this.$t("pages.pvg.gonggao.ui.calendar.messages.waitForReview"),
                     type: "success",
                 });
                 this.$emit("update", res);
@@ -327,14 +329,14 @@ export default {
                 .then(() => {
                     if (this.isSuper) {
                         this.$notify({
-                            title: "操作成功",
-                            message: "日历记录更新成功",
+                            title: this.$t("pages.pvg.gonggao.ui.calendar.messages.success"),
+                            message: this.$t("pages.pvg.gonggao.ui.calendar.messages.updated"),
                             type: "success",
                         });
                     } else {
                         this.$notify({
-                            title: "提交成功",
-                            message: "请等待重新审核",
+                            title: this.$t("pages.pvg.gonggao.ui.calendar.messages.submitted"),
+                            message: this.$t("pages.pvg.gonggao.ui.calendar.messages.waitForRecheck"),
                             type: "success",
                         });
                     }
@@ -346,8 +348,8 @@ export default {
 
                 this.$notify({
                     type: "success",
-                    title: "删除成功",
-                    message: "日历记录已删除",
+                    title: this.$t("pages.pvg.gonggao.ui.calendar.messages.deleted"),
+                    message: this.$t("pages.pvg.gonggao.ui.calendar.messages.recordDeleted"),
                 });
             });
         },
@@ -357,8 +359,8 @@ export default {
             }).then(() => {
                 this.$notify({
                     type: "success",
-                    title: "操作成功",
-                    message: "日历记录已设为待审核",
+                    title: this.$t("pages.pvg.gonggao.ui.calendar.messages.success"),
+                    message: this.$t("pages.pvg.gonggao.ui.calendar.messages.markedPending"),
                 });
 
                 this.$emit("del", this.selected.id);

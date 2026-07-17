@@ -1,7 +1,16 @@
 <template>
     <div class="m-server">
+        <header class="m-server-summary">
+            <div>
+                <h2>{{ $t("pages.pvg.gonggao.ui.serverOverview.title") }}</h2>
+                <p>{{ $t("pages.pvg.gonggao.ui.serverOverview.description") }}</p>
+            </div>
+            <span class="u-server-count">
+                {{ $t("pages.pvg.gonggao.ui.serverOverview.count", { count: serverList.length }) }}
+            </span>
+        </header>
         <div v-if="uid && favList.length" class="m-fav-list">
-            <h2 class="u-title">我的关注</h2>
+            <h2 class="u-title">{{ $t("pages.pvg.gonggao.ui.serverOverview.favorites") }}</h2>
             <div class="m-server-list">
                 <ServerItem
                     v-for="server in favList"
@@ -64,7 +73,9 @@ export default {
     methods: {
         // 点击收藏服务器和取消服务器收藏
         clickServer(server) { 
+            if (!this.uid) return this.$store.dispatch("toLogin");
             if (this.uid) {
+                const previous = [...this.favList];
                 let list = new Set(this.favList);
                 let fav = [];
                 list.has(server) ? list.delete(server) : list.add(server);
@@ -72,14 +83,14 @@ export default {
                     fav.push(key);
                 } 
                 this.$store.commit("setFavList", fav);
-                this.setSavedServers();
+                this.setSavedServers(previous);
             }
         },
 
         // 将获取的服务器分类
         sortServer(list) {
             const obj = {};
-            const sortList = cloneDeep(list).reverse();
+            const sortList = cloneDeep(list || []).reverse();
             sortList.forEach((item) => {
                 if (obj[item.zone_name]) {
                     obj[item.zone_name].push(item);
@@ -91,17 +102,14 @@ export default {
         },
 
         //登录状态存服务器，未登录跳转
-        setSavedServers() {
+        setSavedServers(previous = []) {
             if (this.uid) {
                 let list = this.favList.map((el) => el.main_server);
 
-                setMyFocusServers(list.join(","))
-                    .then((data) => {
-                        console.log(data);
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                    });
+                return setMyFocusServers(list.join(",")).catch(() => {
+                    this.$store.commit("setFavList", previous);
+                    this.$message.error(this.$t("pages.pvg.gonggao.ui.serverOverview.saveFailed"));
+                });
             } else {
                 return this.$store.dispatch("toLogin");
             }

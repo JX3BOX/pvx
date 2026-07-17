@@ -1,0 +1,346 @@
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.p-gonggao.is-calendar {
+    .m-calendar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        align-items: start;
+        gap: @pvx-space-4;
+        border-bottom: 0;
+    }
+
+    .m-calendar-main,
+    .m-calendar-aside {
+        box-sizing: border-box;
+        min-width: 0;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-panel;
+        background-color: @pvx-surface;
+        box-shadow: @pvx-shadow-sm;
+    }
+
+    .m-calendar-main {
+        height: auto;
+        margin-right: 0;
+        padding: @pvx-space-5;
+        overflow: hidden;
+        background-size: auto 180px;
+    }
+
+    .m-calendar-aside {
+        position: sticky;
+        top: calc(@header-height + 96px);
+        right: auto;
+        bottom: auto;
+        width: 100%;
+        height: auto;
+        max-height: calc(100vh - @header-height - 116px);
+        padding: @pvx-space-3;
+        overflow-y: auto;
+        border-left: 1px solid @pvx-border;
+
+        &.expanded {
+            display: none;
+        }
+    }
+
+    .m-calendar-header {
+        min-height: 54px;
+        gap: @pvx-space-3;
+
+        .u-time {
+            min-width: 0;
+        }
+    }
+
+    .m-calendar-year {
+        min-height: 48px;
+        padding: 3px 6px;
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-control;
+        background: @pvx-surface-muted;
+
+        .u-year {
+            min-width: 74px;
+            color: @pvx-text-primary !important;
+            font-size: 22px;
+            letter-spacing: 0;
+            text-align: center;
+        }
+
+        .u-month-text {
+            min-width: 58px;
+        }
+
+        .u-btn {
+            .pvx-focus-ring();
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border-radius: @pvx-radius-small;
+            color: @pvx-text-secondary;
+
+            &:hover:not(.is-disabled) {
+                background: @pvx-primary-soft;
+                color: @pvx-primary;
+            }
+        }
+    }
+
+    .m-calendar-slogan {
+        min-width: 0;
+
+        img {
+            width: auto;
+            max-width: 100%;
+            height: 54px;
+            border-radius: @pvx-radius-small;
+            object-fit: contain;
+        }
+    }
+
+    .m-calendar-content {
+        margin-top: @pvx-space-4;
+    }
+
+    .m-calendar-date {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: @pvx-space-1;
+
+        .u-date {
+            display: block;
+            min-width: 0;
+            height: 142px;
+            padding: @pvx-space-2;
+            overflow: hidden;
+            border: 1px solid @pvx-border-light;
+            border-radius: @pvx-radius-control;
+            background: fade(@pvx-surface, 92%);
+            color: @pvx-text-primary;
+            transition:
+                transform @pvx-duration-fast @pvx-ease-standard,
+                border-color @pvx-duration-fast @pvx-ease-standard,
+                box-shadow @pvx-duration-fast @pvx-ease-standard;
+
+            &:hover {
+                transform: translateY(-1px);
+                border-color: @pvx-border-focus;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-hover;
+                color: @pvx-text-primary;
+            }
+
+            &.u-other {
+                background: fade(@pvx-surface-muted, 82%);
+                color: @pvx-text-muted;
+                opacity: 0.72;
+            }
+
+            &.u-current {
+                border-color: fade(@pvx-primary, 42%);
+                background: @pvx-primary-soft;
+                box-shadow: 0 0 0 2px fade(@pvx-primary, 10%);
+                color: @pvx-text-primary;
+            }
+        }
+    }
+
+    .m-calendar-item {
+        .u-date-text,
+        .u-day-text {
+            color: inherit;
+            font-size: 14px;
+            line-height: 20px;
+        }
+
+        .u-day-text {
+            margin-bottom: 3px;
+            color: @pvx-text-secondary;
+            font-size: 11px;
+        }
+
+        .u-links {
+            margin-top: 6px;
+        }
+
+        .u-link {
+            height: 21px;
+            margin-bottom: 4px;
+            overflow: hidden;
+            border-radius: 6px;
+            line-height: 21px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .u-date-count {
+            right: 4px;
+            bottom: 2px;
+            background: transparent;
+        }
+    }
+
+    .m-calendar-detail {
+        height: auto;
+        margin: 0;
+        overflow: visible;
+    }
+
+    .m-calendar-detail-header {
+        box-sizing: border-box;
+        width: 100%;
+        height: auto;
+        min-height: 104px;
+        margin: 0;
+        padding: @pvx-space-4;
+        border-radius: @pvx-radius-control;
+        background: linear-gradient(135deg, @pvx-primary, @pvx-primary-hover);
+        box-shadow: 0 10px 24px fade(@pvx-primary, 18%);
+    }
+
+    .m-calendar-detail-title {
+        font-size: 24px;
+        line-height: 34px;
+    }
+
+    .m-calendar-detail-title-sub {
+        font-size: 16px;
+        line-height: 24px;
+    }
+
+    .m-calendar-detail-add {
+        top: 35px;
+        right: @pvx-space-4;
+        left: auto;
+        border: 0;
+        color: @pvx-primary;
+    }
+
+    .m-calendar-detail-content {
+        margin-top: @pvx-space-4;
+        padding: 0 2px @pvx-space-4;
+    }
+
+    .m-calendar-detail .m-daily-content {
+        .m-special-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px @pvx-space-1;
+            box-sizing: border-box;
+            width: 100%;
+            height: auto;
+            min-height: 30px;
+            padding: 4px @pvx-space-2;
+            border-radius: @pvx-radius-small;
+            line-height: 22px;
+
+            > div:last-child {
+                min-width: 0;
+                text-align: right;
+            }
+        }
+    }
+}
+
+.v-miniprogram,
+.wechat-miniprogram {
+    .p-gonggao.is-calendar .m-calendar-aside {
+        top: 84px;
+        max-height: calc(100vh - 104px);
+    }
+}
+
+@media screen and (max-width: 1180px) {
+    .p-gonggao.is-calendar {
+        .m-calendar {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .m-calendar-aside {
+            position: static;
+            max-height: none;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-gonggao.is-calendar {
+        .m-calendar-main,
+        .m-calendar-aside {
+            border-radius: @pvx-radius-card;
+        }
+
+        .m-calendar-main {
+            padding: @pvx-space-3;
+            background-image: none !important;
+        }
+
+        .m-calendar-header {
+            display: block;
+            min-height: 0;
+        }
+
+        .m-calendar-year {
+            width: 100%;
+            min-height: 42px;
+            padding-inline: 2px;
+
+            .u-year {
+                min-width: 56px;
+                font-size: 17px;
+            }
+
+            .u-month-text {
+                min-width: 46px;
+            }
+
+            .u-btn {
+                flex: 1 1 30px;
+                width: auto;
+            }
+        }
+
+        .m-calendar-slogan {
+            display: none;
+        }
+
+        .m-calendar-content {
+            margin-top: @pvx-space-3;
+        }
+
+        .m-calendar-date {
+            gap: 4px;
+
+            .u-date {
+                height: 58px;
+                padding: 5px 2px;
+                border-radius: 9px;
+                text-align: center;
+            }
+        }
+
+        .m-calendar-item {
+            .u-day-text {
+                font-size: 10px;
+                line-height: 15px;
+            }
+
+            .u-date-text {
+                font-size: 13px;
+                line-height: 20px;
+            }
+
+            .u-date-count {
+                position: static;
+                font-size: 10px;
+                line-height: 14px;
+
+                span {
+                    display: none;
+                }
+            }
+        }
+    }
+}

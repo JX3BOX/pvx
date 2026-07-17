@@ -9,7 +9,7 @@
                 @click.stop
                 target="_blank"
                 :href="authorLink(data.user_id)"
-                :title="`由${data.user_info.display_name}贡献`"
+                :title="getContributorTitle(data)"
                 ><img
                     v-if="data && data.user_info"
                     class="u-avatar"
@@ -30,20 +30,20 @@
             <span class="u-action u-comment">
                 <i class="u-comment-icon el-icon-chat-dot-round"></i>
                 <span class="u-comment-count"
-                    >评论<em class="u-count">({{ data.comments_count || 0 }})</em></span
+                    >{{ $t("pages.pvg.gonggao.ui.calendar.comments") }}<em class="u-count">({{ data.comments_count || 0 }})</em></span
                 >
             </span>
 
             <span class="u-action u-reference">
                 <i class="u-reference-icon el-icon-connection"></i>
                 <span class="u-reference-count"
-                    >参考资料<span class="u-count">({{ getRefCount(data) }})</span></span
+                    >{{ $t("pages.pvg.gonggao.ui.calendar.references") }}<span class="u-count">({{ getRefCount(data) }})</span></span
                 >
             </span>
 
             <span class="u-action u-edit" @click.stop="edit(data)" v-if="isEditor">
                 <i class="el-icon-edit-outline"></i>
-                <span class="u-edit-text">编辑</span>
+                <span class="u-edit-text">{{ $t("pages.pvg.gonggao.ui.common.edit") }}</span>
             </span>
         </div>
     </div>
@@ -69,12 +69,12 @@ export default {
     methods: {
         // 查看
         view(data) {
-            if (data.desc.indexOf("(待审核)") === -1) {
+            if (!(data.desc || "").includes("(待审核)")) {
                 this.$router.push(`/gonggao/single/${data.id}`);
             } else {
                 this.$message({
                     type: "info",
-                    message: "等待审核中...",
+                    message: this.$t("pages.pvg.gonggao.ui.calendar.waitingForReview"),
                 });
             }
         },
@@ -99,7 +99,12 @@ export default {
             }
         },
         getClientLabel(client = "std") {
-            return __clients[client];
+            return this.$t(`pages.pvg.gonggao.ui.clients.${client}`) || __clients[client];
+        },
+        getContributorTitle(data) {
+            return this.$t("pages.pvg.gonggao.ui.calendar.contributedBy", {
+                name: data?.user_info?.display_name || "",
+            });
         },
     },
 };

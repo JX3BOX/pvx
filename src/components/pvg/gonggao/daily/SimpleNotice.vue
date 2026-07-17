@@ -1,19 +1,27 @@
 <template>
     <div class="m-news">
-        <div class="m-news-header">
-            <span
+        <div class="m-news-header" role="tablist" :aria-label="$t('pages.pvg.gonggao.ui.news.category')">
+            <button
                 :class="`u-mode u-mode-${mode} ${item.value == mode ? 'is-active' : ''}`"
                 v-for="item in mode_list"
                 :key="item.value"
+                type="button"
+                :aria-pressed="item.value === mode"
                 @click="switchMode(item.value)"
-                >{{ item.label }}</span
+                >{{ item.label }}</button
             >
         </div>
         <ul class="m-news-list" v-if="data">
-            <li v-for="(item, i) in data" :key="i">
+            <li
+                v-for="(item, i) in data"
+                :key="i"
+                :class="[`is-${item.type}`, { 'has-source': mode === 'all' }]"
+            >
                 <em v-if="item.time">{{ dateFormat(item.time) }}</em>
-                <span>/</span>
-                <a :href="item.url" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
+                <span v-if="mode === 'all'" class="u-news-source">{{ getModeLabel(item.type) }}</span>
+                <a :href="item.url" target="_blank" rel="noopener noreferrer" :title="item.title">
+                    {{ item.title }}
+                </a>
             </li>
         </ul>
     </div>
@@ -32,13 +40,6 @@ export default {
     data: function () {
         return {
             mode: "all",
-            mode_list: [
-                { label: "全部", value: "all" },
-                { label: "游戏", value: "game" },
-                { label: "技改", value: "skill_change" },
-                { label: "魔盒", value: "box" },
-            ],
-
             // 游戏
             all_links: {
                 std: "https://jx3.xoyo.com/allnews/",
@@ -67,6 +68,14 @@ export default {
         };
     },
     computed: {
+        mode_list() {
+            return [
+                { label: this.$t("pages.pvg.gonggao.ui.news.all"), value: "all" },
+                { label: this.$t("pages.pvg.gonggao.ui.news.game"), value: "game" },
+                { label: this.$t("pages.pvg.gonggao.ui.news.skillChange"), value: "skill_change" },
+                { label: this.$t("pages.pvg.gonggao.ui.news.box"), value: "box" },
+            ];
+        },
         client: function () {
             return this.$store.state.client;
         },
@@ -101,6 +110,9 @@ export default {
         },
         switchMode: function (val) {
             this.mode = val;
+        },
+        getModeLabel(type) {
+            return this.mode_list.find((item) => item.value === type)?.label || "";
         },
         loadGameData: function () {
             getGameNews(this.client).then((res) => {

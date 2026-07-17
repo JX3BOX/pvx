@@ -1,10 +1,12 @@
 <template>
     <div class="m-simple-horse">
-        <div class="u-switch" v-if="list.length > remainNum" @click="switchList">切换</div>
+        <div class="u-switch" v-if="list.length > remainNum" @click="switchList">
+            {{ $t("pages.pvg.gonggao.ui.horse.switch") }}
+        </div>
         <template v-if="list.length <= 2 || listIndex === 0">
             <template v-if="defaultList.length">
                 <div class="u-item" v-for="(item, d) in defaultList" :key="item.id + d">
-                    <div class="u-name">马场</div>
+                    <div class="u-name">{{ $t("pages.pvg.gonggao.ui.horse.paddock") }}</div>
                     <div class="u-info">
                         <div class="u-map-name">{{ item.map_name }}</div>
                         <div
@@ -16,7 +18,7 @@
                             <span> ~ </span>
                             <span>{{ item.toTime }}</span>
                         </div>
-                        <div v-else class="u-no">暂无信息</div>
+                        <div v-else class="u-no">{{ $t("pages.pvg.gonggao.ui.common.noInfo") }}</div>
                         <div class="u-img-list">
                             <a
                                 v-for="horse in item.horses"
@@ -40,23 +42,22 @@
                 </div>
             </template>
             <div class="u-item" key="chitu">
-                <div class="u-name">赤兔</div>
+                <div class="u-name">{{ $t("pages.pvg.gonggao.ui.horse.specialMount") }}</div>
                 <div class="u-info u-chitu-info">
+                    <div class="u-map-name">{{ $t("pages.pvg.gonggao.ui.horse.chitu") }}</div>
                     <template v-if="hasExist">
-                        <div class="u-map-name">
+                        <div class="u-times-chitu">
                             {{ existData.map }}
+                            <span>{{ existData.time }}</span>
                             <i
                                 class="u-times-lately"
                                 :class="chituLoading ? 'el-icon-loading' : 'el-icon-refresh'"
                                 @click="loadChituData"
                             ></i>
                         </div>
-                        <div class="u-times-chitu">
-                            {{ existData.time }}
-                        </div>
                     </template>
                     <span v-else class="u-times-chitu"
-                        >本CD尚未刷新
+                        >{{ $t("pages.pvg.gonggao.ui.horse.notRefreshed") }}
                         <i
                             class="u-times-lately"
                             :class="chituLoading ? 'el-icon-loading' : 'el-icon-refresh'"
@@ -72,7 +73,7 @@
             </div>
             <template v-if="list.length">
                 <div class="u-item" v-for="(item, l) in list.slice(0, remainNum)" :key="item.id + l">
-                    <div class="u-name">播报</div>
+                    <div class="u-name">{{ $t("pages.pvg.gonggao.ui.horse.report") }}</div>
                     <div class="u-info">
                         <div class="u-map-name">{{ item.map_name }}</div>
                         <div class="u-times" :class="item.subtype === 'foreshow' && 'u-times-lately'">
@@ -105,7 +106,7 @@
         </template>
         <template v-else>
             <div class="u-item" v-for="(item, index) in list.slice(remainNum, list.length)" :key="item.id + index">
-                <div class="u-name">播报</div>
+                <div class="u-name">{{ $t("pages.pvg.gonggao.ui.horse.report") }}</div>
                 <div class="u-info">
                     <div class="u-map-name">{{ item.map_name }}</div>
                     <div class="u-times" :class="item.subtype === 'foreshow' && 'u-times-lately'">
@@ -215,6 +216,8 @@ export default {
             const server = this.server;
             // 周二7点到下周一7点为一个CD， 7天内随机刷一只，地图为黑戈壁、阴山大草原、鲲鹏岛
             this.chituLoading = true;
+            this.hasExist = false;
+            this.existData = { map: "", time: "" };
             getChituHorse(server)
                 .then((res) => {
                     const list = res.data?.data?.list || [];
@@ -240,7 +243,7 @@ export default {
                     this.hasExist = isBetween;
                     if (isBetween) {
                         const content = list?.[0]?.content || "";
-                        const npc = /\]\[(.*)\]大声喊/.exec(content)[1].trim();
+                        const npc = /\]\[(.*)\]大声喊/.exec(content)?.[1]?.trim() || "";
                         this.existData = {
                             map: this.chituMap[npc] || "",
                             time: dayjs.tz(created_at).format("YYYY-MM-DD HH:mm:ss"),
@@ -275,8 +278,8 @@ export default {
                 // 预测
                 mapId = String(item.map_id);
                 mapName = item.map_name;
-                coordinates = item.horseIndex !== -1 ? horseSites[mapId].coordinates : [];
-                horses = item.horseIndex !== -1 ? horseSites[mapId].horses[item.horseIndex] : [];
+                coordinates = item.horseIndex !== -1 ? horseSites[mapId]?.coordinates || [] : [];
+                horses = item.horseIndex !== -1 ? horseSites[mapId]?.horses?.[item.horseIndex] || [] : [];
             } else {
                 // 播报
                 mapName = item.content.match(/在(\S*)出没/) ? item.content.match(/在(\S*)出没/)[1] : "";
@@ -293,7 +296,7 @@ export default {
                 ? [
                       {
                           content: `${horses.join()}
-                    <br />坐标：(${coor.x},${coor.y},${coor.z})`,
+                    <br />${this.$t("pages.pvg.gonggao.ui.horse.coordinates")}：(${coor.x},${coor.y},${coor.z})`,
                           ...coor,
                       },
                   ]
