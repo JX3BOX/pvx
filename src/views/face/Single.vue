@@ -102,9 +102,7 @@ import {
 } from "@/service/face";
 import facedata from "@jx3box/jx3box-facedat/src/Facedat.vue";
 import CommonComment from "@jx3box/jx3box-ui/src/single/Comment.vue";
-import User from "@jx3box/jx3box-common/js/user";
 import { buildFaceAllData } from "@/utils/data-parser";
-import { pollPayStatus } from "@/utils/pay-polling";
 import authorItem from "@/components/common/face-body/Author";
 import SingleNavigation from "@/components/common/face-body/SingleNavigation.vue";
 import SingleHeader from "@/components/common/face-body/SingleHeader.vue";
@@ -124,7 +122,6 @@ export default {
         return {
             type: "face",
             stat: {},
-            payPollingHandle: null,
         };
     },
 
@@ -145,12 +142,6 @@ export default {
         },
     },
 
-    beforeUnmount() {
-        if (this.payPollingHandle) {
-            this.payPollingHandle.stop();
-            this.payPollingHandle = null;
-        }
-    },
     methods: {
         getData() {
             if (!this.id) return;
@@ -172,63 +163,8 @@ export default {
         getDownUrl: getDownUrl,
         fetchRandomList: getRandomFace,
         fetchSliders: getSliders,
-
-        pay() {
-            if (!User.isLogin()) {
-                User.toLogin();
-                return;
-            }
-            this.$confirm(this.$t("pages.faceBody.detail.confirmPurchase"), this.$t("pages.faceBody.detail.prompt"), {
-                confirmButtonText: this.$t("pages.faceBody.detail.confirm"),
-                cancelButtonText: this.$t("pages.faceBody.detail.cancel"),
-                type: "warning",
-            }).then(() => {
-                const params = {
-                    postType: "face",
-                    PostId: this.post.id,
-                    priceType: this.post.price_type,
-                    priceCount: this.post.price_count,
-                    accessUserId: this.post.user_id,
-                    payUserId: User.getInfo().uid,
-                };
-                this.payBtnLoading = true;
-                payFace(params)
-                    .then((res) => this.pollPayStatus(res.data.data.id))
-                    .catch((err) => {
-                        if (err.response?.data?.code == 40019) {
-                            this.$confirm(this.$t("pages.faceBody.detail.balanceInsufficient"), this.$t("pages.faceBody.detail.prompt"), {
-                                confirmButtonText: this.$t("pages.faceBody.detail.confirm"),
-                                cancelButtonText: this.$t("pages.faceBody.detail.cancel"),
-                                type: "warning",
-                            }).then(() => window.open("/vip/cny", "_blank"));
-                        }
-                    })
-                    .finally(() => { this.payBtnLoading = false; });
-            });
-        },
-
-        pollPayStatus(payid) {
-            if (this.payPollingHandle) this.payPollingHandle.stop();
-            this.payPollingHandle = pollPayStatus(loopPayStatus, payid, {
-                onSuccess: () => this.handlePayResult(1),
-                onFail: () => this.handlePayResult(2),
-                onTimeout: () => {
-                    this.payBtnLoading = false;
-                    this.$notify.error({ title: this.$t("pages.faceBody.detail.timeout"), message: this.$t("pages.faceBody.detail.paymentTimeout") });
-                },
-            });
-        },
-
-        handlePayResult(status) {
-            this.payBtnLoading = false;
-            this.payPollingHandle = null;
-            if (status === 1) {
-                this.getData();
-                this.$notify.success({ title: this.$t("pages.faceBody.detail.success"), message: this.$t("pages.faceBody.detail.purchaseSuccess") });
-            } else {
-                this.$notify.error({ title: this.$t("pages.faceBody.detail.failure"), message: this.$t("pages.faceBody.detail.purchaseFailed") });
-            }
-        },
+        submitPurchase: payFace,
+        fetchPayStatus: loopPayStatus,
 
         copy(txt) {
             navigator.clipboard.writeText(txt).then(() => {

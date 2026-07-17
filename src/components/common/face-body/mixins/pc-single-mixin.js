@@ -9,18 +9,21 @@
  * - 组件需提供: type ('face' | 'body')
  * - 组件需实现: getData() 方法 - 获取详情数据
  * - 组件需实现: getRandomList() 方法 - 获取随机推荐
- * - 组件需实现: pay() 方法 - 购买逻辑
+ * - 组件需提供: submitPurchase(params) 方法 - 发起对应模块购买
+ * - 组件需提供: fetchPayStatus(payId) 方法 - 查询对应模块支付状态
  * - 组件需实现: getDownUrl(id, uuid) 方法 - 获取下载地址
  * 
  * @provides
  * - 公共 data: loading, post, has_buy, downFileList, downloadParams, payBtnLoading, randomList, topic_info
  * - 公共 computed: id, isAdmin, isAuthor, previewSrcList, canEdit, topicText
- * - 公共 methods: goBack, getAccessoryList, handleDownloadFile, downloadfile, getBlob, saveAs, downloadAll, getSliders
+ * - 公共 methods: goBack, pay, pollPayStatus, handlePayResult, getAccessoryList, handleDownloadFile,
+ *   downloadfile, getBlob, saveAs, downloadAll, getSliders
  */
 import User from "@jx3box/jx3box-common/js/user";
 import { getStat, postStat } from "@jx3box/jx3box-common/js/stat";
 import { downloadZip } from "@/utils/exportFileZip";
 import dayjs from "@/utils/day";
+import { pollPayStatus as startPayPolling } from "@/utils/pay-polling";
 
 const RANDOM_LIST_LIMIT = 12;
 
@@ -37,6 +40,7 @@ export default {
                 total: 0,
             },
             payBtnLoading: false,
+            payPollingHandle: null,
             randomList: [],
             topic_info: null,
         };
@@ -76,9 +80,93 @@ export default {
         this.getData();
     },
 
+    beforeUnmount() {
+        if (this.payPollingHandle) {
+            this.payPollingHandle.stop();
+            this.payPollingHandle = null;
+        }
+    },
+
     methods: {
         goBack() {
             this.$router.push({ name: "list" });
+        },
+
+        pay() {
+            if (!User.isLogin()) {
+                User.toLogin();
+                return;
+            }
+
+            const confirmKey = this.type === "body"
+                ? "pages.faceBody.detail.confirmPurchaseBody"
+                : "pages.faceBody.detail.confirmPurchase";
+
+            this.$confirm(this.$t(confirmKey), this.$t("pages.faceBody.detail.prompt"), {
+                confirmButtonText: this.$t("pages.faceBody.detail.confirm"),
+                cancelButtonText: this.$t("pages.faceBody.detail.cancel"),
+                type: "warning",
+            }).then(() => {
+                const params = {
+                    postType: this.type,
+                    PostId: this.post.id,
+                    priceType: this.post.price_type,
+                    priceCount: this.post.price_count,
+                    accessUserId: this.post.user_id,
+                    payUserId: User.getInfo().uid,
+                };
+                this.payBtnLoading = true;
+                this.submitPurchase(params)
+                    .then((res) => this.pollPayStatus(res.data.data.id))
+                    .catch((err) => {
+                        if (err.response?.data?.code == 40019) {
+                            this.$confirm(
+                                this.$t("pages.faceBody.detail.balanceInsufficient"),
+                                this.$t("pages.faceBody.detail.prompt"),
+                                {
+                                    confirmButtonText: this.$t("pages.faceBody.detail.confirm"),
+                                    cancelButtonText: this.$t("pages.faceBody.detail.cancel"),
+                                    type: "warning",
+                                }
+                            ).then(() => window.open("/vip/cny", "_blank"));
+                        }
+                    })
+                    .finally(() => {
+                        this.payBtnLoading = false;
+                    });
+            });
+        },
+
+        pollPayStatus(payId) {
+            if (this.payPollingHandle) this.payPollingHandle.stop();
+            this.payPollingHandle = startPayPolling(this.fetchPayStatus, payId, {
+                onSuccess: () => this.handlePayResult(1),
+                onFail: () => this.handlePayResult(2),
+                onTimeout: () => {
+                    this.payBtnLoading = false;
+                    this.$notify.error({
+                        title: this.$t("pages.faceBody.detail.timeout"),
+                        message: this.$t("pages.faceBody.detail.paymentTimeout"),
+                    });
+                },
+            });
+        },
+
+        handlePayResult(status) {
+            this.payBtnLoading = false;
+            this.payPollingHandle = null;
+            if (status === 1) {
+                this.getData();
+                this.$notify.success({
+                    title: this.$t("pages.faceBody.detail.success"),
+                    message: this.$t("pages.faceBody.detail.purchaseSuccess"),
+                });
+            } else {
+                this.$notify.error({
+                    title: this.$t("pages.faceBody.detail.failure"),
+                    message: this.$t("pages.faceBody.detail.purchaseFailed"),
+                });
+            }
         },
 
         getAccessoryList() {
