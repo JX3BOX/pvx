@@ -3,7 +3,7 @@
         <div class="plane-header">
             <div class="plane-data">
                 <div class="data-value">{{ item.recommend || 0 }}</div>
-                <div class="data-label">建议价格</div>
+                <div class="data-label">{{ $t("pages.pvg.price.ui.chart.recommended") }}</div>
             </div>
             <div class="plane-channel">{{ item.name }}</div>
         </div>
@@ -11,15 +11,15 @@
         <div class="plane-xAxis">
             <div class="xAxis-item">
                 <div class="xAxis-value">{{ item.beforeYesterday || 0 }}</div>
-                <div class="xAxis-label">前日</div>
+                <div class="xAxis-label">{{ $t("pages.pvg.price.ui.chart.dayBefore") }}</div>
             </div>
             <div class="xAxis-item">
                 <div class="xAxis-value">{{ item.yesterday || 0 }}</div>
-                <div class="xAxis-label">昨日</div>
+                <div class="xAxis-label">{{ $t("pages.pvg.price.ui.chart.yesterday") }}</div>
             </div>
             <div class="xAxis-item">
                 <div class="xAxis-value">{{ item.lastDay || 0 }}</div>
-                <div class="xAxis-label">今日</div>
+                <div class="xAxis-label">{{ $t("pages.pvg.price.ui.chart.today") }}</div>
             </div>
         </div>
     </div>
@@ -37,6 +37,8 @@ export default {
         return {
             myChart: null,
             resizeHandle: null,
+            resizeTimer: null,
+            hasOption: false,
             colorMap: {
                 WBL: "#F8B238",
                 UU898: "#AA66FF",
@@ -49,14 +51,13 @@ export default {
     watch: {
         item: {
             handler(value) {
-                if (value.key) {
+                if (value.key && this.myChart) {
                     this.$nextTick(() => {
                         this.setOption();
                     });
                 }
             },
             deep: true,
-            immediate: true,
         },
     },
     methods: {
@@ -64,30 +65,51 @@ export default {
         initChart() {
             this.myChart = echarts.init(this.$refs.chart);
             const resizeHandle = () => {
-                if (!this.myChart) return;
-                try {
-                    this.myChart.resize();
-                } catch (e) {
-                    console.error('图表resize失败：', e);
-                }
+                if (!this.myChart || !this.hasOption) return;
+                clearTimeout(this.resizeTimer);
+                this.resizeTimer = setTimeout(() => {
+                    this.rebuildChart();
+                }, 120);
             };
             window.addEventListener("resize", resizeHandle);
             this.resizeHandle = resizeHandle;
+        },
+        rebuildChart() {
+            if (!this.$refs.chart || !this.item?.key) return;
+            if (this.myChart) {
+                this.myChart.dispose();
+            }
+            this.hasOption = false;
+            this.myChart = echarts.init(this.$refs.chart);
+            this.setOption();
         },
         // 设置图表配置项
         setOption() {
             if (!this.myChart) return;
             if (!this.item.data || !this.item.data.length) return;
             const { beforeYesterday, yesterday, lastDay } = this.item;
-            const data = [beforeYesterday, yesterday, lastDay].filter(function (v) { return v !== null && v !== undefined; });
+            const data = [beforeYesterday, yesterday, lastDay]
+                .filter(function (v) {
+                    return v !== null && v !== undefined && v !== "";
+                })
+                .map(Number)
+                .filter(Number.isFinite);
             if (data.length === 0) return;
-            const min = Math.min(...data);
-            const max = Math.max(...data);
+            let min = Math.min(...data);
+            let max = Math.max(...data);
+            if (min === max) {
+                min -= 1;
+                max += 1;
+            }
             const option = {
                 xAxis: {
                     show: false,
                     type: "category",
-                    data: ["前日", "昨日", "今日"],
+                    data: [
+                        this.$t("pages.pvg.price.ui.chart.dayBefore"),
+                        this.$t("pages.pvg.price.ui.chart.yesterday"),
+                        this.$t("pages.pvg.price.ui.chart.today"),
+                    ],
                     boundaryGap: false,
                 },
                 grid: {
@@ -121,9 +143,11 @@ export default {
             const safeOption = validateEChartsOption(option);
             if (!safeOption) return;
             try {
-                this.myChart.setOption(safeOption);
+                this.myChart.setOption(safeOption, true);
+                this.hasOption = true;
             } catch (error) {
-                console.error('设置图表选项失败：', error);
+                this.hasOption = false;
+                console.error("设置图表选项失败：", error);
             }
         },
     },
@@ -131,6 +155,10 @@ export default {
         if (this.resizeHandle) {
             window.removeEventListener("resize", this.resizeHandle);
             this.resizeHandle = null;
+        }
+        if (this.resizeTimer) {
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = null;
         }
         if (this.myChart) {
             this.myChart.dispose();
@@ -140,6 +168,7 @@ export default {
     created: function () {},
     mounted: function () {
         this.initChart();
+        this.setOption();
     },
 };
 </script>
@@ -147,8 +176,9 @@ export default {
 <style lang="less" scoped>
 .u-data-plane {
     .flex;
-    .r(10px);
-    .size(480px,220px);
+    .r(16px);
+    width: clamp(280px, 31vw, 400px);
+    height: 210px;
     flex-direction: column;
     box-sizing: border-box;
     padding: 20px;
@@ -171,7 +201,8 @@ export default {
     }
     .plane-header {
         .flex;
-        .size(100%,46px);
+        width: 100%;
+        height: 46px;
         justify-content: space-between;
 
         .plane-data {
@@ -194,7 +225,8 @@ export default {
         }
     }
     .plane-chart {
-        .size(100%,60px);
+        width: 100%;
+        height: 60px;
     }
     .plane-xAxis {
         .flex;
@@ -208,6 +240,13 @@ export default {
             font-size: 14px;
             font-weight: 700;
         }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .u-data-plane {
+        width: 100%;
+        max-width: none;
     }
 }
 </style>

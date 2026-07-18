@@ -401,6 +401,38 @@ export default {
             title: "价格走势",
             keywords: "剑网3价格走势,剑三价格走势,JX3BOX价格走势,市场价格",
             description: "剑网3魔盒（JX3BOX）价格走势，查看市场价格变化与趋势。",
+            ui: {
+                title: "价格走势",
+                description: "查询区服金价与常用物品行情，快速掌握市场变化",
+                navigation: "价格走势导航",
+                tabs: { overview: "总览", gold: "金价", goods: "物价" },
+                searchPlaceholder: "搜索物品名称",
+                server: "服务器",
+                serverPlaceholder: "请选择区服",
+                noPrice: "暂无价目",
+                sections: {
+                    overview: { title: "走势速览", description: "对比各交易渠道近期金价" },
+                    gold: { title: "金价走势", description: "查看所选区服的历史金价变化" },
+                    goods: { title: "物价总览", description: "浏览常用物品当前市场价格" },
+                    follow: { title: "我的关注", description: "集中查看已关注清单中的物品" },
+                },
+                chart: {
+                    recommended: "建议价格", dayBefore: "前日", yesterday: "昨日", today: "今日",
+                    maximum: "最高价", minimum: "最低价", average: "平均价", averageShort: "均价",
+                    channels: { wbl: "万宝楼" },
+                },
+                empty: {
+                    goodsTitle: "没有找到相关物品", goodsDescription: "请更换关键词后重新搜索",
+                    followTitle: "暂无关注", followDescription: "添加清单后可在这里快速查看价格",
+                    loginTitle: "暂未登录", loginDescription: "登录后可以管理自己的关注清单",
+                },
+                actions: {
+                    manageFollow: "管理清单", addFollow: "添加关注", login: "去登录", createList: "去创建",
+                    cancel: "取消", confirm: "确定", switchServer: "切换服务器",
+                },
+                dialog: { title: "设置关注清单", noList: "还没有清单，" },
+                messages: { followSaved: "设置成功" },
+            },
         },
         gonggao: {
             title: "活动告示",

@@ -3,6 +3,7 @@
         <div ref="listRef" class="m-pvx-exam__layout" v-loading="loading">
             <PvxSurface class="m-pvx-exam__hero" padding="medium">
                 <PvxSectionHeader
+                    class="m-pvx-exam__header"
                     :title="$t('pages.exam.ui.title')"
                     :description="$t('pages.exam.ui.description')"
                     level="h1"

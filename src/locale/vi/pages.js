@@ -329,6 +329,38 @@ export default {
             title: "Xu hướng giá",
             keywords: "price trends,market price,JX3BOX",
             description: "Theo dõi xu hướng giá thị trường.",
+            ui: {
+                title: "Xu hướng giá",
+                description: "Theo dõi giá vàng máy chủ và các vật phẩm thường giao dịch",
+                navigation: "Điều hướng giá thị trường",
+                tabs: { overview: "Tổng quan", gold: "Giá vàng", goods: "Vật phẩm" },
+                searchPlaceholder: "Tìm tên vật phẩm",
+                server: "Máy chủ",
+                serverPlaceholder: "Chọn máy chủ",
+                noPrice: "Chưa có giá",
+                sections: {
+                    overview: { title: "Tổng quan thị trường", description: "So sánh giá vàng gần đây giữa các kênh" },
+                    gold: { title: "Xu hướng giá vàng", description: "Xem biến động giá vàng của máy chủ đã chọn" },
+                    goods: { title: "Giá vật phẩm", description: "Xem giá hiện tại của các vật phẩm phổ biến" },
+                    follow: { title: "Danh sách theo dõi", description: "Xem nhanh giá trong các danh sách đã theo dõi" },
+                },
+                chart: {
+                    recommended: "Giá đề xuất", dayBefore: "Hôm kia", yesterday: "Hôm qua", today: "Hôm nay",
+                    maximum: "Cao nhất", minimum: "Thấp nhất", average: "Trung bình", averageShort: "TB",
+                    channels: { wbl: "Wanbaolou" },
+                },
+                empty: {
+                    goodsTitle: "Không tìm thấy vật phẩm", goodsDescription: "Hãy thử từ khóa khác",
+                    followTitle: "Chưa theo dõi", followDescription: "Thêm danh sách để xem nhanh giá tại đây",
+                    loginTitle: "Chưa đăng nhập", loginDescription: "Đăng nhập để quản lý danh sách theo dõi",
+                },
+                actions: {
+                    manageFollow: "Quản lý", addFollow: "Thêm theo dõi", login: "Đăng nhập", createList: "Tạo ngay",
+                    cancel: "Hủy", confirm: "Xác nhận", switchServer: "Đổi máy chủ",
+                },
+                dialog: { title: "Danh sách theo dõi", noList: "Bạn chưa có danh sách. " },
+                messages: { followSaved: "Đã lưu" },
+            },
         },
         gonggao: {
             title: "Thông báo sự kiện",

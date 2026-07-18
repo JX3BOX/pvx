@@ -16,7 +16,7 @@
                         <div class="m-systemgoods-list-item-label">{{ item.label || "" }}</div>
                         <div class="m-systemgoods-list-item-money">
                             <GamePrice v-if="priceMap[item.item_id]" :price="priceMap[item.item_id]" />
-                            <div v-else class="is-null">暂无价目</div>
+                            <div v-else class="is-null">{{ $t("pages.pvg.price.ui.noPrice") }}</div>
                         </div>
                     </div>
                 </div>
@@ -32,6 +32,7 @@ export default {
     props: {
         data: {},
         priceMap: {},
+        server: { type: String, default: "" },
     },
     components: { GamePrice },
     methods: {
@@ -51,87 +52,9 @@ export default {
         // 物品详情页
         goItemPage(id) {
             let host = location.origin;
-            window.open(`${host}/item/view/${id}`, "_blank");
             sessionStorage.setItem("server_name", this.server);
+            window.open(`${host}/item/view/${id}`, "_blank", "noopener,noreferrer");
         },
     },
 };
 </script>
-<style lang="less">
-.p-price-goods {
-    * {
-        box-sizing: border-box;
-    }
-    .m-systemgoods {
-        display: flex;
-        flex-direction: column;
-
-        gap: 20px;
-        .m-systemgoods-group {
-            padding-left: 30px;
-            .m-systemgoods-group-label {
-                margin: 20px 0 20px 0;
-                color: #24292e;
-                font-size: 26px;
-                font-weight: bold;
-                line-height: 42px;
-            }
-            .m-systemgoods-list {
-                .flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                gap: 20px;
-
-                .m-systemgoods-list-item {
-                    .flex;
-                    .pointer;
-                    .size(286px,68px);
-                    .r(10px);
-                    align-items: center;
-                    padding: 10px;
-                    background-color: #fff;
-                    gap: 10px;
-
-                    .u-icon {
-                        .size(48px);
-                    }
-                    .m-systemgoods-list-item-info {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                        width: 100%;
-                        height: 100%;
-                        .m-systemgoods-list-item-label {
-                            .flex;
-                            .size(100%);
-                            .fz(14px,1.5);
-                            flex-direction: column;
-                            justify-content: space-between;
-                            font-weight: 700;
-                        }
-                        .m-systemgoods-list-item-money {
-                            .is-null {
-                                color: #999;
-                                font-weight: normal;
-                                .fz(14px);
-                            }
-                            .c-game-price {
-                                .flex;
-                                align-items: center;
-                                gap: 10px;
-
-                                & > span {
-                                    .flex;
-                                    justify-content: flex-end;
-                                    align-items: center;
-                                    gap: 4px;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-</style>

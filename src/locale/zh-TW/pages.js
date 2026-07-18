@@ -324,6 +324,38 @@ export default {
             title: "價格走勢",
             keywords: "價格走勢,市場價格,JX3BOX",
             description: "市場價格走勢與分析。",
+            ui: {
+                title: "價格走勢",
+                description: "查詢伺服器金價與常用物品行情，快速掌握市場變化",
+                navigation: "價格走勢導覽",
+                tabs: { overview: "總覽", gold: "金價", goods: "物價" },
+                searchPlaceholder: "搜尋物品名稱",
+                server: "伺服器",
+                serverPlaceholder: "請選擇伺服器",
+                noPrice: "暫無價格",
+                sections: {
+                    overview: { title: "走勢速覽", description: "比較各交易渠道近期金價" },
+                    gold: { title: "金價走勢", description: "查看所選伺服器的歷史金價變化" },
+                    goods: { title: "物價總覽", description: "瀏覽常用物品目前市場價格" },
+                    follow: { title: "我的關注", description: "集中查看已關注清單中的物品" },
+                },
+                chart: {
+                    recommended: "建議價格", dayBefore: "前日", yesterday: "昨日", today: "今日",
+                    maximum: "最高價", minimum: "最低價", average: "平均價", averageShort: "均價",
+                    channels: { wbl: "萬寶樓" },
+                },
+                empty: {
+                    goodsTitle: "找不到相關物品", goodsDescription: "請更換關鍵字後重新搜尋",
+                    followTitle: "暫無關注", followDescription: "新增清單後可在此快速查看價格",
+                    loginTitle: "尚未登入", loginDescription: "登入後可以管理自己的關注清單",
+                },
+                actions: {
+                    manageFollow: "管理清單", addFollow: "新增關注", login: "前往登入", createList: "去建立",
+                    cancel: "取消", confirm: "確定", switchServer: "切換伺服器",
+                },
+                dialog: { title: "設定關注清單", noList: "還沒有清單，" },
+                messages: { followSaved: "設定成功" },
+            },
         },
         gonggao: {
             title: "活動告示",

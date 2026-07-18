@@ -3,7 +3,13 @@
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
-            <div class="m-main m-pvg-main" :class="{ 'is-modern-gonggao-main': isModernGonggao }">
+            <div
+                class="m-main m-pvg-main"
+                :class="{
+                    'is-modern-gonggao-main': isModernGonggao,
+                    'is-modern-price-main': isModernPrice,
+                }"
+            >
                 <router-view></router-view>
             </div>
         </Main>
@@ -13,6 +19,7 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "Index",
     components: {
@@ -21,6 +28,7 @@ export default {
     data: function () {
         return {
             navStatusClass: "is-regular",
+            isPriceMiniApp: isMiniProgram() || isApp(),
         };
     },
     computed: {
@@ -32,6 +40,9 @@ export default {
         },
         isModernGonggao() {
             return ["daily", "calendar", "server"].includes(this.$route.name);
+        },
+        isModernPrice() {
+            return this.$route.name === "price" && !this.isPriceMiniApp;
         },
     },
     methods: {

@@ -54,7 +54,7 @@ export default {
                     recommend = ((+lastDay + +yesterday + +beforeYesterday) / 3).toFixed(2);
                 }
                 const newItem = {
-                    name: key === "WBL" ? "万宝楼" : key,
+                    name: key === "WBL" ? this.$t("pages.pvg.price.ui.chart.channels.wbl") : key,
                     key,
                     recommend,
                     sum,

@@ -332,6 +332,38 @@ export default {
             title: "Price Trends",
             keywords: "JX3 price trends,market price,JX3BOX",
             description: "Market price trend tracking and analysis.",
+            ui: {
+                title: "Price Trends",
+                description: "Track server gold rates and frequently traded item prices",
+                navigation: "Price trend navigation",
+                tabs: { overview: "Overview", gold: "Gold", goods: "Items" },
+                searchPlaceholder: "Search item names",
+                server: "Server",
+                serverPlaceholder: "Select a server",
+                noPrice: "No price available",
+                sections: {
+                    overview: { title: "Market Snapshot", description: "Compare recent gold rates across marketplaces" },
+                    gold: { title: "Gold Trends", description: "View historical gold rates for the selected server" },
+                    goods: { title: "Item Prices", description: "Browse current prices for frequently traded items" },
+                    follow: { title: "My Watchlist", description: "Review prices from your followed lists" },
+                },
+                chart: {
+                    recommended: "Suggested", dayBefore: "2 days ago", yesterday: "Yesterday", today: "Today",
+                    maximum: "Highest", minimum: "Lowest", average: "Average", averageShort: "Avg.",
+                    channels: { wbl: "Wanbaolou" },
+                },
+                empty: {
+                    goodsTitle: "No matching items", goodsDescription: "Try another keyword",
+                    followTitle: "No followed lists", followDescription: "Add a list to review its prices here",
+                    loginTitle: "Not signed in", loginDescription: "Sign in to manage your watchlist",
+                },
+                actions: {
+                    manageFollow: "Manage lists", addFollow: "Add list", login: "Sign in", createList: "Create one",
+                    cancel: "Cancel", confirm: "Confirm", switchServer: "Switch server",
+                },
+                dialog: { title: "Manage Watchlist", noList: "You have no lists yet. " },
+                messages: { followSaved: "Saved" },
+            },
         },
         gonggao: {
             title: "Event Bulletin",

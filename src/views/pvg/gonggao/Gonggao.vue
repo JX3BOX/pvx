@@ -12,6 +12,7 @@
             <div class="m-pvx-gonggao-daily__layout">
                 <PvxSurface class="m-pvx-gonggao-daily__hero" padding="medium">
                     <PvxSectionHeader
+                        class="m-pvx-gonggao-daily__header"
                         :title="$t('pages.pvg.gonggao.ui.title')"
                         :description="$t('pages.pvg.gonggao.ui.description')"
                         level="h1"

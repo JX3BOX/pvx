@@ -2,7 +2,12 @@
     <div class="m-price-goods" v-loading="loading">
         <div class="m-search-box">
             <img class="m-search-icon" svg-inline src="@/assets/img/pvg/price/material-symbols_search.svg" />
-            <input class="m-search-field" v-model="keywords" type="text" placeholder="你想要搜索什么？" />
+            <input
+                class="m-search-field"
+                v-model="keywords"
+                type="text"
+                :placeholder="$t('pages.pvg.price.ui.searchPlaceholder')"
+            />
         </div>
         <systemGoodList :data="systemGoodsDataFilter" :priceMap="priceMap"></systemGoodList>
     </div>
