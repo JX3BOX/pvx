@@ -101,7 +101,7 @@
         </div>
         <div class="m-add">
             <el-input-number v-model="count" :min="1" @click.stop />
-            <el-button type="success" @click="onAddCartItem()">
+            <el-button @click="onAddCartItem()">
                 <el-icon>
                     <ShoppingCart />
                 </el-icon>

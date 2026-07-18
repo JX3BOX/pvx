@@ -6,21 +6,21 @@
         wrapper-closable
         append-to-body
         modal-append-to-body
-        custom-class="m-price-change-drawer"
+        class="m-price-change-drawer"
     >
         <div class="u-title">
             <img class="u-icon" :src="iconLink(icon)" alt="" />
             <div class="u-section">
                 <span class="u-item-name">{{ name }}</span>
                 <span v-if="type != 'cart'" class="u-price">
-                    <span>[{{ server }}]昨日平均单价: </span>
+                    <span>{{ $t("pages.pvg.manufacture.ui.priceDialog.averagePrice", { server }) }}</span>
                     <GamePrice v-if="origin_price" class="u-price-num" :price="origin_price"></GamePrice>
-                    <span v-else>暂无价格</span>
+                    <span v-else>{{ $t("pages.pvg.manufacture.ui.common.noPrice") }}</span>
                 </span>
                 <span v-else class="u-price">
-                    <span>账单原价格: </span>
+                    <span>{{ $t("pages.pvg.manufacture.ui.priceDialog.originalPrice") }}</span>
                     <GamePrice v-if="origin_price" class="u-price-num" :price="origin_price"></GamePrice>
-                    <span v-else>无价格</span>
+                    <span v-else>{{ $t("pages.pvg.manufacture.ui.common.noPrice") }}</span>
                 </span>
             </div>
         </div>
@@ -44,8 +44,12 @@
             </el-input>
         </div>
         <div class="m-actions">
-            <div class="u-reset" @click="removeCustomPrice">重置</div>
-            <div class="u-confirm" @click="confirm">确定</div>
+            <button type="button" class="u-reset" @click="removeCustomPrice">
+                {{ $t("pages.pvg.manufacture.ui.actions.reset") }}
+            </button>
+            <button type="button" class="u-confirm" @click="confirm">
+                {{ $t("pages.pvg.manufacture.ui.actions.confirm") }}
+            </button>
         </div>
     </el-drawer>
 </template>
@@ -88,7 +92,7 @@ export default {
             this.visible = true;
             this.icon = data.icon || "";
             this.type = data.type || "cart";
-            this.name = data.name || "物品";
+            this.name = data.name || this.$t("pages.pvg.manufacture.ui.common.item");
             this.origin_price = data.origin_price || data.price || 0;
             this.price = data.price || 0;
             this.server = data.server || "";
@@ -222,6 +226,7 @@ export default {
             .fz(12px, 18px);
             font-weight: 700;
             .x();
+            border: 0;
         }
 
         .u-reset {

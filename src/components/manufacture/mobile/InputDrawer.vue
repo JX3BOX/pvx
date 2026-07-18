@@ -6,7 +6,7 @@
         wrapper-closable
         append-to-body
         modal-append-to-body
-        custom-class="m-ask-drawer"
+        class="m-input-drawer"
         @close="onClose"
     >
         <div class="m-input">
@@ -17,7 +17,9 @@
             </el-input>
         </div>
         <div class="m-actions">
-            <div class="u-confirm" @click="ok">确定</div>
+            <button type="button" class="u-confirm" @click="ok">
+                {{ $t("pages.pvg.manufacture.ui.actions.confirm") }}
+            </button>
         </div>
     </el-drawer>
 </template>
@@ -58,7 +60,7 @@ export default {
 </script>
 
 <style lang="less">
-.m-ask-drawer {
+.m-input-drawer {
     .m-input {
         display: flex;
         align-items: center;
@@ -97,6 +99,7 @@ export default {
             .x();
             background: var(--Primary-Brand-2, #fedaa3);
             color: var(--Primary-Brand-3, #24292e);
+            border: 0;
         }
     }
 }

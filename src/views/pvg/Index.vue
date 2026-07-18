@@ -8,6 +8,7 @@
                 :class="{
                     'is-modern-gonggao-main': isModernGonggao,
                     'is-modern-price-main': isModernPrice,
+                    'is-modern-manufacture-main': isModernManufacture,
                 }"
             >
                 <router-view></router-view>
@@ -43,6 +44,9 @@ export default {
         },
         isModernPrice() {
             return this.$route.name === "price" && !this.isPriceMiniApp;
+        },
+        isModernManufacture() {
+            return this.$route.name === "manufacture" && window.innerWidth > 768;
         },
     },
     methods: {

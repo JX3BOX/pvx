@@ -6,13 +6,19 @@
         wrapper-closable
         append-to-body
         modal-append-to-body
-        custom-class="m-ask-drawer"
+        class="m-ask-drawer"
         @close="onClose"
     >
         <div class="m-actions">
-            <div class="u-button u-delete" @click="ok('delete')">删除项目</div>
-            <div class="u-button u-confirm" @click="ok('count')">修改数量</div>
-            <div class="u-button u-confirm" @click="ok('price')">修改价格</div>
+            <button type="button" class="u-button u-delete" @click="ok('delete')">
+                {{ $t("pages.pvg.manufacture.ui.actions.deleteItem") }}
+            </button>
+            <button type="button" class="u-button u-confirm" @click="ok('count')">
+                {{ $t("pages.pvg.manufacture.ui.actions.updateCount") }}
+            </button>
+            <button type="button" class="u-button u-confirm" @click="ok('price')">
+                {{ $t("pages.pvg.manufacture.ui.actions.updatePrice") }}
+            </button>
         </div>
     </el-drawer>
 </template>
@@ -64,6 +70,7 @@ export default {
             .fz(12px, 18px);
             font-weight: 700;
             .x();
+            border: 0;
         }
         .u-confirm {
             background: var(--Primary-Brand-2, #fedaa3);

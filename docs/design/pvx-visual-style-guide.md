@@ -174,6 +174,16 @@
 | `PvxActionButton` | 统一操作按钮外观和状态 |
 | `PvxEmptyState` | 空结果、无数据和引导信息 |
 
+`PvxSectionHeader` 对外提供稳定语义样式钩子：
+
+- `.c-pvx-section-header`：标题组件根节点；
+- `.c-pvx-section-header__main`：图标与文字主区域；
+- `.c-pvx-section-header__icon`：图标容器；
+- `.c-pvx-section-header__content`、`__title`、`__description`：文字区域；
+- `.c-pvx-section-header__action`：右侧操作区域。
+
+模块确需调整 Hero 图标尺寸、长语言换行或操作区重排时，应从模块专有根节点开始覆盖这些语义钩子，不依赖组件内部 Tailwind 类名，也不得使用裸后代选择器影响其他页面。
+
 使用原则：
 
 1. 新页面先评估现有组件是否满足需求。

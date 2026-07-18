@@ -3,11 +3,15 @@
         <img class="u-icon" :src="iconLink(recipe.IconID, client)" alt="" />
         <div class="u-name">{{ recipe.Name }}</div>
         <div class="u-meta">
-            <span v-if="recipe.nLevel"> 需求等级：{{ recipe.nLevel }} </span>
-            <span v-if="recipe.CostVigor || recipe.CostStamina">
-                需求精力：{{ recipe.CostVigor || recipe.CostStamina }}
+            <span v-if="recipe.nLevel">
+                {{ $t("pages.pvg.manufacture.ui.recipe.requiredLevel") }}：{{ recipe.nLevel }}
             </span>
-            <span v-if="recipe.Exp"> 经验值：{{ recipe.Exp }} </span>
+            <span v-if="recipe.CostVigor || recipe.CostStamina">
+                {{ $t("pages.pvg.manufacture.ui.recipe.requiredEnergy") }}：{{
+                    recipe.CostVigor || recipe.CostStamina
+                }}
+            </span>
+            <span v-if="recipe.Exp">{{ $t("pages.pvg.manufacture.ui.recipe.experience") }}：{{ recipe.Exp }}</span>
         </div>
     </div>
 </template>
@@ -47,6 +51,10 @@ export default {
     }
 
     .u-meta {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 12px;
+        row-gap: 2px;
         color: var(--black-40, rgba(255, 255, 255, 0.4));
         .fz(12px, 18px);
         font-weight: 400;
