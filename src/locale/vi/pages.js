@@ -139,6 +139,53 @@ export default {
         title: "Bài kiểm tra JX3",
         keywords: "JX3 exam,question bank,practice,JX3BOX",
         description: "Kho câu hỏi, đề thi và luyện tập.",
+        ui: {
+            title: "Cẩm nang thi",
+            description: "Tra cứu câu hỏi khoa cử, thử sức với ngân hàng cộng đồng hoặc luyện đề mô phỏng",
+            types: { imperial: "Khoa cử", question: "Câu hỏi", paper: "Thi thử", gaokao: "Gaokao JX3" },
+            filters: { type: "Loại", filter: "Bộ lọc", keyword: "từ khóa", tag: "Thẻ", client: "Máy chủ" },
+            actions: { publishQuestion: "Tạo câu hỏi", publishPaper: "Tạo đề thi" },
+            sections: {
+                imperial: { title: "Câu hỏi khoa cử", description: "Nhập ít nhất hai ký tự để tìm câu hỏi và đáp án trong trò chơi" },
+                question: { title: "Câu hỏi cộng đồng", description: "Xem câu hỏi do người chơi tạo và bắt đầu trả lời" },
+                paper: { title: "Thi thử", description: "Chọn đề thi cộng đồng để luyện tập đầy đủ" },
+            },
+            resultCount: "{count} kết quả",
+            empty: { title: "Không tìm thấy mục phù hợp", description: "Hãy đổi từ khóa hoặc điều chỉnh bộ lọc" },
+            loadFailed: "Không thể tải dữ liệu bài thi. Vui lòng thử lại sau.",
+            search: {
+                close: "Đóng", reset: "Đặt lại", select: "Chọn", inputField: "Nhập {name}", selectField: "Chọn {name}",
+                searchPlaceholder: "Tìm theo {name}",
+            },
+            imperial: {
+                placeholder: "Nhập từ khóa câu hỏi", tip: "Nhập ít nhất hai ký tự để tìm kiếm", minLength: "Từ khóa phải có ít nhất hai ký tự",
+                result: "Tìm thấy {count} kết quả cho “{keyword}”", answer: "Đáp án", emptyTitle: "Tra cứu câu hỏi khoa cử",
+                emptyDescription: "Nhập từ khóa câu hỏi trong trò chơi để xem đáp án",
+            },
+            question: {
+                columns: { id: "ID", title: "Tiêu đề", tags: "Thẻ", difficulty: "Độ khó", author: "Tác giả", action: "Thao tác" },
+                answer: "Trả lời",
+            },
+            paper: {
+                author: "Tác giả",
+                difficulty: "Độ khó",
+                detail: {
+                    backToList: "Trở lại danh sách", edit: "Sửa đề thi", paperLabel: "Thi thử", untitled: "Đề thi chưa đặt tên",
+                    noDescription: "Tác giả chưa thêm mô tả.", difficulty: "Độ khó", author: "Tác giả:",
+                    examStart: "Sẵn sàng làm bài", examEnd: "Đã hoàn thành", summary: "{count} câu · {score} điểm mỗi câu · Tổng 100 điểm",
+                    rule: "Hãy tự hoàn thành bài. Kết quả sẽ hiển thị sau khi nộp.", score: "Điểm số",
+                    externalTitle: "Đề thi bên ngoài", externalDescription: "Đề thi này được hoàn thành trên một trang bên ngoài.", openExternal: "Bắt đầu làm bài",
+                    questionsTitle: "Câu hỏi", questionsDescription: "Hoàn thành các câu hỏi bên dưới rồi nộp bài",
+                    submit: "Nộp bài", submitted: "Đã nộp", comments: "Bình luận", loginRequired: "Vui lòng đăng nhập trước",
+                    blankTitle: "Không thể nộp bài", blankMessage: "Hãy trả lời ít nhất một câu hỏi.", loadFailed: "Không thể tải đề thi. Vui lòng thử lại sau.",
+                },
+            },
+            common: { anonymous: "Ẩn danh", noData: "Chưa có dữ liệu" },
+            detail: {
+                back: "Về danh sách", edit: "Chỉnh sửa", submit: "Gửi đáp án", submitted: "Đã gửi", comments: "Bình luận",
+                loginRequired: "Vui lòng đăng nhập", selectAnswer: "Hãy chọn đáp án trước khi gửi", submitFailed: "Gửi thất bại",
+            },
+        },
         paper: {
             title: "Chi tiết đề thi",
             keywords: "exam paper,JX3BOX",

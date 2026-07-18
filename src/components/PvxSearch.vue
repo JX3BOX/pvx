@@ -16,7 +16,7 @@
                             :value="typeItem.type">{{ typeItem.name }}</el-radio-button>
                     </el-radio-group>
                     <template v-if="item.options.filter((rItem) => rItem.link).length">
-                        <a :href="typeItem.link" target="blank" class="type-item"
+                        <a :href="typeItem.link" target="_blank" rel="noopener noreferrer" class="type-item"
                             v-for="typeItem in item.options.filter((rItem) => rItem.link)"
                             :key="typeItem.type">{{ typeItem.name }}</a>
                     </template>
@@ -78,8 +78,8 @@
                             <el-row v-if="item.options.length" class="filter-actions">
                                 <el-col :offset="20" :span="4">
                                     <el-button v-if="variant === 'modern'" class="u-filter-close" size="small" plain
-                                        @click="closeFilter">{{ $t("pages.faceBody.search.close") }}</el-button>
-                                    <el-button size="small" type="info" plain @click="reset">{{ $t("pages.faceBody.search.reset") }}</el-button>
+                                        @click="closeFilter">{{ searchText("close") }}</el-button>
+                                    <el-button size="small" type="info" plain @click="reset">{{ searchText("reset") }}</el-button>
                                 </el-col>
                             </el-row>
                         </div>
@@ -87,6 +87,7 @@
                             <div class="filter-img" :class="{
                                 'has-filters': hasActiveFilters,
                                 'has-desktop-filters': hasDesktopActiveFilters,
+                                'is-open': filterValue,
                             }">
                                 <img svg-inline src="@/assets/img/common/filter.svg" />
                             </div>
@@ -97,7 +98,7 @@
                     <label v-if="item.showLabel">{{ item.name }}</label>
                     <el-select :id="item.remote" class="select-wrapper" v-model="formData[item.key]"
                         :multiple="item.multiple" :collapse-tags="item.multiple" :filterable="item.filterable"
-                        :placeholder="item.noPlaceholder ? $t('pages.faceBody.search.select') : getFieldPlaceholder(item)"
+                        :placeholder="item.noPlaceholder ? searchText('select') : getFieldPlaceholder(item)"
                         :remote="Boolean(item.remote)" :remote-method="remoteMethod"
                         :loading="selectLoading === item.remote" :default-first-option="true" @focus="selectFocus"
                         :style="!item.showLabel && 'width: 100%'">
@@ -109,7 +110,7 @@
                 </template>
                 <template v-if="!item.type">
                     <el-input v-model="formData[item.key]" class="search-input"
-                        :placeholder="$t('pages.faceBody.search.searchPlaceholder', { name: item.name })"
+                        :placeholder="searchText('searchPlaceholder', { name: item.name })"
                         clearable>
                         <template v-if="variant === 'modern'" #prepend>
                             <svg class="u-pvx-search-icon" viewBox="0 0 20 20" aria-hidden="true">
@@ -158,6 +159,10 @@ export default {
             type: String,
             default: "legacy",
             validator: (value) => ["legacy", "modern"].includes(value),
+        },
+        i18nScope: {
+            type: String,
+            default: "pages.faceBody.search",
         },
     },
     data() {
@@ -246,7 +251,10 @@ export default {
         isPhone,
         getFieldPlaceholder(item) {
             const key = item.remote ? "inputField" : "selectField";
-            return this.$t(`pages.faceBody.search.${key}`, { name: item.name });
+            return this.searchText(key, { name: item.name });
+        },
+        searchText(key, params = {}) {
+            return this.$t(`${this.i18nScope}.${key}`, params);
         },
         selectFocus(e) {
             this.currentMethod = e.target.id;

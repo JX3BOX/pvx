@@ -142,6 +142,53 @@ export default {
         title: "JX3 Exam",
         keywords: "JX3 exam,question bank,practice,JX3BOX",
         description: "Exam hub with question bank, papers and practice.",
+        ui: {
+            title: "Exam Guide",
+            description: "Search imperial questions, challenge community questions, or practise with mock papers",
+            types: { imperial: "Imperial", question: "Questions", paper: "Mock Exams", gaokao: "JX3 Gaokao" },
+            filters: { type: "Type", filter: "Filters", keyword: "keywords", tag: "Tags", client: "Client" },
+            actions: { publishQuestion: "Create Question", publishPaper: "Create Paper" },
+            sections: {
+                imperial: { title: "Imperial Questions", description: "Enter at least two characters to find in-game questions and answers" },
+                question: { title: "Community Questions", description: "Browse community-created questions and start answering" },
+                paper: { title: "Mock Exams", description: "Choose a community paper for a complete practice session" },
+            },
+            resultCount: "{count} results",
+            empty: { title: "No matching entries", description: "Try another keyword or adjust the filters" },
+            loadFailed: "Could not load exam data. Please try again later.",
+            search: {
+                close: "Close", reset: "Reset", select: "Select", inputField: "Enter {name}", selectField: "Select {name}",
+                searchPlaceholder: "Search by {name}",
+            },
+            imperial: {
+                placeholder: "Search question keywords", tip: "Enter at least two characters to search", minLength: "Use at least two characters",
+                result: "{count} results for “{keyword}”", answer: "Answer", emptyTitle: "Search Imperial Questions",
+                emptyDescription: "Enter an in-game question keyword to view its answer",
+            },
+            question: {
+                columns: { id: "ID", title: "Title", tags: "Tags", difficulty: "Difficulty", author: "Author", action: "Action" },
+                answer: "Answer",
+            },
+            paper: {
+                author: "Author",
+                difficulty: "Difficulty",
+                detail: {
+                    backToList: "Back to papers", edit: "Edit paper", paperLabel: "Mock exam", untitled: "Untitled paper",
+                    noDescription: "The author has not added a description.", difficulty: "Difficulty", author: "Author:",
+                    examStart: "Ready to begin", examEnd: "Exam completed", summary: "{count} questions · {score} points each · 100 points total",
+                    rule: "Complete the questions independently. Your result will be shown after submission.", score: "Score",
+                    externalTitle: "External paper", externalDescription: "This paper is completed on an external page.", openExternal: "Start exam",
+                    questionsTitle: "Questions", questionsDescription: "Complete the questions below, then submit the paper",
+                    submit: "Submit paper", submitted: "Submitted", comments: "Comments", loginRequired: "Please sign in first",
+                    blankTitle: "Submission failed", blankMessage: "Please answer at least one question.", loadFailed: "Could not load the paper. Please try again later.",
+                },
+            },
+            common: { anonymous: "Anonymous", noData: "No data" },
+            detail: {
+                back: "Back to list", edit: "Edit", submit: "Submit answer", submitted: "Submitted", comments: "Comments",
+                loginRequired: "Please sign in first", selectAnswer: "Choose an answer before submitting", submitFailed: "Submission failed",
+            },
+        },
         paper: {
             title: "Paper Detail",
             keywords: "JX3 exam paper,practice,JX3BOX",

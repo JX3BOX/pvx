@@ -1,9 +1,9 @@
 <template>
     <div class="m-question-list">
         <!-- 表格 -->
-        <el-table class="m-list" :data="list" style="width: 100%" @row-click="takeQuestion">
-            <el-table-column prop="id" label="编号" width="56"></el-table-column>
-            <el-table-column prop="title" label="标题" min-width="200">
+        <el-table class="m-list m-question-table" :data="list" style="width: 100%" @row-click="takeQuestion">
+            <el-table-column prop="id" :label="$t('pages.exam.ui.question.columns.id')" width="72"></el-table-column>
+            <el-table-column prop="title" :label="$t('pages.exam.ui.question.columns.title')" min-width="240">
                 <template #default="scope">
                     <div class="u-title">
                         <span :class="`u-client i-client-${scope.row.client}`">{{ clients[scope.row.client] }}</span>
@@ -11,7 +11,7 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column prop="tags" label="标签" width="180">
+            <el-table-column prop="tags" :label="$t('pages.exam.ui.question.columns.tags')" width="180">
                 <template v-slot="scope">
                     <div class="u-tags">
                         <el-tag
@@ -26,34 +26,58 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column prop="hardStar" label="难度" width="120">
+            <el-table-column prop="hardStar" :label="$t('pages.exam.ui.question.columns.difficulty')" width="120">
                 <template v-slot="scope">
                     <el-rate v-model="scope.row.hardStar" disabled text-color="#ff9900"></el-rate>
                 </template>
             </el-table-column>
-            <el-table-column prop="author" label="出题人" width="180">
+            <el-table-column prop="author" :label="$t('pages.exam.ui.question.columns.author')" width="180">
                 <template v-slot="scope">
                     {{ scope.row.createUser }}
                 </template>
             </el-table-column>
-            <el-table-column fixed="right" label="操作" width="100" v-if="!isMiniProgram">
-                <template #default>
-                    <el-button size="small" plain type="primary">
-                        <el-icon><Edit /></el-icon>
-                        去答题
+            <el-table-column
+                fixed="right"
+                align="center"
+                header-align="center"
+                :label="$t('pages.exam.ui.question.columns.action')"
+                width="124"
+                v-if="!isMiniProgram"
+            >
+                <template #default="scope">
+                    <el-button class="u-answer-action" type="primary" plain @click.stop="takeQuestion(scope.row)">
+                        <el-icon><EditPen /></el-icon>
+                        {{ $t("pages.exam.ui.question.answer") }}
                     </el-button>
                 </template>
             </el-table-column>
         </el-table>
+        <div class="m-question-cards">
+            <button class="u-question-card" type="button" v-for="item in list" :key="`mobile-${item.id}`" @click="takeQuestion(item)">
+                <div class="u-card-topline">
+                    <span class="u-number">No.{{ item.id }}</span>
+                    <span :class="`u-client i-client-${item.client}`">{{ clients[item.client] }}</span>
+                </div>
+                <h3 class="u-card-title">{{ item.title }}</h3>
+                <div class="u-tags">
+                    <el-tag v-for="tag in item.tags" :key="`${item.id}-${tag}`" size="small" effect="plain" type="info">{{ tag }}</el-tag>
+                </div>
+                <div class="u-card-meta">
+                    <span>{{ item.createUser || $t("pages.exam.ui.common.anonymous") }}</span>
+                    <el-rate :model-value="item.hardStar" disabled text-color="#ff9900" />
+                </div>
+            </button>
+        </div>
     </div>
 </template>
 <script>
 import { __clients } from "@/utils/config";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
+import { EditPen } from "@element-plus/icons-vue";
 export default {
     name: "QuestionList",
     props: ["data"],
-    components: {},
+    components: { EditPen },
     data: function () {
         return { clients: __clients, isMiniProgram: isMiniProgram() || isApp() };
     },
@@ -62,21 +86,21 @@ export default {
             return location.href.includes("origin") ? "origin" : "std";
         },
         list: function () {
-            return this.data?.map((item, i) => {
+            return this.data?.map((item) => {
+                let parsedTags = [];
                 try {
-                    item.tags = JSON.parse(item.tags).slice(0, 3);
+                    parsedTags = Array.isArray(item.tags) ? item.tags : JSON.parse(item.tags || "[]");
                 } catch (e) {
-                    console.log("解析题目列表tag异常", e);
-                    item.tags = [];
+                    parsedTags = [];
                 }
-                return item;
+                return { ...item, tags: Array.isArray(parsedTags) ? parsedTags.slice(0, 3) : [] };
             });
         },
     },
     watch: {},
     methods: {
-        takeQuestion(row, column, event) {
-            let id = row.id;
+        takeQuestion(row) {
+            const id = row.id;
             this.$router.push({
                 name: "question",
                 params: { id: id },

@@ -23,7 +23,10 @@
  -->
 <template>
     <div class="m-pvx-navigation">
-        <div class="u-pvx-goback" @click="handleGoBack">{{ $t("pages.faceBody.detail.backToList") }}</div>
+        <div class="u-pvx-goback" @click="handleGoBack">
+            <ArrowLeft class="u-pvx-back-icon" />
+            {{ $t("pages.faceBody.detail.backToList") }}
+        </div>
 
         <div class="m-pvx-type__btn-box">
             <a :href="publishLink" target="_blank">
@@ -41,6 +44,7 @@
 
 <script>
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
+import { ArrowLeft } from "@element-plus/icons-vue";
 
 /**
  * SingleNavigation - 详情页导航组件
@@ -54,6 +58,7 @@ import { publishLink } from "@jx3box/jx3box-common/js/utils";
  */
 export default {
     name: "SingleNavigation",
+    components: { ArrowLeft },
     props: {
         // 类型标识：face（脸型）或 body（体型）
         type: {

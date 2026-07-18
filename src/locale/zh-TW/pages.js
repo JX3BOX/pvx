@@ -139,6 +139,53 @@ export default {
         title: "劍三考試",
         keywords: "劍網3考試,題庫,答題,JX3BOX",
         description: "考試欄目，提供題庫、試卷與答題練習。",
+        ui: {
+            title: "考試大全",
+            description: "查詢科舉題目、挑戰玩家題庫，或選擇模擬試卷進行練習",
+            types: { imperial: "科舉題庫", question: "創作題庫", paper: "模擬考試", gaokao: "劍三高考" },
+            filters: { type: "類型", filter: "篩選", keyword: "關鍵詞", tag: "標籤", client: "平台" },
+            actions: { publishQuestion: "我要出題", publishPaper: "我要出卷" },
+            sections: {
+                imperial: { title: "科舉題庫", description: "輸入至少兩個字元，快速查詢遊戲內科舉題目與答案" },
+                question: { title: "創作題庫", description: "瀏覽玩家創作的單題內容並進入答題" },
+                paper: { title: "模擬考試", description: "選擇社群試卷進行完整模擬練習" },
+            },
+            resultCount: "共 {count} 筆",
+            empty: { title: "沒有找到相關項目", description: "請嘗試更換關鍵詞或調整篩選條件" },
+            loadFailed: "考試資料載入失敗，請稍後重試",
+            search: {
+                close: "關閉", reset: "重設", select: "請選擇", inputField: "請輸入{name}", selectField: "請選擇{name}",
+                searchPlaceholder: "輸入{name}搜尋",
+            },
+            imperial: {
+                placeholder: "輸入題目關鍵詞搜尋", tip: "請輸入至少兩個字元開始查詢", minLength: "搜尋詞不能少於兩個字元",
+                result: "「{keyword}」共找到 {count} 筆結果", answer: "答案", emptyTitle: "開始查詢科舉題庫",
+                emptyDescription: "輸入遊戲內題目關鍵詞，即可查看對應答案",
+            },
+            question: {
+                columns: { id: "編號", title: "標題", tags: "標籤", difficulty: "難度", author: "出題人", action: "操作" },
+                answer: "去答題",
+            },
+            paper: {
+                author: "出卷人",
+                difficulty: "難度",
+                detail: {
+                    backToList: "返回試卷列表", edit: "編輯試卷", paperLabel: "模擬試卷", untitled: "未命名試卷",
+                    noDescription: "作者暫未填寫試卷說明", difficulty: "難度", author: "出卷人：",
+                    examStart: "考試準備", examEnd: "考試完成", summary: "共 {count} 題，每題 {score} 分，滿分 100 分",
+                    rule: "請獨立完成作答，提交後將顯示本次考試結果。", score: "本次得分",
+                    externalTitle: "外連試卷", externalDescription: "這份試卷將在外部頁面完成作答。", openExternal: "前往答題",
+                    questionsTitle: "試卷題目", questionsDescription: "請完成下列題目後統一提交",
+                    submit: "提交試卷", submitted: "已提交", comments: "評論", loginRequired: "請先登入",
+                    blankTitle: "提交失敗", blankMessage: "不能交白卷哦~", loadFailed: "試卷載入失敗，請稍後重試",
+                },
+            },
+            common: { anonymous: "匿名", noData: "暫無資料" },
+            detail: {
+                back: "返回列表", edit: "編輯", submit: "提交答案", submitted: "已提交", comments: "評論",
+                loginRequired: "請先登入", selectAnswer: "請先選擇答案", submitFailed: "提交失敗",
+            },
+        },
         paper: {
             title: "試卷詳情",
             keywords: "試卷詳情,題庫試卷,JX3BOX",

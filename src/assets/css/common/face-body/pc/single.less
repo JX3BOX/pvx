@@ -800,41 +800,6 @@
     display: none !important;
 }
 
-// 覆写 Element Plus 滑块组件层级，必须使用 !important 确保优先级
-.el-slider__button-wrapper {
-    z-index: 100 !important;
-}
-
-// ==================== node_modules 组件样式覆盖 ====================
-// 覆盖 @jx3box/jx3box-facedat 中的 Facedat.vue / Bodydat.vue
-// 组件class名无法修改，只能通过外部覆盖调整
-// 注意：.c-facedat-preivew 拼写错误来自源组件，不可修改
-
-.c-facedat-preivew {
-    margin-top: 16px;
-    padding: 16px 12px;
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-    .el-tabs__content {
-        z-index: 9;
-    }
-}
-
-.c-facedat-group {
-
-    .u-pvx-list-value,
-    .u-fb-list-value {
-        color: @v4primary;
-    }
-
-    .u-dname,
-    .u-title {
-        .flex;
-        align-items: center;
-    }
-}
-
 // ==================== 响应式适配 ====================
 
 /* iPad 端 - 列表页 */
@@ -986,20 +951,6 @@
 
         .m-pvx-type__buy-btn {
             margin: 0;
-        }
-    }
-
-    .m-pvx-single__data {
-
-        .c-bodydat-tab,
-        .c-facedat-tab {
-            overflow: auto;
-
-            .el-radio-group {
-                .flex;
-                gap: 10px 0;
-                flex-wrap: wrap;
-            }
         }
     }
 
