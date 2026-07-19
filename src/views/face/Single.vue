@@ -24,17 +24,8 @@
         <div class="m-pvx-type__content">
             <SingleCarousel :imageList="previewSrcList" type="face" />
             <SinglePaySection :post="post" type="face" :hasBuy="has_buy" :fileList="downFileList"
-                :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile">
-                <template #extra-buttons>
-                    <div class="m-pvx-type__buy-btn m-pvx-type__buy-btn--copy" v-if="post.code_mode && !canBuy"
-                        @click="copy(post.code)">
-                        <div class="u-pvx-buy">
-                        <img class="u-fb-buy-icon" :src="require('@/assets/img/face/bxs_copy.svg')" alt="" />{{ $t("pages.faceBody.detail.copyFaceCode") }}
-                    </div>
-                    </div>
-                    <div class="u-pvx-type-code u-fb-buy-code" v-if="post.code_mode">{{ post.code }}</div>
-                </template>
-            </SinglePaySection>
+                :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile"
+                @copy-code="copy" />
         </div>
 
         <section class="m-pvx-single__data m-pvx-single__panel" v-if="!post.code_mode">

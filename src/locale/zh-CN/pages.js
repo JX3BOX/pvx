@@ -70,7 +70,7 @@ export default {
             free: "免费", recreatable: "可新建", images: "图片筛选", withImages: "有图",
         },
         search: {
-            content: "搜索内容", close: "关闭", reset: "重置", select: "请选择",
+            content: "搜索内容", close: "确定", reset: "重置", select: "请选择",
             inputField: "请输入{name}", selectField: "请选择{name}", searchPlaceholder: "输入{name}搜索",
         },
         card: { editorChoice: "编辑推荐", paid: "付费", recommended: "推荐", anonymous: "匿名", realistic: "写实", artistic: "写意", recreatable: "可新建" },

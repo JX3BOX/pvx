@@ -84,7 +84,7 @@ export default {
         roles: { all: "Tất cả", male: "Nam trưởng thành", female: "Nữ trưởng thành", boy: "Thiếu niên", girl: "Thiếu nữ" },
         actions: { parse: "Phân tích dữ liệu", publish: "Đăng tác phẩm", viewAll: "Xem tất cả", loadMore: "Tải thêm" },
         filters: { roleCategory: "Loại nhân vật", all: "Tất cả", conditions: "Bộ lọc", featured: "Nổi bật", free: "Miễn phí", recreatable: "Có thể tạo mới", images: "Hình ảnh", withImages: "Có hình" },
-        search: { content: "nội dung", close: "Đóng", reset: "Đặt lại", select: "Vui lòng chọn", inputField: "Nhập {name}", selectField: "Chọn {name}", searchPlaceholder: "Tìm kiếm {name}" },
+        search: { content: "nội dung", close: "Xác nhận", reset: "Đặt lại", select: "Vui lòng chọn", inputField: "Nhập {name}", selectField: "Chọn {name}", searchPlaceholder: "Tìm kiếm {name}" },
         card: { editorChoice: "Biên tập chọn", paid: "Trả phí", recommended: "Đề cử", anonymous: "Ẩn danh", realistic: "Thực", artistic: "Nghệ thuật", recreatable: "Tạo mới" },
         parse: { localOnly: "Chỉ phân tích cục bộ", complete: "Phân tích hoàn tất", compatibility: "Tương thích tệp", privacy: "Bảo mật", privacyDescription: "Tệp chỉ được đọc trong trình duyệt này và không được tải lên máy chủ", result: "Kết quả phân tích" },
         detail: {

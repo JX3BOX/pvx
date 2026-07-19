@@ -339,6 +339,10 @@
 
 .m-pvx-single__data {
     margin-top: 24px;
+
+    .c-facedat-group .el-tabs__nav-scroll {
+        padding-top: 1px;
+    }
 }
 
 .m-pvx-single__data-title {
@@ -620,7 +624,10 @@
     .u-fb-file-action {
         .flex;
         .flex(o);
-        .size(44px, 24px);
+        min-width: 44px;
+        height: 24px;
+        padding: 0 8px;
+        box-sizing: border-box;
         .fz(12px);
         .r(6px);
         .pointer;

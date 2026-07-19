@@ -31,7 +31,12 @@
                     <el-rate v-model="scope.row.hardStar" disabled text-color="#ff9900"></el-rate>
                 </template>
             </el-table-column>
-            <el-table-column prop="author" :label="$t('pages.exam.ui.question.columns.author')" width="180">
+            <el-table-column
+                v-if="hasAuthor"
+                prop="author"
+                :label="$t('pages.exam.ui.question.columns.author')"
+                width="180"
+            >
                 <template v-slot="scope">
                     {{ scope.row.createUser }}
                 </template>
@@ -95,6 +100,9 @@ export default {
                 }
                 return { ...item, tags: Array.isArray(parsedTags) ? parsedTags.slice(0, 3) : [] };
             });
+        },
+        hasAuthor() {
+            return this.list?.some((item) => String(item.createUser || "").trim()) || false;
         },
     },
     watch: {},

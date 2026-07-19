@@ -87,7 +87,7 @@ export default {
         roles: { all: "All", male: "Male", female: "Female", boy: "Boy", girl: "Girl" },
         actions: { parse: "Data Parser", publish: "Publish", viewAll: "View All", loadMore: "Load More" },
         filters: { roleCategory: "Character Type", all: "All", conditions: "Filters", featured: "Featured", free: "Free", recreatable: "Recreatable", images: "Images", withImages: "With Images" },
-        search: { content: "content", close: "Close", reset: "Reset", select: "Please select", inputField: "Enter {name}", selectField: "Select {name}", searchPlaceholder: "Search {name}" },
+        search: { content: "content", close: "Confirm", reset: "Reset", select: "Please select", inputField: "Enter {name}", selectField: "Select {name}", searchPlaceholder: "Search {name}" },
         card: { editorChoice: "Editor's Pick", paid: "Paid", recommended: "Pick", anonymous: "Anonymous", realistic: "Real", artistic: "Stylized", recreatable: "Remake" },
         parse: { localOnly: "Parsed locally only", complete: "Parsing complete", compatibility: "Compatibility", privacy: "Privacy", privacyDescription: "Files are read only in this browser and are never uploaded", result: "Parsed Result" },
         detail: {

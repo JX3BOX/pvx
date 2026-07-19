@@ -211,8 +211,7 @@ export default {
                             item.label = item.name;
                             return item;
                         }) || [];
-                    if (this.craftList.length) this.index = 0;
-                    this.active = this.craftList[0].value;
+                    this.applyRouteTab(this.$route.query.tab);
                 })
                 .finally(() => {
                     this.loading = false;
@@ -263,9 +262,22 @@ export default {
         changeCraft(i) {
             this.index = this.craftList.findIndex((item) => item.value == i);
         },
+        applyRouteTab(tab) {
+            if (!this.craftList.length) return;
+
+            const active = this.craftList.some((item) => item.value === tab) ? tab : this.craftList[0].value;
+            this.active = active;
+            this.changeCraft(active);
+        },
         selectCraft(value) {
-            this.active = value;
-            this.changeCraft(value);
+            if (!this.craftList.some((item) => item.value === value) || this.$route.query.tab === value) return;
+
+            this.$router.replace({
+                query: {
+                    ...this.$route.query,
+                    tab: value,
+                },
+            });
         },
         // 选择新添配方
         onAddCartItem(recipe) {
@@ -294,6 +306,9 @@ export default {
     },
 
     watch: {
+        "$route.query.tab"(tab) {
+            this.applyRouteTab(tab);
+        },
         index(i) {
             const { name, key } = this.craftList[i];
             this.craftName = name;

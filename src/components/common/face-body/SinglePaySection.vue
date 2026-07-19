@@ -37,7 +37,15 @@
                 </div>
             </div>
 
-            <!-- 已购买或免费 -->
+            <!-- 有捏脸码时优先复制捏脸码 -->
+            <div class="m-pvx-type__buy-btn m-fb-buy-btn" v-else-if="hasFaceCode" @click="handleCopyCode">
+                <div class="u-pvx-buy" :title="$t('pages.faceBody.detail.copyFaceCode')">
+                    <img class="u-fb-buy-icon" :src="iconCopy" alt="" />
+                    {{ post.code }}
+                </div>
+            </div>
+
+            <!-- 已购买或免费的文件数据 -->
             <div class="m-pvx-type__buy-btn m-fb-buy-btn" v-else @click="handleDownload">
                 <div class="u-pvx-buy">
                     <img class="u-fb-buy-icon" :src="iconDownload" alt="" />
@@ -98,6 +106,7 @@
 <script>
 import iconShopcart from "@/assets/img/common/face-body/shopcart.svg";
 import iconDownload from "@/assets/img/common/face-body/download.svg";
+import iconCopy from "@/assets/img/face/bxs_copy.svg";
 import iconInfo from "@/assets/img/common/face-body/info.svg";
 import iconCup from "@/assets/img/common/face-body/cup.svg";
 
@@ -145,6 +154,7 @@ export default {
             activeTab: "desc", // 当前激活的标签页
             iconShopcart,
             iconDownload,
+            iconCopy,
             iconInfo,
             iconCup,
         };
@@ -162,6 +172,13 @@ export default {
         canDownload() {
             return (this.post.price_type != null && Number(this.post.price_type) === 0) || this.hasBuy;
         },
+        // 有捏脸码时，主操作优先复制捏脸码
+        hasFaceCode() {
+            return this.type === "face" && Boolean(this.post.code_mode) && Boolean(this.post.code);
+        },
+        hasFiles() {
+            return Boolean(this.fileList?.length);
+        },
         // 价格文案
         priceText() {
             if (Number(this.post.price_type) === 1) return this.$t("pages.faceBody.detail.priceBoxcoin", { price: this.post.price_count });
@@ -171,17 +188,18 @@ export default {
 
     },
     watch: {
-        // 无说明且有文件时默认显示数据列表
+        // 有文件时始终默认显示文件，没有文件时显示描述
         fileList: {
-            handler(val) {
-                if (!this.post.remark && val && val.length) {
-                    this.activeTab = "data";
-                }
+            handler() {
+                this.setDefaultTab();
             },
             immediate: true,
         },
     },
     methods: {
+        setDefaultTab() {
+            this.activeTab = this.hasFiles ? "data" : "desc";
+        },
         // 购买事件
         handlePay() {
             this.$emit("pay");
@@ -189,6 +207,10 @@ export default {
         // 下载全部事件
         handleDownload() {
             this.$emit("download");
+        },
+        // 复制捏脸码
+        handleCopyCode() {
+            this.$emit("copy-code", this.post.code);
         },
         // 下载单个文件
         handleDownloadFile(item) {

@@ -35,8 +35,10 @@
                     </button>
                     <a
                         class="u-homeland-nav-item"
-                        href="/community?category=心得&page=1"
+                        href="/community?title=家园"
                         :title="$t('pages.homeland.ui.tabs.guide')"
+                        target="_blank"
+                        rel="noopener noreferrer"
                     >
                         <span class="u-icon"><Reading /></span>
                         <b>{{ $t("pages.homeland.ui.tabs.guide") }}</b>
@@ -107,6 +109,8 @@ const EXTERNAL_LINKS = {
     collection_blueprint: "https://jx3.seasunwbl.com/buyer?t=blueprint",
 };
 
+const HOMELAND_TABS = ["info", "map"];
+
 export default {
     name: "Index",
     components: {
@@ -124,12 +128,11 @@ export default {
         TopRight,
         Wallet,
     },
-    data() {
-        return {
-            active: "info",
-        };
-    },
     computed: {
+        active() {
+            const tab = this.$route.query.tab;
+            return HOMELAND_TABS.includes(tab) ? tab : "info";
+        },
         blueprintEntries() {
             return [
                 {
@@ -155,7 +158,14 @@ export default {
     },
     methods: {
         selectSection(section) {
-            this.active = section;
+            if (!HOMELAND_TABS.includes(section) || this.$route.query.tab === section) return;
+
+            this.$router.replace({
+                query: {
+                    ...this.$route.query,
+                    tab: section,
+                },
+            });
         },
     },
 };

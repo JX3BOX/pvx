@@ -77,7 +77,7 @@
                             </div>
                             <el-row v-if="item.options.length" class="filter-actions">
                                 <el-col :offset="20" :span="4">
-                                    <el-button v-if="variant === 'modern'" class="u-filter-close" size="small" plain
+                                    <el-button v-if="variant === 'modern'" class="u-filter-close" size="small" type="primary"
                                         @click="closeFilter">{{ searchText("close") }}</el-button>
                                     <el-button size="small" type="info" plain @click="reset">{{ searchText("reset") }}</el-button>
                                 </el-col>

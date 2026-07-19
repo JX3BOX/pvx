@@ -93,6 +93,18 @@ import { __clients, __Root } from "@/utils/config";
 import { cloneDeep } from "lodash";
 import { deleteNull } from "@/utils/index";
 import { EditPen, Reading, Search } from "@element-plus/icons-vue";
+
+const EXAM_TAB_TYPES = {
+    keju: 1,
+    question: 2,
+    paper: 3,
+};
+const EXAM_TYPE_TABS = Object.fromEntries(Object.entries(EXAM_TAB_TYPES).map(([tab, type]) => [type, tab]));
+
+function getRouteExamType(route) {
+    return EXAM_TAB_TYPES[route.query.tab] || ([1, 2, 3].includes(~~route.params.type) ? ~~route.params.type : 1);
+}
+
 export default {
     name: "ExamList",
     components: {
@@ -166,9 +178,10 @@ export default {
             initValue: {
                 tag: "",
                 client: "",
-                type: [1, 2, 3].includes(~~this.$route.params.type) ? ~~this.$route.params.type : 1,
+                type: getRouteExamType(this.$route),
             },
             data: [],
+            syncingRouteTab: false,
         };
     },
     computed: {
@@ -208,6 +221,13 @@ export default {
         },
     },
     watch: {
+        "$route.query.tab"() {
+            this.syncingRouteTab = true;
+            this.initValue.type = getRouteExamType(this.$route);
+            this.$nextTick(() => {
+                this.syncingRouteTab = false;
+            });
+        },
         "search.type"(type) {
             if (type === 1) {
                 this.searchProps.splice(2, 1);
@@ -284,10 +304,21 @@ export default {
         },
         searchEvent(data) {
             const search = cloneDeep(this.search);
+            const previousType = search.type;
             this.search = {
                 ...search,
                 ...data,
             };
+
+            const tab = EXAM_TYPE_TABS[data.type];
+            if (!this.syncingRouteTab && previousType && previousType !== data.type && tab && this.$route.query.tab !== tab) {
+                this.$router.replace({
+                    query: {
+                        ...this.$route.query,
+                        tab,
+                    },
+                });
+            }
         },
         loadMethod(fun) {
             const params = deleteNull(cloneDeep(this.params));

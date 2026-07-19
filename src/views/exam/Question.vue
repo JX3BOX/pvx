@@ -158,7 +158,7 @@ export default {
             });
         },
         goBack() {
-            this.$router.push({ name: "index", params: { type: 2 } });
+            this.$router.push({ name: "index", query: { tab: "question" } });
         },
     },
     created() {

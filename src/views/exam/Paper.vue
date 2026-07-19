@@ -242,7 +242,7 @@ export default {
             }
         },
         goBack: function () {
-            this.$router.push({ name: "index", params: { type: 3 } });
+            this.$router.push({ name: "index", query: { tab: "paper" } });
         },
     },
     created: function () {

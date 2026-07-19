@@ -223,19 +223,20 @@ export default {
                 }
 
                 const seriesData = list
-                    .filter(function (item) { return item != null && item.average != null; })
+                    .filter((item) => item != null && Number.isFinite(Number(item.average)))
                     .map((item) => {
-                        const value = item.average.toFixed(2);
-                    if (value >= maxV) maxV = value;
-                    if (value <= minV) minV = value;
-                    const date = item.date ? item.date.substring(5) : '';
-                    dates.push(date);
-                    return {
-                        value: value,
-                        name: date,
-                        color: this.colorMap[key],
-                    };
-                });
+                        const value = Number(item.average);
+                        const displayValue = Number(value.toFixed(2));
+                        if (value > maxV) maxV = value;
+                        if (value < minV) minV = value;
+                        const date = item.date ? item.date.substring(5) : "";
+                        dates.push(date);
+                        return {
+                            value: displayValue,
+                            name: date,
+                            color: this.colorMap[key],
+                        };
+                    });
 
                 series.push({
                     name: key,

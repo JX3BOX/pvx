@@ -84,7 +84,7 @@ export default {
         roles: { all: "全部", male: "成男", female: "成女", boy: "正太", girl: "蘿莉" },
         actions: { parse: "資料解析", publish: "發佈作品", viewAll: "查看全部", loadMore: "載入更多" },
         filters: { roleCategory: "角色分類", all: "全部", conditions: "篩選條件", featured: "精選", free: "免費", recreatable: "可新建", images: "圖片篩選", withImages: "有圖" },
-        search: { content: "搜尋內容", close: "關閉", reset: "重設", select: "請選擇", inputField: "請輸入{name}", selectField: "請選擇{name}", searchPlaceholder: "輸入{name}搜尋" },
+        search: { content: "搜尋內容", close: "確定", reset: "重設", select: "請選擇", inputField: "請輸入{name}", selectField: "請選擇{name}", searchPlaceholder: "輸入{name}搜尋" },
         card: { editorChoice: "編輯推薦", paid: "付費", recommended: "推薦", anonymous: "匿名", realistic: "寫實", artistic: "寫意", recreatable: "可新建" },
         parse: { localOnly: "僅在本機解析", complete: "解析完成", compatibility: "檔案相容", privacy: "隱私保護", privacyDescription: "檔案只在目前瀏覽器中讀取，不會上傳到伺服器", result: "解析結果" },
         detail: {

@@ -154,10 +154,25 @@
             border: 0;
             border-radius: 0 @pvx-radius-control 0 @pvx-radius-control;
             background: @pvx-surface;
+            color: @pvx-text-muted;
             box-shadow: @pvx-shadow-xs;
+            transition:
+                color @pvx-duration-fast @pvx-ease-standard,
+                background-color @pvx-duration-fast @pvx-ease-standard;
+
+            .hvr-icon {
+                width: 16px;
+                height: 16px;
+            }
+
+            &:hover {
+                background: @pvx-primary-soft;
+                color: @pvx-primary;
+            }
 
             &.is-saved {
                 background: @pvx-primary-soft;
+                color: @pvx-primary;
             }
         }
 
