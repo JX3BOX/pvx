@@ -10,33 +10,33 @@
         v-bind="$attrs"
     >
         <div class="m-manufacture-cart-body">
-            <div class="m-title">成本计算器</div>
+            <div class="m-title">{{ $t("pages.pvg.manufacture.ui.cart.title") }}</div>
             <div class="m-stat">
                 <div class="m-stat-item">
-                    <div class="u-title">精力</div>
+                    <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.energy") }}</div>
                     <div class="u-value">{{ totalVigorCost }}</div>
                 </div>
                 <div class="m-stat-item">
-                    <div class="u-title">售价(总)</div>
+                    <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalSale") }}</div>
                     <div class="u-value">
                         <GamePrice :price="totalPrice" :align="true"></GamePrice>
                     </div>
                 </div>
                 <div class="m-stat-item">
-                    <div class="u-title">税收</div>
+                    <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.tax") }}</div>
                     <GamePrice :price="totalTax" :align="true"></GamePrice>
                 </div>
                 <div class="m-stat-item">
-                    <div class="u-title">成本(总)</div>
+                    <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalCost") }}</div>
                     <GamePrice :price="totalCostPrice" :align="true"></GamePrice>
                 </div>
                 <div class="m-stat-item">
-                    <div class="u-title">预计收益(总)</div>
+                    <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalProfit") }}</div>
                     <GamePrice :price="totalProfit" :align="true"></GamePrice>
                 </div>
             </div>
-            <div class="m-save-button" @click="onSave">保存至清单</div>
-            <div class="m-title">配方列表</div>
+            <div class="m-save-button" @click="onSave">{{ $t("pages.pvg.manufacture.ui.actions.savePlan") }}</div>
+            <div class="m-title">{{ $t("pages.pvg.manufacture.ui.cart.recipes") }}</div>
             <div class="m-cart-list">
                 <div class="m-cart-item" v-for="(item, index) in cartList" :key="index">
                     <div class="u-header">
@@ -75,32 +75,32 @@
                     </div>
                     <div class="m-stat m-stat__cart-item">
                         <div class="m-stat-item">
-                            <div class="u-title">精力</div>
+                            <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.energy") }}</div>
                             <div class="u-value">
                                 {{ item.cost_vigor }}
                                 <span v-if="item.count > 1">({{ calcItemVigorCost(item) }})</span>
                             </div>
                         </div>
                         <div class="m-stat-item">
-                            <div class="u-title">售价(总)</div>
+                            <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalSale") }}</div>
                             <div class="u-value">
                                 <GamePrice :price="item.price_unit * item.yield_count" :align="true"></GamePrice>
                             </div>
                         </div>
                         <div class="m-stat-item">
-                            <div class="u-title">税收</div>
+                            <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.tax") }}</div>
                             <div class="u-value">
                                 <GamePrice :price="calcItemTax(item)" :align="true"></GamePrice>
                             </div>
                         </div>
                         <div class="m-stat-item">
-                            <div class="u-title">成本(总)</div>
+                            <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalCost") }}</div>
                             <div class="u-value">
                                 <GamePrice :price="calcItemCostPrice(item)" :align="true"></GamePrice>
                             </div>
                         </div>
                         <div class="m-stat-item">
-                            <div class="u-title">预计收益(总)</div>
+                            <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalProfit") }}</div>
                             <div class="u-value">
                                 <GamePrice :price="calcItemProfit(item)" :align="true"></GamePrice>
                             </div>
@@ -108,7 +108,7 @@
                     </div>
                 </div>
             </div>
-            <div class="m-save-button" @click="onSave">保存至清单</div>
+            <div class="m-save-button" @click="onSave">{{ $t("pages.pvg.manufacture.ui.actions.savePlan") }}</div>
         </div>
         <AskDrawerVue ref="ask-drawer"></AskDrawerVue>
         <RecipeChangeCountVue ref="change-count"></RecipeChangeCountVue>
@@ -194,6 +194,10 @@ export default {
     },
     methods: {
         iconLink,
+        handleClose() {
+            this.drawerVisible = false;
+            this.$emit("close");
+        },
         calcItemVigorCost(item) {
             return item.cost_vigor * item.count;
         },
@@ -249,6 +253,7 @@ export default {
                 .then((res) => {
                     if (this.editing) {
                         const payload = {
+                            title: res,
                             relation: this.cartList,
                         };
                         return updatePlan(this.plan.id, payload);
@@ -265,7 +270,7 @@ export default {
                 .then((res) => {
                     if (!res) return;
                     this.$message({
-                        message: "保存成功",
+                        message: this.$t("pages.pvg.manufacture.ui.messages.saveSuccess"),
                         type: "success",
                     });
                     this.$store.commit("cart_flush");

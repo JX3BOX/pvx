@@ -1,41 +1,54 @@
 <template>
-    <div class="c-paper-title" v-if="item">
+    <section class="c-paper-title" v-if="item">
         <div class="m-title">
+            <div class="u-heading">
+                <span class="u-eyebrow">{{ $t("pages.exam.ui.paper.detail.paperLabel") }}</span>
+                <h1 class="u-title" v-if="isPaper">{{ title || $t("pages.exam.ui.paper.detail.untitled") }}</h1>
+            </div>
+
             <div class="u-star">
-                <span class="u-label">难度：</span>
-                <el-rate :model-value="item.hardStar" disabled text-color="#ff9900"></el-rate>
+                <span class="u-label">{{ $t("pages.exam.ui.paper.detail.difficulty") }}</span>
+                <el-rate :model-value="item.hardStar" disabled text-color="#f59e0b"></el-rate>
             </div>
-            <div class="u-block u-title" v-if="isPaper">{{ title }}</div>
-            <div class="u-block u-line"></div>
-            <div class="u-block u-tags">
-                <span class="u-tag" :class="`u-${item.client || 'std'}`">{{ clients[item.client || "std"] }}</span>
-                <template v-if="item.tags && item.tags.length">
-                    <span class="u-tag" v-for="tag in item.tags" :key="tag"> {{ tag }}</span>
-                </template>
+
+            <div class="u-tags">
+                <span class="u-tag u-client" :class="`u-${item.client || 'std'}`">
+                    {{ clients[item.client || "std"] }}
+                </span>
+                <span class="u-tag" v-for="tag in normalizedTags" :key="tag">{{ tag }}</span>
             </div>
+
             <div class="u-info">
-                <img class="u-icon" svg-inline src="../../assets/img/common/logo.svg" fill="#fff" />
-                <span class="u-desc" v-if="item.desc">{{ desc || "无" }}</span>
+                <img class="u-icon" svg-inline src="../../assets/img/common/logo.svg" alt="" />
+                <span class="u-desc">{{ desc }}</span>
             </div>
-            <div class="u-block u-author">
-                <span>出卷人：</span><a :href="authorLink(item.createUserId)" target="_blank">{{ item?.userInfo?.display_name }}</a>
+
+            <div class="u-author">
+                <span>{{ $t("pages.exam.ui.paper.detail.author") }}</span>
+                <a :href="authorLink(item.createUserId)" target="_blank" rel="noopener noreferrer">
+                    {{ item?.userInfo?.display_name || $t("pages.exam.ui.common.anonymous") }}
+                </a>
             </div>
         </div>
 
-        <div class="m-score" :class="score && score !== -1 ? 'is-score' : ''">
+        <div class="m-score" :class="{ 'is-score': hasScore }">
             <div class="u-left">
-                <div class="u-start-title">考试{{ score && score !== -1 ? "结束" : "开始" }}</div>
-                <div class="u-start-desc" v-if="item.questionList">
-                    本次考试共{{ item.questionDetailList.length }}题，每题{{ number }}分，满分100分。
-                </div>
-                <div class="u-start-tip">请各位考生严格遵守考生条约，如有违规行为则本次考试成绩作废</div>
+                <span class="u-status">{{
+                    hasScore
+                        ? $t("pages.exam.ui.paper.detail.examEnd")
+                        : $t("pages.exam.ui.paper.detail.examStart")
+                }}</span>
+                <h2 class="u-start-title">{{
+                    $t("pages.exam.ui.paper.detail.summary", { count: questionCount, score: number })
+                }}</h2>
+                <p class="u-start-tip">{{ $t("pages.exam.ui.paper.detail.rule") }}</p>
             </div>
-            <div v-if="score && score !== -1" class="u-score">
-                <span class="u-start-title">得分</span>
+            <div v-if="hasScore" class="u-score">
+                <span class="u-score-label">{{ $t("pages.exam.ui.paper.detail.score") }}</span>
                 <span class="u-value">{{ score }}</span>
             </div>
         </div>
-    </div>
+    </section>
 </template>
 <script>
 import { authorLink } from "@jx3box/jx3box-common/js/utils";
@@ -70,7 +83,16 @@ export default {
             return this.item.title;
         },
         desc: function () {
-            return this.item.desc || "作者很懒，没有备注";
+            return this.item.desc || this.$t("pages.exam.ui.paper.detail.noDescription");
+        },
+        normalizedTags() {
+            return Array.isArray(this.item?.tags) ? this.item.tags : [];
+        },
+        questionCount() {
+            return this.item?.questionDetailList?.length || this.item?.questionIdList?.length || 0;
+        },
+        hasScore() {
+            return this.score !== "" && this.score !== null && this.score !== undefined && Number(this.score) >= 0;
         },
 
         sharingTitle: function () {
@@ -78,7 +100,7 @@ export default {
             return "问题";
         },
         number: function () {
-            return Math.floor(100 / this.item.questionIdList.length);
+            return this.questionCount ? Math.floor(100 / this.questionCount) : 0;
         },
         canManage: function () {
             return User.isEditor() || User.getInfo().uid == this.item.createUserId;

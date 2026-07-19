@@ -25,10 +25,13 @@
                         <div class="u-text">{{ item.desc }}</div>
                     </div>
                     <div class="u-info">
-                        <div class="u-user">出卷人： {{ item?.userInfo?.display_name }}</div>
+                        <div class="u-user">
+                            {{ $t("pages.exam.ui.paper.author") }}：
+                            {{ item?.userInfo?.display_name || $t("pages.exam.ui.common.anonymous") }}
+                        </div>
                         <div class="u-star">
-                            难度：
-                            <el-rate v-model="item.hardStar" disabled text-color="#ff9900"></el-rate>
+                            {{ $t("pages.exam.ui.paper.difficulty") }}：
+                            <el-rate :model-value="item.hardStar" disabled text-color="#ff9900"></el-rate>
                         </div>
                     </div>
                 </router-link>
@@ -50,14 +53,14 @@ export default {
             return location.href.includes("origin") ? "origin" : "std";
         },
         list: function () {
-            return this.data?.map((item, i) => {
+            return this.data?.map((item) => {
+                let parsedTags = [];
                 try {
-                    item.tags = JSON.parse(item.tags).slice(0, 3);
+                    parsedTags = Array.isArray(item.tags) ? item.tags : JSON.parse(item.tags || "[]");
                 } catch (e) {
-                    console.log("解析试卷列表tag异常", e);
-                    item.tags = [];
+                    parsedTags = [];
                 }
-                return item;
+                return { ...item, tags: Array.isArray(parsedTags) ? parsedTags.slice(0, 3) : [] };
             });
         },
     },

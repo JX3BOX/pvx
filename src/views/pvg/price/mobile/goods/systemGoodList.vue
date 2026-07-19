@@ -18,7 +18,7 @@
                     <div class="m-systemgoods-list-item-label">{{ item.label || "" }}</div>
                     <div class="m-systemgoods-list-item-money">
                         <GamePrice v-if="priceMap[item.item_id]" :price="priceMap[item.item_id]" />
-                        <div v-else class="is-null">暂无价目</div>
+                        <div v-else class="is-null">{{ $t("pages.pvg.price.ui.noPrice") }}</div>
                     </div>
                 </div>
             </el-collapse-item>

@@ -1,19 +1,27 @@
 <template>
     <div class="p-price-goods" v-loading="loading">
-        <div class="m-price-goods-header">
-            <div class="u-title">物价总览</div>
-            <div class="u-servers">
-                <el-select v-model="server" placeholder="请选择" :default-first-option="true" @change="updatePrice">
-                    <template #prefix><div>区服价格</div></template>
-                    <el-option v-for="server in serverList" :key="server" :label="server" :value="server"> </el-option>
-                </el-select>
-            </div>
-        </div>
-        <div class="m-price-goods-body">
-            <div class="m-system-goods">
-                <systemGoodList :data="systemGoodsDataFilter" :priceMap="priceMap"></systemGoodList>
-            </div>
-        </div>
+        <PvxSurface class="m-pvx-price__section" padding="medium">
+            <PvxSectionHeader
+                class="m-pvx-price__section-header"
+                :title="$t('pages.pvg.price.ui.sections.goods.title')"
+                :description="$t('pages.pvg.price.ui.sections.goods.description')"
+            >
+                <template #icon><Goods /></template>
+            </PvxSectionHeader>
+            <systemGoodList
+                v-if="systemGoodsDataFilter.length"
+                :data="systemGoodsDataFilter"
+                :priceMap="priceMap"
+                :server="server"
+            />
+            <PvxEmptyState
+                v-else-if="!loading"
+                :title="$t('pages.pvg.price.ui.empty.goodsTitle')"
+                :description="$t('pages.pvg.price.ui.empty.goodsDescription')"
+            >
+                <template #icon><Search /></template>
+            </PvxEmptyState>
+        </PvxSurface>
         <myGoodsDialog
             v-if="showMyGoods"
             @close="showMyGoods = false"
@@ -23,13 +31,9 @@
     </div>
 </template>
 <script>
-import server_cn from "@jx3box/jx3box-data/data/server/server_cn.json";
-import server_origin from "@jx3box/jx3box-data/data/server/server_origin.json";
-
 import {
     getSystemGoodsData,
     getServerPriceData,
-    getUserInfo,
     getMyFollowList,
     setMyFollowList,
     getMyGoodsDetail,
@@ -37,13 +41,28 @@ import {
 import systemGoodList from "./systemGoodList.vue";
 import myGoodsDialog from "./myGoodsDialog.vue";
 import User from "@jx3box/jx3box-common/js/user";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { Goods, Search } from "@element-plus/icons-vue";
 
 export default {
-    props: { keywords: {} },
-    components: { systemGoodList, myGoodsDialog },
+    props: {
+        keywords: { type: String, default: "" },
+        server: { type: String, default: "" },
+    },
+    name: "PriceGoods",
+    components: {
+        systemGoodList,
+        myGoodsDialog,
+        PvxEmptyState,
+        PvxSectionHeader,
+        PvxSurface,
+        Goods,
+        Search,
+    },
     data() {
         return {
-            server: "",
             systemGoodsData: [], // 系统关注物品
             priceMap: {}, // 物品id和价格的映射
             myFollowData: [], // 我的关注清单id
@@ -55,9 +74,6 @@ export default {
     computed: {
         client() {
             return this.$store.state.client;
-        },
-        serverList() {
-            return this.client == "std" ? server_cn : server_origin;
         },
         myFollowPlanFilter() {
             let data = JSON.parse(JSON.stringify(this.myFollowPlan));
@@ -101,6 +117,7 @@ export default {
             });
         },
         getServerPriceData() {
+            if (!this.server || !this.systemGoodsData.length) return;
             const flatList = [];
             this.systemGoodsData.forEach((group) => {
                 group.items.forEach((item) => {
@@ -182,7 +199,7 @@ export default {
             // 此处接口不支持不传，传空后前端过滤id为0的数据
             setMyFollowList({ val }).then((res) => {
                 this.showMyGoods = false;
-                this.$message.success("设置成功");
+                this.$message.success(this.$t("pages.pvg.price.ui.messages.followSaved"));
                 this.getMyFollowList();
             });
         },
@@ -192,114 +209,15 @@ export default {
         },
     },
     mounted() {
-        if (User.isLogin() && this.client === "std") {
-            getUserInfo().then((res) => {
-                this.server = res.data?.data?.jx3_server || "梦江南";
-                this.getSystemGoodsData();
-                this.getMyFollowList();
-            });
-        } else {
-            this.server = this.client == "std" ? "梦江南" : "缘起稻香";
-            this.getSystemGoodsData();
-            if (User.isLogin()) {
-                this.getMyFollowList();
-            }
+        this.getSystemGoodsData();
+        if (User.isLogin()) {
+            this.getMyFollowList();
         }
+    },
+    watch: {
+        server() {
+            this.updatePrice();
+        },
     },
 };
 </script>
-<style lang="less">
-.p-price-goods {
-    .pr;
-    .pt(20px);
-    .m-price-goods-header {
-        display: flex;
-        align-items: center;
-
-        gap: 20px;
-        .u-title {
-            margin: 20px 0 20px 0;
-            color: #24292e;
-            font-size: 32px;
-            font-weight: bold;
-            line-height: 42px;
-        }
-        .u-servers {
-            position: relative;
-            width: 200px;
-            .el-select__wrapper {
-                .r(20px);
-                box-shadow: none;
-                .lh(40px);
-                padding-top: 0;
-                padding-bottom: 0;
-            }
-            .el-select__selected-item {
-                .color(#24292e);
-                .fz(16px);
-                .bold;
-                .x;
-            }
-            .el-select__prefix {
-                display: flex;
-                align-items: center;
-                padding-left: 15px;
-                color: #949494;
-                font-size: 16px;
-                font-weight: bold;
-                line-height: 40px;
-            }
-        }
-    }
-    .m-price-goods-body {
-        .u-title {
-            .bold;
-            .fz(28px,1.2);
-            margin: 20px 0 20px 0;
-            color: #24292e;
-        }
-        .m-my-follow-goods {
-            .u-btn {
-                .pointer;
-            }
-            .m-empty-follow {
-                .flex;
-                justify-content: center;
-                align-items: center;
-                width: 384px;
-                height: 100px;
-                padding: 0 10px;
-                color: #999;
-                border: 1px dashed #999;
-                border-radius: 10px;
-                .m-empty-follow-title {
-                    font-size: 20px;
-                    .m-empty-follow-add {
-                        color: #ff9a00;
-                        font-weight: bold;
-                        cursor: pointer;
-                    }
-                }
-            }
-        }
-    }
-}
-
-@media screen and (max-width: @ipad) {
-    .p-price-goods:not(.overview) {
-        .u-title {
-            margin: 0;
-            font-size: 24px;
-        }
-    }
-    .m-price-goods-header {
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-    }
-}
-@media screen and (max-width: @phone) {
-    .p-price-goods {
-        .pt(64px);
-    }
-}
-</style>

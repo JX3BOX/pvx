@@ -119,5 +119,19 @@
 }
 
 .u-icon-popper {
+    width: min(380px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
     padding: 0;
+
+    .c-item {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .c-item-wrapper {
+        width: 100%;
+        max-width: none;
+    }
 }

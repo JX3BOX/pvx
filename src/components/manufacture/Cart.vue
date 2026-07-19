@@ -4,7 +4,9 @@
             <el-tooltip placement="top" v-if="plan.title" :content="plan.title">
                 <span class="u-title" :title="plan.title">{{ plan.title }}</span>
             </el-tooltip>
-            <span v-else class="u-title" :title="plan.title">成本计算器</span>
+            <span v-else class="u-title" :title="plan.title">
+                {{ $t("pages.pvg.manufacture.ui.cart.title") }}
+            </span>
             <el-button
                 v-if="cartList.length"
                 class="u-del"
@@ -183,7 +185,7 @@
                     <div class="u-label">
                         总计
                         <el-tooltip content="查看材料详情">
-                            <el-button type="text" icon="el-icon-toilet-paper" @click="onViewMaterials"> </el-button>
+                            <el-button link icon="el-icon-toilet-paper" @click="onViewMaterials"> </el-button>
                         </el-tooltip>
                     </div>
                     <div class="u-value">

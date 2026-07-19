@@ -27,11 +27,11 @@
             @click="isServerSwitchExpanded = false"
         >
             <div class="m-server-content" @click.stop="isServerSwitchExpanded = true">
-                <div class="u-server-label">服务器</div>
+                <div class="u-server-label">{{ $t("pages.pvg.price.ui.server") }}</div>
                 <div class="u-server-name">{{ server }}</div>
             </div>
             <div class="m-server-switch">
-                <div class="u-switch-title">切换服务器</div>
+                <div class="u-switch-title">{{ $t("pages.pvg.price.ui.actions.switchServer") }}</div>
                 <div class="u-server-list">
                     <div class="u-server-item" v-for="item in serverList" :key="item" @click="serverChange(item)">
                         {{ item }}
@@ -53,20 +53,6 @@ export default {
     components: { overview, goods },
     data() {
         return {
-            list: [
-                {
-                    label: "总览",
-                    value: "",
-                },
-                {
-                    label: "金价",
-                    value: "gold",
-                },
-                {
-                    label: "物价",
-                    value: "goods",
-                },
-            ],
             active: "",
 
             server: "",
@@ -74,6 +60,13 @@ export default {
         };
     },
     computed: {
+        list() {
+            return [
+                { label: this.$t("pages.pvg.price.ui.tabs.overview"), value: "" },
+                { label: this.$t("pages.pvg.price.ui.tabs.gold"), value: "gold" },
+                { label: this.$t("pages.pvg.price.ui.tabs.goods"), value: "goods" },
+            ];
+        },
         client() {
             return this.$store.state.client;
         },

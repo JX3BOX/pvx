@@ -1,39 +1,119 @@
 <template>
-    <div class="m-manufacture">
-        <CommonToolbar color="#07ad36" search :active="active" :types="craftList" @update="updateToolbar" />
+    <PvxPageShell class="p-pvx-manufacture">
+        <div class="m-pvx-manufacture__layout" v-loading="loading">
+            <PvxSurface class="m-pvx-manufacture__hero" padding="medium">
+                <PvxSectionHeader
+                    class="m-pvx-manufacture__header"
+                    :title="$t('pages.pvg.manufacture.ui.title')"
+                    :description="$t('pages.pvg.manufacture.ui.description')"
+                    level="h1"
+                >
+                    <template #icon><Tools /></template>
+                    <template #action>
+                        <div class="m-pvx-manufacture__hero-actions">
+                            <el-select
+                                class="u-manufacture-server-select"
+                                v-model="server"
+                                :placeholder="$t('pages.pvg.manufacture.ui.serverPlaceholder')"
+                            >
+                                <el-option v-for="item in serverList" :key="item" :label="item" :value="item" />
+                            </el-select>
+                            <el-button
+                                class="u-manufacture-plans-trigger"
+                                plain
+                                @click="planDrawerVisible = true"
+                            >
+                                <el-icon><Collection /></el-icon>
+                                {{ $t("pages.pvg.manufacture.ui.cart.plans") }}
+                            </el-button>
+                        </div>
+                    </template>
+                </PvxSectionHeader>
+            </PvxSurface>
 
-        <div class="m-manufacture-body">
-            <!-- 配方 -->
-            <div class="m-manufacture-box">
-                <div class="m-manufacture-title">
-                    <span class="u-title">{{ craftName }}</span>
-                    <el-select class="m-server" v-model="server" placeholder="请选择" size="small">
-                        <template #prefix><span class="u-prefix">区服价格</span></template>
-                        <el-option v-for="(item, i) in serverList" :key="i" :label="item" :value="item"> </el-option>
-                    </el-select>
-                </div>
-                <Recipe
-                    :list="showList"
-                    :craft-key="craftKey"
-                    :server="server"
-                    @addCartItem="onAddCartItem"
-                    ref="recipe"
-                />
+            <PvxToolbar class="m-pvx-manufacture__toolbar">
+                <nav class="m-pvx-manufacture__tabs" :aria-label="$t('pages.pvg.manufacture.ui.navigation')">
+                    <button
+                        v-for="item in craftList"
+                        :key="item.value"
+                        type="button"
+                        class="u-craft-tab"
+                        :class="{ 'is-active': active === item.value }"
+                        :aria-pressed="active === item.value"
+                        @click="selectCraft(item.value)"
+                    >
+                        {{ item.label }}
+                    </button>
+                </nav>
+                <el-input
+                    v-model="search"
+                    class="u-manufacture-search"
+                    clearable
+                    :placeholder="$t('pages.pvg.manufacture.ui.searchPlaceholder')"
+                >
+                    <template #prefix><Search /></template>
+                </el-input>
+            </PvxToolbar>
+
+            <div class="m-pvx-manufacture__workspace">
+                <PvxSurface class="m-pvx-manufacture__recipes" padding="medium">
+                    <PvxSectionHeader
+                        class="m-pvx-manufacture__section-header"
+                        :title="craftName || $t('pages.pvg.manufacture.ui.sections.recipes.title')"
+                        :description="$t('pages.pvg.manufacture.ui.sections.recipes.description')"
+                        level="h2"
+                    />
+                    <Recipe
+                        v-show="hasRecipes"
+                        :list="showList"
+                        :craft-key="craftKey"
+                        :server="server"
+                        @addCartItem="onAddCartItem"
+                        ref="recipe"
+                    />
+                    <PvxEmptyState
+                        v-if="!loading && !hasRecipes"
+                        class="m-pvx-manufacture__empty"
+                        :title="$t('pages.pvg.manufacture.ui.empty.title')"
+                        :description="$t('pages.pvg.manufacture.ui.empty.description')"
+                    >
+                        <template #icon><Search /></template>
+                    </PvxEmptyState>
+                </PvxSurface>
+
+                <aside class="m-pvx-manufacture__aside">
+                    <PvxSurface class="m-pvx-manufacture__cart" padding="medium">
+                        <Cart
+                            :data="cartItem"
+                            :server="server"
+                            ref="cart"
+                            :craft-list="list"
+                            @material-make="onMaterialMake"
+                            @update-plan="onPlanUpdate"
+                        />
+                    </PvxSurface>
+
+                </aside>
             </div>
-            <!-- 成本计算器 -->
-            <Cart
-                :data="cartItem"
-                :server="server"
-                ref="cart"
-                :craft-list="list"
-                @material-make="onMaterialMake"
-                @update-plan="onPlanUpdate"
-            />
-
-            <!-- 我的清单 -->
-            <MyList ref="plan-list" @view-plan="onViewPlan" @merge-plan="onMergePlan" />
         </div>
-    </div>
+
+        <el-drawer
+            v-model="planDrawerVisible"
+            class="m-manufacture-plans-drawer"
+            direction="rtl"
+            size="min(520px, calc(100vw - 24px))"
+            :with-header="false"
+            append-to-body
+        >
+            <MyList
+                ref="plan-list"
+                drawer-mode
+                @close="planDrawerVisible = false"
+                @view-plan="onViewPlan"
+                @merge-plan="onMergePlan"
+            />
+        </el-drawer>
+    </PvxPageShell>
 </template>
 
 <script>
@@ -41,15 +121,32 @@ import { getCraftJson, getManufactures } from "@/service/manufacture/manufacture
 import servers_std from "@jx3box/jx3box-data/data/server/server_std.json";
 import servers_origin from "@jx3box/jx3box-data/data/server/server_origin.json";
 import manufactureData from "@/assets/data/manufacture.json";
-import CommonToolbar from "@/components/common/toolbar.vue";
 import Recipe from "@/components/manufacture/Recipe.vue";
 import Cart from "@/components/manufacture/Cart.vue";
 import MyList from "@/components/manufacture/MyList.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import PvxToolbar from "@/components/design/PvxToolbar.vue";
+import { Collection, Search, Tools } from "@element-plus/icons-vue";
 const { craft_types } = manufactureData;
 
 export default {
     name: "Manufacture",
-    components: { Recipe, Cart, MyList, CommonToolbar },
+    components: {
+        Recipe,
+        Cart,
+        MyList,
+        PvxPageShell,
+        PvxEmptyState,
+        PvxSectionHeader,
+        PvxSurface,
+        PvxToolbar,
+        Search,
+        Tools,
+        Collection,
+    },
     provide() {
         return {
             isMiniProgram: this.isMiniProgram,
@@ -68,6 +165,8 @@ export default {
             server: "蝶恋花",
             cartItem: {},
             active: "",
+            loading: false,
+            planDrawerVisible: false,
         };
     },
     computed: {
@@ -87,13 +186,16 @@ export default {
             if (!this.search) return this.list;
             return [
                 {
-                    BelongName: "搜索结果",
+                    BelongName: this.$t("pages.pvg.manufacture.ui.searchResults"),
                     list: this.list.reduce((acc, cur) => {
                         acc.push(...cur.list.filter((item) => item.Name.includes(this.search)));
                         return acc;
                     }, []),
                 },
             ];
+        },
+        hasRecipes() {
+            return this.showList.some((group) => group.list?.length);
         },
     },
     methods: {
@@ -161,15 +263,19 @@ export default {
         changeCraft(i) {
             this.index = this.craftList.findIndex((item) => item.value == i);
         },
+        selectCraft(value) {
+            this.active = value;
+            this.changeCraft(value);
+        },
         // 选择新添配方
         onAddCartItem(recipe) {
             this.$refs.cart.add(recipe);
-        },
-        updateToolbar(data) {
-            const { type, search } = data;
-            this.active = type;
-            this.search = search;
-            this.changeCraft(type);
+            const name = recipe?.item?.item_info?.Name || recipe?.recipe?.Name || "";
+            this.$message.success(
+                this.$t("pages.pvg.manufacture.ui.messages.addedToCart", {
+                    name,
+                })
+            );
         },
         onMaterialMake(params) {
             this.$refs.recipe.addCartItemAsMaterial(params);
@@ -179,9 +285,11 @@ export default {
         },
         onViewPlan(payload) {
             this.$refs.cart.loadPlan(payload);
+            this.planDrawerVisible = false;
         },
         onMergePlan(items) {
             this.$refs.cart.mergePlan(items);
+            this.planDrawerVisible = false;
         },
     },
 
@@ -211,82 +319,5 @@ export default {
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/tabs.less";
-
-.m-manufacture .m-common-toolbar .m-toolbar-item .u-search .u-search-input .el-input__wrapper {
-    background: #fff !important;
-}
-.m-manufacture-body {
-    .pt(20px);
-    .flex;
-    .pb(20px);
-    overflow-x: auto;
-    overflow-y: auto;
-    gap: 20px;
-    color: #3d454d;
-    // height: calc(100vh - 254px);
-}
-@media screen and (max-width: @phone) {
-    .m-manufacture-tabs {
-        flex-direction: row;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-}
-.m-manufacture-title {
-    .flex;
-    .pb(20px);
-    gap: 20px;
-    .u-title {
-        .bold;
-        .fz(24px);
-        .lh(40px);
-        .color(#24292e);
-    }
-    .m-server {
-        .w(205px);
-        .el-input {
-            .w(120px);
-            .pl(85px);
-        }
-        .el-select__wrapper {
-            .r(20px);
-            box-shadow: none;
-            .lh(40px);
-        }
-        .el-select__selected-item {
-            .color(#24292e);
-            .fz(16px);
-            .bold;
-            .x;
-        }
-        .el-input__inner {
-            .fz(16px);
-            .r(20px);
-            .bold;
-            .x;
-            .h(40px);
-            .lh(40px);
-            color: #24292e;
-            border: 0;
-            padding: 0 22px 0 0;
-        }
-        .u-prefix {
-            .db;
-            .lh(40px);
-            .bold;
-            .fz(16px);
-            .x;
-            cursor: default;
-            color: #909399;
-            padding: 0 0 0 15px;
-            white-space: nowrap;
-        }
-    }
-}
-.v-miniprogram {
-    .m-manufacture {
-        padding-top: 20px;
-    }
-}
+@import "~@/assets/css/modules/manufacture-theme.less";
 </style>

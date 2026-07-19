@@ -1,14 +1,16 @@
 <template>
     <div class="m-manufacture-bottom-bar">
-        <div class="m-button m-server-button" @click="onChangeServer">
+        <button type="button" class="m-button m-server-button" @click="onChangeServer">
             <span>{{ server }}</span>
             <img svg-inline src="@/assets/img/manufacture/switch.svg" alt="" />
-        </div>
-        <div class="m-button m-cart-button" @click="$emit('go-cart')">
-            <span> 成本计算器 </span>
+        </button>
+        <button type="button" class="m-button m-cart-button" @click="$emit('go-cart')">
+            <span>{{ $t("pages.pvg.manufacture.ui.cart.title") }}</span>
             <div v-if="cartCount" class="u-cart-count" ref="cart-count">{{ cartCount }}</div>
-        </div>
-        <div class="m-button m-cart-button" @click="$refs['plan-list'].open()">我的清单</div>
+        </button>
+        <button type="button" class="m-button m-cart-button" @click="$refs['plan-list'].open()">
+            {{ $t("pages.pvg.manufacture.ui.cart.plans") }}
+        </button>
 
         <PlanListVue ref="plan-list" @go-plan="$emit('go-plan', $event)"></PlanListVue>
         <el-drawer
@@ -31,7 +33,9 @@
                 </div>
             </div>
             <div class="m-actions">
-                <div class="u-confirm" @click="onChangeServer">确定</div>
+                <div class="u-confirm" @click="onChangeServer">
+                    {{ $t("pages.pvg.manufacture.ui.actions.confirm") }}
+                </div>
             </div>
         </el-drawer>
     </div>
@@ -153,14 +157,20 @@ export default {
     .fz(12px, 18px);
     font-weight: 700;
 
-    .m-button {
+        .m-button {
         display: flex;
         flex-grow: 1;
         gap: 4px;
         width: 66px;
 
         justify-content: center;
-        align-items: center;
+            align-items: center;
+            padding: 0 4px;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
 
         .u-cart-count {
             line-height: 1.7;
@@ -173,7 +183,7 @@ export default {
         .u-cart-count--active {
             animation: cart-count 300ms ease-in-out;
             // 无限循环
-            animation-iteration-count: 99;
+            animation-iteration-count: 1;
             @keyframes cart-count {
                 0% {
                     transform: translateY(0);

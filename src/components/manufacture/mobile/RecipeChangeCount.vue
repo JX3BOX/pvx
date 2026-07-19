@@ -6,34 +6,34 @@
         wrapper-closable
         append-to-body
         modal-append-to-body
-        custom-class="m-count-change-drawer"
+        class="m-count-change-drawer"
+        @close="onClose"
     >
         <div class="m-input-group">
             <div class="m-title">
-                <div>部分配方制作次数和产量不对等,</div>
-                <div>如需修改请先填写制作次数再修改最终产量</div>
+                <strong>{{ $t("pages.pvg.manufacture.ui.countDialog.title") }}</strong>
+                <span>{{ $t("pages.pvg.manufacture.ui.countDialog.description") }}</span>
             </div>
             <div class="m-input">
-                <span class="u-title">制作次数</span>
-                <el-input-number v-model="count" @change="onChangeCount"></el-input-number>
+                <span class="u-title">{{ $t("pages.pvg.manufacture.ui.countDialog.craftCount") }}</span>
+                <el-input-number v-model="count" :min="1" @change="onChangeCount"></el-input-number>
             </div>
             <div class="m-input">
-                <span class="u-title">最终产出</span>
-                <el-input-number v-model="yield_count"></el-input-number>
+                <span class="u-title">{{ $t("pages.pvg.manufacture.ui.countDialog.finalOutput") }}</span>
+                <el-input-number v-model="yield_count" :min="yieldMin" :max="yieldMax"></el-input-number>
             </div>
         </div>
         <div class="m-actions">
-            <div class="u-confirm" @click="confirm">确定</div>
+            <button type="button" class="u-confirm" @click="confirm">
+                {{ $t("pages.pvg.manufacture.ui.actions.confirm") }}
+            </button>
         </div>
     </el-drawer>
 </template>
 
 <script>
-import { __imgPath } from "@/utils/config";
-import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
-
 export default {
-    name: "ManufacturePriceItemMobile",
+    name: "ManufactureRecipeCountMobile",
     props: {},
     data: () => ({
         visible: false,
@@ -44,27 +44,48 @@ export default {
         yield_count_max: 1,
 
         resolve: null,
+        reject: null,
     }),
+    computed: {
+        yieldMin() {
+            return Math.max(1, this.count * this.yield_count_min);
+        },
+        yieldMax() {
+            return Math.max(this.yieldMin, this.count * this.yield_count_max);
+        },
+    },
     methods: {
-        iconLink,
         open(data = {}) {
             this.visible = true;
             this.count = data.count || 1;
             this.yield_count = data.yield_count || 1;
             this.yield_count_min = data.yield_count_min || 1;
             this.yield_count_max = data.yield_count_max || 1;
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 this.resolve = resolve;
+                this.reject = reject;
             });
         },
         confirm() {
-            this.resolve([this.count, this.yield_count]);
+            this.count = Math.max(1, Number(this.count) || 1);
+            this.yield_count = Math.min(
+                Math.max(this.yieldMin, Number(this.yield_count) || this.yieldMin),
+                this.yieldMax
+            );
+            this.resolve?.([this.count, this.yield_count]);
+            this.resolve = null;
+            this.reject = null;
             this.visible = false;
         },
         onChangeCount() {
             const min = this.count * this.yield_count_min;
             const max = this.count * this.yield_count_max;
             this.yield_count = Math.min(Math.max(min, this.yield_count), max);
+        },
+        onClose() {
+            if (this.reject) this.reject(new Error("cancelled"));
+            this.resolve = null;
+            this.reject = null;
         },
     },
 };
@@ -104,6 +125,7 @@ export default {
             .fz(12px, 18px);
 
             font-weight: 700;
+            border: 0;
         }
         .el-input-number {
             flex-grow: 1;

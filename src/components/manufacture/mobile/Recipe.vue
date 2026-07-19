@@ -1,32 +1,42 @@
 <template>
     <div class="m-manufacture-recipes">
         <div class="m-toolbar">
-            <el-input class="u-search" v-model="keyword" placeholder="你想要搜索什么？">
+            <el-input
+                class="u-search"
+                v-model="keyword"
+                :placeholder="$t('pages.pvg.manufacture.ui.searchPlaceholder')"
+            >
                 <template #prefix>
                     <img svg-inline src="@/assets/img/manufacture/search.svg" alt="" />
                 </template>
             </el-input>
         </div>
         <div class="m-recipe-list">
-            <div class="m-recipe-subtype" v-for="(subtype, index) in recipeTree" :key="index">
-                <div
+            <div class="m-recipe-subtype" v-for="subtype in recipeTree" :key="subtype.id">
+                <button
+                    type="button"
                     class="m-recipe-title"
                     :class="{ 'is-active': subtype.id == currentSubtype }"
                     @click="onClickSubtype(subtype.id)"
                 >
                     {{ subtype.name }}
-                </div>
+                </button>
                 <div class="m-recipe-items" v-if="subtype.id == currentSubtype">
-                    <div
+                    <button
+                        type="button"
                         class="m-recipe-item"
-                        v-for="(recipe, index) in subtype.recipes"
-                        :key="index"
+                        v-for="recipe in subtype.recipes"
+                        :key="recipe.ID"
                         @click="$emit('go-recipe', { recipe_type: craftType.key, recipe_id: recipe.ID })"
                     >
                         <img class="u-icon" :src="iconLink(recipe.IconID, client)" alt="" />
-                        {{ recipe.Name }}
-                    </div>
+                        <span>{{ recipe.Name }}</span>
+                    </button>
                 </div>
+            </div>
+            <div v-if="!recipeTree.length" class="m-recipe-empty">
+                <strong>{{ $t("pages.pvg.manufacture.ui.empty.title") }}</strong>
+                <span>{{ $t("pages.pvg.manufacture.ui.empty.description") }}</span>
             </div>
         </div>
     </div>
@@ -173,6 +183,11 @@ export default {
     }
     .m-recipe-title,
     .m-recipe-item {
+        width: 100%;
+        box-sizing: border-box;
+        border: 0;
+        text-align: left;
+        cursor: pointer;
         padding: 8px;
         font-family: Microsoft YaHei UI;
         font-weight: 700;
@@ -189,6 +204,23 @@ export default {
 
         .u-icon {
             .size(24px);
+        }
+    }
+
+    .m-recipe-empty {
+        display: flex;
+        min-height: 180px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 6px;
+        border: 1px dashed var(--manufacture-mobile-line, #e6ebf3);
+        border-radius: 14px;
+        color: var(--manufacture-mobile-muted, #8da0bd);
+        text-align: center;
+
+        strong {
+            color: var(--manufacture-mobile-ink, #17233c);
         }
     }
 }

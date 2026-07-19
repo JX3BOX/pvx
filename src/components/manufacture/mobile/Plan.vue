@@ -32,32 +32,32 @@
                 </div>
                 <div class="m-stat m-stat__cart-item">
                     <div class="m-stat-item">
-                        <div class="u-title">精力</div>
+                        <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.energy") }}</div>
                         <div class="u-value">
                             {{ item.cost_vigor }}
                             <span v-if="item.count > 1">({{ calcItemVigorCost(item) }})</span>
                         </div>
                     </div>
                     <div class="m-stat-item">
-                        <div class="u-title">售价(总)</div>
+                        <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalSale") }}</div>
                         <div class="u-value">
                             <GamePrice :price="item.price_unit * item.yield_count" :align="true"></GamePrice>
                         </div>
                     </div>
                     <div class="m-stat-item">
-                        <div class="u-title">税收</div>
+                        <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.tax") }}</div>
                         <div class="u-value">
                             <GamePrice :price="calcItemTax(item)" :align="true"></GamePrice>
                         </div>
                     </div>
                     <div class="m-stat-item">
-                        <div class="u-title">成本(总)</div>
+                        <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalCost") }}</div>
                         <div class="u-value">
                             <GamePrice :price="calcItemCostPrice(item)" :align="true"></GamePrice>
                         </div>
                     </div>
                     <div class="m-stat-item">
-                        <div class="u-title">预计收益(总)</div>
+                        <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalProfit") }}</div>
                         <div class="u-value">
                             <GamePrice :price="calcItemProfit(item)" :align="true"></GamePrice>
                         </div>
@@ -65,32 +65,32 @@
                 </div>
             </div>
         </div>
-        <div class="m-title is-center">总计</div>
+        <div class="m-title is-center">{{ $t("pages.pvg.manufacture.ui.cart.total") }}</div>
         <div class="m-stat">
             <div class="m-stat-item">
-                <div class="u-title">精力</div>
+                <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.energy") }}</div>
                 <div class="u-value">{{ totalVigorCost }}</div>
             </div>
             <div class="m-stat-item">
-                <div class="u-title">售价(总)</div>
+                <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalSale") }}</div>
                 <div class="u-value">
                     <GamePrice :price="totalPrice" :align="true"></GamePrice>
                 </div>
             </div>
             <div class="m-stat-item">
-                <div class="u-title">税收</div>
+                <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.tax") }}</div>
                 <GamePrice :price="totalTax" :align="true"></GamePrice>
             </div>
             <div class="m-stat-item">
-                <div class="u-title">成本(总)</div>
+                <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalCost") }}</div>
                 <GamePrice :price="totalCostPrice" :align="true"></GamePrice>
             </div>
             <div class="m-stat-item">
-                <div class="u-title">预计收益(总)</div>
+                <div class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.totalProfit") }}</div>
                 <GamePrice :price="totalProfit" :align="true"></GamePrice>
             </div>
         </div>
-        <div class="m-save-button" @click="onEdit">修改清单</div>
+        <div class="m-save-button" @click="onEdit">{{ $t("pages.pvg.manufacture.ui.actions.editPlan") }}</div>
     </div>
 </template>
 

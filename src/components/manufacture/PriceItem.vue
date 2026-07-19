@@ -1,11 +1,16 @@
 <template>
-    <el-popover popper-class="m-add-price" placement="bottom-end" trigger="click" v-model="visible">
-        <el-divider content-position="left" v-if="type == 'cart'"
-            >修改 [ <b>{{ name }}</b> ] 账单单价</el-divider
-        >
-        <el-divider content-position="left" v-else
-            >修改 [ <b>{{ name }}</b> ] 单价</el-divider
-        >
+    <el-popover
+        popper-class="m-add-price"
+        placement="bottom-end"
+        trigger="click"
+        :width="420"
+        v-model:visible="visible"
+    >
+        <div class="m-add-price__title">
+            <span>修改</span>
+            <strong :title="name">[{{ name }}]</strong>
+            <span>{{ type == "cart" ? "账单单价" : "单价" }}</span>
+        </div>
         <div class="u-add">
             <el-input class="u-input" type="number" size="small" v-model="newPrice.jin"></el-input>
             <img :src="`${img}/jin.png`" alt="金" />
@@ -137,13 +142,45 @@ export default {
     }
 }
 .m-add-price {
+    box-sizing: border-box;
+    max-width: calc(100vw - 32px);
+    padding: 16px;
+
+    .m-add-price__title {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 14px;
+        color: #334155;
+        font-size: 14px;
+        line-height: 22px;
+        white-space: nowrap;
+
+        strong {
+            min-width: 0;
+            overflow: hidden;
+            color: #17233c;
+            text-overflow: ellipsis;
+        }
+    }
+
     .u-add {
         .flex;
         align-items: center;
+        gap: 6px;
+
         .u-input {
+            flex: 0 0 72px;
+            width: 72px;
+
+            .el-input__wrapper {
+                padding: 0 8px;
+            }
+
             .el-input__inner {
                 .x;
-                .w(60px);
+                width: 100%;
                 padding: 0 5px;
             }
             input::-webkit-outer-spin-button,
@@ -155,11 +192,33 @@ export default {
             }
         }
         img {
-            .size(25px,18px);
-            margin: 0 3px;
+            flex: none;
+            .size(20px,16px);
+            margin: 0;
         }
         .u-button {
-            .ml(10px);
+            flex: none;
+            min-width: 60px;
+            margin-left: 4px;
+        }
+    }
+}
+
+@media (max-width: 520px) {
+    .m-add-price {
+        .u-add {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr) 20px minmax(0, 1fr) 20px;
+
+            .u-input {
+                width: 100%;
+            }
+
+            .u-button {
+                grid-column: 1 / -1;
+                width: 100%;
+                margin: 6px 0 0;
+            }
         }
     }
 }

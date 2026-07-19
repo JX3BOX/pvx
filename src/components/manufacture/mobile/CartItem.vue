@@ -5,16 +5,16 @@
         wrapper-closable
         append-to-body
         modal-append-to-body
-        custom-class="m-manufacture-cart-item"
+        class="m-manufacture-cart-item"
         @close="$emit('close')"
         v-model="visible"
     >
         <div class="m-manufacture-cart-item-body">
             <div class="m-recipe-price">
-                <span class="u-title">交易行售价</span>
+                <span class="u-title">{{ $t("pages.pvg.manufacture.ui.price.market") }}</span>
                 <span class="u-price">
                     <GamePrice class="u-price-num" v-if="item.price_unit" :price="item.price_unit"></GamePrice>
-                    <div v-else class="u-empty">暂无价格</div>
+                    <div v-else class="u-empty">{{ $t("pages.pvg.manufacture.ui.common.noPrice") }}</div>
                     <div
                         class="u-edit"
                         @click="
@@ -43,7 +43,7 @@
                                     v-if="material.price_unit"
                                     :price="material.price_unit"
                                 ></GamePrice>
-                                <div v-else class="u-empty">暂无价格</div>
+                                <div v-else class="u-empty">{{ $t("pages.pvg.manufacture.ui.common.noPrice") }}</div>
                             </div>
                         </div>
                         <div
@@ -64,7 +64,9 @@
                     </div>
                 </div>
             </div>
-            <div class="m-save-button" @click="visible = false">确定</div>
+            <button type="button" class="m-save-button" @click="visible = false">
+                {{ $t("pages.pvg.manufacture.ui.actions.confirm") }}
+            </button>
         </div>
         <PriceUpdateDrawerVue ref="price-update"></PriceUpdateDrawerVue>
     </el-drawer>

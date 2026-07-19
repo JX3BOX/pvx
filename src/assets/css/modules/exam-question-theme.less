@@ -1,0 +1,124 @@
+@import (reference) "../design-system/_tokens.less";
+
+.p-pvx-exam-question {
+    > div {
+        max-width: none;
+    }
+
+    .m-pvx-exam-question__layout {
+        display: grid;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin: 0 auto;
+        gap: @pvx-space-4;
+
+        > * {
+            min-width: 0;
+        }
+    }
+
+    .m-pvx-exam-question__navigation {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: @pvx-space-2;
+        min-height: 64px;
+
+        .u-back,
+        .u-edit {
+            min-width: 112px;
+            width: auto;
+            height: 40px;
+            flex: none;
+            white-space: nowrap;
+
+            > svg {
+                width: 16px;
+                height: 16px;
+                flex: none;
+            }
+        }
+
+        .u-back {
+            gap: 4px;
+        }
+    }
+
+    .v-single-card {
+        margin-top: 0;
+    }
+
+    .m-pvx-exam-question__submit {
+        display: flex;
+        justify-content: center;
+        padding: @pvx-space-2 0 @pvx-space-1;
+
+        .u-submit {
+            width: min(100%, 320px);
+            min-height: 48px;
+            border-radius: @pvx-radius-control;
+        }
+    }
+
+    .m-pvx-exam-question__community {
+        overflow: hidden;
+
+        .m-pvx-exam-question__thx {
+            margin: 0;
+        }
+    }
+
+    .m-pvx-exam-question__comment {
+        margin-top: @pvx-space-5;
+        padding-top: @pvx-space-5;
+        border-top: 1px solid @pvx-border;
+
+        .u-comment-title {
+            display: flex;
+            align-items: center;
+            gap: @pvx-space-1;
+            margin: 0 0 @pvx-space-4;
+            color: @pvx-text-primary;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.4;
+
+            .el-icon {
+                color: @pvx-primary;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .p-pvx-exam-question {
+        .m-pvx-exam-question__layout {
+            gap: @pvx-space-3;
+        }
+
+        .m-pvx-exam-question__navigation {
+            min-height: 56px;
+
+            .u-back,
+            .u-edit {
+                min-width: 0;
+                padding-right: @pvx-space-2;
+                padding-left: @pvx-space-2;
+            }
+        }
+
+        .m-pvx-exam-question__submit {
+            padding-top: @pvx-space-1;
+
+            .u-submit {
+                width: 100%;
+            }
+        }
+
+        .m-pvx-exam-question__comment {
+            margin-top: @pvx-space-4;
+            padding-top: @pvx-space-4;
+        }
+    }
+}

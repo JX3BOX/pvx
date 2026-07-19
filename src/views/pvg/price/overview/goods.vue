@@ -1,26 +1,38 @@
 <template>
-    <div class="p-price-goods overview">
-        <div class="m-price-goods-body">
-            <div class="m-my-follow-goods">
-                <div class="u-title">
-                    我的关注
-                    <i
-                        v-if="myFollowData.length"
-                        class="u-btn el-icon-setting"
-                        v-popover:myPlans
-                        title="设置清单"
-                        @click="openAddDialog"
-                    ></i>
-                </div>
-                <div class="m-empty-follow" v-if="myFollowData.length == 0">
-                    <div class="m-empty-follow-title" v-loading="loading">
-                        {{ isLogin ? "暂无关注" : "暂未登录" }}
-                        <span class="m-empty-follow-add" @click="openAddDialog" v-if="isLogin"> 去添加 </span>
-                        <span class="m-empty-follow-login" @click="openAddDialog" v-else> 去登陆 </span>
-                    </div>
-                </div>
-                <myGoodList v-else :data="myFollowPlan" :priceMap="priceMap"></myGoodList>
-            </div>
+    <PvxSurface class="p-price-goods overview m-pvx-price__section" padding="medium">
+        <PvxSectionHeader
+            class="m-pvx-price__section-header"
+            :title="$t('pages.pvg.price.ui.sections.follow.title')"
+            :description="$t('pages.pvg.price.ui.sections.follow.description')"
+        >
+            <template #icon><Star /></template>
+            <template v-if="myFollowData.length" #action>
+                <el-button
+                    class="u-manage-follow"
+                    plain
+                    :title="$t('pages.pvg.price.ui.actions.manageFollow')"
+                    :aria-label="$t('pages.pvg.price.ui.actions.manageFollow')"
+                    @click="openAddDialog"
+                >
+                    <el-icon><Setting /></el-icon>
+                    <span class="u-manage-follow__label">{{ $t("pages.pvg.price.ui.actions.manageFollow") }}</span>
+                </el-button>
+            </template>
+        </PvxSectionHeader>
+        <div class="m-my-follow-goods" v-loading="loading">
+            <PvxEmptyState
+                v-if="!myFollowData.length"
+                :title="isLogin ? $t('pages.pvg.price.ui.empty.followTitle') : $t('pages.pvg.price.ui.empty.loginTitle')"
+                :description="isLogin ? $t('pages.pvg.price.ui.empty.followDescription') : $t('pages.pvg.price.ui.empty.loginDescription')"
+            >
+                <template #icon><Star /></template>
+                <template #action>
+                    <el-button type="primary" plain @click="openAddDialog">
+                        {{ isLogin ? $t("pages.pvg.price.ui.actions.addFollow") : $t("pages.pvg.price.ui.actions.login") }}
+                    </el-button>
+                </template>
+            </PvxEmptyState>
+            <myGoodList v-else :data="myFollowPlan" :priceMap="priceMap" :server="server" />
         </div>
         <myGoodsDialog
             v-if="showMyGoods"
@@ -28,7 +40,7 @@
             :myFollowData="myFollowData"
             @setMyFollowList="setMyFollowList"
         ></myGoodsDialog>
-    </div>
+    </PvxSurface>
 </template>
 <script>
 import server_std from "@jx3box/jx3box-data/data/server/server_std.json";
@@ -42,11 +54,16 @@ import {
 import myGoodList from "../goods/myGoodList.vue";
 import myGoodsDialog from "../goods/myGoodsDialog.vue";
 import User from "@jx3box/jx3box-common/js/user";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { Setting, Star } from "@element-plus/icons-vue";
 export default {
     props: {
         server: {},
     },
-    components: { myGoodsDialog, myGoodList },
+    name: "PriceOverviewGoods",
+    components: { myGoodsDialog, myGoodList, PvxEmptyState, PvxSectionHeader, PvxSurface, Setting, Star },
     data() {
         return {
             server_std,
@@ -72,6 +89,7 @@ export default {
             });
         },
         getServerPriceData() {
+            if (!this.server || !this.systemGoodsData.length) return;
             const flatList = [];
             this.systemGoodsData.forEach((group) => {
                 group.items.forEach((item) => {
@@ -153,7 +171,7 @@ export default {
             // 此处接口不支持不传，传空后前端过滤id为0的数据
             setMyFollowList({ val }).then((res) => {
                 this.showMyGoods = false;
-                this.$message.success("设置成功");
+                this.$message.success(this.$t("pages.pvg.price.ui.messages.followSaved"));
                 this.getMyFollowList();
             });
         },
@@ -171,91 +189,10 @@ export default {
             this.getSystemGoodsData();
         }
     },
+    watch: {
+        server() {
+            this.updatePrice();
+        },
+    },
 };
 </script>
-<style lang="less">
-.p-price-goods {
-    position: relative;
-    .m-price-goods-header {
-        display: flex;
-        align-items: center;
-
-        gap: 20px;
-        .u-title {
-            margin: 20px 0 20px 0;
-            color: #24292e;
-            font-size: 32px;
-            font-weight: bold;
-            line-height: 42px;
-        }
-        .u-servers {
-            position: relative;
-            width: 200px;
-            background-color: #fff;
-            border-radius: 40px;
-            .el-input__prefix {
-                display: flex;
-                align-items: center;
-                padding-left: 15px;
-                color: #949494;
-                font-size: 16px;
-                font-weight: bold;
-                line-height: 40px;
-            }
-
-            .el-input__inner {
-                height: 40px;
-                padding-left: 100px;
-                color: #24292e;
-                font-size: 16px;
-                font-weight: bold;
-                line-height: 40px;
-                border: none;
-                border-radius: 40px;
-            }
-        }
-    }
-    .m-price-goods-body {
-        .u-title {
-            margin: 20px 0 20px 0;
-            color: #24292e;
-            font-size: 32px;
-            font-weight: bold;
-            line-height: 42px;
-        }
-        .m-my-follow-goods {
-            .u-btn {
-                cursor: pointer;
-            }
-            .m-empty-follow {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 384px;
-                height: 100px;
-                padding: 0 10px;
-                color: #999;
-                border: 1px dashed #999;
-                border-radius: 10px;
-
-                .m-empty-follow-title {
-                    font-size: 20px;
-                    .m-empty-follow-add {
-                        color: #ff9a00;
-                        font-weight: bold;
-                        cursor: pointer;
-                    }
-                    .m-empty-follow-login {
-                        color: #ff9a00;
-                        font-weight: bold;
-                        text-decoration: underline;
-                        cursor: pointer;
-
-                        text-underline-offset: 4px;
-                    }
-                }
-            }
-        }
-    }
-}
-</style>

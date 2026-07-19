@@ -1,5 +1,10 @@
 <template>
-    <div class="v-single-card" :class="fromQuestion && 'from-question'" v-if="item">
+    <article
+        v-if="item"
+        class="v-single-card"
+        :class="fromQuestion ? 'from-question' : 'from-paper'"
+        @click="previewRichImage"
+    >
         <div class="m-single-question">
             <div class="u-number">
                 <div class="u-left" v-if="!fromQuestion">
@@ -8,6 +13,7 @@
                         <a
                             :href="tagsLink(item)"
                             target="_blank"
+                            rel="noopener noreferrer"
                             class="u-tag"
                             v-for="(item, i) in item_tags"
                             :key="i"
@@ -22,6 +28,7 @@
                         <a
                             :href="tagsLink(item)"
                             target="_blank"
+                            rel="noopener noreferrer"
                             class="u-tag"
                             v-for="(item, i) in item_tags"
                             :key="i"
@@ -31,11 +38,20 @@
                 </div>
 
                 <div class="u-right">
-                    <a class="u-exam" v-if="!fromQuestion" :href="`${exam_link}${item.id}`" target="_blank"
+                    <a
+                        class="u-exam"
+                        v-if="!fromQuestion"
+                        :href="`${exam_link}${item.id}`"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         ><span class="u-label">试题编号</span>{{ item.id }}</a
                     >
-                    <a class="u-user" :href="authorLink(item.createUserId)" target="_blank"
-                        ><span class="u-label">出题人</span>{{ item.userInfo?.display_name }}</a
+                    <a
+                        class="u-user"
+                        :href="authorLink(item.createUserId)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        ><span class="u-label">出题人</span>{{ item.userInfo?.display_name || item.createUser || "匿名" }}</a
                     >
                     <div v-if="fromQuestion" class="u-star">
                         <span>难度：</span>
@@ -55,6 +71,7 @@
                                 v-for="(option, i) of options"
                                 :key="i"
                                 :label="i"
+                                :value="i"
                                 border
                                 :disabled="isSubmitted"
                                 :class="myWrongClass(i)"
@@ -72,6 +89,7 @@
                                 v-for="(option, i) of options"
                                 :key="i"
                                 :label="i"
+                                :value="i"
                                 border
                                 :disabled="isSubmitted"
                                 :class="myWrongClass(i)"
@@ -128,12 +146,10 @@
                 </div>
             </div>
         </template>
-    </div>
+    </article>
 </template>
 <script>
-// import Article from "@jx3box/jx3box-editor/src/Article.vue";
-import { authorLink, showAvatar, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
-import { __Root } from "@/utils/config";
+import { authorLink, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 import tags from "@/assets/data/exam_tags.json";
 import { __clients } from "@/utils/config";
 export default {
@@ -143,13 +159,13 @@ export default {
     data: function () {
         return {
             checkbox: [],
-            radio: {},
+            radio: "",
             clients: __clients,
         };
     },
     computed: {
         options: function () {
-            return this.item.options;
+            return Array.isArray(this.item?.options) ? this.item.options : [];
         },
         status: function () {
             if (!this.answer.myAnswer) return "未作答";
@@ -159,29 +175,20 @@ export default {
             return `/exam/question/`;
         },
         item_tags() {
-            let arr = this.item.tags
+            const itemTags = Array.isArray(this.item?.tags) ? this.item.tags : [];
+            let arr = itemTags
                 .map((item) => {
                     if (this.tags.indexOf(item) !== -1) return item;
                 })
                 .filter(Boolean);
-            if (!arr.length) arr[0] = this.item.tags[0];
+            if (!arr.length && itemTags[0]) arr[0] = itemTags[0];
             return arr.slice(0, 1);
         },
         tags() {
             return tags.slice(5, tags.length);
         },
     },
-    watch: {
-        item: {
-            deep: true,
-            immediate: true,
-            handler: function () {
-                this.$nextTick(() => {
-                    this.initImgViewer();
-                });
-            },
-        },
-    },
+    watch: {},
     methods: {
         authorLink,
         resolveImagePath,
@@ -210,16 +217,14 @@ export default {
             const type = this.$route.name === "paper" ? 3 : 2;
             return `/exam/${type}?tag=${tag}`;
         },
-        initImgViewer() {
-            const images = document.querySelectorAll(".m-html-title img");
-            images.forEach((img) => {
-                img.onclick = () => {
-                    this.$hevueImgPreview({
-                        url: img.src,
-                        controlBar: false,
-                        clickMaskCLose: true,
-                    });
-                };
+        previewRichImage(event) {
+            const target = event.target;
+            if (!(target instanceof HTMLImageElement)) return;
+            if (!target.closest(".m-html-title, .m-option-content, .m-analysis, .u-content-desc")) return;
+            this.$hevueImgPreview({
+                url: target.src,
+                controlBar: false,
+                clickMaskCLose: true,
             });
         },
     },

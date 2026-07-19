@@ -1,5 +1,11 @@
 <template>
-    <el-dialog title="设置关注清单" v-model="dialogVisible" width="50%" @close="$emit('close')">
+    <el-dialog
+        class="m-pvx-price-follow-dialog"
+        :title="$t('pages.pvg.price.ui.dialog.title')"
+        v-model="dialogVisible"
+        width="min(640px, calc(100vw - 32px))"
+        @close="$emit('close')"
+    >
         <div class="m-price-goods-mygoods" v-loading="loading">
             <template v-if="myPlanList.length">
                 <div
@@ -13,14 +19,17 @@
                 </div>
             </template>
             <div v-else>
-                <div class="m-price-goods-empty" @click="goItem">还没有清单，<span class="strong">去创建</span></div>
+                <div class="m-price-goods-empty" @click="goItem">
+                    {{ $t("pages.pvg.price.ui.dialog.noList") }}
+                    <span class="strong">{{ $t("pages.pvg.price.ui.actions.createList") }}</span>
+                </div>
             </div>
         </div>
 
         <template #footer>
             <span class="dialog-footer">
-                <el-button @click="$emit('close')">取 消</el-button>
-                <el-button type="primary" @click="setMyFollowList">确 定</el-button>
+                <el-button @click="$emit('close')">{{ $t("pages.pvg.price.ui.actions.cancel") }}</el-button>
+                <el-button type="primary" @click="setMyFollowList">{{ $t("pages.pvg.price.ui.actions.confirm") }}</el-button>
             </span>
         </template>
     </el-dialog>
@@ -37,6 +46,7 @@ export default {
             myPlanList: [],
             dialogVisible: true,
             loading: false,
+            followIdList: [],
         };
     },
     methods: {
@@ -71,7 +81,7 @@ export default {
         },
         goItem() {
             let host = location.origin;
-            window.open(`${host}/pvg/manufacture`);
+            window.open(`${host}/pvg/manufacture`, "_blank", "noopener,noreferrer");
         },
     },
     mounted() {
@@ -80,38 +90,3 @@ export default {
     },
 };
 </script>
-<style lang="less">
-.m-price-goods-mygoods {
-    padding-left: 10px;
-    margin-bottom: 20px;
-    .m-price-goods-mygoods-group {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 40px;
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #eee;
-        cursor: pointer;
-        &:hover {
-            background: #eee;
-        }
-        .el-checkbox {
-            pointer-events: none;
-        }
-    }
-    .m-price-goods-empty {
-        display: flex;
-        align-items: center;
-        height: 40px;
-        padding: 10px;
-        margin-bottom: 10px;
-
-        .strong {
-            color: #0366d6;
-            font-weight: bold;
-            cursor: pointer;
-        }
-    }
-}
-</style>

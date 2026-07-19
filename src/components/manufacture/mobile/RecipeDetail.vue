@@ -2,23 +2,27 @@
     <div class="m-manufacture-recipe-detail">
         <div class="m-recipe-detail-title">
             <RecipeDetailTitle :recipe="recipe"></RecipeDetailTitle>
-            <div class="u-add-cart" @click="onAddToCart">添加</div>
+            <button type="button" class="u-add-cart" @click="onAddToCart">
+                {{ $t("pages.pvg.manufacture.ui.actions.add") }}
+            </button>
         </div>
         <template v-if="recipe.szTip">
             <span class="u-desc" v-for="text in textFilter(recipe.szTip)" :key="text">{{ text }}</span>
         </template>
         <div class="m-recipe-price">
-            <span class="u-title">交易行售价</span>
+            <span class="u-title">{{ $t("pages.pvg.manufacture.ui.price.market") }}</span>
             <span class="u-price">
                 <GamePrice
                     class="u-price-num"
                     v-if="get_price(server, recipe.item_id)"
                     :price="get_price(server, recipe.item_id).price"
                 ></GamePrice>
-                <div v-else class="u-empty">暂无价格</div>
+                <div v-else class="u-empty">{{ $t("pages.pvg.manufacture.ui.common.noPrice") }}</div>
 
-                <div
+                <button
+                    type="button"
                     class="u-edit"
+                    :aria-label="$t('pages.pvg.manufacture.ui.actions.updatePrice')"
                     @click="
                         onUpdatePrice({
                             server,
@@ -29,7 +33,7 @@
                     "
                 >
                     <img svg-inline src="@/assets/img/manufacture/edit.svg" alt="" />
-                </div>
+                </button>
             </span>
         </div>
         <div class="m-materials" v-if="recipe.materials && recipe.materials.length">
@@ -44,11 +48,13 @@
                                 v-if="get_price(server, material.item_id)"
                                 :price="get_price(server, material.item_id).price"
                             ></GamePrice>
-                            <div v-else class="u-empty">暂无价格</div>
+                            <div v-else class="u-empty">{{ $t("pages.pvg.manufacture.ui.common.noPrice") }}</div>
                         </div>
                     </div>
-                    <div
+                    <button
+                        type="button"
                         class="u-edit"
+                        :aria-label="$t('pages.pvg.manufacture.ui.actions.updatePrice')"
                         @click="
                             onUpdatePrice({
                                 server,
@@ -59,12 +65,12 @@
                         "
                     >
                         <img svg-inline src="@/assets/img/manufacture/edit.svg" alt="" />
-                    </div>
+                    </button>
                 </div>
             </div>
         </div>
         <div class="m-profit">
-            <span class="u-title">预计收益</span>
+            <span class="u-title">{{ $t("pages.pvg.manufacture.ui.price.estimatedProfit") }}</span>
             <span class="u-price">
                 <GamePrice class="u-price-num" :price="profit"></GamePrice>
             </span>
@@ -101,10 +107,14 @@ export default {
         profit() {
             const price = this.get_price(this.server, this.recipe.item_id).price || 0;
             const materials = this.recipe.materials || [];
-            const materials_price = materials.map(
-                (material) => this.get_price(this.server, material.item_id).price || 0
+            const outputCount = Number(this.recipe.CreateItemMin1) || 1;
+            const materialsPrice = sum(
+                materials.map(
+                    (material) =>
+                        (this.get_price(this.server, material.item_id).price || 0) * (Number(material.count) || 0)
+                )
             );
-            return price - sum(materials_price);
+            return price * outputCount - materialsPrice;
         },
         client() {
             return this.$store.state.client;
@@ -150,7 +160,8 @@ export default {
                 .then((res) => {
                     const [count, yield_count] = res;
                     this.$emit("add-cart", [count, yield_count]);
-                });
+                })
+                .catch(() => {});
         },
     },
 };
@@ -181,6 +192,8 @@ export default {
 
             .fz(12px, 18px);
             font-weight: 700;
+            border: 0;
+            cursor: pointer;
         }
     }
 
@@ -223,7 +236,18 @@ export default {
             color: var(--black-40, #24292e);
 
             .pointer;
-            .size(18px);
+            display: inline-flex;
+            .size(36px);
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            background: transparent;
+
+            img,
+            svg {
+                .size(18px);
+            }
         }
     }
 
@@ -296,7 +320,19 @@ export default {
             color: var(--black-40, #24292e);
 
             .pointer;
-            .size(18px);
+            display: inline-flex;
+            .size(36px);
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            background: transparent;
+
+            img,
+            svg {
+                .size(18px);
+            }
         }
     }
 }

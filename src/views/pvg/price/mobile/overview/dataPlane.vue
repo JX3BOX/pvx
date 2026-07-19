@@ -3,7 +3,7 @@
         <div class="plane-header">
             <div class="plane-data">
                 <div class="data-value">{{ item.recommend || 0 }}</div>
-                <div class="data-label">建议收购金价</div>
+                <div class="data-label">{{ $t("pages.pvg.price.ui.chart.recommended") }}</div>
             </div>
             <div class="plane-channel">{{ item.name }}</div>
         </div>
@@ -78,7 +78,11 @@ export default {
                 xAxis: {
                     show: false,
                     type: "category",
-                    data: ["前日", "昨日", "今日"],
+                    data: [
+                        this.$t("pages.pvg.price.ui.chart.dayBefore"),
+                        this.$t("pages.pvg.price.ui.chart.yesterday"),
+                        this.$t("pages.pvg.price.ui.chart.today"),
+                    ],
                     boundaryGap: false,
                 },
                 grid: {

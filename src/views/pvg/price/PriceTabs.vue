@@ -1,55 +1,63 @@
 <template>
-    <div class="m-price-tabs m-common-tabs">
-        <template v-for="(tab, index) in tabs" :key="index">
-            <div class="u-tab" @click="changeTab(tab)" :class="{ active: params.currentTab == tab.value }">
+    <PvxToolbar class="m-price-tabs">
+        <nav class="m-price-tabs__navigation" :aria-label="$t('pages.pvg.price.ui.navigation')">
+            <button
+                v-for="tab in tabs"
+                :key="tab.value"
+                type="button"
+                class="u-tab"
+                :class="{ active: params.currentTab === tab.value }"
+                :aria-current="params.currentTab === tab.value ? 'page' : undefined"
+                @click="changeTab(tab)"
+            >
                 {{ tab.label }}
-            </div>
-        </template>
+            </button>
+        </nav>
 
-        <div class="u-search">
+        <div v-if="params.currentTab !== 'gold'" class="u-search">
             <el-input
-                v-if="params.currentTab != 'gold'"
                 :model-value="params.keywords"
                 @update:modelValue="updateKeywords"
-                placeholder="请输入"
+                :placeholder="$t('pages.pvg.price.ui.searchPlaceholder')"
+                clearable
                 class="u-search-input"
             >
-                <template #suffix>
+                <template #prefix>
                     <el-icon class="el-input__icon">
                         <Search />
                     </el-icon>
                 </template>
             </el-input>
         </div>
-    </div>
+    </PvxToolbar>
 </template>
 <script>
+import PvxToolbar from "@/components/design/PvxToolbar.vue";
+import { Search } from "@element-plus/icons-vue";
+
 export default {
+    name: "PriceTabs",
+    components: { PvxToolbar, Search },
     props: {
         params: { type: Object, required: true },
     },
     emits: ["update:params", "changeTab"],
-    data() {
-        return {
-            tabs: [
-                {
-                    label: "总览",
-                    value: "",
-                },
-                {
-                    label: "金价",
-                    value: "gold",
-                },
-                {
-                    label: "物价",
-                    value: "goods",
-                },
-            ],
-        };
+    computed: {
+        tabs() {
+            return [
+                { label: this.$t("pages.pvg.price.ui.tabs.overview"), value: "" },
+                { label: this.$t("pages.pvg.price.ui.tabs.gold"), value: "gold" },
+                { label: this.$t("pages.pvg.price.ui.tabs.goods"), value: "goods" },
+            ];
+        },
     },
     methods: {
         changeTab(tab) {
-            this.$emit("update:params", { ...this.params, currentTab: tab.value });
+            this.$emit("update:params", {
+                ...this.params,
+                currentTab: tab.value,
+                keywords: tab.value === "" ? "" : this.params.keywords,
+            });
             this.$emit("changeTab", tab.value);
         },
         updateKeywords(val) {
@@ -57,41 +65,10 @@ export default {
             const next = { ...this.params, keywords: val };
             if (this.params.currentTab === "" && val) {
                 next.currentTab = "goods";
+                this.$emit("changeTab", "goods");
             }
             this.$emit("update:params", next);
         },
     },
 };
 </script>
-<style lang="less">
-@import "~@/assets/css/common/tabs.less";
-.m-price-tabs {
-    .u-tab {
-        &.active,
-        &:hover {
-            background-color: @activeColor;
-        }
-    }
-    .u-search {
-        .u-search-input {
-            .el-input__wrapper {
-                box-shadow: none;
-                .r(30px);
-            }
-            input {
-                background-color: #fff;
-            }
-        }
-    }
-}
-@media screen and(max-width:@phone) {
-    .m-price-tabs {
-        flex-direction: row;
-        gap: 10px;
-        box-sizing: border-box;
-        flex-wrap: wrap;
-        padding: 10px 15px;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-    }
-}
-</style>

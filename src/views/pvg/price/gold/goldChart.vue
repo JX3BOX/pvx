@@ -15,15 +15,15 @@
                 <div class="item-data">
                     <div>
                         <div class="data-value">{{ item.beforeYesterday }}</div>
-                        <div class="data-label">前日</div>
+                        <div class="data-label">{{ $t("pages.pvg.price.ui.chart.dayBefore") }}</div>
                     </div>
                     <div>
                         <div class="data-value">{{ item.yesterday }}</div>
-                        <div class="data-label">昨日</div>
+                        <div class="data-label">{{ $t("pages.pvg.price.ui.chart.yesterday") }}</div>
                     </div>
                     <div>
                         <div class="data-value">{{ item.lastDay }}</div>
-                        <div class="data-label">今日</div>
+                        <div class="data-label">{{ $t("pages.pvg.price.ui.chart.today") }}</div>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,6 @@
 import * as echarts from "echarts";
 import { getGoldPriceData } from "@/service/pvg/price.js";
 import { validateEChartsOption } from "@/utils/echarts-option-validator.js";
-let timer;
 export default {
     props: { server: {} },
     data() {
@@ -51,6 +50,10 @@ export default {
             myChart: null,
             resizeHandle: null,
             resizeObserver: null,
+            loading: false,
+            resizeTimer: null,
+            hoverTimer: null,
+            hasOption: false,
         };
     },
     computed: {
@@ -78,7 +81,7 @@ export default {
                 const beforeYesterday = data[data.length - 3]?.average?.toFixed(2) || 0;
                 const sum = data.reduce((total, item) => total + (item?.average || 0), 0);
                 const newItem = {
-                    name: key === "WBL" ? "万宝楼" : key,
+                    name: key === "WBL" ? this.$t("pages.pvg.price.ui.chart.channels.wbl") : key,
                     key,
                     sum,
                     lastDay,
@@ -160,21 +163,24 @@ export default {
         },
         // 防抖
         chartResize() {
-            if (!this.myChart) return;
-            clearTimeout(timer);
-            timer = setTimeout(() => {
-                if (this.myChart) {
-                    try {
-                        this.myChart.resize();
-                    } catch (e) {
-                        console.error('图表resize失败：', e);
-                    }
-                }
-            }, 100);
+            if (!this.myChart || !this.hasOption) return;
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = setTimeout(() => {
+                this.rebuildChart();
+            }, 120);
+        },
+        rebuildChart() {
+            if (!this.$refs.chart || !this.currentDataList.length) return;
+            if (this.myChart) {
+                this.myChart.dispose();
+            }
+            this.hasOption = false;
+            this.myChart = echarts.init(this.$refs.chart);
+            this.setOption();
         },
         heightLight(index) {
-            if (!this.myChart) return;
-            clearTimeout(timer);
+            if (!this.myChart || !this.hasOption) return;
+            clearTimeout(this.hoverTimer);
             this.myChart.dispatchAction({
                 type: "highlight",
                 seriesIndex: index,
@@ -182,9 +188,9 @@ export default {
         },
         // 取消高亮
         blur(index) {
-            if (!this.myChart) return;
-            timer = setTimeout(() => {
-                if (this.myChart) {
+            if (!this.myChart || !this.hasOption) return;
+            this.hoverTimer = setTimeout(() => {
+                if (this.myChart && this.hasOption) {
                     this.myChart.dispatchAction({
                         type: "downplay",
                         seriesIndex: index,
@@ -255,7 +261,7 @@ export default {
                         data: [
                             {
                                 type: "max",
-                                name: "最高价",
+                                name: this.$t("pages.pvg.price.ui.chart.maximum"),
                                 label: {
                                     formatter: "{c}",
                                     fontSize: 10,
@@ -264,7 +270,7 @@ export default {
                             },
                             {
                                 type: "min",
-                                name: "最低价",
+                                name: this.$t("pages.pvg.price.ui.chart.minimum"),
                                 label: {
                                     formatter: "{c}",
                                     fontSize: 10,
@@ -279,9 +285,9 @@ export default {
                         data: [
                             {
                                 type: "average",
-                                name: "平均价",
+                                name: this.$t("pages.pvg.price.ui.chart.average"),
                                 label: {
-                                    formatter: "均价 {c}",
+                                    formatter: `${this.$t("pages.pvg.price.ui.chart.averageShort")} {c}`,
                                     color: this.colorMap[key],
                                 },
                             },
@@ -341,7 +347,7 @@ export default {
                     formatter: (params) => {
                         if (!params || params.length === 0) return '';
                         let str = `<span>${params[0].axisValue || ''}</span><br/>`;
-                        str += `<span>服务器: ${this.server}</span><br/>`;
+                        str += `<span>${this.$t("pages.pvg.price.ui.server")}: ${this.server}</span><br/>`;
                         params.forEach((item) => {
                             if (item && item.data) {
                                 let marker = this.getMarker(item.data.color);
@@ -357,9 +363,12 @@ export default {
             const safeOption = validateEChartsOption(option);
             if (!safeOption) return;
             try {
+                this.hasOption = false;
                 this.myChart.setOption(safeOption, true);
+                this.hasOption = true;
             } catch (error) {
-                console.error('设置图表选项失败：', error);
+                this.hasOption = false;
+                console.error("设置图表选项失败：", error);
                 // 设置失败时销毁图表，防止后续 resize 在损坏状态下触发错误
                 this.myChart.dispose();
                 this.myChart = null;
@@ -374,6 +383,15 @@ export default {
         this.getData();
     },
     beforeUnmount() {
+        this.hasOption = false;
+        if (this.resizeTimer) {
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = null;
+        }
+        if (this.hoverTimer) {
+            clearTimeout(this.hoverTimer);
+            this.hoverTimer = null;
+        }
         if (this.resizeHandle) {
             window.removeEventListener("resize", this.resizeHandle);
             this.resizeHandle = null;
@@ -389,82 +407,3 @@ export default {
     },
 };
 </script>
-<style lang="less">
-.m-price-chart-box {
-    .flex;
-    flex-direction: column;
-    gap: 20px;
-    .legends {
-        .flex;
-        .w(100%);
-        .scrollbar();
-        overflow-x: auto;
-        overflow-y: hidden;
-        gap:20px;
-        .legends-item {
-            .flex;
-            .w(348px);
-            .r(10px);
-            user-select: none;
-            flex-shrink: 0;
-            flex-direction: column;
-            box-sizing: border-box;
-            padding: 10px;
-            gap: 10px;
-
-            &.loading {
-                background: #fff;
-            }
-            .item-title {
-                font-weight: 900;
-                .fz(22px);
-                // .smooth;
-                color: #fff;
-                padding:0 8px;
-            }
-            .item-data {
-                .flex;
-                flex-direction: row;
-                justify-content: space-between;
-                padding:0 10px;
-                & > div {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    width: 48px;
-
-                    color: #fff;
-                    .data-value{
-                        font-size: 14px;
-                        font-weight: bold;
-                        line-height: 1.3;
-                    }
-                    .data-label{
-                        font-size: 12px;
-                        font-weight: normal;
-                    }
-                }
-            }
-        }
-    }
-    .myChart {
-        .size(100%,760px);
-        height: 760px;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 10px;
-    }
-}
-
-@media screen and (max-width: @phone) {
-    .m-price-chart-box {
-        flex-wrap: wrap;
-        .legends {
-            width: 100%;
-            .legends-item {
-                width: 100%;
-            }
-        }
-    }
-}
-</style>

@@ -1,6 +1,6 @@
 <template>
     <div class="m-manufacture-recipe">
-        <div class="m-recipe-list">
+        <div class="m-recipe-list" :style="recipeListStyle">
             <span class="m-recipe-group" v-for="(item, i) in list" :key="i">
                 <span :class="['m-list m-title', { active: i == showIndex }]" @click="changeIndex(i)">
                     <span class="u-name">
@@ -36,7 +36,9 @@
                 </span>
             </span>
         </div>
-        <RecipeDetail ref="recipe-detail" v-loading="loading" :recipe="recipe" :server="server" v-bind="$attrs" />
+        <div ref="recipe-detail-panel" class="m-recipe-detail-panel">
+            <RecipeDetail ref="recipe-detail" v-loading="loading" :recipe="recipe" :server="server" v-bind="$attrs" />
+        </div>
     </div>
 </template>
 <script>
@@ -57,6 +59,8 @@ export default {
             children: [],
             prices: {},
             itemId: 0,
+            detailPanelHeight: 0,
+            detailResizeObserver: null,
         };
     },
     components: { RecipeDetail },
@@ -64,14 +68,36 @@ export default {
         client() {
             return this.$store.state.client;
         },
+        recipeListStyle() {
+            return this.detailPanelHeight ? { height: `${this.detailPanelHeight}px` } : null;
+        },
     },
     methods: {
         iconLink,
+        syncRecipeListHeight() {
+            if (window.innerWidth <= 960) {
+                this.detailPanelHeight = 0;
+                return;
+            }
+            const panel = this.$refs["recipe-detail-panel"];
+            this.detailPanelHeight = panel ? Math.ceil(panel.getBoundingClientRect().height) : 0;
+        },
+        initDetailResizeObserver() {
+            const panel = this.$refs["recipe-detail-panel"];
+            if (!panel || typeof ResizeObserver === "undefined") return;
+            this.detailResizeObserver?.disconnect();
+            this.detailResizeObserver = new ResizeObserver(() => this.syncRecipeListHeight());
+            this.detailResizeObserver.observe(panel);
+            this.syncRecipeListHeight();
+        },
         loadItem(id) {
             this.loading = true;
             this.getRecipe(this.craftKey, id, this.client)
                 .then((recipe) => {
                     this.recipe = recipe;
+                })
+                .catch(() => {
+                    this.recipe = {};
                 })
                 .finally(() => {
                     this.loading = false;
@@ -80,6 +106,7 @@ export default {
         async getRecipe(craftType, id, client) {
             const resp = await getManufactureItem(craftType, id, client);
             const recipe = resp.data;
+            if (!recipe) throw new Error("未找到配方");
             const materials = [];
             // 获取材料列表
             recipe.item_id = recipe.CreateItemType1 + "_" + recipe.CreateItemIndex1;
@@ -159,6 +186,14 @@ export default {
         craftKey() {
             this.showIndex = 0;
         },
+    },
+    mounted() {
+        this.$nextTick(this.initDetailResizeObserver);
+        window.addEventListener("resize", this.syncRecipeListHeight);
+    },
+    beforeUnmount() {
+        this.detailResizeObserver?.disconnect();
+        window.removeEventListener("resize", this.syncRecipeListHeight);
     },
 };
 </script>

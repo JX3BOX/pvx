@@ -1,53 +1,98 @@
 <template>
-    <div ref="listRef" class="p-exam" v-loading="loading">
-        <PvxSearch class="m-exam-search" :items="searchProps" :initValue="initValue" @search="searchEvent($event)">
-            <template #extra>
-                <el-button
-                    type="primary"
-                    class="u-analysis"
-                    v-if="search.type == 2 || search.type == 3"
-                    @click="openLink(search.type)"
+    <PvxPageShell class="p-pvx-exam-index">
+        <div ref="listRef" class="m-pvx-exam__layout" v-loading="loading">
+            <PvxSurface class="m-pvx-exam__hero" padding="medium">
+                <PvxSectionHeader
+                    class="m-pvx-exam__header"
+                    :title="$t('pages.exam.ui.title')"
+                    :description="$t('pages.exam.ui.description')"
+                    level="h1"
                 >
-                    {{ search.type === 2 ? "我要出题" : "我要出卷" }}
-                </el-button>
-            </template>
-        </PvxSearch>
-        <div class="m-exam-content">
-            <ImperialExamList v-if="search.type === 1" :search="search.title" :data="data"></ImperialExamList>
-            <template v-else>
-                <!-- 列表 -->
-                <template v-if="data && data.length">
-                    <QuestionList v-if="search.type === 2" :data="data"></QuestionList>
-                    <PaperList v-if="search.type === 3" :data="data"></PaperList>
+                    <template #icon><Reading /></template>
+                </PvxSectionHeader>
+            </PvxSurface>
+
+            <PvxSearch
+                class="m-pvx-exam__toolbar"
+                variant="modern"
+                popper-class="m-pvx-exam-filter"
+                i18n-scope="pages.exam.ui.search"
+                :items="searchProps"
+                :initValue="initValue"
+                @search="searchEvent"
+            >
+                <template #extra>
+                    <PvxActionButton
+                        v-if="search.type === 2 || search.type === 3"
+                        class="u-publish"
+                        @click="openLink"
+                    >
+                        <EditPen />
+                        {{ search.type === 2 ? $t("pages.exam.ui.actions.publishQuestion") : $t("pages.exam.ui.actions.publishPaper") }}
+                    </PvxActionButton>
                 </template>
-                <!-- 空 -->
-                <el-empty v-else description="没有找到相关条目" :image-size="100"></el-empty>
-            </template>
-            <!-- 分页 -->
-            <el-pagination
-                v-if="[2, 3].includes(search.type) && data.length"
-                class="m-exam-pagination"
-                background
-                :page-size="query.pageSize"
-                :hide-on-single-page="true"
-                v-model:current-page="query.pageIndex"
-                layout="total, prev, pager, next, jumper"
-                :total="totalPages"
-                @current-change="pageChange"
-            ></el-pagination>
+            </PvxSearch>
+
+            <PvxSurface class="m-pvx-exam__content" padding="medium">
+                <PvxSectionHeader
+                    class="m-pvx-exam__section-header"
+                    :title="sectionTitle"
+                    :description="sectionDescription"
+                    level="h2"
+                >
+                    <template v-if="search.type !== 1 && total" #action>
+                        <span class="u-result-count">{{ $t("pages.exam.ui.resultCount", { count: total }) }}</span>
+                    </template>
+                </PvxSectionHeader>
+
+                <ImperialExamList v-if="search.type === 1" />
+
+                <template v-else>
+                    <template v-if="data.length">
+                        <QuestionList v-if="search.type === 2" :data="data" />
+                        <PaperList v-if="search.type === 3" :data="data" />
+                    </template>
+                    <PvxEmptyState
+                        v-else-if="!loading"
+                        class="m-pvx-exam__empty"
+                        :title="$t('pages.exam.ui.empty.title')"
+                        :description="$t('pages.exam.ui.empty.description')"
+                    >
+                        <template #icon><Search /></template>
+                    </PvxEmptyState>
+                </template>
+
+                <div v-if="[2, 3].includes(search.type) && data.length" class="m-pvx-exam__pagination">
+                    <el-pagination
+                        background
+                        :page-size="query.pageSize"
+                        :hide-on-single-page="true"
+                        v-model:current-page="query.pageIndex"
+                        layout="total, prev, pager, next, jumper"
+                        :total="total"
+                        @current-change="pageChange"
+                    />
+                </div>
+            </PvxSurface>
         </div>
-    </div>
+    </PvxPageShell>
 </template>
 <script>
-import { getExamPaperList, getExamQuestionList, getExamRandom, getExamByKey } from "@/service/exam.js";
+import { getExamPaperList, getExamQuestionList } from "@/service/exam.js";
 import PvxSearch from "@/components/PvxSearch.vue";
 import ImperialExamList from "@/components/exam/imperial_exam_list.vue";
 import PaperList from "@/components/exam/paper_list.vue";
 import QuestionList from "@/components/exam/question_list.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 import tags from "@/assets/data/exam_tags.json";
 import { __clients, __Root } from "@/utils/config";
 import { cloneDeep } from "lodash";
 import { deleteNull } from "@/utils/index";
+import { EditPen, Reading, Search } from "@element-plus/icons-vue";
 export default {
     name: "ExamList",
     components: {
@@ -55,6 +100,14 @@ export default {
         ImperialExamList,
         PaperList,
         QuestionList,
+        PvxActionButton,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        EditPen,
+        Reading,
+        Search,
     },
     data() {
         return {
@@ -64,14 +117,13 @@ export default {
                 pageSize: 16,
             },
             total: 0,
-            totalPages: 0,
             search: {
                 title: "",
             },
             searchProps: [
                 {
                     key: "type",
-                    name: "类型",
+                    name: this.$t("pages.exam.ui.filters.type"),
                     type: "radio",
                     options: [
                         // {
@@ -80,22 +132,22 @@ export default {
                         // },
                         {
                             type: 1,
-                            name: "科举题库",
+                            name: this.$t("pages.exam.ui.types.imperial"),
                             key: "keju",
                         },
                         {
                             type: 2,
-                            name: "创作题库",
+                            name: this.$t("pages.exam.ui.types.question"),
                             key: "question",
                         },
                         {
                             type: 3,
-                            name: "模拟考试",
+                            name: this.$t("pages.exam.ui.types.paper"),
                             key: "paper",
                         },
                         {
                             type: 4,
-                            name: "剑三高考",
+                            name: this.$t("pages.exam.ui.types.gaokao"),
                             link: "/event/gaokao",
                         },
                     ],
@@ -103,7 +155,7 @@ export default {
                 {
                     type: "filter",
                     key: "filter",
-                    name: "过滤",
+                    name: this.$t("pages.exam.ui.filters.filter"),
                     options: [],
                 },
                 // {
@@ -114,7 +166,7 @@ export default {
             initValue: {
                 tag: "",
                 client: "",
-                type: ~~this.$route.params.type || 1,
+                type: [1, 2, 3].includes(~~this.$route.params.type) ? ~~this.$route.params.type : 1,
             },
             data: [],
         };
@@ -146,33 +198,25 @@ export default {
         params() {
             return { ...this.query, ...this.search };
         },
+        sectionTitle() {
+            const key = { 1: "imperial", 2: "question", 3: "paper" }[this.search.type] || "imperial";
+            return this.$t(`pages.exam.ui.sections.${key}.title`);
+        },
+        sectionDescription() {
+            const key = { 1: "imperial", 2: "question", 3: "paper" }[this.search.type] || "imperial";
+            return this.$t(`pages.exam.ui.sections.${key}.description`);
+        },
     },
     watch: {
-        "search.title": {
-            handler(key) {
-                if (this.search.type === 1) {
-                    if (key && key.length >= 2) {
-                        getExamByKey({ key }).then((res) => {
-                            this.data = res.data?.data || [];
-                        });
-                    }
-                    if (!key) {
-                        this.loadImperialExam();
-                    }
-                }
-            },
-        },
         "search.type"(type) {
             if (type === 1) {
-                // this.searchProps[2].name = `关键词(长度不少于2个字符)`;
                 this.searchProps.splice(2, 1);
                 this.data = [];
-                // this.loadImperialExam();
+                this.total = 0;
             } else {
-                // this.searchProps[2].name = `关键词`;
                 this.searchProps[2] = {
                     key: "title",
-                    name: "关键词",
+                    name: this.$t("pages.exam.ui.filters.keyword"),
                 };
             }
             if (type === 2 || type === 3) {
@@ -189,7 +233,7 @@ export default {
                     this.searchProps[1].options.push({
                         key: "tag",
                         type: "radio",
-                        name: "标签",
+                        name: this.$t("pages.exam.ui.filters.tag"),
                         options: tags,
                     });
                 }
@@ -206,7 +250,7 @@ export default {
                     this.searchProps[1].options.push({
                         key: "client",
                         type: "radio",
-                        name: "平台",
+                        name: this.$t("pages.exam.ui.filters.client"),
                         options: clients,
                     });
                 }
@@ -260,17 +304,12 @@ export default {
                             paramsType: params.type,
                         };
                     });
-                    this.totalPages = res.data?.page?.total;
+                    this.total = res.data?.page?.total || 0;
                 })
-                .finally(() => {
-                    this.loading = false;
-                });
-        },
-        loadImperialExam() {
-            this.loading = true;
-            getExamRandom()
-                .then((res) => {
-                    this.data = res.data?.data || [];
+                .catch(() => {
+                    this.data = [];
+                    this.total = 0;
+                    this.$message.error(this.$t("pages.exam.ui.loadFailed"));
                 })
                 .finally(() => {
                     this.loading = false;
@@ -280,7 +319,7 @@ export default {
             this.load();
         },
         openLink() {
-            window.open(__Root + this.publishLink, "_blank");
+            window.open(__Root + this.publishLink, "_blank", "noopener,noreferrer");
         },
     },
     mounted() {
@@ -292,6 +331,5 @@ export default {
 };
 </script>
 <style lang="less">
-@import "~@/assets/css/exam/index.less";
-@import "~@/assets/css/exam/exam_miniprogram.less";
+@import "~@/assets/css/modules/exam-index-theme.less";
 </style>

@@ -1,28 +1,72 @@
 <template>
     <div class="m-myList">
         <div class="m-manufacture-title m-manufacture-title-plans">
-            <span class="u-title">我的账单</span>
+            <span class="u-title">{{ $t("pages.pvg.manufacture.ui.cart.plans") }}</span>
             <span class="u-op">
-                <el-checkbox v-model="selectMode" label="批量选择"></el-checkbox>
-                <el-dropdown trigger="click" @command="handleCommand">
-                    <el-button plain size="small" link>
+                <el-checkbox
+                    v-model="selectMode"
+                    @change="onSelectModeChange"
+                >
+                    {{ $t("pages.pvg.manufacture.ui.plans.batchSelect") }}
+                </el-checkbox>
+                <span v-if="selectMode" class="u-selected-count">
+                    {{ $t("pages.pvg.manufacture.ui.plans.selectedCount", { count: selected.length }) }}
+                </span>
+                <el-dropdown
+                    trigger="click"
+                    :disabled="!isLogin || !list.length || listLoading"
+                    @command="handleCommand"
+                >
+                    <el-button
+                        class="u-plan-settings"
+                        plain
+                        size="small"
+                        link
+                        :aria-label="$t('pages.pvg.manufacture.ui.plans.actions')"
+                    >
                         <el-icon class="u-del"><Setting /></el-icon>
                     </el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item command="cancel-select">取消选中</el-dropdown-item>
-                            <el-dropdown-item command="select-all">全部选中</el-dropdown-item>
-                            <el-dropdown-item command="select-yesterday">选中昨日及以前所有账单</el-dropdown-item>
-                            <el-dropdown-item command="delete-select">删除选中账单</el-dropdown-item>
-                            <el-dropdown-item command="merge-select">合并选中账单</el-dropdown-item>
+                            <el-dropdown-item command="cancel-select" :disabled="!selected.length">
+                                {{ $t("pages.pvg.manufacture.ui.plans.cancelSelection") }}
+                            </el-dropdown-item>
+                            <el-dropdown-item command="select-all" :disabled="selected.length === list.length">
+                                {{ $t("pages.pvg.manufacture.ui.plans.selectAll") }}
+                            </el-dropdown-item>
+                            <el-dropdown-item command="select-yesterday" :disabled="!hasHistoricalPlans">
+                                {{ $t("pages.pvg.manufacture.ui.plans.selectHistorical") }}
+                            </el-dropdown-item>
+                            <el-dropdown-item command="delete-select" :disabled="!selected.length" divided>
+                                {{ $t("pages.pvg.manufacture.ui.plans.deleteSelected") }}
+                            </el-dropdown-item>
+                            <el-dropdown-item command="merge-select" :disabled="!selected.length">
+                                {{ $t("pages.pvg.manufacture.ui.plans.mergeSelected") }}
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
+                <el-button
+                    v-if="drawerMode"
+                    class="u-drawer-close"
+                    plain
+                    circle
+                    :aria-label="$t('pages.pvg.manufacture.ui.actions.close')"
+                    @click="$emit('close')"
+                >
+                    <el-icon><Close /></el-icon>
+                </el-button>
             </span>
         </div>
-        <div class="m-box">
-            <template v-if="isLogin">
-                <div class="m-item" v-for="(item, i) in list" :key="i" @click="change(item.id)">
+        <div class="m-box" v-loading="listLoading || loading">
+            <template v-if="isLogin && list.length">
+                <div
+                    class="m-item"
+                    v-for="item in list"
+                    :key="item.id"
+                    :class="{ 'is-selected': selected.includes(item.id) }"
+                    @click="change(item.id)"
+                >
                     <div class="u-title">
                         <span>{{ item.title }}</span>
                         <div
@@ -30,68 +74,108 @@
                             @click.stop="item.time_type = item.time_type == 'created' ? 'updated' : 'created'"
                         >
                             <template v-if="item.time_type == 'created'">
-                                创建于 {{ showTime(new Date(item.created * 1000)) }}
+                                {{ $t("pages.pvg.manufacture.ui.plans.createdAt") }}
+                                {{ showTime(new Date(item.created * 1000)) }}
                             </template>
-                            <template v-else> 编辑于 {{ showTime(new Date(item.updated * 1000)) }} </template>
+                            <template v-else>
+                                {{ $t("pages.pvg.manufacture.ui.plans.updatedAt") }}
+                                {{ showTime(new Date(item.updated * 1000)) }}
+                            </template>
                         </div>
                     </div>
                     <template v-if="selectMode">
-                        <el-checkbox :value="selected.includes(item.id)" @change="change(item.id)"></el-checkbox>
+                        <el-checkbox
+                            :model-value="selected.includes(item.id)"
+                            :aria-label="item.title"
+                            @click.stop
+                            @change="toggleSelection(item.id)"
+                        />
                     </template>
                 </div>
             </template>
-            <span class="m-null" v-else>- 请登录后查看 -</span>
+            <span class="m-null" v-else-if="isLogin">{{ $t("pages.pvg.manufacture.ui.empty.plans") }}</span>
+            <span class="m-null" v-else>{{ $t("pages.pvg.manufacture.ui.empty.login") }}</span>
         </div>
     </div>
 </template>
 
 <script>
 import { getPlan, getPlans, batchDeletePlan, getPlansByIds } from "@/service/manufacture/plan";
-import { __Root } from "@/utils/config";
 import User from "@jx3box/jx3box-common/js/user";
 import { showTime } from "@/utils/moment";
 
 export default {
     name: "MyList",
+    props: {
+        drawerMode: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data: function () {
         return {
             list: [],
             isLogin: User.isLogin(),
-            planId: "",
-            visible: false,
-
             loading: false,
+            listLoading: false,
             selectMode: false,
             selected: [],
         };
     },
+    computed: {
+        hasHistoricalPlans() {
+            const today = new Date().setHours(0, 0, 0, 0);
+            return this.list.some((item) => Number(item.created) * 1000 < today);
+        },
+    },
     methods: {
         showTime,
         load() {
-            if (!this.isLogin) return;
-            getPlans({ no_page: 1 }).then((res) => {
-                this.list =
-                    res.reverse().map((item) => ({
+            if (!this.isLogin) return Promise.resolve();
+            this.listLoading = true;
+            return getPlans({ no_page: 1 })
+                .then((res) => {
+                    const list = Array.isArray(res) ? res : [];
+                    this.list = list
+                        .slice()
+                        .reverse()
+                        .map((item) => ({
                         ...item,
                         time_type: "created",
-                    })) || [];
-            });
+                        }));
+                    const availableIds = new Set(this.list.map((item) => item.id));
+                    this.selected = this.selected.filter((id) => availableIds.has(id));
+                })
+                .catch(() => {
+                    this.$message.error(this.$t("pages.pvg.manufacture.ui.plans.loadFailed"));
+                })
+                .finally(() => {
+                    this.listLoading = false;
+                });
+        },
+        onSelectModeChange(enabled) {
+            if (!enabled) this.selected = [];
+        },
+        toggleSelection(id) {
+            if (this.selected.includes(id)) {
+                this.selected = this.selected.filter((item) => item !== id);
+            } else {
+                this.selected = [...this.selected, id];
+            }
         },
         change(id) {
             if (this.selectMode) {
-                if (this.selected.includes(id)) {
-                    this.selected = this.selected.filter((item) => item != id);
-                } else {
-                    this.selected.push(id);
-                }
-
-                return;
+                return this.toggleSelection(id);
             }
             if (this.loading) return;
             this.loading = true;
             getPlan(id)
                 .then((res) => {
+                    if (!res) throw new Error("Plan not found");
                     this.$emit("view-plan", res);
+                })
+                .catch(() => {
+                    this.$message.error(this.$t("pages.pvg.manufacture.ui.plans.detailLoadFailed"));
                 })
                 .finally(() => {
                     this.loading = false;
@@ -101,49 +185,71 @@ export default {
             if (command == "cancel-select") {
                 this.selected = [];
             } else if (command == "select-all") {
+                this.selectMode = true;
                 this.selected = this.list.map((item) => item.id);
             } else if (command == "select-yesterday") {
-                this.selected = [
+                this.selectMode = true;
+                this.selected = Array.from(new Set([
                     ...this.selected,
                     ...this.list
-                        .filter((item) => new Date(item.created * 1000).getTime() < new Date().setHours(0, 0, 0, 0))
+                        .filter((item) => Number(item.created) * 1000 < new Date().setHours(0, 0, 0, 0))
                         .map((item) => item.id),
-                ];
+                ]));
             } else if (command == "delete-select") {
                 if (!this.selected.length) {
-                    return this.$message.error("请先选择要删除的账单");
+                    return this.$message.warning(this.$t("pages.pvg.manufacture.ui.plans.selectBeforeDelete"));
                 }
-                this.$confirm(`确定要删除选中的 ${this.selected.length} 条账单记录？删除后不可恢复！`, "确认", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
+                this.$confirm(this.$t("pages.pvg.manufacture.ui.plans.deleteConfirm", { count: this.selected.length }), this.$t("pages.pvg.manufacture.ui.plans.confirmTitle"), {
+                    confirmButtonText: this.$t("pages.pvg.manufacture.ui.actions.confirm"),
+                    cancelButtonText: this.$t("pages.pvg.manufacture.ui.actions.cancel"),
                     type: "warning",
                 })
                     .then(() => {
-                        batchDeletePlan(this.selected.join(",")).then(() => {
-                            this.load();
-                        });
+                        this.listLoading = true;
+                        return batchDeletePlan(this.selected.join(","));
                     })
-                    .catch(() => {});
+                    .then(() => {
+                        this.$message.success(this.$t("pages.pvg.manufacture.ui.plans.deleteSuccess"));
+                        this.selected = [];
+                        this.selectMode = false;
+                        return this.load();
+                    })
+                    .catch((error) => {
+                        if (error === "cancel" || error === "close") return;
+                        this.$message.error(this.$t("pages.pvg.manufacture.ui.plans.deleteFailed"));
+                    })
+                    .finally(() => {
+                        this.listLoading = false;
+                    })
             } else if (command == "merge-select") {
                 if (!this.selected.length) {
-                    return this.$message.error("请先选择要合并的账单");
+                    return this.$message.warning(this.$t("pages.pvg.manufacture.ui.plans.selectBeforeMerge"));
                 }
-                this.$confirm(`确定要将选中的 ${this.selected.length} 条账单记录合并为一条新账单？`, "确认", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
+                this.$confirm(this.$t("pages.pvg.manufacture.ui.plans.mergeConfirm", { count: this.selected.length }), this.$t("pages.pvg.manufacture.ui.plans.confirmTitle"), {
+                    confirmButtonText: this.$t("pages.pvg.manufacture.ui.actions.confirm"),
+                    cancelButtonText: this.$t("pages.pvg.manufacture.ui.actions.cancel"),
                     type: "warning",
                 })
                     .then(() => {
-                        getPlansByIds(this.selected.join(",")).then((list) => {
-                            const relation = list.map((item) => item.relation).flat();
-                            this.$emit("merge-plan", relation);
-                            this.$notify({
-                                title: "选中的账单内容已加入当前成本计算器，若有需要请手动删除选中的账单。",
-                                type: "success",
-                            });
-                        });
+                        this.listLoading = true;
+                        return getPlansByIds(this.selected.join(","));
                     })
-                    .catch(() => {});
+                    .then((list) => {
+                        const relation = (Array.isArray(list) ? list : [])
+                            .flatMap((item) => (Array.isArray(item.relation) ? item.relation : []));
+                        if (!relation.length) throw new Error("No plan items");
+                        this.$emit("merge-plan", relation);
+                        this.$message.success(this.$t("pages.pvg.manufacture.ui.plans.mergeSuccess"));
+                        this.selected = [];
+                        this.selectMode = false;
+                    })
+                    .catch((error) => {
+                        if (error === "cancel" || error === "close") return;
+                        this.$message.error(this.$t("pages.pvg.manufacture.ui.plans.mergeFailed"));
+                    })
+                    .finally(() => {
+                        this.listLoading = false;
+                    })
             }
         },
     },

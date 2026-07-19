@@ -1,5 +1,21 @@
 <template>
-    <div class="m-manufacture-mobile">
+    <div class="m-manufacture-mobile p-pvx-manufacture-mobile">
+        <PvxSurface v-if="page == 'menu'" class="m-manufacture-mobile-hero" padding="small">
+            <PvxSectionHeader
+                :title="$t('pages.pvg.manufacture.ui.title')"
+                :description="$t('pages.pvg.manufacture.ui.description')"
+                level="h1"
+            >
+                <template #icon><Tools /></template>
+            </PvxSectionHeader>
+        </PvxSurface>
+        <PvxSurface v-else class="m-manufacture-mobile-context" padding="none" radius="medium">
+            <button type="button" class="u-back" @click="navigateBack">
+                <ArrowLeft />
+                <span>{{ backLabel }}</span>
+            </button>
+            <strong class="u-context-title">{{ contextTitle }}</strong>
+        </PvxSurface>
         <Menu
             v-if="page == 'menu'"
             :craft-types="craftTypes"
@@ -39,6 +55,9 @@ import RecipeDetail from "@/components/manufacture/mobile/RecipeDetail.vue";
 import Cart from "@/components/manufacture/mobile/Cart.vue";
 import BottomBar from "@/components/manufacture/mobile/BottomBar.vue";
 import Plan from "@/components/manufacture/mobile/Plan.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import { ArrowLeft, Tools } from "@element-plus/icons-vue";
 
 import { keyBy } from "lodash";
 import manufactureData from "@/assets/data/manufacture.json";
@@ -51,7 +70,7 @@ const { craft_types } = manufactureData;
 
 export default {
     name: "ManufactureMobile",
-    components: { Menu, Recipe, RecipeDetail, Cart, BottomBar, Plan },
+    components: { Menu, Recipe, RecipeDetail, Cart, BottomBar, Plan, PvxSurface, PvxSectionHeader, ArrowLeft, Tools },
     props: {},
     data: () => ({
         // 当前页面
@@ -98,8 +117,31 @@ export default {
             if (!this.currentCraftType) return [];
             return this.craftList.filter((item) => item.ProfessionID == this.currentCraftType.ProfessionID);
         },
+        backLabel() {
+            return this.page === "detail"
+                ? this.$t("pages.pvg.manufacture.ui.actions.backToRecipes")
+                : this.$t("pages.pvg.manufacture.ui.actions.backToCategories");
+        },
+        contextTitle() {
+            if (this.page === "detail") return this.currentRecipe?.Name || this.currentCraftLabel;
+            if (this.page === "plan") return this.plan?.title || this.$t("pages.pvg.manufacture.ui.cart.plans");
+            return this.currentCraftLabel || this.$t("pages.pvg.manufacture.ui.sections.recipes.title");
+        },
+        currentCraftLabel() {
+            const key = this.currentCraftType?.key;
+            if (!key) return "";
+            const path = `pages.pvg.manufacture.ui.crafts.${key}`;
+            return this.$te(path) ? this.$t(path) : this.currentCraftType?.name || "";
+        },
     },
     methods: {
+        navigateBack() {
+            if (this.page === "detail") {
+                this.go("recipe", { craft_type: this.craftTypeKey }, true);
+            } else {
+                this.go("menu", {}, true);
+            }
+        },
         go(page, data, replace = false) {
             if (replace) {
                 this.$router.replace({
@@ -119,6 +161,9 @@ export default {
         },
         applyGo(page, data) {
             this.page = page || "menu";
+            this.$nextTick(() => {
+                window.scrollTo({ top: 0, behavior: "auto" });
+            });
             if (page == "recipe") {
                 this.craftTypeKey = data?.craft_type || this.craftTypeKey || "tailoring";
             }
@@ -131,7 +176,7 @@ export default {
                         this.currentRecipe = recipe;
                     })
                     .catch((e) => {
-                        this.$message.error("获取配方失败，请稍后重试");
+                        this.$message.error(this.$t("pages.pvg.manufacture.ui.messages.recipeLoadFailed"));
                         this.go("recipe", null, true);
                     })
                     .finally(() => {
@@ -164,7 +209,7 @@ export default {
         async loadRecipe() {
             const resp = await getManufactureItem(this.craftTypeKey, this.currentRecipeID, this.client);
             const recipe = resp.data;
-            if (!recipe) throw new Error("未找到配方");
+            if (!recipe) throw new Error("Recipe not found");
             const materials = [];
             // 获取材料列表
             recipe.item_id = recipe.CreateItemType1 + "_" + recipe.CreateItemIndex1;
@@ -184,10 +229,12 @@ export default {
                 const items = keyBy(res.data, "id");
                 materials.forEach((material) => {
                     const other = items[material.item_id];
-                    material.item = other || { item_info: { Name: "未知" } };
+                    material.item = other || { item_info: { Name: this.$t("pages.pvg.manufacture.ui.common.unknown") } };
                 });
                 if (items[recipe.item_id]) {
-                    recipe.item = items[recipe.item_id] || { item_info: { Name: "未知" } };
+                    recipe.item = items[recipe.item_id] || {
+                        item_info: { Name: this.$t("pages.pvg.manufacture.ui.common.unknown") },
+                    };
                 }
             });
             this.$store.dispatch("fetch_prices", {
@@ -203,6 +250,11 @@ export default {
                 count: count,
                 yield_count: yieldCount,
             });
+            this.$message.success(
+                this.$t("pages.pvg.manufacture.ui.messages.addedToCart", {
+                    name: this.currentRecipe?.item?.item_info?.Name || this.currentRecipe?.Name || "",
+                })
+            );
         },
         addCartItem(recipe = this.currentRecipe, { parent, require_count_unit, count, yield_count } = {}) {
             const materials = recipe.materials.map((item) => {
@@ -281,6 +333,7 @@ export default {
 <style lang="less">
 @import "~@/assets/css/manufacture/mobile/var.less";
 @import "~@/assets/css/manufacture/mobile/element-override.less";
+@import "~@/assets/css/modules/manufacture-mobile-theme.less";
 
 .m-pvg-main {
     padding: 0;

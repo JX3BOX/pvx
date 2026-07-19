@@ -1,0 +1,245 @@
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.p-pvx-exam-paper {
+    > div {
+        max-width: none;
+    }
+
+    .m-pvx-exam-paper__layout {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-4;
+
+        > * {
+            min-width: 0;
+        }
+    }
+
+    .m-pvx-exam-paper__navigation {
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        gap: @pvx-space-2;
+
+        .u-back,
+        .u-edit {
+            display: inline-flex;
+            width: auto;
+            min-width: 104px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            gap: @pvx-space-1;
+            margin: 0;
+            padding: 0 @pvx-space-3;
+            color: @pvx-text-regular;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1;
+            text-decoration: none;
+            background: @pvx-surface;
+            border: 1px solid @pvx-border;
+            border-radius: @pvx-radius-control;
+            cursor: pointer;
+            transition:
+                color @pvx-duration-fast @pvx-ease-standard,
+                background-color @pvx-duration-fast @pvx-ease-standard,
+                border-color @pvx-duration-fast @pvx-ease-standard;
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            &:hover {
+                color: @pvx-primary;
+                background: @pvx-primary-soft;
+                border-color: @pvx-border-focus;
+            }
+
+            &:focus-visible {
+                outline: none;
+                box-shadow: @pvx-shadow-focus;
+            }
+        }
+
+        .u-back {
+            gap: 4px;
+        }
+
+        .u-edit {
+            color: @pvx-text-inverse;
+            background: @pvx-primary;
+            border-color: @pvx-primary;
+
+            &:hover {
+                color: @pvx-text-inverse;
+                background: @pvx-primary-hover;
+                border-color: @pvx-primary-hover;
+            }
+        }
+    }
+
+    .m-pvx-exam-paper__questions {
+        min-width: 0;
+        margin-top: 0;
+    }
+
+    .m-paper-list {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-3;
+
+        .v-single-card {
+            margin: 0;
+        }
+    }
+
+    .m-exam-submit {
+        display: flex;
+        width: 100%;
+        height: auto;
+        justify-content: center;
+        margin: @pvx-space-1 0 0;
+
+        .u-btn {
+            width: min(100%, 360px);
+            min-height: 48px;
+            margin: 0;
+            color: @pvx-text-inverse;
+            font-size: 15px;
+            font-weight: 700;
+            background: @pvx-primary;
+            border: 0;
+            border-radius: @pvx-radius-control;
+            box-shadow: 0 10px 22px fade(@pvx-primary, 20%);
+
+            &:hover,
+            &:focus {
+                color: @pvx-text-inverse;
+                background: @pvx-primary-hover;
+            }
+        }
+
+        &.isSubmitted .u-btn,
+        .u-btn.is-disabled {
+            color: @pvx-text-muted;
+            background: @pvx-border-light;
+            box-shadow: none;
+        }
+    }
+
+    .m-paper-iframe {
+        display: flex;
+        min-height: 220px;
+        align-items: center;
+        gap: @pvx-space-4;
+
+        .u-icon {
+            display: flex;
+            width: 56px;
+            height: 56px;
+            flex: 0 0 56px;
+            align-items: center;
+            justify-content: center;
+            color: @pvx-primary;
+            background: @pvx-primary-soft;
+            border-radius: @pvx-radius-control;
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        .u-content {
+            min-width: 0;
+            flex: 1;
+
+            h2 {
+                margin: 0;
+                color: @pvx-text-primary;
+                font-size: 20px;
+            }
+
+            p {
+                margin: @pvx-space-1 0 0;
+                color: @pvx-text-secondary;
+                line-height: 1.7;
+            }
+        }
+
+        > a {
+            display: inline-flex;
+            min-width: 120px;
+            min-height: 42px;
+            align-items: center;
+            justify-content: center;
+            padding: 0 @pvx-space-3;
+            color: @pvx-text-inverse;
+            font-weight: 600;
+            text-decoration: none;
+            background: @pvx-primary;
+            border-radius: @pvx-radius-control;
+        }
+    }
+
+    .m-thx,
+    .m-single-comment {
+        margin: 0;
+        overflow: hidden;
+        border-radius: @pvx-radius-panel;
+    }
+
+    .m-thx {
+        > div {
+            margin: 0 auto;
+        }
+    }
+
+    .m-single-comment {
+        .el-divider {
+            margin-top: @pvx-space-3;
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .p-pvx-exam-paper {
+        .m-pvx-exam-paper__layout {
+            gap: @pvx-space-3;
+        }
+
+        .m-pvx-exam-paper__navigation {
+            min-height: 56px;
+
+            .u-back,
+            .u-edit {
+                min-width: 0;
+                height: 38px;
+                padding: 0 @pvx-space-2;
+            }
+        }
+
+        .m-paper-list {
+            gap: @pvx-space-2;
+        }
+
+        .m-paper-iframe {
+            align-items: flex-start;
+            flex-direction: column;
+
+            > a {
+                width: 100%;
+            }
+        }
+
+        .m-thx,
+        .m-single-comment {
+            border-radius: @pvx-radius-control;
+        }
+    }
+}
