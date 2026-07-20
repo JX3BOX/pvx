@@ -79,7 +79,7 @@ export default {
             privacy: "隐私保护", privacyDescription: "文件只在当前浏览器中读取，不会上传到服务器", result: "解析结果",
         },
         detail: {
-            backToList: "返回列表", publishFace: "发布作品", publishBody: "发布体型", untitled: "无标题", removed: "已下架", edit: "编辑", copyFaceCode: "复制捏脸码", topicFeatured: "{date}荣登头条",
+            backToList: "返回列表", publishFace: "发布作品", publishBody: "发布体型", untitled: "无标题", removed: "已下架", edit: "编辑", copyFaceCode: "复制捏脸码", copyBodyCode: "复制体型码", topicFeatured: "{date}荣登头条",
             firstPublished: "首发", original: "原创", clients: { std: "旗舰", origin: "缘起" },
             priceBoxcoin: "售价：{price} 盒币", priceGold: "售价：{price} 金箔", purchase: "购买", downloadData: "下载数据", updatedAt: "更新时间：{time}",
             gamePriceHint: "该数据含游戏内收费项目，总计约", tongbao: "{price}通宝", description: "说明", dataList: "数据列表", noDescription: "暂无说明",
@@ -155,6 +155,7 @@ export default {
         },
         ui: {
             sectionTitle: "{role}体型", empty: "没有找到相关的体型", emptySearch: "没找到对应的体型，请重新选择条件或关键词搜索",
+            filters: { bodyCode: "体型码" },
             parse: {
                 title: "体型数据解析器", description: "读取本地文件，快速查看体型参数与各部位调节数据",
                 importTitle: "导入体型数据文件", importDescription: "选择需要查看的游戏体型文件，解析完成后将在下方展示详细参数。",

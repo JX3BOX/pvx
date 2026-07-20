@@ -1,7 +1,25 @@
 import { $next, $pay, $cms } from "@jx3box/jx3box-common/js/api";
 
-function getBodyList(params) {
-    return $next().get("/api/pvxbody", { params });
+async function getBodyList(params) {
+    const res = await $next().get("/api/pvxbody", { params });
+    const list = res.data.data?.list || [];
+
+    // 体型列表接口暂未返回体型码字段；仅对没有数据文件的候选作品补查详情。
+    const codeCandidates = list.filter((item) => !item.file && !item.code_mode);
+    await Promise.all(
+        codeCandidates.map(async (item) => {
+            try {
+                const detail = await getOneBodyInfo(item.id);
+                const { code_mode, code } = detail.data.data || {};
+                item.code_mode = code_mode || 0;
+                item.code = code || "";
+            } catch (e) {
+                // 补充字段失败不影响主列表展示。
+            }
+        })
+    );
+
+    return res;
 }
 
 function getOneBodyInfo(id) {

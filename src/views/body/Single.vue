@@ -22,10 +22,11 @@
         <div class="m-pvx-type__content">
             <SingleCarousel :imageList="previewSrcList" type="body" />
             <SinglePaySection :post="post" type="body" :hasBuy="has_buy" :fileList="downFileList"
-                :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile" />
+                :topicInfo="topic_info" @pay="pay" @download="downloadAll" @download-file="handleDownloadFile"
+                @copy-code="copy" />
         </div>
 
-        <section class="m-pvx-single__data m-pvx-single__panel">
+        <section class="m-pvx-single__data m-pvx-single__panel" v-if="!post.code_mode">
             <div class="m-pvx-single__section-header">
                 <div>
                     <span class="m-pvx-single__eyebrow">DATA ANALYSIS</span>
@@ -84,7 +85,7 @@ import {
     loopPayStatus,
     getAccessoryList,
     getDownUrl as fetchDownUrl,
-    getRandomBody,
+    getBodyList,
     getSliders,
 } from "@/service/body";
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
@@ -148,10 +149,16 @@ export default {
 
         fetchAccessoryList: getAccessoryList,
         getDownUrl: fetchDownUrl,
-        fetchRandomList: getRandomBody,
+        fetchRandomList: getBodyList,
         fetchSliders: getSliders,
         submitPurchase: payBody,
         fetchPayStatus: loopPayStatus,
+
+        copy(txt) {
+            navigator.clipboard.writeText(txt).then(() => {
+                this.$notify({ title: this.$t("pages.faceBody.detail.copySuccess"), message: txt + "", type: "success" });
+            });
+        },
     },
 };
 </script>

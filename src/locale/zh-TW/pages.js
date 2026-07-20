@@ -88,7 +88,7 @@ export default {
         card: { editorChoice: "編輯推薦", paid: "付費", recommended: "推薦", anonymous: "匿名", realistic: "寫實", artistic: "寫意", recreatable: "可新建" },
         parse: { localOnly: "僅在本機解析", complete: "解析完成", compatibility: "檔案相容", privacy: "隱私保護", privacyDescription: "檔案只在目前瀏覽器中讀取，不會上傳到伺服器", result: "解析結果" },
         detail: {
-            backToList: "返回列表", publishFace: "發佈作品", publishBody: "發佈體型", untitled: "無標題", removed: "已下架", edit: "編輯", copyFaceCode: "複製臉型碼", topicFeatured: "{date}榮登頭條",
+            backToList: "返回列表", publishFace: "發佈作品", publishBody: "發佈體型", untitled: "無標題", removed: "已下架", edit: "編輯", copyFaceCode: "複製臉型碼", copyBodyCode: "複製體型碼", topicFeatured: "{date}榮登頭條",
             firstPublished: "首發", original: "原創", clients: { std: "旗艦", origin: "緣起" },
             priceBoxcoin: "售價：{price} 盒幣", priceGold: "售價：{price} 金箔", purchase: "購買", downloadData: "下載資料", updatedAt: "更新時間：{time}",
             gamePriceHint: "此資料含遊戲內收費項目，總計約", tongbao: "{price}通寶", description: "說明", dataList: "資料列表", noDescription: "暫無說明",
@@ -122,6 +122,7 @@ export default {
         },
         ui: {
             sectionTitle: "{role}體型", empty: "沒有找到相關體型", emptySearch: "找不到對應體型，請重新選擇條件或關鍵字搜尋",
+            filters: { bodyCode: "體型碼" },
             parse: { title: "體型資料解析器", description: "讀取本機檔案，快速查看體型參數與各部位調整資料", importTitle: "匯入體型資料檔案", importDescription: "選擇要查看的遊戲體型檔案，解析後將在下方顯示詳細參數。", selectFile: "選擇一個體型資料檔案", formats: "支援 .dat 與 .jx3dat 格式", guide: "遊戲體型匯入匯出指南", compatibilityDescription: "自動辨識角色體型並載入對應參數範圍", resultDescription: "切換分類查看各部位體型參數，並可依原有方式匯出資料。" },
         },
     },

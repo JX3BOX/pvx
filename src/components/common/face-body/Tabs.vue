@@ -167,17 +167,18 @@ export default {
                     { key: 1, value: this.$t("pages.faceBody.filters.withImages") },
                 ],
             });
-            if (this.type === "face") {
-                filterOptions.push({
-                    type: "radio",
-                    key: "code_mode",
-                    name: this.$t("pages.face.ui.filters.faceCode"),
-                    options: [
-                        { key: "", value: this.$t("pages.faceBody.filters.all"), default: true },
-                        { key: 1, value: this.$t("pages.face.ui.filters.faceCode") },
-                    ],
-                });
-            }
+            const codeLabelKey = this.type === "face"
+                ? "pages.face.ui.filters.faceCode"
+                : "pages.body.ui.filters.bodyCode";
+            filterOptions.push({
+                type: "radio",
+                key: "code_mode",
+                name: this.$t(codeLabelKey),
+                options: [
+                    { key: "", value: this.$t("pages.faceBody.filters.all"), default: true },
+                    { key: 1, value: this.$t(codeLabelKey) },
+                ],
+            });
             items.push({
                 type: "filter",
                 options: filterOptions,

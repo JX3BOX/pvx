@@ -57,7 +57,7 @@
         ></el-image>
 
         <img 
-            v-if="type === 'face' && item.code_mode" 
+            v-if="item.code_mode"
             class="u-pvx-pinch-marker" 
             src="@/assets/img/face/bxs_barcode.svg" 
             alt="" 

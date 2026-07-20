@@ -391,7 +391,24 @@
         }
 
         > .u-pvx-img {
+            display: flex;
+            width: var(--pvx-module-card-img-width, 156px);
+            height: var(--pvx-module-card-img-height, 160px);
+            min-height: var(--pvx-module-card-img-height, 160px);
+            align-items: center;
             align-self: center;
+            justify-content: center;
+            flex: 0 0 var(--pvx-module-card-img-height, 160px);
+
+            .el-image__inner {
+                display: block;
+                width: auto;
+                max-width: 100%;
+                height: auto;
+                max-height: 100%;
+                min-height: 0;
+                object-fit: contain;
+            }
         }
 
         .m-pvx-op .u-pvx-title {
@@ -444,15 +461,36 @@
     --pvx-module-card-width: 210px;
     --pvx-module-card-height: 380px;
     --pvx-module-card-img-height: 276px;
+}
 
+.p-pvx-body-list,
+.p-pvx-body-single--modern {
     .m-pvx-type__item--modern {
         .m-pvx-img {
+            display: flex;
             box-sizing: border-box;
+            align-items: center;
+            justify-content: center;
             border: 1px solid @pvx-border-light;
             background: @pvx-surface-muted;
 
-            .u-pvx-pic,
-            .el-image__inner,
+            .u-pvx-pic {
+                display: flex;
+                width: 100%;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .el-image__inner {
+                display: block;
+                width: auto;
+                max-width: 100%;
+                height: auto;
+                max-height: 100%;
+                object-fit: contain;
+            }
+
             .image-slot,
             .image-slot img {
                 display: block;
@@ -460,7 +498,6 @@
                 height: 100%;
             }
 
-            .el-image__inner,
             .image-slot img {
                 object-fit: cover;
             }
@@ -1028,6 +1065,8 @@ html:lang(vi) {
                 grid-row: 1 / span 2;
                 width: 126px;
                 height: 96px;
+                min-height: 96px;
+                flex-basis: 96px;
                 border-radius: 12px;
             }
 
@@ -1116,6 +1155,14 @@ html:lang(vi) {
 
             .m-pvx-img {
                 width: 100%;
+            }
+
+            > .u-pvx-pinch-marker {
+                top: 12px;
+                right: 12px;
+                width: 30px;
+                height: 30px;
+                border-radius: 0 12px 0 12px;
             }
         }
 

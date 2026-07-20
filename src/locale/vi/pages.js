@@ -88,7 +88,7 @@ export default {
         card: { editorChoice: "Biên tập chọn", paid: "Trả phí", recommended: "Đề cử", anonymous: "Ẩn danh", realistic: "Thực", artistic: "Nghệ thuật", recreatable: "Tạo mới" },
         parse: { localOnly: "Chỉ phân tích cục bộ", complete: "Phân tích hoàn tất", compatibility: "Tương thích tệp", privacy: "Bảo mật", privacyDescription: "Tệp chỉ được đọc trong trình duyệt này và không được tải lên máy chủ", result: "Kết quả phân tích" },
         detail: {
-            backToList: "Quay lại danh sách", publishFace: "Đăng tác phẩm", publishBody: "Đăng vóc dáng", untitled: "Không có tiêu đề", removed: "Đã gỡ", edit: "Chỉnh sửa", copyFaceCode: "Sao chép mã khuôn mặt", topicFeatured: "Được đề cử vào {date}",
+            backToList: "Quay lại danh sách", publishFace: "Đăng tác phẩm", publishBody: "Đăng vóc dáng", untitled: "Không có tiêu đề", removed: "Đã gỡ", edit: "Chỉnh sửa", copyFaceCode: "Sao chép mã khuôn mặt", copyBodyCode: "Sao chép mã vóc dáng", topicFeatured: "Được đề cử vào {date}",
             firstPublished: "Đăng đầu tiên", original: "Nguyên tác", clients: { std: "Hiện tại", origin: "Origin" },
             priceBoxcoin: "Giá: {price} Boxcoin", priceGold: "Giá: {price} Lá vàng", purchase: "Mua", downloadData: "Tải dữ liệu", updatedAt: "Cập nhật: {time}",
             gamePriceHint: "Dữ liệu có vật phẩm trả phí trong trò chơi, khoảng", tongbao: "{price} Tongbao", description: "Mô tả", dataList: "Danh sách tệp", noDescription: "Chưa có mô tả",
@@ -122,6 +122,7 @@ export default {
         },
         ui: {
             sectionTitle: "Vóc dáng {role}", empty: "Không tìm thấy dữ liệu vóc dáng", emptySearch: "Không có dữ liệu vóc dáng phù hợp. Hãy thử bộ lọc hoặc từ khóa khác.",
+            filters: { bodyCode: "Mã vóc dáng" },
             parse: { title: "Trình phân tích dữ liệu vóc dáng", description: "Đọc tệp cục bộ để xem nhanh thông số vóc dáng và các điều chỉnh", importTitle: "Nhập dữ liệu vóc dáng", importDescription: "Chọn tệp dữ liệu vóc dáng JX3; các thông số sẽ hiển thị bên dưới sau khi phân tích.", selectFile: "Chọn tệp dữ liệu vóc dáng", formats: "Hỗ trợ .dat và .jx3dat", guide: "Hướng dẫn nhập và xuất dữ liệu vóc dáng", compatibilityDescription: "Tự động nhận dạng loại nhân vật và tải phạm vi thông số tương ứng", resultDescription: "Chuyển danh mục để xem thông số vóc dáng và xuất dữ liệu khi cần." },
         },
     },

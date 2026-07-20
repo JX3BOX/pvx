@@ -88,7 +88,7 @@ import {
     loopPayStatus,
     getAccessoryList,
     getDownUrl,
-    getRandomFace,
+    getFaceList,
     getSliders,
 } from "@/service/face";
 import facedata from "@jx3box/jx3box-facedat/src/Facedat.vue";
@@ -152,7 +152,7 @@ export default {
 
         fetchAccessoryList: getAccessoryList,
         getDownUrl: getDownUrl,
-        fetchRandomList: getRandomFace,
+        fetchRandomList: getFaceList,
         fetchSliders: getSliders,
         submitPurchase: payFace,
         fetchPayStatus: loopPayStatus,

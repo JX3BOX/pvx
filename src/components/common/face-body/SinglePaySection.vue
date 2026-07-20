@@ -37,9 +37,9 @@
                 </div>
             </div>
 
-            <!-- 有捏脸码时优先复制捏脸码 -->
-            <div class="m-pvx-type__buy-btn m-fb-buy-btn" v-else-if="hasFaceCode" @click="handleCopyCode">
-                <div class="u-pvx-buy" :title="$t('pages.faceBody.detail.copyFaceCode')">
+            <!-- 有脸型码/体型码时优先复制对应代码 -->
+            <div class="m-pvx-type__buy-btn m-fb-buy-btn" v-else-if="hasDataCode" @click="handleCopyCode">
+                <div class="u-pvx-buy" :title="copyCodeTitle">
                     <img class="u-fb-buy-icon" :src="iconCopy" alt="" />
                     {{ post.code }}
                 </div>
@@ -172,9 +172,13 @@ export default {
         canDownload() {
             return (this.post.price_type != null && Number(this.post.price_type) === 0) || this.hasBuy;
         },
-        // 有捏脸码时，主操作优先复制捏脸码
-        hasFaceCode() {
-            return this.type === "face" && Boolean(this.post.code_mode) && Boolean(this.post.code);
+        // 有脸型码/体型码时，主操作优先复制对应代码
+        hasDataCode() {
+            return Boolean(this.post.code_mode) && Boolean(this.post.code);
+        },
+        copyCodeTitle() {
+            const key = this.type === "face" ? "copyFaceCode" : "copyBodyCode";
+            return this.$t(`pages.faceBody.detail.${key}`);
         },
         hasFiles() {
             return Boolean(this.fileList?.length);
@@ -208,7 +212,7 @@ export default {
         handleDownload() {
             this.$emit("download");
         },
-        // 复制捏脸码
+        // 复制脸型码/体型码
         handleCopyCode() {
             this.$emit("copy-code", this.post.code);
         },

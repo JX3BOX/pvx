@@ -91,7 +91,7 @@ export default {
         card: { editorChoice: "Editor's Pick", paid: "Paid", recommended: "Pick", anonymous: "Anonymous", realistic: "Real", artistic: "Stylized", recreatable: "Remake" },
         parse: { localOnly: "Parsed locally only", complete: "Parsing complete", compatibility: "Compatibility", privacy: "Privacy", privacyDescription: "Files are read only in this browser and are never uploaded", result: "Parsed Result" },
         detail: {
-            backToList: "Back to List", publishFace: "Publish Work", publishBody: "Publish Body", untitled: "Untitled", removed: "Removed", edit: "Edit", copyFaceCode: "Copy Face Code", topicFeatured: "Featured on {date}",
+            backToList: "Back to List", publishFace: "Publish Work", publishBody: "Publish Body", untitled: "Untitled", removed: "Removed", edit: "Edit", copyFaceCode: "Copy Face Code", copyBodyCode: "Copy Body Code", topicFeatured: "Featured on {date}",
             firstPublished: "First", original: "Original", clients: { std: "Current", origin: "Origin" },
             priceBoxcoin: "Price: {price} Boxcoin", priceGold: "Price: {price} Gold Leaf", purchase: "Purchase", downloadData: "Download Data", updatedAt: "Updated: {time}",
             gamePriceHint: "Includes in-game paid items, approximately", tongbao: "{price} Tongbao", description: "Description", dataList: "Files", noDescription: "No description",
@@ -125,6 +125,7 @@ export default {
         },
         ui: {
             sectionTitle: "{role} Body Types", empty: "No body data found", emptySearch: "No matching body data. Try different filters or keywords.",
+            filters: { bodyCode: "Body Code" },
             parse: { title: "Body Data Parser", description: "Read a local file to inspect body parameters and adjustments", importTitle: "Import Body Data", importDescription: "Choose a JX3 body data file. Parsed parameters will appear below.", selectFile: "Choose a body data file", formats: "Supports .dat and .jx3dat", guide: "Body Data Import & Export Guide", compatibilityDescription: "Automatically detects the character type and loads its parameter ranges", resultDescription: "Switch categories to inspect body parameters and export the data when needed." },
         },
     },

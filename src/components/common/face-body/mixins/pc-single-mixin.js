@@ -306,10 +306,20 @@ export default {
 
         getRandomList() {
             const { user_id } = this.post;
-            this.fetchRandomList({ user_id, limit: RANDOM_LIST_LIMIT }).then((res) => {
-                if (res.data.data.list && res.data.data.list.length > 0) {
-                    this.randomList = res.data.data.list.slice(0, RANDOM_LIST_LIMIT);
-                }
+            if (!user_id) {
+                this.randomList = [];
+                return;
+            }
+
+            this.fetchRandomList({
+                user_id,
+                pageIndex: 1,
+                pageSize: RANDOM_LIST_LIMIT + 1,
+            }).then((res) => {
+                const list = res.data.data.list || [];
+                this.randomList = list
+                    .filter((item) => Number(item.id) !== Number(this.id))
+                    .slice(0, RANDOM_LIST_LIMIT);
             });
         },
 
