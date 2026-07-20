@@ -1,24 +1,24 @@
 ﻿<!--
  * SingleCarousel - 详情页图片轮播组件
- * 
+ *
  * @description 用于脸型/体型详情页展示作品图片，支持轮播和预览功能
  * @author Face & Body 模块优化团队
  * @version 1.0.0
- * 
+ *
  * @features
  * - 支持face和body两种类型
  * - 支持多图片轮播展示
  * - 支持背景模糊效果
  * - 支持图片预览功能
  * - 无图片时显示占位提示
- * 
+ *
  * @props
  * - type: 'face' | 'body' - 模块类型
  * - images: Array - 图片列表
- * 
+ *
  * @events
  * - change: 轮播切换事件
- * 
+ *
  * @styles
  * - 使用 pvx-carousel-mixin 样式混合
  * - 样式文件: assets/css/common/face-body/index.less
@@ -32,14 +32,14 @@
             </el-icon>
             <span>{{ $t("pages.faceBody.detail.noImages", { type: typeLabel }) }}</span>
         </div>
-        
+
         <!-- 图片轮播 -->
         <template v-else>
             <!-- 背景模糊层 -->
             <div class="u-pvx-bg-wrap">
                 <div class="u-pvx-bg" :style="{ backgroundImage: `url(${showPic(activeImage)})` }"></div>
             </div>
-            
+
             <!-- 轮播组件 -->
             <el-carousel
                 :key="carouselType || 'default'"
@@ -78,7 +78,7 @@ import { resolveImagePath } from "@jx3box/jx3box-common/js/utils";
 /**
  * SingleCarousel - 详情页图片轮播组件
  * 用于脸型/体型详情页展示图片轮播，支持预览
- * 
+ *
  * 样式说明：
  * - 组件使用原有类名 m-single-pics、m-carousel 等
  * - 样式由页面引入的 less 文件控制（body/single.less 或 face/single.less）
