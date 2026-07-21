@@ -102,7 +102,7 @@
 </template>
 
 <script>
-import { __imgPath } from "@/utils/config";
+import faceNull from "@/assets/img/face/face_null.png";
 import { showAvatar, getThumbnail } from "@jx3box/jx3box-common/js/utils";
 
 export default {
@@ -147,7 +147,7 @@ export default {
         },
         imgLink: function () {
             if (this.type === 'face') {
-                return this.item.images?.[0] || __imgPath + "image/face/null2.png";
+                return this.item.images?.[0] || faceNull;
             }
             return this.item.images?.[0];
         },
@@ -159,7 +159,7 @@ export default {
         },
         defaultImage() {
             return this.type === 'face' 
-                ? __imgPath + "image/face/null2.png"
+                ? faceNull
                 : require('@/assets/img/body/body_null.png');
         }
     },
