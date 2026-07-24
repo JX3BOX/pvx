@@ -1,17 +1,17 @@
 import { getRoleGameAchievements, getAdventures, getAchievements } from "@/service/adventure/treasure/index.js";
 import { getAdventureTreasureLayout, getTreasurePerfectItems } from "@/assets/js/treasure/layout.js";
 
-let formatDateTime = (dateTimeString) => {
+let formatDateTime = (dateTimeString, locale = "zh-CN") => {
     const dateTime = new Date(dateTimeString);
-    const year = dateTime.getFullYear();
-    const month = String(dateTime.getMonth() + 1).padStart(2, "0");
-    const date = String(dateTime.getDate()).padStart(2, "0");
-    const hours = String(dateTime.getHours()).padStart(2, "0");
-    const minutes = String(dateTime.getMinutes()).padStart(2, "0");
-    const seconds = String(dateTime.getSeconds()).padStart(2, "0");
-
-    const formattedDateTime = `${year}年${month}月${date}日 ${hours}:${minutes}:${seconds}`;
-    return formattedDateTime;
+    return new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    }).format(dateTime);
 };
 
 function getAchievedAdventureIds(achievements = "", achievementMap = []) {
@@ -54,7 +54,9 @@ function buildPerfectAchievements(adventureList = [], achievedIds, layout) {
     };
 }
 
-let getData = async (userJx3Id) => {
+let getData = async (userJx3Id, options = {}) => {
+    const locale = options.locale || "zh-CN";
+    const noRecordText = options.noRecordText || "暂无记录";
     const returnData = {
         pet: [],
         normal: [],
@@ -71,9 +73,9 @@ let getData = async (userJx3Id) => {
 
     returnData.layout = layout;
     if (res.data?.data?.updated_at) {
-        returnData.updated_at = formatDateTime(res.data?.data?.updated_at);
+        returnData.updated_at = formatDateTime(res.data?.data?.updated_at, locale);
     } else {
-        returnData.updated_at = "暂无记录";
+        returnData.updated_at = noRecordText;
     }
 
     const adventureTypes = ["pet", "normal", "perfect"];

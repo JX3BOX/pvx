@@ -16,9 +16,8 @@ export default {
         const pathname = window.location.pathname;
 
         if (pathname == "/pvx/codex/adventure/treasure") {
-            window.open("/codex/adventure/landscape", "_self");
+            window.location.replace("/pvx/codex/adventure/landscape");
         }
-
-    }
+    },
 };
 </script>

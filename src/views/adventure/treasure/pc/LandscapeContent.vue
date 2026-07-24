@@ -1,5 +1,13 @@
 <template>
-    <div class="m-scroll-scene" :style="{ zoom: contentZoom }" v-if="userAchievement">
+    <div
+        class="m-scroll-scene"
+        :class="{
+            'is-long-locale': isLongLocale,
+            'is-interactive': enableDetailLinks,
+        }"
+        :style="{ zoom: contentZoom }"
+        v-if="userAchievement"
+    >
         <div class="m-closed-scroll" :class="{ start: addClass }" aria-hidden="true">
             <span class="u-closed-paper"></span>
             <img class="u-closed-left" :src="getCdnImgUrl('landscape/left.png')" />
@@ -24,7 +32,16 @@
                 <div class="m-qy m-ordinary">
                     <div class="m-qy-list" v-if="userAchievement.normal.length">
                         <div class="m-qy__row" v-for="(ele, eleIndex) in userAchievement.normal" :key="eleIndex">
-                            <div class="m-qy__item" v-for="(item, index) in ele" :key="index">
+                            <component
+                                :is="enableDetailLinks ? 'a' : 'div'"
+                                class="m-qy__item u-treasure-adventure-link"
+                                v-for="(item, index) in ele"
+                                :key="index"
+                                :href="enableDetailLinks ? getAdventureLink(item) : undefined"
+                                :target="enableDetailLinks ? detailTarget : undefined"
+                                :rel="enableDetailLinks && detailTarget === '_blank' ? 'noopener noreferrer' : undefined"
+                                :aria-label="enableDetailLinks ? item.szName : undefined"
+                            >
                                 <template v-if="[4, 118].indexOf(item.dwID) > -1">
                                     <img
                                         v-show="currentCamp == 'hq'"
@@ -51,7 +68,7 @@
                                     <img class="u-qy__bg" :src="getCdnImgUrl('pt/text_bg.png')" />
                                     <span class="u-qy__text">{{ item.szName }}</span>
                                 </div>
-                            </div>
+                            </component>
                         </div>
                     </div>
                     <div class="u-no-qy" v-else>
@@ -70,10 +87,36 @@
                 <div class="m-qy m-pet">
                     <div class="m-qy-list" v-if="userAchievement.pet.length">
                         <div class="m-qy__row" v-for="(ele, eleIndex) in userAchievement.pet" :key="eleIndex">
-                            <div class="m-qy__item" v-for="(item, index) in ele" :key="index">
-                                <img class="u-qy__img" :src="getImgUrl(item)" />
-                                <img class="u-qy__border" :src="getCdnImgUrl('pet_img_border.png')" />
-                            </div>
+                            <template v-if="enableDetailLinks">
+                                <el-tooltip
+                                    v-for="(item, index) in ele"
+                                    :key="index"
+                                    :content="item.szName"
+                                    placement="top"
+                                    :show-after="180"
+                                >
+                                    <a
+                                        class="m-qy__item u-treasure-adventure-link u-treasure-pet-link"
+                                        :href="getAdventureLink(item)"
+                                        :target="detailTarget"
+                                        :rel="detailTarget === '_blank' ? 'noopener noreferrer' : undefined"
+                                        :aria-label="item.szName"
+                                    >
+                                        <img class="u-qy__img" :src="getImgUrl(item)" />
+                                        <img class="u-qy__border" :src="getCdnImgUrl('pet_img_border.png')" />
+                                    </a>
+                                </el-tooltip>
+                            </template>
+                            <template v-else>
+                                <div
+                                    v-for="(item, index) in ele"
+                                    :key="index"
+                                    class="m-qy__item"
+                                >
+                                    <img class="u-qy__img" :src="getImgUrl(item)" />
+                                    <img class="u-qy__border" :src="getCdnImgUrl('pet_img_border.png')" />
+                                </div>
+                            </template>
                         </div>
                     </div>
                     <div class="u-no-qy" v-else>
@@ -116,10 +159,19 @@
                         :style="perfectImageStyle(item, index)"
                         :src="getCdnImgUrl(perfectItemImage(item))"
                     />
-                    <div class="m-item__text" :class="perfectItemClass(item)" :style="perfectLabelStyle(item)">
+                    <component
+                        :is="enableDetailLinks ? 'a' : 'div'"
+                        class="m-item__text u-treasure-label-link"
+                        :class="perfectItemClass(item)"
+                        :style="perfectLabelStyle(item)"
+                        :href="enableDetailLinks ? getAdventureLink(item) : undefined"
+                        :target="enableDetailLinks ? detailTarget : undefined"
+                        :rel="enableDetailLinks && detailTarget === '_blank' ? 'noopener noreferrer' : undefined"
+                        :aria-label="enableDetailLinks ? item.szName : undefined"
+                    >
                         <img class="u-item__bg" :src="getCdnImgUrl(perfectTextBackground(item))" />
                         <span class="u-item__text">{{ item.szName }}</span>
-                    </div>
+                    </component>
                 </template>
             </div>
             <!-- 右侧内容 -->
@@ -135,11 +187,23 @@
             </div>
             <div class="m-producer">
                 <img class="u-producer" :src="getCdnImgUrl('producer.png')" />
-                <div class="u-producer__text">*剑网3魔盒提供技术支持，茗伊插件提供数据支持。</div>
+                <div class="u-producer__text">{{ $t("pages.adventure.treasure.ui.supportCredit") }}</div>
             </div>
             <div class="m-qy-progress">
-                <div class="u-progress">【奇遇进度】{{ userAchievement.progress }}%</div>
-                <div class="u-time">【记录时间】{{ userAchievement.updated_at }}</div>
+                <div class="u-progress">
+                    {{
+                        $t("pages.adventure.treasure.ui.landscapeProgressText", {
+                            value: userAchievement.progress,
+                        })
+                    }}
+                </div>
+                <div class="u-time">
+                    {{
+                        $t("pages.adventure.treasure.ui.landscapeUpdatedAtText", {
+                            value: userAchievement.updated_at,
+                        })
+                    }}
+                </div>
             </div>
         </div>
     </div>
@@ -148,6 +212,7 @@
 <script>
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import { __cdn } from "@/utils/config";
+import { isPhone } from "@/utils/index";
 import {
     getTreasurePerfectItemMap,
     getTreasurePerfectLayout,
@@ -189,11 +254,21 @@ export default {
             type: [Boolean, String],
             default: false,
         },
+        enableDetailLinks: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {};
     },
     computed: {
+        isLongLocale() {
+            return ["en-US", "vi"].includes(this.$i18n.locale);
+        },
+        detailTarget() {
+            return isPhone() ? "_self" : "_blank";
+        },
         treasureLayout() {
             return this.userAchievement?.layout || treasurePerfect;
         },
@@ -227,6 +302,10 @@ export default {
         showSchoolIcon,
         getCdnImgUrl(img) {
             return `${__cdn}design/treasure/${img}`;
+        },
+        getAdventureLink(item = {}) {
+            const id = Number(item.dwID || item.layout?.id);
+            return id ? `/adventure/${id}` : "/adventure";
         },
         perfectItemLayout(item = {}) {
             const baseLayout = item.layout || this.perfectItemMap[Number(item.dwID)] || {};
@@ -267,8 +346,9 @@ export default {
         },
         getImgUrl(item) {
             const client = "std";
+            const defaultImg = this.getCdnImgUrl("pt/default.png");
             let tgaPath = item.szOpenRewardPath?.toLowerCase();
-            if (!tgaPath) return "";
+            if (!tgaPath) return defaultImg;
             tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
             if (!item.szRewardType) {
                 let pngPath = tgaPath.replace(/\.tga$/, ".png");
@@ -276,9 +356,7 @@ export default {
             }
             tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
             if (item.szRewardType === "camp")
-                return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
-            if (item.szRewardType === "school")
-                return `${this.__imgRoot}adventure/${client}/${tgaPath}/school_${this.force}_open.png`;
+                return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.currentCamp || "hq"}_open.png`;
             return defaultImg;
         },
     },

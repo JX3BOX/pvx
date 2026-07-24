@@ -1,16 +1,35 @@
 <template>
     <a v-if="!useWxNav" class="m-pvx-adventure-item" :class="`m-pvx-adventure-item--${variant}`"
-        :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'" :aria-label="item.szName">
+        :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'"
+        :rel="isPhone ? null : 'noopener noreferrer'" :aria-label="item.szName">
         <div class="u-bg" :style="{ backgroundImage: `url(${defaultImg})` }">
             <img class="u-pic" :src="getImgUrl" alt="" />
         </div>
-        <img class="u-title" :src="titleImg" :style="titleStyle" alt="" />
+        <img v-if="titleImg" class="u-title" :src="titleImg" :style="titleStyle" alt="" />
         <span class="u-icon"></span>
-        <div v-if="item.szRewardType === 'camp'" class="u-camp-switch" @click.prevent="switchCamp">
+        <div
+            v-if="item.szRewardType === 'camp'"
+            class="u-camp-switch"
+            :role="isModern ? 'button' : null"
+            :tabindex="isModern ? 0 : null"
+            :aria-label="isModern ? $t('pages.adventure.ui.actions.switchCamp') : null"
+            @click.prevent="switchCamp"
+            @keydown.enter.prevent.stop="switchCamp"
+            @keydown.space.prevent.stop="switchCamp"
+        >
             <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />
             <img v-if="camp === 2" class="u-camp-icon" src="@/assets/img/camp/camp_2.png" />
         </div>
-        <div v-if="item.szRewardType === 'school'" class="u-school-switch" @click.prevent="switchCamp">
+        <div
+            v-if="item.szRewardType === 'school'"
+            class="u-school-switch"
+            :role="isModern ? 'button' : null"
+            :tabindex="isModern ? 0 : null"
+            :aria-label="isModern ? $t('pages.adventure.ui.actions.chooseSchool') : null"
+            @click.prevent="switchCamp"
+            @keydown.enter.prevent.stop="openSchoolPicker"
+            @keydown.space.prevent.stop="openSchoolPicker"
+        >
             <el-popover ref="schoolPopover" placement="bottom" width="180" trigger="click"
                 popper-class="m-pvx-school-choose">
                 <template #reference>
@@ -76,12 +95,17 @@ export default {
         client: function () {
             return this.$store.state.client;
         },
+        isModern() {
+            return this.variant === "modern";
+        },
         defaultImg: function () {
             return __imgPath + "image/pvx/bg.png";
         },
         titleImg: function () {
             const client = this.client;
-            const [, tga] = this.item.szOpenPath?.toLowerCase().match(/\\([^\\]+?)\.uitex/i);
+            const matched = this.item.szOpenPath?.toLowerCase().match(/\\([^\\]+?)\.uitex/i);
+            if (!matched) return "";
+            const [, tga] = matched;
             const filename = `${tga}_${this.item.nOpenFrame}`;
             return this.__imgRoot + `image_ui/${client}/${filename}.png`;
         },
@@ -113,6 +137,10 @@ export default {
         forceIconUrl(force) {
             const forceName = forceid[force];
             return `${__imgPath}image/school/${forceName}.png`;
+        },
+        openSchoolPicker(event) {
+            if (!this.isModern) return;
+            event.currentTarget.querySelector(".u-school-icon")?.click();
         },
         switchCamp() {
             this.camp = this.camp === 1 ? 2 : 1;

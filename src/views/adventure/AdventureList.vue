@@ -174,6 +174,9 @@ export default {
             per: 8,
             count: 0,
             appendMode: false,
+            requestSerial: 0,
+            pendingRequests: 0,
+            keywordTimer: null,
         };
     },
     computed: {
@@ -222,27 +225,48 @@ export default {
             return this.$t(`pages.adventure.ui.types.${value}`);
         },
         loadData() {
+            const requestSerial = ++this.requestSerial;
+            this.pendingRequests = 0;
+            this.appendMode = false;
             this.loading = true;
-            let params = { ...this.params };
+            const params = { ...this.params };
             const { type, ...rest } = params;
             if (this.active === "all") {
                 const list = this.list.filter((e) => e.value !== "all");
                 list.forEach((e) => {
-                    rest.page = e.page;
-                    rest.type = e.value;
-                    this.loadList(rest, e.value);
+                    this.loadList(
+                        {
+                            ...rest,
+                            page: e.page,
+                            type: e.value,
+                        },
+                        e.value,
+                        {
+                            appendMode: false,
+                            requestSerial,
+                        }
+                    );
                 });
             } else {
-                this.loadList({ ...rest, type: this.active, page: this.page }, this.active);
+                this.loadList(
+                    { ...rest, type: this.active, page: this.page },
+                    this.active,
+                    {
+                        appendMode: false,
+                        requestSerial,
+                    }
+                );
             }
         },
-        loadList(params, key) {
+        loadList(params, key, { appendMode = false, requestSerial = this.requestSerial } = {}) {
             const index = this.list.findIndex((e) => e.value == key);
             if (this.list[index].pages < params.page && this.active === "all") params.page = 1;
-            getAdventures(params)
+            this.pendingRequests += 1;
+            return getAdventures(params)
                 .then((res) => {
+                    if (requestSerial !== this.requestSerial) return;
                     const { list, total, pages, page } = res.data;
-                    const _list = this.appendMode ? [...this.list[index].list, ...list] : list;
+                    const _list = appendMode ? [...this.list[index].list, ...list] : list;
                     this.list[index].list = _list || [];
                     this.list[index].page = page || 1;
                     this.list[index].pages = pages || 1;
@@ -250,8 +274,12 @@ export default {
                     this.total = total;
                 })
                 .finally(() => {
-                    this.loading = false;
-                    this.appendMode = false;
+                    if (requestSerial !== this.requestSerial) return;
+                    this.pendingRequests = Math.max(this.pendingRequests - 1, 0);
+                    if (!this.pendingRequests) {
+                        this.loading = false;
+                        this.appendMode = false;
+                    }
                 });
         },
         changePage(i) {
@@ -270,7 +298,11 @@ export default {
             this.loadData();
         },
         onKeywordInput(value) {
-            this.onSearch(value ? { name: value } : {});
+            window.clearTimeout(this.keywordTimer);
+            this.keywordTimer = window.setTimeout(() => {
+                this.onSearch(value ? { name: value } : {});
+                this.keywordTimer = null;
+            }, 250);
         },
         handleResize() {
             this.showCount();
@@ -295,7 +327,10 @@ export default {
         handleLoad(type) {
             const entry = this.list.filter((e) => e.value == type)[0];
             const page = entry.page;
-            let params = { ...this.params };
+            const requestSerial = ++this.requestSerial;
+            const params = { ...this.params };
+            this.pendingRequests = 0;
+            this.loading = true;
             if (this.active === "all") {
                 params.per = this.count;
                 params.page = page + 1 > entry.pages ? 1 : page + 1;
@@ -304,7 +339,10 @@ export default {
                 params.page = page + 1;
             }
             params.type = type;
-            this.loadList(params, type);
+            this.loadList(params, type, {
+                appendMode: this.appendMode,
+                requestSerial,
+            });
         },
     },
     mounted: function () {
@@ -313,6 +351,8 @@ export default {
         window.addEventListener("resize", this.handleResize);
     },
     beforeUnmount() {
+        window.clearTimeout(this.keywordTimer);
+        this.requestSerial += 1;
         window.removeEventListener("resize", this.handleResize);
     },
 };

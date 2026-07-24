@@ -1,120 +1,114 @@
 <template>
     <CommonNav :force-show="true"></CommonNav>
     <CommonHeader></CommonHeader>
-    <div class="p-adventure-treasure-landscape">
-        <div class="m-body">
-            <!-- <a class="u-go_back" href="/adventure">返回主页</a> -->
-            <template v-if="!isLogin">
-                <div class="u-bind_role">
-                    <el-empty description="您还没有登录" :image="__imgPath + `/img/common/empty.png`" :image-size="200">
-                        <a class="el-button el-button--primary el-button--large" :href="login_url"
-                            >前往登录 <i class="el-icon-arrow-right"></i
-                        ></a>
-                    </el-empty>
-                </div>
-            </template>
-            <template v-else-if="noRole">
-                <div class="u-bind_role">
-                    <el-empty
-                        description="当前暂未绑定角色"
-                        :image="__imgPath + `/img/common/empty.png`"
-                        :image-size="200"
-                    >
-                        <a class="el-button el-button--primary" href="/team/role/bind"
-                            >前往绑定 <i class="el-icon-arrow-right"></i
-                        ></a>
-                    </el-empty>
-                </div>
-            </template>
+    <PvxPageShell class="p-adventure-treasure-landscape p-pvx-treasure">
+        <main class="m-body m-pvx-treasure-layout" v-loading="loading">
+            <PvxSurface v-if="!isLogin" class="m-pvx-treasure-state" padding="none">
+                <PvxEmptyState
+                    :title="$t('pages.adventure.treasure.ui.loginRequired')"
+                    :description="$t('pages.adventure.treasure.ui.loginDescription')"
+                >
+                    <template #icon><UserFilled /></template>
+                    <template #action>
+                        <PvxActionButton :href="login_url">
+                            {{ $t("pages.adventure.treasure.ui.goLogin") }}
+                            <ArrowRight />
+                        </PvxActionButton>
+                    </template>
+                </PvxEmptyState>
+            </PvxSurface>
+
+            <PvxSurface v-else-if="noRole" class="m-pvx-treasure-state" padding="none">
+                <PvxEmptyState
+                    :title="$t('pages.adventure.treasure.ui.noRole')"
+                    :description="$t('pages.adventure.treasure.ui.noRoleDescription')"
+                >
+                    <template #icon><UserFilled /></template>
+                    <template #action>
+                        <PvxActionButton href="/team/role/bind">
+                            {{ $t("pages.adventure.treasure.ui.bindRole") }}
+                            <ArrowRight />
+                        </PvxActionButton>
+                    </template>
+                </PvxEmptyState>
+            </PvxSurface>
+
             <template v-else>
-                <div class="m-related-roles">
-                    <el-select
-                        v-model="currentRole"
-                        value-key="ID"
-                        placeholder="请选择当前角色"
-                        :disabled="!isLogin"
-                        popper-class="m-related-roles-options"
-                    >
-                        <el-option v-for="role in roleList" :key="role.ID" :value="role" :label="role.name">
-                            <span class="u-role">
-                                <span class="u-role-name"
-                                    ><img class="u-role-icon" :src="showSchoolIcon(role.mount)" />{{ role.name }}</span
-                                >
-                                <span class="u-role-server">{{ role.server }}</span>
-                            </span>
-                        </el-option>
-                    </el-select>
+                <TreasureControlBar
+                    variant="landscape"
+                    :role-list="roleList"
+                    :role="currentRole"
+                    :camp="currentCamp"
+                    :refreshing="refreshing"
+                    :can-save="isOver"
+                    :show-sync-hint="!isVirtual() && !isSync"
+                    @update:role="currentRole = $event"
+                    @update:camp="currentCamp = $event"
+                    @refresh="onRefresh"
+                    @role-setting="onRoleSet"
+                    @save="saveAsImage"
+                />
 
-                    <el-select
-                        v-model="currentCamp"
-                        placeholder="请选择阵营"
-                        popper-class="m-related-roles-options"
-                    >
-                        <el-option value="hq" label="浩气盟阵营"> </el-option>
-                        <el-option value="er" label="恶人谷阵营"> </el-option>
-                    </el-select>
-                    <el-tooltip content="刷新QQ机器人等渠道快照图片">
-                        <el-button class="u-refresh" @click="onRefresh">
-                            <i class="el-icon-refresh"></i>
-                            刷新卷轴
-                        </el-button>
-                    </el-tooltip>
-
-                    <el-button class="u-role-setting" @click="onRoleSet">
-                        <i class="el-icon-setting"></i>
-                        角色管理
-                    </el-button>
-                </div>
-                <div id="capture" ref="capture">
-                    <LandscapeContent
-                        :__img-root="__imgRoot"
-                        :user-achievement="userAchievement"
-                        :role-info="roleInfo"
-                        :add-class="addClass"
-                        :is-over="isOver"
-                        :content-zoom="contentZoom"
-                        :current-camp="currentCamp"
-                        :reel-add-class="reelAddClass"
-                    ></LandscapeContent>
-                </div>
-
-                <div class="m-treasure-footer">
-                    <a class="u-btn m-hide el-button el-button--primary" href="/tool/74559" target="_blank">同步数据</a>
-                    <button v-if="isOver" @click="saveAsImage" class="u-btn m-hide el-button el-button--primary">
-                        保存图片
-                    </button>
+                <div class="m-pvx-treasure-art-scroll">
+                    <div class="m-pvx-treasure-art-stage">
+                        <div id="capture" ref="capture">
+                            <LandscapeContent
+                                :__img-root="__imgRoot"
+                                :user-achievement="userAchievement"
+                                :role-info="roleInfo"
+                                :add-class="addClass"
+                                :is-over="isOver"
+                                :content-zoom="contentZoom"
+                                :current-camp="currentCamp"
+                                :reel-add-class="reelAddClass"
+                                enable-detail-links
+                            />
+                        </div>
+                    </div>
                 </div>
             </template>
-        </div>
-    </div>
+        </main>
+    </PvxPageShell>
     <CommonFooter></CommonFooter>
 </template>
 
 <script>
 import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure/index.js";
-import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import treasureCommon from "@/assets/js/treasure/index.js";
 import User from "@jx3box/jx3box-common/js/user";
 import html2canvas from "html2canvas";
 import { __Links, __cdn, __Root } from "@/utils/config";
 import LandscapeContent from "./LandscapeContent.vue";
 import CommonNav from "@/components/Nav_v5.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import TreasureControlBar from "@/components/adventure/TreasureControlBar.vue";
+import { ArrowRight, UserFilled } from "@element-plus/icons-vue";
 export default {
     name: "landscape",
     inject: ["__imgRoot", "__imgPath"],
     components: {
         LandscapeContent,
         CommonNav,
+        ArrowRight,
+        PvxActionButton,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSurface,
+        TreasureControlBar,
+        UserFilled,
     },
     data: () => ({
         addClass: false,
         reelAddClass: false,
-        contentZoom: "",
+        contentZoom: 1,
         userAchievement: false,
         roleList: [],
         noRole: false,
         currentRole: "",
-        currentCamp: "",
+        currentCamp: "hq",
         roleInfo: {},
         isLogin: User.isLogin(),
         virtualRole: {
@@ -124,6 +118,10 @@ export default {
         },
         isSync: false,
         isOver: false,
+        loading: false,
+        refreshing: false,
+        startTimer: null,
+        finishTimer: null,
         login_url: __Links.account.login + "?redirect=" + location.href,
     }),
     computed: {
@@ -156,44 +154,55 @@ export default {
             this.$router.push({ name: "portrait" });
             return;
         }
-        this.isLogin && getUserRoles().then((res) => {
-            if (res.data.data.list.length) {
-                this.noRole = false;
-                this.roleList =
-                    res.data?.data?.list.filter((item) => {
-                        return !!item.player_id;
-                    }) || [];
-                if (this.roleList.length) {
-                    this.currentRole = this.roleList.find((item) => item.is_default_role) || this.roleList[0];
-                }
-            } else {
-                this.noRole = true;
-                this.$message.error("未获取到角色信息");
-            }
-        });
+        if (this.isLogin) this.loadRoles();
+    },
+    beforeUnmount() {
+        window.clearTimeout(this.startTimer);
+        window.clearTimeout(this.finishTimer);
     },
     methods: {
+        async loadRoles() {
+            this.loading = true;
+            try {
+                const res = await getUserRoles();
+                this.roleList = res.data?.data?.list?.filter((item) => !!item.player_id) || [];
+                this.noRole = !this.roleList.length;
+                if (this.roleList.length) {
+                    this.currentRole = this.roleList.find((item) => item.is_default_role) || this.roleList[0];
+                } else {
+                    this.$message.error(this.$t("pages.adventure.treasure.ui.roleLoadEmpty"));
+                }
+            } catch (error) {
+                this.noRole = true;
+                this.$message.error(this.$t("pages.adventure.treasure.ui.roleLoadFailed"));
+            } finally {
+                this.loading = false;
+            }
+        },
         onRoleSet() {
             window.open(`${__Root}dashboard/role`, "_blank");
         },
-        onRefresh() {
-            refreshAchievementsTask({
-                mode: "landscape",
-                role: this.currentRole.name,
-                server: this.currentRole.server,
-            }).then(() => {
-                this.$message.success("刷新卷轴成功");
-            });
+        async onRefresh() {
+            if (!this.currentRole?.name || this.refreshing) return;
+            this.refreshing = true;
+            try {
+                await refreshAchievementsTask({
+                    mode: "landscape",
+                    role: this.currentRole.name,
+                    server: this.currentRole.server,
+                });
+                this.$message.success(this.$t("pages.adventure.treasure.ui.refreshSuccess"));
+            } catch (error) {
+                this.$message.error(this.$t("pages.adventure.treasure.ui.refreshFailed"));
+            } finally {
+                this.refreshing = false;
+            }
         },
         async saveAsImage() {
+            const oldZoom = this.contentZoom;
             try {
-                let oldZoom = this.contentZoom;
                 this.contentZoom = 1;
-                await new Promise((resolve) => {
-                    this.$nextTick(() => {
-                        resolve();
-                    });
-                });
+                await this.$nextTick();
 
                 const element = this.$refs.capture;
                 const canvas = await html2canvas(element, {
@@ -203,18 +212,24 @@ export default {
                     height: element.offsetHeight,
                 });
 
-                this.contentZoom = oldZoom;
                 const img = canvas.toDataURL("image/png");
                 const a = document.createElement("a");
                 a.href = img;
-                a.download = "downloaded-image.png";
+                a.download = "adventure-treasure-landscape.png";
                 a.click();
             } catch (error) {
-                console.error("Error saving image:", error);
+                this.$message.error(this.$t("pages.adventure.treasure.ui.saveFailed"));
+            } finally {
+                this.contentZoom = oldZoom;
             }
         },
-        loadRole(userJx3Id) {
-            treasureCommon(userJx3Id).then((res) => {
+        async loadRole(userJx3Id) {
+            this.loading = true;
+            try {
+                const res = await treasureCommon(userJx3Id, {
+                    locale: this.$i18n.locale,
+                    noRecordText: this.$t("pages.adventure.treasure.ui.noRecord"),
+                });
                 this.isSync = !!userJx3Id;
                 res.pet = this.splitArrayIntoChunks(res.pet, 5);
                 res.normal = this.splitArrayIntoChunks(res.normal, 3);
@@ -223,16 +238,22 @@ export default {
                     this.addClass = false;
                     this.reelAddClass = "";
                     this.isOver = false;
-                    setTimeout(() => {
+                    window.clearTimeout(this.startTimer);
+                    this.startTimer = window.setTimeout(() => {
                         this.start();
                     }, 500);
                 });
-            });
+            } catch (error) {
+                this.$message.error(this.$t("pages.adventure.treasure.ui.dataLoadFailed"));
+            } finally {
+                this.loading = false;
+            }
         },
         start() {
             this.addClass = true;
             this.reelAddClass = "start";
-            setTimeout(() => {
+            window.clearTimeout(this.finishTimer);
+            this.finishTimer = window.setTimeout(() => {
                 this.isOver = true;
                 this.addClass = false;
                 this.reelAddClass = "";
@@ -241,36 +262,6 @@ export default {
         isVirtual() {
             return !this.currentRole?.jx3id;
         },
-        getImgUrl(item) {
-            const client = "std";
-            let tgaPath = item.szOpenRewardPath?.toLowerCase();
-            if (!tgaPath) return "";
-            tgaPath = tgaPath.replace(/\\/g, "/").replace("ui/image/adventure/", "");
-            if (!item.szRewardType) {
-                let pngPath = tgaPath.replace(/\.tga$/, ".png");
-                return `${this.__imgRoot}adventure/${client}/${pngPath}`;
-            }
-            tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
-            if (item.szRewardType === "camp")
-                return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
-            if (item.szRewardType === "school")
-                return `${this.__imgRoot}adventure/${client}/${tgaPath}/school_${this.force}_open.png`;
-            return defaultImg;
-        },
-        handleScreenWidthChange() {
-            if (window.innerWidth >= 768) {
-                this.contentZoom = 1;
-                return;
-            }
-            var screenWidth = window.innerWidth - 80;
-            var boxWidth = 1920;
-            var scale = screenWidth / boxWidth;
-            var zoom = 1;
-            if (screenWidth <= boxWidth) {
-                zoom = scale;
-            }
-            this.contentZoom = zoom;
-        },
         splitArrayIntoChunks(array, chunkSize) {
             const chunks = [];
             for (let i = 0; i < array.length; i += chunkSize) {
@@ -278,7 +269,6 @@ export default {
             }
             return chunks;
         },
-        showSchoolIcon,
         getCdnImgUrl(img) {
             return `${__cdn}design/treasure/${img}`;
         },
@@ -289,4 +279,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/adventure/treasure/pc/treasure.less";
+@import "~@/assets/css/adventure/treasure/treasure-shell-theme.less";
 </style>

@@ -86,7 +86,6 @@ const routes = [
         path: "/codex/adventure/landscape",
         component: () => import("@/views/adventure/treasure/pc/Landscape.vue"),
         meta: {
-            name: "横屏",
             i18n: {
                 title: "pages.adventure.treasure.landscape.title",
                 keywords: "pages.adventure.treasure.landscape.keywords",
@@ -100,7 +99,6 @@ const routes = [
         path: "/codex/adventure/portrait",
         component: () => import("@/views/adventure/treasure/miniprogram/Portrait.vue"),
         meta: {
-            name: "竖屏",
             i18n: {
                 title: "pages.adventure.treasure.portrait.title",
                 keywords: "pages.adventure.treasure.portrait.keywords",

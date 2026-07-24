@@ -90,7 +90,7 @@ export default {
     },
     methods: {
         formatWikiDate(val) {
-            return showRecently(val * 1000);
+            return showRecently(val * 1000, this.$i18n.locale);
         },
         formatDate(val) {
             return showDateFn(val);

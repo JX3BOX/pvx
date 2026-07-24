@@ -325,7 +325,7 @@ export default {
         publish_url: publishLink,
         triggerStat: function () {
             if (this.client == "origin") {
-                postStat(`origin_${type}`, this.id);
+                postStat(`origin_${this.type}`, this.id);
             } else {
                 postStat(this.type, this.id);
             }

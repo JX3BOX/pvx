@@ -1,4 +1,7 @@
 import moment, { fn } from "moment";
+import "moment/locale/vi";
+import "moment/locale/zh-tw";
+
 moment.locale("zh-cn", {
     months: "一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月".split(
         "_"
@@ -97,8 +100,18 @@ moment.locale("zh-cn", {
         doy: 4, // The week that contains Jan 4th is the first week of the year.
     },
 });
-function showRecently(val) {
-    return moment(val).fromNow();
+
+const localeMap = {
+    "zh-CN": "zh-cn",
+    "zh-TW": "zh-tw",
+    "en-US": "en",
+    vi: "vi",
+};
+
+function showRecently(val, locale = "zh-CN") {
+    return moment(val)
+        .locale(localeMap[locale] || "zh-cn")
+        .fromNow();
 }
 function showDate(val) {
     return moment(val).format("YYYY-MM-DD");

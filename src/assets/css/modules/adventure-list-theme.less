@@ -211,6 +211,7 @@
     }
 
     .m-pvx-adventure-item--modern {
+        .pvx-focus-ring();
         width: 100%;
         height: auto;
         aspect-ratio: auto;
@@ -220,6 +221,7 @@
         background: @pvx-surface;
         box-shadow: @pvx-shadow-xs;
         text-decoration: none;
+        cursor: pointer;
         transition:
             transform @pvx-duration-normal @pvx-ease-standard,
             border-color @pvx-duration-normal @pvx-ease-standard,
@@ -251,17 +253,19 @@
 
         .u-camp-switch,
         .u-school-switch {
-            top: 14px;
-            right: 14px;
-            width: 32px;
-            height: 32px;
-            padding: 4px;
+            .pvx-focus-ring();
+            top: 10px;
+            right: 10px;
+            width: 44px;
+            height: 44px;
+            padding: 8px;
             border: 1px solid rgba(255, 255, 255, 0.7);
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.82);
             box-shadow: @pvx-shadow-xs;
             opacity: 1;
             backdrop-filter: blur(8px);
+            cursor: pointer;
         }
 
         &:hover {
@@ -272,6 +276,20 @@
 
             .u-pic {
                 transform: scale(0.97);
+            }
+        }
+
+        &:focus-visible {
+            border-color: @pvx-border-focus;
+        }
+
+        &:active {
+            transform: translateY(0) scale(0.985);
+            border-color: @pvx-primary;
+            box-shadow: @pvx-shadow-xs;
+
+            .u-pic {
+                transform: scale(0.94);
             }
         }
     }
