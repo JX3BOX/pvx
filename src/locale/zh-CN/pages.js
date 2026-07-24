@@ -212,10 +212,65 @@ export default {
         keywords: "剑网3奇遇大全,剑三奇遇大全,JX3BOX奇遇大全,剑网3奇遇,剑三奇遇,奇遇攻略,奇遇触发条件,奇遇奖励",
         description:
             "剑网3魔盒（JX3BOX）奇遇大全，收录剑网3各类奇遇内容，提供触发条件、任务流程、奖励说明及相关资料查询。",
+        ui: {
+            title: "奇遇大全",
+            description: "浏览绝世、普通与宠物奇遇，快速查找触发线索、任务流程和奖励信息",
+            navigation: "奇遇分类导航",
+            searchPlaceholder: "搜索奇遇或宠物名称",
+            sectionTitle: "{type}奇遇",
+            resultCount: "共 {count} 项",
+            types: { all: "全部", perfect: "绝世", normal: "普通", pet: "宠物" },
+            actions: {
+                treasure: "奇遇珍卷",
+                viewAll: "查看全部",
+                loadMore: "加载更多",
+            },
+            empty: {
+                title: "没有找到对应奇遇",
+                description: "请尝试更换分类或调整搜索关键词。",
+            },
+        },
         single: {
             title: "奇遇详情",
             keywords: "剑网3奇遇详情,剑三奇遇详情,奇遇攻略,奇遇任务流程,奇遇触发条件,奇遇奖励,JX3BOX奇遇",
             description: "剑网3魔盒（JX3BOX）奇遇详情页，查看单个奇遇的触发条件、完成流程、奖励内容及相关参考信息。",
+            ui: {
+                guideLabel: "奇遇攻略",
+                backToList: "返回列表",
+                achievement: "成就信息",
+                continue: "继续",
+                typeName: "奇遇",
+                robot: {
+                    quickGuide: "添加QQ机器人，快速获取攻略",
+                    copySuccess: "复制成功",
+                    replyPrefix: "回复",
+                    replySuffix: "即可快速获取一图流攻略！",
+                    copyQq: "复制QQ机器人账号",
+                    copyCommand: "复制攻略指令",
+                },
+                wiki: {
+                    guideTitle: "{name}攻略",
+                    improveGuide: "完善{name}攻略",
+                    compatibleLead: "暂无缘起攻略，以下为重制攻略，仅作参考，",
+                    contributeRevision: "参与修订",
+                    compatibleTail: "。",
+                    revisionLead: "本次修订由",
+                    submittedAt: "提交于",
+                    emptyLead: "暂无攻略，我要",
+                    completeGuide: "完善攻略",
+                },
+                records: {
+                    title: "触发记录",
+                    serverPlaceholder: "区服",
+                    viewMore: "查看更多",
+                    date: "日期",
+                    activeTime: "激活时间",
+                    server: "服务器",
+                    player: "玩家",
+                    anonymous: "匿名",
+                    empty: "暂无记录",
+                },
+            },
         },
         treasure: {
             title: "奇遇珍卷",
@@ -619,5 +674,11 @@ export default {
 
     common: {
         appendTitle: " - 剑网3魔盒（JX3BOX）",
+        admin: {
+            manage: "管理",
+            refreshImage: "刷图",
+            refreshSuccess: "QQ机器人图片生成任务提交成功",
+            invalidParams: "参数不正确",
+        },
     }
 };

@@ -59,10 +59,65 @@ export default {
         title: "Danh sách kỳ ngộ",
         keywords: "JX3 adventure list,adventure guide,trigger,rewards,JX3BOX",
         description: "Danh sách kỳ ngộ với điều kiện kích hoạt, quy trình và phần thưởng.",
+        ui: {
+            title: "Cẩm nang kỳ ngộ",
+            description: "Duyệt kỳ ngộ hiếm, thường và thú cưng cùng điều kiện, nhiệm vụ và phần thưởng",
+            navigation: "Danh mục kỳ ngộ",
+            searchPlaceholder: "Tìm kỳ ngộ hoặc thú cưng",
+            sectionTitle: "Kỳ ngộ {type}",
+            resultCount: "{count} kết quả",
+            types: { all: "Tất cả", perfect: "Hiếm", normal: "Thường", pet: "Thú cưng" },
+            actions: {
+                treasure: "Cuộn kỳ ngộ",
+                viewAll: "Xem tất cả",
+                loadMore: "Tải thêm",
+            },
+            empty: {
+                title: "Không tìm thấy kỳ ngộ",
+                description: "Hãy thử danh mục khác hoặc điều chỉnh từ khóa tìm kiếm.",
+            },
+        },
         single: {
             title: "Chi tiết kỳ ngộ",
             keywords: "JX3 adventure detail,trigger,rewards,JX3BOX",
             description: "Trang chi tiết kỳ ngộ với điều kiện và phần thưởng.",
+            ui: {
+                guideLabel: "Cẩm nang kỳ ngộ",
+                backToList: "Quay lại",
+                achievement: "Thành tựu",
+                continue: "Tiếp tục",
+                typeName: "Kỳ ngộ",
+                robot: {
+                    quickGuide: "Thêm bot QQ để nhận hướng dẫn nhanh",
+                    copySuccess: "Đã sao chép",
+                    replyPrefix: "Gửi",
+                    replySuffix: "để nhận nhanh hướng dẫn bằng hình ảnh.",
+                    copyQq: "Sao chép tài khoản bot QQ",
+                    copyCommand: "Sao chép lệnh hướng dẫn",
+                },
+                wiki: {
+                    guideTitle: "Hướng dẫn {name}",
+                    improveGuide: "Hoàn thiện hướng dẫn {name}",
+                    compatibleLead: "Chưa có hướng dẫn cho máy chủ hoài niệm. Hướng dẫn máy chủ chính bên dưới chỉ để tham khảo. ",
+                    contributeRevision: "Đóng góp chỉnh sửa",
+                    compatibleTail: ".",
+                    revisionLead: "Bản chỉnh sửa này được gửi bởi",
+                    submittedAt: "vào",
+                    emptyLead: "Chưa có hướng dẫn.",
+                    completeGuide: "Tạo hướng dẫn",
+                },
+                records: {
+                    title: "Lịch sử kích hoạt",
+                    serverPlaceholder: "Máy chủ",
+                    viewMore: "Xem thêm",
+                    date: "Ngày",
+                    activeTime: "Kích hoạt",
+                    server: "Máy chủ",
+                    player: "Người chơi",
+                    anonymous: "Ẩn danh",
+                    empty: "Chưa có dữ liệu",
+                },
+            },
         },
         treasure: {
             title: "Cuộn kỳ ngộ",
@@ -534,5 +589,11 @@ export default {
 
     common: {
         appendTitle: " - JX3BOX",
+        admin: {
+            manage: "Quản lý",
+            refreshImage: "Tạo lại ảnh",
+            refreshSuccess: "Đã gửi yêu cầu tạo ảnh cho bot QQ",
+            invalidParams: "Tham số không hợp lệ",
+        },
     }
 };

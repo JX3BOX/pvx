@@ -3,30 +3,56 @@
         <WikiPanel>
             <template #head-title>
                 <i class="u-icon el-icon-present"></i>
-                <span class="u-txt">触发记录</span>
-                <el-select v-model="server" placeholder="区服" class="u-server" @change="changeServer">
+                <span class="u-txt">{{ $t("pages.adventure.single.ui.records.title") }}</span>
+                <el-select
+                    v-model="server"
+                    :placeholder="$t('pages.adventure.single.ui.records.serverPlaceholder')"
+                    class="u-server"
+                    @change="changeServer"
+                >
                     <el-option v-for="item in servers" :key="item" :label="item" :value="item"></el-option>
                 </el-select>
             </template>
             <template #head-actions>
-                <a class="u-more" href="https://j3cx.com/serendipity" target="_blank">查看更多 &raquo;</a>
+                <a class="u-more" href="https://j3cx.com/serendipity" target="_blank">
+                    {{ $t("pages.adventure.single.ui.records.viewMore") }} &raquo;
+                </a>
             </template>
             <template #body>
                 <ul class="u-list" v-if="list && list.length > 0">
                     <li class="u-header">
-                        <span class="u-date">日期</span>
-                        <span class="u-time">激活时间</span>
-                        <span class="u-server">服务器</span>
-                        <span class="u-name">玩家</span>
+                        <span class="u-date">{{ $t("pages.adventure.single.ui.records.date") }}</span>
+                        <span class="u-time">{{ $t("pages.adventure.single.ui.records.activeTime") }}</span>
+                        <span class="u-server">{{ $t("pages.adventure.single.ui.records.server") }}</span>
+                        <span class="u-name">{{ $t("pages.adventure.single.ui.records.player") }}</span>
                     </li>
                     <li v-for="(item, i) in list" :key="i">
-                        <span class="u-date">{{ formatDate(item.date_str) }}</span>
-                        <span class="u-time">{{ formatWikiDate(item.dwTime) }}</span>
-                        <span class="u-server">{{ item.region }}-{{ item.server }}</span>
-                        <span class="u-name">{{ item.name || "匿名" }}</span>
+                        <span class="u-date">
+                            <em class="u-mobile-label">{{ $t("pages.adventure.single.ui.records.date") }}</em>
+                            {{ formatDate(item.date_str) }}
+                        </span>
+                        <span class="u-time">
+                            <em class="u-mobile-label">{{ $t("pages.adventure.single.ui.records.activeTime") }}</em>
+                            {{ formatWikiDate(item.dwTime) }}
+                        </span>
+                        <span class="u-server">
+                            <em class="u-mobile-label">{{ $t("pages.adventure.single.ui.records.server") }}</em>
+                            {{ item.region }}-{{ item.server }}
+                        </span>
+                        <span class="u-name">
+                            <em class="u-mobile-label">{{ $t("pages.adventure.single.ui.records.player") }}</em>
+                            {{ item.name || $t("pages.adventure.single.ui.records.anonymous") }}
+                        </span>
                     </li>
                 </ul>
-                <el-alert class="u-alert" v-else title="无记录" type="info" center :closable="false" />
+                <el-alert
+                    v-else
+                    class="u-alert"
+                    :title="$t('pages.adventure.single.ui.records.empty')"
+                    type="info"
+                    center
+                    :closable="false"
+                />
             </template>
         </WikiPanel>
     </div>

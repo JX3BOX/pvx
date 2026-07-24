@@ -10,23 +10,29 @@
             <WikiPanel :wiki-post="wiki_post">
                 <template #head-title v-if="!isRobot">
                     <img class="u-icon" svg-inline src="@/assets/img/common/item.svg" />
-                    <span class="u-txt">{{ name }}攻略</span>
+                    <span class="u-txt">{{ wikiText("guideTitle", { name }, `${name}攻略`) }}</span>
                 </template>
                 <template #head-actions v-if="!isRobot">
                     <a class="u-btn--link el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
                         <i class="el-icon-edit"></i>
-                        <span>完善{{ name }}攻略</span>
+                        <span>{{ wikiText("improveGuide", { name }, `完善${name}攻略`) }}</span>
                     </a>
                 </template>
                 <template #body>
                     <div class="m-wiki-compatible" v-if="compatible">
-                        <i class="el-icon-warning-outline"></i> 暂无缘起攻略，以下为重制攻略，仅作参考，<a class="s-link"
-                            :href="publish_url(`${type}/${id}`)">参与修订</a>。
+                        <i class="el-icon-warning-outline"></i>
+                        {{ wikiText("compatibleLead", {}, "暂无缘起攻略，以下为重制攻略，仅作参考，") }}
+                        <a class="s-link" :href="publish_url(`${type}/${id}`)">
+                            {{ wikiText("contributeRevision", {}, "参与修订") }}
+                        </a>
+                        {{ wikiText("compatibleTail", {}, "。") }}
                     </div>
                     <Article id="pvxWiki" :content="wiki_post.post.content" />
                     <div class="m-wiki-signature">
                         <i class="el-icon-edit"></i>
-                        本次修订由 <b>{{ user_name }}</b> 提交于{{ updated_at }}
+                        {{ wikiText("revisionLead", {}, "本次修订由") }}
+                        <b>{{ user_name }}</b>
+                        {{ wikiText("submittedAt", {}, "提交于") }}{{ updated_at }}
                     </div>
                 </template>
             </WikiPanel>
@@ -42,8 +48,10 @@
             v-if="(!wiki_post || !wiki_post.post) && id">
             <template v-if="!isRobot">
                 <i class="el-icon-s-opportunity"></i>
-                <span>暂无攻略，我要</span>
-                <a class="s-link" :href="publish_url(`${type}/${id}`)">完善攻略</a>
+                <span>{{ wikiText("emptyLead", {}, "暂无攻略，我要") }}</span>
+                <a class="s-link" :href="publish_url(`${type}/${id}`)">
+                    {{ wikiText("completeGuide", {}, "完善攻略") }}
+                </a>
             </template>
             <span v-else>暂无相关攻略，欢迎热心侠士前往补充！</span>
         </div>
@@ -95,6 +103,10 @@ export default {
         isRobot: {
             type: Boolean,
             default: false,
+        },
+        i18nKeyPrefix: {
+            type: String,
+            default: "",
         },
     },
     data() {
@@ -174,6 +186,10 @@ export default {
         window.removeEventListener("load", this.initImageLoader);
     },
     methods: {
+        wikiText(key, params, fallback) {
+            const i18nKey = this.i18nKeyPrefix ? `${this.i18nKeyPrefix}.${key}` : "";
+            return i18nKey && this.$te(i18nKey) ? this.$t(i18nKey, params) : fallback;
+        },
         initImageLoader() {
             // 在DOM更新后获取所有图片
             this.$nextTick(() => {

@@ -1,0 +1,414 @@
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.c-pvx-modern-adventure-list-main,
+.c-pvx-modern-adventure-list-main .m-main {
+    background: @pvx-page-bg;
+}
+
+.c-pvx-modern-adventure-list-main .m-main {
+    min-height: calc(100vh - @header-height);
+    padding: 0;
+}
+
+.p-pvx-adventure-list {
+    > div {
+        max-width: none;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .m-pvx-adventure-layout {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-4;
+    }
+
+    .m-pvx-adventure-section-header {
+        .c-pvx-section-header__icon {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+
+    .u-adventure-treasure {
+        min-width: 132px;
+        border-color: @pvx-primary;
+        color: @pvx-primary;
+        background: @pvx-primary-soft;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(91, 92, 245, 0.1);
+        transition:
+            transform @pvx-duration-fast @pvx-ease-standard,
+            border-color @pvx-duration-fast @pvx-ease-standard,
+            color @pvx-duration-fast @pvx-ease-standard,
+            background-color @pvx-duration-fast @pvx-ease-standard,
+            box-shadow @pvx-duration-fast @pvx-ease-standard;
+
+        svg {
+            width: 18px;
+            height: 18px;
+            flex: none;
+        }
+
+        &:visited {
+            color: @pvx-primary;
+        }
+
+        &:hover {
+            transform: translateY(-1px);
+            border-color: @pvx-primary;
+            color: #fff;
+            background: @pvx-primary;
+            box-shadow: 0 8px 18px rgba(91, 92, 245, 0.22);
+        }
+
+        &:active {
+            transform: translateY(1px);
+            border-color: @pvx-primary-hover;
+            color: #fff;
+            background: @pvx-primary-hover;
+            box-shadow: 0 2px 6px rgba(91, 92, 245, 0.18);
+        }
+    }
+
+    .m-pvx-adventure-toolbar-action {
+        display: flex;
+    }
+
+    .m-pvx-adventure-toolbar {
+        position: sticky;
+        top: calc(@header-height + 12px);
+        z-index: 18;
+        min-height: 68px;
+        border-color: @pvx-border;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: @pvx-shadow-sm;
+        backdrop-filter: blur(12px);
+    }
+
+    .m-pvx-adventure-tabs {
+        display: flex;
+        flex: none;
+        gap: @pvx-space-1;
+    }
+
+    .u-adventure-tab {
+        .pvx-focus-ring();
+        display: inline-flex;
+        min-width: 82px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 @pvx-space-3;
+        border: 1px solid transparent;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-text-secondary;
+        background: @pvx-surface-muted;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            color @pvx-duration-fast @pvx-ease-standard,
+            background-color @pvx-duration-fast @pvx-ease-standard,
+            box-shadow @pvx-duration-fast @pvx-ease-standard;
+
+        &:hover {
+            color: @pvx-primary;
+        }
+
+        &.is-active {
+            color: #fff;
+            background: @pvx-primary;
+            box-shadow: 0 6px 16px rgba(91, 92, 245, 0.2);
+        }
+    }
+
+    .u-adventure-search {
+        min-width: 240px;
+        flex: 1;
+
+        .el-input__wrapper {
+            min-height: 40px;
+            padding: 0 14px;
+            border: 1px solid @pvx-border-light;
+            border-radius: 12px;
+            background: @pvx-surface-muted;
+            box-shadow: none;
+
+            &.is-focus {
+                border-color: @pvx-border-focus;
+                box-shadow: @pvx-shadow-focus;
+            }
+        }
+
+        .el-input__prefix,
+        .el-input__prefix-inner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg {
+            width: 17px;
+            height: 17px;
+            color: @pvx-text-muted;
+        }
+    }
+
+    .m-pvx-adventure-section,
+    .m-pvx-adventure-empty-surface {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .m-pvx-adventure-section-header {
+        margin-bottom: @pvx-space-5;
+    }
+
+    .m-pvx-adventure-section-actions {
+        display: flex;
+        align-items: center;
+        gap: @pvx-space-1;
+    }
+
+    .u-section-action {
+        .pvx-focus-ring();
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        color: @pvx-text-secondary;
+        background: transparent;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        transition:
+            color @pvx-duration-fast @pvx-ease-standard;
+
+        &:hover {
+            color: @pvx-primary;
+        }
+    }
+
+    .m-pvx-adventure-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: @pvx-space-3;
+        min-width: 0;
+    }
+
+    .m-pvx-adventure-item--modern {
+        width: 100%;
+        height: auto;
+        aspect-ratio: auto;
+        overflow: hidden;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface;
+        box-shadow: @pvx-shadow-xs;
+        text-decoration: none;
+        transition:
+            transform @pvx-duration-normal @pvx-ease-standard,
+            border-color @pvx-duration-normal @pvx-ease-standard,
+            box-shadow @pvx-duration-normal @pvx-ease-standard;
+
+        .u-bg {
+            width: 100%;
+            aspect-ratio: 1;
+            overflow: hidden;
+            background-color: @pvx-surface;
+        }
+
+        .u-pic {
+            transform: scale(0.94);
+            transform-origin: center;
+            transition: transform @pvx-duration-normal @pvx-ease-standard;
+        }
+
+        .u-title {
+            bottom: 14px;
+            width: 56%;
+            margin-left: 22%;
+        }
+
+        .u-icon {
+            top: 16px;
+            left: 16px;
+        }
+
+        .u-camp-switch,
+        .u-school-switch {
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: @pvx-shadow-xs;
+            opacity: 1;
+            backdrop-filter: blur(8px);
+        }
+
+        &:hover {
+            transform: translateY(-2px);
+            border-color: @pvx-border-focus;
+            background: @pvx-surface;
+            box-shadow: @pvx-shadow-hover;
+
+            .u-pic {
+                transform: scale(0.97);
+            }
+        }
+    }
+
+    .u-adventure-count {
+        display: inline-flex;
+        min-height: 30px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-text-secondary;
+        background: @pvx-surface-muted;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .m-pvx-adventure-more {
+        width: 100%;
+        min-height: 44px;
+        margin: @pvx-space-5 0 0;
+        border-color: @pvx-primary;
+        border-radius: 12px;
+        background: @pvx-primary;
+
+        &:hover,
+        &:focus {
+            border-color: @pvx-primary-hover;
+            background: @pvx-primary-hover;
+        }
+    }
+
+    .m-pvx-adventure-pages {
+        margin-top: @pvx-space-5;
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+        padding-top: @pvx-space-4;
+        border-top: 1px solid @pvx-border-light;
+
+        .el-pager li.is-active {
+            background: @pvx-primary !important;
+        }
+    }
+}
+
+@media screen and (max-width: @ipad-y) {
+    .p-pvx-adventure-list {
+        .m-pvx-adventure-toolbar {
+            position: static;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: end;
+
+            > div:first-child {
+                display: contents;
+            }
+
+            > div:last-child {
+                grid-column: 2;
+            }
+        }
+
+        .m-pvx-adventure-tabs {
+            grid-column: 1 / -1;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .u-adventure-tab {
+            flex: none;
+        }
+
+        .u-adventure-search {
+            grid-column: 1;
+            width: 100%;
+            min-width: 0;
+            flex: none;
+        }
+
+        .m-pvx-adventure-grid {
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        }
+
+        .m-pvx-adventure-section {
+            padding: @pvx-space-4;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-pvx-adventure-list {
+        .m-pvx-adventure-toolbar {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .m-pvx-adventure-toolbar > div:last-child,
+        .m-pvx-adventure-toolbar-action,
+        .u-adventure-treasure {
+            grid-column: 1;
+            width: 100%;
+        }
+
+        .m-pvx-adventure-tabs {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            overflow: visible;
+        }
+
+        .u-adventure-tab {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .m-pvx-adventure-section-header {
+            align-items: flex-start;
+            gap: @pvx-space-2;
+
+            .c-pvx-section-header__action {
+                margin-left: auto;
+            }
+        }
+
+        .m-pvx-adventure-section-actions {
+            .u-section-action {
+                min-height: 32px;
+            }
+        }
+
+        .m-pvx-adventure-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: @pvx-space-2;
+        }
+
+        .m-pvx-adventure-pages {
+            display: none;
+        }
+    }
+}

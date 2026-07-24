@@ -1,10 +1,10 @@
 <template>
-    <a v-if="!useWxNav" class="m-pvx-adventure-item" :href="`/adventure/${item.dwID}`"
-        :target="isPhone ? '_self' : '_blank'">
+    <a v-if="!useWxNav" class="m-pvx-adventure-item" :class="`m-pvx-adventure-item--${variant}`"
+        :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'" :aria-label="item.szName">
         <div class="u-bg" :style="{ backgroundImage: `url(${defaultImg})` }">
-            <img class="u-pic" :src="getImgUrl" />
+            <img class="u-pic" :src="getImgUrl" alt="" />
         </div>
-        <img class="u-title" :src="titleImg" :style="titleStyle" />
+        <img class="u-title" :src="titleImg" :style="titleStyle" alt="" />
         <span class="u-icon"></span>
         <div v-if="item.szRewardType === 'camp'" class="u-camp-switch" @click.prevent="switchCamp">
             <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />
@@ -24,11 +24,12 @@
         </div>
         <div class="u-name">{{ item.szName }}</div>
     </a>
-    <div v-else class="m-pvx-adventure-item" @click="openDetail">
+    <div v-else class="m-pvx-adventure-item" :class="`m-pvx-adventure-item--${variant}`"
+        :aria-label="item.szName" @click="openDetail">
         <div class="u-bg" :style="{ backgroundImage: `url(${defaultImg})` }">
-            <img class="u-pic" :src="getImgUrl" />
+            <img class="u-pic" :src="getImgUrl" alt="" />
         </div>
-        <img class="u-title" :src="titleImg" :style="titleStyle" />
+        <img class="u-title" :src="titleImg" :style="titleStyle" alt="" />
         <span class="u-icon"></span>
         <div v-if="item.szRewardType === 'camp'" class="u-camp-switch" @click.stop="switchCamp">
             <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />
@@ -60,6 +61,7 @@ export default {
     props: {
         item: { type: Object, required: true },
         useWxNav: { type: Boolean, default: false },
+        variant: { type: String, default: "legacy" },
     },
     inject: ["__imgRoot"],
     data: () => ({

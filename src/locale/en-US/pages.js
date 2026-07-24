@@ -61,10 +61,65 @@ export default {
             "JX3 adventure list,JX3BOX adventure,adventure guide,trigger conditions,adventure rewards",
         description:
             "JX3BOX Adventure List with triggers, steps and rewards for all adventures.",
+        ui: {
+            title: "Adventure Guide",
+            description: "Browse legendary, regular, and pet adventures with triggers, quest steps, and rewards",
+            navigation: "Adventure categories",
+            searchPlaceholder: "Search adventures or pets",
+            sectionTitle: "{type} Adventures",
+            resultCount: "{count} results",
+            types: { all: "All", perfect: "Legendary", normal: "Regular", pet: "Pet" },
+            actions: {
+                treasure: "Adventure Scroll",
+                viewAll: "View All",
+                loadMore: "Load More",
+            },
+            empty: {
+                title: "No adventures found",
+                description: "Try another category or adjust your search keywords.",
+            },
+        },
         single: {
             title: "Adventure Detail",
             keywords: "JX3 adventure detail,adventure guide,trigger conditions,rewards,JX3BOX",
             description: "Adventure detail page with triggers, steps and rewards.",
+            ui: {
+                guideLabel: "Adventure Guide",
+                backToList: "Back to List",
+                achievement: "Achievement",
+                continue: "Continue",
+                typeName: "Adventure",
+                robot: {
+                    quickGuide: "Add the QQ bot for quick guides",
+                    copySuccess: "Copied",
+                    replyPrefix: "Send",
+                    replySuffix: "to quickly get the visual guide.",
+                    copyQq: "Copy the QQ bot account",
+                    copyCommand: "Copy the guide command",
+                },
+                wiki: {
+                    guideTitle: "{name} Guide",
+                    improveGuide: "Improve the {name} Guide",
+                    compatibleLead: "No Legacy-client guide is available. The Standard-client guide below is for reference only. ",
+                    contributeRevision: "Contribute an update",
+                    compatibleTail: ".",
+                    revisionLead: "This revision was submitted by",
+                    submittedAt: "on",
+                    emptyLead: "No guide yet.",
+                    completeGuide: "Create a guide",
+                },
+                records: {
+                    title: "Trigger Records",
+                    serverPlaceholder: "Server",
+                    viewMore: "View More",
+                    date: "Date",
+                    activeTime: "Triggered",
+                    server: "Server",
+                    player: "Player",
+                    anonymous: "Anonymous",
+                    empty: "No records",
+                },
+            },
         },
         treasure: {
             title: "Adventure Scroll",
@@ -537,5 +592,11 @@ export default {
 
     common: {
         appendTitle: " - JX3BOX",
+        admin: {
+            manage: "Manage",
+            refreshImage: "Regenerate Image",
+            refreshSuccess: "QQ bot image generation request submitted",
+            invalidParams: "Invalid parameters",
+        },
     }
 };

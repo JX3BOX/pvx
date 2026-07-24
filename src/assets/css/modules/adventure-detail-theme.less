@@ -1,0 +1,492 @@
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.c-pvx-modern-adventure-single-main,
+.c-pvx-modern-adventure-single-main .m-main {
+    background: @pvx-page-bg;
+}
+
+.c-pvx-modern-adventure-single-main .m-main {
+    min-height: calc(100vh - @header-height);
+    padding: 0;
+}
+
+.p-pvx-adventure-single--modern {
+    color: @pvx-text-primary;
+    background: @pvx-page-bg;
+
+    > div {
+        max-width: none;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .m-pvx-adventure-navigation,
+    .m-pvx-adventure-header {
+        border-color: fade(@pvx-border, 80%);
+        box-shadow: @pvx-shadow-xs;
+    }
+
+    .m-pvx-adventure-navigation {
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        padding: @pvx-space-3 @pvx-space-4;
+        gap: @pvx-space-3;
+
+        .u-goback {
+            .pvx-focus-ring();
+            display: inline-flex;
+            width: auto;
+            min-width: 96px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 0;
+            padding: 0 @pvx-space-3;
+            border: 1px solid @pvx-border;
+            border-radius: @pvx-radius-control;
+            color: @pvx-text-regular;
+            background: @pvx-surface;
+            box-shadow: none;
+            font: inherit;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            transition:
+                color @pvx-duration-fast @pvx-ease-standard,
+                border-color @pvx-duration-fast @pvx-ease-standard,
+                background-color @pvx-duration-fast @pvx-ease-standard;
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            &:hover {
+                border-color: @pvx-border-focus;
+                color: @pvx-primary;
+                background: @pvx-primary-soft;
+            }
+
+            &:active {
+                color: @pvx-primary-hover;
+                transform: translateY(1px);
+            }
+        }
+
+        .c-admin-drop__button {
+            min-height: 40px;
+            border-radius: @pvx-radius-control;
+            background: @pvx-primary;
+        }
+    }
+
+    .m-pvx-adventure-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        margin-top: @pvx-space-4;
+        padding: @pvx-space-5;
+        gap: @pvx-space-4;
+    }
+
+    .m-pvx-adventure-header__info {
+        min-width: 0;
+    }
+
+    .m-pvx-adventure-header__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: @pvx-space-1;
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-adventure-eyebrow {
+        color: @pvx-primary;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+    }
+
+    .u-pvx-adventure-type {
+        display: inline-flex;
+        min-height: 26px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border: 1px solid @pvx-border-focus;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-primary;
+        background: @pvx-primary-soft;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .u-pvx-adventure-title {
+        height: auto;
+        margin: 0;
+        color: @pvx-text-primary;
+        font-size: 32px;
+        font-weight: 750;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .m-pvx-adventure-header__actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: @pvx-space-2;
+
+        .u-achievement {
+            min-width: 120px;
+            border-color: @pvx-primary;
+            color: @pvx-primary;
+            background: @pvx-primary-soft;
+
+            svg {
+                width: 17px;
+                height: 17px;
+            }
+
+            &:hover {
+                color: @pvx-text-inverse;
+                background: @pvx-primary;
+            }
+        }
+    }
+
+    .m-pvx-adventure-guide-tip {
+        grid-column: 1 / -1;
+        padding-top: @pvx-space-3;
+        border-top: 1px solid @pvx-border-light;
+
+        .m-robot__pvx-tip {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
+
+    .m-pvx-adventure-task-panel {
+        margin-top: @pvx-space-5;
+    }
+
+    .m-pvx-adventure-wiki {
+        > div {
+            margin-top: @pvx-space-5 !important;
+        }
+
+        .m-wiki-post-panel {
+            > .c-wiki-panel,
+            > .m-adventure-serendipity {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            > .c-wiki-panel,
+            > .m-adventure-serendipity .c-wiki-panel {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 0;
+                overflow: hidden;
+                border: 1px solid fade(@pvx-border, 80%);
+                border-radius: @pvx-radius-panel;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-xs;
+            }
+
+            > .c-wiki-panel + .m-adventure-serendipity,
+            > .m-adventure-serendipity + .c-wiki-panel {
+                margin-top: @pvx-space-5;
+            }
+        }
+
+        .c-wiki-panel {
+            > .m-panel-head {
+                display: flex;
+                height: 64px;
+                min-height: 64px;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px @pvx-space-5;
+                gap: @pvx-space-3;
+                border-bottom: 1px solid @pvx-border-light;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-body {
+                padding: @pvx-space-5;
+                color: @pvx-text-regular;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-head > .m-panel-title {
+                display: flex;
+                min-width: 0;
+                align-items: center;
+                flex-wrap: wrap;
+                padding: 0;
+                gap: @pvx-space-1;
+                color: @pvx-text-primary;
+                font-weight: 700;
+
+                .u-icon {
+                    display: inline-flex;
+                    width: 32px;
+                    height: 32px;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 0 0 32px;
+                    margin: 0;
+                    padding: 7px;
+                    border-radius: 10px;
+                    color: @pvx-primary;
+                    fill: @pvx-primary;
+                    background: @pvx-primary-soft;
+                    font-size: 16px;
+                    line-height: 18px;
+                }
+
+                .u-txt {
+                    color: @pvx-text-primary;
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 24px;
+                }
+            }
+
+            > .m-panel-head > .m-panel-actions {
+                position: static;
+                display: flex;
+                align-items: center;
+                flex: none;
+                margin-left: auto;
+                gap: @pvx-space-2;
+                transform: none;
+            }
+
+            .u-btn--link {
+                min-height: 40px;
+                border-color: @pvx-primary;
+                border-radius: @pvx-radius-control;
+                background: @pvx-primary;
+            }
+        }
+
+        .m-adventure-serendipity {
+            overflow: visible;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+
+            .m-serendipity .m-panel-title > .el-select.u-server {
+                width: 150px;
+
+                .el-input__wrapper {
+                    min-height: 36px;
+                    border-radius: @pvx-radius-small;
+                    box-shadow: 0 0 0 1px @pvx-border inset;
+                }
+            }
+
+            .m-panel-actions .u-more {
+                color: @pvx-text-secondary;
+                font-size: 13px;
+
+                &:hover {
+                    color: @pvx-primary;
+                }
+            }
+        }
+
+        > .m-thx,
+        > .c-wiki-comments,
+        > .m-wiki-post-empty {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            border: 1px solid fade(@pvx-border, 80%);
+            border-radius: @pvx-radius-panel;
+            background: @pvx-surface;
+            box-shadow: @pvx-shadow-xs;
+        }
+
+        > .m-wiki-post-empty {
+            padding: @pvx-space-5;
+            color: @pvx-text-secondary;
+            letter-spacing: 0;
+            background: @pvx-surface;
+        }
+
+        > .m-thx {
+            padding: @pvx-space-3;
+
+            .w-thx-panel {
+                margin-bottom: 0;
+            }
+
+            .w-thx-copyright {
+                width: 100%;
+                max-width: 1120px;
+                box-sizing: border-box;
+                margin: @pvx-space-2 auto 0;
+                padding: 14px @pvx-space-4;
+                font-size: 13px;
+                line-height: 1.8;
+                overflow-wrap: anywhere;
+            }
+
+            .w-thx-records {
+                width: 100%;
+                max-width: 1120px;
+                margin: 0 auto;
+            }
+        }
+
+        > .c-wiki-comments {
+            padding: 0;
+
+            > .m-panel-body {
+                width: 100%;
+                margin: 0 auto;
+            }
+        }
+
+        .m-wiki-signature {
+            color: @pvx-text-muted;
+            border-top-color: @pvx-border;
+        }
+
+        #pvxWiki {
+            color: @pvx-text-regular;
+            line-height: 1.85;
+
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-pvx-adventure-single--modern {
+        .m-pvx-adventure-guide-tip {
+            display: none;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-pvx-adventure-single--modern {
+        .m-pvx-adventure-navigation,
+        .m-pvx-adventure-header,
+        .m-pvx-adventure-wiki .m-wiki-post-panel > .c-wiki-panel,
+        .m-pvx-adventure-wiki .m-wiki-post-panel > .m-adventure-serendipity .c-wiki-panel,
+        .m-pvx-adventure-wiki > .m-thx,
+        .m-pvx-adventure-wiki > .c-wiki-comments,
+        .m-pvx-adventure-wiki > .m-wiki-post-empty {
+            border-radius: @pvx-radius-card;
+        }
+
+        .m-pvx-adventure-navigation {
+            min-height: 56px;
+            padding: @pvx-space-2;
+
+            .u-goback {
+                min-width: 0;
+                height: 38px;
+                padding: 0 @pvx-space-2;
+                font-size: 13px;
+            }
+        }
+
+        .m-pvx-adventure-header {
+            grid-template-columns: minmax(0, 1fr);
+            padding: @pvx-space-4;
+            gap: @pvx-space-3;
+        }
+
+        .u-pvx-adventure-title {
+            font-size: 26px;
+        }
+
+        .m-pvx-adventure-header__actions {
+            justify-content: stretch;
+
+            .u-achievement {
+                width: 100%;
+            }
+        }
+
+        .m-pvx-adventure-wiki {
+            > div {
+                margin-top: @pvx-space-4 !important;
+            }
+
+            .m-wiki-post-panel {
+                > .c-wiki-panel + .m-adventure-serendipity,
+                > .m-adventure-serendipity + .c-wiki-panel {
+                    margin-top: @pvx-space-4;
+                }
+            }
+
+            .c-wiki-panel {
+                > .m-panel-body {
+                    padding: @pvx-space-3;
+                }
+
+                > .m-panel-head {
+                    height: auto;
+                    min-height: 64px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    padding: @pvx-space-1 @pvx-space-3;
+                    gap: @pvx-space-1;
+                }
+
+                > .m-panel-head > .m-panel-title {
+                    flex: 1 1 auto;
+
+                    .u-icon {
+                        width: 30px;
+                        height: 30px;
+                        flex-basis: 30px;
+                        padding: 7px;
+                    }
+
+                    .u-txt {
+                        font-size: 15px;
+                    }
+
+                    .u-server {
+                        width: 130px;
+                    }
+                }
+
+                > .m-panel-head > .m-panel-actions {
+                    gap: @pvx-space-1;
+                }
+            }
+
+            > .m-thx,
+            > .m-wiki-post-empty {
+                padding: @pvx-space-3;
+            }
+
+            .m-adventure-serendipity {
+                overflow-x: auto;
+
+                .m-serendipity {
+                    min-width: 0;
+                }
+            }
+        }
+    }
+}

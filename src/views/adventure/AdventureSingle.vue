@@ -1,78 +1,123 @@
 <template>
-    <div class="p-adventure-single" v-if="id" v-loading="loading">
-        <template v-if="!isRobot">
-            <div class="m-pvx-adventure-navigation m-navigation">
-                <div class="u-goback" @click="goBack">返回列表</div>
-                <PvxSingleAdminDrop></PvxSingleAdminDrop>
-            </div>
-            <div class="m-pvx-adventure-header">
-                <span class="u-pvx-adventure-title">{{ title }}</span>
-                <div class="m-trigger-links">
-                    <a class="u-link u-achievement" :href="getLink('cj', achieve_id)" target="_blank">
-                        <i class="el-icon-trophy"></i>
-                        成就信息
-                    </a>
-                    <PvxRobotTip v-if="!isRobot" type-name="奇遇" :reply="title"></PvxRobotTip>
+    <PvxPageShell
+        v-if="id && !isRobot"
+        class="p-adventure-single p-pvx-adventure-single--modern"
+        v-loading="loading"
+    >
+        <PvxSurface class="m-pvx-adventure-navigation" tag="nav" padding="small" radius="medium">
+            <button type="button" class="u-goback" @click="goBack">
+                <ArrowLeft />
+                {{ $t("pages.adventure.single.ui.backToList") }}
+            </button>
+            <PvxSingleAdminDrop />
+        </PvxSurface>
+
+        <PvxSurface class="m-pvx-adventure-header" tag="header" padding="large">
+            <div class="m-pvx-adventure-header__info">
+                <div class="m-pvx-adventure-header__meta">
+                    <span class="u-pvx-adventure-eyebrow">
+                        {{ $t("pages.adventure.single.ui.guideLabel") }}
+                    </span>
+                    <span class="u-pvx-adventure-type">{{ adventureTypeName }}</span>
                 </div>
+                <h1 class="u-pvx-adventure-title">{{ title }}</h1>
             </div>
+            <div class="m-pvx-adventure-header__actions">
+                <PvxActionButton
+                    v-if="achieve_id"
+                    class="u-achievement"
+                    :href="getLink('cj', achieve_id)"
+                    target="_blank"
+                    variant="light"
+                >
+                    <Trophy />
+                    {{ $t("pages.adventure.single.ui.achievement") }}
+                </PvxActionButton>
+            </div>
+            <div class="m-pvx-adventure-guide-tip">
+                <PvxRobotTip
+                    variant="modern"
+                    type-name="奇遇"
+                    :reply="title"
+                    :quick-guide-text="$t('pages.adventure.single.ui.robot.quickGuide')"
+                    :copy-success-title="$t('pages.adventure.single.ui.robot.copySuccess')"
+                    :reply-prefix="$t('pages.adventure.single.ui.robot.replyPrefix')"
+                    :reply-suffix="$t('pages.adventure.single.ui.robot.replySuffix')"
+                    :copy-qq-label="$t('pages.adventure.single.ui.robot.copyQq')"
+                    :copy-command-label="$t('pages.adventure.single.ui.robot.copyCommand')"
+                />
+            </div>
+        </PvxSurface>
+
+        <section class="m-pvx-adventure-task-panel">
             <div class="m-pvx-adventure-content">
                 <task :id="id" :info="data" />
             </div>
-            <pvx-user :id="achieve_id" name="奇遇" type="achievement" :isRobot="isRobot" v-if="achieve_id">
-                <template #serendipity v-if="!isRobot">
-                    <div class="m-adventure-serendipity">
-                        <Serendipity :title="title" />
-                    </div>
-                </template>
-            </pvx-user>
-        </template>
-        <template v-else>
-            <div class="m-robot__adventure-header is-perfect">
-                <div class="m-left">
-                    <div class="m-title">
-                        <img :src="require(`@/assets/img/qqbot/jx3box_qqbot_adventure_${robotIcon}.svg`)" />
-                        <div class="u-title">{{ robotTitle }}</div>
-                    </div>
-                    <div class="m-reward">
-                        <div class="u-reward" v-html="rewardContent"></div>
-                    </div>
+        </section>
+
+        <pvx-user
+            v-if="achieve_id"
+            class="m-pvx-adventure-wiki"
+            :id="achieve_id"
+            :name="$t('pages.adventure.single.ui.typeName')"
+            type="achievement"
+            :isRobot="isRobot"
+            i18n-key-prefix="pages.adventure.single.ui.wiki"
+        >
+            <template #serendipity>
+                <div class="m-adventure-serendipity">
+                    <Serendipity :title="title" />
                 </div>
-                <img class="u-right-icon" src="@/assets/img/qqbot/jx3box_qqbot_adventure.svg" alt="" />
-            </div>
-            <div class="m-robot-item m-robot__adventure-condition">
-                <img class="u-pvx-logo" :src="imgUrl" />
-                <div class="m-condition">
-                    <div class="m-title">
-                        <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
-                        <div class="u-title">触发前置</div>
-                        <span>（需全部满足）</span>
-                    </div>
-                    <div class="m-pvx-adventure-content">
-                        <div class="u-content" v-html="conditionContent"></div>
-                    </div>
+            </template>
+        </pvx-user>
+    </PvxPageShell>
+
+    <div v-else-if="id" class="p-adventure-single" v-loading="loading">
+        <div class="m-robot__adventure-header is-perfect">
+            <div class="m-left">
+                <div class="m-title">
+                    <img :src="require(`@/assets/img/qqbot/jx3box_qqbot_adventure_${robotIcon}.svg`)" />
+                    <div class="u-title">{{ robotTitle }}</div>
+                </div>
+                <div class="m-reward">
+                    <div class="u-reward" v-html="rewardContent"></div>
                 </div>
             </div>
-            <div class="m-robot-item m-robot__adventure-method">
+            <img class="u-right-icon" src="@/assets/img/qqbot/jx3box_qqbot_adventure.svg" alt="" />
+        </div>
+        <div class="m-robot-item m-robot__adventure-condition">
+            <img class="u-pvx-logo" :src="imgUrl" />
+            <div class="m-condition">
                 <div class="m-title">
                     <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
-                    <div class="u-title">触发方式</div>
-                    <span>（完成任一均有可能触发奇遇）</span>
+                    <div class="u-title">触发前置</div>
+                    <span>（需全部满足）</span>
                 </div>
                 <div class="m-pvx-adventure-content">
-                    <div class="u-content" v-html="methodContent"></div>
+                    <div class="u-content" v-html="conditionContent"></div>
                 </div>
             </div>
-            <div class="m-robot-item m-robot__adventure-method">
-                <div class="m-title">
-                    <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
-                    <div class="u-title">奇遇流程</div>
-                    <span>（以魔盒在线版本为准）</span>
-                </div>
-                <div class="m-pvx-adventure-content">
-                    <div class="u-content" id="adventureProcessContent" v-html="processContent"></div>
-                </div>
+        </div>
+        <div class="m-robot-item m-robot__adventure-method">
+            <div class="m-title">
+                <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
+                <div class="u-title">触发方式</div>
+                <span>（完成任一均有可能触发奇遇）</span>
             </div>
-        </template>
+            <div class="m-pvx-adventure-content">
+                <div class="u-content" v-html="methodContent"></div>
+            </div>
+        </div>
+        <div class="m-robot-item m-robot__adventure-method">
+            <div class="m-title">
+                <img src="@/assets/img/qqbot/jx3box_qqbot_adventure_item.svg" alt="" />
+                <div class="u-title">奇遇流程</div>
+                <span>（以魔盒在线版本为准）</span>
+            </div>
+            <div class="m-pvx-adventure-content">
+                <div class="u-content" id="adventureProcessContent" v-html="processContent"></div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -87,10 +132,25 @@ import { __imgPath } from "@/utils/config";
 import { wiki } from "@jx3box/jx3box-common/js/wiki";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { ArrowLeft, Trophy } from "@element-plus/icons-vue";
 export default {
     name: "adventureSingle",
     props: ["isRobot", "sourceId"],
-    components: { task, Serendipity, PvxUser, PvxSingleAdminDrop, PvxRobotTip },
+    components: {
+        task,
+        Serendipity,
+        PvxUser,
+        PvxSingleAdminDrop,
+        PvxRobotTip,
+        PvxActionButton,
+        PvxPageShell,
+        PvxSurface,
+        ArrowLeft,
+        Trophy,
+    },
     data: function () {
         return {
             type: "adventure",
@@ -118,6 +178,14 @@ export default {
         },
         isPerfect() {
             return !!this.data?.bPerfect;
+        },
+        adventureType() {
+            if (this.data?.nClassify === 1) return "pet";
+            return this.isPerfect ? "perfect" : "normal";
+        },
+        adventureTypeName() {
+            const type = this.$t(`pages.adventure.ui.types.${this.adventureType}`);
+            return this.$t("pages.adventure.ui.sectionTitle", { type });
         },
         robotIcon() {
             let typeIcon = "normal";
@@ -233,4 +301,5 @@ export default {
 @import "~@/assets/css/adventure/pc/single.less";
 @import "~@/assets/css/common/drawer.less";
 @import "~@/assets/css/adventure/robot.less";
+@import "~@/assets/css/modules/adventure-detail-theme.less";
 </style>

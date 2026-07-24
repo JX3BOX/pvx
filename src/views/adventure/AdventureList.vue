@@ -1,64 +1,172 @@
 <template>
-    <div class="p-adventure-List p-common-list" v-loading="loading" ref="listRef">
-        <AdventureTabs :active="active" :body_types="list" @setActive="setActive" @change="onSearch" />
-        <template v-if="active === 'all'">
-            <div v-for="(item, index) in list" :key="'l' + index" class="m-pvx-adventure-list"
-                :class="`m-pvx-adventure-list-${index}`">
-                <template v-if="item.list.length">
-                    <CardBannerList :class="{ search: tabsData.name }" :count="count" :minw="212"
-                        :data="{ ...itemData, type: item.value }" @update:load="handleLoad" :items="item.list.slice(0, count)">
-                        <template v-slot:title>
-                            <div>{{ item.label + "奇遇" }}</div>
-                        </template>
-                        <template v-slot:action>
-                            <div @click="setActive(item.value)">查看全部</div>
-                        </template>
-                        <template v-slot="{ item }">
-                            <AdventureItem :key="item.id" :item="item" />
-                        </template>
-                    </CardBannerList>
+    <PvxPageShell class="p-adventure-List p-pvx-adventure-list" v-loading="loading">
+        <div ref="listRef" class="m-pvx-adventure-layout">
+            <PvxToolbar class="m-pvx-adventure-toolbar">
+                <nav class="m-pvx-adventure-tabs" :aria-label="$t('pages.adventure.ui.navigation')">
+                    <button
+                        v-for="item in list"
+                        :key="item.value"
+                        type="button"
+                        class="u-adventure-tab"
+                        :class="{ 'is-active': active === item.value }"
+                        :aria-pressed="active === item.value"
+                        @click="setActive(item.value)"
+                    >
+                        {{ typeLabel(item.value) }}
+                    </button>
+                </nav>
+                <el-input
+                    v-model="searchName"
+                    class="u-adventure-search"
+                    clearable
+                    :placeholder="$t('pages.adventure.ui.searchPlaceholder')"
+                    @input="onKeywordInput"
+                >
+                    <template #prefix><Search /></template>
+                </el-input>
+                <template #action>
+                    <div class="m-pvx-adventure-toolbar-action">
+                        <PvxActionButton
+                            class="u-adventure-treasure"
+                            href="/pvx/codex/adventure"
+                            variant="light"
+                        >
+                            <CollectionTag />
+                            {{ $t("pages.adventure.ui.actions.treasure") }}
+                        </PvxActionButton>
+                    </div>
                 </template>
-            </div>
-        </template>
-        <div class="m-pvx-adventure-list" v-else>
-            <div class="u-type u-pvx-all-type">
-                <div class="u-title">{{ typeName + "奇遇" }}</div>
-            </div>
-            <div class="m-pvx-face-list--all" v-if="subList.length"
-                :style="`grid-template-columns: repeat(${count}, 1fr)`">
-                <AdventureItem v-for="item in subList" :key="item.id" :item="item" />
-            </div>
-            <el-button class="m-pvx-adventure-more" v-show="hasNextPage" type="primary" @click="appendPage"
-                :loading="loading" icon="el-icon-arrow-down">加载更多</el-button>
-            <el-pagination class="m-pvx-adventure-pages" background layout="total, prev, pager, next, jumper"
-                :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
-                @current-change="changePage"></el-pagination>
+            </PvxToolbar>
+
+            <template v-if="active === 'all' && hasOverviewList">
+                <PvxSurface
+                    v-for="section in overviewList"
+                    :key="section.value"
+                    class="m-pvx-adventure-section"
+                    padding="medium"
+                >
+                    <PvxSectionHeader
+                        class="m-pvx-adventure-section-header"
+                        :title="$t('pages.adventure.ui.sectionTitle', { type: typeLabel(section.value) })"
+                        level="h2"
+                    >
+                        <template #action>
+                            <div class="m-pvx-adventure-section-actions">
+                                <button
+                                    type="button"
+                                    class="u-section-action"
+                                    :title="$t('pages.adventure.ui.actions.viewAll')"
+                                    :aria-label="$t('pages.adventure.ui.actions.viewAll')"
+                                    @click="setActive(section.value)"
+                                >
+                                    <span>{{ $t("pages.adventure.ui.actions.viewAll") }}</span>
+                                </button>
+                            </div>
+                        </template>
+                    </PvxSectionHeader>
+                    <div class="m-pvx-adventure-grid">
+                        <AdventureItem
+                            v-for="item in section.list.slice(0, count)"
+                            :key="item.dwID"
+                            :item="item"
+                            variant="modern"
+                        />
+                    </div>
+                </PvxSurface>
+            </template>
+
+            <PvxSurface v-else-if="active !== 'all' && subList.length" class="m-pvx-adventure-section" padding="medium">
+                <PvxSectionHeader
+                    class="m-pvx-adventure-section-header"
+                    :title="$t('pages.adventure.ui.sectionTitle', { type: typeName })"
+                    level="h2"
+                >
+                    <template #action>
+                        <span class="u-adventure-count">
+                            {{ $t("pages.adventure.ui.resultCount", { count: total }) }}
+                        </span>
+                    </template>
+                </PvxSectionHeader>
+                <div class="m-pvx-adventure-grid">
+                    <AdventureItem
+                        v-for="item in subList"
+                        :key="item.dwID"
+                        :item="item"
+                        variant="modern"
+                    />
+                </div>
+                <el-button
+                    v-show="hasNextPage"
+                    class="m-pvx-adventure-more"
+                    type="primary"
+                    :loading="loading"
+                    @click="appendPage"
+                >
+                    {{ $t("pages.adventure.ui.actions.loadMore") }}
+                </el-button>
+                <el-pagination
+                    class="m-pvx-adventure-pages"
+                    background
+                    layout="total, prev, pager, next, jumper"
+                    :hide-on-single-page="true"
+                    :page-size="per"
+                    :total="total"
+                    :current-page="page"
+                    @current-change="changePage"
+                />
+            </PvxSurface>
+
+            <PvxSurface
+                v-if="(!loading && active === 'all' && !hasOverviewList) || (!loading && active !== 'all' && !subList.length)"
+                class="m-pvx-adventure-empty-surface"
+                padding="medium"
+            >
+                <PvxEmptyState
+                    :title="$t('pages.adventure.ui.empty.title')"
+                    :description="$t('pages.adventure.ui.empty.description')"
+                >
+                    <template #icon><Search /></template>
+                </PvxEmptyState>
+            </PvxSurface>
         </div>
-        <div class="u-archive-alert" v-if="noList || (subList && !subList.length)">
-            <el-alert title="没有对应的奇遇，请重新查找" type="info" center show-icon />
-        </div>
-    </div>
+    </PvxPageShell>
 </template>
 
 <script>
-import CardBannerList from "@/components/common/card_banner_list.vue";
-import AdventureTabs from "@/components/adventure/tabs.vue";
 import AdventureItem from "@/components/adventure/item.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import PvxToolbar from "@/components/design/PvxToolbar.vue";
 import { getAdventures } from "@/service/adventure/adventure";
-import dayjs from "@/utils/day";
+import { CollectionTag, Search } from "@element-plus/icons-vue";
+
 export default {
     name: "adventureList",
     props: [],
-    components: { CardBannerList, AdventureTabs, AdventureItem },
+    components: {
+        AdventureItem,
+        PvxActionButton,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        PvxToolbar,
+        CollectionTag,
+        Search,
+    },
     data: function () {
         return {
             loading: false,
             tabsData: {},
+            searchName: "",
             list: [
-                { value: "all", label: "全部", client: ["std", "origin"], list: [] },
-                { value: "perfect", label: "绝世", client: ["std", "origin"], list: [], pages: 1, page: 1 },
-                { value: "normal", label: "普通", client: ["std", "origin"], list: [], page: 1, pages: 1 },
-                { value: "pet", label: "宠物", client: ["std", "origin"], list: [], page: 1, pages: 1 },
+                { value: "all", client: ["std", "origin"], list: [] },
+                { value: "perfect", client: ["std", "origin"], list: [], pages: 1, page: 1 },
+                { value: "normal", client: ["std", "origin"], list: [], page: 1, pages: 1 },
+                { value: "pet", client: ["std", "origin"], list: [], page: 1, pages: 1 },
             ],
             active: "all",
             page: 1,
@@ -66,11 +174,6 @@ export default {
             per: 8,
             count: 0,
             appendMode: false,
-            itemData: {
-                color: "#E86F00",
-                width: "220",
-                height: "224",
-            },
         };
     },
     computed: {
@@ -81,21 +184,21 @@ export default {
             return { ...tabsData, per: this.per, client: this.client };
         },
         typeName() {
-            return this.list.filter((e) => e.value == this.active)[0].label;
+            return this.typeLabel(this.active);
         },
         subList() {
             if (this.active === "all") return null;
             return this.list.filter((e) => e.value == this.active)[0].list;
         },
-        noList() {
-            return this.list.filter((e) => e.value !== "all").every((e) => !e.list.length);
+        overviewList() {
+            return this.list.filter((item) => item.value !== "all" && item.list.length);
+        },
+        hasOverviewList() {
+            return this.overviewList.length > 0;
         },
         hasNextPage() {
             const pages = this.list.filter((e) => e.value == this.active)[0].pages;
             return pages > 1 && this.page < pages;
-        },
-        camp() {
-            return dayjs.tz().date() % 2 ? 1 : 2;
         },
     },
     watch: {
@@ -114,6 +217,9 @@ export default {
             this.page = 1;
             document.documentElement.scrollTop = 0;
             this.loadData();
+        },
+        typeLabel(value) {
+            return this.$t(`pages.adventure.ui.types.${value}`);
         },
         loadData() {
             this.loading = true;
@@ -163,33 +269,28 @@ export default {
             this.tabsData = params;
             this.loadData();
         },
+        onKeywordInput(value) {
+            this.onSearch(value ? { name: value } : {});
+        },
         handleResize() {
             this.showCount();
         },
         showCount() {
             const listWidth = this.$refs.listRef?.clientWidth || 1200;
-            const cardWidth = Number(this.itemData.width);
-            const gridGap = 12;
+            const cardWidth = 210;
+            const gridGap = 16;
+            const sectionPadding = 48;
+            const isPhone = window.matchMedia("(max-width: 720px)").matches;
 
-            if (listWidth <= 520) {
-                this.count = 1;
-                this.per = 8;
-                return;
-            }
-            if (listWidth <= 1024) {
-                this.count = 2;
-                this.per = 16;
+            if (isPhone) {
+                this.count = 6;
+                this.per = this.active === "all" ? 6 : 12;
                 return;
             }
 
-            if (this.active === "all") {
-                const availableWidth = listWidth - 120;
-                this.count = Math.max(Math.floor(availableWidth / (cardWidth + gridGap)), 1);
-                this.per = this.count;
-            } else {
-                this.count = Math.max(Math.floor(listWidth / (cardWidth + gridGap)), 1);
-                this.per = this.count * 3;
-            }
+            const availableWidth = listWidth - sectionPadding;
+            this.count = Math.max(Math.floor((availableWidth + gridGap) / (cardWidth + gridGap)), 1);
+            this.per = this.active === "all" ? this.count : this.count * 3;
         },
         handleLoad(type) {
             const entry = this.list.filter((e) => e.value == type)[0];
@@ -220,4 +321,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/adventure/pc/list.less";
 @import "~@/assets/css/common/drawer.less";
+@import "~@/assets/css/modules/adventure-list-theme.less";
 </style>

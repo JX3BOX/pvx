@@ -2,7 +2,18 @@
     <div class="p-adventure">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                {
+                    'c-pvx-modern-adventure-list-main': $route.name === 'list' && !isEmbeddedClient,
+                    'c-pvx-modern-adventure-single-main': $route.name === 'single' && !isEmbeddedClient,
+                },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main">
                 <router-view v-slot="{ Component }">
                     <keep-alive include="adventureList">
@@ -19,7 +30,7 @@
 import Nav from "@/components/Nav_v5.vue";
 import { getSerendipityAchievementId } from "@/service/adventure/adventure";
 import { __imgPath, __dataPath } from "@/utils/config";
-
+import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 // ⚠️ 请不要删除
 // 以下处理奇遇详情页对游戏内嵌的适配
@@ -40,6 +51,7 @@ export default {
         return {
             navStatusClass: "is-regular",
             isRedirectingLegacyPage: false,
+            isEmbeddedClient: isMiniProgram() || isApp(),
         };
     },
     watch: {

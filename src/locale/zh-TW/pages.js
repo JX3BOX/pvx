@@ -59,10 +59,65 @@ export default {
         title: "奇遇大全",
         keywords: "劍網3奇遇大全,劍三奇遇大全,JX3BOX奇遇大全,奇遇攻略,觸發條件,獎勵",
         description: "收錄各類奇遇內容，提供觸發條件、流程與獎勵說明。",
+        ui: {
+            title: "奇遇大全",
+            description: "瀏覽絕世、普通與寵物奇遇，快速查找觸發線索、任務流程和獎勵資訊",
+            navigation: "奇遇分類導覽",
+            searchPlaceholder: "搜尋奇遇或寵物名稱",
+            sectionTitle: "{type}奇遇",
+            resultCount: "共 {count} 項",
+            types: { all: "全部", perfect: "絕世", normal: "普通", pet: "寵物" },
+            actions: {
+                treasure: "奇遇珍卷",
+                viewAll: "查看全部",
+                loadMore: "載入更多",
+            },
+            empty: {
+                title: "沒有找到對應奇遇",
+                description: "請嘗試更換分類或調整搜尋關鍵字。",
+            },
+        },
         single: {
             title: "奇遇詳情",
             keywords: "劍網3奇遇詳情,奇遇攻略,觸發條件,獎勵,JX3BOX",
             description: "奇遇詳情頁，查看單個奇遇的觸發條件、流程與獎勵。",
+            ui: {
+                guideLabel: "奇遇攻略",
+                backToList: "返回列表",
+                achievement: "成就資訊",
+                continue: "繼續",
+                typeName: "奇遇",
+                robot: {
+                    quickGuide: "新增QQ機器人，快速取得攻略",
+                    copySuccess: "複製成功",
+                    replyPrefix: "回覆",
+                    replySuffix: "即可快速取得一圖流攻略！",
+                    copyQq: "複製QQ機器人帳號",
+                    copyCommand: "複製攻略指令",
+                },
+                wiki: {
+                    guideTitle: "{name}攻略",
+                    improveGuide: "完善{name}攻略",
+                    compatibleLead: "暫無緣起攻略，以下為重製攻略，僅供參考，",
+                    contributeRevision: "參與修訂",
+                    compatibleTail: "。",
+                    revisionLead: "本次修訂由",
+                    submittedAt: "提交於",
+                    emptyLead: "暫無攻略，我要",
+                    completeGuide: "完善攻略",
+                },
+                records: {
+                    title: "觸發記錄",
+                    serverPlaceholder: "區服",
+                    viewMore: "查看更多",
+                    date: "日期",
+                    activeTime: "啟用時間",
+                    server: "伺服器",
+                    player: "玩家",
+                    anonymous: "匿名",
+                    empty: "暫無記錄",
+                },
+            },
         },
         treasure: {
             title: "奇遇珍卷",
@@ -529,5 +584,11 @@ export default {
 
     common: {
         appendTitle: " - 劍網3魔盒（JX3BOX）",
+        admin: {
+            manage: "管理",
+            refreshImage: "重新產生圖片",
+            refreshSuccess: "QQ機器人圖片生成任務提交成功",
+            invalidParams: "參數不正確",
+        },
     }
 };

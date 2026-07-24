@@ -41,7 +41,7 @@
                 <span
                     @click="crosswiseScroll($event, 'task-box', -1, 600)"
                     :class="isDisabled('task-box', -1, isUpdate)"
-                    >继续 <i class="el-icon-arrow-right"></i>
+                    >{{ $t("pages.adventure.single.ui.continue") }} <i class="el-icon-arrow-right"></i>
                 </span>
             </div>
         </div>

@@ -4,7 +4,7 @@
             <el-button type="primary" class="c-admin-button c-admin-drop__button">
                 <span class="c-admin-drop__button-inner">
                     <i class="el-icon-setting"></i>
-                    <span>管理</span>
+                    <span>{{ $t("pages.common.admin.manage") }}</span>
                     <i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
             </el-button>
@@ -13,7 +13,7 @@
                     <el-dropdown-item command="pictureTask">
                         <span class="c-admin-drop__item">
                             <el-icon><Refresh /></el-icon>
-                            <span>刷图</span>
+                            <span>{{ $t("pages.common.admin.refreshImage") }}</span>
                         </span>
                     </el-dropdown-item>
                 </el-dropdown-menu>
@@ -58,11 +58,11 @@ export default {
                     task_target_id,
                 }).then((res) => {
                     if (!res.data.code) {
-                        this.$message.success("QQ机器人图片生成提交成功");
+                        this.$message.success(this.$t("pages.common.admin.refreshSuccess"));
                     }
                 });
             } else {
-                this.$message.error("参数不正确");
+                this.$message.error(this.$t("pages.common.admin.invalidParams"));
             }
         },
     },
