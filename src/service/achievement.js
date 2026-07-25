@@ -73,6 +73,19 @@ export function getMenuAchievements(sub, detail, params) {
     });
 }
 
+// 批量解析成就奖励物品，ItemType 与 ItemID 共同组成物品资源键。
+export function getAchievementRewardItems(ids, client = "std") {
+    const itemIds = [...new Set(ids)].filter(Boolean);
+    if (!itemIds.length) return Promise.resolve({ data: { list: [] } });
+
+    return $node().get(`/item_merged/id/${itemIds.join(",")}`, {
+        params: {
+            client,
+            per: itemIds.length,
+        },
+    });
+}
+
 // 获取成就列表
 export function getAchievements(params) {
     return $.get(`/api/node/achievement/list`, {

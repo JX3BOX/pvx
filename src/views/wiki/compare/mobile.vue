@@ -14,9 +14,9 @@
             </div>
 
             <div class="u-select">
-                <el-select v-model="selectTab" placeholder="请选择" multiple collapse-tags clearable
+                <el-select v-model="selectTab" :placeholder="$t('pages.wiki.compare.ui.filters.placeholder')" multiple collapse-tags clearable
                     @change="selectTabChange">
-                    <el-option v-for="item in selectOptions" :key="item.type" :label="item.name" :value="item.type"
+                    <el-option v-for="item in selectOptions" :key="item.type" :label="getFilterOptionLabel(item)" :value="item.type"
                         :disabled="isSelectDisabled(item.type)">
                     </el-option>
                 </el-select>
@@ -46,7 +46,7 @@
             <div class="u-zl-box">
                 <div class="u-zl_table" :style="'max-width:' + (contrastKith.length + 1) * 60 + 120 + 'px'">
                     <div class="u-table_label ps">
-                        <span class="u-compare-title">亲友对比</span>
+                        <span class="u-compare-title">{{ $t("pages.wiki.compare.ui.title") }}</span>
                     </div>
                     <!-- 对比亲友及自身 -->
                     <div class="u-table_label kith" v-for="(item, index) in contrastKith" :key="index">
@@ -56,7 +56,9 @@
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item>
-                                        <div @click="delRole(item, index)">删除</div>
+                                        <div @click="delRole(item, index)">
+                                            {{ $t("pages.wiki.compare.ui.actions.removeRole") }}
+                                        </div>
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -86,25 +88,41 @@
             </div>
         </div>
         <!-- 添加角色弹窗 -->
-        <el-dialog v-model="showAddRole" title="添加角色" width="90vw" draggable :close-on-click-modal="false">
+        <el-dialog
+            v-model="showAddRole"
+            :title="$t('pages.wiki.compare.ui.actions.addRole')"
+            width="90vw"
+            draggable
+            :close-on-click-modal="false"
+        >
             <el-form :model="kithForm" :rules="rules" ref="roleRef">
-                <el-form-item label="角色类型" prop="roleType">
+                <el-form-item :label="$t('pages.wiki.compare.ui.role.selectType')" prop="roleType">
                     <el-radio-group v-model="kithForm.roleType" @input="
                         kithForm.userId = '';
                     kithForm.jx3Id = '';
                     ">
-                        <el-radio label="1">自身</el-radio>
-                        <el-radio label="2">亲友</el-radio>
+                        <el-radio label="1">{{ $t("pages.wiki.compare.ui.role.self") }}</el-radio>
+                        <el-radio label="2">{{ $t("pages.wiki.compare.ui.role.friend") }}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="我的亲友" prop="uid" v-if="kithForm.roleType == 2">
-                    <el-select v-model="kithForm.uid" placeholder="请选择" @change="getKithRolesList">
-                        <el-option :label="item?.kith_info?.display_name || '-'" :value="item.kith_id"
+                <el-form-item :label="$t('pages.wiki.compare.ui.role.selectFriend')" prop="uid" v-if="kithForm.roleType == 2">
+                    <el-select
+                        v-model="kithForm.uid"
+                        :placeholder="$t('pages.wiki.compare.ui.role.selectFriend')"
+                        @change="getKithRolesList"
+                    >
+                        <el-option
+                            :label="item?.kith_info?.display_name || $t('pages.wiki.compare.ui.common.emptyValue')"
+                            :value="item.kith_id"
                             v-for="(item, index) in myKith" :key="index"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="对应角色" prop="jx3Id">
-                    <el-select v-model="kithForm.jx3Id" placeholder="请选择对应角色" @change="setRoleInfo">
+                <el-form-item :label="$t('pages.wiki.compare.ui.role.selectRole')" prop="jx3Id">
+                    <el-select
+                        v-model="kithForm.jx3Id"
+                        :placeholder="$t('pages.wiki.compare.ui.role.selectRole')"
+                        @change="setRoleInfo"
+                    >
                         <el-option :label="item.name" :value="item.jx3id"
                             v-for="(item, index) in kithForm.roleType == 1 ? roleList : myKithRoles"
                             :key="index"></el-option>
@@ -113,8 +131,12 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="showAddRole = false">取 消</el-button>
-                    <el-button type="primary" @click="addRoleConfirm">确 定</el-button>
+                    <el-button @click="showAddRole = false">
+                        {{ $t("pages.wiki.compare.ui.actions.cancel") }}
+                    </el-button>
+                    <el-button type="primary" @click="addRoleConfirm">
+                        {{ $t("pages.wiki.compare.ui.actions.confirm") }}
+                    </el-button>
                 </div>
             </template>
         </el-dialog>
@@ -136,10 +158,9 @@ export default {
             currentRole: {}, //当前角色
             menuList: [],
             selectTab: [],
-            selectTabName: "请选择筛选条件",
             selectOptions: [
                 {
-                    name: "共同未完成的",
+                    kind: "common",
                     value: 1,
                     type: "1,1",
                 },
@@ -157,14 +178,30 @@ export default {
                 uid: "",
                 jx3Id: "",
             },
-            rules: {
-                roleType: { required: true, message: "请选择类型", trigger: "change" },
-                uid: { required: true, message: "请选择亲友", trigger: "change" },
-                jx3Id: { required: true, message: "请选择角色", trigger: "change" },
-            },
             contrastKith: [], //对比的亲友及自身
             contrastKith_bak: [], //对比的亲友及自身
         };
+    },
+    computed: {
+        rules() {
+            return {
+                roleType: {
+                    required: true,
+                    message: this.$t("pages.wiki.compare.ui.validation.selectRoleType"),
+                    trigger: "change",
+                },
+                uid: {
+                    required: true,
+                    message: this.$t("pages.wiki.compare.ui.validation.selectFriend"),
+                    trigger: "change",
+                },
+                jx3Id: {
+                    required: true,
+                    message: this.$t("pages.wiki.compare.ui.validation.selectRole"),
+                    trigger: "change",
+                },
+            };
+        },
     },
     created() {
         this.loadUserRoles();
@@ -177,6 +214,13 @@ export default {
         },
         icon_url: function (id) {
             return iconLink(id);
+        },
+        getFilterOptionLabel(item) {
+            if (item.kind === "common") {
+                return this.$t("pages.wiki.compare.ui.filters.commonIncomplete");
+            }
+            const key = item.status === "completed" ? "completedBy" : "incompleteBy";
+            return this.$t(`pages.wiki.compare.ui.filters.${key}`, { role: item.roleName });
         },
         setActiveShow(sub) {
             if (this.activeIndex == sub) {
@@ -265,7 +309,7 @@ export default {
         // 获取当前用户角色列表
         loadUserRoles() {
             if (!User.isLogin()) {
-                this.$confirm("请先登录").then((_) => {
+                this.$confirm(this.$t("pages.wiki.compare.ui.auth.loginRequired")).then((_) => {
                     User.toLogin(window.location.href);
                 }).catch(() => {});
                 return;
@@ -318,7 +362,7 @@ export default {
                 }
             });
             if (flag) {
-                this.$message.warning("该角色已存在");
+                this.$message.warning(this.$t("pages.wiki.compare.ui.validation.roleAlreadyAdded"));
                 return;
             }
             getRoleGameAchievements(type == 1 ? jx3Id : this.kithForm.jx3Id).then((res) => {
@@ -348,12 +392,14 @@ export default {
                 //同时向select内追加个人选择
                 this.selectOptions.push({
                     value: contrastKith.jx3id,
-                    name: contrastKith.name + "未完成",
+                    roleName: contrastKith.name,
+                    status: "incomplete",
                     type: `${contrastKith.jx3id},1`,
                 });
                 this.selectOptions.push({
                     value: contrastKith.jx3id,
-                    name: contrastKith.name + "已完成",
+                    roleName: contrastKith.name,
+                    status: "completed",
                     type: `${contrastKith.jx3id},2`,
                 });
                 if (type == 1 && this.contrastKith[0]) {

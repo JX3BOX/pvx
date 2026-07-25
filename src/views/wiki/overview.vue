@@ -1,271 +1,401 @@
 <template>
-    <div class="p-achievement-overview" :class="{ is_mobile: mobile }" v-if="currentRole">
-        <div class="m-overview-header" v-if="!mobile">
-            <!-- 资历、选中用户信息 -->
-            <div class="m-header-info">
-                <!-- 用户信息展示 -->
-                <div
-                    :style="{
-                        opacity: currentRole ? 1 : 0.5,
-                    }"
-                    class="m-info-user"
-                >
-                    <span class="u-name"
-                        >{{ currentRole?.name }}
-                        {{ currentRole?.server && "·" }}
-                        {{ currentRole?.server }}</span
-                    >
-                    <img width="30" height="30" :src="showSchoolIcon(currentRole?.mount)" alt="jx3logo" />
-                    <el-dropdown trigger="click">
-                        <div class="u-toggle-btn">
-                            <div>
-                                <span>切换角色</span>
-                                <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" />
-                            </div>
-                        </div>
-                        <template #dropdown>
-                            <el-dropdown-menu class="m-role-dropdown">
-                                <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                                    <div
-                                        @click="onChangeRole(role)"
-                                        class="m-role-item"
-                                        :class="{
-                                            active: role.jx3id === currentRole.jx3id,
-                                        }"
-                                    >
-                                        <span>{{ role.name }}</span>
-                                        <span>{{ role.server }}</span>
-                                    </div>
-                                </el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-
-                    <div v-if="viewAchievementsName" class="u-overview" @click="onSeeOverview">
-                        <el-icon>
-                            <Back />
-                        </el-icon>
-                        {{ showList ? "返回" : "返回总览" }}
-                    </div>
-                </div>
-
-                <!-- 资历展示 -->
-                <div class="m-info-zl">
-                    <div class="m-info-zl__info">
-                        <div>
-                            <span class="u-title">{{ viewAchievementsName || "总" }}资历：</span>
-                            <img width="32" height="32" src="@/assets/img/wiki/overview/zl-logo.svg" alt="资历logo" />
-                            <span class="u-number">{{ ownPointsCount }}</span>
-                        </div>
-                        <div class="u-rate">{{ totalProgress }}%</div>
-                    </div>
-                    <div class="m-info-zl__progress">
-                        <div
-                            class="u-active-progress"
-                            :style="{
-                                width: `${totalProgress}%`,
-                                background: getCurrentProgressBg(totalProgress),
-                            }"
-                        ></div>
-                    </div>
-                </div>
-            </div>
-            <div class="m-info-avatar" v-if="viewAchievementsName && !showList">
-                <img
-                    class="u-achievement-icon"
-                    height="70"
-                    :src="require(`@/assets/img/wiki/overview/title/${viewAchievementsName}.png`)"
-                    alt=""
-                />
-            </div>
-            <!-- 头像 -->
-            <div v-else class="m-info-avatar">
-                <!-- TODO：头像边框 与 头像-->
-                <img v-if="avatar_frame" class="u-avatar-border" :src="avatar_frame" alt="头像边框" />
-
-                <RoleAvatar class="u-avatar-img" :mount="currentRole.mount" :body_type="currentRole.body_type" />
-            </div>
-        </div>
-        <!-- 移动端角色信息 -->
-        <div class="m-overview-header_mobile" v-if="mobile">
-            <div class="u-name">
-                {{ currentRole.name }}
-                {{ currentRole.server && "·" }}
-                {{ currentRole.server }}
-                <img width="30" height="30" :src="showSchoolIcon(currentRole.mount)" alt="jx3logo" />
-            </div>
-
-            <el-dropdown trigger="click">
-                <div class="u-toggle-btn">
-                    <span>角色</span>
-                    <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" width="16px" height="16px" />
-                </div>
-                <template #dropdown>
-                    <el-dropdown-menu>
-                        <!-- <el-dropdown-item v-if="isLogin">
-                        <div class="m-role-item" @click="onChangeRole(virtualRole)">
-                            <span>{{ virtualRole.name }}</span>
-                            <span>&lt;虚拟角色&gt;</span>
-                        </div>
-                    </el-dropdown-item> -->
-                        <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                            <div
-                                @click="onChangeRole(role)"
-                                class="m-role-item"
-                                :class="{
-                                    active: role.jx3id === currentRole.jx3id,
-                                }"
-                            >
-                                <span>{{ role.name }}·</span>
-                                <span>{{ role.server }}</span>
-                            </div>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
-                </template>
-            </el-dropdown>
-        </div>
-        <!-- 移动端查看总览位置 -->
-        <div
-            ref="overviewList"
-            class="m-overview-main"
-            :class="{ is_mobile: mobile, isScroll }"
-            @scroll="overviewListScroll"
-            v-if="!showList"
-        >
-            <!-- 移动端资历总览 -->
-            <div class="m-info-zl" v-if="mobile">
-                <div class="m-info-zl__info" v-if="!isScroll">
-                    <span class="u-title"
-                        >{{ viewAchievementsName || "总" }}资历：<span class="u-number">{{
-                            ownPointsCount
-                        }}</span></span
-                    >
-
-                    <span class="u-rate">{{ totalProgress }}%</span>
-                </div>
-                <div class="m-info-zl__progress">
-                    <div
-                        class="u-active-progress"
-                        :style="{
-                            width: `${totalProgress}%`,
-                            background: getCurrentProgressBg(totalProgress),
-                        }"
-                    ></div>
-                </div>
-            </div>
-            <!-- item -->
-            <div class="m-cj-item" @click="onEnterCategory(item)" v-for="(item, i) in list" :key="i">
-                <!-- 做边框 -->
-                <img class="u-border" src="@/assets/img/wiki/overview/item-left-border.svg" alt="" />
-                <div class="m-cj-wrapper">
-                    <div class="m-cj-content">
-                        <div class="u-cj-info">
-                            <div class="u-name">{{ item.name }}</div>
-                            <div class="u-rate">{{ getCurrentProgress(item.ownPoints, item.allPoints) }}%</div>
-                        </div>
-                        <div class="m-count-box">
-                            <div class="m-count-inner">
-                                <div class="u-item">
-                                    <img
-                                        width="14"
-                                        height="14"
-                                        src="@/assets/img/wiki/overview/cj-logo.svg"
-                                        alt="成就logo"
-                                    />
-                                    <span>{{ item.ownAchievements.length }}/{{ item.allAchievements.length }}</span>
-                                </div>
-                                <div class="u-item">
-                                    <img
-                                        width="14"
-                                        height="14"
-                                        src="@/assets/img/wiki/overview/zl-logo.svg"
-                                        alt="资历logo"
-                                    />
-                                    <span>{{ item.ownPoints }}/{{ item.allPoints }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 分类logo -->
-                    <div class="u-logo" v-if="item.children">
-                        <img height="70" :src="require(`@/assets/img/wiki/overview/item/${item.name}.png`)" alt="" />
-                    </div>
-                    <!-- 进度展示 -->
-                    <div
-                        class="u-progress"
-                        :style="{
-                            width: `${getCurrentProgress(item.ownPoints, item.allPoints)}%`,
-                            background: getCurrentProgressBg(item.ownPoints, item.allPoints),
-                        }"
-                    ></div>
-                </div>
-            </div>
-        </div>
-        <!-- 最下级list -->
-        <div class="m-cj-list" v-else>
-            <el-table
-                :data="achievements_list || []"
-                style="width: 100%"
-                stripe
-                height="100%"
-                row-class-name="u-table-row"
-                cell-class-name="u-table-cell"
-                header-row-class-name="u-table-header_row"
-                header-cell-class-name="u-table-header_cell"
-                v-loading="loading"
+    <div class="p-achievement-overview p-pvx-achievement-overview">
+        <PvxSurface v-if="!isLogin" class="m-achievement-state" padding="none">
+            <PvxEmptyState
+                :title="$t('pages.wiki.overview.ui.loginRequired')"
+                :description="$t('pages.wiki.overview.ui.loginDescription')"
             >
-                <el-table-column prop="Name" label="成就名称">
-                    <template #default="scope">
-                        <a :href="getLink('achievement', scope.row.ID)" target="_blank">
-                            <div class="u-achievement-name">
-                                <img class="u-icon" :src="iconLink(scope.row?.IconID)" />
-                                <span>{{ scope.row.Name }}</span>
-                            </div>
-                        </a>
-                    </template>
-                </el-table-column>
-                <el-table-column label="成就简介" :width="mobile ? '200' : ''">
-                    <template #default="scope"> {{ scope.row.ShortDesc || "-" }} </template>
-                </el-table-column>
-                <el-table-column label="资历点数" :width="mobile ? '80' : '100'">
-                    <template #default="scope"> {{ scope.row.Point || 0 }} </template>
-                </el-table-column>
-                <el-table-column label="完成情况" :width="mobile ? '80' : '100'">
-                    <template #default="scope">
-                        <el-tag :type="scope.row.isCompleted == false ? 'danger' : 'success'">{{
-                            scope.row.isCompleted == false ? "未完成" : "已完成"
-                        }}</el-tag></template
-                    >
-                </el-table-column>
-                <el-table-column label="奖励" width="100">
-                    <template #default="scope">
-                        <el-tooltip placement="top" v-if="scope.row.ItemID">
-                            <template #content>
-                                <jx3-item :item_id="scope.row.ItemType + '_' + scope.row.ItemID.toString()" />
-                            </template>
-                            <img class="u-icon" :src="getIconRewards(scope.row)" />
-                        </el-tooltip>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <div class="m-zl-info_bottom" v-if="isScroll">
-            <div class="m-box_bottom">
-                <span class="u-title"
-                    >{{ viewAchievementsName || "总" }}资历： <span class="u-number">{{ ownPointsCount }}</span></span
-                >
+                <template #icon><UserFilled /></template>
+                <template #action>
+                    <PvxActionButton :href="loginUrl">
+                        {{ $t("pages.wiki.overview.ui.goLogin") }}
+                        <ArrowRight />
+                    </PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
 
-                <span class="u-rate">{{ totalProgress }}%</span>
-            </div>
-            <div class="m-info-zl__progress">
-                <div
-                    class="u-active-progress"
-                    :style="{
-                        width: `${totalProgress}%`,
-                        background: getCurrentProgressBg(totalProgress),
-                    }"
-                ></div>
-            </div>
+        <PvxSurface v-else-if="pageError" class="m-achievement-state" padding="none">
+            <PvxEmptyState
+                :title="$t('pages.wiki.overview.ui.loadFailed')"
+                :description="$t('pages.wiki.overview.ui.loadFailedDescription')"
+            >
+                <template #icon><WarningFilled /></template>
+                <template #action>
+                    <PvxActionButton @click="getUserInfo">
+                        {{ $t("pages.wiki.overview.ui.retry") }}
+                    </PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
+
+        <PvxSurface v-else-if="!pageLoading && !currentRole" class="m-achievement-state" padding="none">
+            <PvxEmptyState
+                :title="$t('pages.wiki.overview.ui.noRole')"
+                :description="$t('pages.wiki.overview.ui.noRoleDescription')"
+            >
+                <template #icon><UserFilled /></template>
+                <template #action>
+                    <PvxActionButton href="/team/role/bind">
+                        {{ $t("pages.wiki.overview.ui.bindRole") }}
+                        <ArrowRight />
+                    </PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
+
+        <div v-else class="m-achievement-overview-layout" v-loading="pageLoading">
+            <PvxSurface v-if="currentRole" class="m-achievement-hero" tag="header" padding="medium">
+                <div class="m-achievement-hero__main">
+                    <div class="m-achievement-hero__copy">
+                        <span class="u-achievement-eyebrow">{{ $t("pages.wiki.overview.ui.eyebrow") }}</span>
+                        <h1>{{ viewAchievementsName || $t("pages.wiki.overview.ui.overview") }}</h1>
+                        <p>{{ $t("pages.wiki.overview.ui.description") }}</p>
+
+                        <div class="m-achievement-role">
+                            <img
+                                class="u-achievement-school"
+                                :src="showSchoolIcon(currentRole.mount)"
+                                :alt="$t('pages.wiki.overview.ui.schoolIcon')"
+                            />
+                            <div class="m-achievement-role__info">
+                                <strong>{{ formatRoleLabel(currentRole) }}</strong>
+                            </div>
+                            <el-dropdown trigger="click">
+                                <button
+                                    type="button"
+                                    class="u-achievement-role-switch"
+                                    :aria-label="$t('pages.wiki.overview.ui.switchRole')"
+                                >
+                                    <span>{{ $t("pages.wiki.overview.ui.switchRole") }}</span>
+                                    <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" />
+                                </button>
+                                <template #dropdown>
+                                    <el-dropdown-menu class="m-role-dropdown">
+                                        <el-dropdown-item v-for="role in roleList" :key="role.ID">
+                                            <button
+                                                type="button"
+                                                class="m-role-item"
+                                                :class="{ active: role.jx3id === currentRole.jx3id }"
+                                                @click="onChangeRole(role)"
+                                            >
+                                                <span>{{ role.name }}</span>
+                                                <span>{{ role.server }}</span>
+                                            </button>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
+                    </div>
+
+                    <div
+                        class="m-achievement-avatar"
+                        :class="{
+                            'has-avatar-frame': showAvatarFrame,
+                            'is-category-art': !displayRoleAvatar,
+                        }"
+                    >
+                        <img v-if="showAvatarFrame" class="u-avatar-border" :src="avatar_frame" alt="" />
+                        <img
+                            v-if="!displayRoleAvatar"
+                            class="u-achievement-category-art"
+                            :src="categoryTitleImage"
+                            alt=""
+                        />
+                        <RoleAvatar
+                            v-else
+                            class="u-avatar-img"
+                            :mount="currentRole.mount"
+                            :body_type="currentRole.body_type"
+                        />
+                    </div>
+                </div>
+
+                <div class="m-achievement-summary">
+                    <div class="m-achievement-summary__item">
+                        <span>{{ currentSeniorityLabel }}</span>
+                        <strong>{{ ownPointsCount }}</strong>
+                    </div>
+                    <div class="m-achievement-summary__item">
+                        <span>{{ $t("pages.wiki.overview.ui.totalSeniority") }}</span>
+                        <strong>{{ allPointsCount }}</strong>
+                    </div>
+                    <div class="m-achievement-summary__item is-progress">
+                        <span>{{ $t("pages.wiki.overview.ui.completion") }}</span>
+                        <strong>{{ totalProgress }}%</strong>
+                    </div>
+                    <div class="m-achievement-progress" aria-hidden="true">
+                        <span :style="{ width: `${totalProgress}%` }"></span>
+                    </div>
+                </div>
+            </PvxSurface>
+
+            <PvxSurface
+                v-if="currentRole && !showList"
+                ref="categorySection"
+                class="m-achievement-categories"
+                padding="medium"
+            >
+                <div class="m-achievement-section-header">
+                    <nav
+                        class="m-achievement-context-nav"
+                        :aria-label="$t('pages.wiki.overview.ui.categoryNavigation')"
+                    >
+                        <button
+                            type="button"
+                            :class="{ 'is-current': !viewAchievementsName }"
+                            :aria-current="!viewAchievementsName ? 'page' : undefined"
+                            @click="goOverview"
+                        >
+                            {{ $t("pages.wiki.overview.ui.overview") }}
+                        </button>
+                        <template
+                            v-for="(item, index) in categoryPath"
+                            :key="`context-${item.sub}-${item.detail || item.name}`"
+                        >
+                            <ArrowRight class="u-achievement-context-separator" />
+                            <button
+                                type="button"
+                                :class="{ 'is-current': index === categoryPath.length - 1 }"
+                                :aria-current="index === categoryPath.length - 1 ? 'page' : undefined"
+                                @click="onSelectBreadcrumb(index)"
+                            >
+                                {{ item.name }}
+                            </button>
+                        </template>
+                    </nav>
+                </div>
+
+                <div ref="overviewList" class="m-achievement-category-grid">
+                    <button
+                        v-for="item in list"
+                        :key="`${item.sub}-${item.detail || item.name}`"
+                        type="button"
+                        class="m-achievement-category-card"
+                        :class="{ 'is-complete': isCategoryComplete(item) }"
+                        @click="onEnterCategory(item)"
+                    >
+                        <div class="m-achievement-category-card__top">
+                            <div class="m-achievement-category-card__title">
+                                <span class="u-achievement-category-icon">
+                                    <img v-if="item.children" :src="getCategoryImage(item.name)" alt="" />
+                                    <CollectionTag v-else />
+                                </span>
+                                <span>
+                                    <strong>{{ item.name }}</strong>
+                                    <small
+                                        class="u-achievement-count"
+                                        :aria-label="
+                                            $t('pages.wiki.overview.ui.achievementCount', {
+                                                own: item.ownAchievements.length,
+                                                all: item.allAchievements.length,
+                                            })
+                                        "
+                                    >
+                                        <img src="@/assets/img/wiki/overview/cj-logo.svg" alt="" />
+                                        <span aria-hidden="true">
+                                            {{ item.ownAchievements.length }}/{{ item.allAchievements.length }}
+                                        </span>
+                                    </small>
+                                </span>
+                            </div>
+                            <span class="u-achievement-category-rate">
+                                <CircleCheckFilled v-if="isCategoryComplete(item)" aria-hidden="true" />
+                                {{ getCurrentProgress(item.ownPoints, item.allPoints) }}%
+                            </span>
+                        </div>
+                        <div class="m-achievement-category-card__meta">
+                            <span>
+                                <img src="@/assets/img/wiki/overview/zl-logo.svg" alt="" />
+                                {{ item.ownPoints }}/{{ item.allPoints }}
+                            </span>
+                            <ArrowRight />
+                        </div>
+                        <div class="m-achievement-category-progress" aria-hidden="true">
+                            <span
+                                :style="{ width: `${getCurrentProgress(item.ownPoints, item.allPoints)}%` }"
+                            ></span>
+                        </div>
+                    </button>
+                </div>
+            </PvxSurface>
+
+            <PvxSurface
+                v-if="currentRole && showList"
+                ref="categorySection"
+                class="m-achievement-list"
+                padding="medium"
+            >
+                <div class="m-achievement-section-header">
+                    <div>
+                        <nav
+                            class="m-achievement-context-nav"
+                            :aria-label="$t('pages.wiki.overview.ui.categoryNavigation')"
+                        >
+                            <button type="button" @click="goOverview">
+                                {{ $t("pages.wiki.overview.ui.overview") }}
+                            </button>
+                            <template
+                                v-for="(item, index) in categoryPath"
+                                :key="`list-context-${item.sub}-${item.detail || item.name}`"
+                            >
+                                <ArrowRight
+                                    class="u-achievement-context-separator"
+                                />
+                                <button
+                                    type="button"
+                                    :class="{ 'is-current': index === categoryPath.length - 1 }"
+                                    :aria-current="index === categoryPath.length - 1 ? 'page' : undefined"
+                                    @click="onSelectBreadcrumb(index)"
+                                >
+                                    {{ item.name }}
+                                </button>
+                            </template>
+                        </nav>
+                        <span class="u-achievement-section-kicker">
+                            {{ $t("pages.wiki.overview.ui.achievementDetails") }}
+                        </span>
+                        <div class="m-achievement-list-heading">
+                            <h2>{{ viewAchievementsName }}</h2>
+                            <p>
+                                {{
+                                    $t("pages.wiki.overview.ui.resultCount", {
+                                        count: achievements_list.length,
+                                    })
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="m-achievement-table">
+                    <el-table
+                        :data="achievements_list || []"
+                        style="width: 100%"
+                        stripe
+                        row-class-name="u-table-row"
+                        cell-class-name="u-table-cell"
+                        header-row-class-name="u-table-header-row"
+                        header-cell-class-name="u-table-header-cell"
+                        v-loading="loading"
+                    >
+                        <el-table-column
+                            prop="Name"
+                            :label="$t('pages.wiki.overview.ui.name')"
+                            min-width="220"
+                        >
+                            <template #default="scope">
+                                <a
+                                    :href="getLink('achievement', scope.row.ID)"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <span class="u-achievement-name">
+                                        <span class="u-achievement-icon-frame">
+                                            <img class="u-icon" :src="iconLink(scope.row?.IconID)" alt="" />
+                                        </span>
+                                        <span class="u-achievement-name-text">{{ scope.row.Name }}</span>
+                                    </span>
+                                </a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column :label="$t('pages.wiki.overview.ui.summary')" min-width="260">
+                            <template #default="scope">
+                                <span :class="{ 'u-table-empty': !scope.row.ShortDesc }">
+                                    {{ scope.row.ShortDesc || $t("pages.wiki.overview.ui.emptyValue") }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            :label="$t('pages.wiki.overview.ui.points')"
+                            width="104"
+                            align="center"
+                            header-align="center"
+                            class-name="u-table-points"
+                        >
+                            <template #default="scope">{{ scope.row.Point || 0 }}</template>
+                        </el-table-column>
+                        <el-table-column
+                            :label="$t('pages.wiki.overview.ui.status')"
+                            width="112"
+                            align="center"
+                            header-align="center"
+                        >
+                            <template #default="scope">
+                                <el-tag
+                                    class="u-achievement-status"
+                                    :class="{
+                                        'is-complete': scope.row.isCompleted !== false,
+                                        'is-incomplete': scope.row.isCompleted === false,
+                                    }"
+                                    effect="plain"
+                                >
+                                    <CircleCheckFilled
+                                        v-if="scope.row.isCompleted !== false"
+                                        aria-hidden="true"
+                                    />
+                                    {{
+                                        scope.row.isCompleted === false
+                                            ? $t("pages.wiki.overview.ui.incomplete")
+                                            : $t("pages.wiki.overview.ui.completed")
+                                    }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column
+                            v-if="hasAchievementRewards"
+                            :label="$t('pages.wiki.overview.ui.reward')"
+                            width="88"
+                            align="center"
+                            header-align="center"
+                            class-name="u-table-reward"
+                        >
+                            <template #default="scope">
+                                <el-tooltip placement="top" v-if="isItemReward(scope.row)">
+                                    <template #content>
+                                        <jx3-item :item="getRewardItem(scope.row)" />
+                                    </template>
+                                    <a
+                                        class="u-reward-trigger"
+                                        :href="getRewardLink(scope.row)"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        :aria-label="getRewardAriaLabel(scope.row)"
+                                    >
+                                        <img
+                                            v-if="getRewardIcon(scope.row)"
+                                            class="u-reward-icon"
+                                            :src="getRewardIcon(scope.row)"
+                                            :alt="getRewardItem(scope.row)?.Name || ''"
+                                            @error="onRewardIconError(scope.row)"
+                                        />
+                                        <Present v-else aria-hidden="true" />
+                                    </a>
+                                </el-tooltip>
+                                <span
+                                    v-else-if="isRewardLoading(scope.row)"
+                                    class="u-reward-trigger is-loading"
+                                    :aria-label="$t('pages.wiki.overview.ui.rewardLoading')"
+                                >
+                                    <Loading aria-hidden="true" />
+                                </span>
+                                <span
+                                    v-else-if="hasRewardReference(scope.row)"
+                                    class="u-reward-trigger is-other"
+                                    :title="getRewardFallbackText(scope.row)"
+                                    :aria-label="getRewardFallbackText(scope.row)"
+                                >
+                                    <Present aria-hidden="true" />
+                                </span>
+                                <span v-else class="u-table-empty">
+                                    {{ $t("pages.wiki.overview.ui.emptyValue") }}
+                                </span>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </PvxSurface>
         </div>
     </div>
 </template>
@@ -279,18 +409,43 @@ import {
     getRoleGameAchievements,
     getMenus,
     getMenuAchievements,
+    getAchievementRewardItems,
 } from "@/service/achievement";
 import { getUserRoles } from "@/service/team";
 import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 import { getMyInfo } from "@/service/user";
-import { __imgPath } from "@/utils/config";
+import { __imgPath, __Links } from "@/utils/config";
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { cloneDeep } from "lodash";
+import {
+    ArrowRight,
+    CircleCheckFilled,
+    CollectionTag,
+    Loading,
+    Present,
+    UserFilled,
+    WarningFilled,
+} from "@element-plus/icons-vue";
 export default {
     name: "wiki-achievement-overview",
     props: [],
-    // "jx3-item": Item
-    components: { RoleAvatar, "jx3-item": Item },
+    components: {
+        ArrowRight,
+        CircleCheckFilled,
+        CollectionTag,
+        Loading,
+        PvxActionButton,
+        PvxEmptyState,
+        PvxSurface,
+        Present,
+        RoleAvatar,
+        UserFilled,
+        WarningFilled,
+        "jx3-item": Item,
+    },
     data: function () {
         return {
             userInfo: null,
@@ -309,15 +464,22 @@ export default {
             showList: false,
             achievements_list: [],
             loading: false,
-            list_bak: [],
-            name_bak: "",
+            loadingDelayTimer: null,
+            achievementRequestId: 0,
+            rewardRequestId: 0,
+            rewardItems: {},
+            categoryPath: [],
+            pageLoading: User.isLogin(),
+            pageError: false,
         };
     },
     computed: {
-        mobile() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            const mobileKeywords = ["android", "iphone", "ipad", "ipod", "windows phone", "miniprogram"];
-            return mobileKeywords.some((keyword) => userAgent.includes(keyword));
+        loginUrl() {
+            return __Links.account.login + "?redirect=" + encodeURIComponent(location.href);
+        },
+        categoryTitleImage() {
+            if (!this.viewAchievementsName) return "";
+            return require(`@/assets/img/wiki/overview/title/${this.viewAchievementsName}.png`);
         },
         avatar_frame() {
             if (this.userInfo) {
@@ -331,10 +493,27 @@ export default {
         viewAchievementsName() {
             return this.$store.state.viewAchievementsName;
         },
+        currentSeniorityLabel() {
+            if (!this.viewAchievementsName) {
+                return this.$t("pages.wiki.overview.ui.currentSeniority");
+            }
+            return this.$t("pages.wiki.overview.ui.categorySeniority", {
+                category: this.viewAchievementsName,
+            });
+        },
+        displayRoleAvatar() {
+            return !this.viewAchievementsName || this.showList;
+        },
+        showAvatarFrame() {
+            return Boolean(this.avatar_frame && this.displayRoleAvatar);
+        },
+        hasAchievementRewards() {
+            return this.achievements_list.some((item) => this.hasRewardReference(item));
+        },
 
         // 总进度
         totalProgress() {
-            if (!this.ownPointsCount && !this.allPointsCount) return 0;
+            if (!this.allPointsCount) return "0.00";
             return ((this.ownPointsCount / this.allPointsCount) * 100).toFixed(2);
         },
         // 总资历点数
@@ -366,20 +545,25 @@ export default {
     },
     watch: {
         achievementData() {
-            this.getRenderList();
+            this.refreshRenderList();
         },
         pointsData: {
             handler(val) {
                 if (val && Object.keys(val).length) {
-                    this.getRenderList();
+                    this.refreshRenderList();
                 }
             },
         },
         "$store.state.achievements": {
             handler(val) {
                 if (val && val.length) {
-                    this.getRenderList();
+                    this.refreshRenderList();
                 }
+            },
+        },
+        achievements_list: {
+            handler(list) {
+                this.loadRewardItems(list);
             },
         },
         currentRole: {
@@ -387,10 +571,10 @@ export default {
             immediate: true,
             handler(val) {
                 if (!val) return;
+                this.resetCategoryView();
                 localStorage.setItem("wiki_last_sync", val.jx3id || 0);
                 this.$store.commit("SET_STATE", { key: "role", value: val });
                 const { jx3id } = val;
-                console.log(jx3id);
                 if (jx3id) {
                     this.$store.commit("SET_STATE", { key: "achievementsVirtual", value: [] });
                     this.loadRoleAchievements(jx3id);
@@ -403,68 +587,297 @@ export default {
     mounted() {
         this.getUserInfo();
     },
+    beforeUnmount() {
+        clearTimeout(this.loadingDelayTimer);
+        this.rewardRequestId += 1;
+    },
     methods: {
         iconLink,
         getLink,
-        //成就奖励图标
-        getIconRewards(row) {
-            let key = `item-${this.$store.state.client}-${row.ItemType}_${row.ItemID}`;
-            try {
-                let item = JSON.parse(sessionStorage.getItem(key));
-                return item?.IconID ? this.iconLink(item.IconID) : "";
-            } catch (error) {}
+        hasRewardReference(row) {
+            return Boolean(this.getRewardKey(row));
         },
-        overviewListScroll($event) {
-            if (!this.mobile) return;
-            if (this.$refs.overviewList.scrollTop > 70) {
-                this.isScroll = true;
-            } else {
-                this.isScroll = false;
+        getRewardKey(row) {
+            const type = String(row?.ItemType ?? "").trim();
+            const id = String(row?.ItemID ?? "").trim();
+            if (!/^\d+$/.test(type) || !/^\d+$/.test(id)) return "";
+            if (Number(type) <= 0 || Number(id) <= 0) return "";
+            return `${Number(type)}_${Number(id)}`;
+        },
+        getRewardEntry(row) {
+            return this.rewardItems[this.getRewardKey(row)] || null;
+        },
+        getRewardItem(row) {
+            return this.getRewardEntry(row)?.item || null;
+        },
+        getRewardIcon(row) {
+            const entry = this.getRewardEntry(row);
+            if (!entry?.item?.IconID || entry.iconError) return "";
+            return this.iconLink(entry.item.IconID, this.$store.state.client || "std");
+        },
+        getRewardLink(row) {
+            const key = this.getRewardKey(row);
+            return this.isItemReward(row) && key ? this.getLink("item", key) : "";
+        },
+        getRewardAriaLabel(row) {
+            return this.$t("pages.wiki.overview.ui.viewRewardItem", {
+                name: this.getRewardItem(row)?.Name || this.$t("pages.wiki.overview.ui.reward"),
+            });
+        },
+        getRewardFallbackText(row) {
+            const entry = this.getRewardEntry(row);
+            return this.$t(
+                entry?.status === "error"
+                    ? "pages.wiki.overview.ui.rewardUnavailable"
+                    : "pages.wiki.overview.ui.otherReward"
+            );
+        },
+        isItemReward(row) {
+            const entry = this.getRewardEntry(row);
+            return entry?.status === "ready" && entry.kind === "item";
+        },
+        isRewardLoading(row) {
+            if (!this.hasRewardReference(row)) return false;
+            const entry = this.getRewardEntry(row);
+            return !entry || entry.status === "loading";
+        },
+        setRewardEntry(key, entry) {
+            this.rewardItems = {
+                ...this.rewardItems,
+                [key]: entry,
+            };
+        },
+        isValidRewardItem(item, key) {
+            return Boolean(
+                item &&
+                    typeof item === "object" &&
+                    Object.keys(item).length &&
+                    String(item.id || item.idKey || "") === key &&
+                    item.Name
+            );
+        },
+        getCachedRewardItem(key, client) {
+            try {
+                const item = JSON.parse(sessionStorage.getItem(`item-${client}-${key}`));
+                return this.isValidRewardItem(item, key) ? item : null;
+            } catch {
+                return null;
             }
+        },
+        loadRewardItems(rows = []) {
+            const requestId = ++this.rewardRequestId;
+            const client = this.$store.state.client || "std";
+            const rewardKeys = new Set();
+
+            rows.forEach((row) => {
+                const key = this.getRewardKey(row);
+                if (key) rewardKeys.add(key);
+            });
+
+            this.rewardItems = {};
+
+            const uncachedKeys = [];
+
+            rewardKeys.forEach((key) => {
+                const cachedItem = this.getCachedRewardItem(key, client);
+                if (cachedItem) {
+                    this.setRewardEntry(key, {
+                        status: "ready",
+                        kind: "item",
+                        item: cachedItem,
+                        iconError: false,
+                    });
+                    return;
+                }
+
+                uncachedKeys.push(key);
+                this.setRewardEntry(key, {
+                    status: "loading",
+                    kind: "unknown",
+                    item: null,
+                    iconError: false,
+                });
+            });
+
+            for (let index = 0; index < uncachedKeys.length; index += 40) {
+                const keys = uncachedKeys.slice(index, index + 40);
+                getAchievementRewardItems(keys, client)
+                    .then((res) => {
+                        if (requestId !== this.rewardRequestId) return;
+                        const items = res?.data?.list || [];
+                        const itemMap = new Map(
+                            items.map((item) => [String(item?.id || item?.idKey || ""), item])
+                        );
+
+                        keys.forEach((key) => {
+                            const item = itemMap.get(key);
+                            if (this.isValidRewardItem(item, key)) {
+                                try {
+                                    sessionStorage.setItem(
+                                        `item-${client}-${key}`,
+                                        JSON.stringify(item)
+                                    );
+                                } catch {
+                                    // 缓存不可用不应影响奖励展示。
+                                }
+                                this.setRewardEntry(key, {
+                                    status: "ready",
+                                    kind: "item",
+                                    item,
+                                    iconError: false,
+                                });
+                                return;
+                            }
+
+                            this.setRewardEntry(key, {
+                                status: "ready",
+                                kind: "other",
+                                item: null,
+                                iconError: false,
+                            });
+                        });
+                    })
+                    .catch(() => {
+                        if (requestId !== this.rewardRequestId) return;
+                        keys.forEach((key) => {
+                            this.setRewardEntry(key, {
+                                status: "error",
+                                kind: "unknown",
+                                item: null,
+                                iconError: false,
+                            });
+                        });
+                    });
+            }
+        },
+        onRewardIconError(row) {
+            const key = this.getRewardKey(row);
+            const entry = this.getRewardEntry(row);
+            if (!key || !entry) return;
+            this.setRewardEntry(key, {
+                ...entry,
+                iconError: true,
+            });
         },
         getUserInfo() {
             if (!User.isLogin()) {
-                this.$confirm("请先登录")
-                    .then((_) => {
-                        User.toLogin(window.location.href);
-                    })
-                    .catch(() => {});
-
+                this.pageLoading = false;
                 return;
             }
-            getMyInfo().then((res) => {
-                this.userInfo = res;
-                this.loadData();
-            });
+            this.pageLoading = true;
+            this.pageError = false;
+            getMyInfo()
+                .then((res) => {
+                    this.userInfo = res;
+                    return this.loadData();
+                })
+                .catch(() => {
+                    this.pageError = true;
+                })
+                .finally(() => {
+                    this.pageLoading = false;
+                });
         },
         onChangeRole(role) {
             this.currentRole = role;
-            this.$nextTick(() => {
-                this.$refs.overviewList.scrollTop = 0;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        },
+        formatRoleLabel(role) {
+            if (!role?.server) return role?.name || "";
+            return this.$t("pages.wiki.overview.ui.roleWithServer", {
+                name: role.name,
+                server: role.server,
             });
         },
         showSchoolIcon,
+        getCategoryImage(name) {
+            return require(`@/assets/img/wiki/overview/item/${name}.png`);
+        },
         onEnterCategory(data) {
-            this.name_bak = cloneDeep(this.viewAchievementsName);
-            this.list_bak = cloneDeep(this.list);
-            this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: data.name });
-
             if (data.children) {
+                this.categoryPath.push(cloneDeep(data));
+                this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: data.name });
                 this.getRenderList(data.children);
-                this.$nextTick(() => {
-                    this.$refs.overviewList.scrollTop = 0;
-                });
+                this.scrollToCategorySection();
             } else {
-                this.list = [data];
-                this.showList = true;
-                this.getMenuAchievements(data);
+                this.cancelAchievementRequest();
+                this.getMenuAchievements(data).then((isReady) => {
+                    if (!isReady) return;
+                    this.categoryPath.push(cloneDeep(data));
+                    this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: data.name });
+                    this.list = [data];
+                    this.showList = true;
+                });
             }
+        },
+        onSelectBreadcrumb(index) {
+            if (index === this.categoryPath.length - 1) return;
+            this.cancelAchievementRequest();
+            const data = cloneDeep(this.categoryPath[index]);
+            this.categoryPath = this.categoryPath.slice(0, index + 1);
+            this.showList = false;
+            this.achievements_list = [];
+            this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: data.name });
+            this.getRenderList(data.children);
+            this.scrollToCategorySection();
+        },
+        goOverview() {
+            if (!this.categoryPath.length && !this.showList) return;
+            this.cancelAchievementRequest();
+            this.categoryPath = [];
+            this.showList = false;
+            this.achievements_list = [];
+            this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: null });
+            this.getRenderList();
+            this.scrollToCategorySection();
+        },
+        scrollToCategorySection() {
+            this.$nextTick(() => {
+                const section = this.$refs.categorySection?.$el || this.$refs.categorySection;
+                if (!section) return;
+
+                const scrollContainer = document.scrollingElement || document.documentElement;
+                const sectionTop = section.getBoundingClientRect().top;
+                const sidebar = document.querySelector(
+                    ".m-achievement-main.c-pvx-modern-achievement-overview > .m-achievement-sidebar"
+                );
+                if (sidebar && window.matchMedia("(min-width: 1134px)").matches) {
+                    const stickyTop = Number.parseFloat(window.getComputedStyle(sidebar).top) || 0;
+                    this.setScrollTopImmediately(
+                        scrollContainer,
+                        Math.max(0, window.scrollY + sectionTop - stickyTop)
+                    );
+                    return;
+                }
+
+                const scrollMarginTop =
+                    Number.parseFloat(window.getComputedStyle(section).scrollMarginTop) || 0;
+                this.setScrollTopImmediately(
+                    scrollContainer,
+                    Math.max(0, window.scrollY + sectionTop - scrollMarginTop)
+                );
+            });
+        },
+        setScrollTopImmediately(scrollContainer, scrollTop) {
+            const previousScrollBehavior = scrollContainer.style.scrollBehavior;
+            scrollContainer.style.scrollBehavior = "auto";
+            scrollContainer.scrollTop = scrollTop;
+            scrollContainer.style.scrollBehavior = previousScrollBehavior;
         },
         // 获取成就列表
         getMenuAchievements(menu) {
-            this.loading = true;
-            getMenuAchievements(menu.sub, menu.detail)
+            const requestId = ++this.achievementRequestId;
+            clearTimeout(this.loadingDelayTimer);
+            this.loading = false;
+            this.loadingDelayTimer = setTimeout(() => {
+                if (requestId === this.achievementRequestId) {
+                    this.loading = true;
+                }
+            }, 180);
+
+            return getMenuAchievements(menu.sub, menu.detail)
                 .then((data) => {
+                    if (requestId !== this.achievementRequestId) return false;
                     let list = data.data.data.achievements || [];
                     let arr = [];
                     list.forEach((item) => {
@@ -480,34 +893,39 @@ export default {
                         }
                     });
                     this.achievements_list = arr;
+                    return true;
                 })
+                .catch(() => false)
                 .finally(() => {
+                    if (requestId !== this.achievementRequestId) return;
+                    clearTimeout(this.loadingDelayTimer);
+                    this.loadingDelayTimer = null;
                     this.loading = false;
                 });
         },
-
-        onSeeOverview() {
-            if (this.showList) {
-                this.list = cloneDeep(this.list_bak);
-                this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: this.name_bak });
-                this.showList = false;
-                this.achievements_list = [];
-                return;
-            }
+        cancelAchievementRequest() {
+            this.achievementRequestId += 1;
+            clearTimeout(this.loadingDelayTimer);
+            this.loadingDelayTimer = null;
+            this.loading = false;
+        },
+        resetCategoryView() {
+            this.cancelAchievementRequest();
+            this.categoryPath = [];
             this.showList = false;
             this.achievements_list = [];
-
             this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: null });
-            this.getRenderList();
-            this.$nextTick(() => {
-                this.$refs.overviewList.scrollTop = 0;
-            });
+        },
+        refreshRenderList() {
+            if (this.showList) return;
+            const currentCategory = this.categoryPath[this.categoryPath.length - 1];
+            this.getRenderList(currentCategory?.children);
         },
         loadData() {
-            this.getList();
+            return this.getList();
         },
         getRenderList(data) {
-            data = data ? data : this.achievementData;
+            data = data || this.achievementData;
             const list = Object.keys(data).map((key) => {
                 const item = data[key];
                 const allData = this.getAllachievementsData(item);
@@ -525,7 +943,11 @@ export default {
             this.list = list;
         },
         getCurrentProgress(own, all) {
+            if (!all) return "0.00";
             return ((own / all) * 100).toFixed(2);
+        },
+        isCategoryComplete(item) {
+            return item.allPoints > 0 && item.ownPoints >= item.allPoints;
         },
         getCurrentProgressBg(own, all) {
             let n = 0;
@@ -599,7 +1021,7 @@ export default {
             }).then((res) => {
                 const data = res.data.data.menus;
                 this.achievementData = data;
-                this.getPoints();
+                return this.getPoints();
             });
         },
         // 获取成就对应点数
@@ -607,29 +1029,21 @@ export default {
             return getAchievementPoints().then((res) => {
                 const data = res.data.data.points;
                 this.pointsData = data;
-                this.loadUserRoles(); // 获取用户角色列表
+                return this.loadUserRoles();
             });
         },
         // 获取用户角色列表
         loadUserRoles() {
-            this.isLogin &&
-                getUserRoles().then((res) => {
-                    this.roleList = res.data?.data?.list || [];
-                    const wiki_last_sync_jx3id = localStorage.getItem("wiki_last_sync");
-
-                    if (wiki_last_sync_jx3id && wiki_last_sync_jx3id !== "0") {
-                        this.currentRole = this.roleList.find((item) => item.jx3id == wiki_last_sync_jx3id) || null;
-                    } else {
-                        if (this.roleList.length) {
-                            this.currentRole = this.roleList[0];
-                            this.$store.commit("SET_STATE", { key: "role", value: this.currentRole });
-                        } else {
-                            this.currentRole = this.virtualRole;
-                            this.$store.commit("SET_STATE", { key: "role", value: this.virtualRole });
-                            // this.loadVirtualAchievements();
-                        }
-                    }
-                });
+            if (!this.isLogin) return Promise.resolve();
+            return getUserRoles().then((res) => {
+                this.roleList = res.data?.data?.list || [];
+                const wiki_last_sync_jx3id = localStorage.getItem("wiki_last_sync");
+                const lastRole = this.roleList.find((item) => item.jx3id == wiki_last_sync_jx3id);
+                this.currentRole = lastRole || this.roleList[0] || null;
+                if (this.currentRole) {
+                    this.$store.commit("SET_STATE", { key: "role", value: this.currentRole });
+                }
+            });
         },
         // 获取角色成就状态
         loadRoleAchievements(jx3id) {

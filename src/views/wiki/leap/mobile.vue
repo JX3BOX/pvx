@@ -36,7 +36,9 @@
         <!--成就分类 -->
         <div class="m-achievement-tab" v-if="!isFold && isDetail && detail.meta?.createBy == 'map'">
             <ul class="u-zl-item" :class="{ active: detailSelectMenu == null }">
-                <div class="u-zl-item_title" @click="changeDetailMenu(null, 0)">全部</div>
+                <div class="u-zl-item_title" @click="changeDetailMenu(null, 0)">
+                    {{ $t("pages.wiki.leap.ui.all") }}
+                </div>
             </ul>
             <div v-for="(item, index) in mapList" :key="index">
                 <ul class="u-zl-item" v-if="item.show">
@@ -53,7 +55,9 @@
         </div>
         <div class="m-achievement-tab" v-else>
             <ul class="u-zl-item" :class="{ active: detailSelectMenu == null }">
-                <div class="u-zl-item_title" @click="changeDetailMenu(null, 0)">全部</div>
+                <div class="u-zl-item_title" @click="changeDetailMenu(null, 0)">
+                    {{ $t("pages.wiki.leap.ui.all") }}
+                </div>
             </ul>
             <div v-for="(item, index) in menuList" :key="index" @click="changeDetailMenu(item, 1)">
                 <ul class="u-zl-item" v-if="item.show" :class="{ active: detailSelectMenu == item.id }">
@@ -73,21 +77,27 @@
             <el-table :data="list" style="width: 100%; max-height: calc(100vh - 85px)" height="100%" stripe
                 row-class-name="u-table-row" cell-class-name="u-table-cell" header-row-class-name="u-table-header_row"
                 header-cell-class-name="u-table-header_cell">
-                <el-table-column prop="title" label="方案名称" width="160">
+                <el-table-column prop="title" :label="$t('pages.wiki.leap.ui.planName')" width="160">
                     <template #default="scope">
                         <router-link target="_blank" :to="{ name: 'leap', query: { id: scope.row.id } }">
                             {{ scope.row.title }}
                         </router-link>
                     </template>
                 </el-table-column>
-                <el-table-column label="方案资历总点数" width="120">
+                <el-table-column :label="$t('pages.wiki.leap.ui.totalPoints')" width="120">
                     <template #default="scope"> {{ getSchemePoints(scope.row.schema)?.all || 0 }} </template>
                 </el-table-column>
-                <el-table-column label="可提升资历点数" width="120">
+                <el-table-column :label="$t('pages.wiki.leap.ui.improvablePoints')" width="120">
                     <template #default="scope"> {{ getSchemePoints(scope.row.schema)?.diffNum || 0 }} </template>
                 </el-table-column>
-                <el-table-column label="来源" width="80">
-                    <template #default="scope"> {{ scope.row.is_official == 1 ? "魔盒" : "玩家" }} </template>
+                <el-table-column :label="$t('pages.wiki.leap.ui.source')" width="80">
+                    <template #default="scope">
+                        {{
+                            scope.row.is_official == 1
+                                ? $t("pages.wiki.leap.ui.officialSource")
+                                : $t("pages.wiki.leap.ui.playerSource")
+                        }}
+                    </template>
                 </el-table-column>
             </el-table>
             <div class="u-page">
@@ -101,7 +111,7 @@
             <el-table :data="detail.achievements || []" style="width: 100%" stripe height="100%"
                 row-class-name="u-table-row" cell-class-name="u-table-cell" header-row-class-name="u-table-header_row"
                 header-cell-class-name="u-table-header_cell" v-loading="loading">
-                <el-table-column prop="Name" label="成就名称">
+                <el-table-column prop="Name" :label="$t('pages.wiki.leap.ui.achievementName')">
                     <template #default="scope">
                         <a :href="getLink('achievement', scope.row.ID)" target="_blank">
                             <div class="u-achievement-name">
@@ -111,7 +121,7 @@
                         </a>
                     </template>
                 </el-table-column>
-                <el-table-column label="资历点数" width="100">
+                <el-table-column :label="$t('pages.wiki.leap.ui.points')" width="100">
                     <template #default="scope"> {{ scope.row.Point || 0 }} </template>
                 </el-table-column>
 
@@ -123,20 +133,22 @@
                         </div></template
                     >
                 </el-table-column> -->
-                <el-table-column label="完成情况" width="100">
+                <el-table-column :label="$t('pages.wiki.leap.ui.status')" width="100">
                     <template #default="scope">
                         <el-tag :type="scope.row.isCompleted ? 'success' : 'danger'">{{
-                            scope.row.isCompleted ? "已完成" : "未完成"
+                            scope.row.isCompleted
+                                ? $t("pages.wiki.leap.ui.completed")
+                                : $t("pages.wiki.leap.ui.incomplete")
                         }}</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column label="难度" width="140">
+                <el-table-column :label="$t('pages.wiki.leap.ui.difficulty')" width="140">
                     <template #default="scope">
                         <el-rate :model-value="scope.row.difficulty" disabled allow-half disabled-void-color="#574938">
                         </el-rate>
                     </template>
                 </el-table-column>
-                <el-table-column label="奖励" width="60">
+                <el-table-column :label="$t('pages.wiki.leap.ui.reward')" width="60">
                     <template #default="scope">
                         <el-popover placement="right" width="400" trigger="click" v-if="scope.row.item">
                             <div><jx3-item :item="scope.row.item" /></div>

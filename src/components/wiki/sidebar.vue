@@ -7,22 +7,15 @@
                     :to="{
                         name: 'overview',
                     }"
-                    >完成进度</router-link
+                    >{{ $t("pages.wiki.sidebar.progress") }}</router-link
                 >
-                <ul v-show="$route.name === 'overview'">
-                    <li>
-                        <router-link class="is-child" :to="{ name: 'overview' }">{{
-                            viewAchievementsName ? viewAchievementsName + "资历" : "总览"
-                        }}</router-link>
-                    </li>
-                </ul>
             </li>
             <li :class="{ active: $route.name === 'compare' }">
                 <router-link
                     :to="{
                         name: 'compare',
                     }"
-                    >亲友对比</router-link
+                    >{{ $t("pages.wiki.sidebar.compare") }}</router-link
                 >
             </li>
             <li :class="{ active: $route.name === 'leap' }">
@@ -30,17 +23,38 @@
                     :to="{
                         name: 'leap',
                     }"
-                    >渡劫方案</router-link
+                    >{{ $t("pages.wiki.sidebar.plan") }}</router-link
                 >
             </li>
         </ul>
         <div class="u-img-btn">
-            <a href="https://www.jx3box.com/notice/95651" target="_blank">
-                <img src="@/assets/img/wiki/zlbdzn.png" alt="" class="u-img-guide" />
+            <a
+                href="https://www.jx3box.com/notice/95651"
+                target="_blank"
+                rel="noopener noreferrer"
+                :aria-label="$t('pages.wiki.sidebar.guide')"
+            >
+                <img
+                    src="@/assets/img/wiki/zlbdzn.png"
+                    :alt="$t('pages.wiki.sidebar.guide')"
+                    class="u-img-guide"
+                />
             </a>
-            <a class="u-wiki-btn" href="/cj" v-show="!mobile">
+            <a
+                class="u-wiki-btn"
+                href="/cj"
+                v-show="!mobile"
+                :aria-label="
+                    $t('pages.wiki.sidebar.wikiWithPoints', {
+                        count,
+                    })
+                "
+            >
                 <p class="u-text">
-                    已收录资历点：<span>{{ count }}</span>
+                    <span class="u-label">
+                        {{ $t("pages.wiki.sidebar.recordedSeniorityPoints") }}
+                    </span>
+                    <strong class="u-count">{{ count }}</strong>
                 </p>
             </a>
         </div>
@@ -165,7 +179,7 @@ export default {
             position: absolute;
             margin: 0;
             bottom: 28px;
-            span {
+            .u-count {
                 font-weight: bold;
                 color: rgba(204, 161, 108, 1);
             }

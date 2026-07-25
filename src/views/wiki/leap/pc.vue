@@ -1,457 +1,504 @@
 <template>
-    <div class="p-leap-pc">
-        <div class="m-title">
-            <div class="u-label-box">
-                <div class="u-label">渡劫方案</div>
-                <div class="u-btn-created" v-show="list.length > 0" @click="showForm = true">
-                    <el-icon class="u-add-icon">
-                        <CirclePlus />
-                    </el-icon>定制方案
-                </div>
-            </div>
+    <div class="p-achievement-overview p-pvx-achievement-overview p-achievement-leap">
+        <PvxSurface v-if="!isLogin" class="m-achievement-state" padding="none">
+            <PvxEmptyState
+                :title="$t('pages.wiki.leap.ui.loginRequired')"
+                :description="$t('pages.wiki.leap.ui.loginDescription')"
+            >
+                <template #icon><UserFilled /></template>
+                <template #action>
+                    <PvxActionButton :href="loginUrl">
+                        {{ $t("pages.wiki.leap.ui.goLogin") }}
+                        <ArrowRight />
+                    </PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
 
-            <!-- 用户信息展示 -->
-            <div :style="{
-                opacity: currentRole ? 1 : 0.5,
-            }" class="m-info-user">
-                <span class="u-name">{{ currentRole.name }}
-                    {{ currentRole.server && "·" }}
-                    {{ currentRole.server }}</span>
-                <el-dropdown trigger="click">
-                    <div class="u-toggle-btn">
-                        <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" />
+        <PvxSurface v-else-if="pageError" class="m-achievement-state" padding="none">
+            <PvxEmptyState
+                :title="$t('pages.wiki.leap.ui.loadFailed')"
+                :description="$t('pages.wiki.leap.ui.loadFailedDescription')"
+            >
+                <template #icon><WarningFilled /></template>
+                <template #action>
+                    <PvxActionButton @click="loadUserRoles">
+                        {{ $t("pages.wiki.leap.ui.retry") }}
+                    </PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
+
+        <PvxSurface v-else-if="!pageLoading && !currentRole" class="m-achievement-state" padding="none">
+            <PvxEmptyState
+                :title="$t('pages.wiki.leap.ui.noRole')"
+                :description="$t('pages.wiki.leap.ui.noRoleDescription')"
+            >
+                <template #icon><UserFilled /></template>
+                <template #action>
+                    <PvxActionButton href="/team/role/bind">
+                        {{ $t("pages.wiki.leap.ui.bindRole") }}
+                        <ArrowRight />
+                    </PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
+
+        <div v-else class="m-achievement-overview-layout" v-loading="pageLoading">
+            <PvxSurface v-if="currentRole" class="m-achievement-hero" tag="header" padding="medium">
+                <div class="m-achievement-hero__main">
+                    <div class="m-achievement-hero__copy">
+                        <span class="u-achievement-eyebrow">{{ $t("pages.wiki.leap.ui.eyebrow") }}</span>
+                        <h1>{{ detailTitle }}</h1>
+                        <p>{{ $t("pages.wiki.leap.ui.heroDescription") }}</p>
+
+                        <div class="m-achievement-role">
+                            <img
+                                class="u-achievement-school"
+                                :src="showSchoolIcon(currentRole.mount)"
+                                :alt="$t('pages.wiki.leap.ui.schoolIcon')"
+                            />
+                            <div class="m-achievement-role__info">
+                                <strong>{{ formatRoleLabel(currentRole) }}</strong>
+                            </div>
+                            <el-dropdown trigger="click">
+                                <button
+                                    type="button"
+                                    class="u-achievement-role-switch"
+                                    :aria-label="$t('pages.wiki.leap.ui.switchRole')"
+                                >
+                                    <span>{{ $t("pages.wiki.leap.ui.switchRole") }}</span>
+                                    <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" />
+                                </button>
+                                <template #dropdown>
+                                    <el-dropdown-menu class="m-role-dropdown">
+                                        <el-dropdown-item v-for="role in roleList" :key="role.ID">
+                                            <button
+                                                type="button"
+                                                class="m-role-item"
+                                                :class="{ active: role.jx3id === currentRole.jx3id }"
+                                                @click="onChangeRole(role)"
+                                            >
+                                                <span>{{ role.name }}</span>
+                                                <span>{{ role.server }}</span>
+                                            </button>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
                     </div>
-                    <template #dropdown>
-                        <el-dropdown-menu class="m-role-dropdown">
-                            <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                                <div @click="onChangeRole(role)" class="m-role-item" :class="{
-                                    active: role.jx3id === currentRole.jx3id,
-                                }">
-                                    <span>{{ role.name }}</span>
-                                    <span>{{ role.server }}</span>
+
+                    <div class="m-achievement-avatar" :class="{ 'has-avatar-frame': showAvatarFrame }">
+                        <img v-if="showAvatarFrame" class="u-avatar-border" :src="avatarFrame" alt="" />
+                        <RoleAvatar
+                            class="u-avatar-img"
+                            :mount="currentRole.mount"
+                            :body_type="currentRole.body_type"
+                        />
+                    </div>
+                </div>
+
+                <div class="m-achievement-summary">
+                    <div class="m-achievement-summary__item">
+                        <span>{{ $t("pages.wiki.leap.ui.currentSeniority") }}</span>
+                        <strong>{{ formatNumber(currentRole.total || 0) }}</strong>
+                    </div>
+                    <div class="m-achievement-summary__item">
+                        <span>{{ $t("pages.wiki.overview.ui.totalSeniority") }}</span>
+                        <strong>{{ formatNumber(allPointsCount) }}</strong>
+                    </div>
+                    <div class="m-achievement-summary__item is-progress">
+                        <span>{{ $t("pages.wiki.overview.ui.completion") }}</span>
+                        <strong>{{ totalProgress }}%</strong>
+                    </div>
+                    <div class="m-achievement-progress" aria-hidden="true">
+                        <span :style="{ width: `${totalProgress}%` }"></span>
+                    </div>
+                </div>
+            </PvxSurface>
+
+            <PvxSurface
+                v-if="currentRole && !showDetail"
+                class="m-achievement-categories m-leap-plans"
+                padding="medium"
+            >
+                <div class="m-achievement-section-header m-leap-plans__header">
+                    <nav
+                        class="m-achievement-context-nav"
+                        :aria-label="$t('pages.wiki.leap.ui.planManagement')"
+                    >
+                        <button type="button" class="is-current" aria-current="page">
+                            {{ $t("pages.wiki.leap.ui.title") }}
+                        </button>
+                    </nav>
+                    <div class="m-leap-plans__actions">
+                        <button type="button" class="u-leap-guide-button" @click="showGuide = true">
+                            <QuestionFilled />
+                            <span>{{ $t("pages.wiki.leap.ui.guideAction") }}</span>
+                        </button>
+                        <button type="button" class="u-leap-create-button" @click="showForm = true">
+                            <CirclePlus />
+                            <span>{{ $t("pages.wiki.leap.ui.createPlan") }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="list.length" class="m-achievement-category-grid m-leap-plan-grid">
+                    <article v-for="item in list" :key="item.id" class="m-leap-plan-shell">
+                        <router-link
+                            class="m-achievement-category-card m-leap-plan-card"
+                            :class="{ 'is-complete': isSchemeComplete(item.schema) }"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            :to="{ name: 'leap', query: { id: item.id } }"
+                        >
+                            <div class="m-achievement-category-card__top">
+                                <div class="m-achievement-category-card__title">
+                                    <span class="u-achievement-category-icon"><Document /></span>
+                                    <span>
+                                        <strong>{{ item.title }}</strong>
+                                        <small class="u-leap-plan-description">
+                                            <span>{{ sourceLabel(item) }}</span>
+                                            <span>
+                                                {{ $t("pages.wiki.leap.ui.improvablePoints") }}
+                                                <b>+{{ formatNumber(getSchemePoints(item.schema).diffNum) }}</b>
+                                            </span>
+                                        </small>
+                                    </span>
                                 </div>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
+                                <span class="u-achievement-category-rate">
+                                    <CircleCheckFilled v-if="isSchemeComplete(item.schema)" aria-hidden="true" />
+                                    {{ getSchemeProgress(item.schema) }}%
+                                </span>
+                            </div>
+
+                            <div class="m-achievement-category-card__meta">
+                                <span>
+                                    <img src="@/assets/img/wiki/overview/zl-logo.svg" alt="" />
+                                    {{ formatNumber(getSchemePoints(item.schema).all) }}
+                                </span>
+                                <ArrowRight />
+                            </div>
+
+                            <div class="m-achievement-category-progress" aria-hidden="true">
+                                <span :style="{ width: `${getSchemeProgress(item.schema)}%` }"></span>
+                            </div>
+                        </router-link>
+
+                        <button
+                            type="button"
+                            class="u-leap-delete"
+                            :aria-label="$t('pages.wiki.leap.ui.deletePlan', { title: item.title })"
+                            @click="deleteItem(item)"
+                        >
+                            <Delete />
+                        </button>
+                    </article>
+                </div>
+
+                <PvxEmptyState
+                    v-else
+                    class="m-leap-empty"
+                    :title="$t('pages.wiki.leap.ui.noPlans')"
+                    :description="$t('pages.wiki.leap.ui.noPlansDescription')"
+                >
+                    <template #icon><DocumentAdd /></template>
+                    <template #action>
+                        <button type="button" class="u-leap-create-button is-empty-action" @click="showForm = true">
+                            <CirclePlus />
+                            <span>{{ $t("pages.wiki.leap.ui.createFirstPlan") }}</span>
+                        </button>
                     </template>
-                </el-dropdown>
-                <div class="u-user-all_achievement">
-                    当前资历：<span>{{ currentRole.total || 0 }}</span>
+                </PvxEmptyState>
+
+                <div v-if="pageTotal > queryParams.per" class="u-leap-page">
+                    <el-pagination
+                        background
+                        layout="prev, pager, next"
+                        :page-size="queryParams.per"
+                        :total="pageTotal"
+                        @current-change="pageChange"
+                    />
                 </div>
-            </div>
+            </PvxSurface>
+
+            <PvxSurface
+                v-else-if="currentRole"
+                class="m-achievement-list m-leap-detail-surface"
+                padding="medium"
+            >
+                <detail :currentRole="currentRole" />
+            </PvxSurface>
         </div>
-        <!-- 主要位置 -->
-        <div class="m-main" v-if="!showDetail">
-            <div class="u-tips">
-                本功能提供自定义的渡劫成就速成方案<br />
-                ①点击定制方案<br />
-                ②输出方案名称，如地图，并输入你想达到的成就点数<br />
-                ③在自选中，你可以通过选择总览按照分类或地图，选择相应的成就，系统将会按照难度从低到高排列生成
+
+        <createFrom
+            :show="showForm"
+            :currentRole="currentRole || {}"
+            :pointsData="pointsData"
+            @reloadList="reloadList"
+            @cancel="showForm = false"
+        />
+
+        <el-dialog
+            v-model="showGuide"
+            class="c-leap-guide-dialog"
+            width="520px"
+            append-to-body
+            destroy-on-close
+            :title="$t('pages.wiki.leap.ui.guideTitle')"
+        >
+            <div class="m-leap-guide">
+                <p class="m-leap-guide__intro">
+                    {{ $t("pages.wiki.leap.ui.guideDescription") }}
+                </p>
+                <ol class="m-leap-guide__steps">
+                    <li>
+                        <span aria-hidden="true">1</span>
+                        <p>{{ $t("pages.wiki.leap.ui.guideStep1") }}</p>
+                    </li>
+                    <li>
+                        <span aria-hidden="true">2</span>
+                        <p>{{ $t("pages.wiki.leap.ui.guideStep2") }}</p>
+                    </li>
+                    <li>
+                        <span aria-hidden="true">3</span>
+                        <p>{{ $t("pages.wiki.leap.ui.guideStep3") }}</p>
+                    </li>
+                </ol>
             </div>
-            <div class="m-tables">
-                <el-table :data="list" style="width: 100%" stripe row-class-name="u-table-row"
-                    cell-class-name="u-table-cell" header-row-class-name="u-table-header_row"
-                    header-cell-class-name="u-table-header_cell" v-loading="loading">
-                    <el-table-column prop="title">
-                        <template #header>
-                            <div class="u-table-cell_left">方案名称</div>
-                        </template>
-                        <template #default="scope">
-                            <router-link target="_blank" :to="{ name: 'leap', query: { id: scope.row.id } }">
-                                <div style="text-align: left; height: 24px">{{ scope.row.title }}</div>
-                            </router-link>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="方案资历总点数" width="180">
-                        <template #default="scope"> {{ getSchemePoints(scope.row.schema)?.all || 0 }} </template>
-                    </el-table-column>
-                    <el-table-column width="180">
-                        <template #header>
-                            <div class="u-table-cell_right">可提升资历点数</div>
-                        </template>
-                        <template #default="scope">
-                            <div style="text-align: right">{{ getSchemePoints(scope.row.schema)?.diffNum || 0 }}</div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column width="180">
-                        <template #header>
-                            <div class="u-table-cell_right">来源</div>
-                        </template>
-                        <template #default="scope">
-                            <div style="text-align: right">
-                                {{ scope.row.is_official == 1 ? "魔盒" : "玩家" }}
-                            </div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column width="180">
-                        <template #header>
-                            <div class="u-table-cell_right">操作</div>
-                        </template>
-                        <template #default="scope">
-                            <div style="text-align: right">
-                                <el-button type="danger" icon="Delete" size="small" round
-                                    @click="deleteItem(scope.row)">删除</el-button>
-                            </div>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <div class="u-page">
-                    <el-pagination background hide-on-single-page layout="prev, pager, next"
-                        :page-size="queryParams.per" :total="pageTotal" @current-change="pageChange">
-                    </el-pagination>
-                </div>
-            </div>
-            <!-- 定制按钮 -->
-            <div class="u-btn" @click="showForm = true" v-show="list.length == 0">
-                <el-icon class="el-icon-circle-plus-outline u-add-icon" />
-                <div>定制方案</div>
-            </div>
-        </div>
-        <!-- 方案弹窗 -->
-        <createFrom :show="showForm" :currentRole="currentRole" :pointsData="pointsData" @reloadList="reloadList"
-            @cancel="showForm = false"></createFrom>
-        <!-- 方案详情 -->
-        <detail v-if="showDetail && !isEmpty(currentRole)" :currentRole="currentRole" />
+            <template #footer>
+                <button type="button" class="u-leap-guide-confirm" @click="showGuide = false">
+                    {{ $t("pages.wiki.leap.ui.guideGotIt") }}
+                </button>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
 <script>
 import { getRoleGameAchievements, getAchievementPoints } from "@/service/achievement";
 import { getWikiAchievementLeapSchemaList, deleteWikiAchievementLeapSchema } from "@/service/wiki";
-import createFrom from "./form";
-import detail from "./detail.vue";
-import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
-import User from "@jx3box/jx3box-common/js/user";
 import { getUserRoles } from "@/service/team";
-import { cloneDeep, isEmpty } from "lodash";
+import { getMyInfo } from "@/service/user";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
+import createFrom from "./form.vue";
+import detail from "./detail.vue";
+import User from "@jx3box/jx3box-common/js/user";
+import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
+import { __imgPath, __Links } from "@/utils/config";
+import {
+    ArrowRight,
+    CircleCheckFilled,
+    CirclePlus,
+    Delete,
+    Document,
+    DocumentAdd,
+    QuestionFilled,
+    UserFilled,
+    WarningFilled,
+} from "@element-plus/icons-vue";
 
 export default {
-    components: { createFrom, detail },
+    components: {
+        ArrowRight,
+        CircleCheckFilled,
+        CirclePlus,
+        createFrom,
+        Delete,
+        detail,
+        Document,
+        DocumentAdd,
+        QuestionFilled,
+        PvxActionButton,
+        PvxEmptyState,
+        PvxSurface,
+        RoleAvatar,
+        UserFilled,
+        WarningFilled,
+    },
     data() {
         return {
-            currentRole: {}, //当前角色
+            isLogin: User.isLogin(),
+            userInfo: null,
+            currentRole: null,
             roleList: [],
             loading: false,
-            //方案列表
+            pageLoading: User.isLogin(),
+            pageError: false,
             list: [],
             queryParams: { page: 1, per: 9 },
-            pageTotal: 0, //总条数
+            pageTotal: 0,
             showForm: false,
-            pointsData: {}, //成就点数
-            //详情
-            showDetail: false,
+            showGuide: false,
+            pointsData: {},
+            showDetail: Boolean(this.$route.query.id),
         };
     },
-    watch: {},
-    created() {
-        this.loadUserRoles();
-        if (this.$route.query.id) {
-            this.showDetail = true;
-        }
+    computed: {
+        loginUrl() {
+            return __Links.account.login + "?redirect=" + encodeURIComponent(location.href);
+        },
+        detailTitle() {
+            return this.showDetail
+                ? this.$t("pages.wiki.leap.ui.planDetail")
+                : this.$t("pages.wiki.leap.ui.title");
+        },
+        avatarFrame() {
+            const frame = this.userInfo?.user_avatar_frame;
+            return frame ? __imgPath + `avatar/images/${frame}/${frame}.svg` : "";
+        },
+        showAvatarFrame() {
+            return Boolean(this.avatarFrame);
+        },
+        achievementIdSet() {
+            return new Set(
+                String(this.currentRole?.achievements || "")
+                    .split(",")
+                    .filter(Boolean)
+                    .map(String)
+            );
+        },
+        allPointsCount() {
+            return Object.values(this.pointsData).reduce((total, point) => total + Number(point || 0), 0);
+        },
+        totalProgress() {
+            if (!this.allPointsCount) return "0.00";
+            return Math.min(
+                100,
+                Number((((this.currentRole?.total || 0) / this.allPointsCount) * 100).toFixed(2))
+            ).toFixed(2);
+        },
     },
-    mounted() { },
+    watch: {
+        "$route.query.id"(id) {
+            this.showDetail = Boolean(id);
+        },
+    },
+    created() {
+        if (this.isLogin) this.loadUserRoles();
+    },
     methods: {
-        iconLink,
-        getLink,
-        isEmpty,
+        showSchoolIcon,
+        formatNumber(value) {
+            return Number(value || 0).toLocaleString();
+        },
+        formatRoleLabel(role) {
+            return [role?.name, role?.server].filter(Boolean).join(" · ");
+        },
+        sourceLabel(row) {
+            return row.is_official == 1
+                ? this.$t("pages.wiki.leap.ui.officialSource")
+                : this.$t("pages.wiki.leap.ui.playerSource");
+        },
         reloadList() {
             this.showForm = false;
-            this.getSchemaList(); //重新加载方案列表
+            this.getSchemaList(true);
         },
-        // 获取当前用户角色列表
-        loadUserRoles() {
-            if (!User.isLogin()) {
-                this.$confirm("请先登录").then((_) => {
-                    User.toLogin(window.location.href);
-                }).catch(() => {});
-
-                return;
+        async loadUserRoles() {
+            this.pageLoading = true;
+            this.pageError = false;
+            try {
+                const [roleRes, userInfo] = await Promise.all([getUserRoles(), getMyInfo()]);
+                this.userInfo = userInfo;
+                this.roleList = roleRes.data?.data?.list || [];
+                this.currentRole = this.roleList[0] || null;
+                if (this.currentRole) await this.getPoints();
+            } catch (error) {
+                this.pageError = true;
+            } finally {
+                this.pageLoading = false;
             }
-
-            getUserRoles().then((res) => {
-                this.roleList = res.data?.data?.list || [];
-                this.currentRole = res.data?.data?.list[0] || {};
-                this.getPoints();
-            });
         },
-        // 获取成就对应点数
-        getPoints() {
-            return getAchievementPoints().then((res) => {
-                const data = res.data.data.points;
-                this.pointsData = data;
-
-                //获取方案列表
-                this.getSchemaList();
-            });
+        async getPoints() {
+            const res = await getAchievementPoints();
+            this.pointsData = res.data?.data?.points || {};
+            await this.getSchemaList();
         },
-        onChangeRole(val) {
-            // this.currentRole = val;
-            this.getRoleGameAchievements(val);
+        async onChangeRole(role) {
+            await this.getRoleGameAchievements(role);
+            window.scrollTo({ top: 0, behavior: "smooth" });
         },
-        //获取当前角色成就
-        getRoleGameAchievements(val) {
-            getRoleGameAchievements(val?.jx3id || this.currentRole.jx3id).then((res) => {
-                val ? (this.currentRole = val) : "";
-                this.currentRole.achievements = res.data?.data?.achievements || "";
-                //计算角色总资历
-                let total = 0,
-                    arr = cloneDeep(this.currentRole.achievements).split(",") || [];
-                arr.forEach((item) => {
-                    total = total + (this.pointsData[item] || 0);
-                });
-                this.currentRole.total = total;
-            });
+        async getRoleGameAchievements(role) {
+            const target = role || this.currentRole;
+            if (!target?.jx3id) return;
+            const res = await getRoleGameAchievements(target.jx3id);
+            if (role) this.currentRole = role;
+            this.currentRole.achievements = res.data?.data?.achievements || "";
+            const ids = String(this.currentRole.achievements).split(",").filter(Boolean);
+            this.currentRole.total = ids.reduce((total, id) => total + Number(this.pointsData[id] || 0), 0);
         },
         pageChange(page) {
             this.queryParams.page = page;
             this.getSchemaList(true);
         },
-        //获取方案列表
-        getSchemaList(status) {
+        async getSchemaList(skipRoleReload = false) {
             this.loading = true;
-            getWikiAchievementLeapSchemaList(this.queryParams)
-                .then((res) => {
-                    this.list = res.data?.data?.list || [];
-                    this.pageTotal = res.data?.data?.total || 0;
-                    if (!status) this.getRoleGameAchievements(); //获取当前角色成就
-                })
-                .finally(() => {
-                    this.loading = false;
-                });
+            try {
+                const res = await getWikiAchievementLeapSchemaList(this.queryParams);
+                this.list = res.data?.data?.list || [];
+                this.pageTotal = res.data?.data?.total || 0;
+                if (!skipRoleReload) await this.getRoleGameAchievements();
+            } finally {
+                this.loading = false;
+            }
         },
-        //根据方案列表获取方案的成就ID及对应Point
-        getSchemePoints(schema) {
-            let pointsData = this.pointsData;
+        getSchemePoints(schema = []) {
+            return this.schemeCompute(
+                schema.map((id) => ({
+                    ID: String(id),
+                    Point: Number(this.pointsData[id] || 0),
+                }))
+            );
+        },
+        getSchemeProgress(schema) {
+            const points = this.getSchemePoints(schema);
+            if (!points.all) return 0;
+            return Math.min(100, Number((((points.all - points.diffNum) / points.all) * 100).toFixed(2)));
+        },
+        isSchemeComplete(schema) {
+            const points = this.getSchemePoints(schema);
+            return points.all > 0 && points.diffNum === 0;
+        },
+        schemeCompute(achievements = []) {
+            return achievements.reduce(
+                (result, achievement) => {
+                    result.all += achievement.Point;
+                    if (!this.achievementIdSet.has(String(achievement.ID))) {
+                        result.diffNum += achievement.Point;
+                    }
+                    return result;
+                },
+                { all: 0, diffNum: 0 }
+            );
+        },
+        async deleteItem(row) {
+            try {
+                await this.$confirm(
+                    this.$t("pages.wiki.leap.ui.deleteConfirm", { title: row.title }),
+                    this.$t("pages.wiki.leap.ui.confirmTitle"),
+                    {
+                        confirmButtonText: this.$t("pages.wiki.leap.ui.confirm"),
+                        cancelButtonText: this.$t("pages.wiki.leap.ui.cancel"),
+                        type: "warning",
+                    }
+                );
+            } catch {
+                return;
+            }
 
-            let schemaArr = [];
-            schema.forEach((item) => {
-                schemaArr.push({ ID: item, Point: pointsData[item] });
-            });
-            let info = this.schemeCompute(schemaArr);
-            return { all: info.all, diffNum: info.diffNum };
-        },
-        //方案计算
-        schemeCompute(data) {
-            let all = 0,
-                diffNum = 0;
-            let _this = this;
-            let customList = data || this.customList;
-
-            //计算成就差值
-            let arr = customList.filter(function (v) {
-                all = all + v.Point;
-                return _this.currentRole.achievements?.indexOf(v.ID) == -1 || false;
-            });
-            arr.forEach((item) => {
-                diffNum = diffNum + item.Point;
-            });
-            return {
-                all,
-                diffNum,
-            };
-        },
-        //删除方案
-        deleteItem(row) {
-            this.$confirm(`是否确定要删除方案${row.title}?`, "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning",
-            }).then(() => {
-                deleteWikiAchievementLeapSchema(row.id).then((res) => {
-                    this.$message.success("删除成功");
-                    this.getSchemaList();
-                });
-            });
+            try {
+                await deleteWikiAchievementLeapSchema(row.id);
+                this.$message.success(this.$t("pages.wiki.leap.ui.deleteSuccess"));
+                await this.getSchemaList(true);
+            } catch (error) {
+                console.error("Failed to delete leap plan:", error);
+                this.$message.error(this.$t("pages.wiki.leap.ui.deleteFailed"));
+            }
         },
     },
 };
 </script>
-
-<style lang="less">
-.p-leap-pc {
-    padding-top: 45px;
-    width: 960px;
-    height: 97%;
-    box-sizing: border-box;
-
-    .m-info-user {
-        .flex;
-        .h(35px);
-        transition: 0.5s;
-        align-items: center;
-
-        .u-name {
-            .fz(16px, 25px);
-            .mr(8px);
-            .bold;
-            color: #fff;
-        }
-
-        .u-toggle-btn {
-            .flex;
-            .flex(o);
-            .size(28px);
-            color: #ffeccc;
-            cursor: pointer;
-        }
-
-        .u-user-all_achievement {
-            .fz(16px, 25px);
-            .ml(8px);
-            color: #ffeccc;
-
-            span {
-                color: #fff;
-            }
-        }
-    }
-
-    .m-title {
-        .flex;
-        align-items: center;
-        justify-content: space-between;
-        .pb(12px);
-        border-bottom: 2px solid #fff;
-
-        // .mb(8px);
-        .u-label-box {
-            .flex;
-            align-items: center;
-            .w(130px);
-            flex-shrink: 0;
-        }
-
-        .u-label {
-            .w(115px);
-            flex-shrink: 0;
-            mask-image: linear-gradient(180deg, rgba(255, 255, 255, 1) 43.06%, rgba(255, 255, 255, 0) 100%);
-            .fz(26px);
-            .bold(900);
-            color: #fff;
-        }
-
-        .u-btn-created {
-            .size(120px, 20px);
-            flex-shrink: 0;
-            border: 1px solid #ffeccc;
-            .r(10px);
-            .flex;
-            .flex(o);
-            padding: 4px 0;
-            color: #e2d3b9;
-            cursor: pointer;
-            .fz(14px);
-            gap: 4px;
-
-            .u-add-icon {
-                // .fz(16px);
-            }
-        }
-
-        .u-tip {
-            flex: 1;
-            color: rgba(255, 236, 204, 1);
-            .fz(14px);
-            .bold(400);
-        }
-    }
-
-    .m-tables {
-        .mb(8px);
-
-        .el-table {
-            &::before {
-                height: 0;
-            }
-        }
-
-        .el-table,
-        .u-table-header_row,
-        .u-table-header_cell {
-            background-color: transparent;
-
-            .el-table__body tr:hover>td {
-                background-color: #f3f0ed;
-            }
-        }
-
-        .u-table-header_cell {
-            .x;
-            color: rgba(245, 224, 201, 1);
-
-            .u-table-cell_left {
-                padding-left: 0;
-                padding-right: 0;
-                .w(100%);
-                text-align: left;
-            }
-
-            .u-table-cell_right {
-                padding-left: 0;
-                padding-right: 0;
-                .w(100%);
-                text-align: right;
-            }
-        }
-
-        .u-table-cell {
-            .x;
-            color: rgba(112, 83, 45, 1);
-
-            a {
-                color: rgba(112, 83, 45, 1);
-            }
-        }
-
-        .u-table-row {
-
-            //奇偶选择器
-            &:nth-child(odd) {
-                background: #ebe5df;
-            }
-
-            &:nth-child(even) {
-                background: #fff;
-            }
-        }
-
-        .u-page {
-            .mt(6px);
-            text-align: right;
-
-            .el-pagination.is-background .el-pager li:not(.disabled):hover {
-                background-color: #ffeccc;
-                color: rgba(112, 83, 45, 1);
-            }
-
-
-            .el-pagination.is-background .el-pager li.is-active {
-                background-color: #ffeccc;
-                color: rgba(112, 83, 45, 1);
-            }
-        }
-    }
-
-    .m-main {
-        .u-tips {
-            .pt(10px);
-            color: rgba(245, 224, 201, 1);
-            .fz(14px, 24px);
-        }
-
-        .u-btn {
-            border: 1px solid #ffeccc;
-            .r(10px);
-            .size(960px, 360px);
-            .flex;
-            .flex(o);
-            flex-direction: column;
-            color: #e2d3b9;
-            cursor: pointer;
-
-            .u-add-icon {
-                .fz(42px);
-            }
-        }
-    }
-}
-</style>
