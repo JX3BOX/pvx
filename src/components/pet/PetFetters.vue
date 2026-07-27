@@ -24,7 +24,9 @@
                             <img :src="iconLink(pet.IconID)" />
                         </i>
                         <span class="u-fetter-name">{{ pet.Name }}</span>
-                        <i class="u-mark" v-if="pet.Index == id">当前</i>
+                        <i class="u-mark" v-if="pet.Index == id">
+                            {{ $t("pages.pet.single.ui.current") }}
+                        </i>
                     </router-link>
                 </template>
 

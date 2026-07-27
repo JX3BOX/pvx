@@ -7,9 +7,47 @@
                     <ArrowLeft />
                     {{ $t("pages.pet.single.ui.actions.back") }}
                 </PvxActionButton>
-                <div class="u-back-right">
+                <PvxSingleAdminDrop />
+            </PvxSurface>
+
+            <PvxSurface class="m-pvx-pet-header" tag="header" padding="large">
+                <div class="m-pvx-pet-header__info">
+                    <div class="m-pvx-pet-header__meta">
+                        <span class="u-pvx-pet-eyebrow">
+                            {{ $t("pages.pet.single.ui.guideLabel") }}
+                        </span>
+                        <span class="u-pvx-pet-type">
+                            {{ $t("pages.pet.ui.sectionTitle", { type: typeLabel(pet.Class) }) }}
+                        </span>
+                    </div>
+                    <h1 class="u-pvx-pet-title">{{ pet.Name }}</h1>
+                </div>
+                <div class="m-pvx-pet-header__actions">
+                    <PvxActionButton
+                        class="u-pvx-pet-action"
+                        :href="getLink('item', item_id)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="light"
+                    >
+                        <CollectionTag />
+                        {{ $t("pages.pet.single.ui.actions.item") }}
+                    </PvxActionButton>
+                    <PvxActionButton
+                        v-if="achievement_id"
+                        class="u-pvx-pet-action"
+                        :href="getLink('cj', achievement_id)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="light"
+                    >
+                        <Trophy />
+                        {{ $t("pages.pet.single.ui.actions.achievement") }}
+                    </PvxActionButton>
+                </div>
+                <div class="m-pvx-pet-guide-tip">
                     <PvxRobotTip
-                        type-name="宠物"
+                        :type-name="$t('pages.pet.single.ui.typeName')"
                         :reply="pet.Name"
                         variant="modern"
                         :quick-guide-text="$t('pages.pet.single.ui.robot.quickGuide')"
@@ -19,7 +57,6 @@
                         :copy-qq-label="$t('pages.pet.single.ui.robot.copyQq')"
                         :copy-command-label="$t('pages.pet.single.ui.robot.copyCommand')"
                     />
-                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
             </PvxSurface>
 
@@ -28,31 +65,17 @@
             <PvxSurface class="m-pvx-pet-content" padding="medium">
                 <petCard :petObject="pet" :lucky="luckyList"></petCard>
                 <div class="m-pvx-pet-info">
-                    <h1 class="u-title">
-                        <span class="u-name">{{ pet.Name }}</span>
-                        <div class="m-pvx-pet-links">
-                            <a
-                                class="u-link u-item"
-                                :href="getLink('item', item_id)"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <CollectionTag />
-                                {{ $t("pages.pet.single.ui.actions.item") }}
-                            </a>
-                            <template v-if="achievement_id">
-                                <a
-                                    class="u-link u-achievement"
-                                    :href="getLink('cj', achievement_id)"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <Trophy />
-                                    {{ $t("pages.pet.single.ui.actions.achievement") }}
-                                </a>
-                            </template>
-                        </div>
-                        <div class="u-meta u-shop" v-if="shopInfo.RewardsPrice || shopInfo.CoinPrice">
+                    <div class="m-pvx-pet-info__summary">
+                        <i class="u-stars">
+                            <img
+                                v-for="count in pet.Star"
+                                :key="count"
+                                class="u-star"
+                                src="@/assets/img/common/star.svg"
+                                svg-inline
+                            />
+                        </i>
+                        <div class="m-pvx-pet-shop" v-if="shopInfo.RewardsPrice || shopInfo.CoinPrice">
                             <el-tag class="u-price-item u-rewards" v-if="shopInfo.RewardsPrice > 0">
                                 {{ $t("pages.pet.single.ui.price.points") }}<b>{{ shopInfo.RewardsPrice }}</b>
                                 <i class="u-icon-rewards"></i>
@@ -62,12 +85,7 @@
                                 <i class="u-icon-coin"></i>
                             </el-tag>
                         </div>
-                    </h1>
-                    <i class="u-stars">
-                        <img v-for="count in pet.Star" :key="count" class="u-star" src="@/assets/img/common/star.svg"
-                            svg-inline />
-                        <!-- <i class="el-icon-star-on" v-for="count in pet.Star" :key="count"></i> -->
-                    </i>
+                    </div>
                     <div class="u-metas">
                         <div class="u-meta u-number">
                             <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.id") }}</span>
@@ -133,7 +151,7 @@
                     <template #icon><Location /></template>
                 </PvxSectionHeader>
                 <div class="m-pvx-pet-map">
-                    <pet-map :petId="parseInt(id)" @loaded="mapLoaded" />
+                    <pet-map localized :petId="parseInt(id)" @loaded="mapLoaded" />
                 </div>
             </PvxSurface>
 

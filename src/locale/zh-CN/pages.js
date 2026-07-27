@@ -658,6 +658,8 @@ export default {
             description: "剑网3魔盒（JX3BOX）宠物详情页，查看单个宠物的相关信息。",
             ui: {
                 typeName: "宠物",
+                guideLabel: "宠物图鉴",
+                current: "当前",
                 actions: {
                     back: "返回列表",
                     item: "物品信息",
@@ -672,6 +674,14 @@ export default {
                     description: "宠物说明",
                 },
                 price: { points: "积分", coin: "通宝" },
+                mapLabels: {
+                    coordinate: "坐标",
+                    trigger: "触发点",
+                    prerequisite: "前置/其他",
+                    unknown: "未知",
+                    npc: "NPC",
+                    interactiveItem: "交互物品",
+                },
                 robot: {
                     quickGuide: "添加QQ机器人，快速获取攻略",
                     copySuccess: "复制成功",

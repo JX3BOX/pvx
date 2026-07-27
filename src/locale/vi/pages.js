@@ -730,6 +730,8 @@ export default {
             description: "Trang chi tiết thú cưng.",
             ui: {
                 typeName: "Thú cưng",
+                guideLabel: "Bách khoa thú cưng",
+                current: "Hiện tại",
                 actions: {
                     back: "Về danh sách",
                     item: "Thông tin vật phẩm",
@@ -744,6 +746,14 @@ export default {
                     description: "Mô tả",
                 },
                 price: { points: "Điểm", coin: "Thông bảo" },
+                mapLabels: {
+                    coordinate: "Tọa độ",
+                    trigger: "Điểm kích hoạt",
+                    prerequisite: "Điều kiện / Khác",
+                    unknown: "Không rõ",
+                    npc: "NPC",
+                    interactiveItem: "Vật phẩm tương tác",
+                },
                 robot: {
                     quickGuide: "Thêm bot QQ để nhận hướng dẫn nhanh",
                     copySuccess: "Đã sao chép",

@@ -19,6 +19,10 @@ export default {
             type: Number,
             default: 0,
         },
+        localized: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         Jx3boxMap,
@@ -48,7 +52,7 @@ export default {
                 for (let coor of data.Coordinates) {
                     result[mapId].push({
                         title: this.pointType(data.WorkType),
-                        content: `坐标：(${coor.x},${coor.y},${coor.z}) <br /> 
+                        content: `${this.mapText("coordinate", "坐标")}：(${coor.x},${coor.y},${coor.z}) <br />
                         ${this.objectType(data.ObjectType)}：${data.ObjectID}`,
                         x: coor.x,
                         y: coor.y,
@@ -63,22 +67,25 @@ export default {
         handleResize(size) {
             this.height = size[1] + "px";
         },
+        mapText(key, fallback) {
+            return this.localized ? this.$t(`pages.pet.single.ui.mapLabels.${key}`) : fallback;
+        },
         pointType: function (WorkType) {
             switch (WorkType) {
                 case "TRIGGER":
-                    return "触发点";
+                    return this.mapText("trigger", "触发点");
                 case "LOOT":
-                    return "前置/其他";
+                    return this.mapText("prerequisite", "前置/其他");
                 default:
-                    return "未知";
+                    return this.mapText("unknown", "未知");
             }
         },
         objectType: function (ObjectType) {
             switch (ObjectType) {
                 case 3:
-                    return "NPC";
+                    return this.mapText("npc", "NPC");
                 default:
-                    return "交互物品";
+                    return this.mapText("interactiveItem", "交互物品");
             }
         },
     },

@@ -721,6 +721,8 @@ export default {
             description: "寵物詳情頁。",
             ui: {
                 typeName: "寵物",
+                guideLabel: "寵物圖鑑",
+                current: "目前",
                 actions: {
                     back: "返回列表",
                     item: "物品資訊",
@@ -735,6 +737,14 @@ export default {
                     description: "寵物說明",
                 },
                 price: { points: "積分", coin: "通寶" },
+                mapLabels: {
+                    coordinate: "座標",
+                    trigger: "觸發點",
+                    prerequisite: "前置／其他",
+                    unknown: "未知",
+                    npc: "NPC",
+                    interactiveItem: "互動物品",
+                },
                 robot: {
                     quickGuide: "新增QQ機器人，快速取得攻略",
                     copySuccess: "複製成功",

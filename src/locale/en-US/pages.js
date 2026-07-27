@@ -733,6 +733,8 @@ export default {
             description: "Single pet detail page.",
             ui: {
                 typeName: "Pet",
+                guideLabel: "Pet Compendium",
+                current: "Current",
                 actions: {
                     back: "Back to list",
                     item: "Item details",
@@ -747,6 +749,14 @@ export default {
                     description: "Description",
                 },
                 price: { points: "Points", coin: "Coins" },
+                mapLabels: {
+                    coordinate: "Coordinates",
+                    trigger: "Trigger point",
+                    prerequisite: "Prerequisite / Other",
+                    unknown: "Unknown",
+                    npc: "NPC",
+                    interactiveItem: "Interactive object",
+                },
                 robot: {
                     quickGuide: "Add the QQ bot for quick guides",
                     copySuccess: "Copied",

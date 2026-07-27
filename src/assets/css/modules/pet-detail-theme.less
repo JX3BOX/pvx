@@ -12,6 +12,9 @@
 }
 
 .p-pvx-pet-single--modern {
+    color: @pvx-text-primary;
+    background: @pvx-page-bg;
+
     * {
         box-sizing: border-box;
     }
@@ -23,7 +26,14 @@
     .m-pvx-pet-single-layout {
         display: grid;
         min-width: 0;
-        gap: @pvx-space-4;
+        gap: @pvx-space-5;
+    }
+
+    .m-pvx-pet-navigation,
+    .m-pvx-pet-header,
+    .m-pvx-pet-content {
+        border-color: fade(@pvx-border, 80%);
+        box-shadow: @pvx-shadow-xs;
     }
 
     .m-pvx-pet-navigation {
@@ -31,28 +41,112 @@
         min-height: 64px;
         align-items: center;
         justify-content: space-between;
-        padding: @pvx-space-2 @pvx-space-3;
-        border-color: @pvx-border;
-        box-shadow: @pvx-shadow-sm;
+        padding: @pvx-space-3 @pvx-space-4;
+        gap: @pvx-space-3;
 
         > a,
         > button {
+            min-width: 96px;
             min-height: 40px;
             padding: 0 @pvx-space-3;
-            border-radius: 12px;
+            border-radius: @pvx-radius-control;
             color: @pvx-text-regular;
         }
 
         svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
         }
 
-        .u-back-right {
-            display: flex;
-            min-width: 0;
-            align-items: center;
-            gap: @pvx-space-1;
+        .c-admin-drop__button {
+            min-height: 40px;
+            border-radius: @pvx-radius-control;
+            background: @pvx-primary;
+        }
+    }
+
+    .m-pvx-pet-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        padding: @pvx-space-5;
+        gap: @pvx-space-4;
+    }
+
+    .m-pvx-pet-header__info {
+        min-width: 0;
+    }
+
+    .m-pvx-pet-header__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: @pvx-space-1;
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-pet-eyebrow {
+        color: @pvx-primary;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+    }
+
+    .u-pvx-pet-type {
+        display: inline-flex;
+        min-height: 26px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border: 1px solid @pvx-border-focus;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-primary;
+        background: @pvx-primary-soft;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .u-pvx-pet-title {
+        margin: 0;
+        color: @pvx-text-primary;
+        font-size: 32px;
+        font-weight: 750;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .m-pvx-pet-header__actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: @pvx-space-2;
+
+        .u-pvx-pet-action {
+            min-width: 120px;
+            border-color: @pvx-primary;
+            color: @pvx-primary;
+            background: @pvx-primary-soft;
+
+            svg {
+                width: 17px;
+                height: 17px;
+            }
+
+            &:hover {
+                color: @pvx-text-inverse;
+                background: @pvx-primary;
+            }
+        }
+    }
+
+    .m-pvx-pet-guide-tip {
+        grid-column: 1 / -1;
+        padding-top: @pvx-space-3;
+        border-top: 1px solid @pvx-border-light;
+
+        .m-robot__pvx-tip {
+            justify-content: flex-start;
+            flex-wrap: wrap;
         }
     }
 
@@ -99,27 +193,20 @@
         background: transparent;
         box-shadow: none;
 
-        > .u-title {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            align-items: start;
-            margin: 0;
-            gap: @pvx-space-2 @pvx-space-3;
-            color: @pvx-text-primary;
-            font-size: 30px;
-            line-height: 1.25;
-
-            .u-name {
-                min-width: 0;
-                overflow-wrap: anywhere;
-            }
+        .m-pvx-pet-info__summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 40px;
+            flex-wrap: wrap;
+            gap: @pvx-space-2;
         }
 
-        > .u-stars {
+        .u-stars {
             display: flex;
             height: 24px;
             align-items: center;
-            margin-top: @pvx-space-1;
+            margin: 0;
             gap: 4px;
 
             .u-star {
@@ -128,12 +215,10 @@
             }
         }
 
-        .u-shop {
-            position: static;
+        .m-pvx-pet-shop {
             display: flex;
-            grid-column: 2;
-            grid-row: 1 / span 2;
-            align-items: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
             gap: @pvx-space-1;
 
             .u-price-item {
@@ -146,49 +231,10 @@
         }
     }
 
-    .m-pvx-pet-links {
-        display: flex;
-        grid-column: 1;
-        align-items: center;
-        gap: @pvx-space-1;
-
-        .u-link {
-            .pvx-focus-ring();
-            display: inline-flex;
-            min-height: 34px;
-            align-items: center;
-            padding: 0 @pvx-space-2;
-            border: 1px solid @pvx-border;
-            border-radius: @pvx-radius-pill;
-            color: @pvx-text-secondary;
-            background: @pvx-surface-muted;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            gap: 6px;
-            transition:
-                color @pvx-duration-fast @pvx-ease-standard,
-                border-color @pvx-duration-fast @pvx-ease-standard,
-                background-color @pvx-duration-fast @pvx-ease-standard;
-
-            svg {
-                width: 16px;
-                height: 16px;
-            }
-
-            &:hover {
-                color: @pvx-primary;
-                border-color: @pvx-border-focus;
-                background: @pvx-primary-soft;
-                box-shadow: none;
-            }
-        }
-    }
-
     .u-metas {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        margin-top: @pvx-space-4;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-top: @pvx-space-3;
         gap: @pvx-space-2;
 
         .u-meta {
@@ -365,13 +411,12 @@
     .m-pvx-pet-community {
         display: grid;
         min-width: 0;
-        gap: @pvx-space-4;
+        gap: @pvx-space-5;
 
         > div {
             margin-top: 0 !important;
         }
 
-        > .m-wiki-post-panel,
         > .m-thx,
         > .c-wiki-comments,
         > .m-wiki-post-empty {
@@ -387,11 +432,127 @@
             padding: @pvx-space-5;
             color: @pvx-text-secondary;
             letter-spacing: 0;
+            background: @pvx-surface;
+        }
+
+        .m-wiki-post-panel {
+            width: 100%;
+            overflow: visible;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+
+            > .c-wiki-panel {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 0;
+                overflow: hidden;
+                border: 1px solid fade(@pvx-border, 80%);
+                border-radius: @pvx-radius-panel;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-xs;
+            }
+
+            > .c-wiki-panel + .c-wiki-panel {
+                margin-top: @pvx-space-5;
+            }
         }
 
         .c-wiki-panel {
             border: 0;
             box-shadow: none;
+
+            > .m-panel-head {
+                display: flex;
+                height: 64px;
+                min-height: 64px;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px @pvx-space-5;
+                gap: @pvx-space-3;
+                border-bottom: 1px solid @pvx-border-light;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-body {
+                padding: @pvx-space-5;
+                color: @pvx-text-regular;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-head > .m-panel-title {
+                display: flex;
+                min-width: 0;
+                align-items: center;
+                flex-wrap: wrap;
+                padding: 0;
+                gap: @pvx-space-1;
+                color: @pvx-text-primary;
+                font-weight: 700;
+
+                .u-icon {
+                    display: inline-flex;
+                    width: 32px;
+                    height: 32px;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 0 0 32px;
+                    margin: 0;
+                    padding: 7px;
+                    border-radius: 10px;
+                    color: @pvx-primary;
+                    fill: @pvx-primary;
+                    background: @pvx-primary-soft;
+                    font-size: 16px;
+                    line-height: 18px;
+                }
+
+                .u-txt {
+                    color: @pvx-text-primary;
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 24px;
+                }
+            }
+
+            > .m-panel-head > .m-panel-actions {
+                position: static;
+                display: flex;
+                align-items: center;
+                flex: none;
+                margin-left: auto;
+                gap: @pvx-space-2;
+                transform: none;
+            }
+
+            .u-btn--link {
+                min-height: 40px;
+                border-color: @pvx-primary;
+                border-radius: @pvx-radius-control;
+                background: @pvx-primary;
+            }
+        }
+
+        > .m-thx {
+            padding: @pvx-space-3;
+
+            .w-thx-panel {
+                margin-bottom: @pvx-space-3;
+            }
+        }
+
+        > .c-wiki-comments {
+            padding: 0;
+
+            > .m-panel-body {
+                width: 100%;
+                margin: 0 auto;
+            }
+        }
+
+        .m-wiki-signature {
+            color: @pvx-text-muted;
+            border-top-color: @pvx-border;
         }
 
         #pvxWiki {
@@ -408,7 +569,7 @@
 
 @media screen and (max-width: @ipad-y) {
     .p-pvx-pet-single--modern {
-        .m-pvx-pet-navigation .m-robot__pvx-tip {
+        .m-pvx-pet-guide-tip {
             display: none;
         }
 
@@ -423,19 +584,54 @@
         .m-pvx-pet-info {
             min-height: 0;
         }
+
+        .u-metas {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
     }
 }
 
 @media screen and (max-width: @phone) {
     .p-pvx-pet-single--modern {
+        .m-pvx-pet-navigation,
+        .m-pvx-pet-header,
+        .m-pvx-pet-content,
+        .m-pvx-pet-map-section,
+        .m-pvx-pet-fetters,
+        .m-pvx-pet-community .m-wiki-post-panel > .c-wiki-panel,
+        .m-pvx-pet-community > .m-thx,
+        .m-pvx-pet-community > .c-wiki-comments,
+        .m-pvx-pet-community > .m-wiki-post-empty {
+            border-radius: @pvx-radius-card;
+        }
+
         .m-pvx-pet-navigation {
             min-height: 56px;
-            padding: @pvx-space-1;
+            padding: @pvx-space-2;
 
             > button {
                 min-width: 0;
                 padding: 0 @pvx-space-2;
                 font-size: 13px;
+            }
+        }
+
+        .m-pvx-pet-header {
+            grid-template-columns: minmax(0, 1fr);
+            padding: @pvx-space-4;
+            gap: @pvx-space-3;
+        }
+
+        .u-pvx-pet-title {
+            font-size: 26px;
+        }
+
+        .m-pvx-pet-header__actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+
+            .u-pvx-pet-action {
+                width: 100%;
             }
         }
 
@@ -447,21 +643,10 @@
         }
 
         .m-pvx-pet-info {
-            > .u-title {
-                grid-template-columns: minmax(0, 1fr);
-                font-size: 26px;
-            }
-
-            .u-shop {
-                grid-column: 1;
-                grid-row: auto;
+            .m-pvx-pet-info__summary {
                 align-items: flex-start;
-                flex-wrap: wrap;
+                flex-direction: column;
             }
-        }
-
-        .m-pvx-pet-links {
-            flex-wrap: wrap;
         }
 
         .u-metas {
@@ -484,11 +669,56 @@
         }
 
         .m-pvx-pet-community {
-            > .m-wiki-post-panel,
+            gap: @pvx-space-4;
+
+            .m-wiki-post-panel > .c-wiki-panel,
             > .m-thx,
             > .c-wiki-comments,
             > .m-wiki-post-empty {
                 border-radius: @pvx-radius-card;
+            }
+
+            .m-wiki-post-panel > .c-wiki-panel + .c-wiki-panel {
+                margin-top: @pvx-space-4;
+            }
+
+            .c-wiki-panel {
+                > .m-panel-body {
+                    padding: @pvx-space-3;
+                }
+
+                > .m-panel-head {
+                    height: auto;
+                    min-height: 64px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    padding: @pvx-space-1 @pvx-space-3;
+                    gap: @pvx-space-1;
+                }
+
+                > .m-panel-head > .m-panel-title {
+                    flex: 1 1 auto;
+
+                    .u-icon {
+                        width: 30px;
+                        height: 30px;
+                        flex-basis: 30px;
+                        padding: 7px;
+                    }
+
+                    .u-txt {
+                        font-size: 15px;
+                    }
+                }
+
+                > .m-panel-head > .m-panel-actions {
+                    gap: @pvx-space-1;
+                }
+            }
+
+            > .m-thx,
+            > .m-wiki-post-empty {
+                padding: @pvx-space-3;
             }
         }
     }
