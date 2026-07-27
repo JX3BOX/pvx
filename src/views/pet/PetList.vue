@@ -1,53 +1,112 @@
 <template>
-    <div class="p-pvx-pet-list p-common-list" v-loading="loading" ref="listRef">
-        <!-- 宠物筛选标签组件 -->
-        <petTabs @change="handleTabChange" :types="Type" :active="active" :Source="Source" :mapList="mapList" />
-        <!-- 公告组件 -->
-        <PublicNotice bckey="pet_ac" />
+    <PvxPageShell class="p-pvx-pet-list" v-loading="loading">
+        <div class="m-pvx-pet-layout" ref="listRef">
+            <petTabs @change="handleTabChange" :types="Type" :active="active" :Source="Source" :mapList="mapList" />
+            <PublicNotice bckey="pet_ac" />
 
-        <!-- 福缘宠物列表（仅首页显示） -->
-        <template v-if="luckyList.length > 0 && !showAllList">
-            <div class="m-pvx-pet-title u-type u-lucky-title">
-                <div class="u-title">今日福缘</div>
-            </div>
-            <div class="m-pvx-pet-lucky-list">
-                <luckyItem v-for="item in luckyList" :key="item.Index || item.source_id" :item="item"></luckyItem>
-            </div>
-        </template>
-
-        <!-- 分类宠物列表（首页显示） -->
-        <template v-if="!showAllList">
-            <div v-for="(item, index) in list_type" :key="'l' + index">
-                <div class="m-pvx-pet-title u-type" v-if="item.list.length > 0">
-                    <div class="u-title">{{ item.name }}</div>
-                    <div class="u-all" @click="setActive(item.class)">查看全部</div>
+            <PvxSurface
+                v-if="luckyList.length > 0 && !showAllList"
+                class="m-pvx-pet-section m-pvx-pet-lucky-section"
+                padding="medium"
+            >
+                <PvxSectionHeader
+                    class="m-pvx-pet-section-header"
+                    :title="$t('pages.pet.ui.lucky.title')"
+                    level="h2"
+                />
+                <div class="m-pvx-pet-lucky-list">
+                    <luckyItem
+                        v-for="item in luckyList"
+                        :key="item.Index || item.source_id"
+                        :item="item"
+                        variant="modern"
+                    />
                 </div>
+            </PvxSurface>
+
+            <template v-if="!showAllList">
+                <PvxSurface
+                    v-for="item in visibleOverviewSections"
+                    :key="item.class"
+                    class="m-pvx-pet-section"
+                    padding="medium"
+                >
+                    <PvxSectionHeader
+                        class="m-pvx-pet-section-header"
+                        :title="$t('pages.pet.ui.sectionTitle', { type: typeLabel(item.class) })"
+                        level="h2"
+                    >
+                        <template #action>
+                            <button
+                                type="button"
+                                class="u-pvx-pet-view-all"
+                                @click="setActive(item.class)"
+                            >
+                                {{ $t("pages.pet.ui.actions.viewAll") }}
+                            </button>
+                        </template>
+                    </PvxSectionHeader>
+                    <div class="m-pvx-pet-list" :style="listGridStyle">
+                        <pet-item
+                            v-for="pet in item.list"
+                            :key="pet.Index"
+                            :petObject="pet"
+                            variant="modern"
+                        />
+                    </div>
+                </PvxSurface>
+            </template>
+
+            <PvxSurface v-else-if="list.length" class="m-pvx-pet-section" padding="medium">
+                <PvxSectionHeader
+                    class="m-pvx-pet-section-header"
+                    :title="$t('pages.pet.ui.sectionTitle', { type: typeName })"
+                    level="h2"
+                >
+                    <template #action>
+                        <span class="u-pvx-pet-result-count">
+                            {{ $t("pages.pet.ui.resultCount", { count: total }) }}
+                        </span>
+                    </template>
+                </PvxSectionHeader>
                 <div class="m-pvx-pet-list" :style="listGridStyle">
-                    <pet-item v-for="pet in item.list" :key="pet.id" :petObject="pet" />
+                    <pet-item
+                        v-for="pet in list"
+                        :key="pet.Index"
+                        :petObject="pet"
+                        variant="modern"
+                    />
                 </div>
-            </div>
-        </template>
+                <el-button
+                    v-show="hasNextPage"
+                    class="m-archive-more"
+                    type="primary"
+                    @click="appendPage"
+                    :loading="loading"
+                >
+                    <el-icon v-if="!loading" class="el-icon--left"><ArrowDown /></el-icon>
+                    {{ $t("pages.pet.ui.actions.loadMore") }}
+                </el-button>
+                <el-pagination
+                    class="m-archive-pages"
+                    background
+                    layout="total, prev, pager, next, jumper"
+                    :hide-on-single-page="true"
+                    :page-size="per_page"
+                    :total="total"
+                    v-model:current-page="page"
+                />
+            </PvxSurface>
 
-        <!-- 单分类全部列表（查看全部时显示） -->
-        <template v-else>
-            <div class="m-pvx-pet-title u-type">
-                <div class="u-title">{{ typeName }}</div>
-            </div>
-            <div class="m-pvx-pet-list" :style="listGridStyle">
-                <pet-item v-for="pet in list" :key="pet.id" :petObject="pet" />
-            </div>
-            <!-- 加载更多按钮 -->
-            <el-button class="m-archive-more" v-show="hasNextPage" type="primary" @click="appendPage" :loading="loading"
-                icon="el-icon-arrow-down">加载更多</el-button>
-            <!-- 分页组件 -->
-            <el-pagination class="m-archive-pages" background layout="total, prev, pager, next, jumper"
-                :hide-on-single-page="true" :page-size="per_page" :total="total"
-                v-model:current-page="page"></el-pagination>
-        </template>
-
-        <!-- 无结果提示 -->
-        <el-alert v-if="isNoRes()" class="m-archive-null" title="没有找到相关宠物" type="info" center show-icon></el-alert>
-    </div>
+            <PvxSurface v-if="isNoRes()" class="m-pvx-pet-empty-surface" padding="medium">
+                <PvxEmptyState
+                    illustrated
+                    :title="$t('pages.pet.ui.empty.title')"
+                    :description="$t('pages.pet.ui.empty.description')"
+                />
+            </PvxSurface>
+        </div>
+    </PvxPageShell>
 </template>
 
 <script>
@@ -55,11 +114,15 @@ import PublicNotice from "@/components/PublicNotice";
 import petTabs from "@/components/pet/tabs";
 import petItem from "@/components/pet/item";
 import luckyItem from "@/components/pet/lucky";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 import { clone, debounce } from "lodash";
-import { isPhone } from "@/utils/index";
 import Type from "@/assets/data/pet_type.json";
 import { getPets, getPet, getPetSearchOptions, getPetLucky, getMapList } from "@/service/pet";
 import dayjs from "@/plugins/day";
+import { ArrowDown } from "@element-plus/icons-vue";
 
 export default {
     name: "PetList",
@@ -68,6 +131,11 @@ export default {
         petItem,
         luckyItem,
         PublicNotice,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        ArrowDown,
     },
     data() {
         return {
@@ -83,17 +151,18 @@ export default {
             appendMode: false,     // 是否为追加模式（加载更多）
             loading: false,        // 加载状态
             luckyList: [],         // 福缘宠物列表
-            typeName: "",          // 当前分类名称
             showAllList: false,    // 是否显示单分类全部列表
             mapList: [],           // 地图列表
             count: 0,              // 每行卡片数
             searchReady: false,    // 筛选项是否已加载
+            isInitialized: false,
+            requestSerial: 0,
             // 分类宠物列表（首页按分类展示）
             list_type: [
-                { class: 1, type: 1, name: "水族", list: [] },
-                { class: 2, type: 2, name: "禽鸟", list: [] },
-                { class: 3, type: 3, name: "走兽", list: [] },
-                { class: 4, type: 4, name: "机关", list: [] },
+                { class: 1, type: 1, list: [] },
+                { class: 2, type: 2, list: [] },
+                { class: 3, type: 3, list: [] },
+                { class: 4, type: 4, list: [] },
             ],
         };
     },
@@ -116,9 +185,11 @@ export default {
         hasNextPage() {
             return this.page < this.pages;
         },
-        // 是否为手机端
-        isPhone() {
-            return isPhone();
+        visibleOverviewSections() {
+            return this.list_type.filter((item) => item.list.length > 0);
+        },
+        typeName() {
+            return this.typeLabel(this.active);
         },
         // 列表grid动态列数样式
         listGridStyle() {
@@ -130,9 +201,10 @@ export default {
         // 监听参数变化，重新加载数据
         params: {
             deep: true,
-            handler(val) {
+            handler() {
+                if (!this.isInitialized) return;
                 this.$nextTick(() => {
-                    this.getPetListInit(val);
+                    this.getPetListInit();
                 });
             },
         },
@@ -143,6 +215,7 @@ export default {
         this.showCount(1);
         this.getPetSearchOptions().finally(() => {
             this.$nextTick(() => {
+                this.isInitialized = true;
                 this.getPetListInit();
             });
         });
@@ -171,10 +244,10 @@ export default {
                             name: item.TypeName,
                         }));
 
-                    this.Source = [{ source: "", name: "所有途径" }, ...sourceOptions];
+                    this.Source = [{ source: "", name: this.$t("pages.pet.ui.filters.allSources") }, ...sourceOptions];
                 })
                 .catch((err) => {
-                    console.error("获取宠物筛选项失败", err);
+                    console.error("[pet] Failed to load search options", err);
                 })
                 .finally(() => {
                     this.searchReady = true;
@@ -215,18 +288,12 @@ export default {
             this.active = val;
             this.page = 1;
             document.documentElement.scrollTop = 0;
-            this.typeName = this.getTypeName();
             // 同步更新 tabsData 中的 Class
             this.tabsData = { ...this.tabsData, Class: val };
         },
 
-        /**
-         * 获取类型名称
-         * @returns {String} 类型名称
-         */
-        getTypeName() {
-            const type = this.Type.find((item) => item.class == this.active);
-            return type?.name || "所有种类";
+        typeLabel(type) {
+            return this.$t(`pages.pet.ui.types.${type || "all"}`);
         },
 
         /**
@@ -234,22 +301,35 @@ export default {
          * 根据是否有分类决定加载方式
          */
         getPetListInit() {
+            const requestSerial = ++this.requestSerial;
+            this.loading = true;
+
             if (!this.params.Class) {
                 // 无分类时，加载各分类的首页数据（每分类1行）
                 this.showCount(1);
                 this.showAllList = false;
-                this.list_type.forEach((e) => {
+                const requests = this.list_type.map((e) => {
                     const params = clone(this.params);
                     params.Class = e.class;
                     params.per = this.per_page;
-                    this.getPetList(params);
+                    return this.getPetList(params, requestSerial);
+                });
+                Promise.all(requests.map((request) => request.catch(() => null))).finally(() => {
+                    if (requestSerial === this.requestSerial) {
+                        this.loading = false;
+                    }
                 });
             } else {
                 // 有分类时，加载该分类的全部数据（3行数据量）
                 this.showCount(3);
                 const params = clone(this.params);
                 params.per = this.per_page;
-                this.getPetList(params);
+                this.getPetList(params, requestSerial).finally(() => {
+                    if (requestSerial === this.requestSerial) {
+                        this.loading = false;
+                        this.appendMode = false;
+                    }
+                });
             }
         },
 
@@ -257,20 +337,16 @@ export default {
          * 获取宠物列表
          * @param {Object} params - 请求参数
          */
-        getPetList(params) {
-            this.loading = true;
-
+        getPetList(params, requestSerial) {
             // 非追加模式下清空列表
-            if (!this.appendMode) {
+            if (!this.appendMode && this.params.Class) {
                 this.list = [];
             }
 
-            getPets(params)
+            return getPets(params)
                 .then((res) => {
+                    if (requestSerial !== this.requestSerial) return;
                     this.handlePetListResponse(res, params);
-                })
-                .finally(() => {
-                    this.loading = false;
                 });
         },
 
@@ -294,7 +370,6 @@ export default {
 
             // 更新分页信息
             if (this.params.Class) {
-                this.appendMode = false;
                 this.total = res.data.total;
                 this.pages = res.data.pages;
             }
@@ -365,7 +440,6 @@ export default {
             const newClass = data.Class || "";
             if (newClass !== this.active) {
                 this.active = newClass;
-                this.typeName = this.getTypeName();
                 document.documentElement.scrollTop = 0;
             }
 
@@ -384,7 +458,7 @@ export default {
 
             if (width <= 520) {
                 this.count = 1;
-                this.per_page = num;
+                this.per_page = num === 1 ? 4 : 12;
                 return;
             }
 
@@ -399,4 +473,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/pet/pc/list.less";
+@import "~@/assets/css/modules/pet-list-theme.less";
 </style>

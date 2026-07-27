@@ -2,11 +2,19 @@
     <router-link
         class="m-pvx-pet-item"
         :to="'/' + petObject.Index"
-        :class="getFrameClass(petObject.Quality)"
+        :class="[getFrameClass(petObject.Quality), `m-pvx-pet-item--${variant}`]"
         :target="isPhone ? '_self' : '_blank'"
+        :rel="isPhone ? null : 'noopener noreferrer'"
+        :aria-label="petObject.Name"
     >
         <div class="m-info">
-            <el-image class="u-icon" :src="iconLink(petObject.IconID, client)" fit="fit"></el-image>
+            <el-image class="u-icon" :src="iconLink(petObject.IconID, client)" fit="contain">
+                <template #error>
+                    <span class="u-icon-fallback" aria-hidden="true">
+                        <img :src="petFallback" alt="" />
+                    </span>
+                </template>
+            </el-image>
             <div class="u-text">
                 <div class="u-name">{{ petObject.Name }}</div>
                 <div class="u-rate">
@@ -28,14 +36,21 @@
 <script>
 import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { getPetFrameClass, parsePetDesc } from "@/utils/pet";
+import petFallback from "@/assets/img/nav/pet.svg";
 export default {
     props: {
         petObject: {},
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
+        },
     },
 
     data: function () {
         return {
             isPhone: window.innerWidth <= 768,
+            petFallback,
         };
     },
 

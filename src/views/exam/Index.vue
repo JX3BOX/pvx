@@ -55,11 +55,10 @@
                     <PvxEmptyState
                         v-else-if="!loading"
                         class="m-pvx-exam__empty"
+                        illustrated
                         :title="$t('pages.exam.ui.empty.title')"
                         :description="$t('pages.exam.ui.empty.description')"
-                    >
-                        <template #icon><Search /></template>
-                    </PvxEmptyState>
+                    />
                 </template>
 
                 <div v-if="[2, 3].includes(search.type) && data.length" class="m-pvx-exam__pagination">
@@ -92,7 +91,7 @@ import tags from "@/assets/data/exam_tags.json";
 import { __clients, __Root } from "@/utils/config";
 import { cloneDeep } from "lodash";
 import { deleteNull } from "@/utils/index";
-import { EditPen, Reading, Search } from "@element-plus/icons-vue";
+import { EditPen, Reading } from "@element-plus/icons-vue";
 
 const EXAM_TAB_TYPES = {
     keju: 1,
@@ -119,7 +118,6 @@ export default {
         PvxSurface,
         EditPen,
         Reading,
-        Search,
     },
     data() {
         return {

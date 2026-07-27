@@ -1,13 +1,14 @@
 <template>
-    <div class="m-pvx-pet-lucky-item">
-        <a class="u-pet" :href="petLink" :target="isPhone ? '_self' : '_blank'">
+    <div class="m-pvx-pet-lucky-item" :class="`m-pvx-pet-lucky-item--${variant}`">
+        <a class="u-pet" :href="petLink" :target="isPhone ? '_self' : '_blank'"
+            :rel="isPhone ? null : 'noopener noreferrer'" :aria-label="item.Name">
             <i class="u-img">
                 <span class="u-pet-mask">
                     <img class="u-pet-pic" :src="petImgSrc" loading="lazy" @error="onError" />
                 </span>
                 <img class="u-bg" :src="bgSrc" loading="lazy" />
                 <span class="u-guide">
-                    <span class="u-guide-text">宠物奇遇攻略</span>
+                    <span class="u-guide-text">{{ $t("pages.pet.ui.lucky.guide") }}</span>
                     <img class="u-guide-logo" src="@/assets/img/common/logo.svg" svg-inline fill="#f1cd8b" />
                 </span>
                 <span class="u-text">
@@ -29,7 +30,17 @@ import { isPhone } from "@/utils";
 
 export default {
     name: "luckyItem",
-    props: ["item"],
+    props: {
+        item: {
+            type: Object,
+            required: true,
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
+        },
+    },
     computed: {
         isPhone() {
             return isPhone();

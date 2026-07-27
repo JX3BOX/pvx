@@ -102,6 +102,9 @@
                     :loading="loading"
                     @click="appendPage"
                 >
+                    <el-icon v-if="!loading" class="el-icon--left">
+                        <ArrowDown />
+                    </el-icon>
                     {{ $t("pages.adventure.ui.actions.loadMore") }}
                 </el-button>
                 <el-pagination
@@ -122,11 +125,10 @@
                 padding="medium"
             >
                 <PvxEmptyState
+                    illustrated
                     :title="$t('pages.adventure.ui.empty.title')"
                     :description="$t('pages.adventure.ui.empty.description')"
-                >
-                    <template #icon><Search /></template>
-                </PvxEmptyState>
+                />
             </PvxSurface>
         </div>
     </PvxPageShell>
@@ -141,7 +143,7 @@ import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxToolbar from "@/components/design/PvxToolbar.vue";
 import { getAdventures } from "@/service/adventure/adventure";
-import { CollectionTag, Search } from "@element-plus/icons-vue";
+import { ArrowDown, CollectionTag, Search } from "@element-plus/icons-vue";
 
 export default {
     name: "adventureList",
@@ -154,6 +156,7 @@ export default {
         PvxSectionHeader,
         PvxSurface,
         PvxToolbar,
+        ArrowDown,
         CollectionTag,
         Search,
     },

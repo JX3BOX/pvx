@@ -36,11 +36,10 @@
         <PvxEmptyState
             v-else-if="!loading"
             class="u-empty"
+            illustrated
             :title="emptyTitle"
             :description="emptyDescription"
-        >
-            <template #icon><Search /></template>
-        </PvxEmptyState>
+        />
     </div>
 </template>
 

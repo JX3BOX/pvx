@@ -28,7 +28,7 @@
 <template>
     <div class="m-pvx-fb__tabs" :class="{ 'm-pvx-fb__tabs--modern': variant === 'modern' }">
         <PvxSearch :items="searchItems" :initValue="initSearchValue" :active="filterOpen" @search="handleSearch"
-            ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover" :variant="variant">
+            ref="pvxSearchRef" popperClass="m-pvx-fb__filter-popover" :variant="variant" inline-search-icon>
             <template #extra>
                 <div class="m-pvx-toolbar__item m-pvx-toolbar__publish">
                     <a :href="link.data" target="_blank">

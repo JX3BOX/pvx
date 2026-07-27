@@ -16,11 +16,10 @@
             />
             <PvxEmptyState
                 v-else-if="!loading"
+                illustrated
                 :title="$t('pages.pvg.price.ui.empty.goodsTitle')"
                 :description="$t('pages.pvg.price.ui.empty.goodsDescription')"
-            >
-                <template #icon><Search /></template>
-            </PvxEmptyState>
+            />
         </PvxSurface>
         <myGoodsDialog
             v-if="showMyGoods"
@@ -44,7 +43,7 @@ import User from "@jx3box/jx3box-common/js/user";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { Goods, Search } from "@element-plus/icons-vue";
+import { Goods } from "@element-plus/icons-vue";
 
 export default {
     props: {
@@ -59,7 +58,6 @@ export default {
         PvxSectionHeader,
         PvxSurface,
         Goods,
-        Search,
     },
     data() {
         return {

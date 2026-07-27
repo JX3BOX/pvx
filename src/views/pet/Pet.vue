@@ -2,7 +2,18 @@
     <div id="app" class="p-pvx-pet">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                {
+                    'c-pvx-modern-pet-list-main': $route.name === 'list',
+                    'c-pvx-modern-pet-single-main': $route.name === 'single',
+                },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main">
                 <router-view v-slot="{ Component }">
                     <keep-alive include="PetList">

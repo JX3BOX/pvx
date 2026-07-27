@@ -74,11 +74,10 @@
                     <PvxEmptyState
                         v-if="!loading && !hasRecipes"
                         class="m-pvx-manufacture__empty"
+                        illustrated
                         :title="$t('pages.pvg.manufacture.ui.empty.title')"
                         :description="$t('pages.pvg.manufacture.ui.empty.description')"
-                    >
-                        <template #icon><Search /></template>
-                    </PvxEmptyState>
+                    />
                 </PvxSurface>
 
                 <aside class="m-pvx-manufacture__aside">

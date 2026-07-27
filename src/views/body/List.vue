@@ -54,7 +54,7 @@
             </div>
             <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">
-                <el-icon>
+                <el-icon v-if="!loading">
                     <ArrowDown />
                 </el-icon>
                 {{ $t("pages.faceBody.actions.loadMore") }}
@@ -63,7 +63,7 @@
                 :hide-on-single-page="true" @current-change="changePage" @prev-click="changePage"
                 @next-click="changePage" :page-size="per" :total="total" v-model:current-page="page"></el-pagination>
         </div>
-        <el-alert v-if="noList" class="m-pvx-archive__null" :title="alertTitle" type="info" center show-icon></el-alert>
+        <PvxEmptyState v-if="noList" class="m-pvx-archive__null" illustrated :title="alertTitle" />
     </div>
 </template>
 
@@ -71,6 +71,7 @@
 import CardBannerList from "@/components/common/card_banner_list.vue";
 import pvxTabs from "@/components/common/face-body/Tabs";
 import ListItem from "@/components/common/face-body/ListItem.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import pcListMixin from "@/components/common/face-body/mixins/pc-list-mixin";
 import { concat } from "lodash";
 import { getBodyList } from "@/service/body";
@@ -95,7 +96,7 @@ const initBodyList = () => {
 
 export default {
     name: "bodyList",
-    components: { CardBannerList, pvxTabs, ListItem, ArrowDown },
+    components: { CardBannerList, pvxTabs, ListItem, PvxEmptyState, ArrowDown },
     mixins: [pcListMixin],
 
     data() {

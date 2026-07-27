@@ -30,10 +30,14 @@
                         <div class="filter-content">
                             <div class="filter-item" :class="{ 'filter-item--phone-only': fItem.phoneOnly }"
                                 v-for="fItem in item.options" :key="fItem.key">
+                                <div v-if="fItem.type === 'select' && fItem.showLabel" class="filter-item__label">
+                                    {{ fItem.name }}
+                                </div>
                                 <el-select v-if="fItem.type === 'select'" :id="fItem.remote" class="select-wrapper"
                                     v-model="formData[fItem.key]" :multiple="fItem.multiple"
                                     :collapse-tags="fItem.multiple" clearable :filterable="fItem.filterable"
                                     :placeholder="getFieldPlaceholder(fItem)"
+                                    :popper-class="fItem.popperClass"
                                     :remote="Boolean(fItem.remote)" :remote-method="remoteMethod"
                                     :loading="selectLoading === fItem.remote" :default-first-option="true"
                                     @focus="selectFocus" style="width: 100%">
@@ -112,7 +116,10 @@
                     <el-input v-model="formData[item.key]" class="search-input"
                         :placeholder="searchText('searchPlaceholder', { name: item.name })"
                         clearable>
-                        <template v-if="variant === 'modern'" #prepend>
+                        <template v-if="variant === 'modern' && inlineSearchIcon" #prefix>
+                            <Search />
+                        </template>
+                        <template v-else-if="variant === 'modern'" #prepend>
                             <svg class="u-pvx-search-icon" viewBox="0 0 20 20" aria-hidden="true">
                                 <circle cx="8.5" cy="8.5" r="5.75" />
                                 <path d="M12.75 12.75L17 17" />
@@ -163,6 +170,10 @@ export default {
         i18nScope: {
             type: String,
             default: "pages.faceBody.search",
+        },
+        inlineSearchIcon: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {

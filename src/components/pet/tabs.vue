@@ -1,40 +1,14 @@
 <template>
     <div class="m-pvx-pet-tabs">
-        <div class="m-pvx-pet-tabs__wrapper">
-            <PvxSearch :items="searchItems" :initValue="initFormData" @search="handleSearch" />
-            <div v-if="!isMininote" class="m-pvx-pet-tabs__selectors">
-                <el-select v-model="formData.map" :class="{ 'is-active': formData.map }" filterable class="u-select"
-                    clearable placeholder="全部">
-                    <el-option label="全部" value=""></el-option>
-                    <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
-                    </el-option>
-                    <template #prefix>地图</template>
-                </el-select>
-                <el-select v-model="formData.Source" :class="{ 'is-active': formData.Source }" filterable class="u-select"
-                    clearable placeholder="全部">
-                    <el-option v-for="(item, index) in sourceOptions" :key="'laiyuan' + index" :label="item.name"
-                        :value="item.source">
-                    </el-option>
-                    <template #prefix>来源</template>
-                </el-select>
-            </div>
-        </div>
-        <div v-if="isMininote" class="m-pvx-pet-tabs__selectors m-pvx-pet-tabs__selectors--mobile">
-            <el-select v-model="formData.map" :class="{ 'is-active': formData.map }" filterable class="u-select" clearable
-                placeholder="全部">
-                <el-option label="全部" value=""></el-option>
-                <el-option v-for="item in mapList" :key="item.value" :label="item.label" :value="item.value">
-                </el-option>
-                <template #prefix>地图</template>
-            </el-select>
-            <el-select v-model="formData.Source" :class="{ 'is-active': formData.Source }" filterable class="u-select"
-                clearable placeholder="全部">
-                <el-option v-for="(item, index) in sourceOptions" :key="'laiyuan' + index" :label="item.name"
-                    :value="item.source">
-                </el-option>
-                <template #prefix>来源</template>
-            </el-select>
-        </div>
+        <PvxSearch
+            :items="searchItems"
+            :initValue="initFormData"
+            variant="modern"
+            inline-search-icon
+            i18n-scope="pages.pet.ui.search"
+            popper-class="m-pvx-pet-filter-popover"
+            @search="handleSearch"
+        />
     </div>
 </template>
 
@@ -71,25 +45,27 @@ export default {
                 map: "",
                 Source: ""
             },
-            screenWidth: window.innerWidth,
             queryParams: {},
             isFirstSearch: true
         };
     },
     computed: {
-        isMininote() {
-            return this.screenWidth <= 1280;
-        },
         typeOptions() {
-            return this.types.map(item => ({
-                type: item.class,
-                name: item.name
-            }));
+            return [
+                {
+                    type: "",
+                    name: this.$t("pages.pet.ui.types.all"),
+                },
+                ...this.types.filter((item) => item.class !== "").map(item => ({
+                    type: item.class,
+                    name: this.$t(`pages.pet.ui.types.${item.class}`),
+                })),
+            ];
         },
         sourceOptions() {
             return this.Source.map(item => ({
-                source: item.source || item.ID,
-                name: item.name || item.TypeName
+                source: item.source ?? item.ID,
+                name: item.source === "" ? this.$t("pages.pet.ui.filters.allSources") : item.name || item.TypeName
             }));
         },
         searchItems() {
@@ -100,14 +76,38 @@ export default {
                     options: this.typeOptions
                 },
                 {
+                    type: "filter",
+                    options: [
+                        {
+                            type: "select",
+                            key: "map",
+                            name: this.$t("pages.pet.ui.filters.map"),
+                            filterable: true,
+                            showLabel: true,
+                            popperClass: "m-pvx-pet-map-select-popper",
+                            options: this.mapList,
+                        },
+                        {
+                            type: "radio",
+                            key: "Source",
+                            name: this.$t("pages.pet.ui.filters.source"),
+                            options: this.sourceOptions.map((item) => ({
+                                key: item.source,
+                                value: item.name,
+                                default: item.source === "",
+                            })),
+                        },
+                    ],
+                },
+                {
                     key: "Name",
-                    name: "宠物名称"
+                    name: this.$t("pages.pet.ui.search.petName")
                 }
             ];
         },
         initFormData() {
             return {
-                Class: this.active || (this.types[0]?.class || ""),
+                Class: this.active || "",
                 Name: "",
                 map: "",
                 Source: ""
@@ -135,15 +135,8 @@ export default {
         active: {
             immediate: true,
             handler(val) {
-                this.formData.Class = val || (this.types[0]?.class || "");
+                this.formData.Class = val || "";
             }
-        },
-        // 监听地图和来源的变化
-        'formData.map'() {
-            this.handleFilterChange();
-        },
-        'formData.Source'() {
-            this.handleFilterChange();
         }
     },
     created() {
@@ -164,24 +157,14 @@ export default {
             this.queryParams = cloneDeep(data);
 
             // 同步表单数据
-            this.formData.Class = data.Class;
-            this.formData.Name = data.Name;
+            this.formData = {
+                ...this.formData,
+                ...data,
+            };
 
             // 首次搜索不触发事件
             if (this.isFirstSearch) {
                 this.isFirstSearch = false;
-                return;
-            }
-
-            // 构建并触发 change 事件
-            const params = this.buildParams(this.formData);
-            this.emitChange(params);
-        },
-
-        // 处理地图和来源的变化
-        handleFilterChange() {
-            // 首次搜索不触发事件
-            if (this.isFirstSearch) {
                 return;
             }
 
@@ -207,20 +190,6 @@ export default {
             }
             return params;
         },
-
-        handleResize() {
-            this.screenWidth = window.innerWidth;
-        }
-    },
-    mounted() {
-        window.addEventListener("resize", this.handleResize);
-    },
-    unmounted() {
-        window.removeEventListener("resize", this.handleResize);
     }
 };
 </script>
-
-<style lang="less">
-@import "~@/assets/css/pet/pc/tabs.less";
-</style>

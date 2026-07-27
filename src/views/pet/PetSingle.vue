@@ -1,38 +1,64 @@
 <template>
-    <div class="p-pvx-pet-single" v-if="pet" v-loading="loading">
-        <template v-if="!isRobot">
-            <div class="m-pvx-pet-navigation m-navigation">
-                <div class="u-goback" @click="goBack">返回列表</div>
+    <div class="p-pvx-pet-single" :class="{ 'p-pvx-pet-single--modern': !isRobot }" v-if="pet" v-loading="loading">
+        <PvxPageShell v-if="!isRobot" class="m-pvx-pet-single-shell">
+            <div class="m-pvx-pet-single-layout">
+            <PvxSurface class="m-pvx-pet-navigation" tag="nav" padding="small" radius="medium">
+                <PvxActionButton variant="light" @click="goBack">
+                    <ArrowLeft />
+                    {{ $t("pages.pet.single.ui.actions.back") }}
+                </PvxActionButton>
                 <div class="u-back-right">
-                    <PvxRobotTip v-if="!isRobot" type-name="宠物" :reply="pet.Name"></PvxRobotTip>
+                    <PvxRobotTip
+                        type-name="宠物"
+                        :reply="pet.Name"
+                        variant="modern"
+                        :quick-guide-text="$t('pages.pet.single.ui.robot.quickGuide')"
+                        :copy-success-title="$t('pages.pet.single.ui.robot.copySuccess')"
+                        :reply-prefix="$t('pages.pet.single.ui.robot.replyPrefix')"
+                        :reply-suffix="$t('pages.pet.single.ui.robot.replySuffix')"
+                        :copy-qq-label="$t('pages.pet.single.ui.robot.copyQq')"
+                        :copy-command-label="$t('pages.pet.single.ui.robot.copyCommand')"
+                    />
                     <PvxSingleAdminDrop></PvxSingleAdminDrop>
                 </div>
-            </div>
+            </PvxSurface>
 
             <PublicNotice bckey="pet_ac" />
-            <div class="m-pvx-pet-content flex">
+
+            <PvxSurface class="m-pvx-pet-content" padding="medium">
                 <petCard :petObject="pet" :lucky="luckyList"></petCard>
                 <div class="m-pvx-pet-info">
                     <h1 class="u-title">
                         <span class="u-name">{{ pet.Name }}</span>
-                        <!-- <span class="u-type">{{ getPetType(pet.Class) }} · {{ getPetSource(pet.Source) }}</span> -->
                         <div class="m-pvx-pet-links">
-                            <a class="u-link u-item" :href="getLink('item', item_id)" target="_blank"><i
-                                    class="el-icon-collection-tag"></i>物品信息</a>
+                            <a
+                                class="u-link u-item"
+                                :href="getLink('item', item_id)"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <CollectionTag />
+                                {{ $t("pages.pet.single.ui.actions.item") }}
+                            </a>
                             <template v-if="achievement_id">
-                                <em> | </em>
-                                <a class="u-link u-achievement" :href="getLink('cj', achievement_id)" target="_blank"><i
-                                        class="el-icon-trophy"></i>成就信息</a>
+                                <a
+                                    class="u-link u-achievement"
+                                    :href="getLink('cj', achievement_id)"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Trophy />
+                                    {{ $t("pages.pet.single.ui.actions.achievement") }}
+                                </a>
                             </template>
                         </div>
                         <div class="u-meta u-shop" v-if="shopInfo.RewardsPrice || shopInfo.CoinPrice">
-                            <!-- <span class="u-meta-label">商城价格：</span> -->
                             <el-tag class="u-price-item u-rewards" v-if="shopInfo.RewardsPrice > 0">
-                                积分<b>{{ shopInfo.RewardsPrice }}</b>
+                                {{ $t("pages.pet.single.ui.price.points") }}<b>{{ shopInfo.RewardsPrice }}</b>
                                 <i class="u-icon-rewards"></i>
                             </el-tag>
                             <el-tag class="u-price-item u-coin">
-                                通宝<b>{{ shopInfo.CoinPrice }}</b>
+                                {{ $t("pages.pet.single.ui.price.coin") }}<b>{{ shopInfo.CoinPrice }}</b>
                                 <i class="u-icon-coin"></i>
                             </el-tag>
                         </div>
@@ -43,22 +69,32 @@
                         <!-- <i class="el-icon-star-on" v-for="count in pet.Star" :key="count"></i> -->
                     </i>
                     <div class="u-metas">
-                        <div class="u-meta u-number"><span class="u-meta-label">编号：</span>{{ pet.Index }}</div>
-                        <div class="u-meta u-type">
-                            <span class="u-meta-label">分类：</span>{{ getPetType(pet.Class) }}
+                        <div class="u-meta u-number">
+                            <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.id") }}</span>
+                            <span>{{ pet.Index }}</span>
                         </div>
-                        <div class="u-meta u-score"><span class="u-meta-label">分数：</span>{{ pet.Score }}</div>
+                        <div class="u-meta u-type">
+                            <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.type") }}</span>
+                            <span>{{ typeLabel(pet.Class) }}</span>
+                        </div>
+                        <div class="u-meta u-score">
+                            <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.score") }}</span>
+                            <span>{{ pet.Score }}</span>
+                        </div>
                         <div class="u-meta u-get-way">
-                            <span class="u-meta-label">获取方式：</span>{{ getPetSource(pet.Source) }}
+                            <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.source") }}</span>
+                            <span>{{ getPetSource(pet.Source) }}</span>
                         </div>
                         <div class="u-meta u-source">
-                            <span class="u-meta-label">获取线索：</span>
-                            <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
-                                <span>{{ cleanResourceText(item.text) }}</span>
-                            </template>
+                            <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.clue") }}</span>
+                            <span class="u-meta-value">
+                                <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
+                                    <span>{{ cleanResourceText(item.text) }}</span>
+                                </template>
+                            </span>
                         </div>
                         <div class="u-meta u-desc">
-                            <span class="u-meta-label">宠物说明：</span>
+                            <span class="u-meta-label">{{ $t("pages.pet.single.ui.fields.description") }}</span>
                             <span class="u-meta-value">
                                 <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
                                     <span v-html="item.text"></span>
@@ -66,44 +102,67 @@
                             </span>
                         </div>
                     </div>
-                    <!-- 宠物技能 -->
-                    <div class="m-pvx-pet-skills">
-                        <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
-                            <el-popover trigger="hover" popper-class="m-pvx-pet-skill" :visible-arrow="false"
-                                placement="top">
-                                <div class="u-skill-pop">
-                                    <div class="u-skill-name">{{ skill.Name }}</div>
-                                    <div class="u-skill-desc">{{ skill.Desc }}</div>
-                                </div>
-                                <template #reference>
-                                    <img class="u-skill-icon" :src="iconLink(skill.IconID)" :alt="skill.Name" />
-                                </template>
-                            </el-popover>
+
+                    <div v-if="petSkills.length" class="m-pvx-pet-skills-block">
+                        <h2>{{ $t("pages.pet.single.ui.sections.skills") }}</h2>
+                        <div class="m-pvx-pet-skills">
+                            <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
+                                <el-popover trigger="hover" popper-class="m-pvx-pet-skill" :visible-arrow="false"
+                                    placement="top">
+                                    <div class="u-skill-pop">
+                                        <div class="u-skill-name">{{ skill.Name }}</div>
+                                        <div class="u-skill-desc">{{ skill.Desc }}</div>
+                                    </div>
+                                    <template #reference>
+                                        <img class="u-skill-icon" :src="iconLink(skill.IconID)" :alt="skill.Name" />
+                                    </template>
+                                </el-popover>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="m-pvx-pet-map" v-show="mapDisplay">
-                    <span class="u-header"> 捕获地图 </span>
-                    <!-- 地图组件 -->
+            </PvxSurface>
+
+            <PvxSurface v-show="mapDisplay" class="m-pvx-pet-map-section" padding="medium">
+                <PvxSectionHeader
+                    class="m-pvx-pet-section-header"
+                    :title="$t('pages.pet.single.ui.sections.map')"
+                    :description="$t('pages.pet.single.ui.sections.mapDescription')"
+                    level="h2"
+                >
+                    <template #icon><Location /></template>
+                </PvxSectionHeader>
+                <div class="m-pvx-pet-map">
                     <pet-map :petId="parseInt(id)" @loaded="mapLoaded" />
                 </div>
+            </PvxSurface>
+
+            <PvxSurface
+                v-if="medalList && medalList.length"
+                class="m-pvx-pet-fetters"
+                padding="medium"
+            >
+                <PvxSectionHeader
+                    class="m-pvx-pet-section-header"
+                    :title="$t('pages.pet.single.ui.sections.fetters')"
+                    :description="$t('pages.pet.single.ui.sections.fettersDescription')"
+                    level="h2"
+                >
+                    <template #icon><Medal /></template>
+                </PvxSectionHeader>
+                <petFetters :info="item" v-for="item in medalList" :key="item.ID" />
+            </PvxSurface>
+
+            <pvx-user
+                class="m-pvx-pet-community"
+                :id="item_id"
+                :name="$t('pages.pet.single.ui.typeName')"
+                type="item"
+                :is-robot="false"
+                i18n-key-prefix="pages.pet.single.ui.wiki"
+            />
             </div>
-            <!-- 宠物羁绊 -->
-            <div class="m-pvx-pet-fetters" v-if="medalList && medalList.length">
-                <WikiPanel>
-                    <template #head-title>
-                        <img class="u-icon" svg-inline src="@/assets/img/common/achievement.svg" />
-                        <span class="u-txt">宠物羁绊</span>
-                    </template>
-                    <template #body>
-                        <!-- 羁绊信息 -->
-                        <petFetters :info="item" v-for="item in medalList" :key="item.ID" />
-                    </template>
-                </WikiPanel>
-            </div>
-            <!-- 宠物地图 -->
-            <!-- <div class="u-map-title">捕获地图/获取攻略</div> -->
-        </template>
+        </PvxPageShell>
         <template v-else>
             <div class="m-pvx__item m-pvx-pet-robot__header">
                 <div class="m-title">
@@ -180,8 +239,8 @@
                 <pet-map class="m-pvx-pet-robot__map" :petId="parseInt(id)" @loaded="mapLoaded" />
             </div>
         </template>
-        <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="item_id" name="宠物" type="item" :is-robot="isRobot"></pvx-user>
+        <!-- 机器人抓图继续使用旧版百科结构，不进入普通 Web 现代主题。 -->
+        <pvx-user v-if="isRobot" :id="item_id" name="宠物" type="item" :is-robot="true"></pvx-user>
 
         <!-- <div class="m-pet-wiki">
             <Wiki
@@ -199,17 +258,21 @@
 
 <script>
 import PublicNotice from "@/components/PublicNotice";
-import { getPet, getPets, getShopInfo, getPetSkill, getSkill, getPetLucky } from "@/service/pet";
+import { getPet, getPets, getShopInfo, getSkill, getPetLucky } from "@/service/pet";
 import PvxUser from "@/components/PvxUser.vue";
 import petCard from "@/components/pet/PetCard.vue";
 import petFetters from "@/components/pet/PetFetters.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
-import WikiPanel from "@jx3box/jx3box-ui/src/wiki/WikiPanel";
 import { iconLink, getLink, extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import dayjs from "@/plugins/day";
 import PetMap from "@/components/pet/PetMap.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { ArrowLeft, CollectionTag, Location, Medal, Trophy } from "@element-plus/icons-vue";
 import {
     getPetImgSrc,
     replacePetImgDefault,
@@ -239,12 +302,20 @@ export default {
     components: {
         petCard,
         petFetters,
-        WikiPanel,
         PetMap,
         PvxUser,
         PublicNotice,
         PvxSingleAdminDrop,
         PvxRobotTip,
+        PvxActionButton,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        ArrowLeft,
+        CollectionTag,
+        Location,
+        Medal,
+        Trophy,
     },
     data() {
         return {
@@ -394,6 +465,10 @@ export default {
             return getPetTypeName(typeId);
         },
 
+        typeLabel(typeId) {
+            return this.$t(`pages.pet.ui.types.${typeId}`);
+        },
+
         getPetSource(sourceId) {
             return getPetSourceName(sourceId);
         },
@@ -490,4 +565,5 @@ export default {
 @import "~@/assets/css/pet/pc/single.less";
 @import "~@/assets/css/pet/pc/map.less";
 @import "~@/assets/css/pet/pc/robot.less";
+@import "~@/assets/css/modules/pet-detail-theme.less";
 </style>

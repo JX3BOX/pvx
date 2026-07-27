@@ -58,14 +58,14 @@
             </div>
             <el-button class="m-pvx-archive__more" v-show="hasNextPage" type="primary" @click="appendPage"
                 :loading="loading">
-                <el-icon class="el-icon--left">
+                <el-icon v-if="!loading" class="el-icon--left">
                     <ArrowDown />
                 </el-icon>{{ $t("pages.faceBody.actions.loadMore") }}</el-button>
             <el-pagination class="m-pvx-archive__pages" background layout="total, prev, pager, next, jumper"
                 :hide-on-single-page="true" @current-change="changePage" @prev-click="changePage"
                 @next-click="changePage" :page-size="per" :total="total" v-model:current-page="page"></el-pagination>
         </div>
-        <el-alert v-if="noList" class="m-pvx-archive__null" :title="alertTitle" type="info" center show-icon></el-alert>
+        <PvxEmptyState v-if="noList" class="m-pvx-archive__null" illustrated :title="alertTitle" />
     </div>
 </template>
 
@@ -74,6 +74,7 @@ import PublicNotice from "@/components/PublicNotice";
 import CardBannerList from "@/components/common/card_banner_list.vue";
 import faceTabs from "@/components/common/face-body/Tabs";
 import ListItem from "@/components/common/face-body/ListItem.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import pcListMixin from "@/components/common/face-body/mixins/pc-list-mixin";
 import { concat } from "lodash";
 import { getFaceList } from "@/service/face";
@@ -81,7 +82,7 @@ import { ArrowDown } from '@element-plus/icons-vue';
 
 export default {
     name: "face",
-    components: { CardBannerList, faceTabs, ListItem, PublicNotice, ArrowDown },
+    components: { CardBannerList, faceTabs, ListItem, PublicNotice, PvxEmptyState, ArrowDown },
     mixins: [pcListMixin],
 
     data() {
