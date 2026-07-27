@@ -223,10 +223,13 @@ export default {
 
     .u-reply {
         .pvx-focus-ring();
+        display: inline-flex;
         width: auto;
         max-width: 100%;
         height: auto;
         min-height: 32px;
+        align-items: center;
+        justify-content: center;
         padding: 4px @pvx-space-2;
         border: 1px solid @pvx-border-focus;
         border-radius: @pvx-radius-small;

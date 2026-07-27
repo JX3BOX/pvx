@@ -192,6 +192,10 @@ let store = {
         },
         // 获取角色信息
         async getRoles({ state }) {
+            if (!state.isLogin) {
+                state.roles = [];
+                return;
+            }
             return getUserSchool().then((res) => {
                 const roles = res.data?.data?.list || [];
                 state.roles = roles;

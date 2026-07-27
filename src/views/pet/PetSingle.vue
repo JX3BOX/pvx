@@ -47,7 +47,7 @@
                 </div>
                 <div class="m-pvx-pet-guide-tip">
                     <PvxRobotTip
-                        :type-name="$t('pages.pet.single.ui.typeName')"
+                        type-name="宠物"
                         :reply="pet.Name"
                         variant="modern"
                         :quick-guide-text="$t('pages.pet.single.ui.robot.quickGuide')"
@@ -139,20 +139,19 @@
                         </div>
                     </div>
                 </div>
-            </PvxSurface>
-
-            <PvxSurface v-show="mapDisplay" class="m-pvx-pet-map-section" padding="medium">
-                <PvxSectionHeader
-                    class="m-pvx-pet-section-header"
-                    :title="$t('pages.pet.single.ui.sections.map')"
-                    :description="$t('pages.pet.single.ui.sections.mapDescription')"
-                    level="h2"
-                >
-                    <template #icon><Location /></template>
-                </PvxSectionHeader>
-                <div class="m-pvx-pet-map">
-                    <pet-map localized :petId="parseInt(id)" @loaded="mapLoaded" />
-                </div>
+                <section v-show="mapDisplay" class="m-pvx-pet-map-section">
+                    <PvxSectionHeader
+                        class="m-pvx-pet-section-header"
+                        :title="$t('pages.pet.single.ui.sections.map')"
+                        :description="$t('pages.pet.single.ui.sections.mapDescription')"
+                        level="h2"
+                    >
+                        <template #icon><Location /></template>
+                    </PvxSectionHeader>
+                    <div class="m-pvx-pet-map">
+                        <pet-map localized :petId="parseInt(id)" @loaded="mapLoaded" />
+                    </div>
+                </section>
             </PvxSurface>
 
             <PvxSurface

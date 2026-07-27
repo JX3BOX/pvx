@@ -145,8 +145,15 @@
         border-top: 1px solid @pvx-border-light;
 
         .m-robot__pvx-tip {
+            align-items: center;
             justify-content: flex-start;
             flex-wrap: wrap;
+        }
+
+        .m-robot__pvx-tip .u-name {
+            min-height: 30px;
+            align-items: center;
+            line-height: 1.4;
         }
     }
 
@@ -156,7 +163,7 @@
 
     .m-pvx-pet-content {
         display: grid;
-        grid-template-columns: 213px minmax(0, 1fr);
+        grid-template-columns: 213px minmax(0, 1fr) 430px;
         min-width: 0;
         align-items: start;
         margin: 0;
@@ -320,7 +327,6 @@
         }
     }
 
-    .m-pvx-pet-map-section,
     .m-pvx-pet-fetters {
         min-width: 0;
         margin: 0;
@@ -332,16 +338,24 @@
         box-shadow: @pvx-shadow-xs;
     }
 
+    .m-pvx-pet-map-section {
+        min-width: 0;
+        padding-left: @pvx-space-5;
+        border-left: 1px solid @pvx-border-light;
+    }
+
     .m-pvx-pet-map {
+        display: flex;
         width: 100%;
         height: auto;
+        justify-content: center;
         padding: 0;
         border-radius: @pvx-radius-card;
         background: @pvx-surface-muted;
         box-shadow: none;
 
         .m-pvx-pet-map__box {
-            width: 100%;
+            width: min(100%, 390px);
             height: auto;
             margin-top: 0;
             overflow: hidden;
@@ -567,6 +581,43 @@
     }
 }
 
+html:lang(en),
+html:lang(vi) {
+    .p-pvx-pet-single--modern .u-metas .u-meta {
+        grid-template-columns: minmax(0, 1fr);
+        align-content: start;
+
+        > span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .p-pvx-pet-single--modern .u-metas {
+        .u-source,
+        .u-desc {
+            grid-template-columns: max-content minmax(0, 1fr);
+            align-items: center;
+        }
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .p-pvx-pet-single--modern {
+        .m-pvx-pet-content {
+            grid-template-columns: 213px minmax(0, 1fr);
+        }
+
+        .m-pvx-pet-map-section {
+            grid-column: 1 / -1;
+            padding-top: @pvx-space-5;
+            padding-left: 0;
+            border-top: 1px solid @pvx-border-light;
+            border-left: 0;
+        }
+    }
+}
+
 @media screen and (max-width: @ipad-y) {
     .p-pvx-pet-single--modern {
         .m-pvx-pet-guide-tip {
@@ -585,6 +636,13 @@
             min-height: 0;
         }
 
+        .m-pvx-pet-map-section {
+            padding-top: @pvx-space-5;
+            padding-left: 0;
+            border-top: 1px solid @pvx-border-light;
+            border-left: 0;
+        }
+
         .u-metas {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -596,7 +654,6 @@
         .m-pvx-pet-navigation,
         .m-pvx-pet-header,
         .m-pvx-pet-content,
-        .m-pvx-pet-map-section,
         .m-pvx-pet-fetters,
         .m-pvx-pet-community .m-wiki-post-panel > .c-wiki-panel,
         .m-pvx-pet-community > .m-thx,
@@ -636,16 +693,25 @@
         }
 
         .m-pvx-pet-content,
-        .m-pvx-pet-map-section,
         .m-pvx-pet-fetters {
             padding: @pvx-space-3;
             border-radius: @pvx-radius-card;
+        }
+
+        .m-pvx-pet-map-section {
+            padding-top: @pvx-space-3;
         }
 
         .m-pvx-pet-info {
             .m-pvx-pet-info__summary {
                 align-items: flex-start;
                 flex-direction: column;
+            }
+
+            .u-stars {
+                width: 100%;
+                align-self: center;
+                justify-content: center;
             }
         }
 

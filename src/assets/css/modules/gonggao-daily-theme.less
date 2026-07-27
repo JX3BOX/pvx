@@ -6,6 +6,11 @@
 
     .p-pvx-gonggao-daily {
         color: @pvx-text-primary;
+
+        > div {
+            max-width: none;
+            padding: 30px;
+        }
     }
 
     .m-pvx-gonggao-daily__layout {
@@ -725,10 +730,16 @@
     }
 }
 
+@media screen and (max-width: @ipad) {
+    .p-gonggao.is-modern .p-pvx-gonggao-daily > div {
+        padding: 20px;
+    }
+}
+
 @media screen and (max-width: @phone) {
     .p-gonggao.is-modern {
         .p-pvx-gonggao-daily > div {
-            padding: 16px 12px;
+            padding: 20px;
         }
 
         .m-pvx-gonggao-daily__layout,
