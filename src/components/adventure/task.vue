@@ -19,7 +19,32 @@
             <img class="u-suffix" src="@/assets/img/adventure/adventure_bg.png" />
             <div class="u-content" id="task-box" ref="taskBox">
                 <div class="u-item u-task-name">
-                    <img :src="getImg(info)" />
+                    <div class="u-task-reward">
+                        <img :src="getImg(info)" alt="" />
+                        <el-popover
+                            v-if="info.szRewardType === 'school'"
+                            placement="bottom"
+                            width="180"
+                            trigger="click"
+                            popper-class="m-pvx-task-school-choose"
+                        >
+                            <template #reference>
+                                <button type="button" class="u-task-school-switch"
+                                    :aria-label="$t('pages.adventure.ui.actions.chooseSchool')">
+                                    <img class="u-school-icon" :src="forceIconUrl(school)"
+                                        :alt="forceid[school]" :title="forceid[school]" />
+                                </button>
+                            </template>
+                            <template #default="{ hide }">
+                                <div class="u-school-list">
+                                    <img v-for="(name, forceId) in forceid" :key="forceId" class="u-school-item"
+                                        :class="{ 'is-active': String(forceId) === String(school) }"
+                                        :src="forceIconUrl(forceId)" :alt="name" :title="name"
+                                        @click="switchSchool(forceId, hide)" />
+                                </div>
+                            </template>
+                        </el-popover>
+                    </div>
                     <div class="u-info-box">
                         <span class="u-title">{{ info.szName }}</span>
                     </div>
@@ -54,6 +79,8 @@ import { getAdventureTask } from "@/service/adventure/adventure";
 import { extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import { isPhone } from "@/utils/index";
 import dayjs from "@/utils/day";
+import { __imgPath } from "@/utils/config";
+import forceid from "@jx3box/jx3box-data/data/xf/forceid.json";
 export default {
     name: "task",
     props: ["id", "info"],
@@ -64,6 +91,7 @@ export default {
             task: [],
             isUpdate: false,
             school: "2",
+            forceid,
             isMiniProgram: isMiniProgram() || isApp(),
         };
     },
@@ -79,13 +107,23 @@ export default {
         //处理特殊的链接
         toSpecial(data) {
             const type = data.szRewardType;
-            let str = data.szOpenRewardPath;
-            const name = data.szOpenRewardPath.split("\\").filter(Boolean).pop();
-            if (type == "school") str = `reward/open/${name}/school_${this.school}_open`;
+            let path = data.szOpenRewardPath?.toLowerCase();
+            if (!path) return "";
+            path = path.replace(/\\/g, "/").replace("ui/image/adventure/", "");
+            path = path.replace(/\/[^/]+?\.tga$/, "").replace(/\/+$/, "");
+            let str = path;
+            if (type == "school") str = `${path}/school_${this.school}_open`;
             if (type == "camp") {
-                str = `reward/open/${name}/camp_${this.camp}_open`;
+                str = `${path}/camp_${this.camp}_open`;
             }
             return this.imgUrl(str);
+        },
+        forceIconUrl(force) {
+            return `${__imgPath}image/school/${forceid[force]}.png`;
+        },
+        switchSchool(force, hide) {
+            this.school = String(force);
+            hide?.();
         },
         imgNameTga: function (link) {
             return link.match(/(\S*)Adventure\/(\S*)\.tga/)[2];
@@ -182,3 +220,7 @@ export default {
     },
 };
 </script>
+
+<style lang="less">
+@import "~@/assets/css/adventure/task-school-picker.less";
+</style>

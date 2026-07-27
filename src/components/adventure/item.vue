@@ -13,7 +13,7 @@
             :role="isModern ? 'button' : null"
             :tabindex="isModern ? 0 : null"
             :aria-label="isModern ? $t('pages.adventure.ui.actions.switchCamp') : null"
-            @click.prevent="switchCamp"
+            @click.prevent.stop="switchCamp"
             @keydown.enter.prevent.stop="switchCamp"
             @keydown.space.prevent.stop="switchCamp"
         >
@@ -26,19 +26,20 @@
             :role="isModern ? 'button' : null"
             :tabindex="isModern ? 0 : null"
             :aria-label="isModern ? $t('pages.adventure.ui.actions.chooseSchool') : null"
-            @click.prevent="switchCamp"
+            @click.prevent.stop
             @keydown.enter.prevent.stop="openSchoolPicker"
             @keydown.space.prevent.stop="openSchoolPicker"
         >
-            <el-popover ref="schoolPopover" placement="bottom" width="180" trigger="click"
-                popper-class="m-pvx-school-choose">
+            <el-popover placement="bottom" width="180" trigger="click" popper-class="m-pvx-school-choose">
                 <template #reference>
                     <img class="u-school-icon" :src="forceIconUrl(force)" />
                 </template>
-                <div class="u-school-list">
-                    <img v-for="(name, id) in forceid" :key="id" class="u-school-item" :src="forceIconUrl(id)"
-                        @click="switchSchool(id)" />
-                </div>
+                <template #default="{ hide }">
+                    <div class="u-school-list">
+                        <img v-for="(name, id) in forceid" :key="id" class="u-school-item"
+                            :src="forceIconUrl(id)" @click="switchSchool(id, hide)" />
+                    </div>
+                </template>
             </el-popover>
         </div>
         <div class="u-name">{{ item.szName }}</div>
@@ -54,16 +55,17 @@
             <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />
             <img v-if="camp === 2" class="u-camp-icon" src="@/assets/img/camp/camp_2.png" />
         </div>
-        <div v-if="item.szRewardType === 'school'" class="u-school-switch" @click.stop="switchCamp">
-            <el-popover ref="schoolPopover" placement="bottom" width="180" trigger="click"
-                popper-class="m-pvx-school-choose">
+        <div v-if="item.szRewardType === 'school'" class="u-school-switch" @click.stop>
+            <el-popover placement="bottom" width="180" trigger="click" popper-class="m-pvx-school-choose">
                 <template #reference>
                     <img class="u-school-icon" :src="forceIconUrl(force)" />
                 </template>
-                <div class="u-school-list">
-                    <img v-for="(name, id) in forceid" :key="id" class="u-school-item" :src="forceIconUrl(id)"
-                        @click="switchSchool(id)" />
-                </div>
+                <template #default="{ hide }">
+                    <div class="u-school-list">
+                        <img v-for="(name, id) in forceid" :key="id" class="u-school-item"
+                            :src="forceIconUrl(id)" @click="switchSchool(id, hide)" />
+                    </div>
+                </template>
             </el-popover>
         </div>
         <div class="u-name">{{ item.szName }}</div>
@@ -121,7 +123,7 @@ export default {
                 let pngPath = tgaPath.replace(/\.tga$/, ".png");
                 return `${this.__imgRoot}adventure/${client}/${pngPath}`;
             }
-            tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
+            tgaPath = tgaPath.replace(/\/[^/]+?\.tga$/, "").replace(/\/+$/, "");
             if (this.item.szRewardType === "camp")
                 return `${this.__imgRoot}adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
             if (this.item.szRewardType === "school")
@@ -145,9 +147,9 @@ export default {
         switchCamp() {
             this.camp = this.camp === 1 ? 2 : 1;
         },
-        switchSchool(force) {
+        switchSchool(force, hide) {
             this.force = force;
-            this.$refs.schoolPopover.doClose();
+            hide?.();
         },
     },
 };

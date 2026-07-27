@@ -211,7 +211,7 @@ export default {
                 let pngPath = tgaPath.replace(/\.tga$/, ".png");
                 return `${__imgPath}adventure/adventure/${client}/${pngPath}`;
             }
-            tgaPath = tgaPath.replace(/\/[^\/]+?\.tga$/, "");
+            tgaPath = tgaPath.replace(/\/[^/]+?\.tga$/, "").replace(/\/+$/, "");
             if (this.data.szRewardType === "camp")
                 return `${__imgPath}adventure/adventure/${client}/${tgaPath}/camp_${this.camp}_open.png`;
             if (this.data.szRewardType === "school")
