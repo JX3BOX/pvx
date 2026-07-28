@@ -130,3 +130,52 @@ export default {
     },
 };
 </script>
+
+<style lang="less">
+.m-pvx-header .m-pvx-header__info {
+    gap: 4px !important;
+}
+
+.u-fb-header-author {
+    display: flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+
+    .u-pvx-avatar {
+        display: block;
+        align-self: center;
+    }
+
+    .u-pvx-name,
+    .u-pvx-time,
+    .u-pvx-edit {
+        display: inline-flex;
+        height: 32px;
+        align-items: center;
+        line-height: 1;
+    }
+
+    .u-pvx-edit {
+        gap: 4px;
+        border-bottom: 0 !important;
+        text-decoration-line: none;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+
+        &:hover {
+            border-bottom: 0 !important;
+            text-decoration-line: underline;
+        }
+    }
+
+    .u-pvx-edit-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        line-height: 1;
+    }
+}
+</style>

@@ -24,13 +24,15 @@
  * - 样式文件: assets/css/common/face-body/index.less
  -->
 <template>
-    <div class="m-pvx-single__pics m-pvx-single__content-box" v-if="imageList">
+    <div class="m-pvx-single__pics m-pvx-single__content-box" :class="{ 'is-empty': !imageList.length }" v-if="imageList">
         <!-- 无图片提示 -->
         <div v-if="!imageList.length" class="u-pvx-no-pic">
-            <el-icon>
-                <Picture />
-            </el-icon>
-            <span>{{ $t("pages.faceBody.detail.noImages", { type: typeLabel }) }}</span>
+            <div class="u-pvx-no-pic__icon">
+                <el-icon><Picture /></el-icon>
+            </div>
+            <span class="u-pvx-no-pic__eyebrow">IMAGE PREVIEW</span>
+            <strong>{{ $t("pages.faceBody.detail.noImages", { type: typeLabel }) }}</strong>
+            <span class="u-pvx-no-pic__line"></span>
         </div>
 
         <!-- 图片轮播 -->
@@ -74,6 +76,7 @@
 
 <script>
 import { resolveImagePath } from "@jx3box/jx3box-common/js/utils";
+import { Picture } from "@element-plus/icons-vue";
 
 /**
  * SingleCarousel - 详情页图片轮播组件
@@ -86,6 +89,7 @@ import { resolveImagePath } from "@jx3box/jx3box-common/js/utils";
  */
 export default {
     name: "SingleCarousel",
+    components: { Picture },
     props: {
         // 图片列表
         imageList: {
@@ -207,3 +211,96 @@ export default {
     },
 };
 </script>
+
+<style lang="less">
+@import (reference) "~@/assets/css/design-system/_tokens.less";
+
+.m-pvx-single__pics.is-empty {
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 18% 18%, fade(@pvx-primary, 10%) 0, transparent 28%),
+        radial-gradient(circle at 82% 80%, fade(@pvx-primary, 7%) 0, transparent 30%),
+        linear-gradient(145deg, #fbfcff 0%, #f5f6ff 100%);
+
+    &::before {
+        position: absolute;
+        inset: 16px;
+        border: 1px dashed fade(@pvx-primary, 18%);
+        border-radius: @pvx-radius-card;
+        content: "";
+        pointer-events: none;
+    }
+
+    .u-pvx-no-pic {
+        position: relative;
+        top: auto;
+        left: auto;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: @pvx-space-2;
+        transform: none;
+        color: @pvx-text-muted;
+        text-align: center;
+    }
+
+    .u-pvx-no-pic__icon {
+        display: inline-flex;
+        width: 72px;
+        height: 72px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: @pvx-space-1;
+        border: 1px solid fade(@pvx-primary, 15%);
+        border-radius: 22px;
+        color: @pvx-primary;
+        background: fade(@pvx-surface, 88%);
+        box-shadow: 0 12px 30px fade(@pvx-primary, 12%);
+
+        .el-icon {
+            width: 30px;
+            height: 30px;
+            margin: 0;
+            font-size: 30px;
+        }
+    }
+
+    .u-pvx-no-pic__eyebrow {
+        color: @pvx-primary;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+    }
+
+    .u-pvx-no-pic strong {
+        color: @pvx-text-secondary;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .u-pvx-no-pic__line {
+        width: 36px;
+        height: 3px;
+        margin-top: @pvx-space-1;
+        border-radius: @pvx-radius-pill;
+        background: fade(@pvx-primary, 22%);
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-single__pics.is-empty {
+        &::before {
+            inset: 12px;
+        }
+
+        .u-pvx-no-pic__icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+        }
+    }
+}
+</style>

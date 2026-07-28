@@ -65,6 +65,10 @@ function offlineFace(id, isAdmin) {
 function deleteFace(id) {
     return $next().delete(`/api/face/${id}`);
 }
+
+function managerDeleteFace(id) {
+    return $next().delete(`/api/face/${id}/manager/delete`);
+}
 /**
  * 购买捏脸
  * postType {string} 捏脸固定填face
@@ -174,6 +178,7 @@ export {
     onlineFace,
     offlineFace,
     deleteFace,
+    managerDeleteFace,
     payFace,
     loopPayStatus,
     getAccessoryList,

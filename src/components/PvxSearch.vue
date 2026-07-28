@@ -23,9 +23,9 @@
                 </template>
                 <template v-if="item.type === 'filter' && item.options.length">
                     <el-popover ref="popover" :placement="isPhone() && variant !== 'modern' ? 'right' : 'bottom'"
-                        :width="variant === 'modern'
+                        :width="filterWidth || (variant === 'modern'
                             ? 'min(480px, calc(100vw - 32px))'
-                            : (isPhone() ? undefined : 420)"
+                            : (isPhone() ? undefined : 420))"
                         trigger="click" v-model:visible="filterValue" :popper-class="popperClass">
                         <div class="filter-content">
                             <div class="filter-item" :class="{ 'filter-item--phone-only': fItem.phoneOnly }"
@@ -175,6 +175,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        deferFilterSubmit: {
+            type: Boolean,
+            default: false,
+        },
+        filterWidth: {
+            type: [String, Number],
+            default: "",
+        },
     },
     data() {
         return {
@@ -185,14 +193,36 @@ export default {
             selectLoading: "",
             checkboxData: {},
             customLabel: "",
+            committedFilterData: {},
+            isSubmittingFilter: false,
+            skipNextSearch: false,
         };
     },
     watch: {
         formData: {
             deep: true,
             handler(data) {
-                this.$emit("search", data);
+                if (this.skipNextSearch) {
+                    this.skipNextSearch = false;
+                    return;
+                }
+                this.$emit("search", this.getSearchData(data));
             },
+        },
+        filterValue(visible) {
+            if (!this.deferFilterSubmit) return;
+
+            if (visible) {
+                this.committedFilterData = this.getFilterData(this.formData);
+                return;
+            }
+
+            if (this.isSubmittingFilter) {
+                this.isSubmittingFilter = false;
+                return;
+            }
+
+            this.restoreCommittedFilters();
         },
         initValue: {
             immediate: true,
@@ -221,6 +251,7 @@ export default {
                     }
                 });
                 this.formData = { ...formData, ...initValue };
+                this.committedFilterData = this.getFilterData(this.formData);
             },
         },
     },
@@ -235,6 +266,34 @@ export default {
         },
     },
     methods: {
+        getFilterOptions() {
+            return this.items.find((item) => item.type === "filter")?.options || [];
+        },
+        getFilterData(data) {
+            return this.getFilterOptions().reduce((result, item) => {
+                result[item.key] = cloneDeep(data[item.key]);
+                return result;
+            }, {});
+        },
+        getSearchData(data) {
+            if (!this.deferFilterSubmit || !this.filterValue) return data;
+            return {
+                ...data,
+                ...cloneDeep(this.committedFilterData),
+            };
+        },
+        restoreCommittedFilters() {
+            this.skipNextSearch = true;
+            this.formData = {
+                ...this.formData,
+                ...cloneDeep(this.committedFilterData),
+            };
+            Object.entries(this.committedFilterData).forEach(([key, value]) => {
+                if (this.getFilterOptions().find((item) => item.key === key)?.type === "checkbox") {
+                    this.checkboxData[key] = typeof value === "string" ? value.split(",").filter(Boolean) : [];
+                }
+            });
+        },
         isFilterOptionActive(item) {
             if (item.type === "checkbox") {
                 const values = this.checkboxData[item.key] || [];
@@ -287,7 +346,7 @@ export default {
             this.formData[key] = this.checkboxData[key].join(",");
         },
         reset() {
-            const filterOptions = this.items.find((item) => item.type === "filter")?.options || [];
+            const filterOptions = this.getFilterOptions();
             filterOptions.forEach((item) => {
                 if (item.type === "radio") {
                     const resetOption = item.options.find((option) => option.default || option.key === "");
@@ -303,10 +362,17 @@ export default {
                     }
                 }
             });
-            this.filterValue = false;
-            this.$router.push({ query: "" });
+            if (!this.deferFilterSubmit) {
+                this.filterValue = false;
+                this.$router.push({ query: "" });
+            }
         },
         closeFilter() {
+            if (this.deferFilterSubmit) {
+                this.committedFilterData = this.getFilterData(this.formData);
+                this.isSubmittingFilter = true;
+                this.$emit("search", cloneDeep(this.formData));
+            }
             this.filterValue = false;
         },
         async remoteMethod(query) {

@@ -17,7 +17,7 @@
  -->
 <template>
     <div class="p-pvx-face-single p-pvx-face-single--modern" v-loading="loading" ref="singleRef">
-        <SingleNavigation type="face" @go-back="goBack" />
+        <SingleNavigation type="face" :post="post" @go-back="goBack" @updated="handleManagementUpdated" />
         <public-notice bckey="face_ac"></public-notice>
         <SingleHeader :post="post" type="face" :canEdit="canEdit" :topicText="topicText" />
 
@@ -34,9 +34,8 @@
                     <span class="m-pvx-single__eyebrow">DATA ANALYSIS</span>
                     <h2 class="m-pvx-single__data-title">{{ $t("pages.faceBody.detail.dataAnalysis") }}</h2>
                 </div>
-                <span class="u-pvx-single__section-tip">{{ $t("pages.faceBody.detail.analysisHint") }}</span>
             </div>
-            <facedata v-if="has_buy && facedata" :data="faceAllData" :lock="true" type="face" />
+            <FaceBodyDataViewer v-if="has_buy && facedata" type="face" :data="faceAllData" :lock="true" />
             <div class="m-pvx-single__buy-box" v-else>
                 <div class="m-pvx-type__buy-btn" @click="pay()" v-if="canBuy">
                     <div class="u-pvx-price">{{ priceText }}</div>
@@ -91,7 +90,7 @@ import {
     getFaceList,
     getSliders,
 } from "@/service/face";
-import facedata from "@jx3box/jx3box-facedat/src/Facedat.vue";
+import FaceBodyDataViewer from "@/components/common/face-body/FaceBodyDataViewer.vue";
 import CommonComment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import { buildFaceAllData } from "@/utils/data-parser";
 import authorItem from "@/components/common/face-body/Author";
@@ -104,7 +103,7 @@ import SingleRandomList from "@/components/common/face-body/SingleRandomList.vue
 export default {
     name: "single",
     components: {
-        PublicNotice, facedata, CommonComment, authorItem,
+        PublicNotice, FaceBodyDataViewer, CommonComment, authorItem,
         SingleNavigation, SingleHeader, SingleCarousel, SinglePaySection, SingleRandomList,
     },
     mixins: [pcSingleMixin],
@@ -134,6 +133,10 @@ export default {
     },
 
     methods: {
+        handleManagementUpdated(patch) {
+            this.post = { ...this.post, ...patch };
+            this.$store.commit("UPDATE_FACE_SINGLE", patch);
+        },
         getData() {
             if (!this.id) return;
             this.loading = true;

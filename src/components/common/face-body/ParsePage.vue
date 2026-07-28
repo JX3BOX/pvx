@@ -75,9 +75,9 @@
                         <p>{{ $t(`${localeBase}.resultDescription`) }}</p>
                     </div>
                 </div>
-                <component
-                    :is="parserComponent"
+                <FaceBodyDataViewer
                     class="m-pvx-fb-parse__preview"
+                    :type="type"
                     :data="data"
                     :lock="parserLocked"
                 />
@@ -87,9 +87,8 @@
 </template>
 
 <script>
-import Facedat from "@jx3box/jx3box-facedat/src/Facedat";
-import Bodydat from "@jx3box/jx3box-facedat/src/Bodydat.vue";
 import Upload from "@jx3box/jx3box-facedat/src/Upload";
+import FaceBodyDataViewer from "@/components/common/face-body/FaceBodyDataViewer.vue";
 import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
@@ -110,8 +109,7 @@ const GUIDE_URL = {
 export default {
     name: "FaceBodyParsePage",
     components: {
-        Facedat,
-        Bodydat,
+        FaceBodyDataViewer,
         Upload,
         PvxPageShell,
         PvxSurface,
@@ -142,9 +140,6 @@ export default {
         },
         guideUrl() {
             return GUIDE_URL[this.type];
-        },
-        parserComponent() {
-            return this.type === "face" ? "Facedat" : "Bodydat";
         },
         parserLocked() {
             return this.type === "face";
