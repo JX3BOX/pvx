@@ -45,6 +45,13 @@ export default {
         margin-top: 0;
     }
 
+    .slider-container,
+    .slider-container.is-negative {
+        .slider-runway .slide-bar {
+            background: @pvx-primary;
+        }
+    }
+
     .c-facedat-preivew {
         margin-top: @pvx-space-3;
         padding: @pvx-space-3 @pvx-space-2;

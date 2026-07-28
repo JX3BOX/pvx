@@ -52,6 +52,7 @@ export default {
                 rare: "图鉴百科类栏目",
                 merchants: "信息查询类栏目",
             },
+            nav: { groups: { share: "创意", rare: "图鉴", merchants: "信息" }, menu: "菜单" },
             menus: {
                 face: "捏脸数据", body: "体型数据", homeland: "家园蓝图",
                 adventure: "奇遇大全", pet: "宠物大全", horse: "坐骑大全", furniture: "家具大全",

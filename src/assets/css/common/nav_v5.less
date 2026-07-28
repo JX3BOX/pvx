@@ -29,6 +29,21 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
+
+            .u-btn-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                width: 100%;
+            }
+
+            .u-btn-label {
+                display: block;
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+                line-height: 1;
+            }
         }
     }
 }
@@ -169,11 +184,16 @@
                 box-sizing: border-box;
                 .u-nav-icon {
                     .size(40px);
+                    flex: 0 0 40px;
                 }
                 .u-nav-label {
                     display: block;
+                    flex: 1 1 auto;
+                    min-width: 0;
                     .x;
                     .fz(12px);
+                    line-height: 1.35;
+                    overflow-wrap: anywhere;
                     .bold(400);
                     color: #9f9f9f;
                     .ml(4px);

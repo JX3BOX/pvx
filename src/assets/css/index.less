@@ -1,3 +1,7 @@
+.m-main.m-index-main {
+    min-height: auto;
+}
+
 .p-index {
     .flex;
     padding: 40px 0 0;
@@ -9,12 +13,14 @@
     }
 
     .m-index-category {
-        .r(10px);
+        .r(32px);
         box-sizing: border-box;
         min-height: calc(100vh - 248px);
         width: calc(100% / 3);
         padding: 30px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(226, 232, 240, 0.72);
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04), 0 16px 40px rgba(15, 23, 42, 0.08);
 
         &.index0 {
             background: url("@{design_url}pvx/index0.svg") no-repeat bottom left;
@@ -56,6 +62,7 @@
 
                 box-sizing: border-box;
                 padding: 20px;
+                .r(10px);
                 border: 1px solid transparent;
                 transition: 0.3s ease-out;
 
@@ -72,8 +79,6 @@
                 }
 
                 &:hover {
-                    .r(10px);
-
                     .u-text {
                         color: #000;
                     }

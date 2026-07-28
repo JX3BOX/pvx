@@ -46,6 +46,7 @@ export default {
             "JX3BOX cung cấp các nội dung giải trí và tra cứu: kỳ ngộ, danh vọng, sách, đề thi, mặt, vóc dáng, thú cưng, nội thất, tọa kỵ, bản thiết kế gia viên và QQBot.",
         ui: {
             categories: { share: "Sáng tạo của người chơi", rare: "Cẩm nang và bộ sưu tập", merchants: "Công cụ và thông tin" },
+            nav: { groups: { share: "Sáng tạo", rare: "Bộ sưu tập", merchants: "Công cụ" }, menu: "Menu" },
             menus: {
                 face: "Dữ liệu khuôn mặt", body: "Dữ liệu vóc dáng", homeland: "Bản thiết kế gia viên",
                 adventure: "Danh sách kỳ ngộ", pet: "Thú cưng", horse: "Tọa kỵ", furniture: "Nội thất",

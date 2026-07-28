@@ -46,6 +46,7 @@ export default {
             "劍網3魔盒（JX3BOX）休閒欄目，提供奇遇、聲望、書籍、考試、捏臉、體型、寵物、家具、坐騎、家園藍圖與 QQRobot 等內容。",
         ui: {
             categories: { share: "玩家創作類欄目", rare: "圖鑑百科類欄目", merchants: "資訊查詢類欄目" },
+            nav: { groups: { share: "創意", rare: "圖鑑", merchants: "資訊" }, menu: "選單" },
             menus: {
                 face: "捏臉數據", body: "體型數據", homeland: "家園藍圖",
                 adventure: "奇遇大全", pet: "寵物大全", horse: "坐騎大全", furniture: "家具大全",

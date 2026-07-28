@@ -10,7 +10,7 @@
                 <div class="m-pvx-nav" v-if="clientMenus.length">
                     <div class="m-nav-group" :class="group.key" v-for="group in clientMenus" :key="group.key">
                         <div class="u-menu-title" v-if="group.menuTitle">
-                            {{ group.menuTitle }}
+                            {{ getGroupLabel(group) }}
                         </div>
                         <div class="m-nav-item-box">
                             <div class="m-nav-item" v-for="item in group.submenus" :key="item.key"
@@ -25,7 +25,7 @@
                                             class="u-icon-hover" />
                                     </div>
 
-                                    <span class="u-nav-label">{{ item.label }}</span>
+                                    <span class="u-nav-label">{{ getMenuLabel(item) }}</span>
                                 </a>
                             </div>
                         </div>
@@ -35,7 +35,7 @@
             <div class="u-btn" v-else @mouseenter="toRight">
                 <div class="u-btn-item">
                     <img class="u-icon" src="@/assets/img/nav/op.svg" svg-inline />
-                    <div>菜<br />单</div>
+                    <div class="u-btn-label">{{ $t("pages.index.ui.nav.menu") }}</div>
                 </div>
             </div>
         </div>
@@ -135,6 +135,15 @@ export default {
         },
     },
     methods: {
+        getLocalLabel(key, fallback) {
+            return this.$te(key) ? this.$t(key) : fallback;
+        },
+        getGroupLabel(group) {
+            return this.getLocalLabel(`pages.index.ui.nav.groups.${group.key}`, group.menuTitle);
+        },
+        getMenuLabel(item) {
+            return this.getLocalLabel(`pages.index.ui.menus.${item.key}`, item.label);
+        },
         toLeft() {
             this.navStatus = false;
         },

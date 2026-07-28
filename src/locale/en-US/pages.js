@@ -46,6 +46,7 @@ export default {
             "JX3BOX leisure hub for casual gameplay and data lookup, covering adventures, business, reputation, books, exams, face data, body data, pets, furniture, mounts, homeland blueprints and QQBot.",
         ui: {
             categories: { share: "Player Creations", rare: "Guides & Collections", merchants: "Tools & Information" },
+            nav: { groups: { share: "Create", rare: "Collections", merchants: "Tools" }, menu: "Menu" },
             menus: {
                 face: "Face Data", body: "Body Data", homeland: "Homeland Blueprints",
                 adventure: "Adventures", pet: "Pets", horse: "Mounts", furniture: "Furniture",

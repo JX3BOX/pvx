@@ -2,7 +2,7 @@
     <CommonHeader></CommonHeader>
     <Nav @statusChange="statusChange"></Nav>
     <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
-        <div class="m-main">
+        <div class="m-main m-index-main">
             <div class="p-index p-index--pvx">
                 <div class="m-index-category" v-for="(menu, index) in menus" :key="index" :class="'index' + index">
                     <div class="u-index-category-title">
