@@ -1,6 +1,6 @@
 <template>
     <div class="p-achievement-overview p-pvx-achievement-overview p-achievement-leap">
-        <PvxSurface v-if="!isLogin" class="m-achievement-state" padding="none">
+        <PvxSurface v-if="!isLogin" class="m-achievement-state is-auth-state" padding="none">
             <PvxEmptyState
                 :title="$t('pages.wiki.leap.ui.loginRequired')"
                 :description="$t('pages.wiki.leap.ui.loginDescription')"
@@ -9,7 +9,6 @@
                 <template #action>
                     <PvxActionButton :href="loginUrl">
                         {{ $t("pages.wiki.leap.ui.goLogin") }}
-                        <ArrowRight />
                     </PvxActionButton>
                 </template>
             </PvxEmptyState>

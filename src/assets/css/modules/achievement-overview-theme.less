@@ -241,6 +241,11 @@
             height: 30px;
         }
 
+        .c-pvx-empty-state__action svg {
+            width: 16px;
+            height: 16px;
+        }
+
         a,
         button {
             border-color: #8a6738;
@@ -250,6 +255,76 @@
             &:hover {
                 border-color: #6f4f28;
                 background: #6f4f28;
+            }
+        }
+    }
+
+    .m-achievement-state.is-auth-state {
+        display: flex;
+        width: 100%;
+        min-height: 0;
+        padding: 18px @pvx-space-4 @pvx-space-4;
+        border: 1px solid rgba(226, 211, 184, 0.34);
+        border-radius: @pvx-radius-panel;
+        background: rgba(249, 246, 238, 0.96);
+        box-shadow: 0 22px 48px rgba(0, 0, 0, 0.2);
+
+        > .c-pvx-empty-state {
+            width: 100%;
+            min-height: 320px;
+            padding: @pvx-space-5;
+            border: 1px solid rgba(151, 123, 83, 0.2);
+            border-radius: 14px;
+            color: #94836c;
+            background: rgba(255, 255, 255, 0.64);
+            box-shadow: 0 8px 22px rgba(66, 49, 28, 0.055);
+        }
+
+        .c-pvx-empty-state__icon {
+            margin-bottom: 4px;
+            color: #9a7442;
+
+            svg {
+                width: 34px;
+                height: 34px;
+            }
+        }
+
+        .c-pvx-empty-state__title {
+            color: #352b20;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .c-pvx-empty-state__description {
+            margin: 4px 0 0;
+            color: #94836c;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .c-pvx-empty-state__action {
+            margin-top: 10px;
+
+            a,
+            button {
+                min-height: 38px;
+                padding: 8px 14px;
+                border: 1px solid rgba(236, 207, 150, 0.52);
+                border-radius: 11px;
+                color: #332517;
+                background: linear-gradient(135deg, #ead29c, #c89e5b);
+                box-shadow: 0 7px 18px rgba(91, 62, 27, 0.22);
+                font-size: 13px;
+                font-weight: 650;
+                line-height: 20px;
+
+                &:hover {
+                    border-color: #f1d99f;
+                    background: linear-gradient(135deg, #f0dba9, #d2aa68);
+                    box-shadow: 0 10px 22px rgba(91, 62, 27, 0.28);
+                    transform: translateY(-1px);
+                }
             }
         }
     }
@@ -1378,6 +1453,17 @@
         .m-achievement-state,
         .m-achievement-state > div {
             min-height: 360px;
+        }
+
+        .m-achievement-state.is-auth-state {
+            min-height: 0;
+            padding: @pvx-space-3;
+            border-radius: 22px;
+
+            > .c-pvx-empty-state {
+                min-height: 270px;
+                padding: @pvx-space-4 @pvx-space-3;
+            }
         }
 
         .m-achievement-hero,

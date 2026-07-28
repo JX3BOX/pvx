@@ -750,7 +750,7 @@
             min-width: 0;
             flex-direction: column;
             align-items: center;
-            gap: @pvx-space-1;
+            gap: 0;
         }
 
         svg {
@@ -768,10 +768,14 @@
         }
 
         p {
-            margin: 0;
+            margin: 4px 0 0;
             font-size: 13px;
             line-height: 1.7;
             overflow-wrap: anywhere;
+        }
+
+        > div > .u-compare-action {
+            margin-top: 10px;
         }
 
         &.is-error svg,
