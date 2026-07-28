@@ -273,8 +273,12 @@ export default {
     }
 }
 
-.u-pvx-manage.is-loading {
-    cursor: wait;
-    opacity: 0.65;
+.u-pvx-manage {
+    cursor: pointer;
+
+    &.is-loading {
+        cursor: wait;
+        opacity: 0.65;
+    }
 }
 </style>
