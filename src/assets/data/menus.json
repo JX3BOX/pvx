@@ -81,19 +81,11 @@
                 "status": true
             },
             {
-                "path": "/pvx/codex/adventure",
-                "label": "奇遇珍卷",
+                "path": "/keju",
+                "label": "科举大全",
                 "icon": "el-icon-files",
-                "key": "treasure",
-                "menuKey": "codextreature",
-                "status": true
-            },
-            {
-                "path": "/pvx/codex/achievement",
-                "label": "资历宝典",
-                "icon": "el-icon-files",
-                "key": "seniority",
-                "menuKey": "codexachievement",
+                "key": "keju",
+                "menuKey": "exam",
                 "status": true
             },
             {
@@ -108,6 +100,22 @@
                 "label": "红尘侠影",
                 "icon": "el-icon-files",
                 "key": "partner",
+                "status": true
+            },
+            {
+                "path": "/pvx/codex/adventure",
+                "label": "奇遇珍卷",
+                "icon": "el-icon-files",
+                "key": "treasure",
+                "menuKey": "codextreature",
+                "status": true
+            },
+            {
+                "path": "/pvx/codex/achievement",
+                "label": "资历宝典",
+                "icon": "el-icon-files",
+                "key": "seniority",
+                "menuKey": "codexachievement",
                 "status": true
             }
         ]

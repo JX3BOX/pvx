@@ -40,26 +40,22 @@
                     :description="sectionDescription"
                     level="h2"
                 >
-                    <template v-if="search.type !== 1 && total" #action>
+                    <template v-if="total" #action>
                         <span class="u-result-count">{{ $t("pages.exam.ui.resultCount", { count: total }) }}</span>
                     </template>
                 </PvxSectionHeader>
 
-                <ImperialExamList v-if="search.type === 1" />
-
-                <template v-else>
-                    <template v-if="data.length">
-                        <QuestionList v-if="search.type === 2" :data="data" />
-                        <PaperList v-if="search.type === 3" :data="data" />
-                    </template>
-                    <PvxEmptyState
-                        v-else-if="!loading"
-                        class="m-pvx-exam__empty"
-                        illustrated
-                        :title="$t('pages.exam.ui.empty.title')"
-                        :description="$t('pages.exam.ui.empty.description')"
-                    />
+                <template v-if="data.length">
+                    <QuestionList v-if="search.type === 2" :data="data" />
+                    <PaperList v-if="search.type === 3" :data="data" />
                 </template>
+                <PvxEmptyState
+                    v-else-if="!loading"
+                    class="m-pvx-exam__empty"
+                    illustrated
+                    :title="$t('pages.exam.ui.empty.title')"
+                    :description="$t('pages.exam.ui.empty.description')"
+                />
 
                 <div v-if="[2, 3].includes(search.type) && data.length" class="m-pvx-exam__pagination">
                     <el-pagination
@@ -79,7 +75,6 @@
 <script>
 import { getExamPaperList, getExamQuestionList } from "@/service/exam.js";
 import PvxSearch from "@/components/PvxSearch.vue";
-import ImperialExamList from "@/components/exam/imperial_exam_list.vue";
 import PaperList from "@/components/exam/paper_list.vue";
 import QuestionList from "@/components/exam/question_list.vue";
 import PvxActionButton from "@/components/design/PvxActionButton.vue";
@@ -94,21 +89,19 @@ import { deleteNull } from "@/utils/index";
 import { EditPen, Reading } from "@element-plus/icons-vue";
 
 const EXAM_TAB_TYPES = {
-    keju: 1,
     question: 2,
     paper: 3,
 };
 const EXAM_TYPE_TABS = Object.fromEntries(Object.entries(EXAM_TAB_TYPES).map(([tab, type]) => [type, tab]));
 
 function getRouteExamType(route) {
-    return EXAM_TAB_TYPES[route.query.tab] || ([1, 2, 3].includes(~~route.params.type) ? ~~route.params.type : 1);
+    return EXAM_TAB_TYPES[route.query.tab] || ([2, 3].includes(~~route.params.type) ? ~~route.params.type : 2);
 }
 
 export default {
     name: "ExamList",
     components: {
         PvxSearch,
-        ImperialExamList,
         PaperList,
         QuestionList,
         PvxActionButton,
@@ -140,11 +133,6 @@ export default {
                         //     type: 0,
                         //     name: "全部",
                         // },
-                        {
-                            type: 1,
-                            name: this.$t("pages.exam.ui.types.imperial"),
-                            key: "keju",
-                        },
                         {
                             type: 2,
                             name: this.$t("pages.exam.ui.types.question"),
@@ -210,11 +198,11 @@ export default {
             return { ...this.query, ...this.search };
         },
         sectionTitle() {
-            const key = { 1: "imperial", 2: "question", 3: "paper" }[this.search.type] || "imperial";
+            const key = { 2: "question", 3: "paper" }[this.search.type] || "question";
             return this.$t(`pages.exam.ui.sections.${key}.title`);
         },
         sectionDescription() {
-            const key = { 1: "imperial", 2: "question", 3: "paper" }[this.search.type] || "imperial";
+            const key = { 2: "question", 3: "paper" }[this.search.type] || "question";
             return this.$t(`pages.exam.ui.sections.${key}.description`);
         },
     },
@@ -227,16 +215,10 @@ export default {
             });
         },
         "search.type"(type) {
-            if (type === 1) {
-                this.searchProps.splice(2, 1);
-                this.data = [];
-                this.total = 0;
-            } else {
-                this.searchProps[2] = {
-                    key: "title",
-                    name: this.$t("pages.exam.ui.filters.keyword"),
-                };
-            }
+            this.searchProps[2] = {
+                key: "title",
+                name: this.$t("pages.exam.ui.filters.keyword"),
+            };
             if (type === 2 || type === 3) {
                 const tags = this.tags;
                 const hasTag = this.searchProps[1].options.find((item) => item.key === "tag");

@@ -50,10 +50,22 @@ export default {
             menus: {
                 face: "Dữ liệu khuôn mặt", body: "Dữ liệu vóc dáng", homeland: "Bản thiết kế gia viên",
                 adventure: "Danh sách kỳ ngộ", pet: "Thú cưng", horse: "Tọa kỵ", furniture: "Nội thất",
-                reputation: "Danh vọng", book: "Sách", treasure: "Cuộn kỳ ngộ", seniority: "Cẩm nang thành tựu",
+                reputation: "Danh vọng", book: "Sách", keju: "Khoa cử", treasure: "Cuộn kỳ ngộ", seniority: "Cẩm nang thành tựu",
                 questsection: "Biên niên sử", partner: "Đồng hành", exam: "Cẩm nang thi", manufacture: "Trợ lý chế tạo",
                 price: "Xu hướng giá", gonggao: "Thông báo sự kiện",
             },
+        },
+    },
+    keju: {
+        title: "Khoa cử", keywords: "JX3 khoa cử,JX3BOX khoa cử", description: "Cẩm nang khoa cử JX3BOX.",
+        contribution: {
+            action: "Đóng góp câu hỏi thiếu", title: "Đóng góp câu hỏi còn thiếu",
+            notice: "Ngân hàng câu hỏi thường đã đầy đủ. Nội dung sẽ được gửi đến trung tâm phản hồi để quản trị viên xác minh trước khi thêm.",
+            contentLabel: "Nội dung câu hỏi", placeholder: "Điền câu hỏi, lựa chọn và đáp án đúng theo mẫu.",
+            tip: "Hãy giữ nguyên văn bản và thứ tự lựa chọn trong trò chơi nếu có thể.",
+            cancel: "Hủy", submit: "Gửi", loginTitle: "Cần đăng nhập",
+            loginRequired: "Vui lòng đăng nhập để đóng góp câu hỏi.", login: "Đăng nhập",
+            contentRequired: "Vui lòng hoàn thành mẫu câu hỏi.", success: "Đã gửi để quản trị viên xác minh.", failed: "Gửi thất bại. Vui lòng thử lại sau.",
         },
     },
     adventure: {

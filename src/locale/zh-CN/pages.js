@@ -56,10 +56,32 @@ export default {
             menus: {
                 face: "捏脸数据", body: "体型数据", homeland: "家园蓝图",
                 adventure: "奇遇大全", pet: "宠物大全", horse: "坐骑大全", furniture: "家具大全",
-                reputation: "声望大全", book: "书籍大全", treasure: "奇遇珍卷", seniority: "资历宝典",
+                reputation: "声望大全", book: "书籍大全", keju: "科举大全", treasure: "奇遇珍卷", seniority: "资历宝典",
                 questsection: "剑侠录", partner: "红尘侠影", exam: "考试大全", manufacture: "技艺助手",
                 price: "价格走势", gonggao: "活动告示",
             },
+        },
+    },
+
+    keju: {
+        title: "科举大全",
+        keywords: "剑网3科举大全,剑三科举,JX3BOX科举大全",
+        description: "剑网3魔盒（JX3BOX）科举大全。",
+        contribution: {
+            action: "缺失题目贡献",
+            title: "贡献缺失题目",
+            notice: "科举题库通常较为完整。提交后将进入反馈中心，由管理员核对确认后再录入题库。",
+            contentLabel: "题目内容",
+            placeholder: "请按照模板填写题目、选项和正确答案",
+            tip: "请尽量保留游戏内题目的原始文字与选项顺序，补充说明可以填写题目出处。",
+            cancel: "取消",
+            submit: "提交贡献",
+            loginTitle: "需要登录",
+            loginRequired: "提交缺失题目需要先登录魔盒账号。",
+            login: "前往登录",
+            contentRequired: "请先按照模板补充题目内容",
+            success: "提交成功，管理员核对后会录入题库",
+            failed: "提交失败，请稍后重试",
         },
     },
 

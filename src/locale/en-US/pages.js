@@ -50,10 +50,22 @@ export default {
             menus: {
                 face: "Face Data", body: "Body Data", homeland: "Homeland Blueprints",
                 adventure: "Adventures", pet: "Pets", horse: "Mounts", furniture: "Furniture",
-                reputation: "Reputations", book: "Books", treasure: "Adventure Scroll", seniority: "Achievement Guide",
+                reputation: "Reputations", book: "Books", keju: "Imperial Exam", treasure: "Adventure Scroll", seniority: "Achievement Guide",
                 questsection: "Story Archive", partner: "Companions", exam: "Exam Guide", manufacture: "Crafting Assistant",
                 price: "Price Trends", gonggao: "Event Bulletin",
             },
+        },
+    },
+    keju: {
+        title: "Imperial Exam", keywords: "JX3 imperial exam,JX3BOX imperial exam", description: "JX3BOX Imperial Exam guide.",
+        contribution: {
+            action: "Contribute missing question", title: "Contribute a missing question",
+            notice: "The question bank is usually complete. Your submission will be sent to Feedback for administrator review before it is added.",
+            contentLabel: "Question details", placeholder: "Follow the template and provide the question, choices, and correct answer.",
+            tip: "Keep the original in-game wording and choice order where possible. You may include the source under Notes.",
+            cancel: "Cancel", submit: "Submit", loginTitle: "Login required",
+            loginRequired: "Please log in to contribute a missing question.", login: "Log in",
+            contentRequired: "Please complete the question template first.", success: "Submitted for administrator review.", failed: "Submission failed. Please try again later.",
         },
     },
     adventure: {

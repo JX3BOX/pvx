@@ -57,6 +57,7 @@ export default {
             list: [],
             loading: false,
             requestToken: 0,
+            searchTimer: null,
         };
     },
     computed: {
@@ -77,6 +78,7 @@ export default {
     watch: {
         normalizedSearch(key) {
             const token = ++this.requestToken;
+            clearTimeout(this.searchTimer);
             if (key.length < 2) {
                 this.list = [];
                 this.total = 0;
@@ -84,23 +86,28 @@ export default {
                 return;
             }
 
-            this.loading = true;
-            getExamByKey({ key })
-                .then((res) => {
-                    if (token !== this.requestToken) return;
-                    this.list = res.data?.data || [];
-                    this.total = this.list.length;
-                })
-                .catch(() => {
-                    if (token !== this.requestToken) return;
-                    this.list = [];
-                    this.total = 0;
-                    this.$message.error(this.$t("pages.exam.ui.loadFailed"));
-                })
-                .finally(() => {
-                    if (token === this.requestToken) this.loading = false;
-                });
+            this.searchTimer = setTimeout(() => {
+                this.loading = true;
+                getExamByKey({ key })
+                    .then((res) => {
+                        if (token !== this.requestToken) return;
+                        this.list = res.data?.data || [];
+                        this.total = this.list.length;
+                    })
+                    .catch(() => {
+                        if (token !== this.requestToken) return;
+                        this.list = [];
+                        this.total = 0;
+                        this.$message.error(this.$t("pages.exam.ui.loadFailed"));
+                    })
+                    .finally(() => {
+                        if (token === this.requestToken) this.loading = false;
+                    });
+            }, 350);
         },
+    },
+    beforeUnmount() {
+        clearTimeout(this.searchTimer);
     },
     methods: {
         parseArray(value) {

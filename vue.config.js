@@ -69,6 +69,12 @@ const pages = {
         template: "public/index.html",
         filename: "exam/index.html",
     },
+    keju: {
+        title: "科举大全",
+        entry: "src/pages/keju/index.js",
+        template: "public/index.html",
+        filename: "keju/index.html",
+    },
     pvg: {
         title: "商贾奇才 - JX3BOX",
         entry: "src/pages/pvg/index.js",
