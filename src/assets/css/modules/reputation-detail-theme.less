@@ -1,0 +1,786 @@
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.c-pvx-modern-reputation-single-main,
+.c-pvx-modern-reputation-single-main .m-main {
+    background: @pvx-page-bg;
+}
+
+.c-pvx-modern-reputation-single-main .m-main {
+    min-height: calc(100vh - @header-height);
+    padding: 0;
+}
+
+.p-pvx-reputation-single--modern {
+    color: @pvx-text-primary;
+    background: @pvx-page-bg;
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .m-pvx-reputation-single-shell > div {
+        max-width: none;
+        padding: 30px;
+    }
+
+    .m-pvx-reputation-single-layout {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-5;
+    }
+
+    .m-pvx-reputation-navigation,
+    .m-pvx-reputation-header,
+    .m-pvx-reputation-overview,
+    .m-pvx-reputation-servant,
+    .m-pvx-reputation-map-section,
+    .m-pvx-reputation-rewards {
+        min-width: 0;
+        margin: 0;
+        border-color: fade(@pvx-border, 80%);
+        box-shadow: @pvx-shadow-xs;
+    }
+
+    .m-pvx-reputation-navigation {
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        padding: @pvx-space-3 @pvx-space-4;
+        gap: @pvx-space-3;
+
+        > a,
+        > button {
+            min-width: 96px;
+            min-height: 40px;
+            padding: 0 @pvx-space-3;
+            border-radius: @pvx-radius-control;
+            color: @pvx-text-regular;
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .c-admin-drop__button {
+            min-height: 40px;
+            border-radius: @pvx-radius-control;
+            background: @pvx-primary;
+        }
+    }
+
+    .m-pvx-reputation-header {
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr);
+        align-items: center;
+        padding: @pvx-space-5;
+        gap: @pvx-space-4;
+    }
+
+    .m-pvx-reputation-header__icon {
+        display: flex;
+        width: 76px;
+        height: 94px;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            display: block;
+            width: 68px;
+            height: 88px;
+            object-fit: contain;
+        }
+    }
+
+    .m-pvx-reputation-header__info {
+        min-width: 0;
+    }
+
+    .m-pvx-reputation-header__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: @pvx-space-1;
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-reputation-eyebrow {
+        color: @pvx-primary;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+    }
+
+    .u-pvx-reputation-type {
+        display: inline-flex;
+        min-height: 26px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border: 1px solid @pvx-border-focus;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-primary;
+        background: @pvx-primary-soft;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .u-pvx-reputation-heading {
+        margin: 0;
+        color: @pvx-text-primary;
+        font-size: 32px;
+        font-weight: 750;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .u-pvx-reputation-header-id {
+        display: block;
+        margin-top: 4px;
+        color: @pvx-text-muted;
+        font-size: 13px;
+    }
+
+    .m-pvx-reputation-guide-tip {
+        grid-column: 1 / -1;
+        padding-top: @pvx-space-3;
+        border-top: 1px solid @pvx-border-light;
+
+        .m-robot__pvx-tip {
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
+
+    .m-pvx-reputation-section-header {
+        margin-bottom: @pvx-space-5;
+
+        .c-pvx-section-header__icon {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+
+            svg {
+                width: 24px;
+                height: 24px;
+                color: @pvx-accent-yellow;
+            }
+        }
+    }
+
+    .m-pvx-reputation-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-reputation-meta {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        min-width: 0;
+        align-items: start;
+        padding: 12px @pvx-space-3;
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-small;
+        color: @pvx-text-regular;
+        background: @pvx-surface-muted;
+        font-size: 14px;
+        line-height: 1.7;
+        gap: @pvx-space-1;
+
+        &--description {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .u-pvx-reputation-meta__label {
+        color: @pvx-text-secondary;
+        font-weight: 600;
+    }
+
+    .u-pvx-reputation-meta__value {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .m-pvx-reputation-servant__content {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        min-width: 0;
+        align-items: start;
+        gap: @pvx-space-5;
+    }
+
+    .u-pvx-reputation-servant-image {
+        width: 180px;
+        overflow: hidden;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface-muted;
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+            min-height: 180px;
+            object-fit: cover;
+        }
+    }
+
+    .m-pvx-reputation-servant__info {
+        min-width: 0;
+
+        h3 {
+            margin: 0 0 @pvx-space-2;
+            color: @pvx-text-primary;
+            font-size: 20px;
+            line-height: 1.4;
+        }
+    }
+
+    .u-pvx-reputation-servant-desc {
+        margin-top: @pvx-space-2;
+        color: @pvx-text-regular;
+        font-size: 14px;
+        line-height: 1.85;
+        overflow-wrap: anywhere;
+    }
+
+    .m-pvx-reputation-blessing {
+        display: flex;
+        align-items: center;
+        margin-top: @pvx-space-4;
+        padding: @pvx-space-3;
+        flex-wrap: wrap;
+        border: 1px solid @pvx-border-focus;
+        border-radius: @pvx-radius-control;
+        color: @pvx-text-regular;
+        background: @pvx-primary-soft;
+        font-size: 14px;
+        line-height: 1.7;
+        gap: @pvx-space-2;
+
+        strong {
+            color: @pvx-primary;
+        }
+    }
+
+    .u-pvx-reputation-blessing__label {
+        display: inline-flex;
+        min-height: 26px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-text-inverse;
+        background: @pvx-primary;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .m-pvx-reputation-map-frame {
+        width: 100%;
+        min-width: 0;
+        height: 420px;
+        overflow: hidden;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface-muted;
+
+        .m-pvx-reputation-map,
+        .m-pvx-reputation-map > div,
+        .c-map,
+        .c-map__wrapper,
+        .c-map__inner {
+            width: 100% !important;
+            max-width: 100%;
+            height: 100% !important;
+        }
+
+        .c-map__inner {
+            border: 0;
+        }
+    }
+
+    .m-pvx-reputation-rewards__content {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+        min-width: 0;
+        align-items: start;
+        gap: @pvx-space-4;
+    }
+
+    .m-pvx-reputation-stage-list {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-reputation-stage {
+        .pvx-focus-ring();
+        display: grid;
+        width: 100%;
+        min-width: 0;
+        padding: @pvx-space-3;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-control;
+        color: @pvx-text-regular;
+        background: @pvx-surface;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition:
+            border-color @pvx-duration-fast @pvx-ease-standard,
+            background-color @pvx-duration-fast @pvx-ease-standard,
+            box-shadow @pvx-duration-fast @pvx-ease-standard;
+        gap: @pvx-space-1;
+
+        &:hover,
+        &.is-active {
+            border-color: @pvx-border-focus;
+            background: @pvx-primary-soft;
+        }
+
+        &.is-active {
+            box-shadow: @pvx-shadow-focus;
+        }
+    }
+
+    .u-pvx-reputation-stage__range {
+        display: flex;
+        align-items: center;
+        color: @pvx-text-primary;
+        font-size: 15px;
+        font-weight: 700;
+        gap: @pvx-space-1;
+
+        svg {
+            width: 14px;
+            height: 14px;
+            color: @pvx-primary;
+        }
+    }
+
+    .u-pvx-reputation-stage__method {
+        color: @pvx-text-secondary;
+        font-size: 13px;
+        line-height: 1.7;
+
+        b {
+            margin-right: @pvx-space-1;
+            color: @pvx-text-regular;
+        }
+    }
+
+    .m-pvx-reputation-stage-reward {
+        position: sticky;
+        top: calc(@header-height + @pvx-space-4);
+        min-width: 0;
+        min-height: 240px;
+        padding: @pvx-space-4;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface-muted;
+    }
+
+    .m-pvx-reputation-stage-reward__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: @pvx-space-3;
+        gap: @pvx-space-2;
+
+        h3 {
+            margin: 0;
+            color: @pvx-text-primary;
+            font-size: 16px;
+        }
+    }
+
+    .m-pvx-reputation-page-list {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .u-pvx-reputation-page {
+        .pvx-focus-ring();
+        display: inline-flex;
+        width: 26px;
+        height: 26px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: 1px solid @pvx-border;
+        border-radius: 8px;
+        color: @pvx-text-secondary;
+        background: @pvx-surface;
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+
+        &:hover,
+        &.is-active {
+            border-color: @pvx-primary;
+            color: @pvx-text-inverse;
+            background: @pvx-primary;
+        }
+    }
+
+    .m-pvx-reputation-reward-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 40px);
+        gap: @pvx-space-1;
+
+        .u-item-icon,
+        .u-item-icon__img,
+        .u-item-icon__quality,
+        .u-item-icon__quest {
+            border-radius: 6px;
+        }
+    }
+
+    .u-pvx-reputation-no-reward {
+        display: flex;
+        min-height: 150px;
+        align-items: center;
+        justify-content: center;
+        color: @pvx-text-muted;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .m-pvx-reputation-community {
+        display: grid;
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-auto-flow: row;
+        gap: @pvx-space-5;
+
+        > div {
+            width: 100%;
+            min-width: 0;
+            grid-column: 1 / -1 !important;
+            margin-top: 0 !important;
+        }
+
+        > .m-thx,
+        > .c-wiki-comments,
+        > .m-wiki-post-empty {
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid fade(@pvx-border, 80%);
+            border-radius: @pvx-radius-panel;
+            background: @pvx-surface;
+            box-shadow: @pvx-shadow-xs;
+        }
+
+        > .m-wiki-post-empty {
+            padding: @pvx-space-5;
+            color: @pvx-text-secondary;
+            letter-spacing: 0;
+            background: @pvx-surface;
+        }
+
+        .m-wiki-post-panel {
+            width: 100%;
+            overflow: visible;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+
+            > .c-wiki-panel {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 0;
+                overflow: hidden;
+                border: 1px solid fade(@pvx-border, 80%);
+                border-radius: @pvx-radius-panel;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-xs;
+            }
+
+            > .c-wiki-panel + .c-wiki-panel {
+                margin-top: @pvx-space-5;
+            }
+        }
+
+        .c-wiki-panel {
+            border: 0;
+            box-shadow: none;
+
+            > .m-panel-head {
+                display: flex;
+                min-height: 64px;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px @pvx-space-5;
+                gap: @pvx-space-3;
+                border-bottom: 1px solid @pvx-border-light;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-body {
+                padding: @pvx-space-5;
+                color: @pvx-text-regular;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-head > .m-panel-title {
+                display: flex;
+                min-width: 0;
+                align-items: center;
+                flex-wrap: wrap;
+                padding: 0;
+                gap: @pvx-space-1;
+                color: @pvx-text-primary;
+                font-weight: 700;
+
+                .u-icon {
+                    display: inline-flex;
+                    width: 32px;
+                    height: 32px;
+                    align-items: center;
+                    justify-content: center;
+                    flex: 0 0 32px;
+                    margin: 0;
+                    padding: 7px;
+                    border-radius: 10px;
+                    color: @pvx-primary;
+                    fill: @pvx-primary;
+                    background: @pvx-primary-soft;
+                }
+            }
+
+            > .m-panel-head > .m-panel-actions {
+                position: static;
+                display: flex;
+                align-items: center;
+                margin-left: auto;
+                flex: none;
+                gap: @pvx-space-2;
+                transform: none;
+            }
+
+            .u-btn--link {
+                min-height: 40px;
+                border-color: @pvx-primary;
+                border-radius: @pvx-radius-control;
+                background: @pvx-primary;
+            }
+        }
+
+        > .m-thx {
+            padding: @pvx-space-3;
+        }
+    }
+}
+
+html:lang(en),
+html:lang(vi) {
+    .p-pvx-reputation-single--modern {
+        .u-pvx-reputation-meta {
+            grid-template-columns: minmax(0, 1fr);
+            align-content: start;
+        }
+
+        .u-pvx-reputation-meta__label,
+        .u-pvx-reputation-meta__value {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+    }
+}
+
+@media screen and (max-width: 1180px) {
+    .p-pvx-reputation-single--modern {
+        .m-pvx-reputation-meta-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .m-pvx-reputation-rewards__content {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .m-pvx-reputation-stage-reward {
+            position: static;
+            min-height: 180px;
+        }
+    }
+}
+
+@media screen and (max-width: @ipad-y) {
+    .p-pvx-reputation-single--modern {
+        .m-pvx-reputation-single-shell > div {
+            padding: 20px;
+        }
+
+        .m-pvx-reputation-guide-tip {
+            display: none;
+        }
+
+        .m-pvx-reputation-map-frame {
+            height: 360px;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-pvx-reputation-single--modern {
+        .m-pvx-reputation-single-shell > div {
+            padding: 20px;
+        }
+
+        .m-pvx-reputation-single-layout {
+            gap: @pvx-space-4;
+        }
+
+        .m-pvx-reputation-navigation,
+        .m-pvx-reputation-header,
+        .m-pvx-reputation-overview,
+        .m-pvx-reputation-servant,
+        .m-pvx-reputation-map-section,
+        .m-pvx-reputation-rewards,
+        .m-pvx-reputation-community .m-wiki-post-panel > .c-wiki-panel,
+        .m-pvx-reputation-community > .m-thx,
+        .m-pvx-reputation-community > .c-wiki-comments,
+        .m-pvx-reputation-community > .m-wiki-post-empty {
+            border-radius: @pvx-radius-card;
+        }
+
+        .m-pvx-reputation-navigation {
+            min-height: 56px;
+            padding: @pvx-space-2;
+
+            > button {
+                min-width: 0;
+                padding: 0 @pvx-space-2;
+                font-size: 13px;
+            }
+        }
+
+        .m-pvx-reputation-header {
+            grid-template-columns: 56px minmax(0, 1fr);
+            padding: @pvx-space-3;
+            gap: @pvx-space-3;
+        }
+
+        .m-pvx-reputation-header__icon {
+            width: 56px;
+            height: 72px;
+
+            img {
+                width: 52px;
+                height: 68px;
+            }
+        }
+
+        .u-pvx-reputation-heading {
+            font-size: 25px;
+        }
+
+        .m-pvx-reputation-overview,
+        .m-pvx-reputation-servant,
+        .m-pvx-reputation-map-section,
+        .m-pvx-reputation-rewards {
+            padding: @pvx-space-3;
+        }
+
+        .m-pvx-reputation-section-header {
+            margin-bottom: @pvx-space-3;
+
+            .c-pvx-section-header__icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        .m-pvx-reputation-meta-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .u-pvx-reputation-meta--description {
+            grid-column: 1;
+        }
+
+        .m-pvx-reputation-servant__content {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .u-pvx-reputation-servant-image {
+            width: min(220px, 100%);
+            justify-self: center;
+        }
+
+        .m-pvx-reputation-map-frame {
+            height: 300px;
+            border-radius: @pvx-radius-control;
+        }
+
+        .m-pvx-reputation-stage-list {
+            display: grid;
+            margin: 0 -@pvx-space-3;
+            padding: 0 @pvx-space-3 @pvx-space-1;
+            grid-auto-columns: minmax(250px, 88%);
+            grid-auto-flow: column;
+            grid-template-columns: none;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            scroll-snap-type: inline proximity;
+            scrollbar-width: thin;
+        }
+
+        .u-pvx-reputation-stage {
+            padding: @pvx-space-2;
+            scroll-snap-align: start;
+        }
+
+        .m-pvx-reputation-stage-reward {
+            min-height: 0;
+            padding: @pvx-space-3;
+            border-radius: @pvx-radius-control;
+        }
+
+        .m-pvx-reputation-stage-reward__header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .m-pvx-reputation-community {
+            gap: @pvx-space-4;
+
+            .m-wiki-post-panel > .c-wiki-panel + .c-wiki-panel {
+                margin-top: @pvx-space-4;
+            }
+
+            .c-wiki-panel {
+                > .m-panel-body {
+                    padding: @pvx-space-3;
+                }
+
+                > .m-panel-head {
+                    min-height: 64px;
+                    padding: @pvx-space-1 @pvx-space-3;
+                    flex-wrap: wrap;
+                }
+            }
+
+            > .m-thx,
+            > .m-wiki-post-empty {
+                padding: @pvx-space-3;
+            }
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .p-pvx-reputation-single--modern * {
+        scroll-behavior: auto !important;
+    }
+}

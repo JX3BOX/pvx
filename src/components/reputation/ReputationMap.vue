@@ -31,6 +31,10 @@ export default {
             type: Array,
             required: true,
         },
+        localized: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         Jx3boxMap,
@@ -47,11 +51,13 @@ export default {
                 let mapId = data.mapId;
                 if (!result[mapId]) result[mapId] = [];
                 const coor = data.guides;
+                const kind = coor.kind || this.mapText("npc", "NPC");
+                const coordinate = this.mapText("coordinate", "坐标");
                 result[mapId].push({
                     // title: this.name,
                     content: `
-                      ${coor.kind || "NPC"}：${coor.npcName}
-                      <br /> 坐标：(${coor.positions[0]},${coor.positions[1]},${coor.positions[2]})`,
+                      ${kind}：${coor.npcName}
+                      <br /> ${coordinate}：(${coor.positions[0]},${coor.positions[1]},${coor.positions[2]})`,
                     x: coor.positions[0],
                     y: coor.positions[1],
                     z: coor.positions[2],
@@ -61,6 +67,9 @@ export default {
         },
     },
     methods: {
+        mapText(key, fallback) {
+            return this.localized ? this.$t(`pages.reputation.single.ui.mapLabels.${key}`) : fallback;
+        },
         handleResize(size) {
             this.height = size[1] + "px";
         },

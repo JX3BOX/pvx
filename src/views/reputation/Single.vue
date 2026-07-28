@@ -75,7 +75,7 @@ export default {
             return this.reputation.RewardItems;
         },
         showPath() {
-            return this.reputation.gainList && this.reputation.gainList.length;
+            return Boolean(this.reputation.gainList?.length);
         },
     },
     methods: {

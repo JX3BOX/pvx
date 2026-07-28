@@ -1,15 +1,25 @@
 <template>
-    <div class="m-pvx-reputation-item" @click="go(item.dwForceID)" v-if="!item.bHide">
+    <article
+        v-if="!item.bHide"
+        class="m-pvx-reputation-item"
+        :class="{ 'm-pvx-reputation-item--modern': variant === 'modern' }"
+        role="link"
+        tabindex="0"
+        @click="go(item.dwForceID)"
+        @keydown.enter="go(item.dwForceID)"
+        @keydown.space.prevent="go(item.dwForceID)"
+    >
         <div class="u-pvx-reputation-icon">
             <img :src="getReputationIcon(item.szIconPath)" @error="replaceByDefault" />
         </div>
         <div class="m-pvx-reputation-name">
             <div class="u-pvx-reputation-name">{{ item.szName }}</div>
-            <div class="u-pvx-reputation-progress">
+            <div v-if="variant === 'modern'" class="u-pvx-reputation-id">ID: {{ item.dwForceID }}</div>
+            <div v-else class="u-pvx-reputation-progress">
                 <div class="u-pvx-reputation-progress-value"></div>
             </div>
         </div>
-    </div>
+    </article>
 </template>
 
 <script>
@@ -21,6 +31,11 @@ export default {
         item: {
             type: Object,
             required: true,
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+            validator: (value) => ["legacy", "modern"].includes(value),
         },
     },
     methods: {

@@ -13,17 +13,28 @@ export function loadReputationList(client, per = 50) {
             return getMenus({ client }).then((res) => {
                 const list = res.data.dlc || [];
                 const arr = Object.keys(maps)
-                    .map((key) => `${key}(${maps[key].level}级)`)
+                    .map((key) => ({
+                        mapName: key,
+                        level: maps[key].level,
+                    }))
                     .reverse();
                 const versions = list.map((item, i) => ({
                     value: item.nDlcID,
                     total: item.total,
-                    label: arr[i],
+                    mapName: arr[i]?.mapName || "",
+                    level: arr[i]?.level,
+                    label: arr[i]?.mapName
+                        ? `${arr[i].mapName}(${arr[i].level}级)`
+                        : String(item.nDlcID),
                 }));
                 const reversedVersions = versions.reverse();
 
                 const promiseAll = reversedVersions.map((item) =>
-                    getList({ dlc: item.value, ...params })
+                    getList({
+                        ...params,
+                        dlc: item.value,
+                        per: Math.max(per, Number(item.total) || 0),
+                    })
                 );
                 return Promise.all(promiseAll).then((res) => {
                     const allList = res.map((item) => item.data.list);
