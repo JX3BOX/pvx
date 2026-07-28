@@ -720,10 +720,63 @@ export default {
         title: "坐骑大全",
         keywords: "剑网3坐骑大全,剑三坐骑大全,JX3BOX坐骑大全,坐骑列表,坐骑获取",
         description: "剑网3魔盒（JX3BOX）坐骑大全，提供坐骑信息与获取参考。",
+        ui: {
+            types: {
+                all: "全部", normal: "普通坐骑", fun: "奇趣坐骑", gear: "马具",
+                headgear: "头饰", saddle: "鞍饰", feet: "足饰", ornament: "马饰",
+            },
+            rideModes: { solo: "单骑" },
+            filters: { feed: "喂食饲料", attr: "属性", keyword: "坐骑名称" },
+            views: { list: "列表", card: "卡片" },
+            viewMode: "展示方式",
+            resultCount: "共 {count} 项",
+            columns: {
+                name: "名称", type: "类型", rideMode: "骑乘", quality: "品质等级",
+                speed: "跑速", feed: "喂食饲料", source: "获取方式", attributes: "属性",
+            },
+            attributeLevel: "{level}级",
+            imageAlt: "{name} - 剑网3坐骑",
+            actions: { viewAll: "查看全部", loadMore: "加载更多" },
+            empty: { title: "没有找到相关坐骑", description: "请尝试更换关键词或调整筛选条件" },
+            broadcast: {
+                title: "抓马播报", serverPlaceholder: "请选择服务器",
+                diluRefreshed: "本周的卢已刷新", diluPending: "本周的卢尚未刷新",
+                chituRefreshed: "本CD赤兔已刷新", chituPending: "本CD赤兔尚未刷新",
+                noReports: "{server} 暂无播报", coordinate: "坐标",
+            },
+            search: {
+                close: "确定", reset: "重置", select: "请选择", inputField: "请输入{name}",
+                selectField: "请选择{name}", searchPlaceholder: "输入{name}搜索",
+            },
+        },
         single: {
             title: "坐骑详情",
             keywords: "剑网3坐骑详情,剑三坐骑详情,JX3BOX坐骑",
             description: "剑网3魔盒（JX3BOX）坐骑详情页，查看单个坐骑的相关信息。",
+            ui: {
+                typeName: "坐骑",
+                guideLabel: "坐骑图鉴",
+                emptyValue: "无",
+                actions: { back: "返回列表", item: "物品信息" },
+                fields: { id: "编号", quality: "品质", speed: "跑速", feed: "饲料" },
+                robot: {
+                    quickGuide: "添加QQ机器人，快速获取攻略", copySuccess: "复制成功", replyPrefix: "回复",
+                    replySuffix: "即可快速获取一图流攻略！", copyQq: "复制QQ机器人账号", copyCommand: "复制攻略指令",
+                },
+                sections: {
+                    basicAttrs: "基础属性", magicAttrs: "特殊属性", similar: "同类坐骑",
+                    similarDescription: "浏览名称或系列相近的其他坐骑", map: "捕获地图",
+                    mapDescription: "查看坐骑相关刷新地图与坐标",
+                },
+                map: { youngHorse: "马驹·{name}", coordinate: "坐标" },
+                empty: { title: "没有找到坐骑信息", description: "请返回列表重新选择坐骑" },
+                wiki: {
+                    guideTitle: "{name}攻略", improveGuide: "完善{name}攻略",
+                    compatibleLead: "暂无缘起攻略，以下为重制攻略，仅作参考，", contributeRevision: "参与修订",
+                    compatibleTail: "。", revisionLead: "本次修订由", submittedAt: "提交于",
+                    emptyLead: "暂无攻略，我要", completeGuide: "完善攻略",
+                },
+            },
         },
     },
 

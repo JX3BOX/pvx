@@ -398,10 +398,61 @@ export default {
         title: "Danh sách tọa kỵ",
         keywords: "JX3 mount list,JX3BOX",
         description: "Danh sách tọa kỵ và thông tin chi tiết.",
+        ui: {
+            types: {
+                all: "Tất cả", normal: "Tọa kỵ thường", fun: "Tọa kỵ đặc biệt", gear: "Yên cương",
+                headgear: "Trang sức đầu", saddle: "Trang sức yên", feet: "Trang sức chân", ornament: "Trang sức tọa kỵ",
+            },
+            rideModes: { solo: "Cưỡi đơn" },
+            filters: { feed: "Thức ăn", attr: "Thuộc tính", keyword: "Tên tọa kỵ" },
+            views: { list: "Danh sách", card: "Thẻ" },
+            viewMode: "Kiểu hiển thị",
+            resultCount: "{count} mục",
+            columns: {
+                name: "Tên", type: "Loại", rideMode: "Kiểu cưỡi", quality: "Phẩm chất",
+                speed: "Tốc độ", feed: "Thức ăn", source: "Cách nhận", attributes: "Thuộc tính",
+            },
+            attributeLevel: "Cấp {level}",
+            imageAlt: "{name} - tọa kỵ JX3",
+            actions: { viewAll: "Xem tất cả", loadMore: "Tải thêm" },
+            empty: { title: "Không tìm thấy tọa kỵ", description: "Hãy thử từ khóa khác hoặc điều chỉnh bộ lọc" },
+            broadcast: {
+                title: "Tin bắt ngựa", serverPlaceholder: "Chọn máy chủ",
+                diluRefreshed: "Đích Lô đã xuất hiện trong tuần này", diluPending: "Đích Lô chưa xuất hiện trong tuần này",
+                chituRefreshed: "Xích Thố đã xuất hiện trong chu kỳ này", chituPending: "Xích Thố chưa xuất hiện trong chu kỳ này",
+                noReports: "Chưa có tin cho {server}", coordinate: "Tọa độ",
+            },
+            search: {
+                close: "Áp dụng", reset: "Đặt lại", select: "Chọn", inputField: "Nhập {name}",
+                selectField: "Chọn {name}", searchPlaceholder: "Tìm theo {name}",
+            },
+        },
         single: {
             title: "Chi tiết tọa kỵ",
             keywords: "mount detail,JX3BOX",
             description: "Trang chi tiết tọa kỵ.",
+            ui: {
+                typeName: "Tọa kỵ", guideLabel: "BÁCH KHOA TỌA KỴ", emptyValue: "Không có",
+                actions: { back: "Về danh sách", item: "Thông tin vật phẩm" },
+                fields: { id: "ID", quality: "Phẩm chất", speed: "Tốc độ", feed: "Thức ăn" },
+                robot: {
+                    quickGuide: "Thêm bot QQ để nhận hướng dẫn nhanh", copySuccess: "Đã sao chép", replyPrefix: "Trả lời",
+                    replySuffix: "để nhận hướng dẫn hình ảnh.", copyQq: "Sao chép tài khoản bot QQ", copyCommand: "Sao chép lệnh hướng dẫn",
+                },
+                sections: {
+                    basicAttrs: "Thuộc tính cơ bản", magicAttrs: "Thuộc tính đặc biệt", similar: "Tọa kỵ tương tự",
+                    similarDescription: "Xem các tọa kỵ cùng tên hoặc cùng dòng", map: "Bản đồ bắt",
+                    mapDescription: "Xem bản đồ xuất hiện và tọa độ liên quan",
+                },
+                map: { youngHorse: "Ngựa con · {name}", coordinate: "Tọa độ" },
+                empty: { title: "Không tìm thấy thông tin tọa kỵ", description: "Quay lại danh sách và chọn tọa kỵ khác" },
+                wiki: {
+                    guideTitle: "Hướng dẫn {name}", improveGuide: "Cải thiện hướng dẫn {name}",
+                    compatibleLead: "Chưa có hướng dẫn Origin; hướng dẫn Standard sau chỉ để tham khảo. ",
+                    contributeRevision: "Tham gia chỉnh sửa", compatibleTail: "", revisionLead: "Bản sửa đổi được gửi bởi",
+                    submittedAt: "Gửi lúc", emptyLead: "Chưa có hướng dẫn. ", completeGuide: "Viết hướng dẫn",
+                },
+            },
         },
     },
     wiki: {

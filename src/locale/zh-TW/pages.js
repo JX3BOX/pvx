@@ -393,10 +393,61 @@ export default {
         title: "坐騎大全",
         keywords: "劍網3坐騎大全,坐騎列表,JX3BOX",
         description: "坐騎大全，提供坐騎資訊。",
+        ui: {
+            types: {
+                all: "全部", normal: "普通坐騎", fun: "奇趣坐騎", gear: "馬具",
+                headgear: "頭飾", saddle: "鞍飾", feet: "足飾", ornament: "馬飾",
+            },
+            rideModes: { solo: "單騎" },
+            filters: { feed: "餵食飼料", attr: "屬性", keyword: "坐騎名稱" },
+            views: { list: "列表", card: "卡片" },
+            viewMode: "顯示方式",
+            resultCount: "共 {count} 項",
+            columns: {
+                name: "名稱", type: "類型", rideMode: "騎乘", quality: "品質等級",
+                speed: "跑速", feed: "餵食飼料", source: "取得方式", attributes: "屬性",
+            },
+            attributeLevel: "{level}級",
+            imageAlt: "{name} - 劍網3坐騎",
+            actions: { viewAll: "查看全部", loadMore: "載入更多" },
+            empty: { title: "沒有找到相關坐騎", description: "請嘗試更換關鍵字或調整篩選條件" },
+            broadcast: {
+                title: "抓馬播報", serverPlaceholder: "請選擇伺服器",
+                diluRefreshed: "本週的盧已刷新", diluPending: "本週的盧尚未刷新",
+                chituRefreshed: "本CD赤兔已刷新", chituPending: "本CD赤兔尚未刷新",
+                noReports: "{server} 暫無播報", coordinate: "座標",
+            },
+            search: {
+                close: "確定", reset: "重設", select: "請選擇", inputField: "請輸入{name}",
+                selectField: "請選擇{name}", searchPlaceholder: "輸入{name}搜尋",
+            },
+        },
         single: {
             title: "坐騎詳情",
             keywords: "坐騎詳情,JX3BOX",
             description: "坐騎詳情頁。",
+            ui: {
+                typeName: "坐騎", guideLabel: "坐騎圖鑑", emptyValue: "無",
+                actions: { back: "返回列表", item: "物品資訊" },
+                fields: { id: "編號", quality: "品質", speed: "跑速", feed: "飼料" },
+                robot: {
+                    quickGuide: "新增QQ機器人，快速取得攻略", copySuccess: "複製成功", replyPrefix: "回覆",
+                    replySuffix: "即可快速取得一圖流攻略！", copyQq: "複製QQ機器人帳號", copyCommand: "複製攻略指令",
+                },
+                sections: {
+                    basicAttrs: "基礎屬性", magicAttrs: "特殊屬性", similar: "同類坐騎",
+                    similarDescription: "瀏覽名稱或系列相近的其他坐騎", map: "捕獲地圖",
+                    mapDescription: "查看坐騎相關刷新地圖與座標",
+                },
+                map: { youngHorse: "馬駒·{name}", coordinate: "座標" },
+                empty: { title: "沒有找到坐騎資訊", description: "請返回列表重新選擇坐騎" },
+                wiki: {
+                    guideTitle: "{name}攻略", improveGuide: "完善{name}攻略",
+                    compatibleLead: "暫無緣起攻略，以下為重製攻略，僅供參考，", contributeRevision: "參與修訂",
+                    compatibleTail: "。", revisionLead: "本次修訂由", submittedAt: "提交於",
+                    emptyLead: "暫無攻略，我要", completeGuide: "完善攻略",
+                },
+            },
         },
     },
     wiki: {

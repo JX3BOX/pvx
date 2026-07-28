@@ -401,10 +401,61 @@ export default {
         title: "Mount List",
         keywords: "JX3 mount list,JX3 horse list,JX3BOX",
         description: "Mount list with details and references.",
+        ui: {
+            types: {
+                all: "All", normal: "Standard", fun: "Novelty", gear: "Tack",
+                headgear: "Headpiece", saddle: "Saddle ornament", feet: "Leg ornament", ornament: "Mount ornament",
+            },
+            rideModes: { solo: "Solo" },
+            filters: { feed: "Feed", attr: "Attributes", keyword: "Mount name" },
+            views: { list: "List", card: "Cards" },
+            viewMode: "View mode",
+            resultCount: "{count} items",
+            columns: {
+                name: "Name", type: "Type", rideMode: "Riding", quality: "Quality",
+                speed: "Speed", feed: "Feed", source: "Source", attributes: "Attributes",
+            },
+            attributeLevel: "Lv. {level}",
+            imageAlt: "{name} - JX3 mount",
+            actions: { viewAll: "View all", loadMore: "Load more" },
+            empty: { title: "No mounts found", description: "Try another keyword or adjust the filters" },
+            broadcast: {
+                title: "Horse Reports", serverPlaceholder: "Select a server",
+                diluRefreshed: "Dilu has spawned this week", diluPending: "Dilu has not spawned this week",
+                chituRefreshed: "Chitu has spawned this cycle", chituPending: "Chitu has not spawned this cycle",
+                noReports: "No reports for {server}", coordinate: "Coordinates",
+            },
+            search: {
+                close: "Apply", reset: "Reset", select: "Select", inputField: "Enter {name}",
+                selectField: "Select {name}", searchPlaceholder: "Search by {name}",
+            },
+        },
         single: {
             title: "Mount Detail",
             keywords: "JX3 mount detail,JX3BOX",
             description: "Single mount detail page.",
+            ui: {
+                typeName: "Mount", guideLabel: "MOUNT CODEX", emptyValue: "None",
+                actions: { back: "Back to list", item: "Item details" },
+                fields: { id: "ID", quality: "Quality", speed: "Speed", feed: "Feed" },
+                robot: {
+                    quickGuide: "Add the QQ bot for a quick guide", copySuccess: "Copied", replyPrefix: "Reply with",
+                    replySuffix: "to receive the visual guide.", copyQq: "Copy QQ bot account", copyCommand: "Copy guide command",
+                },
+                sections: {
+                    basicAttrs: "Base attributes", magicAttrs: "Special attributes", similar: "Similar mounts",
+                    similarDescription: "Browse mounts from the same or a related series", map: "Capture maps",
+                    mapDescription: "View related spawn maps and coordinates",
+                },
+                map: { youngHorse: "Foal · {name}", coordinate: "Coordinates" },
+                empty: { title: "Mount information not found", description: "Return to the list and choose another mount" },
+                wiki: {
+                    guideTitle: "{name} Guide", improveGuide: "Improve the {name} guide",
+                    compatibleLead: "No Origin guide is available. The following Standard guide is for reference only. ",
+                    contributeRevision: "Contribute a revision", compatibleTail: "", revisionLead: "This revision was submitted by",
+                    submittedAt: "Submitted at", emptyLead: "No guide yet. ", completeGuide: "Write a guide",
+                },
+            },
         },
     },
     wiki: {

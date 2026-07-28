@@ -19,7 +19,12 @@
                 :key="pet.Index"
             >
                 <template #reference>
-                    <router-link class="u-fetter" :to="'/' + pet.Index">
+                    <router-link
+                        class="u-fetter"
+                        :class="{ 'is-current': pet.Index == id }"
+                        :aria-current="pet.Index == id ? 'page' : undefined"
+                        :to="'/' + pet.Index"
+                    >
                         <i class="u-fetter-icon" :class="['u-quality--' + pet.Quality]">
                             <img :src="iconLink(pet.IconID)" />
                         </i>

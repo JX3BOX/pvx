@@ -1,0 +1,668 @@
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
+
+.c-pvx-modern-horse-single-main,
+.c-pvx-modern-horse-single-main .m-main {
+    background: @pvx-page-bg;
+}
+
+.c-pvx-modern-horse-single-main .m-main {
+    min-height: calc(100vh - @header-height);
+    padding: 0;
+}
+
+.p-pvx-horse-single--modern {
+    color: @pvx-text-primary;
+    background: @pvx-page-bg;
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .m-pvx-horse-single-shell > div {
+        max-width: none;
+    }
+
+    .m-pvx-horse-single-layout {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-5;
+    }
+
+    .m-pvx-horse-navigation,
+    .m-pvx-horse-header,
+    .m-pvx-horse-single-content,
+    .m-pvx-horse-same-list {
+        border-color: fade(@pvx-border, 80%);
+        box-shadow: @pvx-shadow-xs;
+    }
+
+    .m-pvx-horse-navigation {
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        padding: @pvx-space-3 @pvx-space-4;
+        gap: @pvx-space-3;
+
+        > a,
+        > button {
+            min-width: 96px;
+            min-height: 40px;
+            padding: 0 @pvx-space-3;
+            border-radius: @pvx-radius-control;
+            color: @pvx-text-regular;
+        }
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .c-admin-drop__button {
+            min-height: 40px;
+            border-radius: @pvx-radius-control;
+            background: @pvx-primary;
+        }
+    }
+
+    .m-pvx-horse-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        padding: @pvx-space-5;
+        gap: @pvx-space-4;
+    }
+
+    .m-pvx-horse-header__info {
+        min-width: 0;
+    }
+
+    .m-pvx-horse-header__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: @pvx-space-1;
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-horse-eyebrow {
+        color: @pvx-primary;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+    }
+
+    .u-pvx-horse-type {
+        display: inline-flex;
+        min-height: 26px;
+        align-items: center;
+        padding: 0 @pvx-space-2;
+        border: 1px solid @pvx-border-focus;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-primary;
+        background: @pvx-primary-soft;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .u-pvx-horse-page-title {
+        margin: 0;
+        color: @pvx-text-primary;
+        font-size: 32px;
+        font-weight: 750;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+    }
+
+    .m-pvx-horse-header__actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: @pvx-space-2;
+
+        .u-pvx-horse-action {
+            min-width: 120px;
+            border-color: @pvx-primary;
+            color: @pvx-primary;
+            background: @pvx-primary-soft;
+
+            svg {
+                width: 17px;
+                height: 17px;
+            }
+
+            &:hover {
+                color: @pvx-text-inverse;
+                background: @pvx-primary;
+            }
+        }
+    }
+
+    .m-pvx-horse-guide-tip {
+        grid-column: 1 / -1;
+        padding-top: @pvx-space-3;
+        border-top: 1px solid @pvx-border-light;
+
+        .m-robot__pvx-tip {
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
+
+    .m-pvx-horse-single-content {
+        display: grid;
+        grid-template-columns: minmax(280px, 390px) minmax(0, 1fr) minmax(320px, 430px);
+        min-width: 0;
+        align-items: start;
+        margin: 0;
+        padding: @pvx-space-5;
+        gap: @pvx-space-5;
+    }
+
+    .m-pvx-horse-main-info {
+        display: contents;
+        margin: 0;
+    }
+
+    .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap {
+        display: contents;
+    }
+
+    .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap .m-pvx-horse-main-info__info {
+        position: static;
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        padding: 0;
+        gap: @pvx-space-4;
+        border-radius: 0;
+        color: @pvx-text-primary;
+        background: transparent;
+        box-shadow: none;
+        font-weight: 400;
+        grid-column: 2;
+    }
+
+    .u-pvx-horse-metas {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-horse-meta {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        min-width: 0;
+        padding: 11px @pvx-space-2;
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-small;
+        color: @pvx-text-regular;
+        background: @pvx-surface-muted;
+        font-size: 14px;
+        line-height: 1.7;
+        gap: @pvx-space-1;
+
+        .u-meta-label {
+            color: @pvx-text-secondary;
+            font-weight: 600;
+        }
+    }
+
+    .u-pvx-horse-info-item {
+        display: flex;
+        flex-direction: column;
+        padding-top: @pvx-space-4;
+        gap: @pvx-space-2;
+        border-top: 1px solid @pvx-border-light;
+    }
+
+    .u-pvx-horse-title {
+        color: @pvx-text-primary;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .u-pvx-horse-attr-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: @pvx-space-2;
+    }
+
+    .u-pvx-horse-attr-icon {
+        display: block;
+        width: 42px;
+        height: 42px;
+        border: 1px solid @pvx-border;
+        border-radius: 8px;
+        background: @pvx-surface-muted;
+        box-shadow: @pvx-shadow-xs;
+    }
+
+    .m-pvx-horse-single-content
+        .m-pvx-horse-main-info__wrap
+        .m-pvx-horse-main-info__info
+        .u-pvx-horse-info-item
+        .u-pvx-horse-no-data {
+        display: inline-flex;
+        width: max-content;
+        height: auto;
+        min-height: 32px;
+        align-items: center;
+        padding: 0 @pvx-space-3;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-text-muted;
+        background: @pvx-surface-muted;
+        line-height: 1;
+    }
+
+    .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap .m-pvx-horse-main-info__img {
+        display: flex;
+        width: 100%;
+        height: auto;
+        min-height: 340px;
+        align-items: center;
+        justify-content: center;
+        padding: @pvx-space-3;
+        overflow: hidden;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface-muted;
+        box-shadow: none;
+        grid-column: 1;
+        grid-row: 1;
+
+        .u-image {
+            display: flex;
+            width: 100%;
+            max-width: none;
+            height: auto;
+            aspect-ratio: 1;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: @pvx-radius-card;
+            background-image: url("../../img/horse/horse_item_bg.jpg");
+            background-position: center;
+            background-size: cover;
+        }
+
+        .u-item-icon,
+        .u-item-icon__img,
+        .u-item-icon__quality,
+        .u-item-icon__quest {
+            border-radius: 10px;
+        }
+    }
+
+    .m-pvx-horse-section-header {
+        margin-bottom: @pvx-space-5;
+
+        .c-pvx-section-header__icon {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 14px;
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+
+            svg {
+                width: 24px;
+                height: 24px;
+                color: @pvx-accent-yellow;
+            }
+        }
+    }
+
+    .m-pvx-horse-map-section {
+        min-width: 0;
+        padding-left: @pvx-space-5;
+        border-left: 1px solid @pvx-border-light;
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .m-pvx-horse-detail-map {
+        display: flex;
+        width: 100%;
+        height: auto;
+        justify-content: center;
+        padding: 0;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface-muted;
+        box-shadow: none;
+
+        .m-horse-map {
+            width: 100%;
+            min-width: 0;
+            height: auto;
+            margin-top: 0;
+            overflow: hidden;
+            border: 1px solid @pvx-border;
+            border-radius: @pvx-radius-card;
+        }
+
+        .el-carousel,
+        .el-carousel__container,
+        .c-map,
+        .c-map__wrapper,
+        .c-map__inner {
+            width: 100% !important;
+            max-width: 100%;
+        }
+
+        .c-map__inner {
+            border: 0;
+        }
+
+        .m-horse-map.is-trimmed .c-map-title__wrapper {
+            transform: translateY(var(--horse-map-trim-offset));
+        }
+    }
+
+    .m-pvx-horse-same-list {
+        min-width: 0;
+        margin: 0;
+        padding: @pvx-space-5;
+
+        .m-pvx-horse-list {
+            display: flex;
+            width: 100%;
+            margin: 0;
+            padding: 2px 2px @pvx-space-2;
+            gap: @pvx-space-3;
+            overflow-x: auto;
+            scroll-snap-type: x proximity;
+        }
+
+        .m-pvx-horse-card {
+            width: 220px;
+            min-width: 220px;
+            max-width: 220px;
+            padding: @pvx-space-3;
+            border-color: @pvx-border;
+            border-radius: @pvx-radius-card;
+            box-shadow: @pvx-shadow-sm;
+            scroll-snap-align: start;
+
+            &:hover {
+                transform: translateY(-2px);
+                border-color: @pvx-primary;
+                color: @pvx-text-primary;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-md;
+            }
+        }
+    }
+
+    .m-pvx-horse-community {
+        display: grid;
+        min-width: 0;
+        gap: @pvx-space-5;
+
+        > div {
+            margin-top: 0 !important;
+        }
+
+        > .m-thx,
+        > .c-wiki-comments,
+        > .m-wiki-post-empty {
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid fade(@pvx-border, 80%);
+            border-radius: @pvx-radius-panel;
+            background: @pvx-surface;
+            box-shadow: @pvx-shadow-xs;
+        }
+
+        > .m-thx {
+            padding: @pvx-space-3;
+
+            .w-thx-panel {
+                margin-bottom: @pvx-space-3;
+            }
+        }
+
+        > .m-wiki-post-empty {
+            margin-bottom: 0 !important;
+            padding: @pvx-space-5;
+            color: @pvx-text-secondary;
+            letter-spacing: 0;
+        }
+
+        .m-wiki-post-panel {
+            width: 100%;
+            overflow: visible;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
+
+            > .c-wiki-panel {
+                width: 100%;
+                margin-bottom: 0;
+                overflow: hidden;
+                border: 1px solid fade(@pvx-border, 80%);
+                border-radius: @pvx-radius-panel;
+                background: @pvx-surface;
+                box-shadow: @pvx-shadow-xs;
+            }
+
+            > .c-wiki-panel + .c-wiki-panel {
+                margin-top: @pvx-space-5;
+            }
+        }
+
+        .c-wiki-panel {
+            border: 0;
+            box-shadow: none;
+
+            > .m-panel-head {
+                display: flex;
+                min-height: 64px;
+                align-items: center;
+                justify-content: space-between;
+                padding: 11px @pvx-space-5;
+                border-bottom: 1px solid @pvx-border-light;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-body {
+                padding: @pvx-space-5;
+                color: @pvx-text-regular;
+                background: @pvx-surface;
+            }
+
+            > .m-panel-head > .m-panel-title {
+                display: flex;
+                align-items: center;
+                padding: 0;
+                gap: @pvx-space-1;
+                color: @pvx-text-primary;
+                font-weight: 700;
+
+                .u-icon {
+                    display: inline-flex;
+                    width: 32px;
+                    height: 32px;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0;
+                    padding: 7px;
+                    border-radius: 10px;
+                    color: @pvx-primary;
+                    fill: @pvx-primary;
+                    background: @pvx-primary-soft;
+                }
+            }
+
+            > .m-panel-head > .m-panel-actions {
+                position: static;
+                display: flex;
+                margin-left: auto;
+                transform: none;
+            }
+
+            .u-btn--link {
+                min-height: 40px;
+                border-color: @pvx-primary;
+                border-radius: @pvx-radius-control;
+                background: @pvx-primary;
+            }
+        }
+
+        #pvxWiki img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .p-pvx-horse-single--modern {
+        .m-pvx-horse-single-content {
+            grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+        }
+
+        .m-pvx-horse-map-section {
+            grid-column: 1 / -1;
+            grid-row: auto;
+            padding-top: @pvx-space-5;
+            padding-left: 0;
+            border-top: 1px solid @pvx-border-light;
+            border-left: 0;
+        }
+
+        .u-pvx-horse-metas {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+}
+
+@media screen and (max-width: @ipad-y) {
+    .p-pvx-horse-single--modern {
+        .m-pvx-horse-guide-tip {
+            display: none;
+        }
+
+        .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap {
+            display: contents;
+        }
+
+        .m-pvx-horse-single-content {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap .m-pvx-horse-main-info__img {
+            grid-column: 1;
+            grid-row: auto;
+            order: -1;
+            width: min(100%, 420px);
+            justify-self: center;
+        }
+
+        .m-pvx-horse-single-content .m-pvx-horse-main-info__wrap .m-pvx-horse-main-info__info {
+            grid-column: 1;
+        }
+
+        .m-pvx-horse-map-section {
+            grid-column: 1;
+            padding-top: @pvx-space-5;
+            padding-left: 0;
+            border-top: 1px solid @pvx-border-light;
+            border-left: 0;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .p-pvx-horse-single--modern {
+        .m-pvx-horse-navigation,
+        .m-pvx-horse-header,
+        .m-pvx-horse-single-content,
+        .m-pvx-horse-same-list,
+        .m-pvx-horse-community .m-wiki-post-panel > .c-wiki-panel,
+        .m-pvx-horse-community > .m-thx,
+        .m-pvx-horse-community > .c-wiki-comments,
+        .m-pvx-horse-community > .m-wiki-post-empty {
+            border-radius: @pvx-radius-card;
+        }
+
+        .m-pvx-horse-navigation {
+            min-height: 56px;
+            padding: @pvx-space-2;
+
+            > button {
+                min-width: 0;
+                padding: 0 @pvx-space-2;
+                font-size: 13px;
+            }
+        }
+
+        .m-pvx-horse-header {
+            grid-template-columns: minmax(0, 1fr);
+            padding: @pvx-space-4;
+            gap: @pvx-space-3;
+        }
+
+        .u-pvx-horse-page-title {
+            font-size: 26px;
+        }
+
+        .m-pvx-horse-header__actions {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+
+            .u-pvx-horse-action {
+                width: 100%;
+            }
+        }
+
+        .m-pvx-horse-single-content,
+        .m-pvx-horse-same-list {
+            padding: @pvx-space-3;
+        }
+
+        .u-pvx-horse-metas {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .m-pvx-horse-main-info__img {
+            min-height: 0;
+            padding: @pvx-space-3;
+        }
+
+        .m-pvx-horse-section-header .c-pvx-section-header__icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .m-pvx-horse-map-section {
+            padding-top: @pvx-space-3;
+        }
+
+        .m-pvx-horse-same-list .m-pvx-horse-card {
+            width: min(72vw, 240px);
+            min-width: min(72vw, 240px);
+        }
+
+        .m-pvx-horse-community {
+            gap: @pvx-space-4;
+
+            .c-wiki-panel > .m-panel-body {
+                padding: @pvx-space-3;
+            }
+
+            .c-wiki-panel > .m-panel-head {
+                min-height: 60px;
+                flex-wrap: wrap;
+                padding: @pvx-space-2 @pvx-space-3;
+            }
+
+            > .m-thx,
+            > .m-wiki-post-empty {
+                padding: @pvx-space-3;
+            }
+        }
+    }
+}

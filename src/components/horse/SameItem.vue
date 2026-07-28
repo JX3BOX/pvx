@@ -22,7 +22,7 @@
                 <template #content>
                     <div class="u-attr-pop">
                         <div class="u-attr-name" v-if="data.name">
-                            {{ (data.name || "") + (Number(data.level) ? data.level + "级" : "") }}
+                            {{ attributeName(data) }}
                         </div>
                         <div class="u-attr-desc">{{ data.desc }}</div>
                     </div>

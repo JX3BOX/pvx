@@ -2,7 +2,8 @@
     <a class="m-pvx-horse-card" :class="`u-pvx-horse-quality--` + item.Quality" :href="getLink(item)" target="_blank">
         <div class="u-pvx-horse-image">
 
-            <img v-if="item.SubType === 15" :src="getImgSrc(item)" class="u-pvx-horse-image-item" :alt="`${item.Name} - 剑网3马匹`"
+            <img v-if="item.SubType === 15" :src="getImgSrc(item)" class="u-pvx-horse-image-item"
+                :alt="$t('pages.horse.ui.imageAlt', { name: item.Name })"
                 loading="lazy" @error="handleImageError" />
             <item-icon v-else :item_id="String(item.ItemID)" :isLink="false" :size="160" :onlyIcon="true"></item-icon>
         </div>
@@ -14,7 +15,7 @@
                 <template #content>
                     <div class="u-pvx-horse-attr-pop">
                         <div class="u-pvx-horse-attr-name" v-if="data.name">
-                            {{ (data.name || "") + (Number(data.level) ? data.level + "级" : "") }}
+                            {{ attributeName(data) }}
                         </div>
                         <div class="u-pvx-horse-attr-desc">{{ data.desc }}</div>
                     </div>

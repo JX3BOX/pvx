@@ -3,8 +3,8 @@
         <div class="u-pvx-horse-name">
             <item-icon :item_id="String(item.ItemID)" :size="36" :vertical="true"></item-icon>
         </div>
-        <div class="u-desc">{{ item.typeName }}</div>
-        <div class="u-desc">{{ item.modeName }}</div>
+        <div class="u-desc">{{ typeLabel(item) }}</div>
+        <div class="u-desc">{{ modeLabel(item.modeName) }}</div>
         <div class="u-desc">{{ item.Level }}</div>
         <div class="u-desc">{{ item.speed }}</div>
         <div class="u-desc">{{ item.feedName }}</div>
@@ -15,7 +15,7 @@
                     <template #content>
                         <div class="u-attr-pop">
                             <div class="u-attr-name" v-if="attr.name">
-                                {{ (attr.name || "") + (Number(attr.level) ? attr.level + "级" : "") }}
+                                {{ attributeName(attr) }}
                             </div>
                             <div class="u-attr-desc">{{ attr.desc }}</div>
                         </div>
@@ -42,6 +42,24 @@ export default {
         },
     },
     methods: {
+        typeLabel(item) {
+            let key = "gear";
+            if (item.SubType === 15) {
+                key = item.DetailType === 0 ? "normal" : "fun";
+            } else if (item.SubType === 23) {
+                key = ["headgear", "saddle", "feet", "ornament"][item.DetailType] || "gear";
+            }
+            return this.$t(`pages.horse.ui.types.${key}`);
+        },
+        modeLabel(mode) {
+            return mode === "单骑" ? this.$t("pages.horse.ui.rideModes.solo") : mode;
+        },
+        attributeName(attr) {
+            const level = Number(attr.level)
+                ? this.$t("pages.horse.ui.attributeLevel", { level: attr.level })
+                : "";
+            return `${attr.name || ""}${level}`;
+        },
         go(item) {
             const id = item.ItemID;
             // 2 马具 1 坐骑

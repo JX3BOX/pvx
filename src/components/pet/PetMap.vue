@@ -1,5 +1,12 @@
 <template>
-    <div class="m-pvx-pet-map__box">
+    <div
+        class="m-pvx-pet-map__box"
+        :class="{ 'is-trimmed': localized }"
+        :style="{
+            '--pet-map-height': height,
+            '--pet-map-trim-offset': trimOffset + 'px',
+        }"
+    >
         <el-carousel :autoplay="false" :height="height">
             <el-carousel-item v-for="(datas, mapID) in mapDatas" :key="mapID">
                 <jx3box-map :mapId="Number(mapID)" :datas="datas" @resize="handleResize"></jx3box-map>
@@ -30,6 +37,7 @@ export default {
     data() {
         return {
             height: "896px",
+            trimOffset: 0,
         };
     },
     mounted() {
@@ -65,7 +73,12 @@ export default {
     },
     methods: {
         handleResize(size) {
-            this.height = size[1] + "px";
+            const width = Array.isArray(size) ? Number(size[0] || 0) : 0;
+            const h = Array.isArray(size) ? Number(size[1] || 0) : 0;
+            if (!h) return;
+            const trim = this.localized ? width * 0.05 : 0;
+            this.trimOffset = trim / 2;
+            this.height = Math.max(h - trim, 0) + "px";
         },
         mapText(key, fallback) {
             return this.localized ? this.$t(`pages.pet.single.ui.mapLabels.${key}`) : fallback;

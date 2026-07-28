@@ -1,73 +1,104 @@
 <template>
-    <div class="p-pvx-horse">
-        <PvxSearch v-if="searchReady" class="m-pvx-horse-tabs" popperClass="u-pvx-horse-filter" :items="searchItems" :initValue="searchInitValue"
-            @search="handleSearch">
-        </PvxSearch>
-        <div class="m-pvx-horse-content" ref="listRef" v-loading="loading">
+    <PvxPageShell class="p-pvx-horse-list" v-loading="loading">
+        <div class="m-pvx-horse-layout" ref="listRef">
+            <PvxSearch
+                v-if="searchReady"
+                class="m-pvx-horse-tabs"
+                popperClass="u-pvx-horse-filter"
+                :items="searchItems"
+                :initValue="searchInitValue"
+                variant="modern"
+                inline-search-icon
+                i18n-scope="pages.horse.ui.search"
+                @search="handleSearch"
+            />
             <!-- 全部模式 -->
             <template v-if="active === ''">
                 <!-- 抓马播报 -->
                 <HorseBroadcastV2 v-if="client === 'std'"></HorseBroadcastV2>
                 <!-- 普通坐骑、奇趣坐骑、马具 -->
-                <div v-for="(item, i) in typeList" :key="i" class="m-pvx-horse-list-wrapper">
-                    <template v-if="item.list && item.list.length">
-                        <CardBannerList :count="count" :data="{ ...itemData, type: item.type }"
-                            @update:load="handleLoad" :items="item.list">
-                            <template v-slot:title>
-                                <div>{{ item.name }}</div>
-                            </template>
-                            <template v-slot:action>
-                                <div @click="clickTabs(item.value)" :v="item.value">查看全部</div>
-                            </template>
-                            <template v-slot="{ item: _item }">
-                                <template v-if="item.type !== 2">
-                                    <HorseCard :key="_item.ID" :item="_item" />
-                                </template>
-                                <template v-else>
-                                    <SameItem :key="_item.ID" :item="_item" />
-                                </template>
-                            </template>
-                        </CardBannerList>
-                    </template>
-                </div>
-            </template>
-            <!-- 列表模式 -->
-            <div class="m-pvx-horse-list" v-else>
-                <div class="u-pvx-horse-type u-pvx-all-type">
-                    <div class="u-pvx-horse-title">{{ typeName }}</div>
-                    <div v-if="active !== ''" class="m-pvx-horse-operate">
-                        <div class="m-pvx-horse-operate__item" :class="showType === item.value && 'active'"
-                            :key="item.value" v-for="item in showTypes" @click="showType = item.value">
-                            {{ item.label }}
-                        </div>
-                    </div>
-                </div>
-                <template v-if="subList.length">
-                    <div class="m-pvx-horse-list__card" v-if="showType === 'card'"
-                        :style="`grid-template-columns: repeat(${count}, 1fr)`">
-                        <template v-if="active !== 2">
-                            <HorseCard v-for="item in subList" :key="item.ID" :item="item"
-                                :reporter="{ aggregate: listId(subList) }" />
+                <PvxSurface
+                    v-for="item in overviewList"
+                    :key="item.type"
+                    class="m-pvx-horse-section"
+                    padding="medium"
+                >
+                    <PvxSectionHeader
+                        class="m-pvx-horse-section-header m-pvx-horse-section-header--overview"
+                        :title="item.name"
+                        level="h2"
+                    >
+                        <template #action>
+                            <button type="button" class="u-pvx-horse-view-all" @click="clickTabs(item.type)">
+                                {{ $t("pages.horse.ui.actions.viewAll") }}
+                            </button>
+                        </template>
+                    </PvxSectionHeader>
+                    <div class="m-pvx-horse-card-grid">
+                        <template v-if="item.type !== 2">
+                            <HorseCard v-for="_item in item.list" :key="_item.ID" :item="_item" />
                         </template>
                         <template v-else>
-                            <SameItem v-for="item in subList" :key="item.ID" :item="item"
-                                :reporter="{ aggregate: listId(item.list) }" />
+                            <SameItem v-for="_item in item.list" :key="_item.ID" :item="_item" />
                         </template>
                     </div>
-                    <div class="m-pvx-horse-list__list" v-if="showType === 'list'">
-                        <ListHead></ListHead>
-                        <HorseItem v-for="item in subList" :key="item.ID" :item="item"
+                </PvxSurface>
+            </template>
+            <!-- 列表模式 -->
+            <PvxSurface v-else-if="subList.length" class="m-pvx-horse-section" padding="medium">
+                <PvxSectionHeader class="m-pvx-horse-section-header" :title="typeName" level="h2">
+                    <template #action>
+                        <span class="u-pvx-horse-result-count">
+                            {{ $t("pages.horse.ui.resultCount", { count: total }) }}
+                        </span>
+                        <div class="m-pvx-horse-operate" :aria-label="$t('pages.horse.ui.viewMode')">
+                            <button
+                            v-for="item in localizedShowTypes"
+                                :key="item.value"
+                                type="button"
+                                class="m-pvx-horse-operate__item"
+                                :class="{ active: showType === item.value }"
+                                :aria-pressed="showType === item.value"
+                                @click="showType = item.value"
+                            >
+                            {{ item.label }}
+                            </button>
+                        </div>
+                    </template>
+                </PvxSectionHeader>
+                <div class="m-pvx-horse-card-grid" v-if="showType === 'card'">
+                    <template v-if="active !== 2">
+                        <HorseCard v-for="item in subList" :key="item.ID" :item="item"
                             :reporter="{ aggregate: listId(subList) }" />
-                    </div>
-                </template>
-                <el-button class="m-pvx-horse-archive-more" v-show="hasNextPage" type="primary" plain
-                    @click="appendPage" :loading="loading" icon="el-icon-arrow-down">加载更多</el-button>
-                <el-pagination class="m-pvx-horse-archive-pages" background layout="total, prev, pager, next, jumper"
+                    </template>
+                    <template v-else>
+                        <SameItem v-for="item in subList" :key="item.ID" :item="item"
+                            :reporter="{ aggregate: listId(item.list) }" />
+                    </template>
+                </div>
+                <div class="m-pvx-horse-list__list" v-if="showType === 'list'">
+                    <ListHead></ListHead>
+                    <HorseItem v-for="item in subList" :key="item.ID" :item="item"
+                        :reporter="{ aggregate: listId(subList) }" />
+                </div>
+                <el-button class="m-archive-more" v-show="hasNextPage" type="primary"
+                    @click="appendPage" :loading="loading">
+                    <el-icon v-if="!loading" class="el-icon--left"><ArrowDown /></el-icon>
+                    {{ $t("pages.horse.ui.actions.loadMore") }}
+                </el-button>
+                <el-pagination class="m-archive-pages" background layout="total, prev, pager, next, jumper"
                     :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
                     @current-change="changePage"></el-pagination>
-            </div>
+            </PvxSurface>
+            <PvxSurface v-if="showEmpty" class="m-pvx-horse-empty-surface" padding="medium">
+                <PvxEmptyState
+                    illustrated
+                    :title="$t('pages.horse.ui.empty.title')"
+                    :description="$t('pages.horse.ui.empty.description')"
+                />
+            </PvxSurface>
         </div>
-    </div>
+    </PvxPageShell>
 </template>
 
 <script>
@@ -81,13 +112,29 @@ import ListHead from "@/components/horse/ListHead";
 import HorseItem from "@/components/horse/HorseItem";
 import { omit, cloneDeep, concat, isEqual, debounce } from "lodash";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
-import CardBannerList from "@/components/common/card_banner_list.vue";
 import { getHorseType, getHorseModeName, getHorseSpeed } from "@/utils/horse";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { ArrowDown } from "@element-plus/icons-vue";
 const { list, searchType, showTypes } = horseData;
 
 export default {
     name: "HorseHome",
-    components: { SameItem, HorseCard, HorseBroadcastV2, CardBannerList, PvxSearch, ListHead, HorseItem },
+    components: {
+        SameItem,
+        HorseCard,
+        HorseBroadcastV2,
+        PvxSearch,
+        ListHead,
+        HorseItem,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        ArrowDown,
+    },
     data() {
         return {
             loading: false,
@@ -137,11 +184,26 @@ export default {
             return pages > 1 && this.page < pages;
         },
         typeName() {
-            return this.typeList.find((e) => e.type == this.active)?.name || "";
+            return this.typeLabel(this.active);
         },
         subList() {
             if (this.active === "") return [];
             return this.typeList.find((e) => e.type === this.active)?.list || [];
+        },
+        overviewList() {
+            return this.typeList
+                .filter((item) => item.type !== "" && item.list?.length)
+                .map((item) => ({ ...item, name: this.typeLabel(item.type) }));
+        },
+        localizedShowTypes() {
+            return this.showTypes.map((item) => ({
+                ...item,
+                label: this.$t(`pages.horse.ui.views.${item.value}`),
+            }));
+        },
+        showEmpty() {
+            if (this.loading) return false;
+            return this.active === "" ? !this.overviewList.length : !this.subList.length;
         },
         searchItems() {
             return [
@@ -150,7 +212,7 @@ export default {
                     type: "radio",
                     options: this.list.map((item) => ({
                         type: item.type,
-                        name: item.label,
+                        name: this.typeLabel(item.type),
                     })),
                 },
                 {
@@ -158,13 +220,13 @@ export default {
                     options: this.searchType.map((item) => ({
                         key: item.key,
                         type: item.type,
-                        name: item.name,
+                        name: this.$t(`pages.horse.ui.filters.${item.key}`),
                         options: item.list,
                     })),
                 },
                 {
                     key: "keyword",
-                    name: "关键词",
+                    name: this.$t("pages.horse.ui.filters.keyword"),
                 },
             ];
         },
@@ -179,6 +241,15 @@ export default {
     },
     methods: {
         iconLink,
+        typeLabel(type) {
+            const keyMap = {
+                "": "all",
+                0: "normal",
+                1: "fun",
+                2: "gear",
+            };
+            return this.$t(`pages.horse.ui.types.${keyMap[type] || "all"}`);
+        },
         clickTabs(type) {
             const current = this.typeList.find((item) => item.type == type);
             if (!current) {
@@ -261,21 +332,14 @@ export default {
         showCount() {
             const listWidth = this.$refs.listRef?.clientWidth || 1200;
             const cardWidth = 220;
+            const cardGap = 20;
+            const sectionInlinePadding = 48;
+            const availableWidth = Math.max(listWidth - sectionInlinePadding, cardWidth);
+            const fittedCount = Math.max(1, Math.floor((availableWidth + cardGap) / (cardWidth + cardGap)));
 
-            if (listWidth <= 520) {
-                this.count = 1;
-                this.per = 16;
-                return;
-            }
-            if (listWidth <= 1024) {
-                this.count = 2;
-                this.per = 32;
-                return;
-            }
-
-            this.count = Math.floor((listWidth - 120) / cardWidth);
-            // 加载足够填满 2 行的数据量
-            this.per = this.count * 2;
+            // 与 face 列表保持一致：总览至少准备 6 条，分类列表准备两行数据。
+            this.count = Math.max(6, fittedCount);
+            this.per = this.active === "" ? this.count : this.count * 2;
         },
         appendPage() {
             this.appendMode = true;
@@ -285,7 +349,7 @@ export default {
             const page = this.typeList.filter((e) => e.type === type)[0].page;
             let params = { ...this.params };
             params.page = page + 1;
-            params.per = append ? this.count * 3 : this.count;
+            params.per = append ? this.per : this.count;
             params.type = type;
             this.loadList(params, type);
         },
@@ -302,7 +366,7 @@ export default {
                 });
             } else {
                 params.page = this.page;
-                params.per = this.count * 3;
+                params.per = this.per;
                 this.loadList({ ...params, type: this.active }, this.active);
             }
         },
@@ -418,49 +482,6 @@ export default {
 </script>
 
 <style lang="less">
-    @import "~@/assets/css/common/search.less";
-    @import "~@/assets/css/common/tabs.less";
-    @import "~@/assets/css/horse/pc/index.less";
-
-    @media screen and (max-width: @ipad-y) {
-        .p-pvx-horse {
-            .type-list {
-                width: 100%;
-
-                .type-item {
-                    &:first-child {
-                        margin-right: 0 !important;
-                        width: 100% !important;
-                        flex-shrink: 0;
-                    }
-
-                    &:not(:first-child) {
-                        width: calc(50% - 20px) !important;
-                    }
-                }
-            }
-
-            .pvx-search-wrapper {
-                flex-direction: column;
-                height: auto;
-
-                .search-group {
-                    flex-wrap: wrap;
-                    flex-direction: row;
-
-                    .filter-wrap {
-                        width: 40px;
-                        flex-shrink: 0;
-                        margin-right: 0;
-                    }
-
-                    .input-wrap {
-                        width: calc(100% - 40px);
-                        flex-shrink: 0;
-                    }
-
-                }
-            }
-        }
-    }
+@import "~@/assets/css/horse/pc/index.less";
+@import "~@/assets/css/modules/horse-list-theme.less";
 </style>

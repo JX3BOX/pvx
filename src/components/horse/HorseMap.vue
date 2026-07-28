@@ -1,5 +1,9 @@
 <template>
-    <div class="m-horse-map">
+    <div
+        class="m-horse-map"
+        :class="{ 'is-trimmed': !compact }"
+        :style="{ '--horse-map-trim-offset': trimOffset + 'px' }"
+    >
         <el-carousel :autoplay="false" :height="height">
             <el-carousel-item v-for="(datas, mapID) in mapDatas" :key="mapID">
                 <jx3box-map :mapId="Number(mapID)" :datas="datas" @resize="handleResize"></jx3box-map>
@@ -33,6 +37,7 @@ export default {
     data() {
         return {
             height: this.compact ? "520px" : "896px",
+            trimOffset: 0,
         };
     },
     computed: {
@@ -46,8 +51,10 @@ export default {
                     result[mapId].push({
                         title: data.mapName,
                         content: `
-                        马驹·${horseName.indexOf("·") > -1 ? horseName.split("·")[0] : horseName}
-                        <br /> 坐标：(${coor.x},${coor.y},${coor.z})`,
+                        ${this.$t("pages.horse.single.ui.map.youngHorse", {
+                            name: horseName.indexOf("·") > -1 ? horseName.split("·")[0] : horseName,
+                        })}
+                        <br /> ${this.$t("pages.horse.single.ui.map.coordinate")}：(${coor.x},${coor.y},${coor.z})`,
                         x: coor.x,
                         y: coor.y,
                         z: coor.z,
@@ -59,10 +66,14 @@ export default {
     },
     methods: {
         handleResize(size) {
+            const width = Array.isArray(size) ? Number(size[0] || 0) : 0;
             const h = Array.isArray(size) ? Number(size[1] || 0) : 0;
             if (!h) return;
             // QQBot 窄容器下限制地图高度，避免画面被纵向拉得过高
-            const target = this.compact ? Math.min(h, 520) : h;
+            // 标准地图原图上下带有约 5% 宽度的透明边，详情页裁去透明区域以铺满容器。
+            const trim = this.compact ? 0 : width * 0.05;
+            const target = this.compact ? Math.min(h, 520) : Math.max(h - trim, 0);
+            this.trimOffset = trim / 2;
             this.height = target + "px";
         },
     },

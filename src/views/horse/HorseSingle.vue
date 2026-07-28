@@ -1,35 +1,83 @@
 <template>
-    <div class="p-pvx-horse-single m-single-wrapper">
+    <div
+        class="p-pvx-horse-single m-single-wrapper"
+        :class="{ 'p-pvx-horse-single--modern': !isRobot }"
+    >
         <template v-if="!isRobot">
-            <div class="back-wrap m-navigation">
-                <div class="u-pvx-horse-goback" @click="goBack">返回列表</div>
-                <!-- <el-button @click="goBack">返回列表</el-button> -->
-                <div class="u-back-right">
-                    <PvxRobotTip v-if="!isRobot" :type-name="type == 2 ? '马具' : '坐骑'" :reply="item.Name"></PvxRobotTip>
-                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
-                </div>
-            </div>
-            <div class="m-pvx-horse-single-content" v-loading="loading">
+            <PvxPageShell class="m-pvx-horse-single-shell">
+                <div class="m-pvx-horse-single-layout">
+                    <PvxSurface class="m-pvx-horse-navigation" tag="nav" padding="small" radius="medium">
+                        <PvxActionButton variant="light" @click="goBack">
+                            <ArrowLeft />
+                            {{ $t("pages.horse.single.ui.actions.back") }}
+                        </PvxActionButton>
+                        <PvxSingleAdminDrop />
+                    </PvxSurface>
+
+                    <PvxSurface class="m-pvx-horse-header" tag="header" padding="large">
+                        <div class="m-pvx-horse-header__info">
+                            <div class="m-pvx-horse-header__meta">
+                                <span class="u-pvx-horse-eyebrow">
+                                    {{ $t("pages.horse.single.ui.guideLabel") }}
+                                </span>
+                                <span class="u-pvx-horse-type">{{ displayType }}</span>
+                            </div>
+                            <h1 class="u-pvx-horse-page-title">{{ item.Name }}</h1>
+                        </div>
+                        <div class="m-pvx-horse-header__actions">
+                            <PvxActionButton
+                                class="u-pvx-horse-action"
+                                :href="getLink('item', id)"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                variant="light"
+                            >
+                                <CollectionTag />
+                                {{ $t("pages.horse.single.ui.actions.item") }}
+                            </PvxActionButton>
+                        </div>
+                        <div class="m-pvx-horse-guide-tip">
+                            <!-- “坐骑/马具”是 QQ 机器人协议关键词，不随界面语言翻译。 -->
+                            <PvxRobotTip
+                                :type-name="type == 2 ? '马具' : '坐骑'"
+                                :reply="item.Name"
+                                variant="modern"
+                                :quick-guide-text="$t('pages.horse.single.ui.robot.quickGuide')"
+                                :copy-success-title="$t('pages.horse.single.ui.robot.copySuccess')"
+                                :reply-prefix="$t('pages.horse.single.ui.robot.replyPrefix')"
+                                :reply-suffix="$t('pages.horse.single.ui.robot.replySuffix')"
+                                :copy-qq-label="$t('pages.horse.single.ui.robot.copyQq')"
+                                :copy-command-label="$t('pages.horse.single.ui.robot.copyCommand')"
+                            />
+                        </div>
+                    </PvxSurface>
+
+            <PvxSurface class="m-pvx-horse-single-content" padding="medium" v-loading="loading">
                 <!-- 主要信息 -->
                 <div class="m-pvx-horse-main-info">
                     <div v-if="item.ID" class="m-pvx-horse-main-info__wrap">
                         <div class="m-pvx-horse-main-info__info">
-                            <div class="u-pvx-horse-info-item">
-                                <span class="u-pvx-horse-id">ID: {{ item.ID }}</span>
-                                <span class="u-pvx-horse-name">{{ item.Name }}</span>
-                            </div>
-                            <div class="u-pvx-horse-info-item u-pvx-horse-desc">
-                                <span>
-                                    分类:
-                                    {{ displayType }}
-                                </span>
-                                <span>品质: {{ item.Level }}</span>
-                                <span v-if="type !== '2'">跑速: {{ speedName }}</span>
-                                <span v-if="type !== '2'">饲料: {{ feedName }}</span>
+                            <div class="u-pvx-horse-metas">
+                                <div class="u-pvx-horse-meta">
+                                    <span class="u-meta-label">{{ $t("pages.horse.single.ui.fields.id") }}</span>
+                                    <span>{{ item.ID }}</span>
+                                </div>
+                                <div class="u-pvx-horse-meta">
+                                    <span class="u-meta-label">{{ $t("pages.horse.single.ui.fields.quality") }}</span>
+                                    <span>{{ item.Level }}</span>
+                                </div>
+                                <div v-if="type !== '2'" class="u-pvx-horse-meta">
+                                    <span class="u-meta-label">{{ $t("pages.horse.single.ui.fields.speed") }}</span>
+                                    <span>{{ speedName }}</span>
+                                </div>
+                                <div v-if="type !== '2'" class="u-pvx-horse-meta">
+                                    <span class="u-meta-label">{{ $t("pages.horse.single.ui.fields.feed") }}</span>
+                                    <span>{{ feedName }}</span>
+                                </div>
                             </div>
 
                             <div class="u-pvx-horse-info-item u-pvx-horse-desc">
-                                <div class="u-pvx-horse-title">基础属性</div>
+                                <div class="u-pvx-horse-title">{{ $t("pages.horse.single.ui.sections.basicAttrs") }}</div>
                                 <!-- <div v-if="basicAttrs.length" class="basic-list">
                                 <div class="item" v-for="item in basicAttrs" :key="item.id">
                                     {{ item.desc }}
@@ -41,10 +89,7 @@
                                             <template #content>
                                                 <div class="u-pvx-horse-attr-pop">
                                                     <div class="u-pvx-horse-attr-name" v-if="attr.name">
-                                                        {{
-                                                            (attr.name || "") +
-                                                            (Number(attr.level) ? attr.level + "级" : "")
-                                                        }}
+                                                        {{ attributeName(attr) }}
                                                     </div>
                                                     <div class="u-pvx-horse-attr-desc">{{ attr.desc }}</div>
                                                 </div>
@@ -54,20 +99,17 @@
                                         </el-tooltip>
                                     </div>
                                 </div>
-                                <div v-else class="u-pvx-horse-no-data">无</div>
+                                <div v-else class="u-pvx-horse-no-data">{{ $t("pages.horse.single.ui.emptyValue") }}</div>
                             </div>
                             <div class="u-pvx-horse-info-item u-pvx-horse-desc">
-                                <div class="title">特殊属性</div>
+                                <div class="u-pvx-horse-title">{{ $t("pages.horse.single.ui.sections.magicAttrs") }}</div>
                                 <div v-if="magicAttrs.length" class="u-pvx-horse-attr-list">
                                     <div class="u-pvx-horse-attr" v-for="(attr, index) in magicAttrs" :key="index">
                                         <el-tooltip trigger="hover" placement="top">
                                             <template #content>
                                                 <div class="u-pvx-horse-attr-pop">
                                                     <div class="u-pvx-horse-attr-name" v-if="attr.name">
-                                                        {{
-                                                            (attr.name || "") +
-                                                            (Number(attr.level) ? attr.level + "级" : "")
-                                                        }}
+                                                        {{ attributeName(attr) }}
                                                     </div>
                                                     <div class="u-pvx-horse-attr-desc">{{ attr.desc }}</div>
                                                 </div>
@@ -76,12 +118,8 @@
                                         </el-tooltip>
                                     </div>
                                 </div>
-                                <div v-else class="u-pvx-horse-no-data">无</div>
+                                <div v-else class="u-pvx-horse-no-data">{{ $t("pages.horse.single.ui.emptyValue") }}</div>
                             </div>
-                            <a class="u-pvx-horse-link" :href="getLink('item', this.id)" target="_blank">
-                                <i class="el-icon-collection-tag"></i>
-                                物品信息
-                            </a>
                         </div>
                         <div class="m-pvx-horse-main-info__img" :class="`u-quality-bg--` + item.Quality">
                             <el-image v-if="item.SubType === 15" :src="getCdnImgUrl(item.ID)" class="u-image">
@@ -90,17 +128,53 @@
                                 :onlyIcon="true"></item-icon>
                         </div>
                     </div>
-                    <div v-else>无此信息</div>
+                    <PvxEmptyState
+                        v-else
+                        illustrated
+                        :title="$t('pages.horse.single.ui.empty.title')"
+                        :description="$t('pages.horse.single.ui.empty.description')"
+                    />
                 </div>
+                <section v-if="originDatas.length" class="m-pvx-horse-map-section">
+                    <PvxSectionHeader
+                        class="m-pvx-horse-section-header"
+                        :title="$t('pages.horse.single.ui.sections.map')"
+                        :description="$t('pages.horse.single.ui.sections.mapDescription')"
+                        level="h2"
+                    >
+                        <template #icon><Location /></template>
+                    </PvxSectionHeader>
+                    <div class="m-pvx-horse-detail-map">
+                        <horse-map :name="item.Name" :list="originDatas" />
+                    </div>
+                </section>
+            </PvxSurface>
                 <!-- 同类坐骑 - 普通坐骑 -->
-                <div v-if="sameList.length" class="m-pvx-horse-same-list" v-loading="sameLoading">
-                    <div class="title">同类坐骑</div>
+                <PvxSurface v-if="sameList.length" class="m-pvx-horse-same-list" padding="medium" v-loading="sameLoading">
+                    <PvxSectionHeader
+                        class="m-pvx-horse-section-header"
+                        :title="$t('pages.horse.single.ui.sections.similar')"
+                        :description="$t('pages.horse.single.ui.sections.similarDescription')"
+                        level="h2"
+                    >
+                        <template #icon><CopyDocument /></template>
+                    </PvxSectionHeader>
                     <div class="m-pvx-horse-list">
                         <HorseCard :item="item" v-for="item in sameList" :key="item.ItemID"
                             @click="getHorse(item.ItemID)"></HorseCard>
                     </div>
+                </PvxSurface>
+
+                <pvx-user
+                    class="m-pvx-horse-community"
+                    :id="id"
+                    :name="$t('pages.horse.single.ui.typeName')"
+                    type="item"
+                    :is-robot="false"
+                    i18n-key-prefix="pages.horse.single.ui.wiki"
+                />
                 </div>
-            </div>
+            </PvxPageShell>
         </template>
         <template v-else>
             <div class="m-pvx__item m-robot__horse-header">
@@ -110,7 +184,9 @@
                     </div>
                     <div class="m-meta">
                         <div class="u-meta">{{ displayType }}</div>
-                        <div class="u-meta">品质: {{ item.Level }}</div>
+                        <div class="u-meta">
+                            {{ $t("pages.horse.single.ui.fields.quality") }}: {{ item.Level }}
+                        </div>
                     </div>
                 </div>
                 <div class="u-right">
@@ -126,56 +202,66 @@
                     </div>
                     <div class="m-pvx__item m-id">
                         <div class="u-id">ID: {{ item.ID }}</div>
-                        <div class="u-meta" v-if="type !== '2'">跑速: {{ speedName }}</div>
-                        <div class="u-meta" v-if="type !== '2'">饲料: {{ feedName }}</div>
+                        <div class="u-meta" v-if="type !== '2'">
+                            {{ $t("pages.horse.single.ui.fields.speed") }}: {{ speedName }}
+                        </div>
+                        <div class="u-meta" v-if="type !== '2'">
+                            {{ $t("pages.horse.single.ui.fields.feed") }}: {{ feedName }}
+                        </div>
                     </div>
                 </div>
                 <div class="m-right">
                     <div class="m-pvx__item m-attr m-basic-attr">
-                        <div class="u-pvx-horse-title">基础属性</div>
+                        <div class="u-pvx-horse-title">{{ $t("pages.horse.single.ui.sections.basicAttrs") }}</div>
 
                         <div v-if="basicAttrs.length" class="u-list">
                             <div class="u-attr" v-for="attr in basicAttrs" :key="attr.id">
                                 <img class="u-attr-icon" style="cursor: default" :src="attr.iconUrl" :alt="attr.name" />
                                 <div class="u-attr-info">
                                     <div class="u-attr-name" v-if="attr.name">
-                                        {{ (attr.name || "") + (Number(attr.level) ? attr.level + "级" : "") }}
+                                        {{ attributeName(attr) }}
                                     </div>
                                     <div class="u-attr-desc">{{ attr.desc }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="no-data">无</div>
+                        <div v-else class="no-data">{{ $t("pages.horse.single.ui.emptyValue") }}</div>
                     </div>
                     <div class="m-pvx__item m-attr m-special-attr">
-                        <div class="u-pvx-horse-title">特殊属性</div>
+                        <div class="u-pvx-horse-title">{{ $t("pages.horse.single.ui.sections.magicAttrs") }}</div>
 
-                        <div class="title">特殊属性</div>
+                        <div class="title">{{ $t("pages.horse.single.ui.sections.magicAttrs") }}</div>
                         <div v-if="magicAttrs.length" class="u-list">
                             <div class="u-attr" v-for="(attr, index) in magicAttrs" :key="index">
                                 <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
 
                                 <div class="u-attr-info">
                                     <div class="u-attr-name" v-if="attr.name">
-                                        {{ (attr.name || "") + (Number(attr.level) ? attr.level + "级" : "") }}
+                                        {{ attributeName(attr) }}
                                     </div>
                                     <div class="u-attr-desc">{{ attr.desc }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="no-data">无</div>
+                        <div v-else class="no-data">{{ $t("pages.horse.single.ui.emptyValue") }}</div>
                     </div>
                 </div>
             </div>
         </template>
         <!-- 捕获地图 -->
-        <div v-if="originDatas.length" class="m-pvx-horse-catch" :class="isRobot ? 'is-robot' : ''">
-            <div class="title">捕获地图</div>
+        <div v-if="isRobot && originDatas.length" class="m-pvx-horse-catch is-robot">
+            <div class="title">{{ $t("pages.horse.single.ui.sections.map") }}</div>
             <!-- 地图组件 -->
             <horse-map :name="item.Name" :list="originDatas" :compact="isRobot" />
         </div>
         <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="id" name="坐骑" type="item" :isRobot="isRobot"></pvx-user>
+        <pvx-user
+            v-if="isRobot"
+            :id="id"
+            :name="$t('pages.horse.single.ui.typeName')"
+            type="item"
+            :isRobot="true"
+        ></pvx-user>
     </div>
 </template>
 
@@ -188,6 +274,12 @@ import HorseMap from "@/components/horse/HorseMap.vue";
 import PvxUser from "@/components/PvxUser.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { ArrowLeft, CollectionTag, CopyDocument, Location } from "@element-plus/icons-vue";
 
 import horseMapList from "@/assets/data/horse_map.json";
 import horseSites from "@/assets/data/horse_sites.json";
@@ -197,7 +289,23 @@ import { getHorseType, getHorseModeName, getHorseFeedName, getHorseSpeed, getHor
 export default {
     name: "Single",
     props: ["isRobot", "sourceId"],
-    components: { HorseCard, HorseMap, PvxUser, ItemIcon, PvxSingleAdminDrop, PvxRobotTip },
+    components: {
+        HorseCard,
+        HorseMap,
+        PvxUser,
+        ItemIcon,
+        PvxSingleAdminDrop,
+        PvxRobotTip,
+        PvxActionButton,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        ArrowLeft,
+        CollectionTag,
+        CopyDocument,
+        Location,
+    },
     data() {
         return {
             loading: false,
@@ -262,8 +370,20 @@ export default {
         typeName() {
             return getHorseType(this.item);
         },
+        localizedTypeName() {
+            let key = "gear";
+            if (this.item.SubType === 15) {
+                key = this.item.DetailType === 0 ? "normal" : "fun";
+            } else if (this.item.SubType === 23) {
+                key = ["headgear", "saddle", "feet", "ornament"][this.item.DetailType] || "gear";
+            }
+            return this.$t(`pages.horse.ui.types.${key}`);
+        },
         modeName() {
             return getHorseModeName(this.item);
+        },
+        localizedModeName() {
+            return this.modeName === "单骑" ? this.$t("pages.horse.ui.rideModes.solo") : this.modeName;
         },
         feedName() {
             return getHorseFeedName(this.item, this.isRobot);
@@ -272,9 +392,9 @@ export default {
             return getHorseSpeed(this.item);
         },
         displayType() {
-            let type = this.typeName;
+            let type = this.localizedTypeName;
             if (this.type !== "2") {
-                type += ` · ${this.modeName}`;
+                type += ` · ${this.localizedModeName}`;
                 if (this.item.GetType) {
                     type += ` · ${this.item.GetType}`;
                 }
@@ -282,7 +402,7 @@ export default {
             return type;
         },
         robotTitle() {
-            let titlePrefix = this.item?.SubType === 15 ? "坐骑" : "";
+            let titlePrefix = this.item?.SubType === 15 ? this.$t("pages.horse.single.ui.typeName") : "";
             return titlePrefix + " · " + (this.item?.Name || "");
         },
     },
@@ -295,6 +415,12 @@ export default {
         },
     },
     methods: {
+        attributeName(attr) {
+            const level = Number(attr.level)
+                ? this.$t("pages.horse.ui.attributeLevel", { level: attr.level })
+                : "";
+            return `${attr.name || ""}${level}`;
+        },
         getCdnImgUrl(id) {
             return `${__cdn}design/horse/std/${id}.png`;
         },
@@ -367,6 +493,7 @@ export default {
 <style lang="less">
 @import "~@/assets/css/horse/pc/single.less";
 @import "~@/assets/css/common/wiki.less";
+@import "~@/assets/css/modules/horse-detail-theme.less";
 
 .m-robot__horse-header {
     .flex;

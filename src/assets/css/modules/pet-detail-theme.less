@@ -355,7 +355,7 @@
         box-shadow: none;
 
         .m-pvx-pet-map__box {
-            width: min(100%, 390px);
+            width: 100%;
             height: auto;
             margin-top: 0;
             overflow: hidden;
@@ -363,18 +363,32 @@
             border-radius: @pvx-radius-card;
         }
 
+        .el-carousel,
+        .el-carousel__container,
         .c-map,
-        .u-map__wrapper,
-        .u-map__inner {
+        .c-map__wrapper,
+        .c-map__inner {
             width: 100% !important;
             max-width: 100%;
+        }
+
+        .c-map__inner {
+            border: 0;
+        }
+
+        .m-pvx-pet-map__box.is-trimmed .el-carousel__container {
+            height: var(--pet-map-height) !important;
+        }
+
+        .m-pvx-pet-map__box.is-trimmed .c-map-title__wrapper {
+            transform: translateY(var(--pet-map-trim-offset));
         }
     }
 
     .m-pvx-pet-fetters__content {
         display: grid;
         grid-template-columns: minmax(180px, 0.32fr) minmax(0, 1fr);
-        align-items: start;
+        align-items: center;
         padding: @pvx-space-3 0;
         border-top: 1px solid @pvx-border-light;
         gap: @pvx-space-4;
@@ -401,24 +415,100 @@
     }
 
     .m-pvx-pet-fetters__list {
-        gap: @pvx-space-2;
+        align-items: flex-start;
+        align-self: center;
+        justify-content: flex-start;
+        padding-top: 0;
+        gap: @pvx-space-3;
 
         .u-fetter {
-            width: 56px;
+            position: relative;
+            display: flex;
+            width: 60px;
+            min-width: 60px;
+            align-items: center;
+            flex-direction: column;
             margin: 0;
             overflow: visible;
+            padding: 0;
             text-decoration: none;
+            transition:
+                transform @pvx-duration-fast @pvx-ease-standard;
+
+            &:hover {
+                transform: translateY(-1px);
+            }
         }
 
-        .u-fetter-icon img {
+        .u-fetter-icon {
             width: 52px;
             height: 52px;
+            overflow: hidden;
             border-radius: 10px;
+            transition:
+                box-shadow @pvx-duration-fast @pvx-ease-standard,
+                filter @pvx-duration-fast @pvx-ease-standard;
+
+            &::after {
+                border-radius: 10px;
+            }
+
+            img {
+                width: 52px;
+                height: 52px;
+                border-radius: 10px;
+            }
+        }
+
+        .u-fetter:hover .u-fetter-icon {
+            filter: brightness(1.06);
+            box-shadow: 0 4px 12px fade(@pvx-primary, 18%);
+        }
+
+        .u-fetter.is-current {
+            .u-fetter-name {
+                color: @pvx-primary;
+                font-weight: 600;
+            }
         }
 
         .u-fetter-name {
+            width: 100%;
+            margin-top: 6px;
             color: @pvx-text-secondary;
             font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+            text-overflow: ellipsis;
+        }
+
+        .u-mark {
+            position: absolute;
+            top: -4px;
+            right: 0;
+            z-index: 3;
+            display: inline-flex;
+            width: 18px;
+            min-width: 18px;
+            height: 18px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 2px solid @pvx-surface;
+            border-radius: 50%;
+            color: @pvx-text-inverse;
+            background: @pvx-primary;
+            box-shadow: @pvx-shadow-xs;
+            font-size: 0;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 1;
+            transform: none;
+
+            &::before {
+                content: "✓";
+                font-size: 10px;
+            }
         }
     }
 
@@ -731,6 +821,7 @@ html:lang(vi) {
 
         .m-pvx-pet-fetters__content {
             grid-template-columns: minmax(0, 1fr);
+            align-items: start;
             gap: @pvx-space-2;
         }
 

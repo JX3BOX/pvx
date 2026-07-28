@@ -22,6 +22,12 @@ export default {
         },
     },
     methods: {
+        attributeName(attr) {
+            const level = Number(attr.level)
+                ? this.$t("pages.horse.ui.attributeLevel", { level: attr.level })
+                : "";
+            return `${attr.name || ""}${level}`;
+        },
         handleImageError(e) {
             handleHorseImgError(e);
             e.target.style.opacity = "1";

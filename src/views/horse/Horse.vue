@@ -2,11 +2,22 @@
     <div id="app">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                {
+                    'c-pvx-modern-horse-list-main': $route.name === 'index',
+                    'c-pvx-modern-horse-single-main': $route.name === 'single',
+                },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main">
                 <router-view></router-view>
             </div>
-            <PvxBacktop color="#fff" bgColor="#d16400"></PvxBacktop>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5"></PvxBacktop>
         </Main>
         <CommonFooter></CommonFooter>
 

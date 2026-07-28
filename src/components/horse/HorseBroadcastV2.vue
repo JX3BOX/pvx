@@ -1,17 +1,27 @@
 <template>
     <div class="m-pvx-horse-broadcast">
         <div class="m-pvx-horse-broadcast__header">
-            <div class="u-pvx-horse-title">抓马播报</div>
-            <el-select class="u-select" v-model="server" placeholder="请选择服务器" size="small">
+            <div class="u-pvx-horse-title">{{ $t("pages.horse.ui.broadcast.title") }}</div>
+            <el-select
+                class="u-select"
+                v-model="server"
+                :placeholder="$t('pages.horse.ui.broadcast.serverPlaceholder')"
+                size="small"
+            >
                 <el-option v-for="serve in servers" :key="serve" :label="serve" :value="serve"></el-option>
             </el-select>
         </div>
         <div class="m-pvx-horse-broadcast__list" v-if="listData.length && listData[active].map_id">
             <jx3box-map v-if="listData[active].map_id" class="u-pvx-horse-map" :mapId="Number(listData[active].map_id)"
-                :key="listData[active].map_id" :overview="false"
+                :key="`${listData[active].map_id}-${isPhone ? 'mobile' : 'desktop'}`" :overview="isPhone"
                 :datas="(listData[active].mapDatas && listData[active].mapDatas[listData[active].map_id]) || []"></jx3box-map>
             <div class="m-pvx-horse-broadcast__list-items">
-                <div class="m-pvx-horse-broadcast__item" v-for="(item, index) in listData" :key="index">
+                <div
+                    class="m-pvx-horse-broadcast__item"
+                    :class="{ 'is-placeholder': !item.map_id && !item.fromTime }"
+                    v-for="(item, index) in listData"
+                    :key="index"
+                >
                     <div class="m-pvx-horse-broadcast__horse" @click="changeHorse(item, index)"
                         v-if="index < 3 || item.fromTime" :class="{ active: active === index }">
                         <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times"
@@ -40,7 +50,7 @@
                 </div>
                 <div v-if="diluHasExist" class="m-pvx-horse-broadcast__horse is-dilu">
                     <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times">
-                        <div>本周的卢已刷新</div>
+                        <div>{{ $t("pages.horse.ui.broadcast.diluRefreshed") }}</div>
                         <div>{{ diluExistData.time }}</div>
                     </div>
                     <span class="u-pvx-horse-broadcast__col u-pvx-horse-name">{{ diluExistData.map_name }}</span>
@@ -48,10 +58,15 @@
                         <el-image :src="getImgSrc('的卢')" class="item"></el-image>
                     </div>
                 </div>
-                <span v-else class="m-pvx-horse-broadcast__horse m-pvx-horse-broadcast__horse--empty">本周的卢尚未刷新</span>
+                <span
+                    v-else
+                    class="m-pvx-horse-broadcast__horse m-pvx-horse-broadcast__horse--empty is-dilu"
+                >
+                    {{ $t("pages.horse.ui.broadcast.diluPending") }}
+                </span>
                 <div v-if="hasExist" class="m-pvx-horse-broadcast__horse is-chitu">
                     <div class="u-pvx-horse-broadcast__col u-pvx-horse-broadcast__times">
-                        <div>本CD赤兔已刷新</div>
+                        <div>{{ $t("pages.horse.ui.broadcast.chituRefreshed") }}</div>
                         <div>{{ existData.time }}</div>
                     </div>
                     <span class="u-pvx-horse-broadcast__col u-pvx-horse-name">{{ existData.map_name }}</span>
@@ -59,11 +74,18 @@
                         <el-image :src="getImgSrc('赤兔')" class="item"></el-image>
                     </div>
                 </div>
-                <span v-else class="m-pvx-horse-broadcast__horse m-pvx-horse-broadcast__horse--empty">本CD赤兔尚未刷新</span>
+                <span
+                    v-else
+                    class="m-pvx-horse-broadcast__horse m-pvx-horse-broadcast__horse--empty is-chitu"
+                >
+                    {{ $t("pages.horse.ui.broadcast.chituPending") }}
+                </span>
             </div>
         </div>
 
-        <div v-else class="w-no-data">{{ server }} 暂无播报</div>
+        <div v-else class="w-no-data">
+            {{ $t("pages.horse.ui.broadcast.noReports", { server }) }}
+        </div>
     </div>
 </template>
 
@@ -92,16 +114,11 @@ export default {
                 小赤: 216,
                 杨新: 411,
             },
-            // 本cd是否刷新
             hasExist: false,
             existData: {},
-            chituTip: `
-                <p>CD: 周二7点 ~ 下周一7点。</p>
-                <p>地图: 黑戈壁、阴山大草原、鲲鹏岛。</p>
-                <p>必备: <卦文龟甲>交大战时有几率获得，赤兔刷新后再到信使处领取，有效期7天。</p>
-            `,
             chituLoading: false,
             active: 0,
+            viewportWidth: typeof window === "undefined" ? 1200 : window.innerWidth,
 
             diluHasExist: false,
             diluExistData: {},
@@ -141,7 +158,7 @@ export default {
             return list;
         },
         isPhone() {
-            return document.documentElement.clientWidth <= 820;
+            return this.viewportWidth <= 820;
         },
         isAsia() {
             // 是否是东八区
@@ -229,7 +246,7 @@ export default {
                     result[map_id] = [
                         {
                             content: `${horses.join()}
-                    <br />坐标：(${coor.x},${coor.y},${coor.z})`,
+                    <br />${this.$t("pages.horse.ui.broadcast.coordinate")}：(${coor.x},${coor.y},${coor.z})`,
                             ...coor,
                         },
                     ];
@@ -309,7 +326,7 @@ export default {
                 result[mapId] = [
                     {
                         content: `${horses.join()}
-                    <br />坐标：(${coor.x},${coor.y},${coor.z})`,
+                    <br />${this.$t("pages.horse.ui.broadcast.coordinate")}：(${coor.x},${coor.y},${coor.z})`,
                         ...coor,
                     },
                 ];
@@ -328,7 +345,7 @@ export default {
                     result[mapId] = [
                         {
                             content: `${horses.join()}
-                    <br />坐标：(${coor.x},${coor.y},${coor.z})`,
+                    <br />${this.$t("pages.horse.ui.broadcast.coordinate")}：(${coor.x},${coor.y},${coor.z})`,
                             ...coor,
                         },
                     ];
@@ -466,6 +483,11 @@ export default {
         },
     },
     mounted() {
+        this.handleViewportResize = () => {
+            this.viewportWidth = window.innerWidth;
+        };
+        window.addEventListener("resize", this.handleViewportResize);
+
         if (User.isLogin()) {
             getUserInfo().then((res) => {
                 this.server = res.data?.data?.jx3_server || "梦江南";
@@ -478,6 +500,7 @@ export default {
     },
     beforeUnmount() {
         this.stopTimer();
+        window.removeEventListener("resize", this.handleViewportResize);
     },
 };
 </script>
