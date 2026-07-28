@@ -271,7 +271,7 @@
 
             li {
                 display: grid;
-                grid-template-columns: 50px minmax(0, 1fr);
+                grid-template-columns: 40px minmax(0, 1fr);
                 align-items: center;
                 box-sizing: border-box;
                 min-height: 30px;
@@ -282,7 +282,7 @@
                 transition: background-color @pvx-duration-fast @pvx-ease-standard;
 
                 &.has-source {
-                    grid-template-columns: 50px 42px minmax(0, 1fr);
+                    grid-template-columns: 40px max-content minmax(0, 1fr);
                 }
 
                 &:hover {
@@ -388,13 +388,20 @@
                 display: flex;
                 flex-wrap: wrap;
                 justify-content: flex-end;
-                gap: 6px 18px;
+                gap: 4px 10px;
 
                 .u-status {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    min-height: 18px;
                     color: @pvx-text-secondary;
 
                     &::before {
+                        position: static;
+                        flex: 0 0 auto;
                         border-radius: 3px;
+                        transform: translateY(-1px);
                     }
                 }
             }
@@ -438,6 +445,8 @@
         }
 
         .m-all-servers {
+            margin-top: 0;
+
             .m-server-list {
                 gap: 8px;
                 margin-top: 8px;
@@ -711,6 +720,33 @@
 .wechat-miniprogram {
     .p-gonggao.is-modern .m-pvx-gonggao-daily__toolbar {
         top: 8px;
+    }
+}
+
+@media screen and (min-width: 1680px) {
+    .p-gonggao.is-modern .m-daily {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .p-gonggao.is-modern .m-simple-daily .m-reputation-list .u-reputation-item {
+        gap: 7px;
+    }
+
+    .p-gonggao.is-modern .m-simple-daily .m-simple-pet {
+        gap: 6px;
+
+        .u-pet-item {
+            grid-template-columns: 34px minmax(0, 1fr);
+            column-gap: 7px;
+            height: 72px;
+            padding: 8px 5px;
+
+            .u-item-icon,
+            .u-item-icon img {
+                width: 34px !important;
+                height: 34px !important;
+            }
+        }
     }
 }
 
