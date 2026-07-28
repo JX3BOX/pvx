@@ -1,53 +1,113 @@
 <template>
     <div class="p-furniture-single m-single-wrapper" :class="{ 'is-robot': isRobot }" v-loading="loading">
         <template v-if="!isRobot">
-        <div class="m-navigation">
-            <div class="u-goback" @click="goBack">返回列表</div>
-            <PvxSingleAdminDrop></PvxSingleAdminDrop>
-        </div>
+        <PvxPageShell class="p-pvx-furniture-single--modern">
+        <div class="m-pvx-furniture-single-layout">
+            <PvxSurface class="m-pvx-furniture-navigation" tag="nav" padding="small" radius="medium">
+                <PvxActionButton variant="light" @click="goBack">
+                    <ArrowLeft />
+                    {{ $t("pages.furniture.ui.back") }}
+                </PvxActionButton>
+                <PvxSingleAdminDrop></PvxSingleAdminDrop>
+            </PvxSurface>
 
-        <div class="m-furniture-content">
-            <div class="u-info">
-                <div class="u-info-title" :class="'quality_' + data.Quality">
-                    {{ data.szName }}
-                    <i class="u-interact" v-if="data.bInteract"></i>
+            <PvxSurface class="m-pvx-furniture-header" tag="header" padding="large">
+                <div class="m-pvx-furniture-header__info">
+                    <div class="m-pvx-furniture-header__meta">
+                        <span class="u-pvx-furniture-eyebrow">{{ $t("pages.furniture.ui.guideLabel") }}</span>
+                        <span v-if="furniture_type" class="u-pvx-furniture-type">{{ furniture_type }}</span>
+                    </div>
+                    <h1 class="u-pvx-furniture-page-title" :class="'quality_' + data.Quality">
+                        {{ data.szName }}
+                        <i class="u-interact" v-if="data.bInteract"></i>
+                    </h1>
                 </div>
-                <div class="u-attrs" v-if="data.Record || data.Record === 0 || furniture_attrs.length">
-                    <span class="u-attr" v-if="data.Record || data.Record === 0"
-                        ><span class="u-label score">装修评分</span>{{ data.Record }}</span
+                <div class="m-pvx-furniture-header__actions">
+                    <PvxActionButton
+                        v-if="other_id"
+                        class="u-pvx-furniture-action"
+                        :href="getLink('item', item_id)"
+                        target="_blank"
+                        variant="light"
                     >
+                        <CollectionTag />
+                        {{ $t("pages.furniture.ui.itemInfo") }}
+                    </PvxActionButton>
+                    <PvxActionButton
+                        v-if="achieve_id"
+                        class="u-pvx-furniture-action"
+                        :href="getLink('cj', achieve_id)"
+                        target="_blank"
+                        variant="light"
+                    >
+                        <Trophy />
+                        {{ $t("pages.furniture.ui.achievementInfo") }}
+                    </PvxActionButton>
+                    <Fav
+                        class="u-collect"
+                        post-type="furniture"
+                        :post-id="id"
+                        :post-title="data && data.szName"
+                        :author_id="fav_author_id"
+                    />
+                </div>
+            </PvxSurface>
+
+        <PvxSurface class="m-furniture-content" padding="medium">
+            <div class="u-img">
+                <div class="u-img-wrap">
+                    <img :src="formatImg(data.Path)" :alt="data.szName" />
+                </div>
+            </div>
+            <div class="u-info">
+                <div class="m-pvx-furniture-summary">
+                    <span class="u-summary-item">
+                        <em>{{ $t("pages.furniture.ui.id") }}</em>
+                        {{ id }}
+                    </span>
+                    <span v-if="furniture_type" class="u-summary-item">
+                        <em>{{ $t("pages.furniture.ui.category") }}</em>
+                        {{ furniture_type }}
+                    </span>
+                    <span v-if="data.Record || data.Record === 0" class="u-summary-item">
+                        <em>{{ $t("pages.furniture.ui.score") }}</em>
+                        {{ data.Record }}
+                    </span>
+                </div>
+                <div class="u-info-title">
+                    {{ $t("pages.furniture.ui.basicInfo") }}
+                </div>
+                <div class="u-attrs" v-if="furniture_attrs.length">
                     <span class="u-attr" v-for="item in furniture_attrs" :key="item.key"
                         ><span class="u-label" :class="item.className">{{ item.label }}</span>{{ item.value }}</span
                     >
                 </div>
+                <div class="u-info-title u-info-title--placement">
+                    {{ $t("pages.furniture.ui.placementInfo") }}
+                </div>
                 <div class="u-metas">
-                    <span class="u-meta"
-                        ><img src="../../assets/img/furniture/origin.svg" svg-inline /><span class="u-label"
-                            >来源途径：</span
-                        >{{ source_text }}</span
-                    >
-                    <span v-if="data.LevelLimit" class="u-meta"
-                        ><img src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label"
-                            >摆放等级：</span
-                        >{{ data.LevelLimit }}级</span
-                    >
-                    <span v-if="data.MaxAmountPerLand" class="u-meta"
-                        ><img src="../../assets/img/furniture/limit.svg" svg-inline /><span class="u-label"
-                            >摆放上限：</span
-                        >{{ data.MaxAmountPerLand }}</span
-                    >
-                    <span class="u-meta u-meta-scale" v-if="data.szScaleRange"
-                        ><img src="../../assets/img/furniture/scale.svg" svg-inline /><span class="u-label"
-                            >缩放大小：</span
-                        >
+                    <span class="u-meta">
+                        <span class="u-label">{{ $t("pages.furniture.ui.source") }}</span>
+                        <span class="u-meta-value">{{ source_text }}</span>
+                    </span>
+                    <span v-if="data.LevelLimit" class="u-meta">
+                        <span class="u-label">{{ $t("pages.furniture.ui.placementLevel") }}</span>
+                        <span class="u-meta-value">
+                            {{ $t("pages.furniture.ui.levelValue", { level: data.LevelLimit }) }}
+                        </span>
+                    </span>
+                    <span v-if="data.MaxAmountPerLand" class="u-meta">
+                        <span class="u-label">{{ $t("pages.furniture.ui.placementLimit") }}</span>
+                        <span class="u-meta-value">{{ data.MaxAmountPerLand }}</span>
+                    </span>
+                    <span class="u-meta u-meta-scale" v-if="data.szScaleRange">
+                        <span class="u-label">{{ $t("pages.furniture.ui.scale") }}</span>
                         <span class="u-value">
                             <b v-for="(item, index) in scaleRange(data.szScaleRange)" :key="index">{{ item }}</b>
                         </span>
                     </span>
-                    <span class="u-meta u-meta-dyes" v-if="color_list.length"
-                        ><img src="../../assets/img/furniture/level.svg" svg-inline /><span class="u-label"
-                            >染色选项：</span
-                        >
+                    <span class="u-meta u-meta-dyes" v-if="color_list.length">
+                        <span class="u-label">{{ $t("pages.furniture.ui.dyes") }}</span>
                         <span class="u-value">
                             <i
                                 v-for="item in color_list"
@@ -58,41 +118,25 @@
                         </span>
                     </span>
                 </div>
-
-                <div class="m-buttons">
-                    <a v-if="other_id" class="u-link u-item" :href="getLink('item', item_id)" target="_blank"
-                        ><i class="el-icon-collection-tag"></i>物品信息</a
-                    >
-                    <a v-if="achieve_id" class="u-link u-achievement" :href="getLink('cj', achieve_id)" target="_blank">
-                        <i class="el-icon-trophy"></i>
-                        成就信息
-                    </a>
-                    <!-- 收藏按钮 -->
-                    <Fav
-                        class="u-collect"
-                        post-type="furniture"
-                        :post-id="id"
-                        :post-title="data && data.szName"
-                        :author_id="fav_author_id"
-                    />
-                </div>
             </div>
-            <div class="u-img">
-                <div class="u-img-wrap">
-                    <img :src="formatImg(data.Path)" :alt="data.szName" />
-                </div>
-            </div>
-        </div>
+        </PvxSurface>
 
         <div class="m-extend" v-if="has_extend">
-            <div class="m-extend-content m-extend-relation" v-if="setData">
-                <div class="u-title">
-                    <div>{{ setData.szName }}</div>
-                    <el-rate class="u-star" v-model="setData.nStars" disabled></el-rate>
-                </div>
+            <PvxSurface class="m-extend-content m-extend-relation" v-if="setData" padding="medium">
+                <PvxSectionHeader
+                    :title="setData.szName"
+                    :description="$t('pages.furniture.ui.setDescription')"
+                    level="h2"
+                    class="m-pvx-furniture-section-header"
+                >
+                    <template #icon><Collection /></template>
+                    <template #action>
+                        <el-rate class="u-star" v-model="setData.nStars" disabled></el-rate>
+                    </template>
+                </PvxSectionHeader>
                 <div class="u-desc">
                     <div v-if="data.szTip" class="u-txt" v-html="description_filter(data.szTip)"></div>
-                    <div v-else class="u-txt">暂无介绍</div>
+                    <div v-else class="u-txt">{{ $t("pages.furniture.ui.noIntroduction") }}</div>
                 </div>
 
                 <!--                <list-cross v-if="setData.furnitures.length" :width="30" :list="setData.furnitures">-->
@@ -102,34 +146,41 @@
                         :data="item"
                         :category="category"
                         :key="index"
+                        variant="modern"
+                        :current-id="id"
                     />
                 </div>
                 <!--                </list-cross>-->
-            </div>
-            <div class="m-extend-content m-extend-materials" v-if="data.szSource == '生活技能' && data.__manufactureID">
-                <div class="u-title">合成材料</div>
+            </PvxSurface>
+            <PvxSurface
+                class="m-extend-content m-extend-materials"
+                v-if="data.szSource == '生活技能' && data.__manufactureID"
+                padding="medium"
+            >
+                <PvxSectionHeader
+                    :title="$t('pages.furniture.ui.materials')"
+                    :description="$t('pages.furniture.ui.materialsDescription')"
+                    level="h2"
+                    class="m-pvx-furniture-section-header"
+                >
+                    <template #icon><Tools /></template>
+                </PvxSectionHeader>
                 <furnitureMaterials :id="other_id" />
-            </div>
+            </PvxSurface>
         </div>
 
-        <!-- 攻略 -->
-        <div class="m-furniture-wiki" v-if="wiki_source_id">
-            <Wiki
-                :key="wiki_source_key"
-                :source_type="wiki_source_type"
-                :source_id="wiki_source_id"
-                :type="type"
-                :id="id"
-                :title="wiki_title"
-                :source_title="wiki_source_title"
-            ></Wiki>
-        </div>
-        <WikiComments
-            v-if="comment_source_id"
-            :key="comment_source_key"
-            :type="comment_source_type"
-            :source-id="String(comment_source_id)"
+        <PvxUser
+            v-if="wiki_source_id"
+            :key="community_key"
+            class="m-pvx-furniture-community"
+            :id="wiki_source_id"
+            :name="community_name"
+            :type="wiki_source_type"
+            :is-robot="false"
+            i18n-key-prefix="pages.furniture.ui.wiki"
         />
+        </div>
+        </PvxPageShell>
         </template>
         <template v-else>
             <div class="m-pvx__item m-pvx-furniture-robot__header">
@@ -223,11 +274,15 @@
 
 <script>
 import furnitureSet from "@/components/furniture/furniture_set.vue";
-import Wiki from "@/components/wiki/Wiki.vue";
 import furnitureMaterials from "@/components/furniture/furniture_materials.vue";
 import Fav from "@jx3box/jx3box-ui/src/interact/Fav.vue";
 import PvxUser from "@/components/PvxUser.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { ArrowLeft, Collection, CollectionTag, Tools, Trophy } from "@element-plus/icons-vue";
 
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";
@@ -238,7 +293,6 @@ import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import { getFurnitureCategory } from "@/service/homeland.js";
 import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 import { __imgPath } from "@/utils/config";
-import WikiComments from "@jx3box/jx3box-ui/src/wiki/WikiComments";
 
 const HOMELAND_COIN_SOURCE = "\u56ed\u5b85\u5e01";
 
@@ -260,14 +314,21 @@ export default {
         },
     },
     components: {
-        Wiki,
         furnitureSet,
         furnitureMaterials,
         Fav,
         PvxUser,
         PvxSingleAdminDrop,
+        PvxPageShell,
+        PvxActionButton,
+        PvxSectionHeader,
+        PvxSurface,
+        ArrowLeft,
+        Collection,
+        CollectionTag,
+        Tools,
+        Trophy,
         // ListCross,
-        WikiComments,
     },
     data: function () {
         return {
@@ -314,25 +375,13 @@ export default {
             if (this.achieve_id) return this.achieve_id;
             return "";
         },
-        wiki_source_key: function () {
+        community_key: function () {
             return `${this.wiki_source_type}-${this.wiki_source_id}`;
         },
-        wiki_title: function () {
-            if (this.wiki_source_type === "item") return "物品攻略";
-            if (this.wiki_source_type === "achievement") return "成就攻略";
-            return "";
-        },
-        wiki_source_title: function () {
-            return this.wiki_source_type === "achievement" ? this.setData?.szName || this.data?.szName : this.data?.szName;
-        },
-        comment_source_type: function () {
-            return this.wiki_source_type;
-        },
-        comment_source_id: function () {
-            return this.wiki_source_id;
-        },
-        comment_source_key: function () {
-            return `${this.comment_source_type}-${this.comment_source_id}`;
+        community_name: function () {
+            return this.wiki_source_type === "achievement"
+                ? this.$t("pages.furniture.ui.achievementTypeName")
+                : this.$t("pages.furniture.ui.itemTypeName");
         },
         robot_wiki_type: function () {
             return this.wiki_source_type;
@@ -369,11 +418,11 @@ export default {
                 !this.data?.Attribute5;
 
             return [
-                { key: "view", label: "观赏", value: useDefaultAttrs ? 1 : this.data?.Attribute1, className: "blue" },
-                { key: "practical", label: "实用", value: useDefaultAttrs ? 1 : this.data?.Attribute2, className: "pink" },
-                { key: "strong", label: "坚固", value: useDefaultAttrs ? 1 : this.data?.Attribute3, className: "yellow" },
-                { key: "fengshui", label: "风水", value: useDefaultAttrs ? 1 : this.data?.Attribute4, className: "green" },
-                { key: "interest", label: "趣味", value: useDefaultAttrs ? 1 : this.data?.Attribute5, className: "purple" },
+                { key: "view", label: this.$t("pages.furniture.ui.attrs.view"), value: useDefaultAttrs ? 1 : this.data?.Attribute1, className: "blue" },
+                { key: "practical", label: this.$t("pages.furniture.ui.attrs.practical"), value: useDefaultAttrs ? 1 : this.data?.Attribute2, className: "pink" },
+                { key: "strong", label: this.$t("pages.furniture.ui.attrs.strong"), value: useDefaultAttrs ? 1 : this.data?.Attribute3, className: "yellow" },
+                { key: "fengshui", label: this.$t("pages.furniture.ui.attrs.fengshui"), value: useDefaultAttrs ? 1 : this.data?.Attribute4, className: "green" },
+                { key: "interest", label: this.$t("pages.furniture.ui.attrs.interest"), value: useDefaultAttrs ? 1 : this.data?.Attribute5, className: "purple" },
             ].filter((item) => hasAttrValue(item.value));
         },
 
@@ -504,4 +553,5 @@ export default {
 </script>
 <style lang="less">
 @import "~@/assets/css/furniture/pc/single.less";
+@import "~@/assets/css/modules/furniture-detail-theme.less";
 </style>

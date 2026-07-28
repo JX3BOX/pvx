@@ -339,6 +339,43 @@ export default {
     },
     furniture: {
         title: "Danh sách nội thất",
+        ui: {
+            all: "Tất cả", listTitle: "Nội thất", resultCount: "{count} mục", loadMore: "Tải thêm",
+            empty: { title: "Không tìm thấy nội thất phù hợp", description: "Hãy thử đổi danh mục hoặc bộ lọc." },
+            back: "Quay lại danh sách", score: "Điểm trang trí", source: "Nguồn", placementLevel: "Cấp đặt",
+            levelValue: "Cấp {level}", placementLimit: "Giới hạn đặt", scale: "Kích thước", dyes: "Tùy chọn nhuộm",
+            itemInfo: "Thông tin vật phẩm", achievementInfo: "Thành tựu", noIntroduction: "Chưa có mô tả",
+            materials: "Nguyên liệu chế tạo", itemGuide: "Hướng dẫn vật phẩm", achievementGuide: "Hướng dẫn thành tựu",
+            id: "ID", category: "Danh mục", current: "Hiện tại", guideLabel: "HƯỚNG DẪN NỘI THẤT",
+            basicInfo: "Thuộc tính", placementInfo: "Bố trí",
+            setDescription: "Xem các nội thất khác trong cùng bộ",
+            materialsDescription: "Xem nguyên liệu cần để chế tạo nội thất này",
+            itemTypeName: "Vật phẩm", achievementTypeName: "Thành tựu",
+            catalogLabel: "Danh mục nội thất",
+            filters: {
+                category: "Danh mục", filter: "Bộ lọc", costPerformance: "Đáng giá", homelandLevel: "Cấp gia viên",
+                other: "Khác", interactive: "Có tương tác", homelandContest: "Thi gia viên", keyword: "Tên nội thất",
+            },
+            search: {
+                close: "Áp dụng", reset: "Đặt lại", select: "Chọn",
+                inputField: "Nhập {name}", selectField: "Chọn {name}", searchPlaceholder: "Tìm theo {name}",
+            },
+            sources: {
+                all: "Tất cả", 1: "Xu gia viên", 2: "Sự kiện", 3: "Thi gia viên", 4: "Ẩn", 5: "Danh vọng",
+                7: "Kỳ ngộ", 8: "Điểm hiệp nghĩa", 9: "Lệnh Phi Sa", 10: "Đấu trường", 11: "Chiến giai",
+                12: "Điểm sư đồ", 13: "Quản gia", 14: "Du hành thú cưng", 15: "Khu dân cư",
+                16: "Ấn văn", 17: "Điểm mạt chược", 18: "Điểm cống hiến", 19: "Quà gia viên",
+                20: "Cửa hàng", 21: "Phó bản", 22: "Không rõ",
+            },
+            wiki: {
+                guideTitle: "Hướng dẫn {name}", improveGuide: "Bổ sung hướng dẫn {name}",
+                compatibleLead: "Chưa có hướng dẫn Origin; nội dung bản tiêu chuẩn dưới đây chỉ để tham khảo. ",
+                contributeRevision: "Đóng góp chỉnh sửa", compatibleTail: ".",
+                revisionLead: "Bản chỉnh sửa này được gửi bởi", submittedAt: " vào ",
+                emptyLead: "Chưa có hướng dẫn. ", completeGuide: "Viết hướng dẫn",
+            },
+            attrs: { view: "Thẩm mỹ", practical: "Tiện dụng", strong: "Bền chắc", fengshui: "Phong thủy", interest: "Thú vị" },
+        },
         keywords: "JX3 furniture list,JX3BOX",
         description: "Danh sách nội thất và thông tin chi tiết.",
         single: {

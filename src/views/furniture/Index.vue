@@ -1,56 +1,137 @@
 <template>
-    <div ref="listRef" class="p-furniture" v-loading="loading">
-        <PvxSearch ref="search" :items="isPhone ? searchProps.slice(0, 1) : searchProps" :initValue="initValue"
-            :active="isActive" class="m-furniture-search" @search="searchEvent($event)">
-            <template v-slot:default>
-                <div class="u-furniture-select" :class="version && 'is-selected'">
-                    <label v-if="!isPhone">庐园广记</label>
-                    <el-select v-model="version" :placeholder="isPhone ? '庐园广记' : ''">
-                        <el-option v-for="item in versions" :key="item.nDlcID" :value="item.nDlcID"
-                            :label="item.name" />
-                    </el-select>
+    <PvxPageShell class="p-pvx-furniture-list" v-loading="loading">
+        <div ref="listRef" class="m-pvx-furniture-layout">
+            <PvxSearch
+                ref="search"
+                :items="isPhone ? searchProps.slice(0, 1) : searchProps"
+                :initValue="initValue"
+                :active="isActive"
+                class="m-furniture-search"
+                popperClass="u-pvx-furniture-filter"
+                variant="modern"
+                i18n-scope="pages.furniture.ui.search"
+                inline-search-icon
+                @search="searchEvent($event)"
+            >
+                <template #default>
+                    <div class="u-furniture-select" :class="{ 'is-selected': version }">
+                        <label v-if="!isPhone">{{ $t("pages.furniture.ui.catalogLabel") }}</label>
+                        <el-select
+                            v-model="version"
+                            :placeholder="isPhone ? $t('pages.furniture.ui.catalogLabel') : ''"
+                        >
+                            <el-option
+                                v-for="item in versions"
+                                :key="item.nDlcID"
+                                :value="item.nDlcID"
+                                :label="item.name"
+                            />
+                        </el-select>
+                    </div>
+                </template>
+            </PvxSearch>
+
+            <PvxSearch
+                v-if="isPhone"
+                ref="searchMobile"
+                :items="searchProps.slice(1, 3)"
+                :initValue="initValue"
+                :active="isActive"
+                class="m-furniture-search m-furniture-search--mobile"
+                popperClass="u-pvx-furniture-filter"
+                variant="modern"
+                i18n-scope="pages.furniture.ui.search"
+                inline-search-icon
+                @search="searchEvent($event)"
+            />
+
+            <PvxSurface v-if="childCategory.length" class="m-child-category" padding="small">
+                <button type="button" class="u-item" :class="{ 'is-active': !childActive }" @click="setIndex('')">
+                    {{ $t("pages.furniture.ui.all") }}
+                </button>
+                <button
+                    v-for="item in childCategory"
+                    :key="item.dwTableID"
+                    type="button"
+                    class="u-item"
+                    :class="{ 'is-active': item.nCatag2Index === childActive }"
+                    @click.stop="setIndex(item.nCatag2Index)"
+                >
+                    {{ item.szName }}
+                </button>
+            </PvxSurface>
+
+            <PvxSurface v-if="list.length" class="m-pvx-furniture-section" padding="medium">
+                <PvxSectionHeader
+                    :title="$t('pages.furniture.ui.listTitle')"
+                    level="h2"
+                    class="m-pvx-furniture-section-header"
+                >
+                    <template #action>
+                        <span class="u-pvx-furniture-result-count">
+                            {{ $t("pages.furniture.ui.resultCount", { count: total }) }}
+                        </span>
+                    </template>
+                </PvxSectionHeader>
+                <div class="m-furniture-list">
+                    <furnitureSet
+                        v-for="item in list"
+                        :key="item.ID"
+                        :data="item"
+                        :category="categoryObj"
+                        :copy="hasCopy"
+                        variant="modern"
+                    />
                 </div>
-            </template>
-        </PvxSearch>
-        <template v-if="isPhone">
-            <PvxSearch style="margin-top: 40px" ref="searchMobile" :items="searchProps.slice(2, 3)"
-                :initValue="initValue" :active="isActive" class="m-furniture-search" @search="searchEvent($event)" />
-        </template>
-        <div v-if="childCategory.length" class="m-child-category">
-            <div class="u-item" :class="!childActive && 'is-active'" @click="setIndex('')">全部</div>
-            <div class="u-item" :class="item.nCatag2Index === childActive ? 'is-active' : ''"
-                v-for="item in childCategory" :key="item.dwTableID" @click.stop="setIndex(item.nCatag2Index)">
-                {{ item.szName }}
-            </div>
-        </div>
-        <div v-if="list.length" class="m-furniture-list" :style="`--furniture-cols: ${count}`" :class="!childCategory.length && 'm-no-child'">
-            <furnitureSet :data="item" v-for="item in list" :key="item.ID" :category="categoryObj" :copy="hasCopy" />
-            <div class="m-furniture-null" v-if="!list.length">
-                <el-alert center title="没有对应的家具" show-icon type="info" />
-            </div>
-        </div>
-        <div v-if="setList.length" class="m-furniture-wrap">
-            <div class="u-set-item" v-for="setItem in setList" :key="setItem.dwSetID">
-                <div class="u-title">{{ setItem.szName }}</div>
-                <div class="u-furniture-list">
-                    <furnitureSet :data="item" v-for="item in setItem.furnitures" :key="item.ID"
-                        :category="categoryObj" />
+                <div class="m-furniture-pages">
+                    <el-button class="m-archive-more" v-show="hasNextPage" @click="appendPage" :loading="loading">
+                        <el-icon v-if="!loading" class="el-icon--left"><ArrowDown /></el-icon>
+                        {{ $t("pages.furniture.ui.loadMore") }}
+                    </el-button>
+                    <el-pagination
+                        class="m-archive-pages"
+                        background
+                        layout="total, prev, pager, next, jumper"
+                        :hide-on-single-page="true"
+                        :page-size="per"
+                        :total="total"
+                        v-model:current-page="page"
+                        @current-change="changePage"
+                    />
                 </div>
+            </PvxSurface>
+
+            <div v-if="setList.length" class="m-furniture-wrap">
+                <PvxSurface
+                    v-for="setItem in setList"
+                    :key="setItem.dwSetID"
+                    class="u-set-item"
+                    padding="medium"
+                >
+                    <PvxSectionHeader :title="setItem.szName" level="h2" class="m-pvx-furniture-section-header" />
+                    <div class="u-furniture-list">
+                        <furnitureSet
+                            v-for="item in setItem.furnitures"
+                            :key="item.ID"
+                            :data="item"
+                            :category="categoryObj"
+                            variant="modern"
+                        />
+                    </div>
+                </PvxSurface>
             </div>
+
+            <PvxSurface v-if="!loading && !list.length && !setList.length" padding="medium">
+                <PvxEmptyState
+                    illustrated
+                    :title="$t('pages.furniture.ui.empty.title')"
+                    :description="$t('pages.furniture.ui.empty.description')"
+                />
+            </PvxSurface>
+
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </div>
-        <div v-if="list.length" class="m-furniture-pages">
-            <el-button class="m-archive-more" v-show="hasNextPage" @click="appendPage" :loading="loading">
-                <el-icon class="el-icon--left">
-                    <ArrowDown />
-                </el-icon>
-                加载更多
-            </el-button>
-            <el-pagination class="m-archive-pages" background layout="total, prev, pager, next, jumper"
-                :hide-on-single-page="true" :page-size="per" :total="total" v-model:current-page="page"
-                @current-change="changePage" />
-        </div>
-        <PvxBacktop color="#fff" bgColor="#07ad36"></PvxBacktop>
-    </div>
+    </PvxPageShell>
 </template>
 
 <script>
@@ -58,11 +139,15 @@ import { ArrowDown } from "@element-plus/icons-vue";
 import PvxSearch from "@/components/PvxSearch.vue";
 import furnitureSet from "@/components/furniture/furniture_set.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 
 import { __imgPath, __dataPath } from "@/utils/config";
 import { getFurnitureCategory } from "@/service/homeland.js";
 import { getFurniture, getFurnitureSet } from "@/service/furniture.js";
-import { deleteNull, isPhone } from "@/utils/index";
+import { deleteNull } from "@/utils/index";
 import furnitureData from "@/assets/data/furniture.json";
 import { debounce } from "lodash";
 import { loadFurnitureMatch } from "@/utils/furniture";
@@ -71,12 +156,12 @@ const COST_PERFORMANCE_KEY = "__costPerf";
 const COST_PERFORMANCE_SOURCE = "\u56ed\u5b85\u5e01";
 const COST_PERFORMANCE_FILTER = "scoreCostPerformance";
 
-function getSourceOptions(locked = false) {
+function getSourceOptions(t, locked = false) {
     return sourceList.map((item) => {
         const key = item.name === "全部" ? "" : item.name;
         return {
             key,
-            value: item.name,
+            value: t(`pages.furniture.ui.sources.${item.id || "all"}`),
             disabled: locked && key !== COST_PERFORMANCE_SOURCE,
         };
     });
@@ -84,7 +169,16 @@ function getSourceOptions(locked = false) {
 
 export default {
     name: "Index",
-    components: { PvxSearch, furnitureSet, PvxBacktop, ArrowDown },
+    components: {
+        PvxSearch,
+        furnitureSet,
+        PvxBacktop,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        ArrowDown,
+    },
     provide: {
         __imgRoot: __imgPath + "homeland/",
         __dataRoot: __dataPath + "pvx/",
@@ -98,6 +192,7 @@ export default {
             pages: 0,
             total: 0,
             count: 5,
+            viewportWidth: window.innerWidth,
             categoryObj: {},
             category: [],
             childCategory: [],
@@ -110,14 +205,14 @@ export default {
             searchProps: [
                 {
                     key: "nCatag1Index",
-                    name: "分类",
+                    name: this.$t("pages.furniture.ui.filters.category"),
                     type: "radio",
                     options: [],
                 },
                 {
                     type: "filter",
                     key: "filter",
-                    name: "过滤",
+                    name: this.$t("pages.furniture.ui.filters.filter"),
                     options: [
                         // {
                         //     key: "attribute",
@@ -133,47 +228,49 @@ export default {
                         {
                             key: "decorationScore",
                             type: "radio",
-                            name: "装修评分",
+                            name: this.$t("pages.furniture.ui.score"),
                             options: [
                                 {
                                     key: COST_PERFORMANCE_FILTER,
-                                    value: "性价比",
+                                    value: this.$t("pages.furniture.ui.filters.costPerformance"),
                                 },
                             ],
                         },
                         {
                             key: "szSource",
                             type: "radio",
-                            name: "来源途径",
-                            options: getSourceOptions(),
+                            name: this.$t("pages.furniture.ui.source"),
+                            options: getSourceOptions((key, params) => this.$t(key, params)),
                         },
                         {
                             key: "LevelLimit",
                             type: "radio",
-                            name: "家园等级",
+                            name: this.$t("pages.furniture.ui.filters.homelandLevel"),
                             options: levelList.map((item) => {
                                 return {
                                     key: item.level,
-                                    value: item.name,
+                                    value: item.level
+                                        ? this.$t("pages.furniture.ui.levelValue", { level: item.level })
+                                        : this.$t("pages.furniture.ui.all"),
                                 };
                             }),
                         },
                         {
                             key: "other",
                             type: "radio",
-                            name: "其它",
+                            name: this.$t("pages.furniture.ui.filters.other"),
                             options: [
                                 {
                                     key: "bInteract",
-                                    value: "可交互",
+                                    value: this.$t("pages.furniture.ui.filters.interactive"),
                                 },
                                 {
                                     key: "isSet",
-                                    value: "庐园广记",
+                                    value: this.$t("pages.furniture.ui.catalogLabel"),
                                 },
                                 {
                                     key: "isMatch",
-                                    value: "园宅会赛",
+                                    value: this.$t("pages.furniture.ui.filters.homelandContest"),
                                 },
                             ],
                         },
@@ -181,7 +278,7 @@ export default {
                 },
                 {
                     key: "name",
-                    name: "家具名称",
+                    name: this.$t("pages.furniture.ui.filters.keyword"),
                 },
             ],
             active: "",
@@ -216,7 +313,7 @@ export default {
     },
     computed: {
         isPhone() {
-            return isPhone();
+            return this.viewportWidth <= 720;
         },
         hasNextPage: function () {
             return this.pages > 1 && this.page < this.pages;
@@ -377,7 +474,7 @@ export default {
             const filter = this.searchProps.find((item) => item.type === "filter");
             const sourceFilter = filter?.options.find((item) => item.key === "szSource");
             if (!sourceFilter) return;
-            sourceFilter.options = getSourceOptions(locked);
+            sourceFilter.options = getSourceOptions((key, params) => this.$t(key, params), locked);
         },
         setSearchSourceValue(value) {
             const refs = [this.$refs.search, this.$refs.searchMobile].filter(Boolean);
@@ -424,25 +521,30 @@ export default {
                         ...item,
                     };
                 });
-                if (window.innerWidth > 1680) {
-                    this.searchProps[0].options = this.category;
-                } else {
-                    this.searchProps[0].type = "select";
-                    this.searchProps[0].options = this.category.map((i) => {
-                        return {
-                            id: i.id,
-                            value: i.type,
-                            label: i.name,
-                            children: i.children,
-                        };
-                    });
-                }
+                this.syncCategoryControlType();
 
                 if (this.initValue.nCatag1Index) {
                     const category = this.category.find((item) => item.id === this.initValue.nCatag1Index);
                     const children = category?.children || [];
                     this.childCategory = children;
                 }
+            });
+        },
+        syncCategoryControlType() {
+            if (!this.category.length) return;
+            if (this.viewportWidth > 1680) {
+                this.searchProps[0].type = "radio";
+                this.searchProps[0].options = this.category;
+                return;
+            }
+            this.searchProps[0].type = "select";
+            this.searchProps[0].options = this.category.map((item) => {
+                return {
+                    id: item.id,
+                    value: item.type,
+                    label: item.name,
+                    children: item.children,
+                };
             });
         },
         getData() {
@@ -491,17 +593,22 @@ export default {
         calcCount() {
             const listEl = this.$refs.listRef;
             const listWidth = listEl?.clientWidth || 1200;
-            const paddingLeft = parseFloat(getComputedStyle(listEl).paddingLeft) || 0;
-            const paddingRight = parseFloat(getComputedStyle(listEl).paddingRight) || 0;
-            const contentWidth = listWidth - paddingLeft - paddingRight;
-            const cardWidth = 160;
-            this.count = Math.floor(contentWidth / cardWidth) || 5;
-            this.per = this.count * 4;
+            const cardWidth = 180;
+            const cardGap = 12;
+            const sectionInlinePadding = 48;
+            const availableWidth = Math.max(listWidth - sectionInlinePadding, cardWidth);
+            const fittedCount = Math.max(1, Math.floor((availableWidth + cardGap) / (cardWidth + cardGap)));
+
+            // 与 horse / face 保持一致：小屏至少准备 6 条，分类结果一次请求两行。
+            this.count = Math.max(6, fittedCount);
+            this.per = this.count * 2;
         },
         // 列表card模式下按宽度显示个数
         showCount() {
+            this.viewportWidth = window.innerWidth;
+            this.syncCategoryControlType();
             this.calcCount();
-            this.getData();
+            if (this.list.length || Object.keys(this.search).length) this.getData();
         },
         getFurnitureSet() {
             this.list = [];
@@ -545,30 +652,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/furniture/pc/index.less";
 @import "~@/assets/css/miniprogram.less";
-
-.pvx-search-wrapper .search-group .search-item.filter-wrap {
-    margin: 0;
-}
-
-.p-furniture .u-furniture-select {
-    margin: 0;
-}
-
-@media screen and (max-width: @ipad) {
-    .pvx-search-wrapper {
-        height: auto;
-        padding-left: 15px;
-
-        .search-group {
-            flex-wrap: wrap;
-            flex-direction: row;
-
-            .search-item {
-                input {
-                    width: 100% !important;
-                }
-            }
-        }
-    }
-}
+@import "~@/assets/css/modules/furniture-list-theme.less";
 </style>

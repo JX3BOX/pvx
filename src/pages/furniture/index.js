@@ -1,6 +1,24 @@
 // 1.Create APP
 import { createApp } from "vue";
 import App from "@/views/furniture/Furniture.vue";
+
+// Element Plus 的 Select / Popover 在关闭并同步重排大量家具卡片时，
+// Chromium 可能把延迟到下一帧投递的 ResizeObserver 通知作为 window error 抛出。
+// 该通知不影响布局或业务，但会被 webpack 开发错误层误判为运行时异常。
+const RESIZE_OBSERVER_MESSAGES = new Set([
+    "ResizeObserver loop limit exceeded",
+    "ResizeObserver loop completed with undelivered notifications.",
+]);
+window.addEventListener(
+    "error",
+    (event) => {
+        if (!RESIZE_OBSERVER_MESSAGES.has(event.message)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    },
+    true
+);
+
 const app = createApp(App);
 
 // 2.Router

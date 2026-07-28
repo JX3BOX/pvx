@@ -1,11 +1,20 @@
 <template>
-    <div class="m-furniture-set">
+    <div
+        class="m-furniture-set"
+        :class="{
+            'm-furniture-set--modern': variant === 'modern',
+            'is-current': currentId && Number(currentId) === Number(data.dwID),
+        }"
+    >
         <router-link class="u-item" :class="quality(data.Quality)" :to="`/${data.dwID}`" target="_blank">
             <div class="u-image">
                 <img class="u-pic" :src="formatImg(data.Path)" />
             </div>
             <div class="u-name">{{ data.szName }}</div>
             <div class="u-type">{{ getType(data) }}</div>
+            <span v-if="currentId && Number(currentId) === Number(data.dwID)" class="u-current-label">
+                {{ $t("pages.furniture.ui.current") }}
+            </span>
         </router-link>
     </div>
 </template>
@@ -13,7 +22,24 @@
 import { formatFurnitureImg, getFurnitureType } from "@/utils/furniture";
 export default {
     name: "Set",
-    props: ["data", "category"],
+    props: {
+        data: {
+            type: Object,
+            required: true,
+        },
+        category: {
+            type: Object,
+            default: () => ({}),
+        },
+        variant: {
+            type: String,
+            default: "legacy",
+        },
+        currentId: {
+            type: [String, Number],
+            default: "",
+        },
+    },
     inject: ["__imgRoot"],
     data: function () {
         return {};

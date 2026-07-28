@@ -339,6 +339,41 @@ export default {
     },
     furniture: {
         title: "家具大全",
+        ui: {
+            all: "全部", listTitle: "家具列表", resultCount: "共 {count} 項", loadMore: "載入更多",
+            empty: { title: "沒有找到對應的家具", description: "請嘗試調整分類或篩選條件" },
+            back: "返回列表", score: "裝修評分", source: "來源途徑", placementLevel: "擺放等級",
+            levelValue: "{level}級", placementLimit: "擺放上限", scale: "縮放大小", dyes: "染色選項",
+            itemInfo: "物品資訊", achievementInfo: "成就資訊", noIntroduction: "暫無介紹",
+            materials: "合成材料", itemGuide: "物品攻略", achievementGuide: "成就攻略",
+            id: "編號", category: "分類", current: "目前", guideLabel: "家具資料",
+            basicInfo: "基礎屬性", placementInfo: "擺放資訊",
+            setDescription: "瀏覽該家具所屬套組中的其他家具",
+            materialsDescription: "查看製作該家具所需的材料",
+            itemTypeName: "物品", achievementTypeName: "成就",
+            catalogLabel: "廬園廣記",
+            filters: {
+                category: "分類", filter: "篩選", costPerformance: "性價比", homelandLevel: "家園等級",
+                other: "其他", interactive: "可互動", homelandContest: "園宅會賽", keyword: "家具名稱",
+            },
+            search: {
+                close: "確定", reset: "重設", select: "請選擇",
+                inputField: "請輸入{name}", selectField: "請選擇{name}", searchPlaceholder: "輸入{name}搜尋",
+            },
+            sources: {
+                all: "全部", 1: "園宅幣", 2: "活動", 3: "園宅會賽", 4: "隱藏", 5: "聲望",
+                7: "奇遇", 8: "俠義值", 9: "飛沙令", 10: "名劍大會", 11: "戰階", 12: "師徒值",
+                13: "管家", 14: "寵物遊歷", 15: "社區", 16: "監本印文", 17: "雀神點數",
+                18: "江湖貢獻值", 19: "入住家園贈送", 20: "商城", 21: "副本", 22: "未知",
+            },
+            wiki: {
+                guideTitle: "{name}攻略", improveGuide: "完善{name}攻略",
+                compatibleLead: "暫無緣起攻略，以下為重製攻略，僅供參考，", contributeRevision: "參與修訂",
+                compatibleTail: "。", revisionLead: "本次修訂由", submittedAt: "提交於",
+                emptyLead: "暫無攻略，我要", completeGuide: "完善攻略",
+            },
+            attrs: { view: "觀賞", practical: "實用", strong: "堅固", fengshui: "風水", interest: "趣味" },
+        },
         keywords: "劍網3家具大全,家園家具,JX3BOX",
         description: "家具大全，提供家具資訊與細節。",
         single: {

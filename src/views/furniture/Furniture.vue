@@ -5,7 +5,18 @@
             <img slot="logo" svg-inline :src="getAppIcon('furniture')" />
         </Breadcrumb> -->
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                {
+                    'c-pvx-modern-furniture-list-main': $route.name === 'furniture',
+                    'c-pvx-modern-furniture-single-main': $route.name === 'single',
+                },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main">
                 <router-view v-slot="{ Component }">
                     <keep-alive include="FurnitureList">
