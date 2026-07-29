@@ -535,6 +535,7 @@ export default {
                 achievementCount: "成就 {own}/{all}",
                 achievementDetails: "成就明細",
                 resultCount: "共 {count} 項成就",
+                onlyIncomplete: "只看未完成",
                 name: "成就名稱",
                 summary: "成就簡介",
                 points: "資歷點數",

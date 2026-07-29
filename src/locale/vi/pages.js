@@ -542,6 +542,7 @@ export default {
                 achievementCount: "Thành tựu {own}/{all}",
                 achievementDetails: "Chi tiết thành tựu",
                 resultCount: "{count} thành tựu",
+                onlyIncomplete: "Chỉ xem chưa hoàn thành",
                 name: "Thành tựu",
                 summary: "Mô tả",
                 points: "Điểm",

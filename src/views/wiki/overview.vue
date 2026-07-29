@@ -257,20 +257,33 @@
                         </span>
                         <div class="m-achievement-list-heading">
                             <h2>{{ viewAchievementsName }}</h2>
-                            <p>
-                                {{
-                                    $t("pages.wiki.overview.ui.resultCount", {
-                                        count: achievements_list.length,
+                            <p
+                                class="u-achievement-detail-count"
+                                :aria-label="
+                                    $t('pages.wiki.overview.ui.achievementCount', {
+                                        own: completedAchievementCount,
+                                        all: achievements_list.length,
                                     })
-                                }}
+                                "
+                            >
+                                <img src="@/assets/img/wiki/overview/cj-logo.svg" alt="" />
+                                <span aria-hidden="true">
+                                    {{ completedAchievementCount }}/{{ achievements_list.length }}
+                                </span>
                             </p>
                         </div>
                     </div>
+                    <el-checkbox
+                        v-model="showIncompleteOnly"
+                        class="u-achievement-incomplete-filter"
+                    >
+                        {{ $t("pages.wiki.overview.ui.onlyIncomplete") }}
+                    </el-checkbox>
                 </div>
 
                 <div class="m-achievement-table">
                     <el-table
-                        :data="achievements_list || []"
+                        :data="displayedAchievements"
                         style="width: 100%"
                         stripe
                         row-class-name="u-table-row"
@@ -462,6 +475,7 @@ export default {
             isScroll: false, //移动端滚动后总览数据移至底部
             showList: false,
             achievements_list: [],
+            showIncompleteOnly: false,
             loading: false,
             loadingDelayTimer: null,
             achievementRequestId: 0,
@@ -508,6 +522,16 @@ export default {
         },
         hasAchievementRewards() {
             return this.achievements_list.some((item) => this.hasRewardReference(item));
+        },
+        incompleteAchievementCount() {
+            return this.achievements_list.filter((item) => item.isCompleted === false).length;
+        },
+        completedAchievementCount() {
+            return this.achievements_list.length - this.incompleteAchievementCount;
+        },
+        displayedAchievements() {
+            if (!this.showIncompleteOnly) return this.achievements_list;
+            return this.achievements_list.filter((item) => item.isCompleted === false);
         },
 
         // 总进度
@@ -879,17 +903,20 @@ export default {
                     if (requestId !== this.achievementRequestId) return false;
                     let list = data.data.data.achievements || [];
                     let arr = [];
+                    const achievementIds = new Set();
+                    const appendAchievement = (achievement) => {
+                        if (!achievement) return;
+                        const achievementId = String(achievement.ID);
+                        if (achievementIds.has(achievementId)) return;
+
+                        achievementIds.add(achievementId);
+                        achievement.isCompleted = menu.ownAchievements.includes(achievement.ID);
+                        arr.push(achievement);
+                    };
+
                     list.forEach((item) => {
-                        item.isCompleted = menu.ownAchievements.includes(item.ID);
-                        arr.push(item);
-                        if (item.SeriesAchievementList) {
-                            item.SeriesAchievementList.forEach((sub, index) => {
-                                if (index > 0) {
-                                    sub.isCompleted = menu.ownAchievements.includes(sub.ID);
-                                    arr.push(sub);
-                                }
-                            });
-                        }
+                        appendAchievement(item);
+                        item.SeriesAchievementList?.forEach(appendAchievement);
                     });
                     this.achievements_list = arr;
                     return true;
@@ -913,6 +940,7 @@ export default {
             this.categoryPath = [];
             this.showList = false;
             this.achievements_list = [];
+            this.showIncompleteOnly = false;
             this.$store.commit("SET_STATE", { key: "viewAchievementsName", value: null });
         },
         refreshRenderList() {

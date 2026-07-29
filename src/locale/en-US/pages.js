@@ -545,6 +545,7 @@ export default {
                 achievementCount: "Achievements {own}/{all}",
                 achievementDetails: "Achievement Details",
                 resultCount: "{count} achievements",
+                onlyIncomplete: "Incomplete only",
                 name: "Achievement",
                 summary: "Description",
                 points: "Points",
