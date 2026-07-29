@@ -1,10 +1,10 @@
 <template>
     <div class="m-pvx-book-list-head list-sticky-head">
-        <div>名称</div>
-        <div>类型</div>
-        <div>套书</div>
-        <div>描述</div>
-        <div style="color: #6f42c1">来源</div>
+        <div>{{ $t("pages.book.ui.columns.name") }}</div>
+        <div>{{ $t("pages.book.ui.columns.type") }}</div>
+        <div>{{ $t("pages.book.ui.columns.collection") }}</div>
+        <div>{{ $t("pages.book.ui.columns.description") }}</div>
+        <div class="u-source-column">{{ $t("pages.book.ui.columns.origin") }}</div>
     </div>
 </template>
 

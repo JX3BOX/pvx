@@ -1,18 +1,31 @@
 <template>
     <div class="m-pvx-book-item" @click="go(item.idKey)">
-        <div class="u-name">
-            <item-icon :item_id="String(item.ItemID)" :size="36" :vertical="true"></item-icon>
+        <div class="u-name u-field" :data-label="$t('pages.book.ui.columns.name')">
+            <div class="u-book-name-value">
+                <item-icon
+                    :item_id="String(item.ItemID)"
+                    :size="36"
+                    :vertical="true"
+                    @loaded="showFallbackName = false"
+                    @error="showFallbackName = true"
+                ></item-icon>
+                <span v-if="showFallbackName" class="u-book-name-text">{{ item.Name }}</span>
+            </div>
         </div>
-        <div class="u-name">
-            {{ this.getProfessionType(item.ExtendProfessionID1) }}
+        <div class="u-name u-field" :data-label="$t('pages.book.ui.columns.type')">
+            {{ getProfessionLabel(item.ExtendProfessionID1) }}
         </div>
-        <div class="u-name">
+        <div class="u-name u-field" :data-label="$t('pages.book.ui.columns.collection')">
             <span>{{ item.BookName }}</span>
         </div>
-        <div class="u-name">
+        <div class="u-name u-field" :data-label="$t('pages.book.ui.columns.description')">
             <span>{{ item.Desc }}</span>
         </div>
-        <div class="u-path" :class="getOrigin(item) !== '其它' && 'special'">
+        <div
+            class="u-path u-field"
+            :class="getOrigin(item) !== '其它' && 'special'"
+            :data-label="$t('pages.book.ui.columns.origin')"
+        >
             <span>{{ getOrigin(item) }}</span>
         </div>
     </div>
@@ -24,6 +37,11 @@ import { getOrigin as _getOrigin, getProfessionType as _getProfessionType, getBo
 
 export default {
     name: "BookCard",
+    data() {
+        return {
+            showFallbackName: false,
+        };
+    },
     components: {
         ItemIcon,
     },
@@ -34,7 +52,15 @@ export default {
         },
     },
     methods: {
-        getProfessionType: _getProfessionType,
+        getProfessionLabel(id) {
+            const keyMap = {
+                9: "buddhism",
+                10: "taoism",
+                11: "misc",
+            };
+            const key = keyMap[id];
+            return key ? this.$t(`pages.book.ui.types.${key}`) : _getProfessionType(id);
+        },
         go(id) {
             this.$router.push(`/${id}`);
         },
@@ -48,6 +74,11 @@ export default {
         },
         bookMapInfo() {
             return getBookMapInfo(this.client);
+        },
+    },
+    watch: {
+        "item.ItemID"() {
+            this.showFallbackName = false;
         },
     },
 };

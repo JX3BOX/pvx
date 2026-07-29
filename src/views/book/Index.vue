@@ -1,354 +1,369 @@
 <template>
-    <div class="p-pvx-book">
-        <CommonToolbar class="m-reputation-tabs" color="#d16400" search :types="professions" @update="updateToolbar" />
-        <div class="m-content" ref="listRef" v-loading="loading">
-            <template v-if="active === 0">
-                <div v-for="(item, i) in list" :key="item.label + i" class="m-pvx-book-list">
-                    <template v-if="item.list.length">
-                        <CardBannerList
-                            v-if="item.id !== 8"
-                            :count="count"
-                            :minw="220"
-                            :data="{ ...itemData, type: item.id }"
-                            @update:load="handleLoad"
-                            :items="item.list"
-                        >
-                            <template v-slot:title>
-                                <div>
-                                    【{{ item.label }}】
-                                    <span class="u-tips">
-                                        共<b>{{ item.total }} </b>本{{ item.label }}
-                                    </span>
-                                </div>
-                            </template>
-                            <template v-slot:action>
-                                <div @click="clickTabs(item.id)" v-if="item.id !== 8">查看全部</div>
-                            </template>
-                            <template v-slot="{ item }">
-                                <BookCard :item="item" @click="setItem(item)" />
-                            </template>
-                        </CardBannerList>
-                        <template v-if="item.id === 8">
-                            <div class="m-pvx-book-list__reading-header">
-                                <div class="u-title">【{{ item.label }}】</div>
-                            </div>
-                            <list-cross key="recentRead" ref="recentRead" :list="item.list" :radius="10" :gap="20">
-                                <template v-slot="data">
-                                    <BookCard :item="data.item"></BookCard>
-                                </template>
-                            </list-cross>
-                        </template>
+    <PvxPageShell class="p-pvx-book-list" v-loading="loading">
+        <div ref="listRef" class="m-pvx-book-layout">
+            <PvxToolbar class="m-pvx-book-toolbar">
+                <nav class="m-pvx-book-tabs" :aria-label="$t('pages.book.ui.navigation')">
+                    <button
+                        v-for="item in professions"
+                        :key="item.value"
+                        type="button"
+                        class="u-pvx-book-tab"
+                        :class="{ 'is-active': active === item.value }"
+                        :aria-pressed="active === item.value"
+                        @click="clickTabs(item.value)"
+                    >
+                        {{ item.label }}
+                    </button>
+                </nav>
+                <el-input
+                    v-model="keyword"
+                    class="u-pvx-book-search"
+                    clearable
+                    :placeholder="$t('pages.book.ui.searchPlaceholder')"
+                    @input="onKeywordInput"
+                >
+                    <template #prefix>
+                        <el-icon class="u-pvx-book-search-icon"><Search /></el-icon>
                     </template>
-                </div>
+                </el-input>
+            </PvxToolbar>
+
+            <template v-if="active === 0 && hasOverviewList">
+                <PvxSurface
+                    v-for="section in visibleOverviewSections"
+                    :key="section.id"
+                    class="m-pvx-book-section"
+                    padding="medium"
+                >
+                    <PvxSectionHeader
+                        class="m-pvx-book-section-header"
+                        :title="section.label"
+                        level="h2"
+                    >
+                        <template #action>
+                            <button
+                                v-if="section.id !== RECENT_TYPE"
+                                type="button"
+                                class="u-pvx-book-view-all"
+                                @click="clickTabs(section.id)"
+                            >
+                                {{ $t('pages.book.ui.actions.viewAll') }}
+                            </button>
+                            <button
+                                v-else
+                                type="button"
+                                class="u-pvx-book-clear-history"
+                                @click="clearRecentRead"
+                            >
+                                {{ $t('pages.book.ui.actions.clearHistory') }}
+                            </button>
+                        </template>
+                    </PvxSectionHeader>
+                    <div class="m-pvx-book-grid">
+                        <BookCard
+                            v-for="item in section.list.slice(0, count)"
+                            :key="item.idKey"
+                            :item="item"
+                            variant="modern"
+                        />
+                    </div>
+                </PvxSurface>
             </template>
-            <div v-else class="m-pvx-book-all">
-                <div class="m-pvx-book-list">
-                    <div class="u-type u-pvx-all-type">
-                        <div class="u-title">{{ typeName }}</div>
-                        <div v-if="active !== 0" class="m-operate">
-                            <div
-                                class="m-item"
-                                :class="showType === item.value && 'active'"
+
+            <PvxSurface v-else-if="active !== 0 && subList.length" class="m-pvx-book-section" padding="medium">
+                <PvxSectionHeader class="m-pvx-book-section-header" :title="typeName" level="h2">
+                    <template #action>
+                        <span class="u-pvx-book-result-count">
+                            {{ $t('pages.book.ui.resultCount', { count: total }) }}
+                        </span>
+                        <div class="m-pvx-book-view-mode" :aria-label="$t('pages.book.ui.viewMode')">
+                            <button
+                                v-for="item in localizedShowTypes"
                                 :key="item.value"
-                                v-for="item in showTypes"
+                                type="button"
+                                class="u-pvx-book-view-mode"
+                                :class="{ 'is-active': showType === item.value }"
+                                :aria-pressed="showType === item.value"
                                 @click="showType = item.value"
                             >
                                 {{ item.label }}
-                            </div>
-                        </div>
-                    </div>
-                    <template v-if="subList.length">
-                        <div class="m-pvx-book-list--card" v-if="showType === 'card'"
-                        :style="`grid-template-columns: repeat(${count}, 1fr)`">
-                        <BookCard v-for="item in subList" :key="item.ID" :item="item" />
-                    </div>
-                        <div class="m-pvx-book-list--list" v-if="showType === 'list'">
-                            <ListHead></ListHead>
-                            <BookItem v-for="item in subList" :key="item.ID" :item="item" />
+                            </button>
                         </div>
                     </template>
-                    <el-button
-                        class="m-archive-more"
-                        v-show="hasNextPage"
-                        type="primary"
-                        plain
-                        @click="appendPage"
-                        :loading="loading"
-                        icon="el-icon-arrow-down"
-                        >加载更多</el-button
-                    >
-                    <el-pagination
-                        class="m-archive-pages"
-                        background
-                        layout="total, prev, pager, next, jumper"
-                        :hide-on-single-page="true"
-                        :page-size="per"
-                        :total="total"
-                        :current-page="page"
-                        @current-change="changePage"
-                    ></el-pagination>
+                </PvxSectionHeader>
+                <div v-if="showType === 'card'" class="m-pvx-book-grid">
+                    <BookCard
+                        v-for="item in subList"
+                        :key="item.idKey"
+                        :item="item"
+                        variant="modern"
+                    />
                 </div>
-            </div>
+                <div v-else class="m-pvx-book-table">
+                    <ListHead />
+                    <BookItem v-for="item in subList" :key="item.idKey" :item="item" />
+                </div>
+                <el-button
+                    v-show="hasNextPage"
+                    class="m-pvx-book-more"
+                    type="primary"
+                    :loading="loading"
+                    @click="appendPage"
+                >
+                    <el-icon v-if="!loading" class="el-icon--left"><ArrowDown /></el-icon>
+                    {{ $t('pages.book.ui.actions.loadMore') }}
+                </el-button>
+                <el-pagination
+                    class="m-pvx-book-pages"
+                    background
+                    layout="total, prev, pager, next, jumper"
+                    :hide-on-single-page="true"
+                    :page-size="per"
+                    :total="total"
+                    :current-page="page"
+                    @current-change="changePage"
+                />
+            </PvxSurface>
+
+            <PvxSurface
+                v-if="showEmpty"
+                class="m-pvx-book-empty-surface"
+                padding="medium"
+            >
+                <PvxEmptyState
+                    illustrated
+                    :title="$t('pages.book.ui.empty.title')"
+                    :description="$t('pages.book.ui.empty.description')"
+                />
+            </PvxSurface>
         </div>
-    </div>
+    </PvxPageShell>
 </template>
 
 <script>
-import ListCross from "@/components/ListCross.vue";
-import CardBannerList from "@/components/common/card_banner_list.vue";
-import CommonToolbar from "@/components/common/toolbar.vue";
-import professions from "@/assets/data/book_profession.json";
-import { isPhone } from "@/utils/index";
-import { omit, cloneDeep, concat, debounce } from "lodash";
 import BookItem from "@/components/book/result/book_item.vue";
 import BookCard from "@/components/book/BookCard.vue";
 import ListHead from "@/components/book/result/list_head.vue";
-import { mapState } from "vuex";
+import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import PvxToolbar from "@/components/design/PvxToolbar.vue";
+import professions from "@/assets/data/book_profession.json";
 import { getList } from "@/service/book";
+import { ArrowDown, Search } from "@element-plus/icons-vue";
+import { concat, debounce } from "lodash";
+import { mapState } from "vuex";
+
+const RECENT_TYPE = 8;
 
 export default {
-    name: "Index",
-    components: { CardBannerList, CommonToolbar, BookCard, BookItem, ListHead, ListCross },
+    name: "BookIndex",
+    components: {
+        ArrowDown,
+        BookCard,
+        BookItem,
+        ListHead,
+        PvxEmptyState,
+        PvxPageShell,
+        PvxSectionHeader,
+        PvxSurface,
+        PvxToolbar,
+        Search,
+    },
     data() {
         return {
+            RECENT_TYPE,
             loading: false,
             keyword: "",
             active: 0,
-            data: [],
-            itemData: {
-                color: "#324148",
-                width: "220",
-            },
             list: [
-                {
-                    id: 8,
-                    label: "最近阅读",
-                    page: 1,
-                    pages: 1,
-                    total: 0,
-                    list: [],
-                },
-                {
-                    id: 11,
-                    label: "杂集",
-                    page: 1,
-                    pages: 1,
-                    total: 0,
-                    list: [],
-                },
-                {
-                    id: 10,
-                    label: "道学",
-                    page: 1,
-                    pages: 1,
-                    total: 0,
-                    list: [],
-                },
-                {
-                    id: 9,
-                    label: "佛学",
-                    page: 1,
-                    pages: 1,
-                    total: 0,
-                    list: [],
-                },
+                { id: RECENT_TYPE, labelKey: "recent", page: 1, pages: 1, total: 0, list: [] },
+                { id: 11, labelKey: "misc", page: 1, pages: 1, total: 0, list: [] },
+                { id: 10, labelKey: "taoism", page: 1, pages: 1, total: 0, list: [] },
+                { id: 9, labelKey: "buddhism", page: 1, pages: 1, total: 0, list: [] },
             ],
-
-            page: 1, //当前页数
-            total: 0, //总条目数
-            per: 0, //每页条目
-            count: 0, // 自动判断最多显示几个
-
-            showTypes: [
-                {
-                    value: "list",
-                    label: "列表",
-                },
-                {
-                    value: "card",
-                    label: "卡片",
-                },
-            ],
+            page: 1,
+            total: 0,
+            per: 24,
+            count: 6,
             showType: "card",
-
             appendMode: false,
+            requestSerial: 0,
         };
     },
     computed: {
-        professions() {
-            const _list = professions
-                .filter((item) => item.id !== 8)
-                .map((item) => {
-                    item.label = item.name;
-                    item.value = item.id;
-                    return item;
-                });
-            return [{ id: 0, value: -1, name: "全部", label: "全部" }, ..._list];
-        },
         ...mapState(["recentReadList"]),
         client() {
             return this.$store.state.client;
         },
-        params() {
-            const _params = { client: this.client };
-            if (this.keyword) _params.keyword = this.keyword;
-            if (this.active) _params.profession = this.active;
-            return _params;
+        professions() {
+            const labels = {
+                11: this.$t("pages.book.ui.types.misc"),
+                10: this.$t("pages.book.ui.types.taoism"),
+                9: this.$t("pages.book.ui.types.buddhism"),
+            };
+            return [
+                { value: 0, label: this.$t("pages.book.ui.types.all") },
+                ...professions
+                    .filter((item) => item.id !== RECENT_TYPE)
+                    .map((item) => ({ value: item.id, label: labels[item.id] || item.name })),
+            ];
+        },
+        localizedShowTypes() {
+            return [
+                { value: "list", label: this.$t("pages.book.ui.viewTypes.list") },
+                { value: "card", label: this.$t("pages.book.ui.viewTypes.card") },
+            ];
+        },
+        visibleOverviewSections() {
+            return this.list
+                .filter((item) => item.list.length)
+                .map((item) => ({
+                    ...item,
+                    label: this.$t(`pages.book.ui.sections.${item.labelKey}`),
+                }));
+        },
+        hasOverviewList() {
+            return this.visibleOverviewSections.length > 0;
+        },
+        currentSection() {
+            return this.list.find((item) => item.id === this.active);
         },
         typeName() {
-            return this.list.filter((e) => e.id == this.active)[0].label;
-        },
-        hasNextPage: function () {
-            const pages = this.list.filter((e) => e.id == this.active)[0].pages;
-            return pages > 1 && this.page < pages;
+            return this.currentSection
+                ? this.$t(`pages.book.ui.sections.${this.currentSection.labelKey}`)
+                : "";
         },
         subList() {
-            if (this.active === 0) return null;
-            return this.list.filter((e) => e.id == this.active)[0].list;
+            return this.active === 0 ? [] : this.currentSection?.list || [];
         },
-        isPhone() {
-            return isPhone();
+        hasNextPage() {
+            return Boolean(this.currentSection && this.page < this.currentSection.pages);
         },
-        readingBook() {
-            return localStorage.getItem("book_readings") || "[]";
+        showEmpty() {
+            return !this.loading && (this.active === 0 ? !this.hasOverviewList : !this.subList.length);
         },
     },
     watch: {
-        params: {
-            deep: true,
-            handler() {
-                if (this.count > 0) {
-                    this.loadData();
-                }
-            },
-        },
-        active: {
-            immediate: true,
-            handler: function () {
-                this.page = 1;
-            },
+        client() {
+            this.resetAndLoad();
         },
     },
     methods: {
-        updateToolbar(data) {
-            const { type, search } = data;
-            this.keyword = search;
-            this.clickTabs(type);
-        },
         clickTabs(id) {
-            this.active = id == -1 ? 0 : id;
-            this.list = this.list.map((e) => {
-                e.page = 1;
-                return e;
-            });
+            if (this.active === id) return;
+            this.active = id;
             this.page = 1;
-        },
-        listId(list) {
-            if (!list?.length) return [];
-            return list.map((e) => e.ID);
-        },
-        changePage(i) {
-            this.page = i;
+            this.appendMode = false;
             this.loadData();
         },
-        setItem(item) {
-            const list = localStorage.getItem("book_readings") || "[]";
-            const _list = [item, ...JSON.parse(list)];
-            this.list[0].list.unshift(item);
-            localStorage.setItem("book_readings", JSON.stringify(_list));
+        onKeywordInput() {
+            this.debouncedKeywordInput();
         },
-        // 按宽度显示个数
-        showCount() {
-            if (this.isPhone) {
-                this.per = 8;
-                this.count = 8;
-                return;
-            }
-            const listWidth = this.$refs.listRef?.clientWidth || 1200;
-            const cardWidth = 220;
-
-            if (listWidth <= 520) {
-                this.count = 1;
-                this.per = 16;
-                return;
-            }
-            if (listWidth <= 1024) {
-                this.count = 2;
-                this.per = 32;
-                return;
-            }
-
-            this.count = Math.floor((listWidth - 120) / cardWidth);
-            this.per = this.count * 2;
+        changePage(page) {
+            this.page = page;
+            this.appendMode = false;
+            this.loadData();
         },
         appendPage() {
+            this.page += 1;
             this.appendMode = true;
-            this.handleLoad(this.active, true);
+            this.loadData();
         },
-        handleLoad(type, append) {
-            const page = this.list.filter((e) => e.id == type)[0].page;
-            let params = cloneDeep(this.params);
-            params.page = page + 1;
-            params.per = append ? this.count * 3 : this.count;
-            params.profession = type;
-            this.loadList(params, type);
+        clearRecentRead() {
+            this.$store.dispatch("clearRecentReadList");
+            const recent = this.list.find((item) => item.id === RECENT_TYPE);
+            recent.list = [];
+            recent.total = 0;
         },
-        loadData() {
+        resetAndLoad() {
+            this.page = 1;
+            this.appendMode = false;
+            this.loadData();
+        },
+        updateResponsiveCount() {
+            const width = this.$refs.listRef?.clientWidth || 1200;
+            this.count = Math.max(2, Math.floor((width + 16) / 236));
+            if (width <= 520) this.count = 2;
+            this.per = Math.max(12, this.count * 4);
+        },
+        async loadData() {
+            const serial = ++this.requestSerial;
             this.loading = true;
-            let params = omit(this.params, ["profession"]);
-            if (this.active === 0) {
-                const list = this.list.filter((e) => e.id !== 8);
-                list.forEach((e) => {
-                    params.page = e.page;
-                    params.profession = e.id;
-                    params.per = this.count;
-                    this.loadList(params, e.id);
-                });
-            } else {
-                params.page = this.page;
-                params.per = this.count * 3;
-                this.loadList({ ...params, profession: this.active }, this.active);
-            }
-        },
-        // 加载type对应的数据
-        loadList(params, key) {
-            const index = this.list.findIndex((e) => e.id == key);
-            if (this.list[index].pages < params.page && this.active === 0) params.page = 1;
-            getList(params)
-                .then((res) => {
-                    const { list, total, pages, page, per } = res.data;
-                    const _list = this.appendMode ? concat(this.list[index].list, list) : list;
-                    this.list[index].list = _list || [];
-                    this.list[index].page = page || 1;
-                    this.list[index].pages = pages || 1;
-                    this.list[index].total = total || 0;
-                    if (this.active !== 0) this.page = page || 1;
-                    this.total = total;
-                    this.per = per;
-                })
-                .finally(() => {
+            const baseParams = {
+                client: this.client,
+                per: this.active === 0 ? this.count : this.per,
+            };
+            if (this.keyword) baseParams.keyword = this.keyword;
+
+            try {
+                if (this.active === 0) {
+                    const sections = this.list.filter((item) => item.id !== RECENT_TYPE);
+                    const responses = await Promise.all(
+                        sections.map((item) =>
+                            getList({ ...baseParams, page: 1, profession: item.id })
+                        )
+                    );
+                    if (serial !== this.requestSerial) return;
+                    responses.forEach((res, index) => {
+                        this.applyResponse(sections[index], res.data, false);
+                    });
+                } else {
+                    const response = await getList({
+                        ...baseParams,
+                        page: this.page,
+                        profession: this.active,
+                    });
+                    if (serial !== this.requestSerial) return;
+                    this.applyResponse(this.currentSection, response.data, this.appendMode);
+                }
+            } finally {
+                if (serial === this.requestSerial) {
                     this.loading = false;
                     this.appendMode = false;
-                });
+                }
+            }
+        },
+        applyResponse(section, data, append) {
+            if (!section) return;
+            const nextList = data.list || [];
+            section.list = append ? concat(section.list, nextList) : nextList;
+            section.page = data.page || 1;
+            section.pages = data.pages || 1;
+            section.total = data.total || 0;
+            if (section.id === this.active) {
+                this.page = section.page;
+                this.total = section.total;
+                this.per = data.per || this.per;
+            }
         },
     },
-    mounted: function () {
-        this.showCount();
-        if (this.recentReadList.length) {
-            this.list[0].list = this.recentReadList;
-            this.list[0].total = this.recentReadList.length;
-        }
+    mounted() {
+        this.debouncedKeywordInput = debounce(() => {
+            this.page = 1;
+            this.appendMode = false;
+            this.loadData();
+        }, 300);
+        const recent = this.list.find((item) => item.id === RECENT_TYPE);
+        recent.list = this.recentReadList.slice(0, this.count);
+        recent.total = this.recentReadList.length;
+        this.updateResponsiveCount();
         this.loadData();
-        this.handleResize = debounce(this.showCount, 300);
+        this.handleResize = debounce(() => {
+            const previousCount = this.count;
+            this.updateResponsiveCount();
+            if (this.active === 0 && previousCount !== this.count) this.loadData();
+        }, 300);
         window.addEventListener("resize", this.handleResize);
     },
     beforeUnmount() {
         window.removeEventListener("resize", this.handleResize);
+        this.debouncedKeywordInput?.cancel();
     },
 };
 </script>
 
 <style lang="less">
-@import "~@/assets/css/common/tabs.less";
-@import "~@/assets/css/book/home.less";
+@import "~@/assets/css/modules/book-list-theme.less";
 </style>

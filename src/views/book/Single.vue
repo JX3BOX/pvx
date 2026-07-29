@@ -1,182 +1,246 @@
 <template>
-    <div ref="bookSingleWrap" class="m-pvx-book-single m-single-wrapper">
+    <div
+        ref="bookSingleWrap"
+        class="m-pvx-book-single m-single-wrapper"
+        :class="{ 'p-pvx-book-single--modern': !isRobot }"
+    >
         <template v-if="!isRobot">
-            <div class="back-wrap m-navigation">
-                <div class="u-goback" @click="goBack">返回列表</div>
-                <div class="u-back-right">
-                    <PvxRobotTip v-if="!isRobot" type-name="书籍" :reply="book.Name"></PvxRobotTip>
-                    <PvxSingleAdminDrop></PvxSingleAdminDrop>
-                </div>
-            </div>
-            <div v-if="book" class="m-pvx-book-single__content" v-loading="loading">
-                <div class="m-pvx-book-single__header">
-                    <h2 class="u-pvx-book-title">{{ book.Name }}</h2>
-                    <p class="u-pvx-book-desc" v-html="book.Desc"></p>
-                </div>
-                <div class="m-pvx-book-single__detail">
-                    <div class="m-pvx-book-single__info">
-                        <p class="u-subtitle">
-                            <img svg-inline src="@/assets/img/book/book-info.svg" />
-                            <span>书籍信息</span>
-                        </p>
-                        <div class="u-book-info">
-                            <div v-if="!['其它', '碑铭'].includes(getOrigin(book))" class="u-item book-origin">
-                                来源：
-                                <el-tooltip placement="top" popper-class="book-notice-tooltip">
-                                    <template #content>
-                                        <div>
-                                            <template v-if="getOrigin(book).indexOf('秘境') > -1">
-                                                <div class="u-detail-item">秘境</div>
-                                                <div class="u-pvx-book-fb" v-html="getBossOrigin(book)"></div>
-                                            </template>
-                                            <template v-if="getOrigin(book).indexOf('商店') > -1">
-                                                <div class="u-detail-item">商店</div>
-                                                <div class="u-pvx-book-shop" v-html="getShopOrigin(book)"></div>
-                                            </template>
-                                            <template v-if="getOrigin(book).indexOf('任务') > -1">
-                                                <div class="u-detail-item">任务</div>
-                                                <div class="u-pvx-book-quest">
-                                                    <div
-                                                        class="quest-item"
-                                                        v-for="item in getQuestOrigin(book)"
-                                                        :key="item.questId"
-                                                    >
-                                                        <a target="_blank" :href="getLink('quest', item.questId)">
-                                                            [{{ item.questName }}]</a
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </template>
-                                        </div>
-                                    </template>
-                                    <span :class="getOrigin(book) !== '其它' && 'u-pvx-book-special'">{{
-                                        getOrigin(book)
-                                    }}</span>
-                                </el-tooltip>
-                            </div>
-                            <div v-else class="u-info-item">
-                                来源：<span v-if="getOrigin(book) === '碑铭'" class="u-pvx-book-special"
-                                    >{{ getOrigin(book) }}
-                                    <a
-                                        class="look-site"
-                                        href="javascript:;"
-                                        v-if="bookMapSite.length"
-                                        @click="dialogVisible = true"
-                                        >查看位置</a
-                                    >
-                                </span>
-                                <!-- 其它 -->
-                                <span v-else>{{ getOrigin(book) }}</span>
-                            </div>
-                            <div class="u-info-item">
-                                所属套书：{{
-                                    "【" + getProfessionType(book.ExtendProfessionID1) + "】" + book.BookName
-                                }}
-                            </div>
-                            <div class="u-info-item">阅读等级：{{ book.RequireLevel }}</div>
+            <PvxPageShell class="m-pvx-book-single-shell" v-loading="loading">
+                <PvxSurface class="m-pvx-book-navigation" tag="nav" padding="small" radius="medium">
+                    <button type="button" class="u-goback" @click="goBack">
+                        <ArrowLeft />
+                        {{ $t("pages.book.single.ui.backToList") }}
+                    </button>
+                    <PvxSingleAdminDrop />
+                </PvxSurface>
+
+                <PvxSurface class="m-pvx-book-header" tag="header" padding="large">
+                    <div class="m-pvx-book-header__info">
+                        <div class="m-pvx-book-header__meta">
+                            <span class="u-pvx-book-eyebrow">{{ $t("pages.book.single.ui.label") }}</span>
+                            <span class="u-pvx-book-type">
+                                {{ getProfessionLabel(book.ExtendProfessionID1) }}
+                            </span>
                         </div>
-                        <template v-if="book.copy && book.copy.ID">
-                            <p class="u-subtitle">
-                                <img svg-inline src="@/assets/img/book/request.svg" />
-                                <span>抄录要求</span>
-                            </p>
-                            <div class="u-book-info">
-                                <div class="u-info-item">
-                                    <span>角色等级：</span>
-                                    <span>{{ book.copy?.RequirePlayerLevel }}</span>
-                                </div>
-                                <div class="u-info-item">
-                                    <span>阅读等级：</span>
-                                    <span>{{ book.copy?.RequireLevel }}</span>
-                                </div>
-                                <div class="u-info-item">
-                                    <span>{{ getProfessionType(book.ExtendProfessionID1) }}等级：</span>
-                                    <span>{{ book.copy?.RequireLevelExt }}</span>
-                                </div>
-                                <div class="u-info-item">
-                                    <span>精力消耗：</span>
-                                    <span>{{ book.copy?.CostVigor }}</span>
-                                </div>
-                                <div v-if="book.copyList?.length" class="u-info-item">
-                                    <span>所需材料：</span>
-                                    <item-icon
-                                        v-for="material in book.copyList"
-                                        :key="material.item_id"
-                                        :item_id="material.item_id"
-                                        :size="28"
-                                        :amount="material.count"
-                                        :onlyIcon="true"
-                                    ></item-icon>
-                                </div>
-                            </div>
-                        </template>
+                        <h1 class="u-pvx-book-title">{{ book.Name }}</h1>
+                        <p class="u-pvx-book-desc" v-html="book.Desc"></p>
                     </div>
-                    <div
-                        v-if="book.contentInfo"
-                        class="m-pvx-book-single__content-wrapper"
-                        :class="`m-pvx-book-single__content-wrapper-${book.ExtendProfessionID1}`"
+                    <a
+                        v-if="book.AchievementID"
+                        class="u-pvx-book-achievement"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :href="getLink('achievement', book.AchievementID)"
                     >
-                        <div class="right-div"></div>
+                        <Trophy />
+                        {{ $t("pages.book.single.ui.achievement") }}
+                    </a>
+                    <div class="m-pvx-book-guide-tip">
+                        <PvxRobotTip
+                            type-name="书籍"
+                            :reply="book.Name"
+                            variant="modern"
+                            :quick-guide-text="$t('pages.book.single.ui.robot.quickGuide')"
+                            :copy-success-title="$t('pages.book.single.ui.robot.copySuccess')"
+                            :reply-prefix="$t('pages.book.single.ui.robot.replyPrefix')"
+                            :reply-suffix="$t('pages.book.single.ui.robot.replySuffix')"
+                            :copy-qq-label="$t('pages.book.single.ui.robot.copyQq')"
+                            :copy-command-label="$t('pages.book.single.ui.robot.copyCommand')"
+                        />
+                    </div>
+                </PvxSurface>
+
+                <PvxSurface v-if="book" class="m-pvx-book-detail" padding="medium">
+                    <div class="m-pvx-book-info-column">
+                        <section class="m-pvx-book-info-section">
+                            <PvxSectionHeader
+                                :title="$t('pages.book.single.ui.information')"
+                                level="h2"
+                            />
+                            <div class="m-pvx-book-info-grid">
+                                <div v-if="!['其它', '碑铭'].includes(getOrigin(book))" class="u-info-item book-origin">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.origin") }}</span>
+                                    <el-tooltip placement="top" popper-class="book-notice-tooltip">
+                                        <template #content>
+                                            <div>
+                                                <template v-if="getOrigin(book).indexOf('秘境') > -1">
+                                                    <div class="u-detail-item">
+                                                        {{ $t("pages.book.single.ui.sourceTypes.dungeon") }}
+                                                    </div>
+                                                    <div class="u-pvx-book-fb" v-html="getBossOrigin(book)"></div>
+                                                </template>
+                                                <template v-if="getOrigin(book).indexOf('商店') > -1">
+                                                    <div class="u-detail-item">
+                                                        {{ $t("pages.book.single.ui.sourceTypes.shop") }}
+                                                    </div>
+                                                    <div class="u-pvx-book-shop" v-html="getShopOrigin(book)"></div>
+                                                </template>
+                                                <template v-if="getOrigin(book).indexOf('任务') > -1">
+                                                    <div class="u-detail-item">
+                                                        {{ $t("pages.book.single.ui.sourceTypes.quest") }}
+                                                    </div>
+                                                    <div class="u-pvx-book-quest">
+                                                        <div
+                                                            v-for="item in getQuestOrigin(book)"
+                                                            :key="item.questId"
+                                                            class="quest-item"
+                                                        >
+                                                            <a
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                :href="getLink('quest', item.questId)"
+                                                            >
+                                                                [{{ item.questName }}]
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <span class="u-info-value u-pvx-book-special">{{ getOrigin(book) }}</span>
+                                    </el-tooltip>
+                                </div>
+                                <div v-else class="u-info-item">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.origin") }}</span>
+                                    <span class="u-info-value" :class="{ 'u-pvx-book-special': getOrigin(book) === '碑铭' }">
+                                        {{ getOrigin(book) }}
+                                        <button
+                                            v-if="getOrigin(book) === '碑铭' && bookMapSite.length"
+                                            type="button"
+                                            class="look-site"
+                                            @click="dialogVisible = true"
+                                        >
+                                            {{ $t("pages.book.single.ui.actions.viewLocation") }}
+                                        </button>
+                                    </span>
+                                </div>
+                                <div class="u-info-item">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.collection") }}</span>
+                                    <span class="u-info-value">
+                                        【{{ getProfessionLabel(book.ExtendProfessionID1) }}】{{ book.BookName }}
+                                    </span>
+                                </div>
+                                <div class="u-info-item">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.readingLevel") }}</span>
+                                    <span class="u-info-value">{{ book.RequireLevel }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section v-if="book.copy && book.copy.ID" class="m-pvx-book-info-section">
+                            <PvxSectionHeader
+                                :title="$t('pages.book.single.ui.copyRequirements')"
+                                level="h2"
+                            />
+                            <div class="m-pvx-book-info-grid">
+                                <div class="u-info-item">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.playerLevel") }}</span>
+                                    <span class="u-info-value">{{ book.copy?.RequirePlayerLevel }}</span>
+                                </div>
+                                <div class="u-info-item">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.readingLevel") }}</span>
+                                    <span class="u-info-value">{{ book.copy?.RequireLevel }}</span>
+                                </div>
+                                <div class="u-info-item">
+                                    <span class="u-info-label">
+                                        {{ $t("pages.book.single.ui.fields.professionLevel", {
+                                            profession: getProfessionLabel(book.ExtendProfessionID1),
+                                        }) }}
+                                    </span>
+                                    <span class="u-info-value">{{ book.copy?.RequireLevelExt }}</span>
+                                </div>
+                                <div class="u-info-item">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.vigorCost") }}</span>
+                                    <span class="u-info-value">{{ book.copy?.CostVigor }}</span>
+                                </div>
+                                <div v-if="book.copyList?.length" class="u-info-item u-info-item--materials">
+                                    <span class="u-info-label">{{ $t("pages.book.single.ui.fields.materials") }}</span>
+                                    <span class="u-info-value m-pvx-book-materials">
+                                        <item-icon
+                                            v-for="material in book.copyList"
+                                            :key="material.item_id"
+                                            :item_id="material.item_id"
+                                            :size="28"
+                                            :amount="material.count"
+                                            :onlyIcon="true"
+                                        />
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <section
+                        v-if="book.contentInfo"
+                        class="m-pvx-book-reader"
+                    >
+                        <div class="m-pvx-book-reader-header">
+                            <PvxSectionHeader :title="$t('pages.book.single.ui.content')" level="h2" />
+                            <button
+                                v-if="!/^\d+$/g.test(book.contentInfo)"
+                                type="button"
+                                class="u-pvx-book-reading-mode"
+                                @click="toSwitch"
+                            >
+                                {{ isVertical
+                                    ? $t("pages.book.single.ui.actions.modernMode")
+                                    : $t("pages.book.single.ui.actions.classicMode") }}
+                            </button>
+                        </div>
                         <div
-                            v-if="/^\d+$/g.test(book.contentInfo)"
-                            class="u-pvx-book-content"
-                            :class="/^\d+$/g.test(book.contentInfo) && 'img-content'"
+                            class="m-pvx-book-reader-frame"
+                            :class="`m-pvx-book-single__content-wrapper-${book.ExtendProfessionID1}`"
                         >
-                            <img :src="iconLink(book.contentInfo, client)" :alt="iconLink(book.contentInfo, client)" />
-                        </div>
-                        <template v-else>
-                            <div ref="bookWrap" class="u-pvx-book-content" :class="isVertical ? 'vertical' : 'row'">
-                                <div ref="bookTitle" class="title">{{ book.Name }}</div>
-                                <div ref="bookContent" class="content" v-html="book.contentInfo"></div>
+                            <div class="right-div"></div>
+                            <div
+                                v-if="/^\d+$/g.test(book.contentInfo)"
+                                class="u-pvx-book-content img-content"
+                            >
+                                <img :src="iconLink(book.contentInfo, client)" :alt="book.Name" />
                             </div>
-                            <div v-if="arrowShow" class="buttons" :class="isVertical ? 'vertical' : 'row'">
-                                <div class="left" :class="noMore && 'disabled'" @click="toMore">
-                                    <i :class="isVertical ? 'el-icon-arrow-left' : 'el-icon-arrow-down'"></i>
-                                    <!-- <span>继续</span> -->
+                            <template v-else>
+                                <div ref="bookWrap" class="u-pvx-book-content" :class="isVertical ? 'vertical' : 'row'">
+                                    <div ref="bookTitle" class="title">{{ book.Name }}</div>
+                                    <div ref="bookContent" class="content" v-html="book.contentInfo"></div>
                                 </div>
-                                <div class="right" :class="noBack && 'disabled'" @click="toBack">
-                                    <!-- <span>返回</span> -->
-                                    <i :class="isVertical ? 'el-icon-arrow-right' : 'el-icon-arrow-up'"></i>
+                                <div v-if="arrowShow" class="buttons" :class="isVertical ? 'vertical' : 'row'">
+                                    <button type="button" class="left" :disabled="noMore" @click="toMore">
+                                        <i :class="isVertical ? 'el-icon-arrow-left' : 'el-icon-arrow-down'"></i>
+                                    </button>
+                                    <button type="button" class="right" :disabled="noBack" @click="toBack">
+                                        <i :class="isVertical ? 'el-icon-arrow-right' : 'el-icon-arrow-up'"></i>
+                                    </button>
                                 </div>
-                            </div>
-                            <div class="switch" @click="toSwitch">{{ isVertical ? "古风" : "现代" }}</div>
-                        </template>
-                    </div>
-                </div>
-                <!-- 套书列表 -->
-                <div v-if="bookList.length" class="m-pvx-book-list" v-loading="listLoading">
-                    <div class="u-title">
-                        <span class="title">套书·{{ book.BookName }}</span>
-                        <a
-                            v-if="book.AchievementID"
-                            class="u-pvx-book-achievement"
-                            target="_blank"
-                            :href="getLink('achievement', book.AchievementID)"
-                        >
-                            <!-- [{{ book.achievement ? book.achievement.Name : "" }}] -->
-                            <i class="el-icon-warning"></i>
-                            <span>该套书有成就</span>
-                        </a>
-                    </div>
-                    <div class="m-pvx-book-list__wrapper">
-                        <div class="m-pvx-book-list__content">
-                            <BookCard :item="item" v-for="(item, index) in bookList" :key="item.idKey + index">
-                            </BookCard>
+                            </template>
                         </div>
+                    </section>
+                </PvxSurface>
+
+                <PvxSurface v-if="bookList.length" class="m-pvx-book-collection" padding="medium" v-loading="listLoading">
+                    <PvxSectionHeader
+                        :title="$t('pages.book.single.ui.collectionTitle', { name: book.BookName })"
+                        level="h2"
+                    />
+                    <div class="m-pvx-book-collection-grid">
+                        <BookCard
+                            v-for="item in bookList"
+                            :key="item.idKey"
+                            :item="item"
+                            :is-current="item.idKey == idKey"
+                            variant="modern"
+                        />
                     </div>
-                </div>
-                <!-- 碑铭信息 -->
-                <!-- <div v-if="bookMapSite.length" class="m-book-map">
-                <div class="u-title">
-                    <span class="u-txt">碑铭信息</span>
-                </div>
-                <jx3box-map
-                    class="u-content"
-                    :map-id="parseInt(bookMapSite[0].map)"
-                    :datas="bookMapSite[0].position"
-                ></jx3box-map>
-            </div> -->
-            </div>
+                </PvxSurface>
+
+                <pvx-user
+                    class="m-pvx-book-wiki"
+                    :id="id"
+                    :name="$t('pages.book.single.ui.typeName')"
+                    type="item"
+                    :is-robot="false"
+                    i18n-key-prefix="pages.book.single.ui.wiki"
+                />
+            </PvxPageShell>
         </template>
         <template v-else>
             <div class="m-pvx__item m-pvx-robot-book-header">
@@ -261,11 +325,11 @@
                 </div>
             </div>
         </template>
-        <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user :id="id" name="书籍" type="item" :is-robot="isRobot"></pvx-user>
+        <!-- 机器人抓图继续使用原百科输出 -->
+        <pvx-user v-if="isRobot" :id="id" name="书籍" type="item" :is-robot="true"></pvx-user>
         <!-- 碑铭信息 -->
         <el-dialog
-            title="碑铭位置"
+            :title="$t('pages.book.single.ui.locationTitle')"
             v-model="dialogVisible"
             :width="isPhone() ? '90%' : '38%'"
             center
@@ -290,6 +354,10 @@ import BookCard from "@/components/book/BookCard";
 import PvxUser from "@/components/PvxUser.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { ArrowLeft, Trophy } from "@element-plus/icons-vue";
 
 import { __imgPath } from "@/utils/config";
 
@@ -310,7 +378,19 @@ import {
 export default {
     name: "bookSingle",
     props: ["isRobot", "sourceId"],
-    components: { Jx3boxMap, BookCard, ItemIcon, PvxUser, PvxSingleAdminDrop, PvxRobotTip },
+    components: {
+        ArrowLeft,
+        BookCard,
+        ItemIcon,
+        Jx3boxMap,
+        PvxPageShell,
+        PvxRobotTip,
+        PvxSectionHeader,
+        PvxSingleAdminDrop,
+        PvxSurface,
+        PvxUser,
+        Trophy,
+    },
     data() {
         return {
             compatible: false,
@@ -438,6 +518,15 @@ export default {
             return _getOrigin(item, this.bookMapInfo);
         },
         getProfessionType: _getProfessionType,
+        getProfessionLabel(id) {
+            const keyMap = {
+                9: "buddhism",
+                10: "taoism",
+                11: "misc",
+            };
+            const key = keyMap[id];
+            return key ? this.$t(`pages.book.ui.types.${key}`) : _getProfessionType(id);
+        },
         getData() {
             this.loading = true;
             getInfo({
@@ -452,7 +541,7 @@ export default {
                         this.bookMapSite = this.bookMapInfo[data.DoodadTemplateID];
                         this.bookMapSite[0].position[0] = Object.assign(this.bookMapSite[0].position[0], {
                             title: data.Name,
-                            content: `坐标：(${this.bookMapSite[0].position[0].x},${this.bookMapSite[0].position[0].y},${this.bookMapSite[0].position[0].z})`,
+                            content: `${this.$t("pages.book.single.ui.coordinate")}：(${this.bookMapSite[0].position[0].x},${this.bookMapSite[0].position[0].y},${this.bookMapSite[0].position[0].z})`,
                         });
                     }
                     if (data?.copy?.ID) {
@@ -625,4 +714,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/book/single.less";
 @import "~@/assets/css/book/robot.less";
+@import "~@/assets/css/modules/book-detail-theme.less";
 </style>

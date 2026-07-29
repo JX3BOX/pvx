@@ -182,13 +182,16 @@ export default {
     }
 
     .u-reply {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         border: 0;
         background: #d16400;
         color: #fff;
         opacity: 1;
         border-radius: 4px;
         height: 24px;
-        line-height: 20px;
+        line-height: 1;
         padding: 2px 4px;
         font-family: inherit;
         font-size: inherit;
@@ -223,7 +226,6 @@ export default {
 
     .u-reply {
         .pvx-focus-ring();
-        display: inline-flex;
         width: auto;
         max-width: 100%;
         height: auto;
@@ -235,7 +237,6 @@ export default {
         border-radius: @pvx-radius-small;
         color: @pvx-primary;
         background: @pvx-primary-soft;
-        line-height: 1.5;
         white-space: normal;
         overflow-wrap: anywhere;
         transition:

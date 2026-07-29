@@ -16,18 +16,37 @@
     .u-pvx-grid-layout;
 
     @media screen and (max-width: 768px) {
-        & > .u-level {
-            .none;
+        & {
+            display: grid;
+            width: 100%;
+            grid-template-columns: minmax(0, 1fr);
+            padding: 12px;
+            gap: 10px;
+            text-align: left;
         }
 
         & > div {
-            margin-bottom: 12px;
+            margin-bottom: 0;
         }
 
-        & {
-            display: block;
-            padding: 12px 6px;
+        .u-field {
+            display: grid;
+            width: 100%;
+            min-width: 0;
+            grid-column: 1;
+            grid-template-columns: minmax(76px, 0.35fr) minmax(0, 1fr);
+            align-items: center;
+            gap: 12px;
+            overflow-wrap: anywhere;
+
+            &::before {
+                content: attr(data-label);
+                color: #909399;
+                font-size: 12px;
+                font-weight: 600;
+            }
         }
+
     }
 
     &:hover {
@@ -46,6 +65,21 @@
     }
 
     .u-name {
+        .u-book-name-value {
+            display: flex;
+            min-width: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .u-book-name-text {
+            min-width: 0;
+            padding-top: 8px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
         .u-name-title {
             .flex;
             align-items: center;
@@ -118,5 +152,11 @@
         &.special {
           color: #fba524;
         }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .m-pvx-book-item .u-name .u-book-name-value {
+        justify-content: flex-start;
     }
 }

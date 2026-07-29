@@ -98,6 +98,9 @@ export default {
                         if (Object.keys(item).length) {
                             this.source = item;
                             sessionStorage.setItem(this.cache_key, JSON.stringify(item));
+                            this.$emit("loaded", item);
+                        } else {
+                            this.$emit("error");
                         }
                     })
                     .catch((e) => {
@@ -106,8 +109,10 @@ export default {
                             if (this.maybeBook === false) {
                                 this.maybeBook = true;
                                 this.real_id = `${this.item_id}_${this.amount}`;
+                                return;
                             }
                         }
+                        this.$emit("error", e);
                     });
             }
         },
@@ -153,6 +158,7 @@ export default {
                 if (_cache) {
                     try {
                         this.source = JSON.parse(_cache);
+                        this.$emit("loaded", this.source);
                     } catch (e) {
                         console.log(e, "[Item]无法解析本地缓存");
                         this.get_data(this.real_id);

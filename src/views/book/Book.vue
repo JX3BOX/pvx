@@ -2,7 +2,18 @@
     <div id="app">
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange"></Nav>
-        <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
+        <Main
+            :class="[
+                navStatusClass,
+                {
+                    'c-pvx-modern-book-list-main': $route.name === 'index' && !isEmbeddedClient,
+                    'c-pvx-modern-book-single-main': $route.name === 'single' && !isEmbeddedClient,
+                },
+            ]"
+            :withoutRight="true"
+            :withoutLeft="true"
+            :withoutBread="true"
+        >
             <div class="m-main">
                 <router-view></router-view>
             </div>
@@ -15,6 +26,7 @@
 <script>
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
+import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 
 import { mapState } from "vuex";
 
@@ -24,11 +36,15 @@ export default {
     data() {
         return {
             navStatusClass: "is-regular",
+            isEmbeddedClient: isMiniProgram() || isApp(),
         };
     },
     computed: {
         ...mapState(["currentBookType"]),
         bgColor() {
+            if (this.$route.name === "index" && !this.isEmbeddedClient) {
+                return "#5b5cf5";
+            }
             let bgColor = "#d16400";
             const profession = this.currentBookType;
             switch (profession) {
