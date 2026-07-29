@@ -19,6 +19,7 @@
                 i18n-scope="pages.exam.ui.search"
                 :items="searchProps"
                 :initValue="initValue"
+                defer-filter-submit
                 @search="searchEvent"
             >
                 <template #extra>
@@ -83,8 +84,7 @@ import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import tags from "@/assets/data/exam_tags.json";
-import { __clients, __Root } from "@/utils/config";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { deleteNull } from "@/utils/index";
 import { EditPen, Reading } from "@element-plus/icons-vue";
 
@@ -163,11 +163,12 @@ export default {
             ],
             initValue: {
                 tag: "",
-                client: "",
                 type: getRouteExamType(this.$route),
             },
             data: [],
             syncingRouteTab: false,
+            keywordSearchTimer: null,
+            loadToken: 0,
         };
     },
     computed: {
@@ -176,7 +177,7 @@ export default {
             if (this.search.type === 3) {
                 type = "paper";
             }
-            return "publish/#/" + type;
+            return "/publish/#/" + type;
         },
         tags() {
             return tags.map((item) => {
@@ -186,16 +187,12 @@ export default {
                 };
             });
         },
-        clients() {
-            let arr = [];
-            for (const key in __clients) {
-                arr.unshift({ key, value: __clients[key] });
-            }
-            arr.unshift({ key: "", value: "全部" });
-            return arr;
-        },
         params() {
-            return { ...this.query, ...this.search };
+            return {
+                ...this.query,
+                ...this.search,
+                client: this.$store.state.client,
+            };
         },
         sectionTitle() {
             const key = { 2: "question", 3: "paper" }[this.search.type] || "question";
@@ -215,6 +212,7 @@ export default {
             });
         },
         "search.type"(type) {
+            this.query.pageSize = type === 3 ? 20 : 16;
             this.searchProps[2] = {
                 key: "title",
                 name: this.$t("pages.exam.ui.filters.keyword"),
@@ -235,23 +233,6 @@ export default {
                         type: "radio",
                         name: this.$t("pages.exam.ui.filters.tag"),
                         options: tags,
-                    });
-                }
-                const clients = this.clients;
-                const hasClient = this.searchProps[1].options.find((item) => item.key === "client");
-                if (hasClient) {
-                    this.searchProps[1].options.map((item) => {
-                        if (item.key === "client") {
-                            item.options = clients;
-                        }
-                        return item;
-                    });
-                } else {
-                    this.searchProps[1].options.push({
-                        key: "client",
-                        type: "radio",
-                        name: this.$t("pages.exam.ui.filters.client"),
-                        options: clients,
                     });
                 }
             } else {
@@ -284,11 +265,32 @@ export default {
         },
         searchEvent(data) {
             const search = cloneDeep(this.search);
+            const nonKeywordData = cloneDeep(data);
+            delete nonKeywordData.title;
+            const onlyKeywordChanged =
+                data.title !== undefined &&
+                data.title !== search.title &&
+                Object.entries(nonKeywordData).every(([key, value]) => isEqual(value, search[key]));
+
+            clearTimeout(this.keywordSearchTimer);
+            if (onlyKeywordChanged) {
+                this.keywordSearchTimer = setTimeout(() => {
+                    this.applySearch(data);
+                }, 350);
+                return;
+            }
+
+            this.applySearch(data);
+        },
+        applySearch(data) {
+            const search = cloneDeep(this.search);
             const previousType = search.type;
-            this.search = {
+            const nextSearch = {
                 ...search,
                 ...data,
             };
+            if (isEqual(nextSearch, search)) return;
+            this.search = nextSearch;
 
             const tab = EXAM_TYPE_TABS[data.type];
             if (!this.syncingRouteTab && previousType && previousType !== data.type && tab && this.$route.query.tab !== tab) {
@@ -301,6 +303,7 @@ export default {
             }
         },
         loadMethod(fun) {
+            const token = ++this.loadToken;
             const params = deleteNull(cloneDeep(this.params));
             if (this.data.length && this.data[0]?.paramsType !== params.type) {
                 this.data = [];
@@ -308,6 +311,7 @@ export default {
             this.loading = true;
             fun(params)
                 .then((res) => {
+                    if (token !== this.loadToken) return;
                     const data = res.data?.data || [];
                     this.data = data.map((item) => {
                         return {
@@ -318,19 +322,20 @@ export default {
                     this.total = res.data?.page?.total || 0;
                 })
                 .catch(() => {
+                    if (token !== this.loadToken) return;
                     this.data = [];
                     this.total = 0;
                     this.$message.error(this.$t("pages.exam.ui.loadFailed"));
                 })
                 .finally(() => {
-                    this.loading = false;
+                    if (token === this.loadToken) this.loading = false;
                 });
         },
         pageChange() {
             this.load();
         },
         openLink() {
-            window.open(__Root + this.publishLink, "_blank", "noopener,noreferrer");
+            window.open(this.publishLink, "_blank", "noopener,noreferrer");
         },
     },
     mounted() {
@@ -338,6 +343,9 @@ export default {
         if (tag) {
             this.initValue.tag = tag;
         }
+    },
+    beforeUnmount() {
+        clearTimeout(this.keywordSearchTimer);
     },
 };
 </script>

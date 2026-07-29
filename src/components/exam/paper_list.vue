@@ -3,7 +3,6 @@
         <div class="u-list">
             <div class="u-item" v-for="item in list" :key="'paper' + item.id">
                 <router-link :to="{ name: 'paper', params: { id: item.id } }" class="u-link">
-                    <span :class="`u-client i-client-${item.client}`">{{ clients[item.client] }}</span>
                     <div class="u-title">
                         <span>{{ item.title }}</span>
                         <span class="u-line" :class="item.style"></span>
@@ -40,18 +39,11 @@
     </div>
 </template>
 <script>
-import { __clients } from "@/utils/config";
 export default {
     name: "PaperList",
     props: ["data"],
     components: {},
-    data: function () {
-        return { clients: __clients };
-    },
     computed: {
-        client: function () {
-            return location.href.includes("origin") ? "origin" : "std";
-        },
         list: function () {
             return this.data?.map((item) => {
                 let parsedTags = [];

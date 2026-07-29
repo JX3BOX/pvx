@@ -19,14 +19,15 @@
     }
 
     .m-pvx-exam-question__navigation {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
         align-items: center;
-        justify-content: space-between;
         gap: @pvx-space-2;
         min-height: 64px;
 
         .u-back,
-        .u-edit {
+        .u-edit,
+        .u-adjacent {
             min-width: 112px;
             width: auto;
             height: 40px;
@@ -42,6 +43,16 @@
 
         .u-back {
             gap: 4px;
+            justify-self: start;
+        }
+
+        .u-edit {
+            justify-self: end;
+        }
+
+        .m-pvx-exam-question__adjacent {
+            display: flex;
+            gap: @pvx-space-2;
         }
     }
 
@@ -101,10 +112,15 @@
             min-height: 56px;
 
             .u-back,
-            .u-edit {
+            .u-edit,
+            .u-adjacent {
                 min-width: 0;
                 padding-right: @pvx-space-2;
                 padding-left: @pvx-space-2;
+            }
+
+            .u-adjacent {
+                min-width: 0;
             }
         }
 

@@ -14,8 +14,11 @@
                         </div>
                         <div class="m-nav-item-box">
                             <div class="m-nav-item" v-for="item in group.submenus" :key="item.key"
-                                :class="[{ 'is-active': active == item.key }, item.key]" v-show="item.status">
-                                <a :href="item.path" :target="item.target || '_self'">
+                                :class="[{ 'is-active': active == item.key, 'is-disabled': item.disabled }, item.key]"
+                                v-show="item.status">
+                                <component :is="item.disabled ? 'div' : 'a'" :href="item.disabled ? undefined : item.path"
+                                    :target="item.disabled ? undefined : item.target || '_self'"
+                                    :aria-disabled="item.disabled || undefined">
                                     <div class="u-nav-icon">
                                         <img svg-inline
                                             :src="require(`../assets/img/nav/${item.menuKey || item.key}.svg`)"
@@ -26,7 +29,7 @@
                                     </div>
 
                                     <span class="u-nav-label">{{ getMenuLabel(item) }}</span>
-                                </a>
+                                </component>
                             </div>
                         </div>
                     </div>
@@ -35,7 +38,9 @@
             <div class="u-btn" v-else @mouseenter="toRight">
                 <div class="u-btn-item">
                     <img class="u-icon" src="@/assets/img/nav/op.svg" svg-inline />
-                    <div class="u-btn-label">{{ $t("pages.index.ui.nav.menu") }}</div>
+                    <div class="u-btn-label" :class="{ 'is-zh': isChineseLocale }">
+                        {{ $t("pages.index.ui.nav.menu") }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -61,6 +66,9 @@ export default {
         };
     },
     computed: {
+        isChineseLocale() {
+            return String(this.$i18n.locale || "").startsWith("zh");
+        },
         isPhone() {
             return document.documentElement.clientWidth <= 768;
         },

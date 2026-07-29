@@ -24,7 +24,7 @@
                 <div v-else class="u-left">
                     <span class="u-tag u-no">No.{{ item.id }}</span>
                     <span class="u-tag u-client" :class="`u-${item.client}`">{{ clients[item.client || "std"] }}</span>
-                    <template v-if="index && item_tags.length">
+                    <template v-if="item_tags.length">
                         <a
                             :href="tagsLink(item)"
                             target="_blank"
@@ -150,7 +150,6 @@
 </template>
 <script>
 import { authorLink, resolveImagePath } from "@jx3box/jx3box-common/js/utils";
-import tags from "@/assets/data/exam_tags.json";
 import { __clients } from "@/utils/config";
 export default {
     name: "Card",
@@ -175,17 +174,16 @@ export default {
             return `/exam/question/`;
         },
         item_tags() {
-            const itemTags = Array.isArray(this.item?.tags) ? this.item.tags : [];
-            let arr = itemTags
-                .map((item) => {
-                    if (this.tags.indexOf(item) !== -1) return item;
-                })
-                .filter(Boolean);
-            if (!arr.length && itemTags[0]) arr[0] = itemTags[0];
-            return arr.slice(0, 1);
-        },
-        tags() {
-            return tags.slice(5, tags.length);
+            let itemTags = this.item?.tags;
+            if (!Array.isArray(itemTags)) {
+                try {
+                    itemTags = JSON.parse(itemTags || "[]");
+                } catch (_) {
+                    itemTags = [];
+                }
+            }
+            const normalizedTags = Array.isArray(itemTags) ? itemTags.filter(Boolean) : [];
+            return this.fromQuestion ? normalizedTags : normalizedTags.slice(0, 1);
         },
     },
     watch: {},

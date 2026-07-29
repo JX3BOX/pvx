@@ -43,6 +43,10 @@
                 writing-mode: vertical-rl;
                 text-orientation: mixed;
                 line-height: 1;
+
+                &.is-zh {
+                    letter-spacing: 2px;
+                }
             }
         }
     }
@@ -173,10 +177,16 @@
             .size(92px, 48px);
             .mr(10px);
             box-sizing: border-box;
+
+            &.is-disabled {
+                pointer-events: none;
+                opacity: 0.45;
+            }
             &:nth-child(3n) {
                 .mr(0);
             }
-            a {
+            > a,
+            > div {
                 .flex;
                 justify-content: center;
                 align-items: center;

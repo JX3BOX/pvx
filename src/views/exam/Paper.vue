@@ -128,7 +128,10 @@ export default {
             return this.data.client || "all";
         },
         canManage: function () {
-            return User.isEditor() || User.getInfo().uid == this.data.createUserId;
+            const uid = User.getInfo()?.uid;
+            const authorId = this.data.createUserId;
+
+            return User.isAdmin() || (!!uid && !!authorId && String(uid) === String(authorId));
         },
         isPractice() {
             return this.$route?.query?.mode == "practice";

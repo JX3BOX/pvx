@@ -49,10 +49,10 @@ export default {
             nav: { groups: { share: "Create", rare: "Collections", merchants: "Tools" }, menu: "Menu" },
             menus: {
                 face: "Face Data", body: "Body Data", homeland: "Homeland Blueprints",
-                adventure: "Adventures", pet: "Pets", horse: "Mounts", furniture: "Furniture",
+                adventure: "Adventures", exterior: "Outfits", pet: "Pets", horse: "Mounts", furniture: "Furniture",
                 reputation: "Reputations", book: "Books", keju: "Imperial Exam", treasure: "Adventure Scroll", seniority: "Achievement Guide",
-                questsection: "Story Archive", partner: "Companions", exam: "Exam Guide", manufacture: "Crafting Assistant",
-                price: "Price Trends", gonggao: "Event Bulletin",
+                questsection: "Story Archive", partner: "Companions", exam: "JX3 Exams", manufacture: "Crafting Assistant",
+                market: "Outfit Market", price: "Price Trends", gonggao: "Event Bulletin",
             },
         },
     },
@@ -256,7 +256,7 @@ export default {
         keywords: "JX3 exam,question bank,practice,JX3BOX",
         description: "Exam hub with question bank, papers and practice.",
         ui: {
-            title: "Exam Guide",
+            title: "JX3 Exams",
             description: "Search imperial questions, challenge community questions, or practise with mock papers",
             types: { imperial: "Imperial", question: "Questions", paper: "Mock Exams", gaokao: "JX3 Gaokao" },
             filters: { type: "Type", filter: "Filters", keyword: "keywords", tag: "Tags", client: "Client" },
@@ -270,13 +270,13 @@ export default {
             empty: { title: "No matching entries", description: "Try another keyword or adjust the filters" },
             loadFailed: "Could not load exam data. Please try again later.",
             search: {
-                close: "Close", reset: "Reset", select: "Select", inputField: "Enter {name}", selectField: "Select {name}",
+                close: "Confirm", reset: "Reset", select: "Select", inputField: "Enter {name}", selectField: "Select {name}",
                 searchPlaceholder: "Search by {name}",
             },
             imperial: {
                 placeholder: "Search question keywords", tip: "Enter at least two characters to search", minLength: "Use at least two characters",
                 result: "{count} results for “{keyword}”", answer: "Answer", emptyTitle: "Search Imperial Questions",
-                emptyDescription: "Enter an in-game question keyword to view its answer",
+                emptyDescription: "Enter an in-game question keyword to view its answer", random: "Random questions", randomResult: "Showing {count} random questions",
             },
             question: {
                 columns: { id: "ID", title: "Title", tags: "Tags", difficulty: "Difficulty", author: "Author", action: "Action" },
@@ -298,7 +298,7 @@ export default {
             },
             common: { anonymous: "Anonymous", noData: "No data" },
             detail: {
-                back: "Back to list", edit: "Edit", submit: "Submit answer", submitted: "Submitted", comments: "Comments",
+                back: "Back to list", previous: "Previous", next: "Next", noAdjacent: "No accessible nearby question found", edit: "Edit question", submit: "Submit answer", submitted: "Submitted", comments: "Comments",
                 loginRequired: "Please sign in first", selectAnswer: "Choose an answer before submitting", submitFailed: "Submission failed",
             },
         },

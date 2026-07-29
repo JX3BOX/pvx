@@ -6,10 +6,27 @@
                     <ArrowLeft />
                     {{ $t("pages.exam.ui.detail.back") }}
                 </PvxActionButton>
+                <div class="m-pvx-exam-question__adjacent">
+                    <PvxActionButton
+                        class="u-adjacent"
+                        variant="light"
+                        disabled
+                    >
+                        <ArrowLeft />
+                        {{ $t("pages.exam.ui.detail.previous") }}
+                    </PvxActionButton>
+                    <PvxActionButton
+                        class="u-adjacent"
+                        variant="light"
+                        disabled
+                    >
+                        {{ $t("pages.exam.ui.detail.next") }}
+                        <ArrowRight />
+                    </PvxActionButton>
+                </div>
                 <PvxActionButton
                     v-if="data.id && canManage"
                     class="u-edit"
-                    variant="light"
                     :href="editLink('question', data.id)"
                 >
                     <EditPen />
@@ -63,7 +80,7 @@ import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import { getQuestion, submitQuestionAnswer } from "@/service/exam.js";
 import User from "@jx3box/jx3box-common/js/user";
-import { ArrowLeft, ChatDotRound, EditPen } from "@element-plus/icons-vue";
+import { ArrowLeft, ArrowRight, ChatDotRound, EditPen } from "@element-plus/icons-vue";
 
 export default {
     name: "QuestionSingle",
@@ -74,6 +91,7 @@ export default {
         PvxSurface,
         Comment,
         ArrowLeft,
+        ArrowRight,
         ChatDotRound,
         EditPen,
     },
@@ -84,6 +102,7 @@ export default {
             userAnswers: {},
             isSubmitted: false,
             loading: false,
+            detailLoadToken: 0,
         };
     },
     computed: {
@@ -100,7 +119,18 @@ export default {
             return this.data.client || "all";
         },
         canManage() {
-            return User.isEditor() || User.getInfo().uid == this.data.createUserId;
+            const uid = User.getInfo()?.uid;
+            const authorId = this.data.createUserId;
+
+            return User.isAdmin() || (!!uid && !!authorId && String(uid) === String(authorId));
+        },
+    },
+    watch: {
+        id(id, previousId) {
+            if (!id || id === previousId) return;
+            this.resetAnswerState();
+            this.data = {};
+            this.loadData();
         },
     },
     methods: {
@@ -108,21 +138,43 @@ export default {
             return `/publish/#/${type}/${id}`;
         },
         loadData() {
+            const token = ++this.detailLoadToken;
             this.loading = true;
             getQuestion(this.id)
                 .then((res) => {
-                    const data = res.data;
-                    data.tags = JSON.parse(data.tags);
-                    data.options = JSON.parse(data.options);
-                    this.data = data;
-                    postStat("question", this.id);
+                    if (token !== this.detailLoadToken) return;
+                    this.applyQuestionData(res.data);
                 })
                 .catch(() => {
+                    if (token !== this.detailLoadToken) return;
                     this.$message.error(this.$t("pages.exam.ui.loadFailed"));
                 })
                 .finally(() => {
-                    this.loading = false;
+                    if (token === this.detailLoadToken) this.loading = false;
                 });
+        },
+        parseArray(value) {
+            if (Array.isArray(value)) return value;
+            try {
+                const result = JSON.parse(value || "[]");
+                return Array.isArray(result) ? result : [];
+            } catch (_) {
+                return [];
+            }
+        },
+        applyQuestionData(rawData) {
+            const data = {
+                ...rawData,
+                tags: this.parseArray(rawData?.tags),
+                options: this.parseArray(rawData?.options),
+            };
+            this.data = data;
+            postStat("question", data.id);
+        },
+        resetAnswerState() {
+            this.answer = "";
+            this.userAnswers = {};
+            this.isSubmitted = false;
         },
         finalAnswer(val) {
             this.userAnswers = {
@@ -163,6 +215,9 @@ export default {
     },
     created() {
         this.loadData();
+    },
+    beforeUnmount() {
+        this.detailLoadToken += 1;
     },
 };
 </script>

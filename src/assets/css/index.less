@@ -66,6 +66,12 @@
                 border: 1px solid transparent;
                 transition: 0.3s ease-out;
 
+                &.is-disabled {
+                    cursor: default;
+                    pointer-events: none;
+                    opacity: 0.45;
+                }
+
                 .u-image {
                     .size(50px);
                 }

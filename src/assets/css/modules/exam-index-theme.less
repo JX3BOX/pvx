@@ -283,6 +283,12 @@
             border-radius: @pvx-radius-control;
             background: @pvx-surface-muted;
 
+            .m-search-control {
+                display: flex;
+                gap: @pvx-space-2;
+                align-items: stretch;
+            }
+
             .el-input__wrapper {
                 min-height: 44px;
                 border: 1px solid @pvx-border;
@@ -300,6 +306,29 @@
                 color: @pvx-text-muted;
                 font-size: 13px;
                 line-height: 20px;
+            }
+
+            .u-random {
+                min-width: 112px;
+                height: auto;
+                margin: 0;
+                border-color: @pvx-border;
+                border-radius: 12px;
+                color: @pvx-primary;
+                background: @pvx-surface;
+                font-weight: 700;
+                cursor: pointer;
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                    margin-right: 6px;
+                }
+
+                &:hover {
+                    border-color: @pvx-border-focus;
+                    background: @pvx-primary-soft;
+                }
             }
         }
 
@@ -595,6 +624,19 @@
                 }
             }
 
+            .u-filter-close {
+                border-color: @pvx-primary;
+                color: @pvx-text-inverse;
+                background: @pvx-primary;
+
+                &:hover,
+                &:focus {
+                    border-color: @pvx-primary-hover;
+                    color: @pvx-text-inverse;
+                    background: @pvx-primary-hover;
+                }
+            }
+
             .el-button + .el-button {
                 margin-left: 0;
             }
@@ -823,6 +865,16 @@
 
         .m-pvx-exam__section-header {
             margin-bottom: @pvx-space-3;
+        }
+
+        .m-pvx-imperial-list .m-search {
+            .m-search-control {
+                flex-direction: column;
+            }
+
+            .u-random {
+                min-height: 40px;
+            }
         }
 
         .m-question-list .m-question-cards {

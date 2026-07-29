@@ -55,10 +55,10 @@ export default {
             nav: { groups: { share: "创意", rare: "图鉴", merchants: "信息" }, menu: "菜单" },
             menus: {
                 face: "捏脸数据", body: "体型数据", homeland: "家园蓝图",
-                adventure: "奇遇大全", pet: "宠物大全", horse: "坐骑大全", furniture: "家具大全",
+                adventure: "奇遇大全", exterior: "外观大全", pet: "宠物大全", horse: "坐骑大全", furniture: "家具大全",
                 reputation: "声望大全", book: "书籍大全", keju: "科举大全", treasure: "奇遇珍卷", seniority: "资历宝典",
-                questsection: "剑侠录", partner: "红尘侠影", exam: "考试大全", manufacture: "技艺助手",
-                price: "价格走势", gonggao: "活动告示",
+                questsection: "剑侠录", partner: "红尘侠影", exam: "剑三考试", manufacture: "技艺助手",
+                market: "外观黑市", price: "价格走势", gonggao: "活动告示",
             },
         },
     },
@@ -953,7 +953,7 @@ export default {
         description:
             "剑网3魔盒（JX3BOX）考试栏目，提供剑网3相关题库、试卷、答题练习与题目发布功能，方便玩家进行知识测试、题目整理与内容投稿。",
         ui: {
-            title: "考试大全",
+            title: "剑三考试",
             description: "查询科举题目、挑战玩家题库，或选择模拟试卷进行练习",
             types: { imperial: "科举题库", question: "创作题库", paper: "模拟考试", gaokao: "剑三高考" },
             filters: { type: "类型", filter: "筛选", keyword: "关键词", tag: "标签", client: "平台" },
@@ -967,13 +967,13 @@ export default {
             empty: { title: "没有找到相关条目", description: "请尝试更换关键词或调整筛选条件" },
             loadFailed: "考试数据加载失败，请稍后重试",
             search: {
-                close: "关闭", reset: "重置", select: "请选择", inputField: "请输入{name}", selectField: "请选择{name}",
+                close: "确定", reset: "重置", select: "请选择", inputField: "请输入{name}", selectField: "请选择{name}",
                 searchPlaceholder: "输入{name}搜索",
             },
             imperial: {
                 placeholder: "输入题目关键词搜索", tip: "请输入至少两个字符开始查询", minLength: "搜索词长度不能少于两个字符",
                 result: "“{keyword}”共找到 {count} 条结果", answer: "答案", emptyTitle: "开始查询科举题库",
-                emptyDescription: "输入游戏内题目关键词，即可查看对应答案",
+                emptyDescription: "输入游戏内题目关键词，即可查看对应答案", random: "随机题目", randomResult: "已随机展示 {count} 道题目",
             },
             question: {
                 columns: { id: "编号", title: "标题", tags: "标签", difficulty: "难度", author: "出题人", action: "操作" },
@@ -995,7 +995,7 @@ export default {
             },
             common: { anonymous: "匿名", noData: "暂无数据" },
             detail: {
-                back: "返回列表", edit: "编辑", submit: "提交答案", submitted: "已提交", comments: "评论",
+                back: "返回列表", previous: "上一题", next: "下一题", noAdjacent: "附近没有可访问的题目", edit: "编辑题目", submit: "提交答案", submitted: "已提交", comments: "评论",
                 loginRequired: "请先登录", selectAnswer: "请先选择答案", submitFailed: "提交失败",
             },
         },

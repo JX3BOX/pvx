@@ -49,10 +49,10 @@ export default {
             nav: { groups: { share: "Sáng tạo", rare: "Bộ sưu tập", merchants: "Công cụ" }, menu: "Menu" },
             menus: {
                 face: "Dữ liệu khuôn mặt", body: "Dữ liệu vóc dáng", homeland: "Bản thiết kế gia viên",
-                adventure: "Danh sách kỳ ngộ", pet: "Thú cưng", horse: "Tọa kỵ", furniture: "Nội thất",
+                adventure: "Danh sách kỳ ngộ", exterior: "Ngoại trang", pet: "Thú cưng", horse: "Tọa kỵ", furniture: "Nội thất",
                 reputation: "Danh vọng", book: "Sách", keju: "Khoa cử", treasure: "Cuộn kỳ ngộ", seniority: "Cẩm nang thành tựu",
-                questsection: "Biên niên sử", partner: "Đồng hành", exam: "Cẩm nang thi", manufacture: "Trợ lý chế tạo",
-                price: "Xu hướng giá", gonggao: "Thông báo sự kiện",
+                questsection: "Biên niên sử", partner: "Đồng hành", exam: "Kỳ thi JX3", manufacture: "Trợ lý chế tạo",
+                market: "Chợ ngoại trang", price: "Xu hướng giá", gonggao: "Thông báo sự kiện",
             },
         },
     },
@@ -253,7 +253,7 @@ export default {
         keywords: "JX3 exam,question bank,practice,JX3BOX",
         description: "Kho câu hỏi, đề thi và luyện tập.",
         ui: {
-            title: "Cẩm nang thi",
+            title: "Kỳ thi JX3",
             description: "Tra cứu câu hỏi khoa cử, thử sức với ngân hàng cộng đồng hoặc luyện đề mô phỏng",
             types: { imperial: "Khoa cử", question: "Câu hỏi", paper: "Thi thử", gaokao: "Gaokao JX3" },
             filters: { type: "Loại", filter: "Bộ lọc", keyword: "từ khóa", tag: "Thẻ", client: "Máy chủ" },
@@ -267,13 +267,13 @@ export default {
             empty: { title: "Không tìm thấy mục phù hợp", description: "Hãy đổi từ khóa hoặc điều chỉnh bộ lọc" },
             loadFailed: "Không thể tải dữ liệu bài thi. Vui lòng thử lại sau.",
             search: {
-                close: "Đóng", reset: "Đặt lại", select: "Chọn", inputField: "Nhập {name}", selectField: "Chọn {name}",
+                close: "Xác nhận", reset: "Đặt lại", select: "Chọn", inputField: "Nhập {name}", selectField: "Chọn {name}",
                 searchPlaceholder: "Tìm theo {name}",
             },
             imperial: {
                 placeholder: "Nhập từ khóa câu hỏi", tip: "Nhập ít nhất hai ký tự để tìm kiếm", minLength: "Từ khóa phải có ít nhất hai ký tự",
                 result: "Tìm thấy {count} kết quả cho “{keyword}”", answer: "Đáp án", emptyTitle: "Tra cứu câu hỏi khoa cử",
-                emptyDescription: "Nhập từ khóa câu hỏi trong trò chơi để xem đáp án",
+                emptyDescription: "Nhập từ khóa câu hỏi trong trò chơi để xem đáp án", random: "Câu hỏi ngẫu nhiên", randomResult: "Đang hiển thị {count} câu hỏi ngẫu nhiên",
             },
             question: {
                 columns: { id: "ID", title: "Tiêu đề", tags: "Thẻ", difficulty: "Độ khó", author: "Tác giả", action: "Thao tác" },
@@ -295,7 +295,7 @@ export default {
             },
             common: { anonymous: "Ẩn danh", noData: "Chưa có dữ liệu" },
             detail: {
-                back: "Về danh sách", edit: "Chỉnh sửa", submit: "Gửi đáp án", submitted: "Đã gửi", comments: "Bình luận",
+                back: "Về danh sách", previous: "Câu trước", next: "Câu tiếp", noAdjacent: "Không tìm thấy câu hỏi lân cận có thể truy cập", edit: "Sửa câu hỏi", submit: "Gửi đáp án", submitted: "Đã gửi", comments: "Bình luận",
                 loginRequired: "Vui lòng đăng nhập", selectAnswer: "Hãy chọn đáp án trước khi gửi", submitFailed: "Gửi thất bại",
             },
         },

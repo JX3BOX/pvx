@@ -28,6 +28,13 @@
                 "menuKey": "blueprint",
                 "status": true,
                 "isStd": true
+            },
+            {
+                "path": "/exam",
+                "label": "剑三考试",
+                "icon": "el-icon-files",
+                "key": "exam",
+                "status": true
             }
         ]
     },
@@ -43,6 +50,15 @@
                 "icon": "el-icon-files",
                 "key": "adventure",
                 "status": true
+            },
+            {
+                "path": "/exterior",
+                "label": "外观大全",
+                "icon": "el-icon-files",
+                "key": "exterior",
+                "menuKey": "body",
+                "status": true,
+                "disabled": true
             },
             {
                 "path": "/pet",
@@ -127,11 +143,13 @@
         "index": "3",
         "submenus": [
             {
-                "path": "/exam",
-                "label": "考试大全",
+                "path": "/market",
+                "label": "外观黑市",
                 "icon": "el-icon-files",
-                "key": "exam",
-                "status": true
+                "key": "market",
+                "menuKey": "body",
+                "status": true,
+                "disabled": true
             },
             {
                 "path": "/pvg/manufacture",

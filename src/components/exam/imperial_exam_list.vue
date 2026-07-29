@@ -1,15 +1,24 @@
 <template>
     <div class="m-pvx-imperial-list" v-loading="loading">
         <div class="m-search">
-            <el-input
-                v-model="search"
-                clearable
-                :placeholder="$t('pages.exam.ui.imperial.placeholder')"
-                :minlength="2"
-            >
-                <template #prefix><Search /></template>
-            </el-input>
-            <p class="u-tip" v-if="!normalizedSearch">{{ $t("pages.exam.ui.imperial.tip") }}</p>
+            <div class="m-search-control">
+                <el-input
+                    v-model="search"
+                    clearable
+                    :placeholder="$t('pages.exam.ui.imperial.placeholder')"
+                    :minlength="2"
+                >
+                    <template #prefix><Search /></template>
+                </el-input>
+                <el-button class="u-random" :loading="loading" @click="loadRandom">
+                    <RefreshRight />
+                    {{ $t("pages.exam.ui.imperial.random") }}
+                </el-button>
+            </div>
+            <p class="u-tip" v-if="displayMode === 'random'">
+                {{ $t("pages.exam.ui.imperial.randomResult", { count: total }) }}
+            </p>
+            <p class="u-tip" v-else-if="!normalizedSearch">{{ $t("pages.exam.ui.imperial.tip") }}</p>
             <p class="u-tip" v-else-if="normalizedSearch.length < 2">
                 {{ $t("pages.exam.ui.imperial.minLength") }}
             </p>
@@ -44,12 +53,12 @@
 </template>
 
 <script>
-import { getExamByKey } from "@/service/exam";
+import { getExamByKey, getExamRandom } from "@/service/exam";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
-import { Search } from "@element-plus/icons-vue";
+import { RefreshRight, Search } from "@element-plus/icons-vue";
 export default {
     name: "ImperialExaminationList",
-    components: { PvxEmptyState, Search },
+    components: { PvxEmptyState, RefreshRight, Search },
     data() {
         return {
             search: "",
@@ -58,6 +67,7 @@ export default {
             loading: false,
             requestToken: 0,
             searchTimer: null,
+            displayMode: "idle",
         };
     },
     computed: {
@@ -80,6 +90,7 @@ export default {
             const token = ++this.requestToken;
             clearTimeout(this.searchTimer);
             if (key.length < 2) {
+                this.displayMode = "idle";
                 this.list = [];
                 this.total = 0;
                 this.loading = false;
@@ -87,6 +98,7 @@ export default {
             }
 
             this.searchTimer = setTimeout(() => {
+                this.displayMode = "search";
                 this.loading = true;
                 getExamByKey({ key })
                     .then((res) => {
@@ -110,6 +122,30 @@ export default {
         clearTimeout(this.searchTimer);
     },
     methods: {
+        loadRandom() {
+            clearTimeout(this.searchTimer);
+            this.search = "";
+            this.$nextTick(() => {
+                const token = ++this.requestToken;
+                this.displayMode = "random";
+                this.loading = true;
+                getExamRandom(12)
+                    .then((res) => {
+                        if (token !== this.requestToken) return;
+                        this.list = res.data?.data || [];
+                        this.total = this.list.length;
+                    })
+                    .catch(() => {
+                        if (token !== this.requestToken) return;
+                        this.list = [];
+                        this.total = 0;
+                        this.$message.error(this.$t("pages.exam.ui.loadFailed"));
+                    })
+                    .finally(() => {
+                        if (token === this.requestToken) this.loading = false;
+                    });
+            });
+        },
         parseArray(value) {
             if (Array.isArray(value)) return value;
             try {

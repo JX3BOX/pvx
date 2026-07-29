@@ -49,10 +49,10 @@ export default {
             nav: { groups: { share: "創意", rare: "圖鑑", merchants: "資訊" }, menu: "選單" },
             menus: {
                 face: "捏臉數據", body: "體型數據", homeland: "家園藍圖",
-                adventure: "奇遇大全", pet: "寵物大全", horse: "坐騎大全", furniture: "家具大全",
+                adventure: "奇遇大全", exterior: "外觀大全", pet: "寵物大全", horse: "坐騎大全", furniture: "家具大全",
                 reputation: "聲望大全", book: "書籍大全", keju: "科舉大全", treasure: "奇遇珍卷", seniority: "資歷寶典",
-                questsection: "劍俠錄", partner: "紅塵俠影", exam: "考試大全", manufacture: "技藝助手",
-                price: "價格走勢", gonggao: "活動告示",
+                questsection: "劍俠錄", partner: "紅塵俠影", exam: "劍三考試", manufacture: "技藝助手",
+                market: "外觀黑市", price: "價格走勢", gonggao: "活動告示",
             },
         },
     },
@@ -253,7 +253,7 @@ export default {
         keywords: "劍網3考試,題庫,答題,JX3BOX",
         description: "考試欄目，提供題庫、試卷與答題練習。",
         ui: {
-            title: "考試大全",
+            title: "劍三考試",
             description: "查詢科舉題目、挑戰玩家題庫，或選擇模擬試卷進行練習",
             types: { imperial: "科舉題庫", question: "創作題庫", paper: "模擬考試", gaokao: "劍三高考" },
             filters: { type: "類型", filter: "篩選", keyword: "關鍵詞", tag: "標籤", client: "平台" },
@@ -267,13 +267,13 @@ export default {
             empty: { title: "沒有找到相關項目", description: "請嘗試更換關鍵詞或調整篩選條件" },
             loadFailed: "考試資料載入失敗，請稍後重試",
             search: {
-                close: "關閉", reset: "重設", select: "請選擇", inputField: "請輸入{name}", selectField: "請選擇{name}",
+                close: "確定", reset: "重設", select: "請選擇", inputField: "請輸入{name}", selectField: "請選擇{name}",
                 searchPlaceholder: "輸入{name}搜尋",
             },
             imperial: {
                 placeholder: "輸入題目關鍵詞搜尋", tip: "請輸入至少兩個字元開始查詢", minLength: "搜尋詞不能少於兩個字元",
                 result: "「{keyword}」共找到 {count} 筆結果", answer: "答案", emptyTitle: "開始查詢科舉題庫",
-                emptyDescription: "輸入遊戲內題目關鍵詞，即可查看對應答案",
+                emptyDescription: "輸入遊戲內題目關鍵詞，即可查看對應答案", random: "隨機題目", randomResult: "已隨機展示 {count} 道題目",
             },
             question: {
                 columns: { id: "編號", title: "標題", tags: "標籤", difficulty: "難度", author: "出題人", action: "操作" },
@@ -295,7 +295,7 @@ export default {
             },
             common: { anonymous: "匿名", noData: "暫無資料" },
             detail: {
-                back: "返回列表", edit: "編輯", submit: "提交答案", submitted: "已提交", comments: "評論",
+                back: "返回列表", previous: "上一題", next: "下一題", noAdjacent: "附近沒有可存取的題目", edit: "編輯題目", submit: "提交答案", submitted: "已提交", comments: "評論",
                 loginRequired: "請先登入", selectAnswer: "請先選擇答案", submitFailed: "提交失敗",
             },
         },
