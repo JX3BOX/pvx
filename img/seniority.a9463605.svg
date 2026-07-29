@@ -1,0 +1,18 @@
+<svg id="图层_1" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <rect width="40" height="40" rx="5" style="fill: #fff"/>
+  <g>
+    <polygon points="20 9.51 4.99 35.51 35.01 35.51 20 9.51" style="fill: #e54e60"/>
+    <rect x="15.88" y="28.26" width="8.24" height="8.24" transform="translate(28.76 -4.66) rotate(45)" style="fill: #efebe8"/>
+    <g>
+      <polygon points="12.42 31.14 15.02 31.14 15.02 37.98 12.42 35.66 12.42 31.14" style="fill: #e54e60"/>
+      <polygon points="27.58 31.14 24.98 31.14 24.98 37.98 27.58 35.66 27.58 31.14" style="fill: #e54e60"/>
+    </g>
+    <circle cx="20" cy="17.54" r="17.02" style="fill: #fff"/>
+    <circle cx="20" cy="17.54" r="15.35" style="fill: #eacf9f"/>
+    <circle cx="20" cy="17.54" r="11.16" style="fill: #c4a44d"/>
+    <circle cx="20" cy="17.54" r="9.5" style="fill: #fff"/>
+    <rect x="17.14" y="30.04" width="5.71" height="5.71" transform="translate(29.12 -4.51) rotate(45)" style="fill: #c4a44d"/>
+    <rect x="18.58" y="31.48" width="2.83" height="2.83" transform="translate(29.12 -4.51) rotate(45)" style="fill: #fff"/>
+  </g>
+  <polygon points="20 20.52 15.37 23.74 17.01 18.35 12.52 14.95 18.15 14.83 20 9.51 21.85 14.83 27.48 14.95 22.99 18.35 24.63 23.74 20 20.52" style="fill: #c4a44d"/>
+</svg>

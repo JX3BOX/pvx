@@ -1,0 +1,1 @@
+"use strict";(self["webpackChunkpvx"]=self["webpackChunkpvx"]||[]).push([[5096],{55096(e,a,c){c.r(a),c.d(a,{default:()=>p});var n=c(56768);function r(e,a,c,r,s,t){const o=(0,n.g2)("FaceBodyParsePage");return(0,n.uX)(),(0,n.Wv)(o,{type:"face"})}var s=c(62519);const t={name:"FacedataParse",components:{FaceBodyParsePage:s.A}};var o=c(71241);const u=(0,o.A)(t,[["render",r]]),p=u}}]);
