@@ -186,7 +186,13 @@ export default {
             return this.fromQuestion ? normalizedTags : normalizedTags.slice(0, 1);
         },
     },
-    watch: {},
+    watch: {
+        "item.id"(id, previousId) {
+            if (id === previousId) return;
+            this.checkbox = [];
+            this.radio = "";
+        },
+    },
     methods: {
         authorLink,
         resolveImagePath,

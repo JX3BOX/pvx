@@ -10,7 +10,8 @@
                     <PvxActionButton
                         class="u-adjacent"
                         variant="light"
-                        disabled
+                        :disabled="!previousQuestionId || loading"
+                        @click="goToAdjacentQuestion(previousQuestionId)"
                     >
                         <ArrowLeft />
                         {{ $t("pages.exam.ui.detail.previous") }}
@@ -18,7 +19,8 @@
                     <PvxActionButton
                         class="u-adjacent"
                         variant="light"
-                        disabled
+                        :disabled="!nextQuestionId || loading"
+                        @click="goToAdjacentQuestion(nextQuestionId)"
                     >
                         {{ $t("pages.exam.ui.detail.next") }}
                         <ArrowRight />
@@ -118,6 +120,12 @@ export default {
         client() {
             return this.data.client || "all";
         },
+        previousQuestionId() {
+            return this.normalizeAdjacentQuestionId(this.data.pre_id);
+        },
+        nextQuestionId() {
+            return this.normalizeAdjacentQuestionId(this.data.next_id);
+        },
         canManage() {
             const uid = User.getInfo()?.uid;
             const authorId = this.data.createUserId;
@@ -136,6 +144,20 @@ export default {
     methods: {
         editLink(type, id) {
             return `/publish/#/${type}/${id}`;
+        },
+        normalizeAdjacentQuestionId(id) {
+            const questionId = Number(id);
+            return Number.isInteger(questionId) && questionId > 0 ? questionId : null;
+        },
+        goToAdjacentQuestion(id) {
+            if (!id || this.loading) return;
+            this.$router.push({
+                name: "question",
+                params: {
+                    id,
+                },
+            });
+            window.scrollTo({ top: 0, behavior: "smooth" });
         },
         loadData() {
             const token = ++this.detailLoadToken;

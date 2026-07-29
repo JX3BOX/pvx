@@ -3,7 +3,7 @@
         :is="componentTag"
         :href="href || undefined"
         :type="componentTag === 'button' ? nativeType : undefined"
-        class="inline-flex min-h-10 items-center justify-center gap-2 rounded-2xl border px-5 py-2.5 text-sm font-semibold no-underline transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-indigo-200 disabled:pointer-events-none disabled:opacity-50"
+        class="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-2xl border px-5 py-2.5 text-sm font-semibold no-underline transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-indigo-200 disabled:pointer-events-none disabled:opacity-50"
         :class="variantClass"
     >
         <slot />
@@ -46,4 +46,3 @@ export default {
     },
 };
 </script>
-
