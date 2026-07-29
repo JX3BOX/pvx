@@ -86,6 +86,9 @@ export default {
             let arr = compact(location.pathname?.split("/"));
             let str = arr[0];
             if (str === "pvg") str = arr[1];
+            if (str === "pvx" && ["questsection", "partner"].includes(arr[1])) {
+                str = arr[1];
+            }
             // if (str === "body") str = "exterior";
             // 处理 /pvx/codex/* 路径
             if (str === "pvx" && arr[1] === "codex") {

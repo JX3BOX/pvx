@@ -105,14 +105,14 @@
                 "status": true
             },
             {
-                "path": "/questsection",
+                "path": "/pvx/questsection",
                 "label": "剑侠录",
                 "icon": "el-icon-files",
                 "key": "questsection",
                 "status": true
             },
             {
-                "path": "/partner",
+                "path": "/pvx/partner",
                 "label": "红尘侠影",
                 "icon": "el-icon-files",
                 "key": "partner",
