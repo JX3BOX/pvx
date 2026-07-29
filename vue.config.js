@@ -64,7 +64,7 @@ const pages = {
     },
 
     exam: {
-        title: "剑三考试 - JX3BOX",
+        title: "剑三考试",
         entry: "src/pages/exam/index.js",
         template: "public/index.html",
         filename: "exam/index.html",
@@ -76,7 +76,7 @@ const pages = {
         filename: "keju/index.html",
     },
     pvg: {
-        title: "商贾奇才 - JX3BOX",
+        title: "商贾奇才",
         entry: "src/pages/pvg/index.js",
         template: "public/index.html",
         filename: "pvg/index.html",
@@ -88,13 +88,13 @@ const pages = {
         filename: "qqbot/index.html",
     },
     questsection: {
-        title: "剑侠录 - JX3BOX",
+        title: "剑侠录",
         entry: "src/pages/questsection/index.js",
         template: "public/index.html",
         filename: "questsection/index.html",
     },
     partner: {
-        title: "红尘侠影 - JX3BOX",
+        title: "红尘侠影",
         entry: "src/pages/partner/index.js",
         template: "public/index.html",
         filename: "partner/index.html",

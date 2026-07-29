@@ -61,10 +61,17 @@
         background: fade(@pvx-surface-muted, 92%);
         font-size: 12px;
         font-weight: 600;
+        text-decoration: none;
         white-space: nowrap;
 
         .el-icon {
             font-size: 14px;
+        }
+
+        &:hover,
+        &:focus-visible {
+            border-color: fade(@pvx-primary, 35%);
+            color: @pvx-primary;
         }
     }
 
@@ -123,7 +130,6 @@
 
     .m-pvx-fb-parse__upload-stage {
         display: flex;
-        min-height: 250px;
         align-items: center;
         justify-content: center;
         flex-direction: column;
@@ -187,6 +193,10 @@
     .c-facedat-upload {
         width: 100%;
         margin-top: @pvx-space-4;
+
+        .u-hidden-guide {
+            display: none;
+        }
 
         .u-upload {
             display: flex;

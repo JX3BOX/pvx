@@ -12,10 +12,15 @@
                 >
                     <template #icon><DataAnalysis /></template>
                     <template #action>
-                        <span class="m-pvx-fb-parse__privacy">
-                            <el-icon><Lock /></el-icon>
-                            {{ $t("pages.faceBody.parse.localOnly") }}
-                        </span>
+                        <a
+                            class="m-pvx-fb-parse__privacy"
+                            :href="guideUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <el-icon><Collection /></el-icon>
+                            {{ $t(`${localeBase}.guide`) }}
+                        </a>
                     </template>
                 </PvxSectionHeader>
             </PvxSurface>
@@ -40,12 +45,7 @@
                         <p>{{ $t(`${localeBase}.formats`) }}</p>
                     </template>
                     <Upload :type="type" @success="handleSuccess">
-                        <template #guide>
-                            <a class="u-help" :href="guideUrl" target="_blank" rel="noopener noreferrer">
-                                <el-icon><Collection /></el-icon>
-                                {{ $t(`${localeBase}.guide`) }}
-                            </a>
-                        </template>
+                        <template #guide><span class="u-hidden-guide" aria-hidden="true"></span></template>
                     </Upload>
                 </div>
 

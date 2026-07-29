@@ -36,7 +36,7 @@
                 </div>
             </a>
             <el-dropdown
-                v-if="isEditor && type === 'face'"
+                v-if="isEditor"
                 trigger="click"
                 popper-class="m-pvx-manage-dropdown"
                 :disabled="managementLoading"
@@ -64,9 +64,6 @@
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
-            <a v-else-if="isEditor" :href="manageLink" target="_blank">
-                <div class="u-pvx-manage"></div>
-            </a>
         </div>
     </div>
 </template>
@@ -75,7 +72,20 @@
 import { publishLink } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";
 import { ArrowLeft, Bottom, Delete, Star, StarFilled, Top } from "@element-plus/icons-vue";
-import { setStar, cancelStar, onlineFace, offlineFace, managerDeleteFace } from "@/service/face";
+import {
+    setStar as setFaceStar,
+    cancelStar as cancelFaceStar,
+    onlineFace,
+    offlineFace,
+    managerDeleteFace,
+} from "@/service/face";
+import {
+    setStar as setBodyStar,
+    cancelStar as cancelBodyStar,
+    onlineBody,
+    offlineBody,
+    managerDeleteBody,
+} from "@/service/body";
 
 /**
  * SingleNavigation - 详情页导航组件
@@ -121,10 +131,6 @@ export default {
         publishLink() {
             return publishLink(this.type);
         },
-        // 管理链接
-        manageLink() {
-            return `/os/#/omp/pvx/${this.type}data`;
-        },
         statusActionText() {
             return Number(this.post.status) === 1 ? "下架" : "上架";
         },
@@ -142,8 +148,9 @@ export default {
             if (!this.isEditor || this.managementLoading || !this.post.id) return;
 
             const actionText = command === "status" ? this.statusActionText : command === "star" ? this.starActionText : "删除";
+            const dataTypeText = this.type === "face" ? "捏脸" : "体型";
             try {
-                await this.$confirm(`确认${actionText}该捏脸？`, "管理操作", {
+                await this.$confirm(`确认${actionText}该${dataTypeText}？`, "管理操作", {
                     confirmButtonText: "确定",
                     cancelButtonText: "取消",
                     type: command === "delete" ? "error" : "warning",
@@ -157,14 +164,22 @@ export default {
                 let patch = {};
                 if (command === "status") {
                     const isOnline = Number(this.post.status) === 1;
-                    await (isOnline ? offlineFace(this.post.id, true) : onlineFace(this.post.id, true));
+                    if (this.type === "face") {
+                        await (isOnline ? offlineFace(this.post.id, true) : onlineFace(this.post.id, true));
+                    } else {
+                        await (isOnline ? offlineBody(this.post.id, true) : onlineBody(this.post.id, true));
+                    }
                     patch = { status: isOnline ? 2 : 1 };
                 } else if (command === "star") {
                     const isStar = Boolean(Number(this.post.star));
-                    await (isStar ? cancelStar(this.post.id) : setStar(this.post.id));
+                    if (this.type === "face") {
+                        await (isStar ? cancelFaceStar(this.post.id) : setFaceStar(this.post.id));
+                    } else {
+                        await (isStar ? cancelBodyStar(this.post.id) : setBodyStar(this.post.id));
+                    }
                     patch = { star: isStar ? 0 : 1 };
                 } else if (command === "delete") {
-                    await managerDeleteFace(this.post.id);
+                    await (this.type === "face" ? managerDeleteFace(this.post.id) : managerDeleteBody(this.post.id));
                     this.$notify.success({ title: "成功", message: "删除成功" });
                     this.$router.push({ name: "list" });
                     return;

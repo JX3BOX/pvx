@@ -50,6 +50,10 @@ function offlineBody(id, isAdmin) {
 function deleteBody(id) {
     return $next().delete(`/api/pvxbody/${id}`);
 }
+
+function managerDeleteBody(id) {
+    return $next().delete(`/api/pvxbody/${id}/manager/delete`);
+}
 /**
  * 购买
  * postType {string} 体型固定填body
@@ -118,6 +122,7 @@ export {
     onlineBody,
     offlineBody,
     deleteBody,
+    managerDeleteBody,
     payBody,
     loopPayStatus,
     setPost,

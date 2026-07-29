@@ -16,7 +16,7 @@
  -->
 <template>
     <div class="p-pvx-body-single p-pvx-body-single--modern" v-loading="loading" ref="singleRef">
-        <SingleNavigation type="body" @go-back="goBack" />
+        <SingleNavigation type="body" :post="post" @go-back="goBack" @updated="handleManagementUpdated" />
         <SingleHeader :post="post" type="body" :canEdit="canEdit" :topicText="topicText" />
 
         <div class="m-pvx-type__content">
@@ -32,7 +32,6 @@
                     <span class="m-pvx-single__eyebrow">DATA ANALYSIS</span>
                     <h2 class="m-pvx-single__data-title">{{ $t("pages.faceBody.detail.dataAnalysis") }}</h2>
                 </div>
-                <span class="u-pvx-single__section-tip">{{ $t("pages.faceBody.detail.analysisHint") }}</span>
             </div>
             <Bodydat v-if="has_buy && bodydata" :data="bodydata" />
             <div class="m-pvx-single__buy-box" v-else>
@@ -131,6 +130,10 @@ export default {
     },
 
     methods: {
+        handleManagementUpdated(patch) {
+            this.post = { ...this.post, ...patch };
+            this.$store.commit("SET_BODY_SINGLE", this.post);
+        },
         getData() {
             if (!this.id) return;
             this.loading = true;
