@@ -28,7 +28,7 @@
                     <div class="m-pvx-adventure-toolbar-action">
                         <PvxActionButton
                             class="u-adventure-treasure"
-                            href="/pvx/codex/adventure"
+                            href="/pvx/adventure"
                             variant="light"
                         >
                             <CollectionTag />

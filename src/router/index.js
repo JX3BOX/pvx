@@ -67,10 +67,10 @@ const routes = [
     // ===== 奇遇珍卷 =====
     {
         name: "adventure",
-        path: "/codex/adventure",
+        path: "/adventure",
         redirect: () => {
             const isMobile = window.innerWidth <= 768;
-            return isMobile ? "/codex/adventure/portrait" : "/codex/adventure/landscape";
+            return isMobile ? "/adventure/portrait" : "/adventure/landscape";
         },
         meta: {
             i18n: {
@@ -83,7 +83,7 @@ const routes = [
     },
     {
         name: "landscape",
-        path: "/codex/adventure/landscape",
+        path: "/adventure/landscape",
         component: () => import("@/views/adventure/treasure/pc/Landscape.vue"),
         meta: {
             i18n: {
@@ -96,7 +96,7 @@ const routes = [
     },
     {
         name: "portrait",
-        path: "/codex/adventure/portrait",
+        path: "/adventure/portrait",
         component: () => import("@/views/adventure/treasure/miniprogram/Portrait.vue"),
         meta: {
             i18n: {
@@ -106,17 +106,20 @@ const routes = [
             },
         },
     },
+    {
+        path: "/codex/adventure/:view(landscape|portrait)?",
+        redirect: (to) => to.params.view ? `/adventure/${to.params.view}` : "/adventure",
+    },
 
     // ===== 资历宝典 =====
     {
         name: "achievement",
-        path: "/codex/achievement",
+        path: "/achievements",
         component: () => import("@/views/wiki/index.vue"),
-        redirect: "/codex/achievement/overview",
         children: [
             {
                 name: "overview",
-                path: "overview",
+                path: "",
                 component:
                     isMiniProgram() || isApp()
                         ? () => import("@/views/wiki/miniprogram/overview.vue")
@@ -209,6 +212,13 @@ const routes = [
                 component: () => import("@/views/wiki/miniprogram/compare/compare_achievement.vue"),
             },
         ],
+    },
+    {
+        path: "/codex/achievement/:section(.*)*",
+        redirect: (to) => {
+            const section = Array.isArray(to.params.section) ? to.params.section.join("/") : to.params.section;
+            return section && section !== "overview" ? `/achievements/${section}` : "/achievements";
+        },
     },
 ];
 
