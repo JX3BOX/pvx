@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
@@ -97,7 +96,7 @@ const routes = [
     {
         name: "portrait",
         path: "/adventure/portrait",
-        component: () => import("@/views/adventure/treasure/miniprogram/Portrait.vue"),
+        component: () => import("@/views/adventure/treasure/mobile/Portrait.vue"),
         meta: {
             i18n: {
                 title: "pages.adventure.treasure.portrait.title",
@@ -120,10 +119,7 @@ const routes = [
             {
                 name: "overview",
                 path: "",
-                component:
-                    isMiniProgram() || isApp()
-                        ? () => import("@/views/wiki/miniprogram/overview.vue")
-                        : () => import("@/views/wiki/overview.vue"),
+                component: () => import("@/views/wiki/overview.vue"),
                 meta: {
                     i18n: {
                         title: "pages.wiki.overview.title",
@@ -135,10 +131,7 @@ const routes = [
             {
                 name: "compare",
                 path: "compare",
-                component:
-                    isMiniProgram() || isApp()
-                        ? () => import("@/views/wiki/miniprogram/compare.vue")
-                        : () => import("@/views/wiki/compare.vue"),
+                component: () => import("@/views/wiki/compare.vue"),
                 meta: {
                     i18n: {
                         title: "pages.wiki.compare.title",
@@ -159,65 +152,13 @@ const routes = [
                     },
                 },
             },
-            {
-                name: "catalogue",
-                path: "catalogue",
-                meta: {
-                    title: "目录列表",
-                    i18n: {
-                        title: "pages.wiki.catalogue.title",
-                        keywords: "pages.wiki.catalogue.keywords",
-                        description: "pages.wiki.catalogue.description",
-                    },
-                },
-                component: () => import("@/views/wiki/miniprogram/catalogue.vue"),
-            },
-            {
-                name: "list",
-                path: "list",
-                meta: {
-                    title: "成就列表",
-                    i18n: {
-                        title: "pages.wiki.list.title",
-                        keywords: "pages.wiki.list.keywords",
-                        description: "pages.wiki.list.description",
-                    },
-                },
-                component: () => import("@/views/wiki/miniprogram/achievement.vue"),
-            },
-            {
-                name: "compare/catalogue",
-                path: "compare/catalogue",
-                meta: {
-                    title: "对比目录列表",
-                    i18n: {
-                        title: "pages.wiki.compare.catalogue.title",
-                        keywords: "pages.wiki.compare.catalogue.keywords",
-                        description: "pages.wiki.compare.catalogue.description",
-                    },
-                },
-                component: () => import("@/views/wiki/miniprogram/compare/compare_catalogue.vue"),
-            },
-            {
-                name: "compare/achievement",
-                path: "compare/achievement",
-                meta: {
-                    title: "对比成就列表",
-                    i18n: {
-                        title: "pages.wiki.compare.achievement.title",
-                        keywords: "pages.wiki.compare.achievement.keywords",
-                        description: "pages.wiki.compare.achievement.description",
-                    },
-                },
-                component: () => import("@/views/wiki/miniprogram/compare/compare_achievement.vue"),
-            },
         ],
     },
     {
         path: "/codex/achievement/:section(.*)*",
         redirect: (to) => {
             const section = Array.isArray(to.params.section) ? to.params.section.join("/") : to.params.section;
-            return section && section !== "overview" ? `/achievements/${section}` : "/achievements";
+            return ["compare", "leap"].includes(section) ? `/achievements/${section}` : "/achievements";
         },
     },
 ];

@@ -1,15 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-
-const isMini = isMiniProgram() || isApp();
 
 const routes = [
     {
         name: "reputation",
         path: "/",
-        component: () => isMini
-            ? import("@/views/reputation/miniprogram/IndexMiniprogram.vue")
-            : import("@/views/reputation/Index.vue"),
+        component: () => import("@/views/reputation/Index.vue"),
         meta: {
             sidebar: false,
             i18n: {
@@ -34,9 +29,7 @@ const routes = [
     {
         name: "search",
         path: "/search",
-        component: () => isMini
-            ? import("@/views/reputation/miniprogram/SearchMiniprogram.vue")
-            : import("@/views/reputation/Search.vue"),
+        component: () => import("@/views/reputation/Search.vue"),
         meta: {
             i18n: {
                 title: "pages.reputation.search.title",

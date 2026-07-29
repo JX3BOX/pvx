@@ -1,6 +1,6 @@
 <template>
-    <div class="p-pvx-pet-single" :class="{ 'p-pvx-pet-single--modern': !isRobot }" v-if="pet" v-loading="loading">
-        <PvxPageShell v-if="!isRobot" class="m-pvx-pet-single-shell">
+    <div class="p-pvx-pet-single p-pvx-pet-single--modern" v-if="pet" v-loading="loading">
+        <PvxPageShell class="m-pvx-pet-single-shell">
             <div class="m-pvx-pet-single-layout">
             <PvxSurface class="m-pvx-pet-navigation" tag="nav" padding="small" radius="medium">
                 <PvxActionButton variant="light" @click="goBack">
@@ -175,89 +175,10 @@
                 :id="item_id"
                 :name="$t('pages.pet.single.ui.typeName')"
                 type="item"
-                :is-robot="false"
                 i18n-key-prefix="pages.pet.single.ui.wiki"
             />
             </div>
         </PvxPageShell>
-        <template v-else>
-            <div class="m-pvx__item m-pvx-pet-robot__header">
-                <div class="m-title">
-                    <div class="u-title" :class="`u-title--level-${pet.Quality}`">
-                        {{ robotTitle }}
-                        <i class="u-stars">
-                            <i class="el-icon-star-on" v-for="count in pet.Star" :key="count"></i>
-                        </i>
-                    </div>
-                    <div class="m-meta">
-                        <div class="u-meta u-score" :class="`u-score--${getScoreClass(pet.Score)}`">
-                            {{ pet.Score || 0 }}分
-                        </div>
-                        <div class="u-meta u-class" :class="`u-class--${pet.Class}`">{{ getPetType(pet.Class) }}</div>
-                        <div class="u-meta">ID: {{ id }}</div>
-                    </div>
-                </div>
-                <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_pet.svg" />
-                </div>
-            </div>
-            <div class="m-pvx-pet-robot__info">
-                <div class="u-logo">
-                    <img :src="getImgSrc(pet.BgPath)" class="u-image" @error="replaceByDefault" />
-                </div>
-                <div class="m-pvx__item u-info">
-                    <div class="u-info__top">
-                        <div class="u-meta u-get-way">
-                            <span class="u-meta-label">获取方式：</span>{{ getPetSource(pet.Source) }}
-                        </div>
-                        <div class="u-meta u-source">
-                            <span class="u-meta-label">获取线索：</span>
-                            <template v-for="item in getPetDesc(pet.OutputDes)" :key="item.text">
-                                <span>{{ cleanResourceText(item.text) }}</span>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="u-info__bottom">
-                        <template v-for="(item, index) in getPetDesc(pet.Desc)" :key="index">
-                            <span v-html="item.text"></span>
-                        </template>
-                    </div>
-                </div>
-            </div>
-            <!-- 交互技能 -->
-            <!-- <div class="m-pvx__item m-robot__pet-skill">
-                <div class="u-title">交互技能</div>
-                <div class="m-skills">
-                    <div class="u-skill" v-for="(skill, index) in petSkills" :key="index">
-                        <img class="u-skill-icon" :src="iconLink(skill.IconID)" :alt="skill.Name" />
-                        <div class="u-skill-info">
-                            <div class="u-skill-name">{{ skill.Name }}</div>
-                            <div class="u-skill-desc">{{ skill.Desc }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-            <!-- 宠物羁绊 -->
-            <template v-if="medalList && medalList.length">
-                <div class="m-pvx__item m-pvx-pet-robot__fetters" v-for="item in medalList" :key="item.ID">
-                    <div class="u-title">羁绊 · {{ item.Name }}</div>
-                    <div class="u-desc">{{ showPetterDesc(item.Des) }}</div>
-                    <span v-for="pet in item.petList" :key="pet.Index" class="u-fetter" :to="'/' + pet.Index">
-                        <i class="u-fetter-icon" :class="['u-quality--' + pet.Quality]">
-                            <img :src="iconLink(pet.IconID)" />
-                        </i>
-                        <span class="u-fetter-name" :class="{ 'is-active': pet.Index == id }">{{ pet.Name }}</span>
-                    </span>
-                </div>
-            </template>
-            <div class="m-pvx-pet__map" v-show="mapDisplay">
-                <div class="u-title">捕获地图<span>（以魔盒在线版本为准）</span></div>
-                <!-- 地图组件 -->
-                <pet-map class="m-pvx-pet-robot__map" :petId="parseInt(id)" @loaded="mapLoaded" />
-            </div>
-        </template>
-        <!-- 机器人抓图继续使用旧版百科结构，不进入普通 Web 现代主题。 -->
-        <pvx-user v-if="isRobot" :id="item_id" name="宠物" type="item" :is-robot="true"></pvx-user>
 
         <!-- <div class="m-pet-wiki">
             <Wiki
@@ -280,7 +201,7 @@ import PvxUser from "@/components/PvxUser.vue";
 import petCard from "@/components/pet/PetCard.vue";
 import petFetters from "@/components/pet/PetFetters.vue";
 import PvxSingleAdminDrop from "@/components/common/PvxSingleAdminDrop.vue";
-import { iconLink, getLink, extractTextContent } from "@jx3box/jx3box-common/js/utils";
+import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
 import { postStat } from "@jx3box/jx3box-common/js/stat.js";
 import dayjs from "@/plugins/day";
 import PetMap from "@/components/pet/PetMap.vue";
@@ -291,31 +212,15 @@ import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { ArrowLeft, CollectionTag, Location, Medal, Trophy } from "@element-plus/icons-vue";
 import {
-    getPetImgSrc,
-    replacePetImgDefault,
-    getPetTypeName,
     getPetSourceName,
     parsePetDesc,
     cleanResourceText as _cleanResourceText,
-    getPetScoreClass,
     extractPetSkillIds,
     extractMedalPetIds,
 } from "@/utils/pet";
 
 export default {
     name: "PetSingle",
-    props: {
-        // 是否为机器人模式
-        isRobot: {
-            type: Boolean,
-            default: false
-        },
-        // 来源ID（机器人模式使用）
-        sourceId: {
-            type: [String, Number],
-            default: ""
-        }
-    },
     components: {
         petCard,
         petFetters,
@@ -348,9 +253,9 @@ export default {
         };
     },
     computed: {
-        // 宠物ID（优先从路由参数获取，其次从props获取）
+        // 宠物ID
         id() {
-            return this.$route.params.id || this.sourceId;
+            return this.$route.params.id;
         },
         // 物品ID（用于物品信息链接）
         item_id() {
@@ -375,20 +280,6 @@ export default {
                 client: this.client,
             };
         },
-        // 机器人模式标题
-        robotTitle() {
-            return "宠物 · " + this.title;
-        },
-        // 宠物类型名称
-        petTypeName() {
-            if (!this.pet) return "";
-            return getPetTypeName(this.pet.Class);
-        },
-        // 宠物来源名称
-        petSourceName() {
-            if (!this.pet) return "";
-            return getPetSourceName(this.pet.Source);
-        },
     },
     watch: {
         // 监听ID变化，重新加载宠物信息
@@ -397,23 +288,6 @@ export default {
         },
     },
     methods: {
-        showPetterDesc(str) {
-            const result = extractTextContent(str);
-            return result?.[0]?.["text"] || "";
-        },
-
-        getImgSrc(path) {
-            return getPetImgSrc(path, this.client);
-        },
-
-        replaceByDefault(e) {
-            replacePetImgDefault(e, this.client);
-        },
-
-        getScoreClass(score) {
-            return getPetScoreClass(score);
-        },
-
         /**
          * 获取宠物详细信息
          * 包括基本信息、技能、商城价格、羁绊信息等
@@ -476,10 +350,6 @@ export default {
             getShopInfo(params).then((res) => {
                 this.shopInfo = res?.data || "";
             });
-        },
-
-        getPetType(typeId) {
-            return getPetTypeName(typeId);
         },
 
         typeLabel(typeId) {
@@ -581,6 +451,5 @@ export default {
 <style lang="less">
 @import "~@/assets/css/pet/pc/single.less";
 @import "~@/assets/css/pet/pc/map.less";
-@import "~@/assets/css/pet/pc/robot.less";
 @import "~@/assets/css/modules/pet-detail-theme.less";
 </style>

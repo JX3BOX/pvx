@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!isMiniProgram()" class="m-achievement-sidebar" :class="{ is_mobile: mobile }">
+    <div class="m-achievement-sidebar" :class="{ is_mobile: mobile }">
         <img class="u-title_img" src="@/assets/img/wiki/overview/title.png" alt="" />
         <ul class="m-sidebar-nav">
             <li :class="{ active: $route.name === 'overview' }">
@@ -63,7 +63,6 @@
 
 <script>
 import { getAchievementsTotal } from "@/service/achievement";
-import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 
 export default {
     name: "AchievementCount",
@@ -85,15 +84,12 @@ export default {
     computed: {
         mobile() {
             const userAgent = navigator.userAgent.toLowerCase();
-            const mobileKeywords = ["android", "iphone", "ipad", "ipod", "windows phone", "miniprogram"];
-            return mobileKeywords.some((keyword) => userAgent.includes(keyword)) || isApp();
+            const mobileKeywords = ["android", "iphone", "ipad", "ipod", "windows phone"];
+            return mobileKeywords.some((keyword) => userAgent.includes(keyword));
         },
         viewAchievementsName() {
             return this.$store.state.viewAchievementsName;
         },
-    },
-    methods: {
-        isMiniProgram,
     },
     created() {
         // 获取成就统计信息

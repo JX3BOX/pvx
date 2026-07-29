@@ -5,7 +5,6 @@
 #### 综合
 
 -   index 休闲栏目
--   qq 机器人
 
 #### 图鉴大全
 
@@ -29,16 +28,13 @@
 
 ## 说明
 
+#### 页面运行边界
+
+1. 当前只维护浏览器 Web 页面，不再提供小程序/App 专用页面分流。
+2. QQBot 独立页面入口已经下线；普通详情页的 Bot 指令引导、管理员刷图任务和奇遇珍券刷新仍保留。
+3. 修改 `vue.config.js` 中的多页面入口后需要重启 `npm run dev`，浏览器刷新不会重新加载入口配置。
+
 #### 奇遇大全
 
 1. 在 ipad-y 开始就不再显示返回列表（无界&游戏内会直接访问 pc 站）
 2. 会根据 ua 判断，若环境较低，自动切换至 game 业务自动转化成就 ID
-
-http://localhost:12028/qqbot/pvx?type=adventure&id=1
-http://localhost:12028/qqbot/pvx?type=pet&id=1
-http://localhost:12028/qqbot/pvx?type=horse&id=8_28793
-http://localhost:12028/qqbot/pvx?type=reputation&id=264
-http://localhost:12028/qqbot/pvx?type=book&id=48_3
-http://localhost:12028/qqbot/pvx?type=furniture&id=100005608
-http://localhost:12028/qqbot/pvx?type=treasure&mode=portrait
-http://localhost:12028/qqbot/pvx?type=treasure&mode=landscape

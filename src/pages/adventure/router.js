@@ -1,15 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-
-const isMini = isMiniProgram() || isApp();
 
 const routes = [
     {
         name: "list",
         path: "/",
-        component: isMini
-            ? () => import("@/views/adventure/miniprogram/AdventureList.vue")
-            : () => import("@/views/adventure/AdventureList.vue"),
+        component: () => import("@/views/adventure/AdventureList.vue"),
         meta: {
             i18n: {
                 title: "pages.adventure.title",
@@ -21,9 +16,7 @@ const routes = [
     {
         name: "single",
         path: "/:id(\\d+)",
-        component: isMini
-            ? () => import("@/views/adventure/miniprogram/AdventureSingle.vue")
-            : () => import("@/views/adventure/AdventureSingle.vue"),
+        component: () => import("@/views/adventure/AdventureSingle.vue"),
         meta: {
             i18n: {
                 title: "pages.adventure.single.title",

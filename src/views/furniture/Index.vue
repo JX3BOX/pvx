@@ -651,6 +651,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/furniture/pc/index.less";
-@import "~@/assets/css/miniprogram.less";
 @import "~@/assets/css/modules/furniture-list-theme.less";
 </style>

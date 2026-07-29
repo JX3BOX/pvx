@@ -1,11 +1,9 @@
 <template>
     <div
         ref="bookSingleWrap"
-        class="m-pvx-book-single m-single-wrapper"
-        :class="{ 'p-pvx-book-single--modern': !isRobot }"
+        class="m-pvx-book-single p-pvx-book-single--modern m-single-wrapper"
     >
-        <template v-if="!isRobot">
-            <PvxPageShell class="m-pvx-book-single-shell" v-loading="loading">
+        <PvxPageShell class="m-pvx-book-single-shell" v-loading="loading">
                 <PvxSurface class="m-pvx-book-navigation" tag="nav" padding="small" radius="medium">
                     <button type="button" class="u-goback" @click="goBack">
                         <ArrowLeft />
@@ -237,96 +235,9 @@
                     :id="id"
                     :name="$t('pages.book.single.ui.typeName')"
                     type="item"
-                    :is-robot="false"
                     i18n-key-prefix="pages.book.single.ui.wiki"
                 />
             </PvxPageShell>
-        </template>
-        <template v-else>
-            <div class="m-pvx__item m-pvx-robot-book-header">
-                <div class="m-title">
-                    <div class="u-title">书籍 · {{ book?.Name || "" }}</div>
-                    <div class="m-meta">
-                        <div class="u-meta u-class" :class="`u-class-${book.ExtendProfessionID1}`">
-                            {{ bookTypeMap?.[book.ExtendProfessionID1] || "" }}
-                        </div>
-                        <div class="u-pvx-book-desc" v-html="book.Desc"></div>
-                    </div>
-                </div>
-                <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_book.svg" />
-                </div>
-            </div>
-            <div class="m-pvx-robot-book-info">
-                <div class="m-pvx__item m-book-info">
-                    <div class="u-title">书籍信息</div>
-                    <div class="m-list">
-                        <div v-if="!['其它', '碑铭'].includes(getOrigin(book))" class="u-item book-origin">
-                            来源：
-                            <span :class="getOrigin(book) !== '其它' && 'u-pvx-book-special'">{{ getOrigin(book) }}</span>
-                        </div>
-                        <div v-else class="u-info-item">
-                            来源：<span v-if="getOrigin(book) === '碑铭'" class="u-pvx-book-special"
-                                >{{ getOrigin(book) }}
-                            </span>
-                            <!-- 其它 -->
-                            <span v-else>{{ getOrigin(book) }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            所属套书：{{ "【" + getProfessionType(book.ExtendProfessionID1) + "】" + book.BookName }}
-                        </div>
-                        <div class="u-info-item">阅读等级：{{ book.RequireLevel }}</div>
-                    </div>
-                </div>
-                <div class="m-pvx__item m-book-write">
-                    <div class="u-title">抄录要求</div>
-
-                    <div class="m-list">
-                        <div class="u-info-item">
-                            <span>角色等级：</span>
-                            <span>{{ book.copy?.RequirePlayerLevel }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            <span>阅读等级：</span>
-                            <span>{{ book.copy?.RequireLevel }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            <span>{{ getProfessionType(book.ExtendProfessionID1) }}等级：</span>
-                            <span>{{ book.copy?.RequireLevelExt }}</span>
-                        </div>
-                        <div class="u-info-item">
-                            <span>精力消耗：</span>
-                            <span>{{ book.copy?.CostVigor }}</span>
-                        </div>
-                    </div>
-                    <div v-if="book.copyList?.length" class="u-info-item m-materials">
-                        <span>所需材料：</span>
-                        <div class="u-material" v-for="material in book.copyList" :key="material.item_id">
-                            <item-icon :item_id="material.item_id" :onlyName="true"></item-icon>
-                            <span class="u-num"> x {{ material.count }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="m-pvx-robot-book-pack">
-                <div class="u-title">同套书籍 · {{ book.BookName }}</div>
-                <div class="m-pvx__item m-book-pack">
-                    <div class="u-item" v-for="(item, index) in bookList" :key="item.idKey + index">
-                        {{ item.SegmentName }}
-                    </div>
-                </div>
-            </div>
-            <div class="m-pvx-robot-book-content">
-                <div class="m-pvx-book-content">
-                    <div class="u-content" v-for="(item, i) in contentList" :key="i">
-                        <div class="u-title" v-if="!i">《{{ book.Name }}》</div>
-                        <div v-html="item"></div>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <!-- 机器人抓图继续使用原百科输出 -->
-        <pvx-user v-if="isRobot" :id="id" name="书籍" type="item" :is-robot="true"></pvx-user>
         <!-- 碑铭信息 -->
         <el-dialog
             :title="$t('pages.book.single.ui.locationTitle')"
@@ -372,12 +283,10 @@ import {
     getShopOrigin as _getShopOrigin,
     getQuestOrigin as _getQuestOrigin,
     getBookMapInfo,
-    BOOK_TYPE_MAP,
 } from "@/utils/book";
 
 export default {
     name: "bookSingle",
-    props: ["isRobot", "sourceId"],
     components: {
         ArrowLeft,
         BookCard,
@@ -414,7 +323,6 @@ export default {
             noMore: false,
             // 是否还可以返回
             noBack: true,
-            bookTypeMap: BOOK_TYPE_MAP,
         };
     },
     methods: {
@@ -517,7 +425,6 @@ export default {
         getOrigin(item) {
             return _getOrigin(item, this.bookMapInfo);
         },
-        getProfessionType: _getProfessionType,
         getProfessionLabel(id) {
             const keyMap = {
                 9: "buddhism",
@@ -599,65 +506,13 @@ export default {
             });
         },
         getLink,
-        splitText(text, ratios = [3.2, 3.4, 3.4]) {
-            const segments = [];
-            const totalLength = text.length;
-
-            // 计算总比例单位
-            const totalRatio = ratios.reduce((sum, ratio) => sum + ratio, 0);
-
-            // 计算每段的实际长度
-            const segmentLengths = ratios.map((ratio) => Math.floor((totalLength * ratio) / totalRatio));
-
-            let start = 0;
-            for (let i = 0; i < ratios.length; i++) {
-                let end = start + segmentLengths[i];
-
-                // 最后一段直接到文本末尾
-                if (i === ratios.length - 1) {
-                    end = totalLength;
-                } else {
-                    // 在指定范围内寻找合适的分割点
-                    const searchRange = Math.min(100, totalLength - end);
-                    let found = false;
-
-                    // 首先尝试找段落边界（\n\n）
-                    for (let j = end; j < end + searchRange; j++) {
-                        if (text[j] === "\n" && j + 1 < totalLength && text[j + 1] === "\n") {
-                            end = j + 2;
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    // 如果没有找到段落边界，找句子结束符号
-                    if (!found) {
-                        const punctuation = [".", "。", ";", "；", "!", "！", "?", "？"];
-                        for (let j = end; j < end + searchRange; j++) {
-                            if (
-                                punctuation.includes(text[j]) &&
-                                (j + 1 >= totalLength || ["\n", " "].includes(text[j + 1]))
-                            ) {
-                                end = j + 1;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                segments.push(text.substring(start, end));
-                start = end;
-            }
-
-            return segments;
-        },
     },
     mounted() {
         this.getData();
     },
     computed: {
         idKey: function () {
-            return this.$route.params.id || this.sourceId;
+            return this.$route.params.id;
         },
         id: function () {
             return this.book?.ItemID;
@@ -667,9 +522,6 @@ export default {
         },
         bookMapInfo() {
             return getBookMapInfo(this.client);
-        },
-        contentList() {
-            return this.splitText(this.book.contentInfo);
         },
     },
     watch: {
@@ -713,6 +565,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/book/single.less";
-@import "~@/assets/css/book/robot.less";
 @import "~@/assets/css/modules/book-detail-theme.less";
 </style>

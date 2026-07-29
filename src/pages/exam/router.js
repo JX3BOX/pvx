@@ -1,14 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
         name: "index",
         path: "/:type?",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/exam/mobile/exam.vue")
-                : () => import("@/views/exam/Index.vue"),
+        component: () => import("@/views/exam/Index.vue"),
         meta: {
             i18n: {
                 title: "pages.exam.title",

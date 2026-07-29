@@ -1,49 +1,25 @@
 <template>
     <div class="m-pvx-reputation-wrapper m-pvx-reputation-single-wrapper">
         <SinglePc
-            v-if="!isRobot && !isMiniProgram"
             :reputation="reputation"
             :achievementId="achievementId"
             :showPath="showPath"
             :stageList="stageList"
             :pageLen="pageLen"
-            @stage-change="handleStageChange"
-        />
-        <SingleRobot
-            v-else-if="isRobot"
-            :reputation="reputation"
-            :achievementId="achievementId"
-            :showPath="showPath"
-            :id="id"
-        />
-        <SingleMiniprogram
-            v-if="isMiniProgram"
-            :reputation="reputation"
-            :achievementId="achievementId"
-            :showPath="showPath"
-            :stageList="stageList"
-            :pageLen="pageLen"
-            :id="id"
             @stage-change="handleStageChange"
         />
     </div>
 </template>
 
 <script>
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SinglePc from "./SinglePc.vue";
-import SingleRobot from "./SingleRobot.vue";
-import SingleMiniprogram from "./miniprogram/SingleMiniprogram.vue";
 import { getInfo } from "@/service/reputation";
 import { getReputationIcon, getLevelDesc, LOST_RESPECT_UNAVAILABLE } from "@/utils/reputation";
 
 export default {
     name: "reputationSingle",
-    props: ["isRobot", "sourceId"],
     components: {
         SinglePc,
-        SingleRobot,
-        SingleMiniprogram,
     },
     data() {
         return {
@@ -57,13 +33,12 @@ export default {
             currentPage: 1,
             pageLen: 0,
             stageList: [],
-            isMiniProgram: isMiniProgram() || isApp(),
             LOST_RESPECT_UNAVAILABLE,
         };
     },
     computed: {
         id() {
-            return parseInt(this.$route.params.id) || this.sourceId;
+            return parseInt(this.$route.params.id);
         },
         client() {
             return this.$store.state.client;
@@ -89,7 +64,7 @@ export default {
             if (gainList && gainList.length && gainList[stage]) {
                 const toID = gainList[stage].toID;
                 const items = reputation.RewardItems[toID] || [];
-                const base = !this.isMiniProgram ? 48 : 24;
+                const base = 48;
                 if (items.length > base) {
                     const len = Math.ceil(items.length / base);
                     this.pageLen = len;
@@ -130,12 +105,6 @@ export default {
                     }
                     this.reputation = data;
                     document.title = this.reputation?.szName + this.$t("pages.common.appendTitle");
-                    if (this.isMiniProgram) {
-                        this.$nextTick(() => {
-                            this.stage = 0;
-                            this.handleStageChange(0);
-                        });
-                    }
                 })
                 .finally(() => {
                     this.loading = false;

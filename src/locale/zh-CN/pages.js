@@ -135,11 +135,6 @@ export default {
                 "剑网3魔盒（JX3BOX）捏脸数据解析工具，用于解析剑网3角色捏脸参数数据，帮助玩家查看与分析捏脸配置。",
         },
 
-        faceDataMobile: {
-            title: "捏脸数据解析（移动版）",
-            keywords: "剑网3捏脸数据解析,剑三捏脸解析,捏脸解析移动版,JX3BOX捏脸工具",
-            description: "剑网3魔盒（JX3BOX）捏脸数据解析移动版，支持在移动设备上解析与查看剑网3捏脸参数数据。",
-        },
         ui: {
             sectionTitle: "{role}脸型", empty: "没有找到相关的捏脸", emptySearch: "没找到对应的捏脸，请重新选择条件或关键词搜索",
             filters: { style: "脸型风格", realistic: "写实", artistic: "写意", faceCode: "捏脸码" },
@@ -171,11 +166,6 @@ export default {
                 "剑网3魔盒（JX3BOX）体型数据解析工具，用于解析与查看剑网3角色体型参数数据，帮助玩家了解不同体型的具体参数信息。",
         },
 
-        bodydatMobile: {
-            title: "体型数据解析（移动版）",
-            keywords: "剑网3体型数据解析,剑三体型解析,体型数据移动版,JX3BOX体型工具",
-            description: "剑网3魔盒（JX3BOX）体型数据解析移动版，支持在移动设备上查看与解析剑网3角色体型参数数据。",
-        },
         ui: {
             sectionTitle: "{role}体型", empty: "没有找到相关的体型", emptySearch: "没找到对应的体型，请重新选择条件或关键词搜索",
             filters: { bodyCode: "体型码" },
@@ -636,8 +626,6 @@ export default {
                 emptyValue: "—",
             },
         },
-        catalogue: { title: "资历目录", keywords: "剑网3资历目录,JX3BOX", description: "查看资历宝典目录。" },
-        list: { title: "成就列表", keywords: "剑网3成就列表,JX3BOX", description: "查看资历宝典成就列表。" },
     },
 
     pet: {
@@ -733,11 +721,6 @@ export default {
                     completeGuide: "完善攻略",
                 },
             },
-        },
-        search: {
-            title: "宠物搜索",
-            keywords: "剑网3宠物搜索,剑三宠物搜索,JX3BOX宠物",
-            description: "剑网3魔盒（JX3BOX）宠物搜索页，支持按名称或关键字查找宠物。",
         },
     },
     horse: {
@@ -1311,14 +1294,6 @@ export default {
                 keywords: "剑网3日历详情,剑三日历详情,JX3BOX活动",
                 description: "剑网3魔盒（JX3BOX）日历详情页，查看单条日历内容。",
             },
-        },
-    },
-
-    qqbot: {
-        pvx: {
-            title: "QQBot PVX",
-            keywords: "QQBot,PVX,JX3BOX",
-            description: "QQBot PVX 功能详情页。",
         },
     },
 

@@ -227,11 +227,6 @@ export default {
             keywords: "體型數據解析,體型參數,JX3BOX",
             description: "體型數據解析工具，查看體型參數。",
         },
-        bodydatMobile: {
-            title: "體型數據解析（移動版）",
-            keywords: "體型解析移動版,JX3BOX",
-            description: "移動端體型數據解析工具。",
-        },
         ui: {
             sectionTitle: "{role}體型", empty: "沒有找到相關體型", emptySearch: "找不到對應體型，請重新選擇條件或關鍵字搜尋",
             filters: { bodyCode: "體型碼" },
@@ -397,11 +392,6 @@ export default {
             title: "捏臉數據解析",
             keywords: "捏臉數據解析,捏臉參數,JX3BOX",
             description: "捏臉數據解析工具。",
-        },
-        faceDataMobile: {
-            title: "捏臉數據解析（移動版）",
-            keywords: "捏臉解析移動版,JX3BOX",
-            description: "移動端捏臉數據解析工具。",
         },
         ui: {
             sectionTitle: "{role}臉型", empty: "沒有找到相關臉型", emptySearch: "找不到對應臉型，請重新選擇條件或關鍵字搜尋",
@@ -834,8 +824,6 @@ export default {
                 emptyValue: "—",
             },
         },
-        catalogue: { title: "資歷目錄", keywords: "劍網3資歷目錄,JX3BOX", description: "查看資歷寶典目錄。" },
-        list: { title: "成就列表", keywords: "劍網3成就列表,JX3BOX", description: "查看資歷寶典成就列表。" },
     },
 
     pet: {
@@ -931,11 +919,6 @@ export default {
                     completeGuide: "完善攻略",
                 },
             },
-        },
-        search: {
-            title: "寵物搜尋",
-            keywords: "寵物搜尋,JX3BOX",
-            description: "按名稱或關鍵字搜尋寵物。",
         },
     },
     pvg: {
@@ -1125,13 +1108,6 @@ export default {
                 keywords: "日曆詳情,JX3BOX",
                 description: "單條日曆內容詳情。",
             },
-        },
-    },
-    qqbot: {
-        pvx: {
-            title: "QQBot PVX",
-            keywords: "QQBot,PVX,JX3BOX",
-            description: "QQBot PVX 功能詳情頁。",
         },
     },
     reputation: {

@@ -227,11 +227,6 @@ export default {
             keywords: "body data parser,JX3BOX",
             description: "Công cụ phân tích tham số vóc dáng.",
         },
-        bodydatMobile: {
-            title: "Phân tích vóc dáng (Di động)",
-            keywords: "body parser mobile,JX3BOX",
-            description: "Công cụ phân tích vóc dáng trên di động.",
-        },
         ui: {
             sectionTitle: "Vóc dáng {role}", empty: "Không tìm thấy dữ liệu vóc dáng", emptySearch: "Không có dữ liệu vóc dáng phù hợp. Hãy thử bộ lọc hoặc từ khóa khác.",
             filters: { bodyCode: "Mã vóc dáng" },
@@ -397,11 +392,6 @@ export default {
             title: "Phân tích dữ liệu khuôn mặt",
             keywords: "face parser,JX3BOX",
             description: "Công cụ phân tích tham số khuôn mặt.",
-        },
-        faceDataMobile: {
-            title: "Phân tích khuôn mặt (Di động)",
-            keywords: "face parser mobile,JX3BOX",
-            description: "Công cụ phân tích khuôn mặt trên di động.",
         },
         ui: {
             sectionTitle: "Khuôn mặt {role}", empty: "Không tìm thấy dữ liệu khuôn mặt", emptySearch: "Không có dữ liệu khuôn mặt phù hợp. Hãy thử bộ lọc hoặc từ khóa khác.",
@@ -845,8 +835,6 @@ export default {
                 emptyValue: "—",
             },
         },
-        catalogue: { title: "Danh mục thâm niên", keywords: "JX3 thâm niên,JX3BOX", description: "Xem danh mục thâm niên." },
-        list: { title: "Danh sách thành tựu", keywords: "JX3 thành tựu,JX3BOX", description: "Xem danh sách thành tựu." },
     },
 
     pet: {
@@ -942,11 +930,6 @@ export default {
                     completeGuide: "Viết hướng dẫn",
                 },
             },
-        },
-        search: {
-            title: "Tìm thú cưng",
-            keywords: "pet search,JX3BOX",
-            description: "Tìm thú cưng theo tên hoặc từ khóa.",
         },
     },
     pvg: {
@@ -1136,13 +1119,6 @@ export default {
                 keywords: "calendar detail,JX3BOX",
                 description: "Chi tiết một mục trong lịch.",
             },
-        },
-    },
-    qqbot: {
-        pvx: {
-            title: "QQBot PVX",
-            keywords: "QQBot,PVX,JX3BOX",
-            description: "Trang chi tiết tính năng QQBot PVX.",
         },
     },
     reputation: {

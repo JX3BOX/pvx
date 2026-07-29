@@ -1,5 +1,5 @@
 <template>
-    <a v-if="!useWxNav" class="m-pvx-adventure-item" :class="`m-pvx-adventure-item--${variant}`"
+    <a class="m-pvx-adventure-item" :class="`m-pvx-adventure-item--${variant}`"
         :href="`/adventure/${item.dwID}`" :target="isPhone ? '_self' : '_blank'"
         :rel="isPhone ? null : 'noopener noreferrer'" :aria-label="item.szName">
         <div class="u-bg" :style="{ backgroundImage: `url(${defaultImg})` }">
@@ -44,44 +44,16 @@
         </div>
         <div class="u-name">{{ item.szName }}</div>
     </a>
-    <div v-else class="m-pvx-adventure-item" :class="`m-pvx-adventure-item--${variant}`"
-        :aria-label="item.szName" @click="openDetail">
-        <div class="u-bg" :style="{ backgroundImage: `url(${defaultImg})` }">
-            <img class="u-pic" :src="getImgUrl" alt="" />
-        </div>
-        <img class="u-title" :src="titleImg" :style="titleStyle" alt="" />
-        <span class="u-icon"></span>
-        <div v-if="item.szRewardType === 'camp'" class="u-camp-switch" @click.stop="switchCamp">
-            <img v-if="camp === 1" class="u-camp-icon" src="@/assets/img/camp/camp_1.png" />
-            <img v-if="camp === 2" class="u-camp-icon" src="@/assets/img/camp/camp_2.png" />
-        </div>
-        <div v-if="item.szRewardType === 'school'" class="u-school-switch" @click.stop>
-            <el-popover placement="bottom" width="180" trigger="click" popper-class="m-pvx-school-choose">
-                <template #reference>
-                    <img class="u-school-icon" :src="forceIconUrl(force)" />
-                </template>
-                <template #default="{ hide }">
-                    <div class="u-school-list">
-                        <img v-for="(name, id) in forceid" :key="id" class="u-school-item"
-                            :src="forceIconUrl(id)" @click="switchSchool(id, hide)" />
-                    </div>
-                </template>
-            </el-popover>
-        </div>
-        <div class="u-name">{{ item.szName }}</div>
-    </div>
 </template>
 
 <script>
 import { __imgPath } from "@/utils/config";
 import { isPhone } from "@/utils/index";
-import { wxNewPage } from "@/utils/minprogram";
 import forceid from "@jx3box/jx3box-data/data/xf/forceid.json";
 export default {
     name: "item",
     props: {
         item: { type: Object, required: true },
-        useWxNav: { type: Boolean, default: false },
         variant: { type: String, default: "legacy" },
     },
     inject: ["__imgRoot"],
@@ -133,9 +105,6 @@ export default {
         },
     },
     methods: {
-        openDetail() {
-            wxNewPage(`/adventure/${this.item.dwID}`);
-        },
         forceIconUrl(force) {
             const forceName = forceid[force];
             return `${__imgPath}image/school/${forceName}.png`;

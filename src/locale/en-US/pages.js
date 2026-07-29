@@ -230,11 +230,6 @@ export default {
             keywords: "JX3 body parser,body parameters,JX3BOX",
             description: "Tool to parse and view JX3 body parameter data.",
         },
-        bodydatMobile: {
-            title: "Body Data Parser (Mobile)",
-            keywords: "JX3 body parser mobile,JX3BOX",
-            description: "Mobile body data parser for JX3 body parameters.",
-        },
         ui: {
             sectionTitle: "{role} Body Types", empty: "No body data found", emptySearch: "No matching body data. Try different filters or keywords.",
             filters: { bodyCode: "Body Code" },
@@ -400,11 +395,6 @@ export default {
             title: "Face Data Parser",
             keywords: "JX3 face parser,JX3BOX",
             description: "Tool to parse and view face parameter data.",
-        },
-        faceDataMobile: {
-            title: "Face Data Parser (Mobile)",
-            keywords: "JX3 face parser mobile,JX3BOX",
-            description: "Mobile face data parser for face parameters.",
         },
         ui: {
             sectionTitle: "{role} Faces", empty: "No face data found", emptySearch: "No matching face data. Try different filters or keywords.",
@@ -848,8 +838,6 @@ export default {
                 emptyValue: "—",
             },
         },
-        catalogue: { title: "Seniority Catalogue", keywords: "JX3 seniority,JX3BOX", description: "Browse the seniority catalogue." },
-        list: { title: "Achievement List", keywords: "JX3 achievements,JX3BOX", description: "Browse compendium achievements." },
     },
 
     pet: {
@@ -945,11 +933,6 @@ export default {
                     completeGuide: "Write a guide",
                 },
             },
-        },
-        search: {
-            title: "Pet Search",
-            keywords: "JX3 pet search,JX3BOX",
-            description: "Search pets by name or keywords.",
         },
     },
     pvg: {
@@ -1139,13 +1122,6 @@ export default {
                 keywords: "JX3 calendar detail,JX3BOX",
                 description: "Single calendar entry detail.",
             },
-        },
-    },
-    qqbot: {
-        pvx: {
-            title: "QQBot PVX",
-            keywords: "JX3 QQBot,PVX,JX3BOX",
-            description: "QQBot PVX feature detail page.",
         },
     },
     reputation: {

@@ -1,10 +1,6 @@
 <template>
-    <div
-        class="p-pvx-horse-single m-single-wrapper"
-        :class="{ 'p-pvx-horse-single--modern': !isRobot }"
-    >
-        <template v-if="!isRobot">
-            <PvxPageShell class="m-pvx-horse-single-shell">
+    <div class="p-pvx-horse-single p-pvx-horse-single--modern m-single-wrapper">
+        <PvxPageShell class="m-pvx-horse-single-shell">
                 <div class="m-pvx-horse-single-layout">
                     <PvxSurface class="m-pvx-horse-navigation" tag="nav" padding="small" radius="medium">
                         <PvxActionButton variant="light" @click="goBack">
@@ -170,98 +166,10 @@
                     :id="id"
                     :name="$t('pages.horse.single.ui.typeName')"
                     type="item"
-                    :is-robot="false"
                     i18n-key-prefix="pages.horse.single.ui.wiki"
                 />
                 </div>
             </PvxPageShell>
-        </template>
-        <template v-else>
-            <div class="m-pvx__item m-robot__horse-header">
-                <div class="m-title">
-                    <div class="u-pvx-horse-title" :class="`u-pvx-horse-title--level-${item.Quality}`">
-                        {{ robotTitle }}
-                    </div>
-                    <div class="m-meta">
-                        <div class="u-meta">{{ displayType }}</div>
-                        <div class="u-meta">
-                            {{ $t("pages.horse.single.ui.fields.quality") }}: {{ item.Level }}
-                        </div>
-                    </div>
-                </div>
-                <div class="u-right">
-                    <img class="u-icon" src="@/assets/img/qqbot/jx3box_qqbot_horse.svg" />
-                </div>
-            </div>
-            <div class="m-robot__horse-info">
-                <div class="m-left">
-                    <div class="img-wrap">
-                        <el-image v-if="item.SubType === 15" :src="getCdnImgUrl(item.ID)" class="u-image"> </el-image>
-                        <item-icon v-else class="u-image" :item_id="String(item.ItemID)" :isLink="false" :size="150"
-                            :onlyIcon="true"></item-icon>
-                    </div>
-                    <div class="m-pvx__item m-id">
-                        <div class="u-id">ID: {{ item.ID }}</div>
-                        <div class="u-meta" v-if="type !== '2'">
-                            {{ $t("pages.horse.single.ui.fields.speed") }}: {{ speedName }}
-                        </div>
-                        <div class="u-meta" v-if="type !== '2'">
-                            {{ $t("pages.horse.single.ui.fields.feed") }}: {{ feedName }}
-                        </div>
-                    </div>
-                </div>
-                <div class="m-right">
-                    <div class="m-pvx__item m-attr m-basic-attr">
-                        <div class="u-pvx-horse-title">{{ $t("pages.horse.single.ui.sections.basicAttrs") }}</div>
-
-                        <div v-if="basicAttrs.length" class="u-list">
-                            <div class="u-attr" v-for="attr in basicAttrs" :key="attr.id">
-                                <img class="u-attr-icon" style="cursor: default" :src="attr.iconUrl" :alt="attr.name" />
-                                <div class="u-attr-info">
-                                    <div class="u-attr-name" v-if="attr.name">
-                                        {{ attributeName(attr) }}
-                                    </div>
-                                    <div class="u-attr-desc">{{ attr.desc }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else class="no-data">{{ $t("pages.horse.single.ui.emptyValue") }}</div>
-                    </div>
-                    <div class="m-pvx__item m-attr m-special-attr">
-                        <div class="u-pvx-horse-title">{{ $t("pages.horse.single.ui.sections.magicAttrs") }}</div>
-
-                        <div class="title">{{ $t("pages.horse.single.ui.sections.magicAttrs") }}</div>
-                        <div v-if="magicAttrs.length" class="u-list">
-                            <div class="u-attr" v-for="(attr, index) in magicAttrs" :key="index">
-                                <img class="u-attr-icon" :src="attr.iconUrl" :alt="attr.name" />
-
-                                <div class="u-attr-info">
-                                    <div class="u-attr-name" v-if="attr.name">
-                                        {{ attributeName(attr) }}
-                                    </div>
-                                    <div class="u-attr-desc">{{ attr.desc }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else class="no-data">{{ $t("pages.horse.single.ui.emptyValue") }}</div>
-                    </div>
-                </div>
-            </div>
-        </template>
-        <!-- 捕获地图 -->
-        <div v-if="isRobot && originDatas.length" class="m-pvx-horse-catch is-robot">
-            <div class="title">{{ $t("pages.horse.single.ui.sections.map") }}</div>
-            <!-- 地图组件 -->
-            <horse-map :name="item.Name" :list="originDatas" :compact="isRobot" />
-        </div>
-        <!-- 包含攻略、评论、历史版本、点赞等 书籍，宠物等物品为item, 声望成就等为achievement -->
-        <pvx-user
-            v-if="isRobot"
-            :id="id"
-            :name="$t('pages.horse.single.ui.typeName')"
-            type="item"
-            :isRobot="true"
-        ></pvx-user>
     </div>
 </template>
 
@@ -288,7 +196,6 @@ import { getHorseType, getHorseModeName, getHorseFeedName, getHorseSpeed, getHor
 
 export default {
     name: "Single",
-    props: ["isRobot", "sourceId"],
     components: {
         HorseCard,
         HorseMap,
@@ -337,7 +244,7 @@ export default {
             }
         },
         id() {
-            return this.$route.params.id || this.sourceId;
+            return this.$route.params.id;
         },
         type() {
             return this.$route.query.type;
@@ -386,7 +293,7 @@ export default {
             return this.modeName === "单骑" ? this.$t("pages.horse.ui.rideModes.solo") : this.modeName;
         },
         feedName() {
-            return getHorseFeedName(this.item, this.isRobot);
+            return getHorseFeedName(this.item);
         },
         speedName() {
             return getHorseSpeed(this.item);
@@ -400,10 +307,6 @@ export default {
                 }
             }
             return type;
-        },
-        robotTitle() {
-            let titlePrefix = this.item?.SubType === 15 ? this.$t("pages.horse.single.ui.typeName") : "";
-            return titlePrefix + " · " + (this.item?.Name || "");
         },
     },
     watch: {
@@ -494,135 +397,4 @@ export default {
 @import "~@/assets/css/horse/pc/single.less";
 @import "~@/assets/css/common/wiki.less";
 @import "~@/assets/css/modules/horse-detail-theme.less";
-
-.m-robot__horse-header {
-    .flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    height: 75px;
-    opacity: 1;
-
-    .u-pvx-horse-title {
-        font-size: 20px;
-        .bold;
-        color: #fff;
-        .flex;
-        align-items: center;
-        gap: 5px;
-
-        &.u-pvx-horse-title--level-2 {
-            color: rgba(13, 192, 63, 1);
-        }
-
-        &.u-pvx-horse-title--level-3 {
-            color: rgba(0, 133, 255, 1);
-        }
-
-        &.u-pvx-horse-title--level-4 {
-            color: rgba(204, 70, 237, 1);
-        }
-
-        &.u-pvx-horse-title--level-5 {
-            color: rgba(255, 168, 17, 1);
-        }
-    }
-
-    .m-meta {
-        margin-top: 4px;
-        .flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 4px;
-
-        .u-meta {
-            .r(4px);
-            background: rgba(89, 89, 89, 1);
-            padding: 0 4px;
-            font-size: 10px;
-            color: #fff;
-            height: 15px;
-            line-height: 15px;
-            box-sizing: border-box;
-        }
-    }
-}
-
-.m-robot__horse-info {
-    .flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 12px;
-
-    .m-left {
-        .flex;
-        flex-direction: column;
-        gap: 10px;
-        flex: none;
-        width: 120px;
-    }
-
-    .img-wrap {
-        .size(100%, 120px);
-        .r(4px);
-        box-sizing: border-box;
-        background: url("../../assets/img/horse/horse_item_bg_sm.jpg") no-repeat center center;
-        background-size: cover;
-        transition: all 0.5s;
-    }
-
-    .m-id {
-        flex: 1;
-
-        .u-id {
-            color: rgba(255, 168, 17, 1);
-        }
-    }
-
-    .m-right {
-        flex: 1;
-        display: grid;
-        gap: 10px;
-        grid-template-columns: repeat(2, 1fr);
-
-        .m-attr {
-            min-width: 186px;
-
-            .u-pvx-horse-title {
-                font-size: 12px;
-            }
-
-            &.m-basic-attr .u-pvx-horse-title {
-                color: rgba(255, 168, 17, 1);
-            }
-
-            &.m-special-attr .u-pvx-horse-title {
-                color: rgba(204, 70, 237, 1);
-            }
-
-            .u-attr {
-                .flex;
-                align-items: center;
-                gap: 4px;
-                margin-top: 4px;
-                width: 100%;
-            }
-
-            .u-attr-icon {
-                .size(24px);
-            }
-
-            .u-attr-name {
-                color: #fff;
-            }
-
-            .u-attr-desc {
-                color: rgba(255, 255, 255, 0.5);
-                .dbi;
-                width: 135px;
-                .nobreak;
-            }
-        }
-    }
-}
 </style>

@@ -2,17 +2,13 @@
     <!-- 包含攻略、评论、历史版本、点赞等 -->
     <div class="w-pvx-user">
         <!--攻略-->
-        <div class="m-wiki-post-panel" :class="isRobot ? 'is-robot' : ''" v-if="wiki_post && wiki_post.post">
-            <div v-if="isRobot" class="m-pvx-wiki-title">
-                <span class="u-title">{{ name }}攻略</span>
-                <span>（以魔盒在线版本为准）</span>
-            </div>
+        <div class="m-wiki-post-panel" v-if="wiki_post && wiki_post.post">
             <WikiPanel :wiki-post="wiki_post">
-                <template #head-title v-if="!isRobot">
+                <template #head-title>
                     <img class="u-icon" svg-inline src="@/assets/img/common/item.svg" />
                     <span class="u-txt">{{ wikiText("guideTitle", { name }, `${name}攻略`) }}</span>
                 </template>
-                <template #head-actions v-if="!isRobot">
+                <template #head-actions>
                     <a class="u-btn--link el-button el-button--primary" :href="publish_url(`${type}/${id}`)">
                         <i class="el-icon-edit"></i>
                         <span>{{ wikiText("improveGuide", { name }, `完善${name}攻略`) }}</span>
@@ -36,32 +32,24 @@
                     </div>
                 </template>
             </WikiPanel>
-            <template v-if="!isRobot">
-                <!-- 奇遇触发记录 -->
-                <slot name="serendipity"></slot>
+            <!-- 奇遇触发记录 -->
+            <slot name="serendipity"></slot>
 
-                <!-- 历史版本 -->
-                <WikiRevisions :type="type" :source-id="id" />
-            </template>
+            <!-- 历史版本 -->
+            <WikiRevisions :type="type" :source-id="id" />
         </div>
-        <div class="m-wiki-post-empty" :class="isRobot ? 'is-robot-empty' : ''"
-            v-if="(!wiki_post || !wiki_post.post) && id">
-            <template v-if="!isRobot">
-                <i class="el-icon-s-opportunity"></i>
-                <span>{{ wikiText("emptyLead", {}, "暂无攻略，我要") }}</span>
-                <a class="s-link" :href="publish_url(`${type}/${id}`)">
-                    {{ wikiText("completeGuide", {}, "完善攻略") }}
-                </a>
-            </template>
-            <span v-else>暂无相关攻略，欢迎热心侠士前往补充！</span>
+        <div class="m-wiki-post-empty" v-if="(!wiki_post || !wiki_post.post) && id">
+            <i class="el-icon-s-opportunity"></i>
+            <span>{{ wikiText("emptyLead", {}, "暂无攻略，我要") }}</span>
+            <a class="s-link" :href="publish_url(`${type}/${id}`)">
+                {{ wikiText("completeGuide", {}, "完善攻略") }}
+            </a>
         </div>
-        <template v-if="!isRobot">
-            <Thx class="m-thx" :postId="id" :postType="type" :postTitle="wiki_post?.source?.Name || ''"
-                :userId="author_id" :adminBoxcoinEnable="false" :userBoxcoinEnable="false" :authors="authors"
-                mode="wiki" :key="type + '-thx-' + id" :client="client" />
-            <!-- 百科评论 -->
-            <WikiComments :type="type" :source-id="String(id)" />
-        </template>
+        <Thx class="m-thx" :postId="id" :postType="type" :postTitle="wiki_post?.source?.Name || ''"
+            :userId="author_id" :adminBoxcoinEnable="false" :userBoxcoinEnable="false" :authors="authors"
+            mode="wiki" :key="type + '-thx-' + id" :client="client" />
+        <!-- 百科评论 -->
+        <WikiComments :type="type" :source-id="String(id)" />
     </div>
 </template>
 
@@ -100,10 +88,6 @@ export default {
             type: String,
             default: "",
         },
-        isRobot: {
-            type: Boolean,
-            default: false,
-        },
         i18nKeyPrefix: {
             type: String,
             default: "",
@@ -117,11 +101,6 @@ export default {
             },
             compatible: false,
             is_empty: true,
-
-            imageCount: 0,
-            loadedImageCount: 0,
-            images: [],
-            imagesLoaded: false,
         };
     },
     watch: {
@@ -181,116 +160,10 @@ export default {
             return [];
         },
     },
-    mounted() { },
-    beforeUnmount() {
-        window.removeEventListener("load", this.initImageLoader);
-    },
     methods: {
         wikiText(key, params, fallback) {
             const i18nKey = this.i18nKeyPrefix ? `${this.i18nKeyPrefix}.${key}` : "";
             return i18nKey && this.$te(i18nKey) ? this.$t(i18nKey, params) : fallback;
-        },
-        initImageLoader() {
-            // 在DOM更新后获取所有图片
-            this.$nextTick(() => {
-                const container = document.getElementById("pvxWiki");
-                if (!container) {
-                    this.setGlobalReady();
-                    return;
-                }
-
-                const images = container.querySelectorAll("img");
-                this.images = images;
-                this.imageCount = images.length;
-
-                if (this.imageCount === 0) {
-                    this.setGlobalReady();
-                    return;
-                }
-
-                // 手动预加载所有图片
-                this.preloadAllImages(images);
-            });
-        },
-
-        // 手动预加载所有图片
-        preloadAllImages(images) {
-            let loadedInThisBatch = 0;
-            let totalProcessed = 0;
-            Array.from(images).forEach((img, index) => {
-                // 记录原始src
-                const originalSrc = img.src;
-
-                // 如果图片未加载
-                if (!img.complete) {
-                    // 创建一个Image对象来预加载
-                    const tempImg = new Image();
-
-                    tempImg.onload = () => {
-                        loadedInThisBatch++;
-
-                        // 在临时图片加载完成后，设置原始图片的src
-                        img.src = originalSrc;
-
-                        // 检查是否所有图片都已处理
-                        this.checkImageLoadCompletion(images, loadedInThisBatch);
-                    };
-
-                    tempImg.onerror = () => {
-                        console.error(`图片加载失败: ${originalSrc}`);
-                        totalProcessed++;
-
-                        // 即使加载失败，也要设置原始图片的src
-                        img.src = originalSrc;
-
-                        // 标记原始图片为已加载（错误情况）
-                        this.handleImageLoad();
-                    };
-
-                    // 开始预加载
-                    tempImg.src = originalSrc;
-                } else {
-                    // 图片已经加载完成
-                    this.handleImageLoad();
-                    totalProcessed++;
-                }
-            });
-        },
-
-        // 检查图片加载状态
-        checkImageLoadCompletion(images, loadedCount) {
-            if (images.length === this.loadedImageCount) {
-                this.setGlobalReady();
-                return;
-            }
-
-            // 设置超时检查，防止意外情况
-            setTimeout(() => {
-                const allLoaded = Array.from(images).every((img) => img.complete);
-
-                if (allLoaded) {
-                    this.setGlobalReady();
-                } else if (this.loadedImageCount === images.length) {
-                    this.setGlobalReady();
-                }
-            }, 3000);
-        },
-
-        // 判断是否全部完成
-        handleImageLoad() {
-            this.loadedImageCount++;
-            if (this.loadedImageCount === this.imageCount) {
-                this.setGlobalReady();
-            }
-        },
-
-        // 设置全局就绪状态
-        setGlobalReady() {
-            if (this.imagesLoaded) return; // 避免重复设置
-
-            this.imagesLoaded = true;
-            window.__READY__ = true;
-            console.log("全局状态设置成功: __READY__ = ", window.__READY__);
         },
         getLink,
         //百科相关
@@ -307,11 +180,6 @@ export default {
                     this.is_empty = isEmpty;
                     this.compatible = compatible;
                 });
-                // 请注意，为防止QQBOT无法抓取完全，请不要删除
-                if (this.isRobot) {
-                    // 数据加载后启动奇遇流程中的图片检测
-                    this.initImageLoader();
-                }
             }
             this.triggerStat();
         },
@@ -336,39 +204,6 @@ export default {
 
 <style lang="less">
 .w-pvx-user {
-    .m-wiki-post-panel.is-robot .m-panel-head .m-panel-title {
-        .none;
-    }
-
-    .m-wiki-post-panel.is-robot {
-        .c-wiki-panel {
-            color: #24292e;
-        }
-
-        .m-wiki-metas {
-            .u-value {
-                color: #24292e;
-            }
-        }
-    }
-
-    .m-pvx-wiki-title {
-        margin-top: 10px;
-
-        span {
-            font-weight: normal;
-            font-style: normal;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
-        }
-
-        .u-title {
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-        }
-    }
-
     &>div {
         margin-top: 40px !important;
     }

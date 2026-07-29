@@ -26,13 +26,13 @@ export function getHorseModeName(item) {
     return "";
 }
 
-export function getHorseFeedName(item, isRobot = false) {
+export function getHorseFeedName(item) {
     if (item.SubType !== 15 || !item.Feed) return "";
     const tip = item.Feed.FeedTip;
     const start = tip.indexOf("【");
     const end = tip.indexOf("】");
     const feed = tip.slice(start, end + 1);
-    return isRobot ? feed.replace(/【|】/g, "") : feed;
+    return feed;
 }
 
 export function getHorseSpeed(item) {

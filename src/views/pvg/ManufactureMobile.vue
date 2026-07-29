@@ -338,9 +338,6 @@ export default {
 .m-pvg-main {
     padding: 0;
 }
-.v-miniprogram .m-manufacture-mobile {
-    padding-top: 12px;
-}
 .m-manufacture-mobile {
     padding-left: 20px;
     padding-right: 20px;

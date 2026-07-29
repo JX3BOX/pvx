@@ -1,33 +1,27 @@
 <template>
-    <div>
-        <div v-if="isMiniProgram">
-            <router-view></router-view>
-        </div>
-        <div v-else class="p-pvx-achievement">
-            <CommonNav :forceShow="true"></CommonNav>
-            <CommonHeader></CommonHeader>
-            <div
-                class="m-achievement-main"
-                :class="{
-                    is_mobile: mobile,
-                    'c-pvx-modern-achievement-overview': $route.name === 'overview',
-                    'c-pvx-modern-achievement-compare': $route.name === 'compare',
-                    'c-pvx-modern-achievement-leap': $route.name === 'leap',
-                }"
-            >
-                <SideBar v-if="!is_fold" />
-                <div class="m-achievement-content" :class="{ is_mobile: mobile }">
-                    <router-view></router-view>
-                </div>
+    <div class="p-pvx-achievement">
+        <CommonNav :forceShow="true"></CommonNav>
+        <CommonHeader></CommonHeader>
+        <div
+            class="m-achievement-main"
+            :class="{
+                is_mobile: mobile,
+                'c-pvx-modern-achievement-overview': $route.name === 'overview',
+                'c-pvx-modern-achievement-compare': $route.name === 'compare',
+                'c-pvx-modern-achievement-leap': $route.name === 'leap',
+            }"
+        >
+            <SideBar v-if="!is_fold" />
+            <div class="m-achievement-content" :class="{ is_mobile: mobile }">
+                <router-view></router-view>
             </div>
-            <CommonFooter></CommonFooter>
         </div>
+        <CommonFooter></CommonFooter>
     </div>
 </template>
 
 <script>
 import CommonHeader from "@jx3box/jx3box-ui/src/CommonHeader.vue";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SideBar from "@/components/wiki/sidebar.vue";
 import CommonNav from "@/components/Nav_v5.vue";
 export default {
@@ -43,9 +37,6 @@ export default {
             const userAgent = navigator.userAgent.toLowerCase();
             const mobileKeywords = ["android", "iphone", "ipad", "ipod", "windows phone"];
             return mobileKeywords.some((keyword) => userAgent.includes(keyword));
-        },
-        isMiniProgram() {
-            return isMiniProgram() || isApp();
         },
     },
     watch: {

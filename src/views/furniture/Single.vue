@@ -1,6 +1,5 @@
 <template>
-    <div class="p-furniture-single m-single-wrapper" :class="{ 'is-robot': isRobot }" v-loading="loading">
-        <template v-if="!isRobot">
+    <div class="p-furniture-single m-single-wrapper" v-loading="loading">
         <PvxPageShell class="p-pvx-furniture-single--modern">
         <div class="m-pvx-furniture-single-layout">
             <PvxSurface class="m-pvx-furniture-navigation" tag="nav" padding="small" radius="medium">
@@ -176,99 +175,10 @@
             :id="wiki_source_id"
             :name="community_name"
             :type="wiki_source_type"
-            :is-robot="false"
             i18n-key-prefix="pages.furniture.ui.wiki"
         />
         </div>
         </PvxPageShell>
-        </template>
-        <template v-else>
-            <div class="m-pvx__item m-pvx-furniture-robot__header">
-                <div class="m-title">
-                    <div class="u-title" :class="'quality_' + data.Quality">家具 · {{ data.szName || id }}</div>
-                    <div class="m-meta">
-                        <span class="u-meta">ID: {{ id }}</span>
-                        <span class="u-meta" v-if="furniture_type">{{ furniture_type }}</span>
-                        <span class="u-meta" v-if="data.szSource">{{ data.szSource }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="m-pvx-furniture-robot__body">
-                <div class="m-pvx__item m-pvx-furniture-robot__attrs">
-                    <div class="u-title">家具属性</div>
-                    <div class="u-attrs" v-if="furniture_attrs.length">
-                        <span class="u-attr" v-for="item in furniture_attrs" :key="item.key">
-                            <span class="u-label" :class="item.className">{{ item.label }}</span>
-                            {{ item.value }}
-                        </span>
-                    </div>
-                    <div class="u-empty" v-else>暂无属性</div>
-                </div>
-
-                <div class="m-pvx__item m-pvx-furniture-robot__info">
-                    <div class="u-title">摆放信息</div>
-                    <div class="u-list">
-                        <div class="u-item" v-if="data.LevelLimit">摆放等级：{{ data.LevelLimit }}级</div>
-                        <div class="u-item" v-if="data.MaxAmountPerLand">摆放上限：{{ data.MaxAmountPerLand }}</div>
-                        <div class="u-item" v-if="data.szScaleRange">
-                            缩放大小：
-                            <span class="u-scale">
-                                <b v-for="(item, index) in scaleRange(data.szScaleRange)" :key="index">{{ item }}</b>
-                            </span>
-                        </div>
-                        <div class="u-item" v-if="color_list.length">
-                            染色选项：
-                            <span class="u-dyes">
-                                <i
-                                    v-for="item in color_list"
-                                    :key="item"
-                                    class="u-dye"
-                                    :style="{ backgroundColor: `rgb(${item})` }"
-                                ></i>
-                            </span>
-                        </div>
-                        <div class="u-item" v-if="data.bInteract">可交互家具</div>
-                    </div>
-                </div>
-
-                <div class="m-pvx__item m-pvx-furniture-robot__source">
-                    <div class="u-title">来源途径</div>
-                    <div class="u-source">{{ source_text || "暂无来源" }}</div>
-                </div>
-            </div>
-
-            <div class="m-pvx__item m-pvx-furniture-robot__set" v-if="setData">
-                <div class="u-title">套组 · {{ setData.szName }}</div>
-                <div class="u-desc" v-if="data.szTip" v-html="description_filter(data.szTip)"></div>
-                <div class="u-set-list" v-if="set_furnitures.length">
-                    <div
-                        class="u-set-item"
-                        :class="{ 'is-current': item.dwID == id }"
-                        v-for="item in set_furnitures"
-                        :key="item.ID || item.dwID"
-                    >
-                        <div class="u-set-img">
-                            <img v-if="getFurnitureImg(item)" :src="getFurnitureImg(item)" :alt="item.szName" />
-                        </div>
-                        <div class="u-set-name">{{ item.szName }}</div>
-                        <div class="u-set-type">{{ getType(item) }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="m-pvx__item m-pvx-furniture-robot__set" v-else-if="data.szTip">
-                <div class="u-title">家具说明</div>
-                <div class="u-desc" v-html="description_filter(data.szTip)"></div>
-            </div>
-
-            <PvxUser
-                v-if="robot_wiki_id"
-                :id="robot_wiki_id"
-                :name="robot_wiki_name"
-                :type="robot_wiki_type"
-                :is-robot="true"
-            />
-        </template>
     </div>
 </template>
 
@@ -284,7 +194,7 @@ import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { ArrowLeft, Collection, CollectionTag, Tools, Trophy } from "@element-plus/icons-vue";
 
-import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
+import { getLink } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";
 
 import { getFurnitureDetail, getSetList, getFurnitureColor } from "@/service/furniture.js";
@@ -298,16 +208,6 @@ const HOMELAND_COIN_SOURCE = "\u56ed\u5b85\u5e01";
 
 export default {
     name: "FurnitureSingle",
-    props: {
-        isRobot: {
-            type: Boolean,
-            default: false,
-        },
-        sourceId: {
-            type: [String, Number],
-            default: "",
-        },
-    },
     inject: {
         __imgRoot: {
             default: __imgPath + "homeland/",
@@ -338,7 +238,6 @@ export default {
             setData: "",
             colorData: "", // 染色数据
             category: {},
-            imagesLoaded: false,
         };
     },
     computed: {
@@ -346,7 +245,7 @@ export default {
             return this.$store.state.client;
         },
         id: function () {
-            return ~~(this.$route.params.id || this.sourceId);
+            return ~~this.$route.params.id;
         },
         other_id: function () {
             return this.data?.__manufactureID;
@@ -382,15 +281,6 @@ export default {
             return this.wiki_source_type === "achievement"
                 ? this.$t("pages.furniture.ui.achievementTypeName")
                 : this.$t("pages.furniture.ui.itemTypeName");
-        },
-        robot_wiki_type: function () {
-            return this.wiki_source_type;
-        },
-        robot_wiki_id: function () {
-            return this.wiki_source_id;
-        },
-        robot_wiki_name: function () {
-            return this.robot_wiki_type === "achievement" ? "成就" : "物品";
         },
         fav_author_id: function () {
             return Number(this.data?.user_id || this.data?.author_id || User.getInfo().uid) || "";
@@ -440,9 +330,6 @@ export default {
             }
             return list;
         },
-        set_furnitures: function () {
-            return this.setData?.furnitures || [];
-        },
     },
     watch: {
         id: function () {
@@ -479,7 +366,6 @@ export default {
                 })
                 .finally(() => {
                     this.loading = false;
-                    if (this.isRobot && !this.robot_wiki_id) this.preloadRobotImages();
                 });
         },
         getColorData() {
@@ -507,38 +393,8 @@ export default {
         formatImg(link) {
             return formatFurnitureImg(link, this.__imgRoot || __imgPath + "homeland/", this.client);
         },
-        getFurnitureImg(data) {
-            return data?.Path ? this.formatImg(data.Path) : iconLink(data?.nRepresentID, this.client);
-        },
-        getType(data) {
-            return getFurnitureType(data, this.category);
-        },
-
         scaleRange(str) {
             return str?.split(";");
-        },
-        preloadRobotImages() {
-            this.$nextTick(() => {
-                const images = Array.from(this.$el?.querySelectorAll("img") || []);
-                if (!images.length) {
-                    this.setGlobalReady();
-                    return;
-                }
-
-                Promise.all(
-                    images.map((img) => {
-                        if (img.complete) return Promise.resolve();
-                        return new Promise((resolve) => {
-                            img.onload = img.onerror = resolve;
-                        });
-                    })
-                ).then(() => this.setGlobalReady());
-            });
-        },
-        setGlobalReady() {
-            if (this.imagesLoaded) return;
-            this.imagesLoaded = true;
-            window.__READY__ = true;
         },
 
         goBack() {

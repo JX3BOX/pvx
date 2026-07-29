@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
@@ -21,9 +20,7 @@ const routes = [
     {
         name: "price",
         path: "/price",
-        component: isMiniProgram() || isApp()
-            ? () => import("@/views/pvg/price/mobile/index.vue")
-            : () => import("@/views/pvg/price/index.vue"),
+        component: () => import("@/views/pvg/price/index.vue"),
         meta: {
             name: "价格走势",
             i18n: {
