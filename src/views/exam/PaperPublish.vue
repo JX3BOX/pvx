@@ -119,10 +119,7 @@ export default {
     methods: {
         goBack() {
             this.$router.push({
-                name: "index",
-                params: {
-                    type: 3,
-                },
+                name: "paperList",
             });
         },
         publish: function () {

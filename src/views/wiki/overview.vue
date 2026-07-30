@@ -70,7 +70,7 @@
                                     <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" />
                                 </button>
                                 <template #dropdown>
-                                    <el-dropdown-menu class="m-role-dropdown">
+                                    <el-dropdown-menu class="m-role-dropdown m-role-dropdown--achievement">
                                         <el-dropdown-item v-for="role in roleList" :key="role.ID">
                                             <button
                                                 type="button"
@@ -78,7 +78,14 @@
                                                 :class="{ active: role.jx3id === currentRole.jx3id }"
                                                 @click="onChangeRole(role)"
                                             >
-                                                <span>{{ role.name }}</span>
+                                                <span class="m-role-item__name">
+                                                    <img
+                                                        class="u-role-school"
+                                                        :src="showSchoolIcon(role.mount)"
+                                                        alt=""
+                                                    />
+                                                    <span>{{ role.name }}</span>
+                                                </span>
                                                 <span>{{ role.server }}</span>
                                             </button>
                                         </el-dropdown-item>
@@ -1648,6 +1655,79 @@ export default {
         &.active {
             color: #947e5d;
             background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(204, 184, 155, 1) 100%);
+        }
+    }
+}
+
+.m-role-dropdown--achievement {
+    max-height: min(420px, calc(100vh - 180px));
+    padding: 6px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c8b596 transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 6px;
+        background: #c8b596;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .el-dropdown-menu__item,
+    .el-dropdown-menu__item:hover,
+    .el-dropdown-menu__item:focus {
+        background: transparent;
+    }
+
+    .m-role-item {
+        min-width: 250px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        line-height: 28px;
+        transition:
+            color 0.16s ease,
+            background-color 0.16s ease;
+
+        &:hover {
+            color: #6f4f28;
+            background: #f7f1e8;
+        }
+
+        &.active,
+        &.active:hover {
+            color: #6f4f28;
+            background: #efe4d4;
+        }
+
+        .m-role-item__name {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 9px;
+            color: inherit;
+            font-size: inherit;
+
+            > span {
+                overflow: hidden;
+                color: inherit;
+                font-size: inherit;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        .u-role-school {
+            flex: 0 0 auto;
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
         }
     }
 }

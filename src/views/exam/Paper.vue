@@ -245,7 +245,7 @@ export default {
             }
         },
         goBack: function () {
-            this.$router.push({ name: "index", query: { tab: "paper" } });
+            this.$router.push({ name: "paperList" });
         },
     },
     created: function () {

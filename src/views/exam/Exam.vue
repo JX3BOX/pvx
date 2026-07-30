@@ -31,7 +31,7 @@ export default {
     },
     computed: {
         isModernPage() {
-            return ["index", "question", "paper", "keju"].includes(this.$route.name);
+            return ["index", "questionList", "paperList", "question", "paper", "keju"].includes(this.$route.name);
         },
     },
     methods: {

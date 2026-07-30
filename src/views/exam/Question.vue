@@ -232,7 +232,7 @@ export default {
             });
         },
         goBack() {
-            this.$router.push({ name: "index", query: { tab: "question" } });
+            this.$router.push({ name: "questionList" });
         },
     },
     created() {

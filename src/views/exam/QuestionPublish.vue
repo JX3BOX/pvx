@@ -136,10 +136,7 @@ export default {
     methods: {
         goBack() {
             this.$router.push({
-                name: "index",
-                params: {
-                    type: 2,
-                },
+                name: "questionList",
             });
         },
         publish: function () {

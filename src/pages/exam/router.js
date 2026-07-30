@@ -1,25 +1,52 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
+const ExamIndex =
+    isMiniProgram() || isApp()
+        ? () => import("@/views/exam/mobile/exam.vue")
+        : () => import("@/views/exam/Index.vue");
+
+const indexMeta = {
+    i18n: {
+        title: "pages.exam.title",
+        keywords: "pages.exam.keywords",
+        description: "pages.exam.description",
+    },
+};
+
+function redirectLegacyIndex(to) {
+    const type = to.query.tab === "paper" || to.params.type === "3" ? "paper" : "question";
+    const query = { ...to.query };
+    delete query.tab;
+    return { name: `${type}List`, query, hash: to.hash };
+}
+
 const routes = [
     {
         name: "index",
-        path: "/:type?",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/exam/mobile/exam.vue")
-                : () => import("@/views/exam/Index.vue"),
-        meta: {
-            i18n: {
-                title: "pages.exam.title",
-                keywords: "pages.exam.keywords",
-                description: "pages.exam.description",
-            },
-        },
+        path: "/",
+        redirect: redirectLegacyIndex,
+    },
+    {
+        name: "legacyIndex",
+        path: "/:type(2|3)",
+        redirect: redirectLegacyIndex,
+    },
+    {
+        name: "questionList",
+        path: "/question",
+        component: ExamIndex,
+        meta: indexMeta,
+    },
+    {
+        name: "paperList",
+        path: "/paper",
+        component: ExamIndex,
+        meta: indexMeta,
     },
     {
         name: "paper",
-        path: "/paper/:id?",
+        path: "/paper/:id",
         component: () => import("@/views/exam/Paper.vue"),
         meta: {
             i18n: {
@@ -31,7 +58,7 @@ const routes = [
     },
     {
         name: "question",
-        path: "/question/:id?",
+        path: "/question/:id",
         component: () => import("@/views/exam/Question.vue"),
         meta: {
             i18n: {

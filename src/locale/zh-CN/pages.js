@@ -1055,7 +1055,7 @@ export default {
             },
             common: { anonymous: "匿名", noData: "暂无数据" },
             detail: {
-                back: "返回列表", previous: "上一题", next: "下一题", noAdjacent: "附近没有可访问的题目", edit: "编辑题目", submit: "提交答案", submitted: "已提交", comments: "评论",
+                back: "返回题目列表", previous: "上一题", next: "下一题", noAdjacent: "附近没有可访问的题目", edit: "编辑题目", submit: "提交答案", submitted: "已提交", comments: "评论",
                 loginRequired: "请先登录", selectAnswer: "请先选择答案", submitFailed: "提交失败",
             },
         },

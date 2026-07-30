@@ -29,7 +29,7 @@
         </ul>
         <div class="u-img-btn">
             <a
-                href="https://www.jx3box.com/notice/95651"
+                href="/notice/95651"
                 target="_blank"
                 rel="noopener noreferrer"
                 :aria-label="$t('pages.wiki.sidebar.guide')"

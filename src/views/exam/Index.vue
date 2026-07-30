@@ -95,7 +95,7 @@ const EXAM_TAB_TYPES = {
 const EXAM_TYPE_TABS = Object.fromEntries(Object.entries(EXAM_TAB_TYPES).map(([tab, type]) => [type, tab]));
 
 function getRouteExamType(route) {
-    return EXAM_TAB_TYPES[route.query.tab] || ([2, 3].includes(~~route.params.type) ? ~~route.params.type : 2);
+    return route.name === "paperList" ? EXAM_TAB_TYPES.paper : EXAM_TAB_TYPES.question;
 }
 
 export default {
@@ -204,7 +204,7 @@ export default {
         },
     },
     watch: {
-        "$route.query.tab"() {
+        "$route.name"() {
             this.syncingRouteTab = true;
             this.initValue.type = getRouteExamType(this.$route);
             this.$nextTick(() => {
@@ -293,12 +293,13 @@ export default {
             this.search = nextSearch;
 
             const tab = EXAM_TYPE_TABS[data.type];
-            if (!this.syncingRouteTab && previousType && previousType !== data.type && tab && this.$route.query.tab !== tab) {
+            const routeName = tab ? `${tab}List` : "";
+            if (!this.syncingRouteTab && previousType && previousType !== data.type && routeName && this.$route.name !== routeName) {
+                const query = { ...this.$route.query };
+                delete query.tab;
                 this.$router.replace({
-                    query: {
-                        ...this.$route.query,
-                        tab,
-                    },
+                    name: routeName,
+                    query,
                 });
             }
         },
