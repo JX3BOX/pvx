@@ -10,6 +10,7 @@
                 variant="modern"
                 inline-search-icon
                 i18n-scope="pages.horse.ui.search"
+                defer-filter-submit
                 @search="handleSearch"
             />
             <!-- 全部模式 -->

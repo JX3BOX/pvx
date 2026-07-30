@@ -7,6 +7,7 @@
             inline-search-icon
             i18n-scope="pages.pet.ui.search"
             popper-class="m-pvx-pet-filter-popover"
+            defer-filter-submit
             @search="handleSearch"
         />
     </div>

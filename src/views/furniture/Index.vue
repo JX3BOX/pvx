@@ -11,6 +11,7 @@
                 variant="modern"
                 i18n-scope="pages.furniture.ui.search"
                 inline-search-icon
+                defer-filter-submit
                 @search="searchEvent($event)"
             >
                 <template #default>
@@ -42,6 +43,7 @@
                 variant="modern"
                 i18n-scope="pages.furniture.ui.search"
                 inline-search-icon
+                defer-filter-submit
                 @search="searchEvent($event)"
             />
 
@@ -566,7 +568,13 @@ export default {
                 });
         },
         searchEvent(data) {
-            if (this.syncCostPerformanceSource(data)) return;
+            if (this.syncCostPerformanceSource(data)) {
+                data = {
+                    ...data,
+                    szSource:
+                        data.decorationScore === COST_PERFORMANCE_FILTER ? COST_PERFORMANCE_SOURCE : "",
+                };
+            }
             const newData = this.doPrams(data);
             const hasSearchValue = Object.values(newData || {}).some((value) => {
                 if (Array.isArray(value)) return value.length;

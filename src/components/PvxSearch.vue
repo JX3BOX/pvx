@@ -206,6 +206,7 @@ export default {
                     this.skipNextSearch = false;
                     return;
                 }
+                if (this.deferFilterSubmit && this.filterValue) return;
                 this.$emit("search", this.getSearchData(data));
             },
         },
@@ -360,6 +361,8 @@ export default {
                         this.checkboxData[item.key] = [];
                         this.formData[item.key] = "";
                     }
+                } else if (item.type === "select") {
+                    this.formData[item.key] = item.multiple ? [] : "";
                 }
             });
             if (!this.deferFilterSubmit) {
