@@ -7,7 +7,7 @@
                 <span class="u-title">{{ name }}攻略</span>
                 <span>（以魔盒在线版本为准）</span>
             </div>
-            <WikiPanel :wiki-post="wiki_post">
+            <WikiPanel :wiki-post="wiki_post" :variant="wikiVariant">
                 <template #head-title v-if="!isRobot">
                     <img class="u-icon" svg-inline src="@/assets/img/common/item.svg" />
                     <span class="u-txt">{{ wikiText("guideTitle", { name }, `${name}攻略`) }}</span>
@@ -41,7 +41,7 @@
                 <slot name="serendipity"></slot>
 
                 <!-- 历史版本 -->
-                <WikiRevisions :type="type" :source-id="id" />
+                <WikiRevisions :type="type" :source-id="id" :variant="wikiVariant" />
             </template>
         </div>
         <div class="m-wiki-post-empty" :class="isRobot ? 'is-robot-empty' : ''"
@@ -60,7 +60,7 @@
                 :userId="author_id" :adminBoxcoinEnable="false" :userBoxcoinEnable="false" :authors="authors"
                 mode="wiki" :key="type + '-thx-' + id" :client="client" />
             <!-- 百科评论 -->
-            <WikiComments :type="type" :source-id="String(id)" />
+            <WikiComments :type="type" :source-id="String(id)" :variant="wikiVariant" />
         </template>
     </div>
 </template>
@@ -142,6 +142,9 @@ export default {
         },
     },
     computed: {
+        wikiVariant() {
+            return this.isRobot ? "default" : "surface";
+        },
         client() {
             return this.$store.state.client;
         },

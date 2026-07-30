@@ -121,7 +121,7 @@ export default {
                         : [];
                     data.points = [
                         {
-                            mapId: data.szMapIDs,
+                            mapId: data.Guides?.[0]?.map || data.szMapIDs,
                             guides: data.Guides && data.Guides.length && data.Guides[0],
                         },
                     ];

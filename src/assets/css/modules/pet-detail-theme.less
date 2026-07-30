@@ -163,12 +163,16 @@
 
     .m-pvx-pet-content {
         display: grid;
-        grid-template-columns: 213px minmax(0, 1fr) 430px;
+        grid-template-columns: 213px minmax(0, 1fr);
         min-width: 0;
         align-items: start;
         margin: 0;
         padding: @pvx-space-5;
         gap: @pvx-space-5;
+
+        &.has-map {
+            grid-template-columns: 213px minmax(0, 1fr) 430px;
+        }
     }
 
     .m-pvx-pet-card {
@@ -514,10 +518,12 @@
 
     .m-pvx-pet-community {
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
         min-width: 0;
         gap: @pvx-space-5;
 
         > div {
+            min-width: 0;
             margin-top: 0 !important;
         }
 
@@ -546,89 +552,12 @@
             background: transparent;
             box-shadow: none;
 
-            > .c-wiki-panel {
-                width: 100%;
-                box-sizing: border-box;
-                margin-bottom: 0;
-                overflow: hidden;
-                border: 1px solid fade(@pvx-border, 80%);
-                border-radius: @pvx-radius-panel;
-                background: @pvx-surface;
-                box-shadow: @pvx-shadow-xs;
-            }
-
             > .c-wiki-panel + .c-wiki-panel {
                 margin-top: @pvx-space-5;
             }
         }
 
         .c-wiki-panel {
-            border: 0;
-            box-shadow: none;
-
-            > .m-panel-head {
-                display: flex;
-                height: 64px;
-                min-height: 64px;
-                align-items: center;
-                justify-content: space-between;
-                padding: 11px @pvx-space-5;
-                gap: @pvx-space-3;
-                border-bottom: 1px solid @pvx-border-light;
-                background: @pvx-surface;
-            }
-
-            > .m-panel-body {
-                padding: @pvx-space-5;
-                color: @pvx-text-regular;
-                background: @pvx-surface;
-            }
-
-            > .m-panel-head > .m-panel-title {
-                display: flex;
-                min-width: 0;
-                align-items: center;
-                flex-wrap: wrap;
-                padding: 0;
-                gap: @pvx-space-1;
-                color: @pvx-text-primary;
-                font-weight: 700;
-
-                .u-icon {
-                    display: inline-flex;
-                    width: 32px;
-                    height: 32px;
-                    align-items: center;
-                    justify-content: center;
-                    flex: 0 0 32px;
-                    margin: 0;
-                    padding: 7px;
-                    border-radius: 10px;
-                    color: @pvx-primary;
-                    fill: @pvx-primary;
-                    background: @pvx-primary-soft;
-                    font-size: 16px;
-                    line-height: 18px;
-                }
-
-                .u-txt {
-                    color: @pvx-text-primary;
-                    font-size: 16px;
-                    font-weight: 700;
-                    line-height: 24px;
-                }
-            }
-
-            > .m-panel-head > .m-panel-actions {
-                position: static;
-                display: flex;
-                align-items: center;
-                flex: none;
-                margin-left: auto;
-                gap: @pvx-space-2;
-                transform: none;
-            }
-
             .u-btn--link {
                 min-height: 40px;
                 border-color: @pvx-primary;
@@ -642,15 +571,6 @@
 
             .w-thx-panel {
                 margin-bottom: @pvx-space-3;
-            }
-        }
-
-        > .c-wiki-comments {
-            padding: 0;
-
-            > .m-panel-body {
-                width: 100%;
-                margin: 0 auto;
             }
         }
 
@@ -696,6 +616,10 @@ html:lang(vi) {
     .p-pvx-pet-single--modern {
         .m-pvx-pet-content {
             grid-template-columns: 213px minmax(0, 1fr);
+
+            &.has-map {
+                grid-template-columns: 213px minmax(0, 1fr);
+            }
         }
 
         .m-pvx-pet-map-section {
@@ -716,6 +640,10 @@ html:lang(vi) {
 
         .m-pvx-pet-content {
             grid-template-columns: minmax(0, 1fr);
+
+            &.has-map {
+                grid-template-columns: minmax(0, 1fr);
+            }
         }
 
         .m-pvx-pet-card {
@@ -837,40 +765,6 @@ html:lang(vi) {
 
             .m-wiki-post-panel > .c-wiki-panel + .c-wiki-panel {
                 margin-top: @pvx-space-4;
-            }
-
-            .c-wiki-panel {
-                > .m-panel-body {
-                    padding: @pvx-space-3;
-                }
-
-                > .m-panel-head {
-                    height: auto;
-                    min-height: 64px;
-                    align-items: center;
-                    flex-wrap: wrap;
-                    padding: @pvx-space-1 @pvx-space-3;
-                    gap: @pvx-space-1;
-                }
-
-                > .m-panel-head > .m-panel-title {
-                    flex: 1 1 auto;
-
-                    .u-icon {
-                        width: 30px;
-                        height: 30px;
-                        flex-basis: 30px;
-                        padding: 7px;
-                    }
-
-                    .u-txt {
-                        font-size: 15px;
-                    }
-                }
-
-                > .m-panel-head > .m-panel-actions {
-                    gap: @pvx-space-1;
-                }
             }
 
             > .m-thx,

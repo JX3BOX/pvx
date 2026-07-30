@@ -46,47 +46,70 @@
                 </PvxSurface>
 
                 <PvxSurface class="m-pvx-reputation-overview" padding="medium">
-                    <PvxSectionHeader
-                        class="m-pvx-reputation-section-header"
-                        :title="$t('pages.reputation.single.ui.sections.overview')"
-                        :description="$t('pages.reputation.single.ui.sections.overviewDescription')"
-                        level="h2"
-                    >
-                        <template #icon><CollectionTag /></template>
-                    </PvxSectionHeader>
-                    <div class="m-pvx-reputation-meta-grid">
-                        <div class="u-pvx-reputation-meta">
-                            <span class="u-pvx-reputation-meta__label">
-                                {{ $t("pages.reputation.single.ui.fields.id") }}
-                            </span>
-                            <span class="u-pvx-reputation-meta__value">{{ reputation.dwForceID }}</span>
+                    <div class="m-pvx-reputation-overview__content" :class="{ 'has-map': showMap }">
+                        <div class="m-pvx-reputation-overview__info">
+                            <PvxSectionHeader
+                                class="m-pvx-reputation-section-header"
+                                :title="$t('pages.reputation.single.ui.sections.overview')"
+                                :description="$t('pages.reputation.single.ui.sections.overviewDescription')"
+                                level="h2"
+                            >
+                                <template #icon><CollectionTag /></template>
+                            </PvxSectionHeader>
+                            <div class="m-pvx-reputation-meta-grid">
+                                <div class="u-pvx-reputation-meta">
+                                    <span class="u-pvx-reputation-meta__label">
+                                        {{ $t("pages.reputation.single.ui.fields.id") }}
+                                    </span>
+                                    <span class="u-pvx-reputation-meta__value">{{ reputation.dwForceID }}</span>
+                                </div>
+                                <div v-if="reputation.GroupName" class="u-pvx-reputation-meta">
+                                    <span class="u-pvx-reputation-meta__label">
+                                        {{ $t("pages.reputation.single.ui.fields.group") }}
+                                    </span>
+                                    <span class="u-pvx-reputation-meta__value">{{ reputation.GroupName }}</span>
+                                </div>
+                                <div v-if="reputation.szMapNames?.length" class="u-pvx-reputation-meta">
+                                    <span class="u-pvx-reputation-meta__label">
+                                        {{ $t("pages.reputation.single.ui.fields.map") }}
+                                    </span>
+                                    <span class="u-pvx-reputation-meta__value">{{ reputation.szMapNames[0] }}</span>
+                                </div>
+                                <div class="u-pvx-reputation-meta">
+                                    <span class="u-pvx-reputation-meta__label">
+                                        {{ $t("pages.reputation.single.ui.fields.lostRespect") }}
+                                    </span>
+                                    <span class="u-pvx-reputation-meta__value">
+                                        {{ reputationPath || LOST_RESPECT_UNAVAILABLE }}
+                                    </span>
+                                </div>
+                                <div class="u-pvx-reputation-meta u-pvx-reputation-meta--description">
+                                    <span class="u-pvx-reputation-meta__label">
+                                        {{ $t("pages.reputation.single.ui.fields.description") }}
+                                    </span>
+                                    <span class="u-pvx-reputation-meta__value" v-html="reputation.szDesc"></span>
+                                </div>
+                            </div>
                         </div>
-                        <div v-if="reputation.GroupName" class="u-pvx-reputation-meta">
-                            <span class="u-pvx-reputation-meta__label">
-                                {{ $t("pages.reputation.single.ui.fields.group") }}
-                            </span>
-                            <span class="u-pvx-reputation-meta__value">{{ reputation.GroupName }}</span>
-                        </div>
-                        <div v-if="reputation.szMapNames?.length" class="u-pvx-reputation-meta">
-                            <span class="u-pvx-reputation-meta__label">
-                                {{ $t("pages.reputation.single.ui.fields.map") }}
-                            </span>
-                            <span class="u-pvx-reputation-meta__value">{{ reputation.szMapNames[0] }}</span>
-                        </div>
-                        <div class="u-pvx-reputation-meta">
-                            <span class="u-pvx-reputation-meta__label">
-                                {{ $t("pages.reputation.single.ui.fields.lostRespect") }}
-                            </span>
-                            <span class="u-pvx-reputation-meta__value">
-                                {{ reputationPath || LOST_RESPECT_UNAVAILABLE }}
-                            </span>
-                        </div>
-                        <div class="u-pvx-reputation-meta u-pvx-reputation-meta--description">
-                            <span class="u-pvx-reputation-meta__label">
-                                {{ $t("pages.reputation.single.ui.fields.description") }}
-                            </span>
-                            <span class="u-pvx-reputation-meta__value" v-html="reputation.szDesc"></span>
-                        </div>
+
+                        <section v-if="showMap" class="m-pvx-reputation-map-section">
+                            <PvxSectionHeader
+                                class="m-pvx-reputation-section-header"
+                                :title="$t('pages.reputation.single.ui.sections.map')"
+                                :description="mapDescription"
+                                level="h2"
+                            >
+                                <template #icon><Location /></template>
+                            </PvxSectionHeader>
+                            <div class="m-pvx-reputation-map-frame">
+                                <ReputationMap
+                                    ref="map"
+                                    localized
+                                    :name="reputation.szMapNames[0]"
+                                    :list="reputation.points"
+                                />
+                            </div>
+                        </section>
                     </div>
                 </PvxSurface>
 
@@ -132,25 +155,6 @@
                                 <span>{{ reputation.servant.szBuffDesc }}</span>
                             </div>
                         </div>
-                    </div>
-                </PvxSurface>
-
-                <PvxSurface v-if="showMap" class="m-pvx-reputation-map-section" padding="medium">
-                    <PvxSectionHeader
-                        class="m-pvx-reputation-section-header"
-                        :title="$t('pages.reputation.single.ui.sections.map')"
-                        :description="mapDescription"
-                        level="h2"
-                    >
-                        <template #icon><Location /></template>
-                    </PvxSectionHeader>
-                    <div class="m-pvx-reputation-map-frame">
-                        <ReputationMap
-                            ref="map"
-                            localized
-                            :name="reputation.szMapNames[0]"
-                            :list="reputation.points"
-                        />
                     </div>
                 </PvxSurface>
 

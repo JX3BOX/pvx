@@ -62,7 +62,11 @@
 
             <PublicNotice bckey="pet_ac" />
 
-            <PvxSurface class="m-pvx-pet-content" padding="medium">
+            <PvxSurface
+                class="m-pvx-pet-content"
+                :class="{ 'has-map': mapDisplay }"
+                padding="medium"
+            >
                 <petCard :petObject="pet" :lucky="luckyList"></petCard>
                 <div class="m-pvx-pet-info">
                     <div class="m-pvx-pet-info__summary">
@@ -359,7 +363,7 @@ export default {
         },
         // 成就ID（用于成就信息链接）
         achievement_id() {
-            return this.petWiki?.achievement_id;
+            return this.pet?.achievement_id || this.pet?.AchievementID || "";
         },
         // 当前客户端类型（正式服/怀旧服）
         client() {

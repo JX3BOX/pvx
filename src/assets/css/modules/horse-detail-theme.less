@@ -438,71 +438,12 @@
             background: transparent;
             box-shadow: none;
 
-            > .c-wiki-panel {
-                width: 100%;
-                margin-bottom: 0;
-                overflow: hidden;
-                border: 1px solid fade(@pvx-border, 80%);
-                border-radius: @pvx-radius-panel;
-                background: @pvx-surface;
-                box-shadow: @pvx-shadow-xs;
-            }
-
             > .c-wiki-panel + .c-wiki-panel {
                 margin-top: @pvx-space-5;
             }
         }
 
         .c-wiki-panel {
-            border: 0;
-            box-shadow: none;
-
-            > .m-panel-head {
-                display: flex;
-                min-height: 64px;
-                align-items: center;
-                justify-content: space-between;
-                padding: 11px @pvx-space-5;
-                border-bottom: 1px solid @pvx-border-light;
-                background: @pvx-surface;
-            }
-
-            > .m-panel-body {
-                padding: @pvx-space-5;
-                color: @pvx-text-regular;
-                background: @pvx-surface;
-            }
-
-            > .m-panel-head > .m-panel-title {
-                display: flex;
-                align-items: center;
-                padding: 0;
-                gap: @pvx-space-1;
-                color: @pvx-text-primary;
-                font-weight: 700;
-
-                .u-icon {
-                    display: inline-flex;
-                    width: 32px;
-                    height: 32px;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0;
-                    padding: 7px;
-                    border-radius: 10px;
-                    color: @pvx-primary;
-                    fill: @pvx-primary;
-                    background: @pvx-primary-soft;
-                }
-            }
-
-            > .m-panel-head > .m-panel-actions {
-                position: static;
-                display: flex;
-                margin-left: auto;
-                transform: none;
-            }
-
             .u-btn--link {
                 min-height: 40px;
                 border-color: @pvx-primary;
@@ -648,16 +589,6 @@
 
         .m-pvx-horse-community {
             gap: @pvx-space-4;
-
-            .c-wiki-panel > .m-panel-body {
-                padding: @pvx-space-3;
-            }
-
-            .c-wiki-panel > .m-panel-head {
-                min-height: 60px;
-                flex-wrap: wrap;
-                padding: @pvx-space-2 @pvx-space-3;
-            }
 
             > .m-thx,
             > .m-wiki-post-empty {

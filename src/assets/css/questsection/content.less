@@ -452,29 +452,45 @@
             margin-top: 0;
             overflow: hidden;
             box-sizing: border-box;
-            border: @questsection-border-light;
+            border: 1px solid fade(@questsection-color-primary, 24%);
             border-radius: 10px;
-            background: #F8F9FC;
-            box-shadow: @questsection-shadow-light;
+            background: #F0EEFF;
+            box-shadow: 0 1px 2px fade(@questsection-color-primary, 10%);
             cursor: pointer;
             font-family: "Microsoft YaHei", sans-serif;
             font-size: 16px;
-            font-weight: 400;
+            font-weight: 500;
             line-height: normal;
-            color: #9BA3BC;
-            transition: color 0.3s ease-out, border-color 0.3s ease-out;
+            color: #5145CD;
+            transition: color 0.2s ease-out, background-color 0.2s ease-out,
+                border-color 0.2s ease-out, box-shadow 0.2s ease-out,
+                transform 0.2s ease-out;
 
             &:hover {
-                color: @questsection-color-primary;
-                border-color: fade(@questsection-color-primary, 35%);
+                color: @questsection-color-text-white;
+                background: @questsection-color-primary;
+                border-color: @questsection-color-primary;
+                box-shadow: @questsection-shadow-active;
+            }
+
+            &:active {
+                transform: translateY(1px);
+                box-shadow: none;
             }
 
             &.is-loading-state {
                 cursor: default;
+                color: #6D64C8;
+                background: #F4F2FF;
+                border-color: fade(@questsection-color-primary, 16%);
+                box-shadow: none;
 
                 &:hover {
-                    color: #9BA3BC;
-                    border-color: rgba(226, 232, 240, 0.60);
+                    color: #6D64C8;
+                    background: #F4F2FF;
+                    border-color: fade(@questsection-color-primary, 16%);
+                    box-shadow: none;
+                    transform: none;
                 }
             }
 
