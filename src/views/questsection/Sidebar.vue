@@ -15,8 +15,13 @@
  * - select: 选择大章节时触发，参数为 { season, chapter }
 -->
 <template>
-    <div class="m-pvx-questsection-sidebar" :class="{ 'is-expanded': isSidebarExpanded }">
-        <!-- 搜索框模块 -->
+    <PvxSurface
+        class="m-pvx-questsection-sidebar"
+        :class="{ 'is-expanded': isSidebarExpanded }"
+        tag="aside"
+        padding="none"
+        radius="large"
+    >
         <div class="m-questsection-sidebar__search">
             <div class="u-questsection-search-input">
                 <input
@@ -29,10 +34,8 @@
             </div>
         </div>
 
-        <!-- 料片列表模块 -->
         <div class="m-questsection-sidebar__list">
             <div class="m-questsection-season" v-for="season in filteredSeasons" :key="season.nSeasonID">
-                <!-- 资料片标题（紫底白字） -->
                 <div class="u-questsection-season-header" @click="toggleSeason(season.nSeasonID)">
                     <span class="u-questsection-season-name">{{ season.szTitle }}</span>
                     <img class="u-questsection-season-arrow"
@@ -40,15 +43,12 @@
                         src="@/assets/img/questsection/arrow-expand.svg"
                         :alt="$t(expandedSeasons.includes(season.nSeasonID) ? 'pages.questsection.ui.collapse' : 'pages.questsection.ui.expand')" />
                 </div>
-
-                <!-- 大章节列表（折叠展开区域） -->
                 <transition name="questsection-expand">
                     <div class="m-questsection-season__chapters" v-show="expandedSeasons.includes(season.nSeasonID)">
                         <div class="u-questsection-chapter" v-for="chapter in getFilteredChapters(season)"
                             :key="chapter.nChapterID" :class="{
                                 'is-active': selectedChapter?.nChapterID === chapter.nChapterID
-                            }" @click="selectChapter(season, chapter)" @mouseenter="handleChapterHover(chapter, true)"
-                            @mouseleave="handleChapterHover(chapter, false)">
+                            }" @click="selectChapter(season, chapter)">
                             <span class="u-questsection-chapter-name">{{ chapter.szTitle }}</span>
                         </div>
                     </div>
@@ -56,20 +56,23 @@
             </div>
         </div>
 
-        <!-- 展开/折叠按钮 -->
         <div class="m-questsection-sidebar__toggle" @click="toggleSidebarExpand">
             <img class="u-questsection-toggle-arrow" :class="{ 'is-expanded': isSidebarExpanded }"
                 src="@/assets/img/questsection/arrow-expand.svg"
                 :alt="$t(isSidebarExpanded ? 'pages.questsection.ui.collapse' : 'pages.questsection.ui.expand')" />
         </div>
-    </div>
+    </PvxSurface>
 </template>
 
 <script>
+import PvxSurface from "@/components/design/PvxSurface.vue";
 import { getMenu } from "@/service/questsection.js";
 
 export default {
     name: "QuestsectionSidebar",
+    components: {
+        PvxSurface,
+    },
     data() {
         return {
             // 搜索关键词
@@ -82,8 +85,6 @@ export default {
             selectedChapter: null,
             // 当前选中的资料片
             selectedSeason: null,
-            // hover 状态的章节（用于样式控制）
-            hoveredChapter: null,
             // 加载状态
             loading: false,
             // 侧边栏整体展开状态
@@ -266,21 +267,10 @@ export default {
             );
         },
 
-        /**
-         * 处理大章节 hover 状态
-         * @param {Object} chapter - 大章节对象
-         * @param {boolean} isEnter - 是否为 mouseenter
-         */
-        handleChapterHover(chapter, isEnter) {
-            this.hoveredChapter = isEnter ? chapter : null;
-        },
-
-        /**
-         * 切换侧边栏整体展开/折叠状态
-         */
         toggleSidebarExpand() {
             this.isSidebarExpanded = !this.isSidebarExpanded;
         },
+
     },
     mounted() {
         this.fetchMenuData();

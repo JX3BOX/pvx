@@ -1,104 +1,94 @@
-// ============================================
-// 剑侠录模块样式 - 主入口
-// ============================================
-// 命名规范：p-pvx-questsection（页面级前缀）
-// 模块级：m-questsection-xxx
-// 元素级：u-questsection-xxx
-// ============================================
-
-// ==================== 变量定义 ====================
-// 以下数值根据 Figma 设计稿精确还原
-
-// 左侧导航栏宽度（精确值）
-// Component 18 宽度: 280px
-@questsection-sidebar-width: 280px;
-@questsection-sidebar-width-ipad: 240px;
-@questsection-sidebar-width-phone: 200px;
-@questsection-sidebar-width-miniprogram: 5rem;
-
-// 主内容区域间距
-// Figma 节点 3135-240: padding=40px 40px 32px 40px, gap=40px
-@questsection-main-gap: 40px;
-
-// ==================== 页面主容器 ====================
+@import (reference) "../design-system/_tokens.less";
 
 .p-pvx-questsection {
-    background: #F6F8FA;
+    background: @pvx-page-bg;
 
-    // 页面导航栏
-    .p-nav {
-        // 导航栏样式覆写（如需要）
+    > .c-main {
+        background: @pvx-page-bg;
     }
 
-    // 主内容区域
-    // Figma 节点 3135-240: 使用 flex 布局，padding=140px 40px 40px, gap=40px
-    .m-main {
-        min-height: 100vh;
-        padding: 40px 40px 32px 40px;
+    .m-pvx-questsection-shell {
         box-sizing: border-box;
-        display: flex;
-        position: relative;
+        min-height: calc(100vh - @header-height);
+        min-height: calc(100dvh - @header-height);
 
-        // 左侧导航栏：固定定位，在 sidebar.less 中定义
-        // .m-pvx-questsection-sidebar
-
-        // 右侧内容区：自适应布局
-        // Figma 节点 3135-240: margin-left = sidebar-width + gap
-        .m-pvx-questsection-content {
-            flex: 1;
-            margin-left: @questsection-sidebar-width;
-            min-width: 0; // 防止 flex 子项溢出
+        > div {
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            min-height: inherit;
+            max-width: none;
+            padding: 30px;
         }
+    }
+
+    .m-main {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        align-items: start;
+        gap: @pvx-space-4;
+        box-sizing: border-box;
+        padding: 0;
+    }
+
+    .m-pvx-questsection-content {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        gap: @pvx-space-4;
     }
 }
 
-// ==================== 响应式适配 - iPad ====================
 @media screen and (max-width: @ipad) {
     .p-pvx-questsection {
         .m-main {
-            padding-left: 20px;
-            padding-right: 20px;
-
-            .m-pvx-questsection-content {
-                margin-left: @questsection-sidebar-width-ipad + 15px; // iPad 端 gap 调整为 15px
-            }
+            grid-template-columns: 240px minmax(0, 1fr);
+            gap: @pvx-space-4;
         }
     }
 }
 
-// ==================== 响应式适配 - Phone ====================
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
+    .p-pvx-questsection .m-pvx-questsection-shell > div {
+        padding: 20px;
+    }
+}
+
+@media screen and (max-width: @phone) {
     .p-pvx-questsection {
         .m-main {
-            min-height: calc(100vh - @header-height);
-            padding: 16px 12px 24px;
-            flex-direction: column;
-            gap: 16px;
+            grid-template-columns: minmax(0, 1fr);
+            gap: @pvx-space-3;
+        }
 
-            .m-pvx-questsection-content {
-                width: 100%;
-                margin-left: 0;
-                gap: 12px;
-            }
+        .m-pvx-questsection-content {
+            gap: @pvx-space-3;
         }
     }
 }
 
-// ==================== 小程序端适配 ====================
+@media screen and (max-width: 640px) {
+    .p-pvx-questsection .m-pvx-questsection-shell > div {
+        padding: 20px 16px;
+    }
+}
+
 .v-miniprogram {
     .p-pvx-questsection {
-        .m-main {
-            padding-top: 0;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
+        .m-pvx-questsection-shell {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
 
-            .m-pvx-questsection-content {
-                margin-left: @questsection-sidebar-width-miniprogram + 0.5rem; // 小程序端 gap 调整为 0.5rem
-            }
+        .m-pvx-questsection-shell > div {
+            padding: 0 0.5rem;
+        }
+
+        .m-main {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .m-pvx-questsection-content {
+            flex: 1;
         }
     }
 }

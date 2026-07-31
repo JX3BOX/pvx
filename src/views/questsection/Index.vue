@@ -26,17 +26,17 @@
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
-            <div class="m-main">
-                <!-- 左侧导航栏：固定定位，展示资料片和大章节列表 -->
-                <Sidebar @select="handleSelect" />
-
-                <!-- 右侧内容区：自适应布局，展示章节详情 -->
-                <Content
-                    :seasonData="selectedSeason"
-                    :chapterData="selectedChapter"
-                    @section-change="handleSectionChange"
-                />
-            </div>
+            <PvxPageShell class="m-pvx-questsection-shell" :full-height="false">
+                <div class="m-main">
+                    <Sidebar @select="handleSelect" />
+                    <Content
+                        :seasonData="selectedSeason"
+                        :chapterData="selectedChapter"
+                        @section-change="handleSectionChange"
+                    />
+                </div>
+            </PvxPageShell>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </Main>
         <CommonFooter></CommonFooter>
     </div>
@@ -44,6 +44,8 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import Sidebar from "./Sidebar.vue";
 import Content from "./Content.vue";
 
@@ -51,6 +53,8 @@ export default {
     name: "QuestsectionIndex",
     components: {
         Nav,
+        PvxBacktop,
+        PvxPageShell,
         Sidebar,
         Content,
     },

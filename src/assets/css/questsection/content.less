@@ -1,737 +1,408 @@
-// ============================================
-// 剑侠录模块样式 - 内容区域
-// ============================================
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
 
-// ==================== 变量定义 ====================
-@questsection-color-primary: #6B52FF;
-@questsection-color-text-white: #FFFFFF;
-@questsection-color-text-black: #000000;
-@questsection-color-default-bg: rgba(0, 0, 0, 0.05);
+.m-questsection-content__top {
+    min-width: 0;
+}
 
-@questsection-shadow-default: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
-@questsection-shadow-active: 0px 4px 12px 0px rgba(107, 82, 255, 0.25);
-@questsection-shadow-chapter: 0px 2px 6px 0px rgba(0, 0, 0, 0.08);
-@questsection-shadow-light: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-@questsection-border-light: 1px solid rgba(226, 232, 240, 0.60);
+.m-questsection-content__aside {
+    display: flex;
+    min-width: 0;
+    align-self: center;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: @pvx-space-3;
 
-@questsection-radius: 8px;
-@questsection-radius-lg: 12px;
-@questsection-radius-pill: 30px;
-@questsection-radius-content: 48px;
-@questsection-chapter-item-height: 40px;
-@questsection-header-image-height: 194px;
-@questsection-header-image-min-width: 620px;
-@questsection-map-image-height: 154px;
-@questsection-content-gap: 20px;
-@questsection-section-gap: 40px;
+    .m-robot__pvx-tip {
+        width: 100%;
+        max-width: 375px;
+        min-width: 0;
+        align-self: flex-end;
 
-// ==================== 工具栏 ====================
-.m-questsection-content__toolbar {
-    flex-shrink: 0;
-    background: #FFFFFF;
-    border: 1px solid rgba(226, 232, 240, 0.60);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    border-radius: 10px;
-    padding: 10px 15px;
-    box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    gap: 16px;
-    margin-left: auto;
-
-    .u-feedback {
-        .u-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 21px;
-            color: @questsection-color-text-black;
-            background: @questsection-color-default-bg;
-            transition: all 0.3s ease-out;
-            cursor: pointer;
-            text-decoration: none;
-            box-sizing: border-box;
-
-            &:hover {
-                background: @questsection-color-primary;
-                color: @questsection-color-text-white;
-            }
-
-            i {
-                font-size: 16px;
-            }
+        .m-qq {
+            width: 100%;
+            max-width: 375px;
+            margin-left: auto;
+            margin-right: 0;
         }
+    }
+
+}
+
+.u-btn--feedback {
+    width: auto;
+    min-height: 40px;
+    flex: none;
+    border-color: fade(@pvx-primary, 16%);
+    border-radius: @pvx-radius-control;
+    background: @pvx-primary-soft;
+    color: @pvx-primary-hover;
+    box-shadow: @pvx-shadow-xs;
+
+    &:hover {
+        border-color: @pvx-border-focus;
+        background: fade(@pvx-primary, 14%);
+        color: @pvx-primary-hover;
     }
 }
 
-// ==================== 内容主体区域 ====================
 .m-questsection-content__body {
-    flex: 1;
-    padding: 0 20px 20px;
-    box-sizing: border-box;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0;
+}
 
-    // ==================== 标题和图片区块（阴影容器） ====================
-    .m-questsection-content__header-image {
-        width: fit-content;
-        min-width: @questsection-header-image-min-width;
-        height: @questsection-header-image-height;
-        border-radius: @questsection-radius-pill;
-        background: #FFF;
-        border: @questsection-border-light;
-        box-shadow: @questsection-shadow-light;
-        margin-bottom: @questsection-content-gap;
-        box-sizing: border-box;
-        padding: 20px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+.m-questsection-content__header-image {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 500px minmax(280px, 1fr) minmax(320px, 420px);
+    align-items: center;
+    justify-content: start;
+    gap: @pvx-space-5;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 50%, fade(@pvx-primary, 7%), transparent 58%),
+        linear-gradient(135deg, @pvx-surface 0%, @pvx-surface-muted 50%, @pvx-surface 100%);
 
-        // 标题区块（已移除标题，保留结构兼容）
-        .m-questsection-content__header {
-            display: none;
-        }
-
-        // 图片展示区块
-        .m-questsection-content__image {
-            position: relative;
-            height: @questsection-map-image-height;
-            overflow: hidden;
-
-            .u-image {
-                height: 100%;
-                width: auto;
-                display: block;
-                object-fit: contain;
-            }
-
-            // 信息浮层：左侧居中、竖向排列
-            .m-questsection-content__map-info {
-                position: absolute;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: flex-start;
-                padding: 20px 24px;
-                gap: 8px;
-                pointer-events: none;
-            }
-
-            // 单个信息标签：无背景，深色文字，单行展示
-            .u-map-info-item {
-                color: @questsection-color-text-black;
-                font-size: 14px;
-                font-weight: 500;
-                line-height: 1.5;
-                white-space: nowrap;
-                max-width: 100%;
-                box-sizing: border-box;
-
-                // 第一个标签为标题：加大加粗
-                &:first-child {
-                    font-size: 20px;
-                    font-weight: 700;
-                    margin-bottom: 4px;
-                }
-            }
-        }
+    .m-questsection-content__image {
+        position: relative;
+        width: 500px;
+        height: 144px;
+        max-width: none;
+        overflow: hidden;
+        background: fade(@pvx-surface-muted, 72%);
     }
 
-    // ==================== 章节列表展示 ====================
-    .m-questsection-content__chapters {
-        position: sticky;
-        top: calc(40px + @header-height);
-        z-index: 90;
-        background: #F6F8FA;
-        margin-bottom: 0;
-        padding: 0 0 @questsection-content-gap;
-
-        &.is-stuck::before {
-            content: "";
-            position: fixed;
-            top: @header-height;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: #F6F8FA;
-            pointer-events: none;
-        }
-
-        // 章节列表容器
-        .m-chapter-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-
-            // 章节分组按钮
-            .u-chapter-group {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 80px;
-                height: @questsection-chapter-item-height;
-                padding: 8px 20px;
-                border-radius: @questsection-radius-pill;
-                font-size: 14px;
-                font-weight: 500;
-                line-height: 21px;
-                cursor: pointer;
-                transition: all 0.3s ease-out;
-                box-sizing: border-box;
-                background: #FFF;
-                color: @questsection-color-text-black;
-                border: @questsection-border-light;
-                box-shadow: @questsection-shadow-light;
-
-                &:hover {
-                    background: @questsection-color-primary;
-                    color: @questsection-color-text-white;
-                    box-shadow: @questsection-shadow-active;
-                    border-color: @questsection-color-primary;
-
-                    .u-chapter-name {
-                        color: #FFF;
-                    }
-                }
-
-                &.is-active {
-                    background: @questsection-color-primary;
-                    color: @questsection-color-text-white;
-                    box-shadow: @questsection-shadow-active;
-                    border-color: @questsection-color-primary;
-
-                    &:hover {
-                        background: @questsection-color-primary;
-                        color: @questsection-color-text-white;
-                    }
-
-                    .u-chapter-name {
-                        color: #FFF;
-                    }
-                }
-
-                .u-chapter-name {
-                    color: #000;
-                    font-size: 14px;
-                    font-weight: 400;
-                    line-height: normal;
-                    white-space: nowrap;
-                    transition: color 0.3s ease-in-out;
-                }
-            }
-
-            // 章节项样式（保留兼容）
-            // 默认样式：border-radius=30px, background=#FFF, border+box-shadow
-            .u-chapter-item {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 120px;
-                height: @questsection-chapter-item-height;
-                padding: 8px 20px;
-                border-radius: @questsection-radius-pill;
-                font-size: 14px;
-                font-weight: 500;
-                line-height: 21px;
-                cursor: pointer;
-                transition: all 0.3s ease-out;
-                box-sizing: border-box;
-
-                // default 状态
-                background: #FFF;
-                color: @questsection-color-text-black;
-                border: @questsection-border-light;
-                box-shadow: @questsection-shadow-light;
-
-                // hover 状态
-                // Figma: 300ms 动画过渡，样式等同于 active
-                &:hover {
-                    background: @questsection-color-primary;
-                    color: @questsection-color-text-white;
-                    box-shadow: @questsection-shadow-active;
-
-                    // hover 状态文字样式（与选中状态一致）
-                    .u-chapter-name {
-                        color: #FFF;
-                        font-family: "Microsoft YaHei";
-                        font-size: 14px;
-                        font-style: normal;
-                        font-weight: 400;
-                        line-height: normal;
-                    }
-                }
-
-                // active 状态
-                // Figma: 紫底(#6B52FF)白字(#FFF)带阴影
-                &.is-active {
-                    background: @questsection-color-primary;
-                    color: @questsection-color-text-white;
-                    box-shadow: @questsection-shadow-active;
-
-                    // active 状态下 hover 保持不变
-                    &:hover {
-                        background: @questsection-color-primary;
-                        color: @questsection-color-text-white;
-                    }
-
-                    // 选中状态文字样式
-                    .u-chapter-name {
-                        color: #FFF;
-                        font-family: "Microsoft YaHei";
-                        font-size: 14px;
-                        font-style: normal;
-                        font-weight: 400;
-                        line-height: normal;
-                    }
-                }
-
-                .u-chapter-name {
-                    color: #000;
-                    font-family: "Microsoft YaHei";
-                    font-size: 14px;
-                    font-style: normal;
-                    font-weight: 400;
-                    line-height: normal;
-                    white-space: nowrap;
-                    transition: color 0.3s ease-in-out;
-                }
-            }
-        }
+    .u-image {
+        display: block;
+        width: 580px;
+        max-width: none;
+        height: auto;
+        aspect-ratio: 620 / 154;
+        object-fit: contain;
+        object-position: left;
     }
 
-    // ==================== 详情展示区域 ====================
-    .m-questsection-content__detail {
-        border-radius: @questsection-radius-content;
-        background: #FFF;
-        border: @questsection-border-light;
-        box-shadow: @questsection-shadow-light;
-        padding: 20px 30px;
+    .m-questsection-content__map-info {
+        position: absolute;
+        inset: 0;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
+        justify-content: center;
         align-items: flex-start;
-        gap: @questsection-section-gap;
-        align-self: stretch;
+        gap: 6px;
+        padding: 0 48px;
+        pointer-events: none;
+    }
+
+    .u-map-info-item {
+        max-width: 56%;
+        color: @pvx-text-regular;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5;
+
+        &:first-child {
+            color: @pvx-text-primary;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+    }
+}
+
+.m-questsection-content__chapters {
+    width: 100%;
+    align-self: center;
+    padding: 0;
+
+    .m-chapter-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        justify-content: flex-start;
+        gap: @pvx-space-1;
+        overflow: visible;
+        padding: 0;
+    }
+
+    .u-chapter-group {
+        display: inline-flex;
+        min-width: 72px;
+        height: 40px;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16px;
+        border: 1px solid fade(@pvx-border, 70%);
+        border-radius: @pvx-radius-pill;
+        background: @pvx-surface;
+        box-shadow: @pvx-shadow-xs;
+        color: @pvx-text-secondary;
+        cursor: pointer;
+        font-size: 14px;
+        transition: color @pvx-duration-normal @pvx-ease-standard,
+            background-color @pvx-duration-normal @pvx-ease-standard,
+            border-color @pvx-duration-normal @pvx-ease-standard,
+            transform @pvx-duration-normal @pvx-ease-standard;
+
+        &:hover {
+            border-color: @pvx-border-focus;
+            color: @pvx-primary-hover;
+        }
+
+        &.is-active {
+            border-color: @pvx-primary;
+            background: @pvx-primary;
+            color: @pvx-text-inverse;
+        }
+    }
+
+    .u-chapter-name {
+        color: inherit;
+        white-space: nowrap;
+    }
+}
+
+.m-questsection-content__chapters--mobile {
+    display: none;
+}
+
+.m-questsection-content__detail {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: @pvx-space-6;
+
+    .m-section-block {
+        position: relative;
+        width: 100%;
         box-sizing: border-box;
 
-        // 详情内容样式
-        .u-detail-content {
-            color: #000;
-            font-family: "Microsoft YaHei";
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-
-            // 确保 v-html 渲染的所有子元素继承父级样式
-            * {
-                color: inherit;
-                font-family: inherit;
-                font-size: inherit;
-                font-style: inherit;
-                font-weight: inherit;
-                line-height: inherit;
-            }
-
-            // 高亮文本样式（处理 <G> 标签）- 继承父级颜色，仅加粗
-            .questsection-highlight {
-                font-weight: 500;
-                display: inline-block;
-                margin-bottom: 10px;
-            }
-
-            // 内容中的图片样式
-            img {
-                max-width: 100%;
-                height: auto;
-                display: block;
-                margin: 20px 0;
-                border-radius: @questsection-radius;
-            }
-
-            // 内容中的段落样式
-            p {
-                margin: 15px 0;
-            }
-
-            // 内容中的标题样式
-            h2,
-            h3,
-            h4 {
-                margin: 25px 0 15px;
-                font-weight: 600;
-            }
-
-            h2 {
-                font-size: 20px;
-                line-height: 30px;
-            }
-
-            h3 {
-                font-size: 18px;
-                line-height: 27px;
-            }
-
-            h4 {
-                font-size: 16px;
-                line-height: 24px;
-            }
+        & + .m-section-block {
+            padding-top: @pvx-space-6;
+            border-top: 1px solid @pvx-border-light;
         }
+    }
 
-        // 章节标题
-        .u-section-title {
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 24px;
-            color: @questsection-color-text-black;
-            margin: 0;
-            padding: 0;
-        }
+    .u-section-title {
+        margin: 0 0 @pvx-space-3;
+        color: @pvx-text-primary;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 28px;
+    }
 
-        // 章节内容块
-        .m-section-block {
-            width: 100%;
-            margin-bottom: 0;
+    .u-section-detail {
+        color: @pvx-text-regular;
+        font-size: 15px;
+        line-height: 1.9;
+        word-break: break-word;
 
-            .u-section-title {
-                margin-bottom: 12px;
-            }
-
-            .u-section-detail {
-                color: #000;
-                font-family: "Microsoft YaHei";
-                font-size: 14px;
-                font-style: normal;
-                font-weight: 400;
-                line-height: normal;
-
-                * {
-                    color: inherit;
-                    font-family: inherit;
-                    font-size: inherit;
-                    font-style: inherit;
-                    font-weight: inherit;
-                    line-height: inherit;
-                }
-
-                .questsection-highlight {
-                    font-weight: 500;
-                    display: inline-block;
-                    margin-bottom: 10px;
-                }
-
-                img {
-                    max-width: 100%;
-                    height: auto;
-                    display: block;
-                    margin: 20px 0;
-                    border-radius: @questsection-radius;
-                }
-
-                p {
-                    margin: 15px 0;
-                }
-            }
-        }
-
-        // 加载更多按钮
-        .u-load-more {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            height: 40px;
-            padding: 0 15px;
-            margin-top: 0;
-            overflow: hidden;
-            box-sizing: border-box;
-            border: 1px solid fade(@questsection-color-primary, 24%);
-            border-radius: 10px;
-            background: #F0EEFF;
-            box-shadow: 0 1px 2px fade(@questsection-color-primary, 10%);
-            cursor: pointer;
-            font-family: "Microsoft YaHei", sans-serif;
-            font-size: 16px;
+        .questsection-highlight {
+            display: inline;
+            color: inherit;
             font-weight: 500;
-            line-height: normal;
-            color: #5145CD;
-            transition: color 0.2s ease-out, background-color 0.2s ease-out,
-                border-color 0.2s ease-out, box-shadow 0.2s ease-out,
-                transform 0.2s ease-out;
-
-            &:hover {
-                color: @questsection-color-text-white;
-                background: @questsection-color-primary;
-                border-color: @questsection-color-primary;
-                box-shadow: @questsection-shadow-active;
-            }
-
-            &:active {
-                transform: translateY(1px);
-                box-shadow: none;
-            }
-
-            &.is-loading-state {
-                cursor: default;
-                color: #6D64C8;
-                background: #F4F2FF;
-                border-color: fade(@questsection-color-primary, 16%);
-                box-shadow: none;
-
-                &:hover {
-                    color: #6D64C8;
-                    background: #F4F2FF;
-                    border-color: fade(@questsection-color-primary, 16%);
-                    box-shadow: none;
-                    transform: none;
-                }
-            }
-
-            .u-loading-icon {
-                font-size: 16px;
-            }
         }
     }
 
-    // ==================== 空状态展示 ====================
-    .m-questsection-content__empty {
-        flex-direction: column;
-        gap: 12px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 400px;
+}
 
-        .u-empty-text {
-            font-size: 14px;
-            color: rgba(0, 0, 0, 0.4);
-        }
-
-        .u-empty-retry {
-            height: 36px;
-            padding: 0 18px;
-            border: @questsection-border-light;
-            border-radius: 18px;
-            background: #FFF;
-            color: @questsection-color-primary;
-            cursor: pointer;
-        }
-    }
-
-    // ==================== 加载状态 ====================
-    .m-questsection-content__loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        padding: 40px 0;
-
-        .is-loading {
-            font-size: 20px;
-            color: @questsection-color-primary;
-        }
-
-        span {
-            font-size: 14px;
-            color: rgba(0, 0, 0, 0.6);
-        }
+.m-questsection-content__empty {
+    .c-pvx-empty-state {
+        border: 0;
     }
 }
 
-// ==================== 响应式适配 - iPad ====================
-@media screen and (max-width: 1024px) {
-    .m-questsection-content__toolbar {
-        width: 100%;
+.m-questsection-content__loading {
+    display: flex;
+    min-height: 180px;
+    align-items: center;
+    justify-content: center;
+    gap: @pvx-space-1;
+    color: @pvx-text-secondary;
 
-        .m-robot__pvx-tip {
-            display: flex;
-            flex: 1;
-            min-width: 0;
-            gap: 0;
+    .is-loading {
+        color: @pvx-primary;
+        font-size: 20px;
+    }
+}
 
-            .m-qq {
-                width: 100%;
-                min-width: 0;
-                padding: 0 16px;
-            }
+@media screen and (min-width: 1401px) {
+    .m-questsection-content__chapters {
+        min-height: calc(80px + @pvx-space-3);
+    }
+}
 
-            .u-name {
-                min-width: 0;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-        }
-
-        .u-feedback {
-            flex-shrink: 0;
-
-            .u-btn {
-                width: 41px;
-                height: 41px;
-                padding: 0;
-                justify-content: center;
-                gap: 0;
-
-                span {
-                    display: none;
-                }
-            }
-        }
+@media screen and (max-width: 1400px) {
+    .m-questsection-content__header-image {
+        grid-template-columns: 500px minmax(320px, 1fr);
     }
 
-    .m-questsection-content__body {
-        padding: 0 15px 15px;
+    .m-questsection-content__aside {
+        grid-column: 2;
+        grid-row: 1;
+    }
 
-        .m-questsection-content__header-image {
+    .m-questsection-content__chapters {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+}
+
+@media screen and (min-width: 1101px) and (max-width: 1280px) {
+    .m-questsection-content__header-image {
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+        gap: @pvx-space-4;
+
+        .m-questsection-content__image {
             width: 100%;
-            max-width: @questsection-header-image-min-width;
-            min-width: 0;
+        }
+    }
+
+    .m-questsection-content__aside {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 1100px) {
+    .m-questsection-content__header-image {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .m-questsection-content__aside,
+    .m-questsection-content__chapters {
+        grid-column: auto;
+        grid-row: auto;
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .m-questsection-content__header-image {
+        .m-questsection-content__image {
+            width: 100%;
+            height: auto;
+            aspect-ratio: auto;
+        }
+
+        .u-image {
+            width: 100%;
+            max-width: 100%;
+            aspect-ratio: auto;
+        }
+
+        .m-questsection-content__map-info {
+            padding: @pvx-space-4;
         }
     }
 }
 
-// ==================== 响应式适配 - Phone ====================
-@media screen and (max-width: 768px) {
-    .m-questsection-content__toolbar {
-        padding: 6px;
-        gap: 8px;
-        border-radius: 12px;
+@media screen and (max-width: @phone) {
+    .m-questsection-content__header-image {
+        gap: @pvx-space-3;
+        overflow: hidden;
 
-        .m-robot__pvx-tip {
-            .m-qq {
-                height: 40px;
-                padding: 0 12px;
-                gap: 8px;
-            }
-
-            .u-logo {
-                width: 26px;
-                height: 26px;
-            }
-
-            .u-name {
-                font-size: 13px;
-            }
-        }
-
-        .u-feedback {
-            .u-btn {
-                width: 40px;
-                height: 40px;
-                min-height: 40px;
-                font-size: 13px;
-            }
+        .m-questsection-content__image {
+            width: 100%;
         }
     }
 
-    .m-questsection-content__body {
+    .m-questsection-content__aside {
+        display: none;
+    }
+
+    .m-questsection-content__chapters--desktop {
+        display: none;
+    }
+
+    .m-questsection-content__chapters--mobile {
+        position: sticky;
+        z-index: 20;
+        top: @header-height;
+        display: block;
         width: 100%;
-        padding: 0;
+        padding: @pvx-space-2 0;
+        border-top: 1px solid fade(@pvx-border, 60%);
+        border-bottom: 1px solid fade(@pvx-border, 60%);
+        border-radius: @pvx-radius-panel;
+        background: fade(@pvx-surface, 96%);
+        box-shadow: @pvx-shadow-xs;
+        backdrop-filter: blur(10px);
 
-        .m-questsection-content__chapters {
-            top: @header-height;
-            padding-bottom: 12px;
+        .m-chapter-list {
+            flex-wrap: nowrap;
+            gap: @pvx-space-2;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 @pvx-space-3;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
 
-            &.is-stuck::before {
+            &::-webkit-scrollbar {
                 display: none;
             }
-
-            .m-chapter-list {
-                flex-wrap: nowrap;
-                gap: 8px;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding: 2px 1px 4px;
-                scrollbar-width: none;
-                -webkit-overflow-scrolling: touch;
-
-                &::-webkit-scrollbar {
-                    display: none;
-                }
-
-                .u-chapter-group {
-                    width: 72px;
-                    min-width: 72px;
-                    height: 38px;
-                    padding: 8px 14px;
-                    flex: 0 0 auto;
-                }
-            }
         }
 
-        .m-questsection-content__header-image {
-            width: 100%;
-            max-width: none;
-            height: 170px;
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 20px;
+        .u-chapter-group {
+            min-width: 72px;
+        }
+    }
 
-            .m-questsection-content__header {
-                padding: 10px;
+    .u-btn--feedback {
+        padding: 0 @pvx-space-3;
 
-                .u-title {
-                    font-size: 20px;
-                    line-height: 28px;
-                }
-            }
+        span {
+            display: inline;
+        }
+    }
 
-            .m-questsection-content__image {
-                width: 100%;
-                height: 146px;
-
-                .u-image {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .m-questsection-content__map-info {
-                    padding: 16px;
-                    gap: 4px;
-                }
-
-                .u-map-info-item:first-child {
-                    font-size: 18px;
-                }
-            }
+    .m-questsection-content__header-image {
+        .m-questsection-content__image {
+            aspect-ratio: auto;
         }
 
-        .m-questsection-content__detail {
-            padding: 20px 16px;
-            gap: 32px;
-            border-radius: 22px;
+        .u-image {
+            aspect-ratio: auto;
+        }
 
-            .m-section-block {
-                .u-section-title {
-                    margin-bottom: 10px;
-                }
+        .m-questsection-content__map-info {
+            padding: @pvx-space-3;
+        }
 
-                .u-section-detail {
-                    font-size: 14px;
-                    line-height: 1.75;
+        .u-map-info-item {
+            max-width: 70%;
+            font-size: 12px;
 
-                    * {
-                        line-height: inherit;
-                    }
-
-                    p {
-                        margin: 10px 0;
-                    }
-                }
-            }
-
-            .u-load-more {
-                font-size: 14px;
+            &:first-child {
+                font-size: 20px;
             }
         }
+    }
+
+    .m-questsection-content__detail {
+        gap: @pvx-space-5;
+
+        .m-section-block + .m-section-block {
+            padding-top: @pvx-space-5;
+        }
+
+        .u-section-title {
+            font-size: 16px;
+            line-height: 24px;
+        }
+
+        .u-section-detail {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+    }
+}
+
+.v-miniprogram {
+    .m-questsection-content__aside .u-btn--feedback,
+    .m-questsection-content__aside .m-robot__pvx-tip {
+        display: none;
     }
 }
