@@ -119,6 +119,9 @@ GET /v2/questsection/detail/:id
 - 小程序环境继续隐藏错误反馈和 QQ 机器人。
 - 普通 Web 与小程序的隐藏规则属于终端展示差异，不得影响章节请求和正文。
 - 页面使用自然文档滚动，并使用公共 `PvxBacktop`。
+- 普通移动 Web 的侧栏收为按资料片分组的可搜索章节 Select，选择值由“资料片 ID + 章节 ID”组成，仍调用桌面侧栏同一套 `selectChapter` 业务入口。
+- 小程序继续使用原纵向章节侧栏，不启用普通移动 Web 的 Select。
+- 头图元信息除年代外展示当前大章节的小节总数，固定文案由 `pages.questsection.ui.totalSections` 在四语言中维护。
 
 ## 10. 修改后的最低回归
 

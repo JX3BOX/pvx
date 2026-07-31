@@ -25,10 +25,12 @@ export default {
         },
         ui: {
             searchPlaceholder: "Tìm phiên bản hoặc chương",
+            selectChapter: "Chọn chương",
             expand: "Mở rộng",
             collapse: "Thu gọn",
             feedback: "Báo lỗi",
             sectionTitle: "Chương {number}: {title}",
+            totalSections: "{count} mục",
             loadMore: "Tải thêm",
             loading: "Đang tải...",
             loadFailed: "Tải thất bại. Vui lòng thử lại.",

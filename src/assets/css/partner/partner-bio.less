@@ -32,6 +32,7 @@
     }
 
     .m-partner-bio-collapse.el-collapse {
+        border-top: none;
         border-bottom: none;
 
         .el-collapse-item {
@@ -74,6 +75,34 @@
                 background: @partner-color-primary;
                 color: @partner-color-text-white;
             }
+        }
+    }
+}
+
+.m-pvx-partner-bio {
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+
+    .m-partner-bio-collapse.el-collapse {
+        .el-collapse-item__header {
+            border: 1px solid @pvx-border-light;
+            border-radius: @pvx-radius-control;
+            background: @pvx-surface-muted;
+            color: @pvx-text-primary;
+        }
+
+        .el-collapse-item__content {
+            border: 1px solid @pvx-border-light;
+            border-radius: @pvx-radius-control;
+            background: @pvx-surface-muted;
+            color: @pvx-text-regular;
+        }
+
+        .el-collapse-item.is-active .el-collapse-item__header {
+            border-color: fade(@pvx-primary, 18%);
+            background: @pvx-primary-soft;
+            color: @pvx-primary-hover;
         }
     }
 }

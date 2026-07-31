@@ -22,7 +22,6 @@
                 </div>
             </div>
         </div>
-        <el-backtop />
     </div>
 </template>
 <script>

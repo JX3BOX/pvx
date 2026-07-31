@@ -39,6 +39,7 @@
             :withoutBread="true"
         >
             <div class="m-main"><router-view></router-view></div>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </Main>
         <CommonFooter></CommonFooter>
     </div>
@@ -46,11 +47,12 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { __OriginRoot } from "@/utils/config";
 export default {
     name: "Body",
-    components: { Nav },
+    components: { Nav, PvxBacktop },
     data: function () {
         return { navStatusClass: "is-regular" };
     },

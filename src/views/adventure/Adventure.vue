@@ -21,6 +21,7 @@
                     </keep-alive>
                 </router-view>
             </div>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </Main>
         <CommonFooter></CommonFooter>
     </div>
@@ -28,6 +29,7 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
 import { getSerendipityAchievementId } from "@/service/adventure/adventure";
 import { __imgPath, __dataPath } from "@/utils/config";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
@@ -146,7 +148,7 @@ export default {
             this.navStatusClass = navStatusClass;
         },
     },
-    components: { Nav },
+    components: { Nav, PvxBacktop },
 };
 </script>
 

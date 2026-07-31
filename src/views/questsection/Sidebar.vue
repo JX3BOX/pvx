@@ -22,15 +22,36 @@
         padding="none"
         radius="large"
     >
+        <div class="m-questsection-sidebar__mobile-select">
+            <el-select
+                class="u-questsection-mobile-select"
+                :model-value="selectedChapterValue"
+                filterable
+                :aria-label="$t('pages.questsection.ui.selectChapter')"
+                :placeholder="$t('pages.questsection.ui.selectChapter')"
+                popper-class="m-questsection-mobile-select-popper"
+                @change="handleMobileChapterChange"
+            >
+                <el-option-group v-for="season in seasons" :key="season.nSeasonID" :label="season.szTitle">
+                    <el-option
+                        v-for="chapter in season.Chapters || []"
+                        :key="chapter.nChapterID"
+                        :value="getChapterValue(season, chapter)"
+                        :label="chapter.szTitle"
+                    />
+                </el-option-group>
+            </el-select>
+        </div>
+
         <div class="m-questsection-sidebar__search">
             <div class="u-questsection-search-input">
+                <el-icon class="u-questsection-search-icon"><Search /></el-icon>
                 <input
                     v-model="searchKeyword"
                     class="u-questsection-search-field"
                     :placeholder="$t('pages.questsection.ui.searchPlaceholder')"
                     @input="handleSearch"
                 />
-                <img class="u-questsection-search-icon" src="@/assets/img/questsection/search.svg" alt="" />
             </div>
         </div>
 
@@ -67,11 +88,13 @@
 <script>
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { getMenu } from "@/service/questsection.js";
+import { Search } from "@element-plus/icons-vue";
 
 export default {
     name: "QuestsectionSidebar",
     components: {
         PvxSurface,
+        Search,
     },
     data() {
         return {
@@ -92,6 +115,10 @@ export default {
         };
     },
     computed: {
+        selectedChapterValue() {
+            if (!this.selectedSeason || !this.selectedChapter) return "";
+            return this.getChapterValue(this.selectedSeason, this.selectedChapter);
+        },
         /**
          * 根据搜索关键词过滤资料片
          * - 如果关键词匹配资料片名称，展示对应资料片
@@ -117,6 +144,22 @@ export default {
         },
     },
     methods: {
+        getChapterValue(season, chapter) {
+            return `${season.nSeasonID}:${chapter.nChapterID}`;
+        },
+
+        handleMobileChapterChange(value) {
+            for (const season of this.seasons) {
+                const chapter = (season.Chapters || []).find(
+                    (item) => this.getChapterValue(season, item) === value
+                );
+                if (chapter) {
+                    this.selectChapter(season, chapter);
+                    return;
+                }
+            }
+        },
+
         /**
          * 获取菜单数据
          */

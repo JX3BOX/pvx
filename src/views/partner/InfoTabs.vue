@@ -8,24 +8,25 @@
  * 无下划线、无底色，仅用 opacity 区分
  -->
 <template>
-    <div class="m-partner-info-header">
+    <div class="m-partner-info-header" :class="{ 'is-tabs-only': !showIdentity }">
         <!-- 左侧：名字 + ID -->
-        <div class="m-partner-info__name-group">
+        <div v-if="showIdentity" class="m-partner-info__name-group">
             <h2 class="u-partner-name">{{ name }}</h2>
-            <div v-if="id" class="u-partner-id">ID {{ id }}</div>
+            <span v-if="id" class="u-partner-id">ID {{ id }}</span>
         </div>
 
         <!-- 右侧：Tab 切换 -->
         <div class="m-partner-info__tabs">
-            <div
+            <button
                 v-for="tab in tabs"
                 :key="tab.key"
+                type="button"
                 class="u-partner-tab"
                 :class="{ 'is-active': active === tab.key }"
                 @click="$emit('change', tab.key)"
             >
                 {{ tab.label }}
-            </div>
+            </button>
         </div>
     </div>
 </template>
@@ -53,6 +54,10 @@ export default {
         id: {
             type: [String, Number],
             default: null,
+        },
+        showIdentity: {
+            type: Boolean,
+            default: true,
         },
     },
     emits: ["change"],

@@ -1,6 +1,6 @@
 <template>
     <div class="m-pvx-partner-bio">
-        <el-collapse v-model="activeNames" class="m-partner-bio-collapse">
+        <el-collapse v-model="activeName" class="m-partner-bio-collapse" accordion>
             <el-collapse-item v-for="(bio, index) in bios" :key="bio.id || index" :name="index" :title="bio.title">
                 <div v-html="formatDesc(bio.content)"></div>
             </el-collapse-item>
@@ -27,7 +27,7 @@ export default {
     },
     data() {
         return {
-            activeNames: [],
+            activeName: null,
         };
     },
     computed: {
@@ -43,19 +43,19 @@ export default {
         // 计算默认展开项：传记第一项或语音（传记为空时）
         defaultActiveName() {
             if (this.bios.length > 0) {
-                return [0]; // 有传记时展开第一项
+                return 0; // 有传记时展开第一项
             }
             if (this.voiceText) {
-                return ["voice"]; // 无传记有语音时展开语音
+                return "voice"; // 无传记有语音时展开语音
             }
-            return [];
+            return null;
         },
     },
     watch: {
         partner: {
             handler() {
                 // 切换侠客时重置为默认展开状态
-                this.activeNames = this.defaultActiveName;
+                this.activeName = this.defaultActiveName;
             },
             deep: true,
             immediate: true, // 初始化时也设置默认展开

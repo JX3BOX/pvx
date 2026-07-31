@@ -83,15 +83,11 @@
         <!-- 武学招式（被动默认圆；其它方） -->
         <SkillList v-if="partner?.skills && partner.skills.length" :skills="partner.skills" type="skill" />
 
-        <!-- 武学境界 + 属性（同一行两列） -->
-        <div class="m-partner-info__row">
-            <div class="m-partner-info__col">
-                <SkillList v-if="partner?.stages && partner.stages.length" :skills="partner.stages" type="realm" />
-            </div>
-            <div class="m-partner-info__col">
-                <AttributeTable :attrs="partner?.attrs || []" />
-            </div>
-        </div>
+        <!-- 武学境界 -->
+        <SkillList v-if="partner?.stages && partner.stages.length" :skills="partner.stages" type="realm" />
+
+        <!-- 属性 -->
+        <AttributeTable :attrs="partner?.attrs || []" />
     </div>
 </template>
 

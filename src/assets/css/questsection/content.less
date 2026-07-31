@@ -110,6 +110,21 @@
             letter-spacing: 0;
         }
     }
+
+    .u-map-info-meta {
+        display: flex;
+        max-width: 56%;
+        align-items: center;
+        gap: @pvx-space-1;
+        color: @pvx-text-regular;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    .u-map-info-separator {
+        opacity: 0.65;
+    }
 }
 
 .m-questsection-content__chapters {
@@ -378,6 +393,11 @@
             &:first-child {
                 font-size: 20px;
             }
+        }
+
+        .u-map-info-meta {
+            max-width: 70%;
+            font-size: 12px;
         }
     }
 

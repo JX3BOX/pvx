@@ -25,10 +25,12 @@ export default {
         },
         ui: {
             searchPlaceholder: "輸入資料片或章節關鍵字",
+            selectChapter: "選擇章節",
             expand: "展開",
             collapse: "收起",
             feedback: "錯誤回報",
             sectionTitle: "章節{number}：{title}",
+            totalSections: "共{count}節",
             loadMore: "載入更多",
             loading: "載入中...",
             loadFailed: "載入失敗，請重試",

@@ -13,6 +13,7 @@
             >
                 <router-view></router-view>
             </div>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </Main>
         <CommonFooter></CommonFooter>
     </div>
@@ -20,11 +21,13 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
 import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "Index",
     components: {
         Nav,
+        PvxBacktop,
     },
     data: function () {
         return {

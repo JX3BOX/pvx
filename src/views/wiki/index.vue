@@ -20,6 +20,7 @@
                     <router-view></router-view>
                 </div>
             </div>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
             <CommonFooter></CommonFooter>
         </div>
     </div>
@@ -30,9 +31,10 @@ import CommonHeader from "@jx3box/jx3box-ui/src/CommonHeader.vue";
 import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SideBar from "@/components/wiki/sidebar.vue";
 import CommonNav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
 export default {
     name: "WikiAchievementIndex",
-    components: { SideBar, CommonHeader, CommonNav },
+    components: { SideBar, CommonHeader, CommonNav, PvxBacktop },
     data() {
         return {
             is_fold: false,

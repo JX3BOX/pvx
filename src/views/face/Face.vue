@@ -43,6 +43,7 @@
             :withoutBread="true"
         >
             <div class="m-main"><router-view></router-view></div>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </Main>
         <CommonFooter></CommonFooter>
     </div>
@@ -50,13 +51,14 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
 import User from "@jx3box/jx3box-common/js/user";
 import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { setStar, cancelStar, onlineFace, offlineFace, deleteFace } from "@/service/face/index.js";
 export default {
     name: "App",
     props: [],
-    components: { Nav },
+    components: { Nav, PvxBacktop },
     data: function () {
         return {
             navStatusClass: "is-regular",

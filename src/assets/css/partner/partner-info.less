@@ -198,6 +198,7 @@
             img {
                 width: 100%;
                 height: 100%;
+                border-radius: inherit;
                 object-fit: cover;
             }
 
@@ -207,9 +208,9 @@
                 color: rgba(0, 0, 0, 0.4);
             }
 
-            // 圆形样式
+            // 道具图标保留方形轮廓，仅用小圆角柔化边缘。
             &.is-circle {
-                border-radius: 4px;
+                border-radius: 6px;
             }
 
             // 加载状态
@@ -614,5 +615,270 @@
             line-height: 20px;
             word-break: break-all;
         }
+    }
+}
+
+// 现代页面中的右侧资料区回到正常文档流。
+.m-pvx-partner-right {
+    position: relative;
+    top: auto;
+    right: auto;
+    z-index: 1;
+    display: flex;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    gap: @pvx-space-4;
+}
+
+.m-partner-right__topbar {
+    width: 100%;
+    margin-left: 0;
+    padding: @pvx-space-2 @pvx-space-3;
+    border-radius: @pvx-radius-control;
+    background: @pvx-surface;
+
+    .u-partner-topbar-nav {
+        justify-content: flex-end;
+        gap: @pvx-space-2;
+
+        .m-robot__pvx-tip {
+            width: 100%;
+            max-width: 375px;
+            flex: 0 1 375px;
+        }
+
+        .m-robot__pvx-tip .m-qq {
+            width: 100%;
+            max-width: 375px;
+        }
+    }
+
+    .u-partner-btn {
+        min-height: 40px;
+        flex: none;
+        border: 1px solid fade(@pvx-primary, 16%);
+        border-radius: @pvx-radius-control;
+        background: @pvx-primary-soft;
+        color: @pvx-primary-hover;
+        box-shadow: @pvx-shadow-xs;
+    }
+}
+
+.m-pvx-partner-info {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    flex: none;
+    padding: @pvx-space-4;
+    border-radius: @pvx-radius-panel;
+    overflow: visible;
+
+    .m-partner-info__body {
+        flex: none;
+        overflow: visible;
+    }
+
+    .m-partner-info__row {
+        align-items: start;
+    }
+
+    .m-partner-intro .u-partner-intro-title,
+    .m-partner-skills .u-partner-section-title,
+    .m-partner-attrs .u-partner-section-title {
+        margin: 0 0 @pvx-space-3;
+        min-height: 34px;
+        position: relative;
+        box-sizing: border-box;
+        padding: 4px 0 8px 14px;
+        border: 0;
+        border-bottom: 1px solid @pvx-border-light;
+        border-radius: 0;
+        background: transparent;
+        color: @pvx-primary-hover;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 22px;
+
+        &::before {
+            position: absolute;
+            top: 5px;
+            bottom: 9px;
+            left: 0;
+            width: 3px;
+            border-radius: @pvx-radius-pill;
+            background: @pvx-primary;
+            content: "";
+        }
+    }
+
+    .m-partner-intro {
+        .u-partner-intro-map,
+        .u-partner-intro-desc {
+            padding: 0;
+            color: @pvx-text-regular;
+            font-family: inherit;
+            line-height: 1.75;
+        }
+
+        .m-partner-item-grid {
+            width: 100%;
+            padding: @pvx-space-3;
+            border: 1px solid @pvx-border-light;
+            border-radius: @pvx-radius-control;
+            background: @pvx-surface-muted;
+        }
+    }
+
+    .m-partner-attrs .m-partner-attr-table {
+        tbody {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: @pvx-space-2;
+        }
+
+        tr,
+        tr:first-child {
+            min-height: 36px;
+            padding: @pvx-space-2 @pvx-space-3;
+            border: 1px solid @pvx-border-light;
+            border-radius: @pvx-radius-small;
+            background: @pvx-surface-muted;
+        }
+    }
+}
+
+// Pad 及桌面端右侧栏与中间主视觉使用相同的首屏可用高度。
+@media screen and (min-width: 769px) {
+    .m-pvx-partner-right {
+        height: calc(100vh - @header-height - 60px);
+        height: calc(100dvh - @header-height - 60px);
+        max-height: calc(100vh - @header-height - 60px);
+        max-height: calc(100dvh - @header-height - 60px);
+    }
+
+    .m-pvx-partner-info {
+        min-height: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+
+        .m-partner-info__body {
+            width: calc(100% + @pvx-space-4);
+            min-height: 0;
+            flex: 1 1 auto;
+            margin-right: -@pvx-space-4;
+            padding-right: @pvx-space-4;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: @pvx-border transparent;
+
+            &::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                border-radius: @pvx-radius-pill;
+                background: @pvx-border;
+            }
+
+            .m-pvx-partner-bio {
+                overflow: visible;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1400px) {
+    .m-pvx-partner-right {
+        right: auto;
+        width: 100%;
+    }
+
+    .m-pvx-partner-info {
+        .m-partner-info__row {
+            flex-direction: column;
+            gap: @pvx-space-3;
+
+            .m-partner-info__col,
+            .m-partner-info__col:last-child {
+                width: 100%;
+                flex: 0 0 auto;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1280px) and (min-width: 1134px) {
+    .m-partner-right__topbar {
+        padding: @pvx-space-1 @pvx-space-2;
+
+        .u-partner-topbar-nav {
+            gap: @pvx-space-1;
+
+            .m-robot__pvx-tip {
+                max-width: 330px;
+                flex-basis: 330px;
+            }
+
+            .m-robot__pvx-tip .m-qq {
+                max-width: 330px;
+                padding-right: @pvx-space-2;
+                padding-left: @pvx-space-2;
+            }
+        }
+
+        .u-partner-btn {
+            padding-right: @pvx-space-2;
+            padding-left: @pvx-space-2;
+        }
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .m-pvx-partner-right {
+        right: auto;
+        width: 100%;
+        height: max(420px, calc(100dvh - @header-height - 190px));
+        max-height: 560px;
+    }
+
+    .m-partner-right__topbar .u-partner-topbar-nav {
+        .m-robot__pvx-tip {
+            max-width: none;
+            flex: 1 1 auto;
+        }
+
+        .m-robot__pvx-tip .m-qq {
+            max-width: none;
+        }
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-pvx-partner-right {
+        height: auto;
+        max-height: none;
+        gap: @pvx-space-3;
+    }
+
+    .m-partner-right__topbar {
+        display: none;
+    }
+
+    .m-pvx-partner-info {
+        padding: @pvx-space-4;
+        border-radius: @pvx-radius-panel;
+    }
+
+    .m-pvx-partner-info .m-partner-attrs .m-partner-attr-table tbody {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

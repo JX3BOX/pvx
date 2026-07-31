@@ -51,20 +51,226 @@
     }
 }
 
+.m-pvx-partner-portrait {
+    position: sticky;
+    top: calc(@header-height + @pvx-space-3);
+    width: 100%;
+    max-width: 100%;
+    height: var(--partner-portrait-available-height, calc(100dvh - @header-height - 60px));
+    min-height: 0;
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    justify-self: center;
+    overflow: hidden;
+    border: @partner-border-light;
+    border-radius: @pvx-radius-panel;
+    background:
+        radial-gradient(circle at 50% 42%, fade(@pvx-primary, 8%), transparent 62%),
+        @pvx-surface;
+    box-shadow: @pvx-shadow-xs;
+
+    .m-partner-portrait__header {
+        position: absolute;
+        z-index: 3;
+        top: @pvx-space-4;
+        right: @pvx-space-5;
+        left: @pvx-space-5;
+        display: flex;
+        min-height: 64px;
+        align-items: center;
+        justify-content: space-between;
+        gap: @pvx-space-4;
+        pointer-events: none;
+    }
+
+    .m-partner-portrait__header-left,
+    .m-partner-portrait__header-right {
+        min-width: 0;
+        pointer-events: auto;
+    }
+
+    .m-partner-portrait__header-left {
+        position: relative;
+        left: auto;
+        transform: none;
+    }
+
+    .m-partner-portrait__header-right {
+        max-width: min(520px, 62%);
+        margin-left: auto;
+    }
+
+    .m-partner-portrait__identity {
+        display: inline-flex;
+        align-items: baseline;
+        gap: @pvx-space-2;
+        padding: 8px 12px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .u-partner-portrait-name {
+        margin: 0;
+        color: @pvx-text-primary;
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 40px;
+        white-space: nowrap;
+    }
+
+    .u-partner-portrait-id {
+        color: @pvx-text-secondary;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .m-partner-right__topbar {
+        width: auto;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .u-partner-portrait-bg {
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        max-width: var(--partner-bg-natural-width, 100%);
+        max-height: var(--partner-bg-natural-height, 100%);
+        transform: translate(-50%, -50%);
+        object-fit: contain;
+        opacity: 0;
+        filter: saturate(0.96) brightness(0.99);
+        transition: opacity @pvx-duration-slow @pvx-ease-standard;
+        will-change: opacity;
+
+        &.is-loaded {
+            opacity: 0.8;
+        }
+    }
+
+    .u-partner-portrait-img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: min(100%, var(--partner-img-natural-width, 100%));
+        height: min(100%, var(--partner-img-natural-height, 100%));
+        max-width: 100%;
+        max-height: 100%;
+        transform: translate(-50%, -50%);
+        object-fit: contain;
+        opacity: 0;
+        transition: opacity @pvx-duration-normal @pvx-ease-standard;
+
+        &.is-loaded {
+            opacity: 1;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .m-pvx-partner-portrait {
+        .u-partner-portrait-bg,
+        .u-partner-portrait-img {
+            transition: none;
+        }
+    }
+}
+
+@media screen and (max-width: 1400px) {
+    .m-pvx-partner-portrait .m-partner-portrait__header-left {
+        position: relative;
+        left: auto;
+        transform: none;
+    }
+}
+
+@media screen and (max-width: 1280px) and (min-width: 1134px) {
+    .m-pvx-partner-portrait {
+        .m-partner-portrait__header {
+            right: @pvx-space-4;
+            left: @pvx-space-4;
+            justify-content: flex-start;
+        }
+
+        .m-partner-portrait__header-left {
+            display: flex;
+            width: auto;
+            justify-content: flex-start;
+        }
+
+        .m-partner-portrait__header-right {
+            display: none;
+        }
+
+        .m-partner-portrait__identity {
+            justify-content: flex-start;
+            text-align: left;
+        }
+    }
+}
+
 // iPad 的可用宽度优先提供给详情区，避免三栏互相挤压。
 @media screen and (max-width: @ipad) and (min-width: 769px) {
     .m-pvx-partner-portrait {
-        display: none;
+        position: relative;
+        top: auto;
+        display: flex;
+        width: 100%;
+        height: max(420px, calc(100dvh - @header-height - 190px));
+        min-height: 420px;
+        max-height: 560px;
+
+        .m-partner-portrait__header-right {
+            display: none;
+        }
+
+        .m-partner-portrait__identity {
+            display: none;
+        }
     }
 }
 
 // Phone 恢复为纵向流式布局中的立绘区。
 @media screen and (max-width: 768px) {
     .m-pvx-partner-portrait {
+        position: relative;
+        top: auto;
         width: 100%;
-        min-height: 360px;
-        max-height: 60vh;
+        height: min(520px, calc(100vw - 32px));
+        min-height: 0;
+        max-height: none;
         flex: none;
-        border-radius: 20px;
+        border-radius: @pvx-radius-panel;
+
+        .u-partner-portrait-img {
+            max-height: 100%;
+        }
+
+        .m-partner-portrait__header {
+            top: @pvx-space-3;
+            right: @pvx-space-3;
+            left: @pvx-space-3;
+        }
+
+        .m-partner-portrait__header-right {
+            display: none;
+        }
+
+        .m-partner-portrait__identity {
+            display: none;
+        }
+
+        .u-partner-portrait-name {
+            font-size: 24px;
+            line-height: 32px;
+        }
     }
 }

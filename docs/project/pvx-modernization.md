@@ -174,9 +174,18 @@ Face / Body 页面只保留真实业务差异，例如接口方法、数据解�
 - [ ] 书籍大全 `/book`
 - [ ] 奇遇珍卷 `/pvx/codex/adventure`
 - [ ] 资历宝典 `/pvx/codex/achievement`
-- [ ] 剑侠录 `/questsection`
-- [ ] 红尘侠影 `/partner`
+- [x] 剑侠录 `/questsection`
+- [x] 红尘侠影 `/partner`
 - [ ] 图鉴百科类模块完成后收敛公共分类、卡片和详情结构
+
+剑侠录与红尘侠影本轮改造约定：
+
+- 剑侠录业务与视觉分别维护在 [`questsection.md`](./questsection.md) 和 [`../design/questsection-layout.md`](../design/questsection-layout.md)；红尘侠影分别维护在 [`partner.md`](./partner.md) 和 [`../design/partner-layout.md`](../design/partner-layout.md)。本文只记录完成范围和工程边界。
+- 两页外壳按“视口高度减公共 Header”计算最小高度，并重置内部公共 `.m-main` 高度，避免嵌套 `100vh` 造成 Footer 前出现大块空白；内容不足时 Footer 不在首屏露出。
+- 红尘侠影保留人物、背景、技能、结识方式、属性、传记及原接口逻辑，只重组桌面三栏、Pad 顶部横向人物列表、手机上下布局、局部滚动和切换动画。
+- 四语言补齐红尘侠影固定界面文案；人物名、技能名、传记和接口正文继续使用源数据。
+- 普通 Web 列表与详情根容器统一接入 `PvxBacktop`，并清理价格走势、家具等子页面的重复返回顶部实例。
+- 本地 `localhost`、`127.0.0.1` 和 `::1` 不注入 Microsoft Clarity 与百度统计脚本，避免外部统计请求阻塞页面 `load` 状态；线上域名继续保持原统计逻辑。
 
 书籍大全改造约定：
 

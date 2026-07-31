@@ -131,7 +131,6 @@
                 />
             </PvxSurface>
 
-            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </div>
     </PvxPageShell>
 </template>
@@ -140,7 +139,6 @@
 import { ArrowDown } from "@element-plus/icons-vue";
 import PvxSearch from "@/components/PvxSearch.vue";
 import furnitureSet from "@/components/furniture/furniture_set.vue";
-import PvxBacktop from "@/components/PvxBacktop.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
@@ -174,7 +172,6 @@ export default {
     components: {
         PvxSearch,
         furnitureSet,
-        PvxBacktop,
         PvxEmptyState,
         PvxPageShell,
         PvxSectionHeader,

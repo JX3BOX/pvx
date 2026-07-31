@@ -26,8 +26,18 @@
                         <div class="u-map-info-item" v-if="firstSectionDetail.Chapter.title">
                             <span class="u-map-info-text">{{ firstSectionDetail.Chapter.title }}</span>
                         </div>
-                        <div class="u-map-info-item" v-if="firstSectionDetail.Chapter.time">
-                            <span class="u-map-info-text">{{ firstSectionDetail.Chapter.time }}</span>
+                        <div class="u-map-info-meta">
+                            <span v-if="firstSectionDetail.Chapter.time" class="u-map-info-text">
+                                {{ firstSectionDetail.Chapter.time }}
+                            </span>
+                            <span
+                                v-if="firstSectionDetail.Chapter.time && chapterSections.length"
+                                class="u-map-info-separator"
+                                aria-hidden="true"
+                            >·</span>
+                            <span v-if="chapterSections.length" class="u-map-info-text">
+                                {{ $t("pages.questsection.ui.totalSections", { count: chapterSections.length }) }}
+                            </span>
                         </div>
                     </div>
                 </div>

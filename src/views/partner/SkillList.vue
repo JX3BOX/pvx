@@ -25,8 +25,8 @@
             <div class="m-partner-skill-detail__header">
                 <div class="u-partner-skill-detail-title">
                     <span class="u-partner-skill-name">{{ currentSkill.name }}</span>
-                    <span class="u-partner-skill-id">{{ getSkillTypeLabel(currentSkill) }}</span>
                 </div>
+                <span class="u-partner-skill-type">{{ getSkillTypeLabel(currentSkill) }}</span>
                 <!-- 数据库跳转（右上角）暂时隐藏 -->
                 <a v-if="currentSkill.id" :href="getSkillDbUrl(currentSkill.id)" target="_blank" rel="noopener"
                     class="u-partner-skill-db" :title="$t('pages.partner.ui.openSkillDatabase')" style="display: none;">
@@ -206,7 +206,7 @@ export default {
         padding-left: 10px; // 避免左侧遮挡
     }
 
-    // Figma: 图标 40x40 (招式), 28x28 (境界)
+    // 招式与境界统一使用 40x40 图标，保持视觉权重与点击区域一致。
     .u-partner-skill-icon {
         width: 40px;
         height: 40px;
@@ -272,14 +272,20 @@ export default {
     }
 
     .u-partner-skill-type {
-        display: inline-block;
-        width: fit-content;
-        padding: 2px 8px;
-        background: @partner-color-primary;
-        color: @partner-color-text-white;
+        display: inline-flex;
+        min-height: 22px;
+        flex-shrink: 0;
+        align-items: center;
+        margin-left: auto;
+        padding: 1px 9px;
+        border: 1px solid fade(@pvx-primary, 18%);
+        border-radius: @pvx-radius-pill;
+        background: @pvx-primary-soft;
+        color: @pvx-primary-hover;
         font-size: 12px;
+        font-weight: 600;
         line-height: 18px;
-        border-radius: 4px;
+        white-space: nowrap;
     }
 
     .u-partner-skill-name {
@@ -356,21 +362,78 @@ export default {
         padding: 20px 0;
     }
 
-    // 武学境界图标：28x28 圆形（Figma Frame 311）
-    .m-partner-skills.is-realm {
-        .u-partner-skill-icon {
-            width: 28px;
-            height: 28px;
+    .m-partner-skills {
+        .u-partner-section-title {
+            min-height: 34px;
+            position: relative;
+            box-sizing: border-box;
+            padding: 4px 0 8px 14px;
+            border: 0;
+            border-bottom: 1px solid @pvx-border-light;
+            border-radius: 0;
+            background: transparent;
+            color: @pvx-primary-hover;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 22px;
+
+            &::before {
+                position: absolute;
+                top: 5px;
+                bottom: 9px;
+                left: 0;
+                width: 3px;
+                border-radius: @pvx-radius-pill;
+                background: @pvx-primary;
+                content: "";
+            }
         }
     }
 
-    // 移动端境界图标与武学招式保持一致，提升触控和识别体验。
-    @media screen and (max-width: 768px) {
-        .m-partner-skills.is-realm {
-            .u-partner-skill-icon {
-                width: 40px;
-                height: 40px;
-            }
+    .m-partner-skill-grid {
+        width: 100%;
+        box-sizing: border-box;
+        gap: 12px;
+        margin: -4px 0 12px;
+        padding: 4px 4px 4px 6px;
+        overflow: visible;
+    }
+
+    .u-partner-skill-icon {
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-small;
+        box-shadow: @pvx-shadow-xs;
+        transition:
+            transform @pvx-duration-normal @pvx-ease-standard,
+            border-color @pvx-duration-normal @pvx-ease-standard,
+            box-shadow @pvx-duration-normal @pvx-ease-standard;
+
+        &.is-square {
+            border-radius: @pvx-radius-small;
         }
+
+        &:hover {
+            border-color: @pvx-surface;
+            box-shadow:
+                0 0 0 2px fade(@pvx-primary, 32%),
+                0 6px 16px fade(@pvx-primary, 18%);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        &.is-active {
+            border: 2px solid @pvx-surface;
+            box-shadow:
+                0 0 0 2px @pvx-primary,
+                0 5px 14px fade(@pvx-primary, 24%);
+            transform: translateY(-1px) scale(1.04);
+        }
+    }
+
+    .m-partner-skill-detail {
+        padding: @pvx-space-4;
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-control;
+        background: @pvx-surface-muted;
     }
 </style>

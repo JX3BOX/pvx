@@ -15,18 +15,24 @@
  * - select: 选择侠客时触发，参数为 partner 对象
  -->
 <template>
-    <div class="m-pvx-partner-selector">
-        <div class="m-partner-selector__body" :style="bodyStyle">
+    <PvxSurface
+        class="m-pvx-partner-selector"
+        :class="{ 'is-expanded': expanded }"
+        tag="aside"
+        padding="none"
+        radius="large"
+    >
+        <div class="m-partner-selector__body">
             <!-- 搜索框（Figma: 前进后退, 40px高, 圆角30px, 背景 rgba(243,244,245,0.96)） -->
             <div class="m-partner-selector__search">
                 <div class="u-partner-search-box">
+                    <el-icon class="u-partner-search-icon"><Search /></el-icon>
                     <input
                         v-model="searchKeyword"
                         class="u-partner-search-input"
                         :placeholder="$t('pages.partner.ui.searchPlaceholder')"
                         @input="handleSearch"
                     />
-                    <img class="u-partner-search-icon" src="@/assets/img/partner/search.svg" alt="" />
                 </div>
             </div>
 
@@ -68,14 +74,19 @@
                 <polygon points="6,2 10,8 2,8" />
             </svg>
         </div>
-    </div>
+    </PvxSurface>
 </template>
 
 <script>
-import { LIST_EXPANDED_MAX_HEIGHT, LIST_COLLAPSED_MIN_HEIGHT } from "./const";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { Search } from "@element-plus/icons-vue";
 
 export default {
     name: "PartnerSelector",
+    components: {
+        PvxSurface,
+        Search,
+    },
     props: {
         // 侠客列表
         partnerList: {
@@ -102,11 +113,6 @@ export default {
         };
     },
     computed: {
-        // 控制列表主体高度
-        bodyStyle() {
-            const max = this.expanded ? LIST_EXPANDED_MAX_HEIGHT : LIST_COLLAPSED_MIN_HEIGHT;
-            return { maxHeight: `${max}px` };
-        },
         // 客户端实时过滤
         filteredList() {
             const keyword = this.searchKeyword.trim().toLowerCase();

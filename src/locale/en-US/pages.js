@@ -25,10 +25,12 @@ export default {
         },
         ui: {
             searchPlaceholder: "Search chapters",
+            selectChapter: "Select a chapter",
             expand: "Expand",
             collapse: "Collapse",
             feedback: "Report an error",
             sectionTitle: "Chapter {number}: {title}",
+            totalSections: "{count} sections",
             loadMore: "Load more",
             loading: "Loading...",
             loadFailed: "Failed to load. Please try again.",

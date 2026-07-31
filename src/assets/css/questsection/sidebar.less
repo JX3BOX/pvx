@@ -13,6 +13,10 @@
     overflow: hidden;
     transition: height @pvx-duration-slow @pvx-ease-standard;
 
+    .m-questsection-sidebar__mobile-select {
+        display: none;
+    }
+
     &.is-expanded {
         height: min(720px, calc(100vh - @header-height - 64px));
     }
@@ -60,10 +64,11 @@
     }
 
     .u-questsection-search-icon {
-        width: 20px;
-        height: 20px;
+        width: 18px;
+        height: 18px;
         flex-shrink: 0;
-        opacity: 0.65;
+        color: @pvx-text-muted;
+        font-size: 18px;
     }
 
     .m-questsection-sidebar__list {
@@ -204,11 +209,72 @@
     .m-pvx-questsection-sidebar {
         position: relative;
         top: auto;
-        height: 300px;
+        height: auto;
         min-height: 0;
+        padding: @pvx-space-3;
 
         &.is-expanded {
-            height: min(520px, 65vh);
+            height: auto;
+        }
+
+        .m-questsection-sidebar__search,
+        .m-questsection-sidebar__list,
+        .m-questsection-sidebar__toggle {
+            display: none;
+        }
+
+        .m-questsection-sidebar__mobile-select {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .u-questsection-mobile-select {
+            width: 100%;
+
+            .el-input__wrapper,
+            .el-select__wrapper {
+                min-height: 44px;
+                padding: 0 14px;
+                border-radius: @pvx-radius-control;
+                background: @pvx-surface-muted;
+                box-shadow: 0 0 0 1px @pvx-border-light inset;
+
+                &.is-focused {
+                    box-shadow: 0 0 0 1px @pvx-border-focus inset, @pvx-shadow-focus;
+                }
+            }
+
+            .el-input__inner,
+            .el-select__selected-item {
+                color: @pvx-text-primary;
+                font-size: 14px;
+                font-weight: 600;
+            }
+        }
+    }
+}
+
+.m-questsection-mobile-select-popper {
+    max-width: calc(100vw - 48px);
+
+    .el-select-dropdown__wrap {
+        max-height: min(360px, 50vh);
+    }
+
+    .el-select-group__title {
+        color: @pvx-text-muted;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .el-select-dropdown__item {
+        border-radius: @pvx-radius-small;
+
+        &.is-selected {
+            background: @pvx-primary-soft;
+            color: @pvx-primary-hover;
+            font-weight: 600;
         }
     }
 }
@@ -219,14 +285,24 @@
         top: 0;
         width: 5rem;
         height: 100vh;
+        padding: 0;
         border-radius: 0;
+
+        .m-questsection-sidebar__mobile-select {
+            display: none;
+        }
 
         .m-questsection-sidebar__search {
             display: none;
         }
 
         .m-questsection-sidebar__list {
+            display: block;
             padding: 0.25rem;
+        }
+
+        .m-questsection-sidebar__toggle {
+            display: flex;
         }
 
         .u-questsection-season-header,

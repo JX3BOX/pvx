@@ -24,37 +24,52 @@
         <CommonHeader></CommonHeader>
         <Nav @statusChange="statusChange" class="p-nav"></Nav>
         <Main :class="navStatusClass" :withoutRight="true" :withoutLeft="true" :withoutBread="true">
-            <div class="m-main">
-                <!-- 三栏布局 -->
-                <div class="m-partner-layout">
+            <PvxPageShell class="m-pvx-partner-shell" :full-height="false">
+                <div class="m-main">
+                    <div class="m-partner-layout">
                     <!-- 左侧选择 -->
                     <Selector :partner-list="partnerList" :selected-id="selectedPartnerId" :expanded="listExpanded"
-                        @select="handleSelect" @search="handleSearch" @toggleExpand="handleToggleExpand" />
+                    @select="handleSelect" @search="handleSearch" @toggleExpand="handleToggleExpand" />
 
                     <!-- 中间立绘 -->
-                    <Portrait :partner="selectedPartner" />
+                    <Portrait :partner="selectedPartner">
+                        <template #top-left>
+                            <div class="m-partner-portrait__identity">
+                                <h1 class="u-partner-portrait-name">{{ selectedPartner?.name || "—" }}</h1>
+                                <span v-if="selectedPartner?.id" class="u-partner-portrait-id">
+                                    ID {{ selectedPartner.id }}
+                                </span>
+                            </div>
+                        </template>
+                        <template #top-right>
+                            <PvxSurface class="m-partner-right__topbar" padding="small" radius="small">
+                                <div class="u-partner-topbar-nav">
+                                    <PvxRobotTip :reply="$t('pages.partner.title')" :typeName="$t('pages.partner.title')"
+                                        :quickGuideText="$t('pages.partner.ui.qqRobot')"
+                                        :copySuccessTitle="$t('pages.partner.ui.copySuccess')" hidden />
+                                    <PvxActionButton href="https://jq.qq.com/?_wv=1027&k=5RgGcYT"
+                                        class="u-partner-btn" variant="ghost" target="_blank" rel="noopener">
+                                        <i class="el-icon-warning-outline"></i>
+                                        <span>{{ $t("pages.partner.ui.feedback") }}</span>
+                                    </PvxActionButton>
+                                </div>
+                            </PvxSurface>
+                        </template>
+                    </Portrait>
 
                     <!-- 右侧面板（Figma: Frame 304 = 顶部工具栏 + 内容面板） -->
                     <div class="m-pvx-partner-right">
-                        <!-- 顶部工具栏（Figma: Frame 287, 前进/后退 + 标题） -->
-                        <div class="m-partner-right__topbar">
-                            <div class="u-partner-topbar-nav">
-                                <PvxRobotTip :reply="$t('pages.partner.title')" :typeName="$t('pages.partner.title')"
-                                    :quickGuideText="$t('pages.partner.ui.qqRobot')"
-                                    :copySuccessTitle="$t('pages.partner.ui.copySuccess')" hidden />
-                                <a href="https://jq.qq.com/?_wv=1027&k=5RgGcYT" target="_blank" rel="noopener"
-                                    class="u-partner-btn">
-                                    <i class="el-icon-warning-outline"></i>
-                                    <span>{{ $t("pages.partner.ui.feedback") }}</span>
-                                </a>
-                            </div>
-                        </div>
-
                         <!-- 内容面板（Figma: Frame 290, 名字+ID+TAB+内容） -->
-                        <div class="m-pvx-partner-info">
+                        <PvxSurface class="m-pvx-partner-info" padding="medium">
+                            <div class="m-partner-tablet-identity">
+                                <h2 class="u-partner-tablet-name">{{ selectedPartner?.name || "—" }}</h2>
+                                <span v-if="selectedPartner?.id" class="u-partner-tablet-id">
+                                    ID {{ selectedPartner.id }}
+                                </span>
+                            </div>
                             <!-- 头部：名字+ID + TAB（Figma: Frame 307, 水平 SPACE_BETWEEN） -->
                             <PartnerTabs :active="activeTab" :tabs="infoTabs" :name="selectedPartner?.name || '—'"
-                                :id="selectedPartner?.id || null" @change="handleTabChange" />
+                                :id="selectedPartner?.id || null" :show-identity="false" @change="handleTabChange" />
 
                             <!-- 内容区域 -->
                             <div class="m-partner-info__body">
@@ -64,10 +79,12 @@
                                 <Bio v-else :partner="selectedPartner" />
                             </div>
 
-                        </div>
+                        </PvxSurface>
                     </div>
                 </div>
-            </div>
+                </div>
+            </PvxPageShell>
+            <PvxBacktop color="#fff" bgColor="#5b5cf5" />
         </Main>
         <CommonFooter></CommonFooter>
     </div>
@@ -75,7 +92,11 @@
 
 <script>
 import Nav from "@/components/Nav_v5.vue";
+import PvxBacktop from "@/components/PvxBacktop.vue";
 import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import PvxPageShell from "@/components/design/PvxPageShell.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 import Selector from "./Selector.vue";
 import Portrait from "./Portrait.vue";
 import Info from "./Info.vue";
@@ -88,7 +109,11 @@ export default {
     name: "PartnerIndex",
     components: {
         Nav,
+        PvxBacktop,
         PvxRobotTip,
+        PvxActionButton,
+        PvxPageShell,
+        PvxSurface,
         Selector,
         Portrait,
         Info,

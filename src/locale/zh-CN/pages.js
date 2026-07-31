@@ -27,10 +27,12 @@ export default {
         },
         ui: {
             searchPlaceholder: "输入资料片或章节关键词",
+            selectChapter: "选择章节",
             expand: "展开",
             collapse: "收起",
             feedback: "错误反馈",
             sectionTitle: "章节{number}：{title}",
+            totalSections: "共{count}节",
             loadMore: "加载更多",
             loading: "加载中...",
             loadFailed: "加载失败，请重试",

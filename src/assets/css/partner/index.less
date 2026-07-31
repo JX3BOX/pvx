@@ -1,142 +1,145 @@
-// ============================================
-// 侠客行模块样式 - 主入口
-// ============================================
-// 命名规范：p-pvx-partner（页面级前缀）
-// 模块级：m-partner-*
-// 元素级：u-pvx-*
-// ============================================
+@import (reference) "../design-system/_tokens.less";
+@import (reference) "../design-system/_mixins.less";
 
-// ==================== 变量定义 ====================
-// 以下数值根据 Figma 设计稿精确还原
-// Figma 文件：PVX3.0 / 红尘 / 侠客行
-
-// 颜色变量（对齐 Figma designTokens）
-@partner-color-primary: #4F46E5;
-@partner-color-primary-soft: rgba(79, 70, 229, 0.1);
-@partner-color-primary-hover: rgba(79, 70, 229, 0.05);
-@partner-color-text-white: #FFFFFF;
-@partner-color-text-black: #000000;
-@partner-color-text-muted: rgba(0, 0, 0, 0.6);
-@partner-color-text-dark: #24292E;
-@partner-color-placeholder: #B0B0B0;
-@partner-color-default-bg: #F5F5F5;
-@partner-color-border: #E1E4E8;
-@partner-color-border-soft: rgba(0, 0, 0, 0.1);
-@partner-color-collapse-content: rgba(0, 0, 0, 0.6);
-@partner-color-search-bg: rgba(243, 244, 245, 0.96);
-@partner-color-attr-bg: #F2F2F2;
-@partner-color-skill-card-bg: rgba(0, 0, 0, 0.05);
-@partner-color-pink: #FE569C;
-@partner-color-gold: #FFD492;
-@partner-color-error: #E54059;
-@partner-color-dropdown: #D9D9D9;
-@partner-color-scrollbar-track: rgba(0, 0, 0, 0.12);
-@partner-color-scrollbar-thumb: rgba(0, 0, 0, 0.05);
-
-// 阴影变量（Figma: 0 0 10px rgba(0,0,0,0.2))
-@partner-shadow-default: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
-@partner-shadow-active: 0px 4px 12px 0px rgba(79, 70, 229, 0.25);
-@partner-shadow-light: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-@partner-border-light: 1px solid rgba(226, 232, 240, 0.60);
-
-// 尺寸变量（Figma: 左285 / 右497）
-@partner-sidebar-width: 285px;
-@partner-info-width: 497px;
-@partner-layout-max-width: 1840px;
-@partner-page-gutter: 43px;
-@partner-layout-gap: 40px;
-@partner-portrait-min-height: 600px;
-@partner-radius: 8px;
-@partner-radius-lg: 10px;
-@partner-radius-pill: 30px;
-
-// 动画变量
-@partner-transition-duration: 300ms;
-
-// ==================== 页面主容器 ====================
+// 兼容现有 Partner 子组件的语义别名，后续逐步直接迁移到设计令牌。
+@partner-color-primary: @pvx-primary;
+@partner-color-primary-soft: @pvx-primary-soft;
+@partner-color-primary-hover: fade(@pvx-primary, 6%);
+@partner-color-text-white: @pvx-surface;
+@partner-color-text-black: @pvx-text-primary;
+@partner-color-text-muted: @pvx-text-secondary;
+@partner-color-text-dark: @pvx-text-regular;
+@partner-color-placeholder: @pvx-text-muted;
+@partner-color-default-bg: @pvx-surface-muted;
+@partner-color-border: @pvx-border;
+@partner-color-border-soft: fade(@pvx-border, 70%);
+@partner-color-collapse-content: @pvx-text-secondary;
+@partner-color-search-bg: fade(@pvx-surface-muted, 96%);
+@partner-color-attr-bg: @pvx-surface-muted;
+@partner-color-skill-card-bg: fade(@pvx-surface-muted, 88%);
+@partner-color-pink: #fe569c;
+@partner-color-gold: #ffd492;
+@partner-color-error: @pvx-danger;
+@partner-color-dropdown: @pvx-border;
+@partner-color-scrollbar-track: fade(@pvx-text-secondary, 28%);
+@partner-color-scrollbar-thumb: fade(@pvx-text-secondary, 10%);
+@partner-shadow-default: @pvx-shadow-hover;
+@partner-shadow-active: @pvx-shadow-hover;
+@partner-shadow-light: @pvx-shadow-xs;
+@partner-border-light: 1px solid fade(@pvx-border, 60%);
+@partner-sidebar-width: 280px;
+@partner-info-width: 520px;
+@partner-layout-max-width: none;
+@partner-page-gutter: 30px;
+@partner-layout-gap: @pvx-space-4;
+@partner-portrait-min-height: 680px;
+@partner-radius: @pvx-radius-small;
+@partner-radius-lg: @pvx-radius-control;
+@partner-radius-pill: @pvx-radius-panel;
+@partner-transition-duration: @pvx-duration-normal;
 
 .p-pvx-partner {
-    background: #F6F8FA;
+    background: @pvx-page-bg;
 
-    // 主内容区域
-    .m-main {
-        min-height: 100vh;
-        padding: 0;
-        box-sizing: border-box;
-        position: relative;
-        display: flex;
-        align-items: stretch;
-        justify-content: center;
+    > .c-main {
+        background: @pvx-page-bg;
     }
-}
 
-// ==================== 三栏布局 ====================
-// Figma: Frame 288 (1840x886), HORIZONTAL, SPACE_BETWEEN, gap 40px
-// 左选择（fixed）+ 中立绘（flex:1）+ 右详情（fixed）
-// 注意：左右为 fixed 定位，需要通过 padding 预留空间
-// 最小宽度确保左右面板完整显示：左侧285px + 左边距43px + 右侧497px + 右边距43px + 中间缓冲100px ≈ 968px
+    .m-pvx-partner-shell {
+        min-height: calc(100vh - @header-height);
+        min-height: calc(100dvh - @header-height);
 
-// 最小宽度变量：确保左右面板完整显示
-.m-partner-layout {
-    position: relative;
-    display: flex;
-    align-items: center; // 垂直居中
-    justify-content: center; // 水平居中，中间立绘处于两侧面板之间
-    width: 100%;
-    max-width: @partner-layout-max-width;
-    min-width: 0;
-    min-height: calc(100vh - @header-height - 80px);
-    margin: 0 auto;
-    box-sizing: border-box;
-    gap: @partner-layout-gap;
-    // 左侧面板预留空间（左侧 fixed 定位需要预留）
-    padding-left: @partner-sidebar-width + @partner-page-gutter + @partner-layout-gap;
-    // 右侧面板预留空间
-    padding-right: @partner-info-width + @partner-page-gutter + @partner-layout-gap;
-}
-
-// ==================== 响应式适配 - 大屏幕缩减 ====================
-// 当窗口宽度小于 1400px 时，逐步缩减左侧边距
-@media screen and (max-width: 1400px) {
-    .m-partner-layout {
-        padding-left: @partner-sidebar-width + 20px + 30px;
-        padding-right: @partner-info-width + 20px + 30px;
-    }
-}
-
-// 当窗口宽度小于 1200px 时，进一步缩减左侧边距
-@media screen and (max-width: 1200px) {
-    .m-partner-layout {
-        padding-left: @partner-sidebar-width + 10px + 20px;
-        padding-right: 420px + 10px + 20px;
-    }
-}
-
-// ==================== 响应式适配 - iPad ====================
-@media screen and (max-width: @ipad) {
-    .m-partner-layout {
-        min-width: 0;
-        padding-left: 280px;
-        padding-right: 20px;
-    }
-}
-
-// ==================== 响应式适配 - Phone ====================
-@media screen and (max-width: 768px) {
-    .p-pvx-partner {
-        .m-main {
-            min-height: calc(100vh - @header-height);
-            display: block;
+        > div {
+            box-sizing: border-box;
+            min-height: inherit;
+            max-width: none;
+            padding: 30px;
         }
     }
 
-    .m-partner-layout {
-        min-width: 0;
+    .m-main {
         min-height: 0;
-        padding: 16px 12px 24px;
-        flex-direction: column;
+        box-sizing: border-box;
+        padding: 0;
+    }
+}
+
+.m-partner-layout {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    min-height: calc(100vh - @header-height - 60px);
+    grid-template-columns: 280px minmax(340px, 1fr) minmax(480px, 560px);
+    align-items: start;
+    gap: @partner-layout-gap;
+    box-sizing: border-box;
+}
+
+@media screen and (max-width: 1400px) {
+    .m-partner-layout {
+        grid-template-columns: 250px minmax(300px, 0.82fr) minmax(430px, 1.18fr);
+        gap: @pvx-space-4;
+    }
+}
+
+// 小屏桌面 / 125% 缩放：保留三栏，但把可用宽度优先留给主视觉和资料区。
+@media screen and (max-width: 1280px) and (min-width: 1134px) {
+    .p-pvx-partner .m-pvx-partner-shell > div {
+        padding: @pvx-space-4;
+    }
+
+    .m-partner-layout {
+        grid-template-columns: 220px minmax(0, 1fr) 400px;
+        gap: @pvx-space-3;
+    }
+}
+
+@media screen and (max-width: @ipad) {
+    .p-pvx-partner .m-pvx-partner-shell > div {
+        padding: 20px;
+    }
+
+    .m-partner-layout {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "selector selector"
+            "portrait info";
         align-items: stretch;
-        justify-content: flex-start;
-        gap: 16px;
+        gap: @pvx-space-3;
+    }
+
+    .m-pvx-partner-selector {
+        grid-area: selector;
+    }
+
+    .m-pvx-partner-portrait {
+        grid-area: portrait;
+    }
+
+    .m-pvx-partner-right {
+        grid-area: info;
+    }
+}
+
+@media screen and (max-width: @phone) {
+    .m-partner-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "selector"
+            "portrait"
+            "info";
+        gap: @pvx-space-3;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .p-pvx-partner .m-pvx-partner-shell > div {
+        padding: 20px 16px;
+    }
+}
+
+.v-miniprogram {
+    .p-pvx-partner .m-pvx-partner-shell > div {
+        padding: 0 0.5rem;
     }
 }
