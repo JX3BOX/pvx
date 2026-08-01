@@ -36,7 +36,7 @@
 <script>
 import { extractTextContent, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { getPetFrameClass, parsePetDesc } from "@/utils/pet";
-import petFallback from "@/assets/img/nav/pet.svg";
+import petFallback from "@/assets/img/index/pet.svg";
 export default {
     props: {
         petObject: {},

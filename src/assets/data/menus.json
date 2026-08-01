@@ -56,7 +56,7 @@
                 "label": "外观大全",
                 "icon": "el-icon-files",
                 "key": "exterior",
-                "menuKey": "body",
+                "menuKey": "exterior",
                 "status": true,
                 "disabled": true
             },
@@ -101,7 +101,6 @@
                 "label": "科举大全",
                 "icon": "el-icon-files",
                 "key": "keju",
-                "menuKey": "exam",
                 "status": true
             },
             {
@@ -123,7 +122,7 @@
                 "label": "奇遇珍卷",
                 "icon": "el-icon-files",
                 "key": "treasure",
-                "menuKey": "codextreature",
+                "menuKey": "treature",
                 "status": true
             },
             {
@@ -131,7 +130,7 @@
                 "label": "资历宝典",
                 "icon": "el-icon-files",
                 "key": "seniority",
-                "menuKey": "codexachievement",
+                "menuKey": "achievement",
                 "status": true
             }
         ]
@@ -147,7 +146,7 @@
                 "label": "外观黑市",
                 "icon": "el-icon-files",
                 "key": "market",
-                "menuKey": "body",
+                "menuKey": "market",
                 "status": true,
                 "disabled": true
             },

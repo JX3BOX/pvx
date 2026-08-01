@@ -13,7 +13,7 @@
                             class="m-child-category" :class="['child-' + index, { 'is-disabled': submenu.disabled }]"
                             v-for="(submenu, i) in menu.submenus" :target="submenu.disabled ? undefined : submenu.target || '_self'"
                             :aria-disabled="submenu.disabled || undefined" :key="i">
-                            <img :src="getNavIcon(submenu.key)" class="u-img"
+                            <img :src="getNavIcon(submenu)" class="u-img"
                                 :alt="getMenuLabel(submenu)" />
                             <span class="u-text">{{ getMenuLabel(submenu) }}</span>
                         </component>
@@ -42,8 +42,9 @@ export default {
     },
     computed: {},
     methods: {
-        getNavIcon(key) {
-            return require(`@/assets/img/index/${key}.svg`);
+        getNavIcon(item) {
+            const slug = item.menuKey || item.key;
+            return require(`@/assets/img/index/${slug}2.svg`);
         },
         getLocalLabel(key, fallback) {
             return this.$te(key) ? this.$t(key) : fallback;

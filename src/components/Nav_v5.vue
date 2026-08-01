@@ -20,12 +20,8 @@
                                     :target="item.disabled ? undefined : item.target || '_self'"
                                     :aria-disabled="item.disabled || undefined">
                                     <div class="u-nav-icon">
-                                        <img svg-inline
-                                            :src="require(`../assets/img/nav/${item.menuKey || item.key}.svg`)"
-                                            class="u-icon" />
-                                        <img svg-inline
-                                            :src="require(`../assets/img/nav/${item.menuKey || item.key}2.svg`)"
-                                            class="u-icon-hover" />
+                                        <img :src="getNavIcon(item)" class="u-icon" />
+                                        <img :src="getNavIcon(item, true)" class="u-icon-hover" />
                                     </div>
 
                                     <span class="u-nav-label">{{ getMenuLabel(item) }}</span>
@@ -146,6 +142,10 @@ export default {
         },
     },
     methods: {
+        getNavIcon(item, active = false) {
+            const slug = item.menuKey || item.key;
+            return require(`@/assets/img/index/${slug}${active ? "2" : ""}.svg`);
+        },
         getLocalLabel(key, fallback) {
             return this.$te(key) ? this.$t(key) : fallback;
         },

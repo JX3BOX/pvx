@@ -41,20 +41,6 @@
                                 </span>
                             </div>
                         </template>
-                        <template #top-right>
-                            <PvxSurface class="m-partner-right__topbar" padding="small" radius="small">
-                                <div class="u-partner-topbar-nav">
-                                    <PvxRobotTip :reply="$t('pages.partner.title')" :typeName="$t('pages.partner.title')"
-                                        :quickGuideText="$t('pages.partner.ui.qqRobot')"
-                                        :copySuccessTitle="$t('pages.partner.ui.copySuccess')" hidden />
-                                    <PvxActionButton href="https://jq.qq.com/?_wv=1027&k=5RgGcYT"
-                                        class="u-partner-btn" variant="ghost" target="_blank" rel="noopener">
-                                        <i class="el-icon-warning-outline"></i>
-                                        <span>{{ $t("pages.partner.ui.feedback") }}</span>
-                                    </PvxActionButton>
-                                </div>
-                            </PvxSurface>
-                        </template>
                     </Portrait>
 
                     <!-- 右侧面板（Figma: Frame 304 = 顶部工具栏 + 内容面板） -->
@@ -93,8 +79,6 @@
 <script>
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
-import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
-import PvxActionButton from "@/components/design/PvxActionButton.vue";
 import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import Selector from "./Selector.vue";
@@ -110,8 +94,6 @@ export default {
     components: {
         Nav,
         PvxBacktop,
-        PvxRobotTip,
-        PvxActionButton,
         PvxPageShell,
         PvxSurface,
         Selector,

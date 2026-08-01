@@ -5,47 +5,6 @@
     min-width: 0;
 }
 
-.m-questsection-content__aside {
-    display: flex;
-    min-width: 0;
-    align-self: center;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: @pvx-space-3;
-
-    .m-robot__pvx-tip {
-        width: 100%;
-        max-width: 375px;
-        min-width: 0;
-        align-self: flex-end;
-
-        .m-qq {
-            width: 100%;
-            max-width: 375px;
-            margin-left: auto;
-            margin-right: 0;
-        }
-    }
-
-}
-
-.u-btn--feedback {
-    width: auto;
-    min-height: 40px;
-    flex: none;
-    border-color: fade(@pvx-primary, 16%);
-    border-radius: @pvx-radius-control;
-    background: @pvx-primary-soft;
-    color: @pvx-primary-hover;
-    box-shadow: @pvx-shadow-xs;
-
-    &:hover {
-        border-color: @pvx-border-focus;
-        background: fade(@pvx-primary, 14%);
-        color: @pvx-primary-hover;
-    }
-}
-
 .m-questsection-content__body {
     display: flex;
     min-width: 0;
@@ -56,7 +15,7 @@
 .m-questsection-content__header-image {
     display: grid;
     width: 100%;
-    grid-template-columns: 500px minmax(280px, 1fr) minmax(320px, 420px);
+    grid-template-columns: 500px minmax(0, 1fr);
     align-items: center;
     justify-content: start;
     gap: @pvx-space-5;
@@ -180,10 +139,6 @@
     }
 }
 
-.m-questsection-content__chapters--mobile {
-    display: none;
-}
-
 .m-questsection-content__detail {
     display: flex;
     min-width: 0;
@@ -221,7 +176,6 @@
             font-weight: 500;
         }
     }
-
 }
 
 .m-questsection-content__empty {
@@ -244,25 +198,9 @@
     }
 }
 
-@media screen and (min-width: 1401px) {
-    .m-questsection-content__chapters {
-        min-height: calc(80px + @pvx-space-3);
-    }
-}
-
 @media screen and (max-width: 1400px) {
     .m-questsection-content__header-image {
         grid-template-columns: 500px minmax(320px, 1fr);
-    }
-
-    .m-questsection-content__aside {
-        grid-column: 2;
-        grid-row: 1;
-    }
-
-    .m-questsection-content__chapters {
-        grid-column: 1 / -1;
-        grid-row: 2;
     }
 }
 
@@ -276,9 +214,6 @@
         }
     }
 
-    .m-questsection-content__aside {
-        width: 100%;
-    }
 }
 
 @media screen and (max-width: 1100px) {
@@ -286,11 +221,6 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .m-questsection-content__aside,
-    .m-questsection-content__chapters {
-        grid-column: auto;
-        grid-row: auto;
-    }
 }
 
 @media screen and (max-width: @ipad) {
@@ -323,15 +253,7 @@
         }
     }
 
-    .m-questsection-content__aside {
-        display: none;
-    }
-
-    .m-questsection-content__chapters--desktop {
-        display: none;
-    }
-
-    .m-questsection-content__chapters--mobile {
+    .m-questsection-content__chapters {
         position: sticky;
         z-index: 20;
         top: @header-height;
@@ -362,14 +284,6 @@
 
         .u-chapter-group {
             min-width: 72px;
-        }
-    }
-
-    .u-btn--feedback {
-        padding: 0 @pvx-space-3;
-
-        span {
-            display: inline;
         }
     }
 
@@ -417,12 +331,5 @@
             font-size: 14px;
             line-height: 1.8;
         }
-    }
-}
-
-.v-miniprogram {
-    .m-questsection-content__aside .u-btn--feedback,
-    .m-questsection-content__aside .m-robot__pvx-tip {
-        display: none;
     }
 }

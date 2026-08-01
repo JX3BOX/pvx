@@ -4,9 +4,6 @@
  * @description 展示剑侠录章节详情内容，包含固定按钮区域、图片、章节分组按钮和章节内容
  * @version 2.0.0
  *
- * @components
- * - PvxRobotTip: QQ机器人提示组件
- *
  * @props
  * - seasonData: 当前选中的资料片数据
  * - chapterData: 当前选中的大章节数据（包含 sections 小节列表）
@@ -41,34 +38,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="m-questsection-content__chapters m-questsection-content__chapters--desktop"
-                    v-if="chapterGroups.length > 0">
-                    <div class="m-chapter-list">
-                        <div v-for="(group, gIndex) in chapterGroups" :key="gIndex" class="u-chapter-group"
-                            :class="{ 'is-active': activeGroupIndex === gIndex }"
-                            @click="handleGroupClick(gIndex)">
-                            <span class="u-chapter-name">{{ group.label }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="m-questsection-content__aside">
-                    <PvxActionButton
-                        href="https://jq.qq.com/?_wv=1027&k=5RgGcYT"
-                        class="u-btn u-btn--feedback"
-                        variant="ghost"
-                        :title="$t('pages.questsection.ui.feedback')" :aria-label="$t('pages.questsection.ui.feedback')">
-                        <i class="el-icon-warning-outline"></i>
-                        <span>{{ $t("pages.questsection.ui.feedback") }}</span>
-                    </PvxActionButton>
-                    <PvxRobotTip :reply="$t('pages.questsection.title')" :typeName="$t('pages.questsection.title')"
-                        :quickGuideText="$t('pages.questsection.ui.qqRobot')"
-                        :copySuccessTitle="$t('pages.questsection.ui.copySuccess')" hidden />
-                </div>
             </PvxSurface>
         </div>
 
-        <div class="m-questsection-content__chapters m-questsection-content__chapters--mobile"
-            v-if="chapterGroups.length > 0">
+        <div class="m-questsection-content__chapters" v-if="chapterGroups.length > 0">
             <div class="m-chapter-list">
                 <div v-for="(group, gIndex) in chapterGroups" :key="gIndex" class="u-chapter-group"
                     :class="{ 'is-active': activeGroupIndex === gIndex }"
@@ -118,7 +91,6 @@
 </template>
 
 <script>
-import PvxRobotTip from "@/components/common/PvxRobotTip.vue";
 import PvxActionButton from "@/components/design/PvxActionButton.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
@@ -131,7 +103,6 @@ const SECTION_PAGE_SIZE = 4;
 export default {
     name: "QuestsectionContent",
     components: {
-        PvxRobotTip,
         PvxActionButton,
         PvxEmptyState,
         PvxSurface,
