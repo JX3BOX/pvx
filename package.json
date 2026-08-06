@@ -81,7 +81,7 @@
         "xlsx": "^0.18.5"
     },
     "devDependencies": {
-        "@babel/core": "^7.12.16",
+        "@babel/core": "^7.29.6",
         "@babel/eslint-parser": "^7.28.6",
         "@babel/plugin-transform-nullish-coalescing-operator": "^7.28.6",
         "@babel/plugin-transform-optional-chaining": "^7.28.6",
