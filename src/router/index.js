@@ -96,7 +96,7 @@ const routes = [
     {
         name: "portrait",
         path: "/adventure/portrait",
-        component: () => import("@/views/adventure/treasure/miniprogram/Portrait.vue"),
+        component: () => import("@/views/adventure/treasure/Portrait.vue"),
         meta: {
             i18n: {
                 title: "pages.adventure.treasure.portrait.title",

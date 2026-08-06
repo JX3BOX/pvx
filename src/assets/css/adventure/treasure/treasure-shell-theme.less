@@ -3,9 +3,7 @@
 .p-pvx-treasure {
     overflow-x: clip;
 
-    &:not(.is-embedded) {
-        padding-top: @header-height;
-    }
+    padding-top: @header-height;
 
     > div {
         max-width: none;
@@ -229,14 +227,6 @@
         background-attachment: fixed;
         background-position: center top;
         background-size: cover;
-
-        &.is-embedded {
-            padding-top: 0;
-
-            > div {
-                min-height: 100vh;
-            }
-        }
 
         .m-body {
             min-height: 0;
