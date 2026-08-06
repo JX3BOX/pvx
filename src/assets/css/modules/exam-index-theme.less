@@ -886,8 +886,27 @@
         }
 
         .m-pvx-exam__pagination {
-            justify-content: flex-start;
-            overflow-x: auto;
+            justify-content: center;
+            overflow: hidden;
+
+            .el-pagination {
+                width: 100%;
+                min-width: 0;
+                justify-content: center;
+                flex-wrap: nowrap;
+            }
+
+            .el-pagination__total,
+            .el-pagination__jump {
+                display: none;
+            }
+
+            .btn-prev,
+            .btn-next,
+            .el-pager li {
+                min-width: 30px;
+                margin: 0 2px;
+            }
         }
     }
 }

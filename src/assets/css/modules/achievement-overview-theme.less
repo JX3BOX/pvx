@@ -1653,11 +1653,42 @@
 
         .m-achievement-section-header {
             flex-direction: column;
-            gap: @pvx-space-2;
+            gap: 10px;
+
+            > div:first-child {
+                width: 100%;
+                min-width: 0;
+            }
 
             h2 {
                 font-size: 21px;
             }
+        }
+
+        .m-achievement-list-heading {
+            justify-content: flex-start;
+            gap: 8px;
+
+            h2 {
+                margin-top: 0;
+                line-height: 1.35;
+            }
+
+            .u-achievement-detail-count {
+                margin-top: 0;
+            }
+        }
+
+        .u-achievement-incomplete-filter {
+            width: fit-content;
+            height: auto;
+            min-height: 32px;
+            align-self: flex-start;
+            margin: 0;
+            padding: 5px 10px;
+            border: 1px solid rgba(151, 123, 83, 0.16);
+            border-radius: @pvx-radius-pill;
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .m-achievement-category-grid {
@@ -1699,10 +1730,32 @@
         }
 
         .m-achievement-table {
+            width: 100%;
+            max-width: 100%;
             overflow-x: auto;
+            overflow-y: hidden;
+            overscroll-behavior-inline: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-color: rgba(154, 116, 66, 0.42) rgba(154, 116, 66, 0.08);
 
             .el-table {
                 min-width: 760px;
+            }
+
+            &::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            &::-webkit-scrollbar-track {
+                border-radius: @pvx-radius-pill;
+                background: rgba(154, 116, 66, 0.08);
+            }
+
+            &::-webkit-scrollbar-thumb {
+                border: 2px solid transparent;
+                border-radius: @pvx-radius-pill;
+                background: rgba(154, 116, 66, 0.42);
+                background-clip: padding-box;
             }
         }
     }

@@ -62,6 +62,7 @@
                     <el-pagination
                         background
                         :page-size="query.pageSize"
+                        :pager-count="paginationPagerCount"
                         :hide-on-single-page="true"
                         v-model:current-page="query.pageIndex"
                         layout="total, prev, pager, next, jumper"
@@ -169,6 +170,8 @@ export default {
             syncingRouteTab: false,
             keywordSearchTimer: null,
             loadToken: 0,
+            phoneMediaQuery: null,
+            isPhoneViewport: false,
         };
     },
     computed: {
@@ -201,6 +204,9 @@ export default {
         sectionDescription() {
             const key = { 2: "question", 3: "paper" }[this.search.type] || "question";
             return this.$t(`pages.exam.ui.sections.${key}.description`);
+        },
+        paginationPagerCount() {
+            return this.isPhoneViewport ? 5 : 7;
         },
     },
     watch: {
@@ -338,8 +344,19 @@ export default {
         openLink() {
             window.open(this.publishLink, "_blank", "noopener,noreferrer");
         },
+        handlePhoneViewportChange(event) {
+            this.isPhoneViewport = event.matches;
+        },
     },
     mounted() {
+        this.phoneMediaQuery = window.matchMedia("(max-width: 720px)");
+        this.isPhoneViewport = this.phoneMediaQuery.matches;
+        if (this.phoneMediaQuery.addEventListener) {
+            this.phoneMediaQuery.addEventListener("change", this.handlePhoneViewportChange);
+        } else {
+            this.phoneMediaQuery.addListener(this.handlePhoneViewportChange);
+        }
+
         const { tag } = this.$route.query;
         if (tag) {
             this.initValue.tag = tag;
@@ -347,6 +364,11 @@ export default {
     },
     beforeUnmount() {
         clearTimeout(this.keywordSearchTimer);
+        if (this.phoneMediaQuery?.removeEventListener) {
+            this.phoneMediaQuery.removeEventListener("change", this.handlePhoneViewportChange);
+        } else {
+            this.phoneMediaQuery?.removeListener(this.handlePhoneViewportChange);
+        }
     },
 };
 </script>

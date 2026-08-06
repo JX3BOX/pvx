@@ -95,6 +95,7 @@
                         background
                         layout="total, prev, pager, next, jumper"
                         :hide-on-single-page="true"
+                        :pager-count="responsivePagerCount"
                         :page-size="per"
                         :total="total"
                         v-model:current-page="page"
@@ -151,6 +152,7 @@ import { deleteNull } from "@/utils/index";
 import furnitureData from "@/assets/data/furniture.json";
 import { debounce } from "lodash";
 import { loadFurnitureMatch } from "@/utils/furniture";
+import responsivePagination from "@/mixins/responsive-pagination";
 const { sourceList, levelList, categoryList, categoryCss } = furnitureData;
 const COST_PERFORMANCE_KEY = "__costPerf";
 const COST_PERFORMANCE_SOURCE = "\u56ed\u5b85\u5e01";
@@ -169,6 +171,7 @@ function getSourceOptions(t, locked = false) {
 
 export default {
     name: "Index",
+    mixins: [responsivePagination],
     components: {
         PvxSearch,
         furnitureSet,
@@ -656,6 +659,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/furniture/pc/index.less";
-@import "~@/assets/css/miniprogram.less";
 @import "~@/assets/css/modules/furniture-list-theme.less";
 </style>

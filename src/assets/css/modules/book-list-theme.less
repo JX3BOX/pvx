@@ -313,12 +313,29 @@
             display: none;
         }
 
+        .m-pvx-book-table {
+            overflow: visible;
+            border: 0;
+            border-radius: 0;
+        }
+
         .m-pvx-book-pages {
-            justify-content: flex-start;
+            width: 100%;
+            justify-content: center;
+            overflow: hidden;
 
             .el-pagination__total,
             .el-pagination__jump {
                 display: none;
+            }
+
+            .btn-prev,
+            .btn-next,
+            .el-pager li {
+                min-width: 30px;
+                width: 30px;
+                height: 30px;
+                margin: 0 2px;
             }
         }
     }

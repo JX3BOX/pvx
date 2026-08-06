@@ -1,14 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
         name: "list",
         path: "/",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/body/miniprogram/List.vue")
-                : () => import("@/views/body/List.vue"),
+        component: () => import("@/views/body/List.vue"),
         meta: {
             i18n: {
                 title: "pages.body.title",
@@ -20,10 +16,7 @@ const routes = [
     {
         name: "single",
         path: "/:id(\\d+)",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/body/miniprogram/Single.vue")
-                : () => import("@/views/body/Single.vue"),
+        component: () => import("@/views/body/Single.vue"),
         meta: {
             i18n: {
                 title: "pages.body.single.title",
@@ -47,7 +40,7 @@ const routes = [
     {
         name: "bodydatMobile",
         path: "/BodydatMobile",
-        component: () => import("@/views/body/miniprogram/BodyData.vue"),
+        redirect: { name: "bodydata" },
         meta: {
             i18n: {
                 title: "pages.body.bodydatMobile.title",

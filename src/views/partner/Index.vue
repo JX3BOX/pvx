@@ -342,6 +342,5 @@ export default {
 
 <style lang="less">
     @import "~@/assets/css/app.less";
-    @import "~@/assets/css/miniprogram.less";
     @import "~@/assets/css/partner/index.less";
 </style>

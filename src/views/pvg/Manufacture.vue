@@ -146,11 +146,6 @@ export default {
         Tools,
         Collection,
     },
-    provide() {
-        return {
-            isMiniProgram: this.isMiniProgram,
-        };
-    },
     data: function () {
         return {
             craftKey: "",
@@ -169,9 +164,6 @@ export default {
         };
     },
     computed: {
-        isMiniProgram() {
-            return document.getElementsByClassName("v-miniprogram")?.length > 0;
-        },
         client() {
             return this.$store.state.client;
         },

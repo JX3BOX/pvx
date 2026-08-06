@@ -1,14 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
         name: "index",
         path: "/",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/book/mobile/Index.vue")
-                : () => import("@/views/book/Index.vue"),
+        component: () => import("@/views/book/Index.vue"),
         meta: {
             i18n: {
                 title: "pages.book.title",
@@ -20,10 +16,7 @@ const routes = [
     {
         name: "single",
         path: "/:id([0-9]+_\\d+)",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/book/mobile/Single.vue")
-                : () => import("@/views/book/Single.vue"),
+        component: () => import("@/views/book/Single.vue"),
         meta: {
             i18n: {
                 title: "pages.book.single.title",

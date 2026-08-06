@@ -11,18 +11,22 @@
                         class="u-adjacent"
                         variant="light"
                         :disabled="!previousQuestionId || loading"
+                        :aria-label="$t('pages.exam.ui.detail.previous')"
+                        :title="$t('pages.exam.ui.detail.previous')"
                         @click="goToAdjacentQuestion(previousQuestionId)"
                     >
                         <ArrowLeft />
-                        {{ $t("pages.exam.ui.detail.previous") }}
+                        <span class="u-adjacent-label">{{ $t("pages.exam.ui.detail.previous") }}</span>
                     </PvxActionButton>
                     <PvxActionButton
                         class="u-adjacent"
                         variant="light"
                         :disabled="!nextQuestionId || loading"
+                        :aria-label="$t('pages.exam.ui.detail.next')"
+                        :title="$t('pages.exam.ui.detail.next')"
                         @click="goToAdjacentQuestion(nextQuestionId)"
                     >
-                        {{ $t("pages.exam.ui.detail.next") }}
+                        <span class="u-adjacent-label">{{ $t("pages.exam.ui.detail.next") }}</span>
                         <ArrowRight />
                     </PvxActionButton>
                 </div>

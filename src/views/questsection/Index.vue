@@ -100,13 +100,5 @@ export default {
 
 <style lang="less">
 @import "~@/assets/css/app.less";
-@import "~@/assets/css/miniprogram.less";
 @import "~@/assets/css/questsection/index.less";
-
-// 小程序端适配
-.v-miniprogram {
-    .m-main {
-        padding: 0;
-    }
-}
 </style>

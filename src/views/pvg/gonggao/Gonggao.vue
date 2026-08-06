@@ -228,9 +228,4 @@ export default {
         .pt(20px);
     }
 }
-.v-miniprogram,.wechat-miniprogram{
-    .p-gonggao{
-        padding-top:0;
-    }
-}
 </style>

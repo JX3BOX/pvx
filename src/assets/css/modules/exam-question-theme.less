@@ -109,7 +109,11 @@
         }
 
         .m-pvx-exam-question__navigation {
+            grid-template-columns: auto auto auto;
+            justify-content: space-between;
             min-height: 56px;
+            padding: @pvx-space-2;
+            gap: @pvx-space-2;
 
             .u-back,
             .u-edit,
@@ -119,8 +123,39 @@
                 padding-left: @pvx-space-2;
             }
 
-            .u-adjacent {
+            .u-edit {
                 min-width: 0;
+                padding-right: @pvx-space-3;
+                padding-left: @pvx-space-3;
+                border-radius: 12px;
+            }
+
+            .u-adjacent {
+                width: 40px;
+                min-width: 40px;
+                padding-right: 0;
+                padding-left: 0;
+                border: 0;
+                border-radius: 0;
+                background: transparent;
+
+                .u-adjacent-label {
+                    display: none;
+                }
+            }
+
+            .m-pvx-exam-question__adjacent {
+                display: grid;
+                grid-template-columns: repeat(2, 40px);
+                gap: 0;
+                overflow: hidden;
+                border: 1px solid @pvx-border;
+                border-radius: 12px;
+                background: @pvx-surface-muted;
+
+                .u-adjacent + .u-adjacent {
+                    border-left: 1px solid @pvx-border;
+                }
             }
         }
 

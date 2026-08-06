@@ -88,7 +88,7 @@
                     {{ $t("pages.horse.ui.actions.loadMore") }}
                 </el-button>
                 <el-pagination class="m-archive-pages" background layout="total, prev, pager, next, jumper"
-                    :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
+                    :pager-count="responsivePagerCount" :hide-on-single-page="true" :page-size="per" :total="total" :current-page="page"
                     @current-change="changePage"></el-pagination>
             </PvxSurface>
             <PvxSurface v-if="showEmpty" class="m-pvx-horse-empty-surface" padding="medium">
@@ -119,10 +119,12 @@ import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { ArrowDown } from "@element-plus/icons-vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 const { list, searchType, showTypes } = horseData;
 
 export default {
     name: "HorseHome",
+    mixins: [responsivePagination],
     components: {
         SameItem,
         HorseCard,
@@ -252,7 +254,7 @@ export default {
             return this.$t(`pages.horse.ui.types.${keyMap[type] || "all"}`);
         },
         clickTabs(type) {
-            const current = this.typeList.find((item) => item.type == type);
+            const current = this.typeList.find((item) => item.type === type);
             if (!current) {
                 this.active = "";
                 this.page = 1;
@@ -260,6 +262,17 @@ export default {
                 return;
             }
             this.active = current.type;
+            // “查看全部”也要同步搜索栏。普通坐骑的类型值为 0，若搜索栏仍保留空值，
+            // 它延迟触发的 search 事件会把 active 重置为“全部”。
+            this.searchInitValue = {
+                ...this.searchInitValue,
+                type: current.type,
+            };
+            this.queryParams = {
+                ...this.queryParams,
+                type: current.type,
+            };
+            this.isFirstSearch = false;
             this.typeList = this.typeList.map((e) => {
                 e.page = 1;
                 return e;

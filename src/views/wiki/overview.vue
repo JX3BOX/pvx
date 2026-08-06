@@ -1783,43 +1783,4 @@ export default {
     }
 }
 
-.v-miniprogram {
-    // 资历宝典
-    .m-achievement-content {
-        width: 100%;
-        min-width: 100%;
-        margin-left: 0;
-        padding: 0 10px;
-        box-sizing: border-box;
-    }
-
-    .m-achievement-main {
-        margin-top: 0;
-        height: 100%;
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .p-achievement-overview {
-        padding-top: 0;
-        width: 100%;
-
-        .m-overview-main {
-            grid-template-columns: repeat(1, 1fr);
-            grid-template-rows: repeat(1, 1fr);
-        }
-    }
-
-    .p-achievement-overview .m-overview-header .m-header-info {
-        flex: none;
-        width: calc(100% - 20px);
-        margin: 0 10px;
-    }
-
-    .m-achievement-sidebar .m-sidebar-nav li ul {
-        margin-left: 0;
-    }
-}
-
-// @import "../../assets/css/miniprogram.less";
 </style>

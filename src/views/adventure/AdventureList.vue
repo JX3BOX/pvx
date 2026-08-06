@@ -111,6 +111,7 @@
                     class="m-pvx-adventure-pages"
                     background
                     layout="total, prev, pager, next, jumper"
+                    :pager-count="responsivePagerCount"
                     :hide-on-single-page="true"
                     :page-size="per"
                     :total="total"
@@ -144,9 +145,11 @@ import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxToolbar from "@/components/design/PvxToolbar.vue";
 import { getAdventures } from "@/service/adventure/adventure";
 import { ArrowDown, CollectionTag, Search } from "@element-plus/icons-vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 
 export default {
     name: "adventureList",
+    mixins: [responsivePagination],
     props: [],
     components: {
         AdventureItem,

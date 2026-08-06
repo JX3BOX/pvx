@@ -1,20 +1,6 @@
 <template>
     <div v-if="task">
-        <div id="mini-task-container" class="m-pvx-task-container" v-if="isMiniProgram">
-            <div class="m-pvx-task-header m-task-item-box">
-                <img :src="getImg(info)" class="u-task-img u-task-item-img" />
-                <span class="u-task-name u-task-item-name">{{ info.szName }}</span>
-            </div>
-            <div class="m-pvx-task-item m-task-item-box" v-for="(item, i) in task" :key="i">
-                <img :src="imgUrl(item.imgurl)" class="u-task-icon u-task-item-img" />
-                <div class="m-pvx-task-content">
-                    <div class="u-pvx-task-goal u-task-item-name">{{ item.szGoalMsg }}</div>
-                    <div class="u-task-desc">{{ getText(item.szDescribe) }}</div>
-                    <div class="u-task-desc">{{ getText(item.szFinishDescribe) }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="m-pvx-adventure-task" v-else>
+        <div class="m-pvx-adventure-task">
             <img class="u-prefix" src="@/assets/img/adventure/adventure_bg.png" />
             <img class="u-suffix" src="@/assets/img/adventure/adventure_bg.png" />
             <div class="u-content" id="task-box" ref="taskBox">
@@ -74,7 +60,6 @@
 </template>
 
 <script>
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { getAdventureTask } from "@/service/adventure/adventure";
 import { extractTextContent } from "@jx3box/jx3box-common/js/utils";
 import { isPhone } from "@/utils/index";
@@ -92,7 +77,6 @@ export default {
             isUpdate: false,
             school: "2",
             forceid,
-            isMiniProgram: isMiniProgram() || isApp(),
         };
     },
     computed: {

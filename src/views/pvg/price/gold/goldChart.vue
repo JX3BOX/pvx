@@ -209,6 +209,7 @@ export default {
 
             const series = [];
             const dates = []; // 日期集合
+            const isCompactChart = (this.$refs.chart?.clientWidth || 0) <= 720;
             let minV = Infinity;
             let maxV = -Infinity;
 
@@ -290,6 +291,11 @@ export default {
                                 label: {
                                     formatter: `${this.$t("pages.pvg.price.ui.chart.averageShort")} {c}`,
                                     color: this.colorMap[key],
+                                    position: isCompactChart ? "insideEndTop" : "end",
+                                    distance: isCompactChart ? 4 : 5,
+                                    padding: isCompactChart ? [2, 4] : 0,
+                                    borderRadius: isCompactChart ? 4 : 0,
+                                    backgroundColor: isCompactChart ? "rgba(248, 250, 252, 0.88)" : "transparent",
                                 },
                             },
                         ],
@@ -320,10 +326,17 @@ export default {
                     max: maxV,
                     min: minV,
                     interval: (maxV - minV) / 5, // 5段
+                    axisLabel: {
+                        inside: isCompactChart,
+                        margin: isCompactChart ? 4 : 8,
+                        padding: isCompactChart ? [1, 3] : 0,
+                        borderRadius: isCompactChart ? 3 : 0,
+                        backgroundColor: isCompactChart ? "rgba(248, 250, 252, 0.82)" : "transparent",
+                    },
                 },
                 grid: {
-                    left: 20,
-                    right: 90,
+                    left: isCompactChart ? 4 : 20,
+                    right: isCompactChart ? 8 : 90,
                     // bottom: 60,
                     containLabel: true,
                 },

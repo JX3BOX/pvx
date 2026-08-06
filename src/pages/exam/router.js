@@ -1,10 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
-
-const ExamIndex =
-    isMiniProgram() || isApp()
-        ? () => import("@/views/exam/mobile/exam.vue")
-        : () => import("@/views/exam/Index.vue");
+const ExamIndex = () => import("@/views/exam/Index.vue");
 
 const indexMeta = {
     i18n: {

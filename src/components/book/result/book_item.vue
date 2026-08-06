@@ -5,7 +5,7 @@
                 <item-icon
                     :item_id="String(item.ItemID)"
                     :size="36"
-                    :vertical="true"
+                    :vertical="!mobile"
                     @loaded="showFallbackName = false"
                     @error="showFallbackName = true"
                 ></item-icon>
@@ -49,6 +49,10 @@ export default {
         item: {
             type: Object,
             required: true,
+        },
+        mobile: {
+            type: Boolean,
+            default: false,
         },
     },
     methods: {

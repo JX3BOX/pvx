@@ -91,6 +91,7 @@
                     class="m-archive-pages"
                     background
                     layout="total, prev, pager, next, jumper"
+                    :pager-count="responsivePagerCount"
                     :hide-on-single-page="true"
                     :page-size="per_page"
                     :total="total"
@@ -123,9 +124,11 @@ import Type from "@/assets/data/pet_type.json";
 import { getPets, getPet, getPetSearchOptions, getPetLucky, getMapList } from "@/service/pet";
 import dayjs from "@/plugins/day";
 import { ArrowDown } from "@element-plus/icons-vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 
 export default {
     name: "PetList",
+    mixins: [responsivePagination],
     components: {
         petTabs,
         petItem,

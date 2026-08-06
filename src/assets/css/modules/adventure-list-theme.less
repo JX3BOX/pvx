@@ -421,7 +421,23 @@
         }
 
         .m-pvx-adventure-pages {
-            display: none;
+            display: flex;
+            width: 100%;
+            min-width: 0;
+            justify-content: center;
+            overflow: hidden;
+
+            .el-pagination__total,
+            .el-pagination__jump {
+                display: none;
+            }
+
+            .btn-prev,
+            .btn-next,
+            .el-pager li {
+                min-width: 30px;
+                margin: 0 2px;
+            }
         }
     }
 }

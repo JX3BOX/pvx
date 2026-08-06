@@ -1,14 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
         name: "index",
         path: "/",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/homeland/miniprogram/Index.vue")
-                : () => import("@/views/homeland/Index.vue"),
+        component: () => import("@/views/homeland/Index.vue"),
         meta: {
             i18n: {
                 title: "pages.homeland.title",
@@ -20,10 +16,7 @@ const routes = [
     {
         name: "tutorial",
         path: "/tutorial",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/homeland/miniprogram/Tutorial.vue")
-                : () => import("@/views/homeland/Tutorial.vue"),
+        component: () => import("@/views/homeland/Tutorial.vue"),
         meta: {
             i18n: {
                 title: "pages.homeland.tutorial.title",
@@ -35,10 +28,7 @@ const routes = [
     {
         name: "maps",
         path: "/maps",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/homeland/miniprogram/Map.vue")
-                : () => import("@/views/homeland/Maps.vue"),
+        component: () => import("@/views/homeland/Maps.vue"),
         meta: {
             i18n: {
                 title: "pages.homeland.maps.title",

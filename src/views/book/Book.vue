@@ -6,8 +6,8 @@
             :class="[
                 navStatusClass,
                 {
-                    'c-pvx-modern-book-list-main': $route.name === 'index' && !isEmbeddedClient,
-                    'c-pvx-modern-book-single-main': $route.name === 'single' && !isEmbeddedClient,
+                    'c-pvx-modern-book-list-main': $route.name === 'index',
+                    'c-pvx-modern-book-single-main': $route.name === 'single',
                 },
             ]"
             :withoutRight="true"
@@ -26,8 +26,6 @@
 <script>
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
-import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
-
 import { mapState } from "vuex";
 
 export default {
@@ -36,13 +34,12 @@ export default {
     data() {
         return {
             navStatusClass: "is-regular",
-            isEmbeddedClient: isMiniProgram() || isApp(),
         };
     },
     computed: {
         ...mapState(["currentBookType"]),
         bgColor() {
-            if (this.$route.name === "index" && !this.isEmbeddedClient) {
+            if (this.$route.name === "index") {
                 return "#5b5cf5";
             }
             let bgColor = "#d16400";
@@ -77,5 +74,4 @@ export default {
 <style lang="less">
 @import "~@/assets/css/app.less";
 @import "~@/assets/css/book/book.less";
-@import "~@/assets/css/miniprogram.less";
 </style>

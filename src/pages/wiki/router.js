@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 
 const routes = [
     {
@@ -10,10 +9,7 @@ const routes = [
     {
         name: "overview",
         path: "/overview",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/wiki/miniprogram/overview.vue")
-                : () => import("@/views/wiki/overview.vue"),
+        component: () => import("@/views/wiki/overview.vue"),
         meta: {
             i18n: {
                 title: "pages.wiki.overview.title",
@@ -25,10 +21,7 @@ const routes = [
     {
         name: "compare",
         path: "/compare",
-        component:
-            isMiniProgram() || isApp()
-                ? () => import("@/views/wiki/miniprogram/compare.vue")
-                : () => import("@/views/wiki/compare.vue"),
+        component: () => import("@/views/wiki/compare.vue"),
         meta: {
             i18n: {
                 title: "pages.wiki.compare.title",
@@ -60,7 +53,7 @@ const routes = [
                 description: "pages.wiki.catalogue.description",
             },
         },
-        component: () => import("@/views/wiki/miniprogram/catalogue.vue"),
+        redirect: { name: "overview" },
     },
     {
         name: "list",
@@ -73,7 +66,7 @@ const routes = [
                 description: "pages.wiki.list.description",
             },
         },
-        component: () => import("@/views/wiki/miniprogram/achievement.vue"),
+        redirect: { name: "overview" },
     },
     {
         name: "compare/catalogue",
@@ -86,7 +79,7 @@ const routes = [
                 description: "pages.wiki.compare.catalogue.description",
             },
         },
-        component: () => import("@/views/wiki/miniprogram/compare/compare_catalogue.vue"),
+        redirect: { name: "compare" },
     },
     {
         name: "compare/achievement",
@@ -99,7 +92,7 @@ const routes = [
                 description: "pages.wiki.compare.achievement.description",
             },
         },
-        component: () => import("@/views/wiki/miniprogram/compare/compare_achievement.vue"),
+        redirect: { name: "compare" },
     },
 ];
 

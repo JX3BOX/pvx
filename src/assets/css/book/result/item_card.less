@@ -34,7 +34,7 @@
             width: 100%;
             min-width: 0;
             grid-column: 1;
-            grid-template-columns: minmax(76px, 0.35fr) minmax(0, 1fr);
+            grid-template-columns: 56px minmax(0, 1fr);
             align-items: center;
             gap: 12px;
             overflow-wrap: anywhere;
@@ -45,6 +45,33 @@
                 font-size: 12px;
                 font-weight: 600;
             }
+        }
+
+        .u-book-name-value {
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+
+            :deep(.u-item__wrapper.is_vertical) {
+                min-width: 0;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+
+                .u-item-name {
+                    min-width: 0;
+                    padding-top: 0;
+                    padding-left: 10px;
+                    text-align: left;
+                    overflow-wrap: anywhere;
+                }
+            }
+        }
+
+        .u-book-name-text {
+            padding-top: 0;
+            text-align: left;
         }
 
     }
@@ -157,6 +184,8 @@
 
 @media screen and (max-width: 768px) {
     .m-pvx-book-item .u-name .u-book-name-value {
+        flex-direction: row;
+        align-items: center;
         justify-content: flex-start;
     }
 }

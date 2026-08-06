@@ -1,9 +1,5 @@
 <template>
-    <div>
-        <div v-if="isMiniProgram">
-            <router-view></router-view>
-        </div>
-        <div v-else class="p-pvx-achievement">
+    <div class="p-pvx-achievement">
             <CommonNav :forceShow="true"></CommonNav>
             <CommonHeader></CommonHeader>
             <div
@@ -22,13 +18,11 @@
             </div>
             <PvxBacktop color="#fff" bgColor="#5b5cf5" />
             <CommonFooter></CommonFooter>
-        </div>
     </div>
 </template>
 
 <script>
 import CommonHeader from "@jx3box/jx3box-ui/src/CommonHeader.vue";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import SideBar from "@/components/wiki/sidebar.vue";
 import CommonNav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
@@ -45,9 +39,6 @@ export default {
             const userAgent = navigator.userAgent.toLowerCase();
             const mobileKeywords = ["android", "iphone", "ipad", "ipod", "windows phone"];
             return mobileKeywords.some((keyword) => userAgent.includes(keyword));
-        },
-        isMiniProgram() {
-            return isMiniProgram() || isApp();
         },
     },
     watch: {

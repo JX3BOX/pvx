@@ -101,7 +101,12 @@
                 </div>
                 <div v-else class="m-pvx-book-table">
                     <ListHead />
-                    <BookItem v-for="item in subList" :key="item.idKey" :item="item" />
+                    <BookItem
+                        v-for="item in subList"
+                        :key="item.idKey"
+                        :item="item"
+                        :mobile="isPaginationPhoneViewport"
+                    />
                 </div>
                 <el-button
                     v-show="hasNextPage"
@@ -118,6 +123,7 @@
                     background
                     layout="total, prev, pager, next, jumper"
                     :hide-on-single-page="true"
+                    :pager-count="responsivePagerCount"
                     :page-size="per"
                     :total="total"
                     :current-page="page"
@@ -154,11 +160,13 @@ import { getList } from "@/service/book";
 import { ArrowDown, Search } from "@element-plus/icons-vue";
 import { concat, debounce } from "lodash";
 import { mapState } from "vuex";
+import responsivePagination from "@/mixins/responsive-pagination";
 
 const RECENT_TYPE = 8;
 
 export default {
     name: "BookIndex",
+    mixins: [responsivePagination],
     components: {
         ArrowDown,
         BookCard,

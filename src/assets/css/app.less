@@ -1,5 +1,4 @@
 @import "common/basic.less";
-@import "./miniprogram.less";
 
 body {
     background-color: #fff;
@@ -31,22 +30,6 @@ body {
         padding-right: 20px;
     }
 
-    .wechat-miniprogram {
-        .m-main {
-            padding-top: 0;
-        }
-
-        .m-comments {
-            .none;
-        }
-
-        .m-pet-navigation {
-            top: 0;
-            margin: 0 -20px;
-            width: 100%;
-            padding: 20px;
-        }
-    }
 }
 
 @media screen and (max-width: @phone) {
@@ -85,30 +68,6 @@ body {
         .m-header-info {
             align-items: center;
         }
-    }
-}
-
-// 适配小程序端
-.v-miniprogram {
-
-    .c-header,
-    .c-footer,.c-footer--v4 {
-        .none;
-    }
-
-    .c-main {
-        &.is-regular {
-            padding: 0;
-            margin: 0;
-        }
-    }
-
-    .m-pvx-aside {
-        .none;
-    }
-
-    .m-main {
-        padding: 0;
     }
 }
 

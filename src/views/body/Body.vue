@@ -48,7 +48,6 @@
 <script>
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { __OriginRoot } from "@/utils/config";
 export default {
     name: "Body",
@@ -62,7 +61,6 @@ export default {
         },
     },
     methods: {
-        isMiniProgram,
         statusChange(navStatusClass) {
             this.navStatusClass = navStatusClass;
         },
@@ -74,10 +72,4 @@ export default {
 </script>
 <style lang="less">
     @import "~@/assets/css/app.less";
-
-    .v-miniprogram {
-        .m-main {
-            padding: 0;
-        }
-    }
 </style>

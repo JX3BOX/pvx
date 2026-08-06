@@ -22,7 +22,6 @@
 <script>
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
-import { isApp, isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 export default {
     name: "Index",
     components: {
@@ -32,7 +31,6 @@ export default {
     data: function () {
         return {
             navStatusClass: "is-regular",
-            isPriceMiniApp: isMiniProgram() || isApp(),
         };
     },
     computed: {
@@ -46,10 +44,10 @@ export default {
             return ["daily", "calendar", "server"].includes(this.$route.name);
         },
         isModernPrice() {
-            return this.$route.name === "price" && !this.isPriceMiniApp;
+            return this.$route.name === "price";
         },
         isModernManufacture() {
-            return this.$route.name === "manufacture" && window.innerWidth > 768;
+            return this.$route.name === "manufacture";
         },
     },
     methods: {

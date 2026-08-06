@@ -53,7 +53,6 @@
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
 import User from "@jx3box/jx3box-common/js/user";
-import { isMiniProgram } from "@jx3box/jx3box-common/js/utils";
 import { setStar, cancelStar, onlineFace, offlineFace, deleteFace } from "@/service/face/index.js";
 export default {
     name: "App",
@@ -87,7 +86,6 @@ export default {
         },
     },
     methods: {
-        isMiniProgram,
         statusChange(navStatusClass) {
             this.navStatusClass = navStatusClass;
         },
@@ -217,11 +215,4 @@ export default {
 
 <style lang="less">
     @import "~@/assets/css/app.less";
-    @import "~@/assets/css/miniprogram.less";
-
-    .v-miniprogram {
-        .m-main {
-            padding: 0;
-        }
-    }
 </style>

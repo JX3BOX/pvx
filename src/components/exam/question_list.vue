@@ -47,7 +47,6 @@
                 header-align="center"
                 :label="$t('pages.exam.ui.question.columns.action')"
                 width="124"
-                v-if="!isMiniProgram"
             >
                 <template #default="scope">
                     <el-button class="u-answer-action" type="primary" plain @click.stop="takeQuestion(scope.row)">
@@ -77,14 +76,13 @@
 </template>
 <script>
 import { __clients } from "@/utils/config";
-import { isMiniProgram, isApp } from "@jx3box/jx3box-common/js/utils";
 import { EditPen } from "@element-plus/icons-vue";
 export default {
     name: "QuestionList",
     props: ["data"],
     components: { EditPen },
     data: function () {
-        return { clients: __clients, isMiniProgram: isMiniProgram() || isApp() };
+        return { clients: __clients };
     },
     computed: {
         client: function () {
