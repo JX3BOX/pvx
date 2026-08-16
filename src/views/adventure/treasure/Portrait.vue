@@ -40,13 +40,15 @@
                     :role="currentRole"
                     :camp="currentCamp"
                     :refreshing="refreshing"
+                    :saving="saving"
+                    :can-save="isOver"
                     :show-sync-hint="!isVirtual() && !isSync"
                     :show-sync-action="false"
-                    :show-save-action="false"
                     @update:role="currentRole = $event"
                     @update:camp="currentCamp = $event"
                     @refresh="onRefresh"
                     @role-setting="onRoleSet"
+                    @save="saveAsImage"
                 />
 
                 <div ref="stageScroll" class="m-pvx-treasure-art-scroll">
@@ -76,6 +78,7 @@ import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treas
 import getData from "@/assets/js/treasure/index.js";
 import User from "@jx3box/jx3box-common/js/user";
 import { __Links, __Root } from "@/utils/config";
+import { saveElementAsImage } from "@/utils/saveElementAsImage";
 import PortraitContent from "./miniprogram/PortraitContent.vue";
 import CommonNav from "@/components/Nav_v5.vue";
 import PvxActionButton from "@/components/design/PvxActionButton.vue";
@@ -117,6 +120,7 @@ export default {
         isSync: false,
         loading: false,
         refreshing: false,
+        saving: false,
         finishTimer: null,
         login_url: __Links.account.login + "?redirect=" + location.href,
     }),
@@ -191,6 +195,22 @@ export default {
                 this.$message.error(this.$t("pages.adventure.treasure.ui.refreshFailed"));
             } finally {
                 this.refreshing = false;
+            }
+        },
+        async saveAsImage() {
+            if (this.saving) return;
+            const oldZoom = this.contentZoom;
+            this.saving = true;
+            try {
+                this.contentZoom = 1;
+                await this.$nextTick();
+                await saveElementAsImage(this.$refs.capture, "adventure-treasure-portrait.png");
+            } catch (error) {
+                console.error("Failed to save portrait treasure image", error);
+                this.$message.error(this.$t("pages.adventure.treasure.ui.saveFailed"));
+            } finally {
+                this.contentZoom = oldZoom;
+                this.saving = false;
             }
         },
         async loadRole(userJx3Id) {

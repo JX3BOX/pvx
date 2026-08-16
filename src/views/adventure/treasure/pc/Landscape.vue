@@ -40,6 +40,7 @@
                     :role="currentRole"
                     :camp="currentCamp"
                     :refreshing="refreshing"
+                    :saving="saving"
                     :can-save="isOver"
                     :show-sync-hint="!isVirtual() && !isSync"
                     @update:role="currentRole = $event"
@@ -76,8 +77,8 @@
 import { getUserRoles, refreshAchievementsTask } from "@/service/adventure/treasure/index.js";
 import treasureCommon from "@/assets/js/treasure/index.js";
 import User from "@jx3box/jx3box-common/js/user";
-import html2canvas from "html2canvas";
 import { __Links, __cdn, __Root } from "@/utils/config";
+import { saveElementAsImage } from "@/utils/saveElementAsImage";
 import LandscapeContent from "./LandscapeContent.vue";
 import CommonNav from "@/components/Nav_v5.vue";
 import PvxActionButton from "@/components/design/PvxActionButton.vue";
@@ -120,6 +121,7 @@ export default {
         isOver: false,
         loading: false,
         refreshing: false,
+        saving: false,
         startTimer: null,
         finishTimer: null,
         login_url: __Links.account.login + "?redirect=" + location.href,
@@ -199,28 +201,19 @@ export default {
             }
         },
         async saveAsImage() {
+            if (this.saving) return;
             const oldZoom = this.contentZoom;
+            this.saving = true;
             try {
                 this.contentZoom = 1;
                 await this.$nextTick();
-
-                const element = this.$refs.capture;
-                const canvas = await html2canvas(element, {
-                    allowTaint: true,
-                    useCORS: true,
-                    width: element.offsetWidth,
-                    height: element.offsetHeight,
-                });
-
-                const img = canvas.toDataURL("image/png");
-                const a = document.createElement("a");
-                a.href = img;
-                a.download = "adventure-treasure-landscape.png";
-                a.click();
+                await saveElementAsImage(this.$refs.capture, "adventure-treasure-landscape.png");
             } catch (error) {
+                console.error("Failed to save landscape treasure image", error);
                 this.$message.error(this.$t("pages.adventure.treasure.ui.saveFailed"));
             } finally {
                 this.contentZoom = oldZoom;
+                this.saving = false;
             }
         },
         async loadRole(userJx3Id) {

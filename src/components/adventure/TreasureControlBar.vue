@@ -79,7 +79,7 @@
         </p>
 
         <template #action>
-            <div v-if="variant !== 'portrait'" class="m-pvx-treasure-actions">
+            <div v-if="variant !== 'portrait' || showSaveAction" class="m-pvx-treasure-actions">
                 <el-tooltip v-if="!isIntegratedVariant" :content="$t('pages.adventure.treasure.ui.refreshTip')">
                     <el-button :loading="refreshing" :disabled="!role" @click="$emit('refresh')">
                         <el-icon><RefreshRight /></el-icon>
@@ -100,7 +100,12 @@
                     <el-icon><Upload /></el-icon>
                     <span>{{ $t("pages.adventure.treasure.ui.sync") }}</span>
                 </a>
-                <el-button v-if="showSaveAction && canSave" type="primary" @click="$emit('save')">
+                <el-button
+                    v-if="showSaveAction && canSave"
+                    type="primary"
+                    :loading="saving"
+                    @click="$emit('save')"
+                >
                     <el-icon><Download /></el-icon>
                     {{ $t("pages.adventure.treasure.ui.save") }}
                 </el-button>
@@ -138,6 +143,10 @@ export default {
             default: "",
         },
         refreshing: {
+            type: Boolean,
+            default: false,
+        },
+        saving: {
             type: Boolean,
             default: false,
         },

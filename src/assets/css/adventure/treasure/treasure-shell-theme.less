@@ -68,10 +68,6 @@
 
     .m-pvx-treasure-toolbar.is-portrait {
         width: min(100%, 940px);
-
-        > div:last-child {
-            display: none;
-        }
     }
 
     .m-pvx-treasure-toolbar.is-landscape {
@@ -171,6 +167,11 @@
     .m-pvx-treasure-art-stage {
         min-width: 100%;
         box-sizing: border-box;
+    }
+
+    #capture {
+        // html2canvas 1.4.1 cannot parse Tailwind 4's inherited oklch color.
+        color: #1e293b;
     }
 
     .m-pvx-treasure-loading {
@@ -295,7 +296,7 @@
         }
 
         .m-pvx-treasure-toolbar.is-portrait {
-            gap: 0;
+            gap: 10px;
         }
 
         .m-pvx-treasure-toolbar.is-landscape {
@@ -333,6 +334,10 @@
             .m-pvx-treasure-fields {
                 grid-template-columns: minmax(0, 1fr);
                 gap: 10px;
+            }
+
+            .m-pvx-treasure-actions {
+                grid-template-columns: minmax(0, 1fr);
             }
 
             .m-pvx-treasure-field {
