@@ -34,6 +34,9 @@
                         <span class="u-time">
                             <em class="u-mobile-label">{{ $t("pages.adventure.single.ui.records.activeTime") }}</em>
                             {{ formatWikiDate(item.dwTime) }}
+                            <time v-if="hasTimestamp(item.dwTime)" class="u-exact-time">
+                                ({{ formatExactTime(item.dwTime) }})
+                            </time>
                         </span>
                         <span class="u-server">
                             <em class="u-mobile-label">{{ $t("pages.adventure.single.ui.records.server") }}</em>
@@ -61,7 +64,7 @@
 import servers from "@jx3box/jx3box-data/data/server/server_cn.json";
 import WikiPanel from "@jx3box/jx3box-ui/src/wiki/WikiPanel";
 import { getUserInfo, getSerendipity } from "@/service/adventure/serendipity";
-import { showRecently, showDate as showDateFn } from "@/utils/moment";
+import { moment, showRecently, showDate as showDateFn } from "@/utils/moment";
 import User from "@jx3box/jx3box-common/js/user";
 export default {
     name: "serendipity",
@@ -89,8 +92,23 @@ export default {
         },
     },
     methods: {
+        toTimestamp(val) {
+            if (val === null || val === undefined || val === "") {
+                return null;
+            }
+            const timestamp = Number(val);
+            return Number.isFinite(timestamp) ? timestamp * 1000 : null;
+        },
+        hasTimestamp(val) {
+            return this.toTimestamp(val) !== null;
+        },
         formatWikiDate(val) {
-            return showRecently(val * 1000, this.$i18n.locale);
+            const timestamp = this.toTimestamp(val);
+            return timestamp === null ? "" : showRecently(timestamp, this.$i18n.locale);
+        },
+        formatExactTime(val) {
+            const timestamp = this.toTimestamp(val);
+            return timestamp === null ? "" : moment(timestamp).format("HH:mm:ss");
         },
         formatDate(val) {
             return showDateFn(val);
