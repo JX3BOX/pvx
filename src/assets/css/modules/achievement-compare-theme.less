@@ -125,6 +125,24 @@
             overflow: hidden;
             border: 1px solid rgba(245, 224, 201, 0.1);
             border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+            transition:
+                border-color @pvx-duration-fast @pvx-ease-standard,
+                box-shadow @pvx-duration-fast @pvx-ease-standard,
+                transform @pvx-duration-fast @pvx-ease-standard;
+
+            @media (hover: hover) and (pointer: fine) {
+                &:hover {
+                    border-color: rgba(216, 183, 125, 0.42);
+                    box-shadow: 0 11px 24px rgba(0, 0, 0, 0.2);
+                    transform: translateY(-1px);
+                }
+            }
+
+            &:focus-visible {
+                outline: 2px solid #d8b77d;
+                outline-offset: 3px;
+            }
 
             .u-text {
                 right: 7px;
@@ -135,28 +153,29 @@
                 min-height: 24px;
                 align-items: baseline;
                 justify-content: center;
+                flex-direction: row;
                 gap: 4px;
                 padding: 3px 5px;
                 border: 1px solid rgba(121, 92, 54, 0.08);
-                border-radius: 7px;
+                border-radius: 8px;
                 color: rgba(91, 80, 66, 0.74);
-                background: rgba(255, 251, 243, 0.82);
+                background: rgba(255, 251, 243, 0.9);
                 box-shadow: 0 3px 10px rgba(81, 58, 29, 0.08);
                 font-size: 10px;
                 line-height: 16px;
+                text-align: center;
                 white-space: nowrap;
                 backdrop-filter: blur(3px);
 
                 .u-label {
-                    min-width: 0;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    flex: none;
                 }
 
                 .u-count {
                     flex: none;
                     color: #b37a36;
                     font-size: 13px;
+                    font-weight: 700;
                     font-variant-numeric: tabular-nums;
                     line-height: 16px;
                 }

@@ -284,8 +284,10 @@ export default {
         },
 
         getRenderList() {
-            //获取   achievements，二维数组转成一维数组
-            const achievements = this.info.achievements?.flat(Infinity) || [];
+            // 零资历成就仍保留在详情列表，但不进入数量与资历进度统计。
+            const achievements = (this.info.achievements?.flat(Infinity) || []).filter(
+                (achievementId) => Number(this.pointsData?.[achievementId]) > 0
+            );
             this.categoryCount = achievements.length;
 
             const finishedAchievements = achievements.filter(item =>

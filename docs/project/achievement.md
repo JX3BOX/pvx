@@ -10,6 +10,7 @@
 - `docs/design/responsive-adaptation-guide.md`
 - `docs/design/achievement-layout.md`
 - `docs/project/pvx-modernization.md`
+- [资历总览统计业务规则](./achievement-statistics.md)
 
 ## 2. 当前模块范围
 
@@ -84,7 +85,8 @@
 ## 4. 设计边界
 
 资历宝典的背景资产、配色、页面层级、公共组件外观和响应式结果统一维护在
-`docs/design/achievement-layout.md`。本文只保留业务结构、状态、统计口径和实施边界。
+`docs/design/achievement-layout.md`。本文只保留业务结构、状态和实施边界；总览的字段定义、分类规则、统计公式和数据快照统一维护在
+[资历总览统计业务规则](./achievement-statistics.md)。
 
 ## 5. 建议目标结构
 
@@ -235,7 +237,13 @@ npm run build:dev
 git diff --check
 ```
 
-当前仓库没有资历宝典专项自动测试。实施时至少应补充纯数据聚合函数测试，避免视觉重构改变资历统计口径。
+总览已有纯数据聚合函数测试：
+
+```bash
+node scripts/test-achievement-statistics.js
+```
+
+后续调整总览统计时必须运行该测试；亲友对比与渡劫方案仍需继续补充专项自动测试。
 
 ## 9. 实施原则与阶段结果
 
@@ -265,3 +273,9 @@ git diff --check
 - 回归：已在当前 `12028` 联调页面检查桌面、iPad 和 `414 × 896` 手机布局，三页无页面级横向溢出；局部表格和分类导航只在自身容器滚动。
 
 后续仍需完成阶段 E 的小程序/App 专用端复核，以及普通 Web 写操作的完整业务回归。当前开发约束是只同步到浏览器正在使用的 `12028` 项目，不另启其他端口；修改对比或渡劫时必须回归已经改造完成的总览页面。
+
+## 11. 总览分类统计口径
+
+总览分类统计的唯一业务基线是 [资历总览统计业务规则](./achievement-statistics.md)。该文档完整定义三个数据源、`point / general / visible` 字段、隐藏开关、总体与分类公式、99 烟花、绝版成就、异常边界、验收数据，并附当前 `general=0/3` 的完整 ID 快照。
+
+维护本页面时只在本文记录模块范围和实施状态，不再复制统计细则；任何口径调整都应先更新业务规则文档，再同步统计实现与自动测试。

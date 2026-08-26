@@ -44,98 +44,20 @@
         </PvxSurface>
 
         <div v-else class="m-achievement-overview-layout" v-loading="pageLoading">
-            <PvxSurface v-if="currentRole" class="m-achievement-hero" tag="header" padding="medium">
-                <div class="m-achievement-hero__main">
-                    <div class="m-achievement-hero__copy">
-                        <span class="u-achievement-eyebrow">{{ $t("pages.wiki.overview.ui.eyebrow") }}</span>
-                        <h1>{{ viewAchievementsName || $t("pages.wiki.overview.ui.overview") }}</h1>
-                        <p>{{ $t("pages.wiki.overview.ui.description") }}</p>
-
-                        <div class="m-achievement-role">
-                            <img
-                                class="u-achievement-school"
-                                :src="showSchoolIcon(currentRole.mount)"
-                                :alt="$t('pages.wiki.overview.ui.schoolIcon')"
-                            />
-                            <div class="m-achievement-role__info">
-                                <strong>{{ formatRoleLabel(currentRole) }}</strong>
-                            </div>
-                            <el-dropdown trigger="click">
-                                <button
-                                    type="button"
-                                    class="u-achievement-role-switch"
-                                    :aria-label="$t('pages.wiki.overview.ui.switchRole')"
-                                >
-                                    <span>{{ $t("pages.wiki.overview.ui.switchRole") }}</span>
-                                    <img src="@/assets/img/wiki/overview/toggle-user-icon.svg" alt="" />
-                                </button>
-                                <template #dropdown>
-                                    <el-dropdown-menu class="m-role-dropdown m-role-dropdown--achievement">
-                                        <el-dropdown-item v-for="role in roleList" :key="role.ID">
-                                            <button
-                                                type="button"
-                                                class="m-role-item"
-                                                :class="{ active: role.jx3id === currentRole.jx3id }"
-                                                @click="onChangeRole(role)"
-                                            >
-                                                <span class="m-role-item__name">
-                                                    <img
-                                                        class="u-role-school"
-                                                        :src="showSchoolIcon(role.mount)"
-                                                        alt=""
-                                                    />
-                                                    <span>{{ role.name }}</span>
-                                                </span>
-                                                <span>{{ role.server }}</span>
-                                            </button>
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
-                        </div>
-                    </div>
-
-                    <div
-                        class="m-achievement-avatar"
-                        :class="{
-                            'has-avatar-frame': showAvatarFrame,
-                            'is-category-art': !displayRoleAvatar,
-                        }"
-                    >
-                        <img v-if="showAvatarFrame" class="u-avatar-border" :src="avatar_frame" alt="" />
-                        <img
-                            v-if="!displayRoleAvatar"
-                            class="u-achievement-category-art"
-                            :src="categoryTitleImage"
-                            alt=""
-                        />
-                        <RoleAvatar
-                            v-else
-                            class="u-avatar-img"
-                            :mount="currentRole.mount"
-                            :body_type="currentRole.body_type"
-                        />
-                    </div>
-                </div>
-
-                <div class="m-achievement-summary">
-                    <div class="m-achievement-summary__item">
-                        <span>{{ currentSeniorityLabel }}</span>
-                        <strong>{{ ownPointsCount }}</strong>
-                    </div>
-                    <div class="m-achievement-summary__item">
-                        <span>{{ $t("pages.wiki.overview.ui.totalSeniority") }}</span>
-                        <strong>{{ allPointsCount }}</strong>
-                    </div>
-                    <div class="m-achievement-summary__item is-progress">
-                        <span>{{ $t("pages.wiki.overview.ui.completion") }}</span>
-                        <strong>{{ totalProgress }}%</strong>
-                    </div>
-                    <div class="m-achievement-progress" aria-hidden="true">
-                        <span :style="{ width: `${totalProgress}%` }"></span>
-                    </div>
-                </div>
-            </PvxSurface>
+            <AchievementOverviewPanel
+                v-if="currentRole"
+                :current-role="currentRole"
+                :role-list="roleList"
+                :avatar-frame="avatar_frame || ''"
+                :category-name="viewAchievementsName"
+                :category-image="categoryTitleImage"
+                :display-role-avatar="displayRoleAvatar"
+                :overview="achievementOverview"
+                :category-summary="categorySummary"
+                :loading="roleAchievementsLoading"
+                v-model:show-hidden="showHiddenStatistics"
+                @change-role="onChangeRole"
+            />
 
             <PvxSurface
                 v-if="currentRole && !showList"
@@ -194,14 +116,14 @@
                                         class="u-achievement-count"
                                         :aria-label="
                                             $t('pages.wiki.overview.ui.achievementCount', {
-                                                own: item.ownAchievements.length,
-                                                all: item.allAchievements.length,
+                                                own: item.completedAchievementCount,
+                                                all: item.totalAchievementCount,
                                             })
                                         "
                                     >
                                         <img src="@/assets/img/wiki/overview/cj-logo.svg" alt="" />
                                         <span aria-hidden="true">
-                                            {{ item.ownAchievements.length }}/{{ item.allAchievements.length }}
+                                            {{ item.completedAchievementCount }}/{{ item.totalAchievementCount }}
                                         </span>
                                     </small>
                                 </span>
@@ -219,9 +141,7 @@
                             <ArrowRight />
                         </div>
                         <div class="m-achievement-category-progress" aria-hidden="true">
-                            <span
-                                :style="{ width: `${getCurrentProgress(item.ownPoints, item.allPoints)}%` }"
-                            ></span>
+                            <span :style="{ width: `${getCurrentProgress(item.ownPoints, item.allPoints)}%` }"></span>
                         </div>
                     </button>
                 </div>
@@ -246,9 +166,7 @@
                                 v-for="(item, index) in categoryPath"
                                 :key="`list-context-${item.sub}-${item.detail || item.name}`"
                             >
-                                <ArrowRight
-                                    class="u-achievement-context-separator"
-                                />
+                                <ArrowRight class="u-achievement-context-separator" />
                                 <button
                                     type="button"
                                     :class="{ 'is-current': index === categoryPath.length - 1 }"
@@ -269,21 +187,18 @@
                                 :aria-label="
                                     $t('pages.wiki.overview.ui.achievementCount', {
                                         own: completedAchievementCount,
-                                        all: achievements_list.length,
+                                        all: countableAchievementCount,
                                     })
                                 "
                             >
                                 <img src="@/assets/img/wiki/overview/cj-logo.svg" alt="" />
                                 <span aria-hidden="true">
-                                    {{ completedAchievementCount }}/{{ achievements_list.length }}
+                                    {{ completedAchievementCount }}/{{ countableAchievementCount }}
                                 </span>
                             </p>
                         </div>
                     </div>
-                    <el-checkbox
-                        v-model="showIncompleteOnly"
-                        class="u-achievement-incomplete-filter"
-                    >
+                    <el-checkbox v-model="showIncompleteOnly" class="u-achievement-incomplete-filter">
                         {{ $t("pages.wiki.overview.ui.onlyIncomplete") }}
                     </el-checkbox>
                 </div>
@@ -299,11 +214,7 @@
                         header-cell-class-name="u-table-header-cell"
                         v-loading="loading"
                     >
-                        <el-table-column
-                            prop="Name"
-                            :label="$t('pages.wiki.overview.ui.name')"
-                            min-width="220"
-                        >
+                        <el-table-column prop="Name" :label="$t('pages.wiki.overview.ui.name')" min-width="220">
                             <template #default="scope">
                                 <a
                                     :href="getLink('achievement', scope.row.ID)"
@@ -350,10 +261,7 @@
                                     }"
                                     effect="plain"
                                 >
-                                    <CircleCheckFilled
-                                        v-if="scope.row.isCompleted !== false"
-                                        aria-hidden="true"
-                                    />
+                                    <CircleCheckFilled v-if="scope.row.isCompleted !== false" aria-hidden="true" />
                                     {{
                                         scope.row.isCompleted === false
                                             ? $t("pages.wiki.overview.ui.incomplete")
@@ -421,9 +329,9 @@
 
 <script>
 import User from "@jx3box/jx3box-common/js/user";
-import { showSchoolIcon, iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
+import { iconLink, getLink } from "@jx3box/jx3box-common/js/utils";
 import {
-    getAchievementPoints,
+    getAchievementPointsV2,
     getVirtualRoleAchievements,
     getRoleGameAchievements,
     getMenus,
@@ -431,7 +339,7 @@ import {
     getAchievementRewardItems,
 } from "@/service/achievement";
 import { getUserRoles } from "@/service/team";
-import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
+import AchievementOverviewPanel from "@/components/wiki/AchievementOverviewPanel.vue";
 import PvxActionButton from "@/components/design/PvxActionButton.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
@@ -439,6 +347,13 @@ import { getMyInfo } from "@/service/user";
 import { __imgPath, __Links } from "@/utils/config";
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { cloneDeep } from "lodash";
+import {
+    buildAchievementOverview,
+    collectMenuAchievementIds,
+    createAchievementPointMap,
+    normalizeAchievementMetadata,
+    selectMenuRootsByGeneral,
+} from "@/utils/achievementStatistics";
 import {
     ArrowRight,
     CircleCheckFilled,
@@ -452,6 +367,7 @@ export default {
     name: "wiki-achievement-overview",
     props: [],
     components: {
+        AchievementOverviewPanel,
         ArrowRight,
         CircleCheckFilled,
         CollectionTag,
@@ -460,7 +376,6 @@ export default {
         PvxEmptyState,
         PvxSurface,
         Present,
-        RoleAvatar,
         UserFilled,
         WarningFilled,
         "jx3-item": Item,
@@ -469,6 +384,7 @@ export default {
         return {
             userInfo: null,
             achievementData: {},
+            achievementMetadata: {},
             pointsData: {},
             list: [],
             roleList: [],
@@ -483,6 +399,7 @@ export default {
             showList: false,
             achievements_list: [],
             showIncompleteOnly: false,
+            showHiddenStatistics: true,
             loading: false,
             loadingDelayTimer: null,
             achievementRequestId: 0,
@@ -491,6 +408,8 @@ export default {
             categoryPath: [],
             pageLoading: User.isLogin(),
             pageError: false,
+            roleAchievementRequestId: 0,
+            roleAchievementsLoading: false,
         };
     },
     computed: {
@@ -513,32 +432,39 @@ export default {
         viewAchievementsName() {
             return this.$store.state.viewAchievementsName;
         },
-        currentSeniorityLabel() {
-            if (!this.viewAchievementsName) {
-                return this.$t("pages.wiki.overview.ui.currentSeniority");
-            }
-            return this.$t("pages.wiki.overview.ui.categorySeniority", {
-                category: this.viewAchievementsName,
-            });
-        },
         displayRoleAvatar() {
             return !this.viewAchievementsName || this.showList;
-        },
-        showAvatarFrame() {
-            return Boolean(this.avatar_frame && this.displayRoleAvatar);
         },
         hasAchievementRewards() {
             return this.achievements_list.some((item) => this.hasRewardReference(item));
         },
-        incompleteAchievementCount() {
-            return this.achievements_list.filter((item) => item.isCompleted === false).length;
+        countableAchievements() {
+            return this.achievements_list.filter((item) => this.isCountableAchievementId(item.ID));
+        },
+        countableAchievementCount() {
+            return this.countableAchievements.length;
         },
         completedAchievementCount() {
-            return this.achievements_list.length - this.incompleteAchievementCount;
+            return this.countableAchievements.filter((item) => item.isCompleted !== false).length;
         },
         displayedAchievements() {
             if (!this.showIncompleteOnly) return this.achievements_list;
             return this.achievements_list.filter((item) => item.isCompleted === false);
+        },
+        achievementOverview() {
+            return buildAchievementOverview({
+                metadata: this.achievementMetadata,
+                completedAchievementIds: this.$store.state.achievements,
+                includeHidden: this.showHiddenStatistics,
+            });
+        },
+        categorySummary() {
+            if (!this.viewAchievementsName) return {};
+            return {
+                completedPoints: this.ownPointsCount,
+                totalPoints: this.allPointsCount,
+                pointProgress: Number(this.totalProgress),
+            };
         },
 
         // 总进度
@@ -554,18 +480,8 @@ export default {
             });
             return count;
         },
-        // 我拥有的所有资历点数
+        // 当前目录中我拥有的资历点数
         ownPointsCount() {
-            if (!this.viewAchievementsName) {
-                let total = 0,
-                    my_achievements = this.$store.state.achievements;
-                my_achievements.forEach((item) => {
-                    const itemId = String(item);
-                    const numId = Number(item);
-                    total = total + (this.pointsData[itemId] || this.pointsData[numId] || 0);
-                });
-                return total;
-            }
             let count = 0;
             this.list.forEach((item) => {
                 count += item.ownPoints || 0;
@@ -607,6 +523,7 @@ export default {
                 const { jx3id } = val;
                 if (jx3id) {
                     this.$store.commit("SET_STATE", { key: "achievementsVirtual", value: [] });
+                    this.$store.commit("SET_STATE", { key: "achievements", value: [], isSession: true });
                     this.loadRoleAchievements(jx3id);
                 }
                 this.getRenderList();
@@ -620,10 +537,14 @@ export default {
     beforeUnmount() {
         clearTimeout(this.loadingDelayTimer);
         this.rewardRequestId += 1;
+        this.roleAchievementRequestId += 1;
     },
     methods: {
         iconLink,
         getLink,
+        isCountableAchievementId(id) {
+            return Number(this.achievementMetadata[String(id)]?.point) > 0;
+        },
         hasRewardReference(row) {
             return Boolean(this.getRewardKey(row));
         },
@@ -735,18 +656,13 @@ export default {
                     .then((res) => {
                         if (requestId !== this.rewardRequestId) return;
                         const items = res?.data?.list || [];
-                        const itemMap = new Map(
-                            items.map((item) => [String(item?.id || item?.idKey || ""), item])
-                        );
+                        const itemMap = new Map(items.map((item) => [String(item?.id || item?.idKey || ""), item]));
 
                         keys.forEach((key) => {
                             const item = itemMap.get(key);
                             if (this.isValidRewardItem(item, key)) {
                                 try {
-                                    sessionStorage.setItem(
-                                        `item-${client}-${key}`,
-                                        JSON.stringify(item)
-                                    );
+                                    sessionStorage.setItem(`item-${client}-${key}`, JSON.stringify(item));
                                 } catch {
                                     // 缓存不可用不应影响奖励展示。
                                 }
@@ -812,14 +728,6 @@ export default {
             this.currentRole = role;
             window.scrollTo({ top: 0, behavior: "smooth" });
         },
-        formatRoleLabel(role) {
-            if (!role?.server) return role?.name || "";
-            return this.$t("pages.wiki.overview.ui.roleWithServer", {
-                name: role.name,
-                server: role.server,
-            });
-        },
-        showSchoolIcon,
         getCategoryImage(name) {
             return require(`@/assets/img/wiki/overview/item/${name}.png`);
         },
@@ -873,15 +781,11 @@ export default {
                 );
                 if (sidebar && window.matchMedia("(min-width: 1134px)").matches) {
                     const stickyTop = Number.parseFloat(window.getComputedStyle(sidebar).top) || 0;
-                    this.setScrollTopImmediately(
-                        scrollContainer,
-                        Math.max(0, window.scrollY + sectionTop - stickyTop)
-                    );
+                    this.setScrollTopImmediately(scrollContainer, Math.max(0, window.scrollY + sectionTop - stickyTop));
                     return;
                 }
 
-                const scrollMarginTop =
-                    Number.parseFloat(window.getComputedStyle(section).scrollMarginTop) || 0;
+                const scrollMarginTop = Number.parseFloat(window.getComputedStyle(section).scrollMarginTop) || 0;
                 this.setScrollTopImmediately(
                     scrollContainer,
                     Math.max(0, window.scrollY + sectionTop - scrollMarginTop)
@@ -917,7 +821,7 @@ export default {
                         if (achievementIds.has(achievementId)) return;
 
                         achievementIds.add(achievementId);
-                        achievement.isCompleted = menu.ownAchievements.includes(achievement.ID);
+                        achievement.isCompleted = menu.ownAchievements.includes(String(achievement.ID));
                         arr.push(achievement);
                     };
 
@@ -955,9 +859,6 @@ export default {
             const currentCategory = this.categoryPath[this.categoryPath.length - 1];
             this.getRenderList(currentCategory?.children);
         },
-        loadData() {
-            return this.getList();
-        },
         getRenderList(data) {
             data = data || this.achievementData;
             const list = Object.keys(data).map((key) => {
@@ -969,6 +870,8 @@ export default {
                     name: item.name,
                     allAchievements: allData.allAchievements,
                     ownAchievements: allData.ownAchievements,
+                    totalAchievementCount: allData.totalAchievementCount,
+                    completedAchievementCount: allData.completedAchievementCount,
                     children: item.children,
                     allPoints: allData.allPoints,
                     ownPoints: allData.ownPoints,
@@ -998,73 +901,44 @@ export default {
                 return `linear-gradient(90deg, rgba(247, 247, 247, 1) 0%, rgba(204, 177, 175, 1) 100%)`;
             }
         },
-        // 回调获取所有成就
-        getAllachievementsData(
-            data,
-            allAchievements = [],
-            ownAchievements = [],
-            countData = { allPoints: 0, ownPoints: 0 }
-        ) {
-            // 我完成的成就
-            const ownAllAchievements = this.$store.state.achievements;
-            // console.log("成就循环", data);
-            data.achievements.forEach((aItem) => {
-                // 判断aItem是否是数组
-                if (Array.isArray(aItem)) {
-                    aItem.forEach((item) => {
-                        if (this.pointsData[item]) {
-                            countData.allPoints += this.pointsData[item];
-                            allAchievements.push(item);
-                            if (ownAllAchievements.includes(String(item))) {
-                                countData.ownPoints += this.pointsData[item];
-                                ownAchievements.push(item);
-                            }
-                        }
-                    });
-                } else {
-                    if (this.pointsData[aItem]) {
-                        countData.allPoints += this.pointsData[aItem];
-                        allAchievements.push(aItem);
-                        if (ownAllAchievements.includes(String(aItem))) {
-                            countData.ownPoints += this.pointsData[aItem];
-                            ownAchievements.push(aItem);
-                        }
-                    }
-                }
-            });
+        // 递归展开目录中的系列成就，并按成就 ID 去重汇总。
+        getAllachievementsData(data) {
+            const allAchievements = [...collectMenuAchievementIds([data])];
+            const ownAllAchievements = new Set(this.$store.state.achievements.map(String));
+            const ownAchievements = allAchievements.filter((id) => ownAllAchievements.has(id));
+            const countableAchievements = allAchievements.filter((id) => this.isCountableAchievementId(id));
+            const completedCountableAchievements = countableAchievements.filter((id) =>
+                ownAllAchievements.has(id)
+            );
+            const sumPoints = (ids) => ids.reduce((total, id) => total + Number(this.pointsData[id] || 0), 0);
 
-            if (data.children) {
-                data.children.forEach((item) => {
-                    this.getAllachievementsData(item, allAchievements, ownAchievements, countData);
-                });
-            }
-
-            // 去重
             return {
-                allAchievements: allAchievements,
-                allPoints: countData.allPoints,
-                ownAchievements: ownAchievements,
-                ownPoints: countData.ownPoints,
+                allAchievements,
+                ownAchievements,
+                totalAchievementCount: countableAchievements.length,
+                completedAchievementCount: completedCountableAchievements.length,
+                allPoints: sumPoints(countableAchievements),
+                ownPoints: sumPoints(completedCountableAchievements),
             };
         },
-        // 获取成就列表
-        getList() {
-            return getMenus({
-                general: 1,
-                client: this.$store.state.client,
-            }).then((res) => {
-                const data = res.data.data.menus;
-                this.achievementData = data;
-                return this.getPoints();
-            });
-        },
-        // 获取成就对应点数
-        getPoints() {
-            return getAchievementPoints().then((res) => {
-                const data = res.data.data.points;
-                this.pointsData = data;
-                return this.loadUserRoles();
-            });
+        // 同时读取常规/五甲目录与 v2 点数元数据；目录浏览仍只展示常规成就。
+        async loadData() {
+            const client = this.$store.state.client || "std";
+            const [menuResponse, pointsResponse] = await Promise.all([
+                getMenus({
+                    general: "1,2",
+                    client,
+                }),
+                getAchievementPointsV2(client),
+            ]);
+            const menus = menuResponse.data?.data?.menus || {};
+            const metadata = normalizeAchievementMetadata(pointsResponse.data?.data?.points || {});
+
+            this.achievementMetadata = metadata;
+            this.pointsData = createAchievementPointMap(metadata);
+            this.achievementData = selectMenuRootsByGeneral(menus, metadata, 1);
+
+            return this.loadUserRoles();
         },
         // 获取用户角色列表
         loadUserRoles() {
@@ -1081,13 +955,38 @@ export default {
         },
         // 获取角色成就状态
         loadRoleAchievements(jx3id) {
-            getRoleGameAchievements(jx3id).then((res) => {
-                const achievements = res.data?.data?.achievements || "";
-                const jx3id = res.data?.data?.jx3id;
-                this.isSync = !!jx3id; // 是否在游戏中同步
-                const list = achievements.split(",");
-                this.$store.commit("SET_STATE", { key: "achievements", value: list, isSession: true });
-            });
+            const requestId = ++this.roleAchievementRequestId;
+            this.roleAchievementsLoading = true;
+
+            return getRoleGameAchievements(jx3id)
+                .then((res) => {
+                    if (requestId !== this.roleAchievementRequestId) return;
+                    const achievements = res.data?.data?.achievements || "";
+                    const responseJx3id = res.data?.data?.jx3id;
+                    this.isSync = !!responseJx3id; // 是否在游戏中同步
+                    const list = achievements
+                        .split(",")
+                        .map((id) => id.trim())
+                        .filter(Boolean);
+                    this.$store.commit("SET_STATE", {
+                        key: "achievements",
+                        value: list,
+                        isSession: true,
+                    });
+                })
+                .catch(() => {
+                    if (requestId !== this.roleAchievementRequestId) return;
+                    this.$store.commit("SET_STATE", {
+                        key: "achievements",
+                        value: [],
+                        isSession: true,
+                    });
+                })
+                .finally(() => {
+                    if (requestId === this.roleAchievementRequestId) {
+                        this.roleAchievementsLoading = false;
+                    }
+                });
         },
         // 获取虚拟角色成就列表
         loadVirtualAchievements() {
@@ -1691,9 +1590,7 @@ export default {
         padding: 8px 12px;
         border-radius: 10px;
         line-height: 28px;
-        transition:
-            color 0.16s ease,
-            background-color 0.16s ease;
+        transition: color 0.16s ease, background-color 0.16s ease;
 
         &:hover {
             color: #6f4f28;
@@ -1782,5 +1679,4 @@ export default {
         }
     }
 }
-
 </style>

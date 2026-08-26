@@ -61,6 +61,16 @@ export function getAchievementPoints(general) {
     });
 }
 
+// 获取成就点数及常规/五甲、可见/隐藏元数据。
+// 保留 getAchievementPoints 给仍依赖 ID -> point 数字映射的旧页面使用。
+export function getAchievementPointsV2(targetClient = client) {
+    return $.get(`/api/node/v2/achievement/points`, {
+        params: {
+            client: targetClient,
+        },
+    });
+}
+
 // 获取菜单下成就
 export function getMenuAchievements(sub, detail, params) {
     let url = `/api/cms/helper/achievements/${sub}`;

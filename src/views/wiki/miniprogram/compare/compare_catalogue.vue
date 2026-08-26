@@ -325,7 +325,8 @@ export default {
                     if (Array.isArray(achievement)) {
                         calculateAchievements(achievement);
                     } else {
-                        const points = this.pointsData[achievement] || 0;
+                        const points = Number(this.pointsData[achievement]) || 0;
+                        if (points <= 0) return;
                         allPoints += points;
                         achievementCount++;
                         if (role.finishedAchievements && role.finishedAchievements.includes(String(achievement))) {

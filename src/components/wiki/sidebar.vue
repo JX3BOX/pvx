@@ -46,7 +46,7 @@
                 v-show="!mobile"
                 :aria-label="
                     $t('pages.wiki.sidebar.wikiWithPoints', {
-                        count,
+                        count: formattedTotalSeniorityPoints,
                     })
                 "
             >
@@ -54,7 +54,7 @@
                     <span class="u-label">
                         {{ $t("pages.wiki.sidebar.recordedSeniorityPoints") }}
                     </span>
-                    <strong class="u-count">{{ count }}</strong>
+                    <strong class="u-count">{{ formattedTotalSeniorityPoints }}</strong>
                 </p>
             </a>
         </div>
@@ -62,7 +62,8 @@
 </template>
 
 <script>
-import { getAchievementsTotal } from "@/service/achievement";
+import { getAchievementPointsV2 } from "@/service/achievement";
+import { normalizeAchievementMetadata } from "@/utils/achievementStatistics";
 
 export default {
     name: "AchievementCount",
@@ -78,7 +79,7 @@ export default {
     },
     data() {
         return {
-            count: 0,
+            totalSeniorityPoints: 0,
         };
     },
     computed: {
@@ -90,14 +91,25 @@ export default {
         viewAchievementsName() {
             return this.$store.state.viewAchievementsName;
         },
+        formattedTotalSeniorityPoints() {
+            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
+            return new Intl.NumberFormat(locale).format(this.totalSeniorityPoints);
+        },
     },
     created() {
-        // 获取成就统计信息
-        getAchievementsTotal().then((data) => {
-            const count = data.data.data.count;
-            this.count = ~~count?.general + ~~count?.armor_point;
-            this.$store.commit("SET_STATE", { key: "generalTotal", value: ~~count["general"] });
-            this.$store.commit("SET_STATE", { key: "armorTotal", value: ~~count["armor"] });
+        // 与资历总览统一：只统计可见且 point > 0 的常规、五甲成就。
+        getAchievementPointsV2(this.$store.state.client || "std").then((response) => {
+            const metadata = normalizeAchievementMetadata(response.data?.data?.points || {});
+            const visibleAchievements = Object.values(metadata).filter((item) => item.visible && item.point > 0);
+            const generalAchievements = visibleAchievements.filter((item) => item.general === 1);
+            const armorAchievements = visibleAchievements.filter((item) => item.general === 2);
+
+            this.totalSeniorityPoints = [...generalAchievements, ...armorAchievements].reduce(
+                (total, item) => total + item.point,
+                0
+            );
+            this.$store.commit("SET_STATE", { key: "generalTotal", value: generalAchievements.length });
+            this.$store.commit("SET_STATE", { key: "armorTotal", value: armorAchievements.length });
         });
     },
 };
