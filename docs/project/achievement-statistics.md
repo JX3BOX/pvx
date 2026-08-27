@@ -128,7 +128,8 @@ v2 points 的业务数据是 `ID -> [point, general, visible]` 映射。当前�
 
 ## 6. 99 烟花口径
 
-当前后端没有“99 烟花”专门分类字段，前端在 `FIREWORK_ACHIEVEMENT_IDS` 中维护 65 项正向 ID 白名单：
+当前后端没有“99 烟花”专门分类字段，65 项正向 ID 白名单统一维护在公共库的
+`@jx3box/jx3box-common/data/firework_achievement_ids.json` 中，PVX 通过 `FIREWORK_ACHIEVEMENT_IDS` 引用：
 
 - 当前上限为 `65 项 / 13,000 资历`。
 - 它是常规可见成就的专题子集，分类卡标注“已计入常规”。

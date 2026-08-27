@@ -1,9 +1,6 @@
-export const FIREWORK_ACHIEVEMENT_IDS = Object.freeze([
-    1573, 4444, 4495, 4649, 5077, 5079, 5295, 5304, 5342, 5688, 5828, 5841, 6046, 6192, 6274, 6826, 6829, 6846, 6878,
-    7130, 7288, 7291, 7488, 7492, 7613, 7617, 8469, 8473, 8476, 8480, 9092, 9107, 9411, 9414, 9450, 9453, 9456, 9531,
-    10030, 10036, 10165, 10169, 10210, 10292, 10827, 10835, 11021, 11024, 11077, 11082, 11457, 11460, 11473, 11595,
-    11598, 11642, 11646, 11650, 12099, 12106, 12327, 12331, 12544, 12624, 12631,
-]);
+import fireworkAchievementIds from "@jx3box/jx3box-common/data/firework_achievement_ids.json";
+
+export const FIREWORK_ACHIEVEMENT_IDS = Object.freeze([...fireworkAchievementIds]);
 
 function appendAchievementIds(value, target) {
     if (Array.isArray(value)) {

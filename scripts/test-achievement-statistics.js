@@ -1,6 +1,7 @@
 const assert = require("assert");
 const path = require("path");
 const babel = require("@babel/core");
+const fireworkAchievementIds = require("@jx3box/jx3box-common/data/firework_achievement_ids.json");
 
 function loadModule(file) {
     const result = babel.transformFileSync(file, {
@@ -27,6 +28,7 @@ const {
 
 assert.strictEqual(FIREWORK_ACHIEVEMENT_IDS.length, 65);
 assert.strictEqual(new Set(FIREWORK_ACHIEVEMENT_IDS).size, 65);
+assert.deepStrictEqual(FIREWORK_ACHIEVEMENT_IDS, fireworkAchievementIds);
 assert.strictEqual(FIREWORK_ACHIEVEMENT_IDS.includes(1573), true);
 assert.strictEqual(FIREWORK_ACHIEVEMENT_IDS.includes(1707), false);
 assert.strictEqual(FIREWORK_ACHIEVEMENT_IDS.includes(4493), false);

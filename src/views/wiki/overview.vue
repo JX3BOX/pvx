@@ -363,6 +363,20 @@ import {
     UserFilled,
     WarningFilled,
 } from "@element-plus/icons-vue";
+
+function createImageAssetMap(context) {
+    return context.keys().reduce((assets, path) => {
+        const name = path.replace(/^\.\//, "").replace(/\.png$/, "");
+        assets[name] = context(path);
+        return assets;
+    }, {});
+}
+
+const CATEGORY_TITLE_IMAGES = createImageAssetMap(
+    require.context("@/assets/img/wiki/overview/title", false, /\.png$/)
+);
+const CATEGORY_ITEM_IMAGES = createImageAssetMap(require.context("@/assets/img/wiki/overview/item", false, /\.png$/));
+
 export default {
     name: "wiki-achievement-overview",
     props: [],
@@ -418,7 +432,8 @@ export default {
         },
         categoryTitleImage() {
             if (!this.viewAchievementsName) return "";
-            return require(`@/assets/img/wiki/overview/title/${this.viewAchievementsName}.png`);
+            const rootCategoryName = this.categoryPath[0]?.name || this.viewAchievementsName;
+            return CATEGORY_TITLE_IMAGES[rootCategoryName] || "";
         },
         avatar_frame() {
             if (this.userInfo) {
@@ -729,7 +744,7 @@ export default {
             window.scrollTo({ top: 0, behavior: "smooth" });
         },
         getCategoryImage(name) {
-            return require(`@/assets/img/wiki/overview/item/${name}.png`);
+            return CATEGORY_ITEM_IMAGES[name] || "";
         },
         onEnterCategory(data) {
             if (data.children) {
