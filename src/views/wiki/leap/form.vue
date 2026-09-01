@@ -402,6 +402,10 @@ export default {
                 return {};
             },
         },
+        initialPlan: {
+            type: Object,
+            default: null,
+        },
     },
     watch: {
         show: {
@@ -455,6 +459,7 @@ export default {
             //创建方案检索条件
             dialogQueryParams: {
                 is_official: 1,
+                client: this.$store.state.client,
                 _no_page: 1, //不分页
             },
             //推荐方案列表
@@ -572,15 +577,18 @@ export default {
             this.recommendRequestId += 1;
             this.achievementRequestId += 1;
             this.dialogTableVisible = val;
+            const initialPlan = this.initialPlan || {};
+            const initialPoints = this.getSchemePoints(initialPlan.schema || []).all;
             this.leapForm = {
-                title: "",
+                title: initialPlan.title || "",
                 all: 0,
                 diffNum: 0,
                 remaining: 0,
-                number: null,
+                number: initialPoints || null,
             };
             this.dialogQueryParams = {
                 is_official: 1,
+                client: this.$store.state.client,
                 _no_page: 1,
             };
             this.customList = [];
@@ -755,7 +763,9 @@ export default {
                       ? data.list
                       : [];
                 if (this.dialogQueryParams.is_official == 1 && this.recommendList.length) {
-                    this.selectRecommend(this.recommendList[0]);
+                    const initialId = this.initialPlan?.id;
+                    const initialItem = this.recommendList.find((item) => item.id == initialId);
+                    this.selectRecommend(initialItem || (initialId ? this.initialPlan : this.recommendList[0]));
                 }
             } catch (error) {
                 if (requestId != this.recommendRequestId) return;
@@ -775,14 +785,14 @@ export default {
                 ID: String(id),
                 Point: Number(this.pointsData[id] || 0),
             }));
-            let info = this.getSchemePoints(schema);
+            const points = this.getSchemePoints(schema);
 
             const targetNumber = Number(this.leapForm.number) || 0;
             // 保持既有业务口径：剩余资历 = 目标资历 - 方案可提升资历
-            let remaining = targetNumber - info.diffNum;
+            const remaining = targetNumber - points.diffNum;
 
-            this.leapForm.all = info.all;
-            this.leapForm.diffNum = info.diffNum;
+            this.leapForm.all = points.all;
+            this.leapForm.diffNum = points.diffNum;
             this.leapForm.remaining = remaining > 0 ? remaining : 0;
         },
         //自选-地图查询
@@ -1214,15 +1224,24 @@ export default {
 
             this.leapForm.title = title;
             this.leapForm.number = targetNumber;
-            let meta = { createBy: "recommend" };
-            if (this.dialogQueryParams.is_official == 0) {
-                meta.createBy = this.isSelectType == 1 ? "overview" : "map";
+            const isRecommended = this.dialogQueryParams.is_official == 1;
+            const recommendedMode = this.selectRecommendItem?.meta?.createBy;
+            let createBy = this.isSelectType == 1 ? "overview" : "map";
+            if (isRecommended) {
+                createBy = recommendedMode === "map" ? "map" : "overview";
             }
+            const meta = {
+                createBy,
+            };
             let params = {
                 title,
                 schema,
                 meta,
+                client: this.$store.state.client,
             };
+            if (isRecommended && this.selectRecommendItem?.id) {
+                params.fork_from = this.selectRecommendItem.id;
+            }
             this.submitting = true;
             createdWikiAchievementLeapSchema(params)
                 .then((res) => {

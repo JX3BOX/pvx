@@ -603,6 +603,7 @@ export default {
                 actions: "操作",
                 officialSource: "魔盒推荐",
                 playerSource: "玩家方案",
+                copyPlan: "复制方案：{title}",
                 deletePlan: "删除方案：{title}",
                 deleteConfirm: "确定删除方案“{title}”吗？删除后无法恢复。",
                 confirmTitle: "请确认",

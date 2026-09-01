@@ -811,6 +811,7 @@ export default {
                 actions: "Thao tác",
                 officialSource: "Đề xuất",
                 playerSource: "Người chơi",
+                copyPlan: "Sao chép kế hoạch: {title}",
                 deletePlan: "Xóa kế hoạch: {title}",
                 deleteConfirm: "Xóa “{title}”? Thao tác này không thể hoàn tác.",
                 confirmTitle: "Xác nhận",

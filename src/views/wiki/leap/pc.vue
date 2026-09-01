@@ -136,7 +136,7 @@
                             <QuestionFilled />
                             <span>{{ $t("pages.wiki.leap.ui.guideAction") }}</span>
                         </button>
-                        <button type="button" class="u-leap-create-button" @click="showForm = true">
+                        <button type="button" class="u-leap-create-button" @click="openCreateForm">
                             <CirclePlus />
                             <span>{{ $t("pages.wiki.leap.ui.createPlan") }}</span>
                         </button>
@@ -157,11 +157,23 @@
                                     <span class="u-achievement-category-icon"><Document /></span>
                                     <span>
                                         <strong>{{ item.title }}</strong>
-                                        <small class="u-leap-plan-description">
+                                        <small
+                                            class="u-leap-plan-description"
+                                            :class="{
+                                                'is-official': isOfficialPlan(item) && getPlanDescription(item),
+                                            }"
+                                        >
                                             <span>{{ sourceLabel(item) }}</span>
-                                            <span>
+                                            <span class="u-leap-plan-gain">
                                                 {{ $t("pages.wiki.leap.ui.improvablePoints") }}
-                                                <b>+{{ formatNumber(getSchemePoints(item.schema).diffNum) }}</b>
+                                                <b>+{{ formatNumber(getImprovablePoints(item)) }}</b>
+                                            </span>
+                                            <span
+                                                v-if="isOfficialPlan(item) && getPlanDescription(item)"
+                                                class="u-leap-plan-hover-description"
+                                                :title="getPlanDescription(item)"
+                                            >
+                                                {{ getPlanDescription(item) }}
                                             </span>
                                         </small>
                                     </span>
@@ -186,8 +198,19 @@
                         </router-link>
 
                         <button
+                            v-if="isOfficialPlan(item)"
                             type="button"
-                            class="u-leap-delete"
+                            class="u-leap-card-action is-copy"
+                            :aria-label="$t('pages.wiki.leap.ui.copyPlan', { title: item.title })"
+                            :title="$t('pages.wiki.leap.ui.copyPlan', { title: item.title })"
+                            @click="openCopyForm(item)"
+                        >
+                            <CopyDocument />
+                        </button>
+                        <button
+                            v-else
+                            type="button"
+                            class="u-leap-card-action is-delete"
                             :aria-label="$t('pages.wiki.leap.ui.deletePlan', { title: item.title })"
                             @click="deleteItem(item)"
                         >
@@ -204,7 +227,7 @@
                 >
                     <template #icon><DocumentAdd /></template>
                     <template #action>
-                        <button type="button" class="u-leap-create-button is-empty-action" @click="showForm = true">
+                        <button type="button" class="u-leap-create-button is-empty-action" @click="openCreateForm">
                             <CirclePlus />
                             <span>{{ $t("pages.wiki.leap.ui.createFirstPlan") }}</span>
                         </button>
@@ -235,8 +258,9 @@
             :show="showForm"
             :currentRole="currentRole || {}"
             :pointsData="pointsData"
+            :initialPlan="copyPlan"
             @reloadList="reloadList"
-            @cancel="showForm = false"
+            @cancel="closeForm"
         />
 
         <el-dialog
@@ -293,6 +317,7 @@ import {
     ArrowRight,
     CircleCheckFilled,
     CirclePlus,
+    CopyDocument,
     Delete,
     Document,
     DocumentAdd,
@@ -306,6 +331,7 @@ export default {
         ArrowRight,
         CircleCheckFilled,
         CirclePlus,
+        CopyDocument,
         createFrom,
         Delete,
         detail,
@@ -329,9 +355,10 @@ export default {
             pageLoading: User.isLogin(),
             pageError: false,
             list: [],
-            queryParams: { page: 1, per: 9 },
+            queryParams: { page: 1, per: 9, client: this.$store.state.client },
             pageTotal: 0,
             showForm: false,
+            copyPlan: null,
             showGuide: false,
             pointsData: {},
             showDetail: Boolean(this.$route.query.id),
@@ -389,12 +416,37 @@ export default {
             return [role?.name, role?.server].filter(Boolean).join(" · ");
         },
         sourceLabel(row) {
-            return row.is_official == 1
+            return this.isOfficialPlan(row)
                 ? this.$t("pages.wiki.leap.ui.officialSource")
                 : this.$t("pages.wiki.leap.ui.playerSource");
         },
-        reloadList() {
+        isOfficialPlan(row) {
+            return row?.is_official == 1;
+        },
+        getImprovablePoints(row) {
+            return this.getSchemePoints(row?.schema).diffNum;
+        },
+        getPlanDescription(row) {
+            return String(row?.desc || "")
+                .replace(/<[^>]*>/g, " ")
+                .replace(/&nbsp;/gi, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+        },
+        openCreateForm() {
+            this.copyPlan = null;
+            this.showForm = true;
+        },
+        openCopyForm(row) {
+            this.copyPlan = row;
+            this.showForm = true;
+        },
+        closeForm() {
             this.showForm = false;
+            this.copyPlan = null;
+        },
+        reloadList() {
+            this.closeForm();
             this.getSchemaList(true);
         },
         async loadUserRoles() {

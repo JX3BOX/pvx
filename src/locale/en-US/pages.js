@@ -814,6 +814,7 @@ export default {
                 actions: "Actions",
                 officialSource: "Recommended",
                 playerSource: "Player plan",
+                copyPlan: "Copy plan: {title}",
                 deletePlan: "Delete plan: {title}",
                 deleteConfirm: "Delete “{title}”? This action cannot be undone.",
                 confirmTitle: "Confirm",

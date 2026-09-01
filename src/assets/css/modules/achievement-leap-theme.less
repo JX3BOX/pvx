@@ -180,10 +180,31 @@
                 font-weight: 700;
                 white-space: nowrap;
             }
+
+            &.is-official {
+                position: relative;
+
+                .u-leap-plan-gain,
+                .u-leap-plan-hover-description {
+                    transition: opacity @pvx-duration-fast @pvx-ease-standard;
+                }
+
+                .u-leap-plan-hover-description {
+                    display: block;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    max-width: 240px;
+                    overflow: hidden;
+                    opacity: 0;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
         }
     }
 
-    .u-leap-delete {
+    .u-leap-card-action {
         .pvx-focus-ring();
         position: absolute;
         z-index: 2;
@@ -193,9 +214,9 @@
         width: 26px;
         height: 26px;
         place-items: center;
-        border: 1px solid rgba(166, 91, 72, 0.12);
+        border: 1px solid rgba(138, 103, 56, 0.16);
         border-radius: 8px;
-        color: #a07b70;
+        color: #8a7458;
         background: rgba(255, 255, 255, 0.86);
         box-shadow: 0 4px 10px rgba(64, 45, 25, 0.06);
         opacity: 0;
@@ -207,9 +228,14 @@
             color @pvx-duration-fast @pvx-ease-standard,
             background-color @pvx-duration-fast @pvx-ease-standard;
 
-        &:hover {
+        &.is-delete:hover {
             color: #8e4e40;
             background: #fff4f1;
+        }
+
+        &.is-copy:hover {
+            color: #6f4f28;
+            background: #fffaf0;
         }
 
         svg {
@@ -218,10 +244,21 @@
         }
     }
 
-    .m-leap-plan-shell:hover .u-leap-delete,
-    .m-leap-plan-shell:focus-within .u-leap-delete {
+    .m-leap-plan-shell:hover .u-leap-card-action,
+    .m-leap-plan-shell:focus-within .u-leap-card-action {
         opacity: 1;
         transform: translateY(0);
+    }
+
+    .m-leap-plan-shell:hover .u-leap-plan-description.is-official,
+    .m-leap-plan-shell:focus-within .u-leap-plan-description.is-official {
+        .u-leap-plan-gain {
+            opacity: 0;
+        }
+
+        .u-leap-plan-hover-description {
+            opacity: 1;
+        }
     }
 
     .m-leap-plan-shell:hover .u-achievement-category-rate,
@@ -270,7 +307,7 @@
             }
         }
 
-        .u-leap-delete {
+        .u-leap-card-action {
             opacity: 1;
             transform: none;
         }

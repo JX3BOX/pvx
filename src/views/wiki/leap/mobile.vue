@@ -195,7 +195,7 @@ export default {
             achievements: [],
             //方案列表
             list: [],
-            queryParams: { page: 1, per: 20 },
+            queryParams: { page: 1, per: 20, client: this.$store.state.client },
             pageTotal: 0, //总条数
             //自选方案配置列表
             customList: [],

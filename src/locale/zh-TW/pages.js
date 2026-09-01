@@ -801,6 +801,7 @@ export default {
                 actions: "操作",
                 officialSource: "魔盒推薦",
                 playerSource: "玩家方案",
+                copyPlan: "複製方案：{title}",
                 deletePlan: "刪除方案：{title}",
                 deleteConfirm: "確定刪除方案「{title}」嗎？刪除後無法復原。",
                 confirmTitle: "請確認",
