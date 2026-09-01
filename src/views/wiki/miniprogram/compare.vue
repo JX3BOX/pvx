@@ -365,7 +365,7 @@ export default {
                 // 判断aItem是否是数组
                 if (Array.isArray(aItem)) {
                     aItem.forEach((item) => {
-                        if (this.pointsData[item]) {
+                        if (Object.prototype.hasOwnProperty.call(this.pointsData || {}, item)) {
                             countData.allPoints += this.pointsData[item];
                             allAchievements.push(item);
                             if (ownAllAchievements.includes(String(item))) {
@@ -375,7 +375,7 @@ export default {
                         }
                     });
                 } else {
-                    if (this.pointsData[aItem]) {
+                    if (Object.prototype.hasOwnProperty.call(this.pointsData || {}, aItem)) {
                         countData.allPoints += this.pointsData[aItem];
                         allAchievements.push(aItem);
                         if (ownAllAchievements.includes(String(aItem))) {

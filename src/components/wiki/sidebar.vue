@@ -97,10 +97,10 @@ export default {
         },
     },
     created() {
-        // 与资历总览统一：只统计可见且 point > 0 的常规、五甲成就。
+        // 与资历总览统一：统计全部可见的常规、五甲成就，零资历成就也计入数量。
         getAchievementPointsV2(this.$store.state.client || "std").then((response) => {
             const metadata = normalizeAchievementMetadata(response.data?.data?.points || {});
-            const visibleAchievements = Object.values(metadata).filter((item) => item.visible && item.point > 0);
+            const visibleAchievements = Object.values(metadata).filter((item) => item.visible);
             const generalAchievements = visibleAchievements.filter((item) => item.general === 1);
             const armorAchievements = visibleAchievements.filter((item) => item.general === 2);
 

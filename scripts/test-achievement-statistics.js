@@ -105,22 +105,22 @@ const groups = Object.fromEntries(overview.categories.map((item) => [item.key, i
 
 assert.deepStrictEqual(overview.overall, {
     key: "overall",
-    completedCount: 6,
+    completedCount: 8,
     completedPoints: 900,
     remainingCount: 2,
     remainingPoints: 70,
-    totalCount: 8,
+    totalCount: 10,
     totalPoints: 970,
-    countProgress: 75,
+    countProgress: 80,
     pointProgress: 92.78,
     obtainableRemainingCount: 2,
     obtainableRemainingPoints: 70,
     hidden: {
-        completedCount: 3,
+        completedCount: 4,
         completedPoints: 180,
         remainingCount: 0,
         remainingPoints: 0,
-        totalCount: 3,
+        totalCount: 4,
         totalPoints: 180,
         countProgress: 100,
         pointProgress: 100,
@@ -143,8 +143,8 @@ assert.strictEqual(groups.wujia.countProgress, 0);
 assert.strictEqual(groups.wujia.pointProgress, 0);
 assert.strictEqual(groups.regularHidden.totalPoints, 50);
 assert.strictEqual(groups.regularHidden.completedPoints, 50);
-assert.strictEqual(groups.regularHidden.totalCount, 1);
-assert.strictEqual(groups.regularHidden.completedCount, 1);
+assert.strictEqual(groups.regularHidden.totalCount, 2);
+assert.strictEqual(groups.regularHidden.completedCount, 2);
 assert.strictEqual(groups.regularHidden.hiddenGroup, true);
 assert.strictEqual(groups.wujiaHidden.totalPoints, 60);
 assert.strictEqual(groups.wujiaHidden.completedPoints, 60);
@@ -169,11 +169,11 @@ assert.deepStrictEqual(overview.retiredSeniority, {
     pointProgress: 100,
 });
 assert.deepStrictEqual(overview.specialAchievements, {
-    completedCount: 1,
+    completedCount: 2,
     completedPoints: 500,
     remainingCount: 0,
     remainingPoints: 0,
-    totalCount: 1,
+    totalCount: 2,
     totalPoints: 500,
     countProgress: 100,
     pointProgress: 100,
@@ -181,9 +181,9 @@ assert.deepStrictEqual(overview.specialAchievements, {
 assert.strictEqual(overview.diagnostics.unknownCompletedCount, 1);
 assert.strictEqual(overview.diagnostics.sourceGeneralThreeCount, 2);
 assert.strictEqual(overview.diagnostics.sourceZeroPointCount, 2);
-assert.strictEqual(overview.diagnostics.excludedZeroPointCount, 2);
+assert.strictEqual(overview.diagnostics.includedZeroPointCount, 2);
 assert.strictEqual(overview.diagnostics.retiredAchievementCount, 1);
-assert.strictEqual(overview.diagnostics.specialAchievementCount, 1);
+assert.strictEqual(overview.diagnostics.specialAchievementCount, 2);
 assert.strictEqual(overview.diagnostics.excludedInvalidGeneralCount, 1);
 assert.strictEqual(
     groups.regular.completedPoints +
@@ -202,13 +202,13 @@ const visibleOverview = buildAchievementOverview({
 });
 assert.deepStrictEqual(visibleOverview.overall, {
     key: "overall",
-    completedCount: 3,
+    completedCount: 4,
     completedPoints: 720,
     remainingCount: 2,
     remainingPoints: 70,
-    totalCount: 5,
+    totalCount: 6,
     totalPoints: 790,
-    countProgress: 60,
+    countProgress: 66.67,
     pointProgress: 91.14,
     obtainableRemainingCount: 2,
     obtainableRemainingPoints: 70,
@@ -244,9 +244,9 @@ const zeroPointOverview = buildAchievementOverview({
     completedAchievementIds: [7],
 });
 assert.strictEqual(zeroPointOverview.overall.pointProgress, null);
-assert.strictEqual(zeroPointOverview.overall.countProgress, null);
-assert.strictEqual(zeroPointOverview.overall.totalCount, 0);
-assert.strictEqual(zeroPointOverview.overall.completedCount, 0);
+assert.strictEqual(zeroPointOverview.overall.countProgress, 100);
+assert.strictEqual(zeroPointOverview.overall.totalCount, 1);
+assert.strictEqual(zeroPointOverview.overall.completedCount, 1);
 assert.deepStrictEqual(zeroPointOverview.retiredSeniority, {
     completedCount: 0,
     completedPoints: 0,
@@ -257,8 +257,32 @@ assert.deepStrictEqual(zeroPointOverview.retiredSeniority, {
     countProgress: null,
     pointProgress: null,
 });
-assert.strictEqual(zeroPointOverview.specialAchievements.totalCount, 0);
-assert.strictEqual(zeroPointOverview.specialAchievements.completedCount, 0);
+assert.strictEqual(zeroPointOverview.specialAchievements.totalCount, 1);
+assert.strictEqual(zeroPointOverview.specialAchievements.completedCount, 1);
+
+const zeroPointFireworkId = FIREWORK_ACHIEVEMENT_IDS[0];
+const zeroPointFireworkOverview = buildAchievementOverview({
+    metadata: normalizeAchievementMetadata({ [zeroPointFireworkId]: [0, 1, 1] }),
+    completedAchievementIds: [zeroPointFireworkId],
+});
+const zeroPointFireworkSummary = zeroPointFireworkOverview.categories.find((item) => item.key === "fireworks");
+assert.strictEqual(zeroPointFireworkSummary.totalCount, 1);
+assert.strictEqual(zeroPointFireworkSummary.completedCount, 1);
+assert.strictEqual(zeroPointFireworkSummary.totalPoints, 0);
+assert.strictEqual(zeroPointFireworkSummary.countProgress, 100);
+assert.strictEqual(zeroPointFireworkSummary.pointProgress, null);
+
+const zeroPointRemainingOverview = buildAchievementOverview({
+    metadata: normalizeAchievementMetadata({ 11: [0, 1, 1] }),
+    completedAchievementIds: [],
+});
+assert.strictEqual(zeroPointRemainingOverview.overall.totalCount, 1);
+assert.strictEqual(zeroPointRemainingOverview.overall.completedCount, 0);
+assert.strictEqual(zeroPointRemainingOverview.overall.remainingCount, 1);
+assert.strictEqual(zeroPointRemainingOverview.overall.obtainableRemainingCount, 1);
+assert.strictEqual(zeroPointRemainingOverview.overall.obtainableRemainingPoints, 0);
+assert.strictEqual(zeroPointRemainingOverview.overall.countProgress, 0);
+assert.strictEqual(zeroPointRemainingOverview.overall.pointProgress, null);
 
 const categorizedZeroPointMetadata = normalizeAchievementMetadata({
     11: [0, 1, 1],
@@ -276,38 +300,38 @@ const categorizedZeroPointGroups = Object.fromEntries(
     categorizedZeroPointOverview.categories.map((item) => [item.key, item])
 );
 
-assert.strictEqual(categorizedZeroPointOverview.overall.totalCount, 1);
-assert.strictEqual(categorizedZeroPointOverview.overall.completedCount, 1);
+assert.strictEqual(categorizedZeroPointOverview.overall.totalCount, 6);
+assert.strictEqual(categorizedZeroPointOverview.overall.completedCount, 6);
 assert.strictEqual(categorizedZeroPointOverview.overall.totalPoints, 10);
 assert.strictEqual(categorizedZeroPointOverview.overall.completedPoints, 10);
 assert.strictEqual(categorizedZeroPointOverview.overall.countProgress, 100);
 assert.strictEqual(categorizedZeroPointOverview.overall.pointProgress, 100);
-assert.strictEqual(categorizedZeroPointGroups.regular.totalCount, 0);
-assert.strictEqual(categorizedZeroPointGroups.regularHidden.totalCount, 0);
-assert.strictEqual(categorizedZeroPointGroups.wujia.totalCount, 0);
-assert.strictEqual(categorizedZeroPointGroups.wujiaHidden.totalCount, 0);
+assert.strictEqual(categorizedZeroPointGroups.regular.totalCount, 1);
+assert.strictEqual(categorizedZeroPointGroups.regularHidden.totalCount, 1);
+assert.strictEqual(categorizedZeroPointGroups.wujia.totalCount, 1);
+assert.strictEqual(categorizedZeroPointGroups.wujiaHidden.totalCount, 1);
 assert.deepStrictEqual(categorizedZeroPointOverview.retiredSeniority, {
-    completedCount: 1,
+    completedCount: 2,
     completedPoints: 10,
     remainingCount: 0,
     remainingPoints: 0,
-    totalCount: 1,
+    totalCount: 2,
     totalPoints: 10,
     countProgress: 100,
     pointProgress: 100,
 });
 assert.strictEqual(categorizedZeroPointOverview.diagnostics.sourceZeroPointCount, 5);
-assert.strictEqual(categorizedZeroPointOverview.diagnostics.excludedZeroPointCount, 5);
-assert.strictEqual(categorizedZeroPointOverview.diagnostics.retiredAchievementCount, 1);
+assert.strictEqual(categorizedZeroPointOverview.diagnostics.includedZeroPointCount, 5);
+assert.strictEqual(categorizedZeroPointOverview.diagnostics.retiredAchievementCount, 2);
 
 const visibleCategorizedZeroPointOverview = buildAchievementOverview({
     metadata: categorizedZeroPointMetadata,
     completedAchievementIds: [11, 12, 13, 14, 15, 16],
     includeHidden: false,
 });
-assert.strictEqual(visibleCategorizedZeroPointOverview.overall.totalCount, 0);
-assert.strictEqual(visibleCategorizedZeroPointOverview.overall.completedCount, 0);
-assert.strictEqual(visibleCategorizedZeroPointOverview.overall.countProgress, null);
+assert.strictEqual(visibleCategorizedZeroPointOverview.overall.totalCount, 2);
+assert.strictEqual(visibleCategorizedZeroPointOverview.overall.completedCount, 2);
+assert.strictEqual(visibleCategorizedZeroPointOverview.overall.countProgress, 100);
 assert.strictEqual(visibleCategorizedZeroPointOverview.overall.totalPoints, 0);
 assert.strictEqual(visibleCategorizedZeroPointOverview.overall.pointProgress, null);
 assert.strictEqual(visibleCategorizedZeroPointOverview.retiredSeniority.totalCount, 0);
@@ -326,21 +350,21 @@ const retiredOverview = buildAchievementOverview({
     metadata: retiredMetadata,
     completedAchievementIds: [1, 3, 4, 4, 6, 7],
 });
-assert.strictEqual(retiredOverview.overall.totalCount, 6);
-assert.strictEqual(retiredOverview.overall.completedCount, 4);
+assert.strictEqual(retiredOverview.overall.totalCount, 7);
+assert.strictEqual(retiredOverview.overall.completedCount, 5);
 assert.strictEqual(retiredOverview.overall.totalPoints, 608);
 assert.strictEqual(retiredOverview.overall.completedPoints, 567);
 assert.strictEqual(retiredOverview.overall.remainingPoints, 41);
 assert.strictEqual(retiredOverview.overall.obtainableRemainingPoints, 30);
 assert.strictEqual(retiredOverview.overall.pointProgress, 93.26);
 assert.deepStrictEqual(retiredOverview.retiredSeniority, {
-    completedCount: 1,
+    completedCount: 2,
     completedPoints: 7,
     remainingCount: 1,
     remainingPoints: 11,
-    totalCount: 2,
+    totalCount: 3,
     totalPoints: 18,
-    countProgress: 50,
+    countProgress: 66.67,
     pointProgress: 38.89,
 });
 

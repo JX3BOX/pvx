@@ -284,9 +284,9 @@ export default {
         },
 
         getRenderList() {
-            // 零资历成就仍保留在详情列表，但不进入数量与资历进度统计。
+            // 只排除点数元数据中不存在的 ID；point=0 仍进入数量和完成统计。
             const achievements = (this.info.achievements?.flat(Infinity) || []).filter(
-                (achievementId) => Number(this.pointsData?.[achievementId]) > 0
+                (achievementId) => Object.prototype.hasOwnProperty.call(this.pointsData || {}, achievementId)
             );
             this.categoryCount = achievements.length;
 

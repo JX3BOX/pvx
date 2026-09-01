@@ -558,7 +558,7 @@ export default {
         iconLink,
         getLink,
         isCountableAchievementId(id) {
-            return Number(this.achievementMetadata[String(id)]?.point) > 0;
+            return [1, 2].includes(this.achievementMetadata[String(id)]?.general);
         },
         hasRewardReference(row) {
             return Boolean(this.getRewardKey(row));
@@ -899,7 +899,10 @@ export default {
             return ((own / all) * 100).toFixed(2);
         },
         isCategoryComplete(item) {
-            return item.allPoints > 0 && item.ownPoints >= item.allPoints;
+            return (
+                item.totalAchievementCount > 0 &&
+                item.completedAchievementCount >= item.totalAchievementCount
+            );
         },
         getCurrentProgressBg(own, all) {
             let n = 0;

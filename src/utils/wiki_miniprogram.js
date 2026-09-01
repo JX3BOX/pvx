@@ -76,7 +76,7 @@ export function getAchievementsFinishStatus(
         // 判断aItem是否是数组
         if (Array.isArray(aItem)) {
             aItem.forEach((item) => {
-                if (pointsData[item]) {
+                if (Object.prototype.hasOwnProperty.call(pointsData || {}, item)) {
                     countData.allPoints += pointsData[item];
                     allAchievements.push(item);
                     if (finishAchievements.includes(String(item))) {
@@ -86,7 +86,7 @@ export function getAchievementsFinishStatus(
                 }
             });
         } else {
-            if (pointsData[aItem]) {
+            if (Object.prototype.hasOwnProperty.call(pointsData || {}, aItem)) {
                 countData.allPoints += pointsData[aItem];
                 allAchievements.push(aItem);
                 if (finishAchievements.includes(String(aItem))) {

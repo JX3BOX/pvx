@@ -78,13 +78,14 @@ function summarizeAchievementIds(ids, metadata, completedIds) {
 
     new Set([...ids].map(String)).forEach((id) => {
         const item = metadata[id];
-        if (!item || Number(item.point) <= 0) return;
+        const point = Number(item?.point);
+        if (!item || !Number.isFinite(point) || point < 0) return;
 
         totalCount += 1;
-        totalPoints += item.point;
+        totalPoints += point;
         if (completedIds.has(id)) {
             completedCount += 1;
-            completedPoints += item.point;
+            completedPoints += point;
         }
     });
 
@@ -110,7 +111,8 @@ function getAchievementIds(metadata, predicate) {
 }
 
 function isCountableAchievement(item) {
-    return [0, 1, 2, 3].includes(item?.general) && item.point > 0;
+    const point = Number(item?.point);
+    return [0, 1, 2, 3].includes(item?.general) && Number.isFinite(point) && point >= 0;
 }
 
 function buildCategoryStatistic(key, ids, metadata, completedIds, extra = {}) {
@@ -147,7 +149,7 @@ export function buildAchievementOverview({ metadata, completedAchievementIds, in
     );
     const regularHiddenIds = getAchievementIds(
         metadata,
-        (item) => item?.general === 1 && !item?.visible && item.point > 0
+        (item) => item?.general === 1 && !item?.visible && isCountableAchievement(item)
     );
     const wujiaIds = getAchievementIds(
         metadata,
@@ -155,7 +157,7 @@ export function buildAchievementOverview({ metadata, completedAchievementIds, in
     );
     const wujiaHiddenIds = getAchievementIds(
         metadata,
-        (item) => item?.general === 2 && !item?.visible && item.point > 0
+        (item) => item?.general === 2 && !item?.visible && isCountableAchievement(item)
     );
     const fireworkIds = FIREWORK_ACHIEVEMENT_IDS.map(String).filter(
         (id) => metadata[id]?.general === 1 && metadata[id].visible && isCountableAchievement(metadata[id])
@@ -199,7 +201,7 @@ export function buildAchievementOverview({ metadata, completedAchievementIds, in
             sourceZeroPointCount: allIds.filter(
                 (id) => [0, 1, 2, 3].includes(metadata[id]?.general) && Number(metadata[id].point) === 0
             ).length,
-            excludedZeroPointCount: allIds.filter(
+            includedZeroPointCount: allIds.filter(
                 (id) => [0, 1, 2, 3].includes(metadata[id]?.general) && Number(metadata[id]?.point) === 0
             ).length,
             retiredAchievementCount: retiredIds.length,
