@@ -1,19 +1,12 @@
-<template>
-    <div class="p-leap-main">
-        <pc />
-    </div>
-</template>
-
 <script>
-import pc from "./leap/pc.vue";
+import AchievementLeapPage from "@/components/wiki/leap/AchievementLeapPage.vue";
 
 export default {
-    components: { pc },
+    name: "WikiAchievementLeap",
+    components: { AchievementLeapPage },
 };
 </script>
 
-<style lang="less" scoped>
-.p-leap-main {
-    height: 100%;
-}
-</style>
+<template>
+    <AchievementLeapPage />
+</template>

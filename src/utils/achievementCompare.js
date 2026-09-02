@@ -1,6 +1,10 @@
-const COMMON_UNFINISHED_FILTER = "1,1";
+import { collectMenuAchievementIds } from "@/utils/achievementStatistics";
+
+export const COMMON_UNFINISHED_FILTER = "1,1";
+export const COMMON_COMPLETED_FILTER = "common,2";
 const UNFINISHED_STATUS = "1";
 const COMPLETED_STATUS = "2";
+const VALID_GENERALS = new Set([0, 1, 2, 3]);
 
 function normalizeId(value) {
     if (value === null || value === undefined) return "";
@@ -37,9 +41,44 @@ function getRoleCompletedAchievementSource(role) {
     const statusList = role.achievementStatusList || role.achievements;
     if (!Array.isArray(statusList)) return [];
 
-    return statusList
-        .map((status) => status?.value)
-        .filter((value) => normalizeId(value) !== "-1");
+    return statusList.map((status) => status?.value).filter((value) => normalizeId(value) !== "-1");
+}
+
+function isEligibleMetadata(item) {
+    return Boolean(
+        item &&
+            VALID_GENERALS.has(Number(item.general)) &&
+            Number.isFinite(Number(item.point)) &&
+            Number(item.point) >= 0
+    );
+}
+
+function getMetadataPoint(metadata, id) {
+    const point = Number(metadata?.[String(id)]?.point);
+    return Number.isFinite(point) && point >= 0 ? point : 0;
+}
+
+function summarizeAchievementIds(ids, metadata, completedIds) {
+    const completed = new Set(normalizeCompletedAchievementIds(completedIds));
+    const achievementIds = [...new Set((ids || []).map(String))].filter((id) => isEligibleMetadata(metadata?.[id]));
+    const totalPoints = achievementIds.reduce((total, id) => total + getMetadataPoint(metadata, id), 0);
+    const completedAchievementIds = achievementIds.filter((id) => completed.has(id));
+    const completedPoints = completedAchievementIds.reduce((total, id) => total + getMetadataPoint(metadata, id), 0);
+
+    return {
+        achievementIds,
+        completedAchievementIds,
+        completedCount: completedAchievementIds.length,
+        completedPoints,
+        countProgress: achievementIds.length
+            ? Number(((completedAchievementIds.length / achievementIds.length) * 100).toFixed(2))
+            : null,
+        pointProgress: totalPoints ? Number(((completedPoints / totalPoints) * 100).toFixed(2)) : null,
+        remainingCount: Math.max(0, achievementIds.length - completedAchievementIds.length),
+        remainingPoints: Math.max(0, totalPoints - completedPoints),
+        totalCount: achievementIds.length,
+        totalPoints,
+    };
 }
 
 function normalizeFilters(selectedFilters) {
@@ -99,9 +138,7 @@ export function flattenAchievementList(rawAchievements) {
  * @returns {Array<string>} 保持首次出现顺序的成就 ID
  */
 export function normalizeCompletedAchievementIds(rawCompletedAchievements) {
-    const source = Array.isArray(rawCompletedAchievements)
-        ? rawCompletedAchievements
-        : [rawCompletedAchievements];
+    const source = Array.isArray(rawCompletedAchievements) ? rawCompletedAchievements : [rawCompletedAchievements];
     const normalizedIds = [];
     const seenIds = new Set();
 
@@ -205,17 +242,19 @@ export function filterAchievements(achievements, roles, selectedFilters) {
     });
 
     const hasCommonUnfinishedFilter = filters.includes(COMMON_UNFINISHED_FILTER);
+    const hasCommonCompletedFilter = filters.includes(COMMON_COMPLETED_FILTER);
     const roleFilters = filters
-        .filter((filter) => filter !== COMMON_UNFINISHED_FILTER)
+        .filter((filter) => ![COMMON_UNFINISHED_FILTER, COMMON_COMPLETED_FILTER].includes(filter))
         .map((filter) => parseRoleFilter(filter))
         .filter(Boolean);
 
-    if (!hasCommonUnfinishedFilter && !roleFilters.length) {
+    if (!hasCommonUnfinishedFilter && !hasCommonCompletedFilter && !roleFilters.length) {
         return achievementList.slice();
     }
-    if (hasCommonUnfinishedFilter && roleCompletionMap.size === 0) {
+    if ((hasCommonUnfinishedFilter || hasCommonCompletedFilter) && roleCompletionMap.size === 0) {
         return [];
     }
+    if (hasCommonUnfinishedFilter && hasCommonCompletedFilter) return [];
 
     return achievementList.filter((achievement) => {
         const achievementId = getAchievementId(achievement);
@@ -227,6 +266,13 @@ export function filterAchievements(achievements, roles, selectedFilters) {
             if (isCompletedByAnyRole) return false;
         }
 
+        if (hasCommonCompletedFilter) {
+            const isCompletedByEveryRole = Array.from(roleCompletionMap.values()).every((completedIds) =>
+                completedIds.has(achievementId)
+            );
+            if (!isCompletedByEveryRole) return false;
+        }
+
         return roleFilters.every(({ roleId, status }) => {
             const completedIds = roleCompletionMap.get(roleId);
             if (!completedIds) return false;
@@ -235,4 +281,125 @@ export function filterAchievements(achievements, roles, selectedFilters) {
             return status === COMPLETED_STATUS ? isCompleted : !isCompleted;
         });
     });
+}
+
+export function filterAchievementIdsForCompare(achievementIds, roles, selectedFilters) {
+    return filterAchievements(
+        (achievementIds || []).map((id) => ({ id: String(id) })),
+        roles,
+        selectedFilters
+    ).map((achievement) => achievement.id);
+}
+
+export function buildAchievementRoleProgress(roles, metadata) {
+    const allIds = Object.keys(metadata || {}).filter((id) => isEligibleMetadata(metadata[id]));
+
+    return (Array.isArray(roles) ? roles : []).map((role) => ({
+        ...role,
+        ...summarizeAchievementIds(allIds, metadata, getRoleCompletedAchievementSource(role)),
+    }));
+}
+
+export function buildAchievementCrossStatistics({ achievementIds, metadata, roles }) {
+    const roleList = Array.isArray(roles) ? roles : [];
+    if (roleList.length < 2) return [];
+
+    const primaryCompleted = new Set(normalizeCompletedAchievementIds(getRoleCompletedAchievementSource(roleList[0])));
+    const secondaryCompleted = new Set(
+        normalizeCompletedAchievementIds(getRoleCompletedAchievementSource(roleList[1]))
+    );
+    const statistics = {
+        commonCompleted: { key: "commonCompleted", count: 0, points: 0 },
+        primaryOnly: { key: "primaryOnly", count: 0, points: 0 },
+        secondaryOnly: { key: "secondaryOnly", count: 0, points: 0 },
+        commonIncomplete: { key: "commonIncomplete", count: 0, points: 0 },
+    };
+
+    [...new Set((achievementIds || []).map(String))]
+        .filter((id) => isEligibleMetadata(metadata?.[id]))
+        .forEach((id) => {
+            const primaryDone = primaryCompleted.has(id);
+            const secondaryDone = secondaryCompleted.has(id);
+            let key = "commonIncomplete";
+            if (primaryDone && secondaryDone) key = "commonCompleted";
+            else if (primaryDone) key = "primaryOnly";
+            else if (secondaryDone) key = "secondaryOnly";
+            statistics[key].count += 1;
+            statistics[key].points += getMetadataPoint(metadata, id);
+        });
+
+    const totalCount = Object.values(statistics).reduce((total, item) => total + item.count, 0);
+    return Object.values(statistics).map((item) => ({
+        ...item,
+        percentage: totalCount ? Number(((item.count / totalCount) * 100).toFixed(2)) : 0,
+    }));
+}
+
+export function buildAchievementCategoryComparison({ menus, metadata, roles }) {
+    const menuEntries = Array.isArray(menus)
+        ? menus.map((menu, index) => [String(menu?.sub ?? index), menu])
+        : Object.entries(menus || {});
+
+    return menuEntries
+        .map(([fallbackId, menu]) => {
+            const achievementIds = [...collectMenuAchievementIds([menu])].filter((id) =>
+                isEligibleMetadata(metadata?.[id])
+            );
+            const roleProgress = (roles || []).map((role) => ({
+                roleId: getRoleId(role),
+                ...summarizeAchievementIds(achievementIds, metadata, getRoleCompletedAchievementSource(role)),
+            }));
+            const validProgress = roleProgress.map((item) => item.pointProgress).filter((value) => value !== null);
+            const averageProgress = validProgress.length
+                ? Number((validProgress.reduce((total, value) => total + value, 0) / validProgress.length).toFixed(2))
+                : null;
+
+            return {
+                id: String(menu?.sub ?? fallbackId),
+                name: menu?.name || fallbackId,
+                achievementIds,
+                averageProgress,
+                roleProgress,
+                totalCount: achievementIds.length,
+            };
+        })
+        .filter((category) => category.totalCount > 0)
+        .sort(
+            (left, right) =>
+                (left.averageProgress ?? Number.POSITIVE_INFINITY) - (right.averageProgress ?? Number.POSITIVE_INFINITY)
+        );
+}
+
+export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds = null) {
+    const visible = visibleAchievementIds ? new Set((visibleAchievementIds || []).map(String)) : null;
+    const menuEntries = Array.isArray(menus)
+        ? menus.map((menu, index) => [String(menu?.sub ?? index), menu])
+        : Object.entries(menus || {});
+    const filterIds = (ids) => [...new Set((ids || []).map(String))].filter((id) => !visible || visible.has(id));
+
+    return menuEntries
+        .map(([fallbackId, menu]) => {
+            const children = (menu?.children || [])
+                .map((child, index) => {
+                    const allAchievementIds = [...collectMenuAchievementIds([child])];
+                    return {
+                        id: String(child?.detail ?? child?.sub ?? index),
+                        name: child?.name || String(child?.detail ?? index),
+                        sourceCount: allAchievementIds.length,
+                        achievementIds: filterIds(allAchievementIds),
+                    };
+                })
+                .map((child) => ({ ...child, count: child.achievementIds.length }));
+            const allAchievementIds = [...collectMenuAchievementIds([menu])];
+            const achievementIds = filterIds(allAchievementIds);
+            return {
+                id: String(menu?.sub ?? fallbackId),
+                name: menu?.name || fallbackId,
+                achievementIds,
+                sourceCount: allAchievementIds.length,
+                count: achievementIds.length,
+                children,
+            };
+        })
+        .filter((category) => category.sourceCount > 0);
 }

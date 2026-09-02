@@ -1,0 +1,97 @@
+@achievement-paper: #f2eee5;
+@achievement-line: rgba(68, 74, 70, 0.14);
+@achievement-shadow: rgba(70, 59, 42, 0.1);
+
+.p-achievement-workbench {
+    min-width: 0;
+    color: #283236;
+    background: @achievement-paper;
+}
+
+.m-achievement-main.c-achievement-workbench {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: calc(100vh - 60px);
+    height: auto;
+    margin-top: 60px;
+    padding: 20px;
+    overflow: visible;
+    background-color: @achievement-paper;
+    background-image: radial-gradient(circle at 8% 8%, rgba(176, 143, 83, 0.08), transparent 25%),
+        radial-gradient(circle at 92% 2%, rgba(55, 104, 110, 0.07), transparent 30%),
+        repeating-linear-gradient(115deg, rgba(117, 97, 66, 0.018) 0 1px, transparent 1px 6px);
+    background-position: center;
+    background-repeat: repeat;
+    background-size: auto;
+    box-sizing: border-box;
+
+    * {
+        box-sizing: border-box;
+    }
+}
+
+.m-achievement-workbench-shell {
+    width: min(100%, 1840px);
+    min-width: 0;
+    margin: 0 auto;
+    border: 1px solid @achievement-line;
+    border-radius: 15px;
+    background: rgba(251, 250, 246, 0.82);
+    box-shadow: 0 18px 48px @achievement-shadow;
+
+    &.is-subpage {
+        border-color: transparent;
+        background: transparent;
+        box-shadow: none;
+    }
+}
+
+.m-achievement-main.c-achievement-workbench .m-achievement-content.m-achievement-workbench-content {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 560px;
+    margin: 0;
+    padding: 16px;
+    overflow: visible;
+    background: transparent;
+}
+
+.m-achievement-workbench-content > * {
+    width: 100%;
+    min-width: 0;
+}
+
+.m-achievement-main.c-achievement-workbench
+    .m-achievement-workbench-shell.is-subpage
+    .m-achievement-content.m-achievement-workbench-content {
+    padding: 0;
+}
+
+@media (max-width: 1024px) {
+    .m-achievement-main.c-achievement-workbench {
+        padding: 14px;
+    }
+
+    .m-achievement-main.c-achievement-workbench .m-achievement-content.m-achievement-workbench-content {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 720px) {
+    .m-achievement-main.c-achievement-workbench {
+        padding: 8px;
+    }
+
+    .m-achievement-workbench-shell {
+        border-radius: 11px;
+        box-shadow: 0 10px 28px rgba(70, 59, 42, 0.08);
+    }
+
+    .m-achievement-main.c-achievement-workbench .m-achievement-content.m-achievement-workbench-content {
+        min-height: 480px;
+        padding: 10px;
+    }
+}

@@ -1,21 +1,14 @@
-<template>
-    <div class="p-compare-main">
-        <pc />
-    </div>
-</template>
-
 <script>
-import pc from "./compare/pc.vue";
+import AchievementComparePage from "@/components/wiki/compare/AchievementComparePage.vue";
 
 export default {
-    components: { pc },
+    name: "WikiAchievementCompare",
+    components: {
+        AchievementComparePage,
+    },
 };
 </script>
 
-<style lang="less">
-.p-compare-main {
-    width: 100%;
-    min-width: 0;
-    min-height: 100%;
-}
-</style>
+<template>
+    <AchievementComparePage />
+</template>

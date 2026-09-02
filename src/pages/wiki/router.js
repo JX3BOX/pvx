@@ -11,6 +11,7 @@ const routes = [
         path: "/overview",
         component: () => import("@/views/wiki/overview.vue"),
         meta: {
+            workbenchPrimary: true,
             i18n: {
                 title: "pages.wiki.overview.title",
                 keywords: "pages.wiki.overview.keywords",
@@ -23,6 +24,7 @@ const routes = [
         path: "/compare",
         component: () => import("@/views/wiki/compare.vue"),
         meta: {
+            workbenchPrimary: true,
             i18n: {
                 title: "pages.wiki.compare.title",
                 keywords: "pages.wiki.compare.keywords",
@@ -33,6 +35,26 @@ const routes = [
     {
         name: "leap",
         path: "/leap",
+        component: () => import("@/views/wiki/leap.vue"),
+        beforeEnter: (to) => {
+            if (!to.query.id) return true;
+            const query = { ...to.query };
+            const id = String(query.id);
+            delete query.id;
+            return { name: "leap-detail", params: { id }, query };
+        },
+        meta: {
+            workbenchPrimary: true,
+            i18n: {
+                title: "pages.wiki.leap.title",
+                keywords: "pages.wiki.leap.keywords",
+                description: "pages.wiki.leap.description",
+            },
+        },
+    },
+    {
+        name: "leap-detail",
+        path: "/leap/:id",
         component: () => import("@/views/wiki/leap.vue"),
         meta: {
             i18n: {
