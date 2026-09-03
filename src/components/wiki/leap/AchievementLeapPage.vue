@@ -1,8 +1,12 @@
 <script>
 import User from "@jx3box/jx3box-common/js/user";
-import { ArrowLeft, CopyDocument, Delete, Edit, FolderOpened, UserFilled, WarningFilled } from "@element-plus/icons-vue";
+import { FolderOpened, Plus, UserFilled, WarningFilled } from "@element-plus/icons-vue";
+import AchievementLeapAddDialog from "@/components/wiki/leap/AchievementLeapAddDialog.vue";
+import AchievementLeapBaseSettings from "@/components/wiki/leap/AchievementLeapBaseSettings.vue";
+import AchievementLeapDetailHeader from "@/components/wiki/leap/AchievementLeapDetailHeader.vue";
 import AchievementLeapPlanner from "@/components/wiki/leap/AchievementLeapPlanner.vue";
 import AchievementLeapPlanList from "@/components/wiki/leap/AchievementLeapPlanList.vue";
+import AchievementLeapRecommendation from "@/components/wiki/leap/AchievementLeapRecommendation.vue";
 import AchievementLeapRouteTable from "@/components/wiki/leap/AchievementLeapRouteTable.vue";
 import AchievementLeapSaveDialog from "@/components/wiki/leap/AchievementLeapSaveDialog.vue";
 import AchievementLeapSummary from "@/components/wiki/leap/AchievementLeapSummary.vue";
@@ -23,14 +27,17 @@ import {
     searchAchievementWorkbenchRecords,
 } from "@/service/achievementWorkbench";
 import {
+    addAchievementLeapRouteItem,
     buildAchievementLeapCandidates,
     buildAchievementLeapCategoryOptions,
     buildAchievementLeapPlanProgress,
+    buildAchievementLeapRecommendation,
     buildAchievementLeapRoute,
     filterAchievementLeapIds,
     removeAchievementLeapRouteItem,
 } from "@/utils/achievementLeap";
 import { buildAchievementOverallProgress } from "@/utils/achievementProgress";
+import { buildAchievementSchoolEligibilityContext } from "@/utils/achievementSchoolEligibility";
 import { __Links } from "@/utils/config";
 
 const PLAN_PAGE_SIZE = 9;
@@ -42,16 +49,17 @@ function emptyRoleState() {
 export default {
     name: "AchievementLeapPage",
     components: {
+        AchievementLeapAddDialog,
+        AchievementLeapBaseSettings,
+        AchievementLeapDetailHeader,
         AchievementLeapPlanner,
         AchievementLeapPlanList,
+        AchievementLeapRecommendation,
         AchievementLeapRouteTable,
         AchievementLeapSaveDialog,
         AchievementLeapSummary,
-        ArrowLeft,
-        CopyDocument,
-        Delete,
-        Edit,
         FolderOpened,
+        Plus,
         PvxActionButton,
         PvxEmptyState,
         PvxSurface,
@@ -67,6 +75,9 @@ export default {
             plansLoading: false,
             routeLoading: false,
             detailLoading: false,
+            recommendationLoading: false,
+            addSearchLoading: false,
+            guidanceSubmitting: false,
             saving: false,
             menus: {},
             metadata: {},
@@ -88,13 +99,19 @@ export default {
                 strategy: "easy-first",
             },
             generatedRoute: null,
+            recommendation: null,
             editingPlan: null,
             detailPlan: null,
             detailRoute: null,
             saveDialogVisible: false,
+            addDialogVisible: false,
+            addSearchResults: [],
+            guidanceRequest: null,
             roleRequestId: 0,
             routeRequestId: 0,
             detailRequestId: 0,
+            recommendationRequestId: 0,
+            addSearchRequestId: 0,
         };
     },
     computed: {
@@ -110,8 +127,16 @@ export default {
         currentPoints() {
             return this.overallProgress.completedPoints || 0;
         },
+        schoolEligibility() {
+            return buildAchievementSchoolEligibilityContext({
+                menus: this.menus,
+                roleSchool: this.currentRole?.school,
+            });
+        },
         categoryOptions() {
-            return buildAchievementLeapCategoryOptions(this.menus, this.metadata, this.roleState.completedIds);
+            return buildAchievementLeapCategoryOptions(this.menus, this.metadata, this.roleState.completedIds, {
+                schoolEligibility: this.schoolEligibility,
+            });
         },
         mapOptions() {
             return [...this.maps]
@@ -131,6 +156,9 @@ export default {
         canSaveRoute() {
             return Boolean(this.generatedRoute?.items?.length && !this.routeLoading);
         },
+        generatedRouteIds() {
+            return (this.generatedRoute?.items || []).map((item) => String(item.id));
+        },
     },
     watch: {
         detailId: {
@@ -140,6 +168,7 @@ export default {
                     this.detailPlan = null;
                     this.detailRoute = null;
                 }
+                this.guidanceRequest = null;
             },
         },
     },
@@ -150,6 +179,8 @@ export default {
         this.roleRequestId += 1;
         this.routeRequestId += 1;
         this.detailRequestId += 1;
+        this.recommendationRequestId += 1;
+        this.addSearchRequestId += 1;
     },
     methods: {
         createDefaultForm(roleId = "", currentPoints = 0) {
@@ -215,6 +246,8 @@ export default {
                 else this.plannerForm = { ...this.plannerForm, roleId };
                 this.generatedRoute = null;
                 this.editingPlan = null;
+                this.addSearchResults = [];
+                this.loadRecommendation();
                 if (this.detailId) await this.loadPlanDetail(this.detailId);
             } catch (error) {
                 console.error("Failed to load leap role state:", error);
@@ -232,9 +265,56 @@ export default {
             });
         },
         resetPlanner() {
-            this.plannerForm = this.createDefaultForm(this.currentRoleId, this.currentPoints);
+            this.plannerForm = {
+                ...this.plannerForm,
+                categoryIds: [],
+                mapId: "",
+                maxDifficulty: 3,
+                strategy: "easy-first",
+            };
             this.generatedRoute = null;
             this.editingPlan = null;
+        },
+        async loadRecommendation() {
+            const requestId = ++this.recommendationRequestId;
+            this.recommendationLoading = true;
+            try {
+                const baseCandidates = buildAchievementLeapCandidates({
+                    metadata: this.metadata,
+                    menus: this.menus,
+                    completedIds: this.roleState.completedIds,
+                    schoolEligibility: this.schoolEligibility,
+                });
+                this.recommendation = buildAchievementLeapRecommendation({
+                    candidates: baseCandidates,
+                    currentPoints: this.currentPoints,
+                    schoolEligibility: this.schoolEligibility,
+                });
+                const difficultyById = await fetchAchievementWorkbenchDifficulty(
+                    baseCandidates.map((item) => item.id)
+                ).catch((error) => {
+                    console.error("Failed to load recommendation difficulty:", error);
+                    return {};
+                });
+                if (requestId !== this.recommendationRequestId) return;
+                const candidates = buildAchievementLeapCandidates({
+                    metadata: this.metadata,
+                    menus: this.menus,
+                    completedIds: this.roleState.completedIds,
+                    difficultyById,
+                    schoolEligibility: this.schoolEligibility,
+                });
+                this.recommendation = buildAchievementLeapRecommendation({
+                    candidates,
+                    currentPoints: this.currentPoints,
+                    schoolEligibility: this.schoolEligibility,
+                });
+            } catch (error) {
+                console.error("Failed to build achievement leap recommendation:", error);
+                if (requestId === this.recommendationRequestId) this.recommendation = null;
+            } finally {
+                if (requestId === this.recommendationRequestId) this.recommendationLoading = false;
+            }
         },
         async loadPlans() {
             this.plansLoading = true;
@@ -259,7 +339,7 @@ export default {
             this.plansPage = page;
             await this.loadPlans();
         },
-        async generateRoute() {
+        async generateRoute(options = {}) {
             if (this.routeLoading) return;
             const form = this.plannerForm;
             if (!String(form.title || "").trim()) {
@@ -293,6 +373,7 @@ export default {
                     records: scopedRecords,
                     categoryIds: form.categoryIds,
                     allowedIds,
+                    schoolEligibility: this.schoolEligibility,
                 });
                 const candidateIds = baseCandidates.map((item) => item.id);
                 const difficultyById = await fetchAchievementWorkbenchDifficulty(candidateIds).catch((error) => {
@@ -314,6 +395,7 @@ export default {
                     allowedIds,
                     maxDifficulty: form.maxDifficulty,
                     enforceDifficulty: difficultyAvailable,
+                    schoolEligibility: this.schoolEligibility,
                 });
                 let route = buildAchievementLeapRoute({
                     candidates,
@@ -336,6 +418,7 @@ export default {
                     records: [...scopedRecords, ...detailRecords],
                     difficultyById,
                     allowedIds: route.items.map((item) => item.id),
+                    schoolEligibility: this.schoolEligibility,
                 });
                 route = buildAchievementLeapRoute({
                     candidates: hydratedCandidates,
@@ -343,7 +426,14 @@ export default {
                     targetPoints: form.targetPoints,
                     strategy: form.strategy,
                 });
-                this.generatedRoute = route;
+                this.generatedRoute = {
+                    ...route,
+                    generationMode: options.mode || "custom",
+                    recommendationVersion: options.recommendation?.version || null,
+                    recommendationStage: options.recommendation?.stageKey || null,
+                    schoolEligibilityVersion: this.schoolEligibility.version,
+                    roleSchool: this.schoolEligibility.school,
+                };
 
                 if (!route.items.length) {
                     this.$message.warning(this.$t("pages.wiki.leap.ui.workbench.noCandidates"));
@@ -359,6 +449,18 @@ export default {
                 if (requestId === this.routeRequestId) this.routeLoading = false;
             }
         },
+        async generateRecommendedRoute(recommendation) {
+            if (!recommendation?.categoryIds?.length || this.routeLoading) return;
+            this.plannerForm = {
+                ...this.plannerForm,
+                categoryIds: [...recommendation.categoryIds],
+                mapId: "",
+                maxDifficulty: recommendation.maxDifficulty,
+                strategy: recommendation.strategy,
+            };
+            await this.$nextTick();
+            await this.generateRoute({ mode: "recommended", recommendation });
+        },
         openSaveDialog() {
             if (!this.canSaveRoute) return;
             this.saveDialogVisible = true;
@@ -366,6 +468,45 @@ export default {
         removeGeneratedRouteItem(item) {
             if (!this.generatedRoute || !item?.id) return;
             this.generatedRoute = removeAchievementLeapRouteItem(this.generatedRoute, item.id);
+        },
+        openAddDialog() {
+            if (!this.generatedRoute) return;
+            this.addSearchResults = [];
+            this.addDialogVisible = true;
+        },
+        async searchAddRouteItems(keyword) {
+            const requestId = ++this.addSearchRequestId;
+            this.addSearchLoading = true;
+            try {
+                const records = await searchAchievementWorkbenchRecords({
+                    keyword,
+                    client: this.$store.state.client || "std",
+                    metadata: this.metadata,
+                    completedIds: this.roleState.completedIds,
+                });
+                const allowedIds = records.map((record) => record.id);
+                const difficultyById = await fetchAchievementWorkbenchDifficulty(allowedIds).catch(() => ({}));
+                if (requestId !== this.addSearchRequestId) return;
+                this.addSearchResults = buildAchievementLeapCandidates({
+                    metadata: this.metadata,
+                    menus: this.menus,
+                    completedIds: this.roleState.completedIds,
+                    records,
+                    difficultyById,
+                    allowedIds,
+                    schoolEligibility: this.schoolEligibility,
+                });
+            } catch (error) {
+                console.error("Failed to search achievement leap route items:", error);
+                if (requestId === this.addSearchRequestId) this.addSearchResults = [];
+                this.$message.error(this.$t("pages.wiki.leap.ui.workbench.addRouteItemsSearchFailed"));
+            } finally {
+                if (requestId === this.addSearchRequestId) this.addSearchLoading = false;
+            }
+        },
+        addGeneratedRouteItem(item) {
+            if (!this.generatedRoute || !item?.id) return;
+            this.generatedRoute = addAchievementLeapRouteItem(this.generatedRoute, item);
         },
         buildPlanPayload(title) {
             const route = this.generatedRoute;
@@ -381,6 +522,11 @@ export default {
                     maxDifficulty: this.plannerForm.maxDifficulty,
                     strategy: this.plannerForm.strategy,
                     generatedStrategy: route.strategy,
+                    generationMode: route.generationMode || "custom",
+                    recommendationVersion: route.recommendationVersion || null,
+                    recommendationStage: route.recommendationStage || null,
+                    schoolEligibilityVersion: route.schoolEligibilityVersion || this.schoolEligibility.version,
+                    roleSchool: route.roleSchool || this.schoolEligibility.school,
                     selectedPoints: route.selectedPoints,
                 },
                 client: this.$store.state.client || "std",
@@ -424,7 +570,7 @@ export default {
         closePlanDetail() {
             const query = { ...this.$route.query };
             delete query.id;
-            this.$router.push({ name: "leap", query });
+            return this.$router.push({ name: "leap", query });
         },
         async loadPlanDetail(id) {
             if (!id || !Object.keys(this.metadata).length) return;
@@ -552,11 +698,46 @@ export default {
             try {
                 await deleteAchievementWorkbenchLeapPlan(plan.id);
                 this.$message.success(this.$t("pages.wiki.leap.ui.deleteSuccess"));
-                if (this.detailId === String(plan.id)) this.closePlanDetail();
+                if (this.detailId === String(plan.id)) await this.closePlanDetail();
                 await this.loadPlans();
             } catch (error) {
                 console.error("Failed to delete achievement leap plan:", error);
                 this.$message.error(this.$t("pages.wiki.leap.ui.deleteFailed"));
+            }
+        },
+        async requestPlanGuidance(plan) {
+            if (!plan?.id || this.guidanceSubmitting || this.guidanceRequest) return;
+            const roleLabel = [this.currentRole?.name, this.currentRole?.server].filter(Boolean).join(" · ");
+            try {
+                await this.$confirm(
+                    this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationDescription", {
+                        role: roleLabel,
+                        title: plan.title,
+                    }),
+                    this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationTitle"),
+                    {
+                        confirmButtonText: this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationConfirm"),
+                        cancelButtonText: this.$t("pages.wiki.leap.ui.cancel"),
+                        type: "info",
+                    }
+                );
+            } catch {
+                return;
+            }
+
+            this.guidanceSubmitting = true;
+            try {
+                await new Promise((resolve) => window.setTimeout(resolve, 350));
+                this.guidanceRequest = {
+                    planId: String(plan.id),
+                    roleId: this.currentRoleId,
+                    client: this.$store.state.client || "std",
+                    status: "pending",
+                    requestedAt: new Date().toISOString(),
+                };
+                this.$message.success(this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationSuccess"));
+            } finally {
+                this.guidanceSubmitting = false;
             }
         },
     },
@@ -606,20 +787,16 @@ export default {
         </PvxSurface>
 
         <div v-else-if="detailMode" class="m-leap-page-content" v-loading="detailLoading">
-            <PvxSurface class="m-leap-detail-header" padding="medium">
-                <div>
-                    <button type="button" class="u-leap-back" @click="closePlanDetail">
-                        <ArrowLeft />{{ $t("pages.wiki.leap.ui.title") }}
-                    </button>
-                    <span>{{ $t("pages.wiki.leap.ui.planDetail") }}</span>
-                    <h1>{{ detailPlan?.title || $t("pages.wiki.leap.ui.unnamedPlan") }}</h1>
-                </div>
-                <div v-if="detailPlan" class="m-leap-detail-header__actions">
-                    <button v-if="!detailPlan.official" type="button" @click="editPlan(detailPlan)"><Edit />{{ $t("pages.wiki.leap.ui.workbench.editPlan") }}</button>
-                    <button v-else type="button" @click="copyPlan(detailPlan)"><CopyDocument />{{ $t("pages.wiki.leap.ui.workbench.copyAsMine") }}</button>
-                    <button v-if="!detailPlan.official" type="button" class="is-danger" @click="deletePlan(detailPlan)"><Delete />{{ $t("pages.wiki.leap.ui.workbench.deletePlanShort") }}</button>
-                </div>
-            </PvxSurface>
+            <AchievementLeapDetailHeader
+                :plan="detailPlan"
+                :guidance-submitting="guidanceSubmitting"
+                :guidance-requested="Boolean(guidanceRequest)"
+                @back="closePlanDetail"
+                @request-guidance="requestPlanGuidance"
+                @edit="editPlan"
+                @copy="copyPlan"
+                @delete="deletePlan"
+            />
 
             <AchievementLeapSummary
                 v-if="detailRoute"
@@ -637,22 +814,41 @@ export default {
         </div>
 
         <div v-else class="m-leap-page-content">
-            <AchievementLeapPlanner
+            <AchievementLeapBaseSettings
                 v-model="plannerForm"
                 :roles="roles"
+                :loading="roleLoading"
+                @role-change="handleRoleChange"
+            />
+
+            <AchievementLeapRecommendation
+                :recommendation="recommendation"
+                :current-points="currentPoints"
+                :role-school="schoolEligibility.school"
+                :loading="recommendationLoading"
+                @apply="generateRecommendedRoute"
+                @refresh="loadRecommendation"
+            />
+
+            <AchievementLeapPlanner
+                v-model="plannerForm"
                 :categories="categoryOptions"
                 :maps="mapOptions"
                 :current-points="currentPoints"
+                :role-school="schoolEligibility.school"
                 :generating="routeLoading || roleLoading"
                 @generate="generateRoute"
                 @reset="resetPlanner"
-                @role-change="handleRoleChange"
             />
 
             <section v-if="generatedRoute" class="m-leap-generated-result">
                 <AchievementLeapSummary :route="generatedRoute" :title="plannerForm.title" />
                 <div class="m-leap-generated-actions">
                     <p>{{ $t("pages.wiki.leap.ui.workbench.localGenerationNote") }}</p>
+                    <button type="button" class="u-leap-add-button" @click="openAddDialog">
+                        <Plus />
+                        {{ $t("pages.wiki.leap.ui.workbench.addRouteItems") }}
+                    </button>
                     <button type="button" class="u-leap-discard-button" @click="generatedRoute = null">
                         {{ $t("pages.wiki.leap.ui.workbench.discardRoute") }}
                     </button>
@@ -681,9 +877,6 @@ export default {
                 :page="plansPage"
                 :page-size="plansPageSize"
                 @view="openPlan"
-                @edit="editPlan"
-                @copy="copyPlan"
-                @delete="deletePlan"
                 @page-change="changePlansPage"
             />
         </div>
@@ -696,6 +889,15 @@ export default {
             :route-count="generatedRoute?.items?.length || 0"
             :route-points="generatedRoute?.selectedPoints || 0"
             @save="saveRoute"
+        />
+
+        <AchievementLeapAddDialog
+            v-model="addDialogVisible"
+            :results="addSearchResults"
+            :selected-ids="generatedRouteIds"
+            :loading="addSearchLoading"
+            @search="searchAddRouteItems"
+            @add="addGeneratedRouteItem"
         />
     </div>
 </template>
@@ -742,9 +944,8 @@ export default {
 }
 
 .u-leap-save-button,
-.u-leap-discard-button,
-.m-leap-detail-header__actions button,
-.u-leap-back {
+.u-leap-add-button,
+.u-leap-discard-button {
     display: inline-flex;
     min-height: 38px;
     align-items: center;
@@ -762,10 +963,13 @@ export default {
 }
 
 .u-leap-discard-button,
-.m-leap-detail-header__actions button,
-.u-leap-back {
+.u-leap-add-button {
     color: #47777d;
     background: transparent;
+}
+
+.u-leap-add-button svg {
+    width: 15px;
 }
 
 .u-leap-save-button:disabled {
@@ -774,53 +978,8 @@ export default {
     cursor: not-allowed;
 }
 
-.m-leap-detail-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.m-leap-detail-header > div:first-child > span {
-    display: block;
-    margin-top: 12px;
-    color: #a88139;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-}
-
-.m-leap-detail-header h1 {
-    margin: 4px 0 0;
-    color: #324346;
-    font-size: 24px;
-}
-
-.u-leap-back {
-    min-height: 34px;
-    padding: 6px 10px;
-}
-
-.u-leap-back svg,
-.m-leap-detail-header__actions svg {
-    width: 15px;
-}
-
-.m-leap-detail-header__actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.m-leap-detail-header__actions button.is-danger {
-    border-color: rgba(163, 84, 63, 0.35);
-    color: #a3543f;
-}
-
 @media (max-width: 720px) {
-    .m-leap-generated-actions,
-    .m-leap-detail-header {
+    .m-leap-generated-actions {
         display: grid;
     }
 
@@ -834,10 +993,6 @@ export default {
 
     .m-leap-generated-actions p {
         grid-column: 1 / -1;
-    }
-
-    .m-leap-detail-header__actions {
-        justify-content: flex-start;
     }
 }
 </style>

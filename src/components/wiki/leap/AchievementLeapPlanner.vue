@@ -14,10 +14,6 @@ export default {
             type: Object,
             required: true,
         },
-        roles: {
-            type: Array,
-            default: () => [],
-        },
         categories: {
             type: Array,
             default: () => [],
@@ -30,12 +26,16 @@ export default {
             type: Number,
             default: 0,
         },
+        roleSchool: {
+            type: String,
+            default: "",
+        },
         generating: {
             type: Boolean,
             default: false,
         },
     },
-    emits: ["update:modelValue", "generate", "reset", "role-change"],
+    emits: ["update:modelValue", "generate", "reset"],
     computed: {
         targetGap() {
             return Math.max(0, Number(this.modelValue.targetPoints || 0) - this.currentPoints);
@@ -54,9 +54,7 @@ export default {
     },
     methods: {
         updateField(field, value) {
-            const next = { ...this.modelValue, [field]: value };
-            this.$emit("update:modelValue", next);
-            if (field === "roleId") this.$emit("role-change", value);
+            this.$emit("update:modelValue", { ...this.modelValue, [field]: value });
         },
         toggleCategory(categoryId) {
             const category = this.categories.find((item) => String(item.id) === String(categoryId));
@@ -71,9 +69,6 @@ export default {
             return (category.sourceIds || [category.id])
                 .map(String)
                 .some((id) => this.selectedCategoryIds.includes(id));
-        },
-        roleLabel(role) {
-            return [role.name, role.server].filter(Boolean).join(" · ");
         },
         formatNumber(value) {
             return Number(value || 0).toLocaleString();
@@ -94,44 +89,6 @@ export default {
         </header>
 
         <div class="m-leap-planner__grid">
-            <label class="m-leap-field is-wide">
-                <span>{{ $t("pages.wiki.leap.ui.planName") }}</span>
-                <el-input
-                    :model-value="modelValue.title"
-                    :placeholder="$t('pages.wiki.leap.ui.enterPlanName')"
-                    maxlength="40"
-                    show-word-limit
-                    @update:model-value="updateField('title', $event)"
-                />
-            </label>
-
-            <label class="m-leap-field">
-                <span>{{ $t("pages.wiki.leap.ui.workbench.planRole") }}</span>
-                <el-select
-                    :model-value="modelValue.roleId"
-                    :placeholder="$t('pages.wiki.leap.ui.selectPlaceholder')"
-                    @update:model-value="updateField('roleId', $event)"
-                >
-                    <el-option
-                        v-for="role in roles"
-                        :key="role.id"
-                        :label="roleLabel(role)"
-                        :value="role.id"
-                    />
-                </el-select>
-            </label>
-
-            <label class="m-leap-field">
-                <span>{{ $t("pages.wiki.leap.ui.targetSeniority") }}</span>
-                <el-input-number
-                    :model-value="modelValue.targetPoints"
-                    :min="0"
-                    :step="1000"
-                    :controls="false"
-                    @update:model-value="updateField('targetPoints', $event)"
-                />
-            </label>
-
             <label class="m-leap-field">
                 <span>{{ $t("pages.wiki.leap.ui.workbench.difficultyLimit") }}</span>
                 <el-select
@@ -186,6 +143,9 @@ export default {
         <section class="m-leap-category-picker" :aria-label="$t('pages.wiki.leap.ui.workbench.categoryScope')">
             <div class="m-leap-category-picker__heading">
                 <strong>{{ $t("pages.wiki.leap.ui.workbench.categoryScope") }}</strong>
+                <span v-if="roleSchool">
+                    {{ $t("pages.wiki.leap.ui.workbench.schoolEligibilityApplied", { school: roleSchool }) }}
+                </span>
             </div>
             <div class="m-leap-category-picker__list">
                 <button
@@ -308,9 +268,19 @@ export default {
 }
 
 .m-leap-category-picker__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     margin-bottom: 10px;
     color: #647071;
     font-size: 13px;
+}
+
+.m-leap-category-picker__heading span {
+    color: #7c898a;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 .m-leap-category-picker__heading strong {

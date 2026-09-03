@@ -387,9 +387,7 @@ export default {
 <style lang="less" scoped>
 .m-progress-list {
     display: flex;
-    height: 100%;
     min-width: 0;
-    overflow: hidden;
     flex-direction: column;
     border: 1px solid rgba(70, 74, 66, 0.14);
     border-radius: 14px;
@@ -423,10 +421,6 @@ export default {
 
 .m-progress-list__body {
     position: relative;
-    min-height: 0;
-    flex: 1;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     padding: 10px;
 }
 

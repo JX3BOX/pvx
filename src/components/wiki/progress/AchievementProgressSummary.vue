@@ -1,6 +1,7 @@
 <script>
-import { ArrowUp, Document, Filter, Hide, Trophy, WarningFilled } from "@element-plus/icons-vue";
+import { ArrowUp, Document, Filter, Hide, TopRight, Trophy, WarningFilled } from "@element-plus/icons-vue";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
+import { __Root } from "@/utils/config";
 
 const TIER_DEFINITIONS = Object.freeze([
     {
@@ -22,7 +23,8 @@ const TIER_DEFINITIONS = Object.freeze([
         icon: "Hide",
         labelKey: "workbench.hiddenTier",
         badgeKey: "statistics.hiddenAchievement",
-        actionKey: "workbench.filterHiddenAchievements",
+        actionKey: "workbench.viewHiddenAchievements",
+        href: `${__Root}bbs/8104`,
     },
     {
         key: "retired",
@@ -39,6 +41,7 @@ export default {
         Document,
         Filter,
         Hide,
+        TopRight,
         Trophy,
         WarningFilled,
     },
@@ -223,7 +226,7 @@ export default {
                             `is-${item.key}`,
                             {
                                 'is-clickable': Boolean(item.actionKey),
-                                'is-selected': item.key === activeTier,
+                                'is-selected': !item.href && item.key === activeTier,
                             },
                         ]"
                     >
@@ -256,11 +259,20 @@ export default {
                             <p class="m-progress-tier-note">{{ getTierNote(item) }}</p>
                             <span v-if="item.actionKey" class="u-progress-tier-link-hint" aria-hidden="true">
                                 {{ $t(`pages.wiki.overview.ui.${item.actionKey}`) }}
-                                <Filter />
+                                <TopRight v-if="item.href" />
+                                <Filter v-else />
                             </span>
                         </div>
+                        <a
+                            v-if="item.href"
+                            class="u-progress-tier-card-link"
+                            :href="item.href"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            :aria-label="$t(`pages.wiki.overview.ui.${item.actionKey}`)"
+                        ></a>
                         <button
-                            v-if="item.actionKey"
+                            v-else-if="item.actionKey"
                             type="button"
                             class="u-progress-tier-card-link"
                             :aria-label="$t(`pages.wiki.overview.ui.${item.actionKey}`)"

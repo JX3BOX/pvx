@@ -67,7 +67,7 @@ export default {
             records: [],
             searchRecords: null,
             page: 1,
-            pageSize: 20,
+            pageSize: 15,
             categorySort: "progress-asc",
             summaryCollapsed: false,
             filters: createDefaultFilters(),
@@ -309,7 +309,7 @@ export default {
                     metadata: this.metadata,
                     completedIds: this.completedIds,
                     client: this.$store.state.client || "std",
-                    includeHidden: this.filters.tier === "hidden",
+                    includeHidden: false,
                 });
                 if (requestId !== this.recordRequestId) return;
                 const recordMap = new Map(this.enrichRecords(records).map((record) => [record.id, record]));
@@ -442,7 +442,7 @@ export default {
             </PvxEmptyState>
         </PvxSurface>
 
-        <div v-else class="m-progress-page-content" :class="{ 'is-summary-collapsed': summaryCollapsed }">
+        <div v-else class="m-progress-page-content">
             <AchievementProgressSummary
                 :collapsed="summaryCollapsed"
                 :current-role="currentRole"
@@ -519,15 +519,10 @@ export default {
 
 .m-progress-browser-grid {
     display: grid;
-    height: 752px;
     min-width: 0;
     grid-template-columns: minmax(300px, 0.72fr) minmax(520px, 1.28fr);
-    align-items: stretch;
+    align-items: start;
     gap: 12px;
-}
-
-.m-progress-page-content.is-summary-collapsed .m-progress-browser-grid {
-    height: clamp(480px, calc(100vh - 244px), 820px);
 }
 
 .m-progress-page-state {
@@ -543,7 +538,6 @@ export default {
 
 @media (max-width: 1060px) {
     .m-progress-browser-grid {
-        height: auto;
         grid-template-columns: minmax(0, 1fr);
     }
 }

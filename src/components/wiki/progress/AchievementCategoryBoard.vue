@@ -49,6 +49,11 @@ export default {
             );
         },
     },
+    watch: {
+        activeCategoryId(value) {
+            if (!value || value === "all") this.expandedCategoryId = null;
+        },
+    },
     emits: ["select-category", "update:sort"],
     methods: {
         formatNumber(value) {
@@ -221,9 +226,7 @@ export default {
 <style lang="less" scoped>
 .m-progress-categories {
     display: flex;
-    height: 100%;
     min-width: 0;
-    overflow: hidden;
     flex-direction: column;
     border: 1px solid rgba(70, 74, 66, 0.14);
     border-radius: 14px;
@@ -260,10 +263,7 @@ export default {
 
 .m-progress-category-browser {
     display: grid;
-    min-height: 0;
-    flex: 1;
     grid-template-columns: minmax(0, 1fr);
-    overflow: hidden;
 
     &.has-subcategories {
         grid-template-columns: minmax(150px, 0.76fr) minmax(0, 1.24fr);
@@ -273,12 +273,9 @@ export default {
 .m-progress-category-list {
     display: grid;
     min-width: 0;
-    min-height: 0;
     align-content: start;
     gap: 6px;
     padding: 10px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
 }
 
 .m-progress-category-node {
@@ -560,8 +557,6 @@ export default {
 .m-progress-subcategory-panel {
     display: flex;
     min-width: 0;
-    min-height: 0;
-    overflow: hidden;
     flex-direction: column;
     border-left: 1px solid rgba(70, 74, 66, 0.1);
     background: rgba(247, 244, 236, 0.36);
@@ -623,13 +618,9 @@ export default {
 
 .m-progress-subcategory-list {
     display: grid;
-    min-height: 0;
-    flex: 1;
     align-content: start;
     gap: 4px;
     padding: 10px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
 }
 
 .m-progress-subcategory-card {
@@ -734,19 +725,11 @@ export default {
     }
 
     .m-progress-category-browser.has-subcategories .m-progress-category-list {
-        max-height: 310px;
         border-bottom: 1px solid rgba(70, 74, 66, 0.1);
     }
 
     .m-progress-subcategory-panel {
-        min-height: 320px;
         border-left: 0;
-    }
-}
-
-@media (max-width: 860px) {
-    .m-progress-category-browser {
-        max-height: 640px;
     }
 }
 

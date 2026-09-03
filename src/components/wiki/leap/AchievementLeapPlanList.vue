@@ -1,5 +1,5 @@
 <script>
-import { CopyDocument, Delete, Document, Edit, View } from "@element-plus/icons-vue";
+import { Document } from "@element-plus/icons-vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { buildAchievementLeapPlanProgress } from "@/utils/achievementLeap";
@@ -7,13 +7,9 @@ import { buildAchievementLeapPlanProgress } from "@/utils/achievementLeap";
 export default {
     name: "AchievementLeapPlanList",
     components: {
-        CopyDocument,
-        Delete,
         Document,
-        Edit,
         PvxEmptyState,
         PvxSurface,
-        View,
     },
     props: {
         plans: {
@@ -45,13 +41,13 @@ export default {
             default: 9,
         },
     },
-    emits: ["view", "edit", "copy", "delete", "page-change"],
+    emits: ["view", "page-change"],
     computed: {
         planCards() {
             return this.plans.map((plan) => ({
                 plan,
                 progress: buildAchievementLeapPlanProgress(plan, this.metadata, this.completedIds),
-                description: this.description(plan),
+                description: this.description(plan) || "—",
                 source: this.sourceLabel(plan),
             }));
         },
@@ -93,16 +89,24 @@ export default {
                 :key="card.plan.id"
                 class="m-leap-plan-card"
                 :class="{ 'is-official': card.plan.official }"
+                role="link"
+                tabindex="0"
+                :aria-labelledby="`leap-plan-title-${card.plan.id}`"
+                @click="$emit('view', card.plan)"
+                @keydown.enter.prevent="$emit('view', card.plan)"
+                @keydown.space.prevent="$emit('view', card.plan)"
             >
                 <header class="m-leap-plan-card__header">
-                    <span class="u-leap-plan-icon"><Document /></span>
                     <div class="m-leap-plan-card__heading">
-                        <h3>{{ card.plan.title || $t("pages.wiki.leap.ui.unnamedPlan") }}</h3>
-                        <span class="u-leap-plan-source">{{ card.source }}</span>
+                        <div class="m-leap-plan-card__title-row">
+                            <span class="u-leap-plan-source">{{ card.source }}</span>
+                            <h3 :id="`leap-plan-title-${card.plan.id}`">
+                                {{ card.plan.title || $t("pages.wiki.leap.ui.unnamedPlan") }}
+                            </h3>
+                        </div>
+                        <p class="u-leap-plan-description" :title="card.description">{{ card.description }}</p>
                     </div>
                 </header>
-
-                <p v-if="card.description" class="u-leap-plan-description">{{ card.description }}</p>
 
                 <div class="m-leap-plan-card__stats">
                     <div>
@@ -132,26 +136,6 @@ export default {
                 >
                     <span :style="{ width: `${card.progress.progress || 0}%` }"></span>
                 </div>
-
-                <footer class="m-leap-plan-card__actions">
-                    <button type="button" class="is-primary" @click="$emit('view', card.plan)">
-                        <View />{{ $t("pages.wiki.leap.ui.workbench.viewPlan") }}
-                    </button>
-                    <button v-if="!card.plan.official" type="button" @click="$emit('edit', card.plan)">
-                        <Edit />{{ $t("pages.wiki.leap.ui.workbench.editPlan") }}
-                    </button>
-                    <button v-else type="button" @click="$emit('copy', card.plan)">
-                        <CopyDocument />{{ $t("pages.wiki.leap.ui.workbench.copyAsMine") }}
-                    </button>
-                    <button
-                        v-if="!card.plan.official"
-                        type="button"
-                        class="is-danger"
-                        @click="$emit('delete', card.plan)"
-                    >
-                        <Delete />{{ $t("pages.wiki.leap.ui.workbench.deletePlanShort") }}
-                    </button>
-                </footer>
             </article>
         </div>
 
@@ -224,7 +208,7 @@ export default {
 .m-leap-plan-card {
     position: relative;
     display: flex;
-    min-height: 232px;
+    min-height: 194px;
     min-width: 0;
     flex-direction: column;
     padding: 18px 18px 16px 20px;
@@ -232,7 +216,9 @@ export default {
     border-radius: 14px;
     background: linear-gradient(145deg, #fffdf9 0%, #f9f6ef 100%);
     box-shadow: 0 4px 14px rgba(54, 70, 70, 0.04);
+    cursor: pointer;
     overflow: hidden;
+    outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
@@ -251,41 +237,24 @@ export default {
 }
 
 .m-leap-plan-card__header {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    gap: 12px;
-}
-
-.u-leap-plan-icon {
-    display: inline-flex;
-    width: 42px;
-    height: 42px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    color: #fff;
-    background: #47777d;
-}
-
-.m-leap-plan-card.is-official .u-leap-plan-icon {
-    color: #8f6b2d;
-    background: #f1e7d3;
-}
-
-.u-leap-plan-icon svg {
-    width: 19px;
+    min-width: 0;
 }
 
 .m-leap-plan-card__heading {
     display: grid;
     min-width: 0;
-    justify-items: start;
-    gap: 5px;
+    gap: 3px;
 }
 
-.m-leap-plan-card__heading h3 {
-    max-width: 100%;
+.m-leap-plan-card__title-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 7px;
+}
+
+.m-leap-plan-card__title-row h3 {
+    min-width: 0;
     margin: 0;
     overflow: hidden;
     color: #2f4143;
@@ -296,6 +265,8 @@ export default {
 
 .u-leap-plan-source {
     display: inline-flex;
+    width: fit-content;
+    flex: none;
     padding: 3px 7px;
     border-radius: 999px;
     color: #55777a;
@@ -310,14 +281,14 @@ export default {
 }
 
 .u-leap-plan-description {
-    margin: 11px 0 0;
+    min-width: 0;
+    margin: 0;
     color: #7c8585;
     font-size: 12px;
-    line-height: 1.55;
-    display: -webkit-box;
+    line-height: 1.45;
     overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .m-leap-plan-card__stats {
@@ -386,38 +357,9 @@ export default {
     background: linear-gradient(90deg, #47777d, #b18b42);
 }
 
-.m-leap-plan-card__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-top: auto;
-    padding-top: 14px;
-}
-
-.m-leap-plan-card__actions button {
-    display: inline-flex;
-    min-height: 34px;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 6px 9px;
-    border: 1px solid rgba(71, 119, 125, 0.22);
-    border-radius: 7px;
-    color: #47777d;
-    background: transparent;
-    cursor: pointer;
-}
-
-.m-leap-plan-card__actions button.is-primary {
+.m-leap-plan-card:focus-visible {
     border-color: #47777d;
-    color: #fff;
-    background: #47777d;
-}
-
-.m-leap-plan-card__actions button.is-danger {
-    margin-left: auto;
-    border-color: rgba(163, 84, 63, 0.2);
-    color: #a3543f;
+    box-shadow: 0 0 0 3px rgba(71, 119, 125, 0.16), 0 9px 24px rgba(54, 70, 70, 0.1);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -426,24 +368,6 @@ export default {
         box-shadow: 0 9px 24px rgba(54, 70, 70, 0.1);
         transform: translateY(-2px);
     }
-
-    .m-leap-plan-card__actions button:not(.is-primary):hover {
-        border-color: #47777d;
-        background: #f0f5f3;
-    }
-
-    .m-leap-plan-card__actions button.is-primary:hover {
-        background: #3d686e;
-    }
-
-    .m-leap-plan-card__actions button.is-danger:hover {
-        border-color: #a3543f;
-        background: #fff2ee;
-    }
-}
-
-.m-leap-plan-card__actions svg {
-    width: 14px;
 }
 
 .m-leap-plan-list__pagination {

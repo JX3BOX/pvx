@@ -1,6 +1,55 @@
 import { collectMenuAchievementIds } from "@/utils/achievementStatistics";
+import {
+    isAchievementEligibleForSchool,
+    resolveAchievementSchoolRestriction,
+} from "@/utils/achievementSchoolEligibility";
 
 const ACHIEVEMENT_LEAP_GENERAL = 1;
+
+export const ACHIEVEMENT_LEAP_RECOMMENDATION_VERSION = "stage-v1";
+
+export const ACHIEVEMENT_LEAP_CATEGORY_RECOMMENDATION_WEIGHTS = {
+    candidateQuality: 75,
+    incompleteCount: 15,
+    availablePoints: 10,
+};
+
+export const ACHIEVEMENT_LEAP_STAGE_PROFILES = [
+    {
+        key: "newbie",
+        minPoints: 0,
+        maxPoints: 30000,
+        maxDifficulty: 2,
+        strategy: "easy-first",
+        weights: { points: 15, efficiency: 20, difficulty: 25, money: 15, time: 15, luck: 10 },
+    },
+    {
+        key: "growth",
+        minPoints: 30000,
+        maxPoints: 75000,
+        maxDifficulty: 3,
+        strategy: "efficiency",
+        weights: { points: 20, efficiency: 25, difficulty: 15, money: 10, time: 20, luck: 10 },
+    },
+    {
+        key: "sprint",
+        minPoints: 75000,
+        maxPoints: 100000,
+        maxDifficulty: 4,
+        strategy: "big-first",
+        weights: { points: 30, efficiency: 25, difficulty: 10, money: 10, time: 15, luck: 10 },
+    },
+    {
+        key: "tribulation",
+        minPoints: 100000,
+        maxPoints: Number.POSITIVE_INFINITY,
+        maxDifficulty: null,
+        strategy: "cost-first",
+        weights: { points: 35, efficiency: 15, difficulty: 10, money: 10, time: 20, luck: 10 },
+    },
+];
+
+const RECOMMENDATION_DIMENSIONS = ["points", "efficiency", "difficulty", "money", "time", "luck"];
 
 function normalizeIds(value) {
     const source = value instanceof Set ? [...value] : Array.isArray(value) ? value : String(value || "").split(",");
@@ -85,16 +134,26 @@ export function normalizeAchievementLeapPlan(raw = {}) {
     };
 }
 
-export function buildAchievementLeapCategoryOptions(menus, metadata, completedIds = []) {
+export function buildAchievementLeapCategoryOptions(menus, metadata, completedIds = [], options = {}) {
     const completed = new Set(normalizeIds(completedIds));
     const categoryGroups = new Map();
+    const schoolEligibility = options.schoolEligibility || null;
 
     normalizeMenuEntries(menus).forEach(([fallbackId, menu]) => {
         const category = getCategoryIdentity(menu, fallbackId);
         const achievementIds = filterAchievementLeapIds(
             [...collectMenuAchievementIds([menu])],
             metadata
-        ).filter((id) => isEligibleMetadata(metadata?.[id]) && getPoint(metadata, id) > 0);
+        ).filter(
+            (id) =>
+                isEligibleMetadata(metadata?.[id]) &&
+                getPoint(metadata, id) > 0 &&
+                isAchievementEligibleForSchool({
+                    id,
+                    metadataItem: metadata?.[id],
+                    context: schoolEligibility,
+                })
+        );
         if (!achievementIds.length) return;
 
         if (!categoryGroups.has(category.name)) {
@@ -127,6 +186,181 @@ export function buildAchievementLeapCategoryOptions(menus, metadata, completedId
         .filter((category) => category.incompleteCount > 0);
 }
 
+export function resolveAchievementLeapStage(currentPoints = 0) {
+    const points = Math.max(0, Number(currentPoints) || 0);
+    return (
+        ACHIEVEMENT_LEAP_STAGE_PROFILES.find(
+            (profile) => points >= profile.minPoints && points < profile.maxPoints
+        ) || ACHIEVEMENT_LEAP_STAGE_PROFILES[ACHIEVEMENT_LEAP_STAGE_PROFILES.length - 1]
+    );
+}
+
+function normalizeRange(value, minimum, maximum, { inverse = false } = {}) {
+    const current = normalizeNullableNumber(value);
+    if (current === null) return null;
+    if (minimum === maximum) return 1;
+    const normalized = Math.max(0, Math.min(1, (current - minimum) / (maximum - minimum)));
+    return inverse ? 1 - normalized : normalized;
+}
+
+function buildRecommendationDimensionValues(candidates) {
+    const source = Array.isArray(candidates) ? candidates : [];
+    const pointValues = source.map((item) => Number(item.points) || 0);
+    const efficiencyValues = source
+        .map((item) => {
+            const minutes = normalizeNullableNumber(item.estimatedMinutes);
+            return minutes !== null && minutes > 0 ? (Number(item.points) || 0) / minutes : null;
+        })
+        .filter((value) => value !== null);
+    const minuteValues = source
+        .map((item) => normalizeNullableNumber(item.estimatedMinutes))
+        .filter((value) => value !== null);
+    const pointRange = [Math.min(...pointValues, 0), Math.max(...pointValues, 0)];
+    const efficiencyRange = efficiencyValues.length
+        ? [Math.min(...efficiencyValues), Math.max(...efficiencyValues)]
+        : [0, 0];
+    const minuteRange = minuteValues.length ? [Math.min(...minuteValues), Math.max(...minuteValues)] : [0, 0];
+
+    return source.map((item) => {
+        const minutes = normalizeNullableNumber(item.estimatedMinutes);
+        const timeCost = normalizeNullableNumber(item.cost?.time);
+        const efficiency = minutes !== null && minutes > 0 ? (Number(item.points) || 0) / minutes : null;
+        return {
+            item,
+            values: {
+                points: normalizeRange(item.points, pointRange[0], pointRange[1]),
+                efficiency:
+                    efficiency === null
+                        ? null
+                        : normalizeRange(efficiency, efficiencyRange[0], efficiencyRange[1]),
+                difficulty: normalizeRange(item.difficulty, 1, 5, { inverse: true }),
+                money: normalizeRange(item.cost?.money, 1, 5, { inverse: true }),
+                time:
+                    timeCost !== null
+                        ? normalizeRange(timeCost, 1, 5, { inverse: true })
+                        : normalizeRange(minutes, minuteRange[0], minuteRange[1], { inverse: true }),
+                luck: normalizeRange(item.cost?.luck, 1, 5, { inverse: true }),
+            },
+        };
+    });
+}
+
+function scoreRecommendationItem(values, weights) {
+    let weightedScore = 0;
+    let availableWeight = 0;
+    RECOMMENDATION_DIMENSIONS.forEach((dimension) => {
+        if (values[dimension] === null || values[dimension] === undefined) return;
+        const weight = Number(weights?.[dimension]) || 0;
+        weightedScore += values[dimension] * weight;
+        availableWeight += weight;
+    });
+    return availableWeight ? Number(((weightedScore / availableWeight) * 100).toFixed(2)) : 0;
+}
+
+export function buildAchievementLeapRecommendation({
+    candidates = [],
+    currentPoints = 0,
+    categoryLimit = 3,
+    schoolEligibility = null,
+} = {}) {
+    const profile = resolveAchievementLeapStage(currentPoints);
+    const source = (Array.isArray(candidates) ? candidates : []).filter(
+        (item) => item?.id && Number(item.points) > 0
+    );
+    const stageCandidates = source.filter(
+        (item) =>
+            profile.maxDifficulty === null ||
+            item.difficulty === null ||
+            item.difficulty === undefined ||
+            Number(item.difficulty) <= profile.maxDifficulty
+    );
+    const eligible = stageCandidates.length ? stageCandidates : source;
+    const dimensionRows = buildRecommendationDimensionValues(eligible);
+    const dimensionCoverage = Object.fromEntries(
+        RECOMMENDATION_DIMENSIONS.map((dimension) => [
+            dimension,
+            eligible.length
+                ? Number(
+                      (
+                          dimensionRows.filter((row) => row.values[dimension] !== null).length / eligible.length
+                      ).toFixed(2)
+                  )
+                : 0,
+        ])
+    );
+    const categoryMap = new Map();
+
+    dimensionRows.forEach(({ item, values }) => {
+        const categoryId = String(item.category?.id || "");
+        const categoryName = String(item.category?.name || categoryId).trim();
+        if (!categoryId || !categoryName) return;
+        if (!categoryMap.has(categoryName)) {
+            categoryMap.set(categoryName, { id: categoryId, name: categoryName, items: [] });
+        }
+        categoryMap.get(categoryName).items.push({
+            ...item,
+            recommendationScore: scoreRecommendationItem(values, profile.weights),
+        });
+    });
+
+    const groups = [...categoryMap.values()];
+    const maximumCount = Math.max(...groups.map((group) => group.items.length), 1);
+    const maximumPoints = Math.max(
+        ...groups.map((group) => group.items.reduce((total, item) => total + (Number(item.points) || 0), 0)),
+        1
+    );
+    const categories = groups
+        .map((group) => {
+            const sortedItems = [...group.items].sort(
+                (left, right) => right.recommendationScore - left.recommendationScore || right.points - left.points
+            );
+            const qualityItems = sortedItems.slice(0, Math.min(12, sortedItems.length));
+            const qualityScore = qualityItems.length
+                ? qualityItems.reduce((total, item) => total + item.recommendationScore, 0) / qualityItems.length
+                : 0;
+            const points = sortedItems.reduce((total, item) => total + (Number(item.points) || 0), 0);
+            const opportunityScore = Math.log1p(sortedItems.length) / Math.log1p(maximumCount);
+            const pointPoolScore = Math.sqrt(points / maximumPoints);
+            return {
+                id: group.id,
+                name: group.name,
+                incompleteCount: sortedItems.length,
+                points,
+                score: Number(
+                    (
+                        qualityScore * (ACHIEVEMENT_LEAP_CATEGORY_RECOMMENDATION_WEIGHTS.candidateQuality / 100) +
+                        opportunityScore * ACHIEVEMENT_LEAP_CATEGORY_RECOMMENDATION_WEIGHTS.incompleteCount +
+                        pointPoolScore * ACHIEVEMENT_LEAP_CATEGORY_RECOMMENDATION_WEIGHTS.availablePoints
+                    ).toFixed(2)
+                ),
+            };
+        })
+        .sort((left, right) => right.score - left.score || right.points - left.points)
+        .slice(0, Math.max(1, Number(categoryLimit) || 3));
+    const selectedCategoryNames = new Set(categories.map((category) => category.name));
+    const selectedCandidates = eligible.filter((item) => selectedCategoryNames.has(item.category?.name));
+
+    return {
+        version: ACHIEVEMENT_LEAP_RECOMMENDATION_VERSION,
+        schoolEligibilityVersion: schoolEligibility?.version || null,
+        roleSchool: schoolEligibility?.school || null,
+        stageKey: profile.key,
+        strategy: profile.strategy,
+        maxDifficulty: profile.maxDifficulty,
+        weights: { ...profile.weights },
+        categoryWeights: { ...ACHIEVEMENT_LEAP_CATEGORY_RECOMMENDATION_WEIGHTS },
+        dimensionCoverage,
+        availableDimensionCount: RECOMMENDATION_DIMENSIONS.filter(
+            (dimension) => dimensionCoverage[dimension] > 0
+        ).length,
+        totalDimensionCount: RECOMMENDATION_DIMENSIONS.length,
+        categories,
+        categoryIds: categories.map((category) => category.id),
+        candidateCount: selectedCandidates.length,
+        availablePoints: selectedCandidates.reduce((total, item) => total + (Number(item.points) || 0), 0),
+    };
+}
+
 export function getAchievementLeapCostScore(record) {
     const values = [record?.cost?.money, record?.cost?.time, record?.cost?.luck, record?.difficulty].map(
         normalizeNullableNumber
@@ -155,6 +389,7 @@ export function buildAchievementLeapCandidates({
     maxDifficulty = null,
     enforceDifficulty = false,
     includeZeroPoints = false,
+    schoolEligibility = null,
 } = {}) {
     const completed = new Set(normalizeIds(completedIds));
     const selectedCategories = new Set(normalizeIds(categoryIds));
@@ -178,6 +413,14 @@ export function buildAchievementLeapCandidates({
         .filter((id) => includeZeroPoints || getPoint(metadata, id) > 0)
         .filter((id) => !completed.has(id))
         .filter((id) => !allowed || allowed.has(id))
+        .filter((id) =>
+            isAchievementEligibleForSchool({
+                id,
+                record: recordMap.get(id),
+                metadataItem: metadata?.[id],
+                context: schoolEligibility,
+            })
+        )
         .filter((id) => {
             if (!selectedCategories.size) return true;
             const category = categoryIndex.get(id);
@@ -190,6 +433,12 @@ export function buildAchievementLeapCandidates({
             const record = recordMap.get(id) || {};
             const fallbackCategory = categoryIndex.get(id) || { id: null, name: null };
             const difficulty = resolveDifficulty(record, difficultyById, id);
+            const schoolRestriction = resolveAchievementSchoolRestriction({
+                id,
+                record,
+                metadataItem: metadata?.[id],
+                context: schoolEligibility,
+            });
             const candidate = {
                 id,
                 name: record.name || null,
@@ -211,7 +460,13 @@ export function buildAchievementLeapCandidates({
                     luck: normalizeNullableNumber(record.cost?.luck),
                     tier: record.cost?.tier || null,
                 },
-                restriction: record.restriction || { school: null },
+                restriction: {
+                    ...(record.restriction || {}),
+                    school:
+                        record.restriction?.school ||
+                        (schoolRestriction?.schools || []).join("、") ||
+                        null,
+                },
                 guideNote: record.guideNote || null,
                 completed: false,
             };
@@ -351,6 +606,17 @@ export function removeAchievementLeapRouteItem(route, itemId) {
     return {
         ...(route || {}),
         ...buildAchievementLeapRouteMetrics(items, route?.currentPoints, route?.targetPoints),
+    };
+}
+
+export function addAchievementLeapRouteItem(route, item) {
+    if (!route || !item?.id) return route;
+    const id = String(item.id);
+    const source = Array.isArray(route.items) ? route.items : [];
+    if (source.some((entry) => String(entry.id) === id)) return route;
+    return {
+        ...route,
+        ...buildAchievementLeapRouteMetrics([...source, item], route.currentPoints, route.targetPoints),
     };
 }
 

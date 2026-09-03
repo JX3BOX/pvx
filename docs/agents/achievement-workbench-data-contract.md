@@ -1,5 +1,7 @@
 # 资历宝典统一字段协议
 
+> 最后更新：2026-09-03。当前前端规则版本：推荐 `stage-v1`，门派可完成性 `school-v1`。
+
 ## 1. 目的
 
 资历宝典当前继续使用旧接口，但“魔盒成就百科”原型包含一批后端尚未提供的字段。所有新版页面必须消费本协议的标准模型，不直接依赖接口字段的大小写或历史命名。后端替换字段时优先修改
@@ -79,9 +81,97 @@
 -   `saveAchievementWorkbenchLeapPlan(payload, id)`：无 `id` 时创建，有 `id` 时更新，继续保持旧接口写入语义；
 -   `deleteAchievementWorkbenchLeapPlan(id)`：删除用户方案。
 
-当前 `/api/node/achievement/list` 与 `/api/node/achievement/search` 会过滤隐藏成就。隐藏列表按页先调用批量接口，再对缺失 ID 使用 `/api/node/achievement/:id`（并发上限 6）补齐，因此分页展示与完成状态筛选可用；全量隐藏成就的关键词、分类和地图检索仍需要后端开放隐藏搜索，或在新接口中直接提供这些可检索字段。此限制保留在服务层，页面组件不感知旧接口的过滤行为。
+### 5.1 成就团长指点（待接口）
 
-渡劫方案的标准模型与路线纯函数位于 `src/utils/achievementLeap.js`。现有方案继续使用 `schema` 保存成就 ID；新版规划条件存入 `meta`，包括角色、目标资历、分类、地图、难度上限和排序策略。旧方案缺少这些字段时使用当前角色和方案剩余点数恢复详情，不反向伪造规划条件。
+详情页当前只模拟“确认 → 提交中 → 已提交”状态，不发送网络请求。正式接口建议以方案和角色为入口，客户端不得提交或覆盖角色完成快照：
+
+-   玩家提交：`POST /api/achievement/leap-guidance`，请求仅包含 `planId`、`jx3id`、`client`；服务端读取并冻结提交时的原方案，同时查询该角色最新成就完成信息；
+-   玩家查询：`GET /api/achievement/leap-guidance/:id`，返回申请状态、原方案快照、调整方案、审核说明和时间字段；
+-   审核列表：`GET /api/achievement/leap-guidance?status=pending`，供 os 审核页分页使用；
+-   审核上下文：`GET /api/achievement/leap-guidance/:id/review-context`，返回角色资料、最新完成 ID、原方案与标准成就字段；
+-   审核提交：`PUT /api/achievement/leap-guidance/:id/review`，提交调整后的 `schema/meta`、审核说明与状态，禁止修改原方案快照。
+
+建议响应模型为 `{ id, status, role, originalPlan, adjustedPlan, reviewerNote, createdAt, reviewedAt }`。`status` 第一版使用 `pending / reviewing / completed / rejected / cancelled`。完成后玩家端必须并列展示“原方案”和“调整方案”，不得使用调整结果覆盖原方案；审核时还需再次排除已完成项目和门派不可完成项目，并记录所用规则版本。
+
+### 5.2 完成进度兼容限制
+
+完成进度页不再承载隐藏成就列表：隐藏分类总览卡片固定跳转 Wiki 维护文章 `/bbs/8104`，主列表档位仅有常规和五甲。现有 `/api/node/achievement/list` 与 `/api/node/achievement/search` 过滤隐藏成就的兼容逻辑保留在服务层，仅供其他仍需隐藏成就详情的调用方使用；若未来恢复站内隐藏列表，需要先补齐后端的隐藏成就全量搜索能力。
+
+### 5.3 渡劫候选统一口径
+
+渡劫方案的标准模型与路线纯函数位于 `src/utils/achievementLeap.js`。推荐、自选、分类计数和本地“添加成就”共用同一候选条件：
+
+-   当前角色尚未完成；
+-   点数元数据 `general === 1`，不额外按 `visible` 过滤；
+-   资历点数大于 `0`；
+-   符合当前角色门派可完成性；
+-   自选时再叠加所选一级分类、地图与难度上限。
+
+分类按显示名称合并、按成就 ID 去重，避免同名目录重复展示；分类数量使用上述口径下的未完成数量，数量为 `0` 的分类不返回。旧方案的原始 `schema` 仍由接口保留，但页面读取、进度计算和详情展示会先过滤为 `general=1`；重新推荐、添加、保存或审核时必须再次应用当前候选规则。
+
+### 5.4 `stage-v1` 推荐规则
+
+阶段根据当前角色已获得资历点判定，区间上限不包含边界值：
+
+| 阶段 | `stageKey` | 资历区间 | 最大难度 | 默认策略 | 资历收益 | 耗时效率 | 低难度 | 低金钱 | 低时间 | 低随机性 |
+| ---- | ---------- | -------- | -------- | -------- | -------- | -------- | ------ | ------ | ------ | -------- |
+| 入门期 | `newbie` | `[0, 30000)` | 2 | `easy-first` | 15 | 20 | 25 | 15 | 15 | 10 |
+| 成长期 | `growth` | `[30000, 75000)` | 3 | `efficiency` | 20 | 25 | 15 | 10 | 20 | 10 |
+| 冲刺期 | `sprint` | `[75000, 100000)` | 4 | `big-first` | 30 | 25 | 10 | 10 | 15 | 10 |
+| 渡劫期 | `tribulation` | `[100000, +∞)` | 不限 | `cost-first` | 35 | 15 | 10 | 10 | 20 | 10 |
+
+六个维度的计算语义：
+
+-   资历收益：候选成就点数在当前候选池内归一化，点数越高得分越高；
+-   耗时效率：`points / estimatedMinutes`，效率越高得分越高；
+-   低难度：`difficulty` 的 `1~5` 级反向归一化；
+-   低金钱、低随机性：分别对 `cost.money`、`cost.luck` 的 `1~5` 级反向归一化；
+-   低时间：优先使用 `cost.time` 的 `1~5` 级反向归一化，缺失时回退到 `estimatedMinutes` 的候选池反向归一化。
+
+单项评分只累计非空维度，并以这些维度的可用权重重新归一化到 `0~100`；`null` 不得按 `0` 分参与计算。阶段难度过滤后若完全没有候选，允许回退到未应用阶段难度上限的候选池，避免系统建议为空，但返回结果必须保留实际采用的阶段和难度信息供页面解释。
+
+分类评分不是简单按数量排序，计算方式为：
+
+-   候选质量 `75%`：分类内推荐分最高的前 12 项取平均；
+-   未完成存量 `15%`：`log1p(分类数量) / log1p(最大分类数量)`；
+-   可获得资历池 `10%`：`sqrt(分类点数 / 最大分类点数)`。
+
+默认返回得分最高的 3 个一级分类。推荐结果至少保留 `version`、`stageKey`、`strategy`、`maxDifficulty`、`weights`、`categoryWeights`、`dimensionCoverage`、`categories`、`candidateCount`、`availablePoints`、`roleSchool` 和 `schoolEligibilityVersion`，以便页面解释推荐依据并支持后续调权回溯。
+
+### 5.5 方案持久化字段
+
+现有方案继续使用 `schema` 保存去重后的成就 ID，规划上下文写入 `meta`：
+
+| 字段 | 含义 |
+| ---- | ---- |
+| `createBy` | 当前固定为 `planner` |
+| `roleId` | 生成时的当前角色 ID |
+| `targetPoints` | 玩家目标资历总值 |
+| `categoryIds` | 玩家自选或系统推荐采用的一级分类 ID |
+| `mapId` | 地图限制，无限制时为 `null` |
+| `maxDifficulty` | 难度上限，未限制时为 `null` |
+| `strategy` | 玩家请求或系统推荐的排程策略 |
+| `generatedStrategy` | 缺字段降级后实际使用的策略 |
+| `generationMode` | `recommended` 或 `custom` |
+| `recommendationVersion` | 推荐规则版本，自选时为 `null` |
+| `recommendationStage` | 推荐阶段，自选时为 `null` |
+| `schoolEligibilityVersion` | 门派可完成性规则版本 |
+| `roleSchool` | 生成时归一化后的角色门派 |
+| `selectedPoints` | 保存时路线可获得的资历点数 |
+
+旧方案缺少上述字段时，使用当前角色和方案剩余点数恢复可展示详情，不反向伪造历史规划条件。本地生成或编辑路线允许增加、删除成就；必须拒绝重复 ID，并在每次变更后重新计算 `selectedPoints`、预计达成资历、剩余缺口、清单项数、总耗时、平均难度和平均成本。保存时以调整后的 `schema/meta` 为准，详情查看态保持只读。
+
+### 5.6 门派可完成性 `school-v1`
+
+门派可完成性统一由 `src/utils/achievementSchoolEligibility.js` 处理，不得在推荐、自选、分类数量或添加弹窗中复制另一套过滤：
+
+| 范围 | 前端回退规则 |
+| ---- | ------------ |
+| 任务 | 读取“任务”一级分类下以“门派名 + 任务”命名的二级目录，仅允许相同门派角色完成 |
+| 武学 | 读取“武学”一级分类下以“门派名 + 招式”命名的二级目录；“无相楼招式”为全门派公共项 |
+| 风雨江湖路第二幕 | 目录不含门派名，按 `JOURNEY_SECOND_ACT_SCHOOL_BY_ID` 显式维护成就 ID 与门派映射 |
+
+标准记录已有 `restriction.school`、`schoolLimit` 或 `SchoolLimit` 时，接口显式限制优先，手工规则只在字段缺失时回退；`* / all / none / 不限 / 无 / 通用 / 江湖` 视为不限制门派。角色 `school` 可输入门派 ID、门派名、心法名或心法 ID，最终统一为 `@jx3box/jx3box-data` 的标准门派名。无法识别角色门派时不执行前端门派排除，待接口字段补齐后再由服务端给出确定结果。
 
 ## 6. 后端字段替换流程
 

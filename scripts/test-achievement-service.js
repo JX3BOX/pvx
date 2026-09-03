@@ -27,10 +27,21 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
 }
 
 const statistics = loadModule(path.resolve(__dirname, "../src/utils/achievementStatistics.js"));
-const leap = loadModule(
-    path.resolve(__dirname, "../src/utils/achievementLeap.js"),
+const schoolEligibility = loadModule(
+    path.resolve(__dirname, "../src/utils/achievementSchoolEligibility.js"),
     { "@/utils/achievementStatistics": "achievement-statistics-test-module" },
     { "achievement-statistics-test-module": statistics }
+);
+const leap = loadModule(
+    path.resolve(__dirname, "../src/utils/achievementLeap.js"),
+    {
+        "@/utils/achievementStatistics": "achievement-statistics-test-module",
+        "@/utils/achievementSchoolEligibility": "achievement-school-eligibility-test-module",
+    },
+    {
+        "achievement-statistics-test-module": statistics,
+        "achievement-school-eligibility-test-module": schoolEligibility,
+    }
 );
 const workbench = loadModule(path.resolve(__dirname, "../src/utils/achievementWorkbench.js"));
 

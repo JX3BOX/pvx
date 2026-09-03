@@ -27,10 +27,21 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
 }
 
 const statistics = loadModule(path.resolve(__dirname, "../src/utils/achievementStatistics.js"));
-const leap = loadModule(
-    path.resolve(__dirname, "../src/utils/achievementLeap.js"),
+const schoolEligibility = loadModule(
+    path.resolve(__dirname, "../src/utils/achievementSchoolEligibility.js"),
     { "@/utils/achievementStatistics": "achievement-statistics-test-module" },
     { "achievement-statistics-test-module": statistics }
+);
+const leap = loadModule(
+    path.resolve(__dirname, "../src/utils/achievementLeap.js"),
+    {
+        "@/utils/achievementStatistics": "achievement-statistics-test-module",
+        "@/utils/achievementSchoolEligibility": "achievement-school-eligibility-test-module",
+    },
+    {
+        "achievement-statistics-test-module": statistics,
+        "achievement-school-eligibility-test-module": schoolEligibility,
+    }
 );
 
 const metadata = {
@@ -83,6 +94,107 @@ const mergedCategoryCandidates = leap.buildAchievementLeapCandidates({
 assert.deepStrictEqual(mergedCategoryCandidates.map((item) => item.id), []);
 assert.deepStrictEqual(leap.filterAchievementLeapIds([2, 5], categoryMetadata), ["2"]);
 
+const schoolMenus = {
+    task: {
+        sub: "task",
+        name: "任务",
+        children: [
+            { name: "天策任务", achievements: [11] },
+            { name: "万花任务", achievements: [12] },
+            { name: "任务基础", achievements: [13] },
+        ],
+    },
+    martial: {
+        sub: "martial",
+        name: "武学",
+        children: [
+            { name: "天策招式", achievements: [14] },
+            { name: "万花招式", achievements: [15] },
+            { name: "无相楼招式", achievements: [16] },
+            { name: "轻功学习", achievements: [17] },
+        ],
+    },
+    journey: {
+        sub: "journey",
+        name: "风雨江湖路",
+        children: [
+            { name: "第二幕", achievements: [3028, 3025] },
+            { name: "第三幕", achievements: [18] },
+        ],
+    },
+};
+const schoolMetadata = Object.fromEntries(
+    [11, 12, 13, 14, 15, 16, 17, 18, 3025, 3028].map((id) => [
+        String(id),
+        { point: 10, general: 1, visible: true },
+    ])
+);
+const tianCeEligibility = schoolEligibility.buildAchievementSchoolEligibilityContext({
+    menus: schoolMenus,
+    roleSchool: "傲血战意",
+});
+assert.strictEqual(tianCeEligibility.school, "天策");
+assert.strictEqual(schoolEligibility.normalizeAchievementRoleSchool("1"), "天策");
+assert.strictEqual(schoolEligibility.normalizeAchievementRoleSchool("10026"), "天策");
+assert.strictEqual(
+    schoolEligibility.isAchievementEligibleForSchool({ id: 11, context: tianCeEligibility }),
+    true
+);
+assert.strictEqual(
+    schoolEligibility.isAchievementEligibleForSchool({ id: 12, context: tianCeEligibility }),
+    false
+);
+assert.strictEqual(
+    schoolEligibility.isAchievementEligibleForSchool({ id: 16, context: tianCeEligibility }),
+    true
+);
+assert.strictEqual(
+    schoolEligibility.isAchievementEligibleForSchool({ id: 3025, context: tianCeEligibility }),
+    false
+);
+assert.deepStrictEqual(
+    leap
+        .buildAchievementLeapCandidates({
+            metadata: schoolMetadata,
+            menus: schoolMenus,
+            schoolEligibility: tianCeEligibility,
+        })
+        .map((item) => item.id),
+    ["11", "13", "14", "16", "17", "18", "3028"]
+);
+assert.deepStrictEqual(
+    leap
+        .buildAchievementLeapCategoryOptions(schoolMenus, schoolMetadata, [], {
+            schoolEligibility: tianCeEligibility,
+        })
+        .map((item) => [item.name, item.incompleteCount]),
+    [
+        ["任务", 2],
+        ["武学", 3],
+        ["风雨江湖路", 2],
+    ]
+);
+assert.deepStrictEqual(
+    leap
+        .buildAchievementLeapCandidates({
+            metadata: schoolMetadata,
+            menus: schoolMenus,
+            records: [{ id: "12", restriction: { school: "天策" } }],
+            allowedIds: [12],
+            schoolEligibility: tianCeEligibility,
+        })
+        .map((item) => item.id),
+    ["12"]
+);
+assert.strictEqual(
+    schoolEligibility.isAchievementEligibleForSchool({
+        id: 12,
+        record: { restriction: { school: "不限" } },
+        context: tianCeEligibility,
+    }),
+    true
+);
+
 const records = [
     { id: "2", name: "二", difficulty: 2, estimatedMinutes: null, cost: { money: 1, time: 1, luck: 1 } },
     { id: "3", name: "三", difficulty: 1, estimatedMinutes: null, cost: { money: null, time: null, luck: null } },
@@ -123,6 +235,48 @@ assert.strictEqual(routeAfterRemoval.remainingGap, 25);
 assert.strictEqual(routeAfterRemoval.reached, false);
 assert.strictEqual(routeAfterRemoval.averageDifficulty, 2);
 assert.strictEqual(routeAfterRemoval.averageCostScore, 5);
+
+const routeAfterAddition = leap.addAchievementLeapRouteItem(routeAfterRemoval, allCandidates.find((item) => item.id === "4"));
+assert.deepStrictEqual(routeAfterAddition.items.map((item) => item.id), ["2", "4"]);
+assert.strictEqual(routeAfterAddition.selectedPoints, 60);
+assert.strictEqual(routeAfterAddition.projectedPoints, 160);
+assert.strictEqual(routeAfterAddition.reached, true);
+assert.strictEqual(
+    leap.addAchievementLeapRouteItem(routeAfterAddition, allCandidates.find((item) => item.id === "4")),
+    routeAfterAddition
+);
+
+const stageExpectations = [
+    [0, "newbie"],
+    [29999, "newbie"],
+    [30000, "growth"],
+    [75000, "sprint"],
+    [100000, "tribulation"],
+];
+stageExpectations.forEach(([points, stage]) => {
+    const profile = leap.resolveAchievementLeapStage(points);
+    assert.strictEqual(profile.key, stage);
+    assert.strictEqual(
+        Object.values(profile.weights).reduce((total, weight) => total + weight, 0),
+        100
+    );
+});
+
+const recommendation = leap.buildAchievementLeapRecommendation({
+    candidates: allCandidates,
+    currentPoints: 10000,
+    schoolEligibility: tianCeEligibility,
+});
+assert.strictEqual(recommendation.version, "stage-v1");
+assert.strictEqual(recommendation.schoolEligibilityVersion, "school-v1");
+assert.strictEqual(recommendation.roleSchool, "天策");
+assert.strictEqual(recommendation.stageKey, "newbie");
+assert.strictEqual(recommendation.strategy, "easy-first");
+assert.strictEqual(recommendation.maxDifficulty, 2);
+assert.deepStrictEqual(recommendation.categories.map((item) => item.name), ["秘境", "江湖"]);
+assert.deepStrictEqual(recommendation.categoryIds, ["b", "a"]);
+assert.strictEqual(recommendation.availableDimensionCount, 5);
+assert.strictEqual(recommendation.totalDimensionCount, 6);
 
 const fallback = leap.buildAchievementLeapRoute({
     candidates: allCandidates.map((item) => ({ ...item, difficulty: null })),

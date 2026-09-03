@@ -119,7 +119,6 @@ export default {
             >
                 <el-option value="normal" :label="$t('pages.wiki.overview.ui.statistics.regular')" />
                 <el-option value="wujia" :label="$t('pages.wiki.overview.ui.statistics.wujia')" />
-                <el-option value="hidden" :label="$t('pages.wiki.overview.ui.workbench.hiddenTier')" />
             </el-select>
 
             <el-select
