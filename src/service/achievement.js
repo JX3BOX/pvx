@@ -97,19 +97,28 @@ export function getAchievementRewardItems(ids, client = "std") {
 }
 
 // 获取成就列表
-export function getAchievements(params) {
+export function getAchievements(params = {}) {
     return $.get(`/api/node/achievement/list`, {
-        params: Object.assign(params, { client }),
+        params: {
+            ...params,
+            client: params.client || client,
+        },
     });
 }
 // 获取成就列表Post
-export function getAchievementsPost(params) {
-    return $.post(`/api/node/achievement/list`, Object.assign(params, { client }));
+export function getAchievementsPost(params = {}) {
+    return $.post(`/api/node/achievement/list`, {
+        ...params,
+        client: params.client || client,
+    });
 }
 
-export function searchAchievements(params) {
+export function searchAchievements(params = {}) {
     return $.get(`/api/node/achievement/search`, {
-        params: Object.assign(params, { client }),
+        params: {
+            ...params,
+            client: params.client || client,
+        },
     });
 }
 

@@ -1,10 +1,10 @@
 <script>
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { formatAchievementWorkbenchValue } from "@/utils/achievementWorkbench";
+import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
 
 export default {
     name: "AchievementLeapSummary",
-    components: { PvxSurface },
+    components: { AchievementDifficultyStars, PvxSurface },
     props: {
         route: {
             type: Object,
@@ -18,10 +18,6 @@ export default {
     methods: {
         formatNumber(value) {
             return Number(value || 0).toLocaleString();
-        },
-        formatNullable(value, suffix = "") {
-            const result = formatAchievementWorkbenchValue(value);
-            return result === "—" ? result : `${result}${suffix}`;
         },
         formatMinutes(value) {
             if (value === null || value === undefined) return "—";
@@ -64,7 +60,12 @@ export default {
             </div>
             <div>
                 <span>{{ $t("pages.wiki.leap.ui.workbench.averageDifficulty") }}</span>
-                <strong>{{ formatNullable(route.averageDifficulty, " ★") }}</strong>
+                <strong>
+                    <AchievementDifficultyStars
+                        :value="route.averageDifficulty"
+                        :label="$t('pages.wiki.leap.ui.workbench.averageDifficulty')"
+                    />
+                </strong>
             </div>
             <div>
                 <span>{{ $t("pages.wiki.leap.ui.workbench.projectedSeniority") }}</span>

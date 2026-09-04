@@ -1,4 +1,8 @@
 import { collectMenuAchievementIds } from "@/utils/achievementStatistics";
+import {
+    ACHIEVEMENT_WORKBENCH_EMPTY_TEXT,
+    getAchievementWorkbenchDimensionValue,
+} from "@/utils/achievementWorkbench";
 
 export const COMMON_UNFINISHED_FILTER = "1,1";
 export const COMMON_COMPLETED_FILTER = "common,2";
@@ -402,4 +406,77 @@ export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds
             };
         })
         .filter((category) => category.sourceCount > 0);
+}
+
+function orderAchievementTags(tags) {
+    const schoolTags = [];
+    const otherTags = [];
+
+    (Array.isArray(tags) ? tags : []).forEach((tag) => {
+        if (tag?.type === "school") {
+            schoolTags.push(tag);
+        } else {
+            otherTags.push(tag);
+        }
+    });
+
+    return [...schoolTags, ...otherTags];
+}
+
+export function buildAchievementCompareExportData({ records = [], roles = [], dimensions = [], translate } = {}) {
+    const roleList = Array.isArray(roles) ? roles : [];
+    const dimensionList = Array.isArray(dimensions) ? dimensions : [];
+    const translateLabel = typeof translate === "function" ? translate : (key) => key;
+    const formatValue = (value) =>
+        value === null || value === undefined || value === "" ? ACHIEVEMENT_WORKBENCH_EMPTY_TEXT : value;
+    const formatDimensionLabel = (dimension) =>
+        dimension?.i18nKey
+            ? translateLabel(dimension.i18nKey)
+            : dimension?.label || dimension?.key || ACHIEVEMENT_WORKBENCH_EMPTY_TEXT;
+    const completionSets = roleList.map(
+        (role) => new Set(normalizeCompletedAchievementIds(getRoleCompletedAchievementSource(role)))
+    );
+    const headers = [
+        translateLabel("pages.wiki.compare.ui.export.headers.category"),
+        translateLabel("pages.wiki.compare.ui.export.headers.achievement"),
+        translateLabel("pages.wiki.compare.ui.export.headers.points"),
+        ...dimensionList.map(formatDimensionLabel),
+        translateLabel("pages.wiki.compare.ui.export.headers.completionRate"),
+        translateLabel("pages.wiki.compare.ui.export.headers.tags"),
+        ...roleList.map(
+            (role) => `${formatValue(role?.name)} · ${formatValue(role?.server)}`
+        ),
+    ];
+    const rows = (Array.isArray(records) ? records : []).map((record) => {
+        const completionRate = Number(record?.completionStatistics?.rate);
+        const hasCompletionRate =
+            record?.completionStatistics?.rate !== null &&
+            record?.completionStatistics?.rate !== undefined &&
+            Number.isFinite(completionRate);
+        const tags = orderAchievementTags(record?.tags)
+            .map((tag) => tag?.label)
+            .filter(Boolean)
+            .join(", ");
+
+        return [
+            [record?.category?.name, record?.category?.subName].filter(Boolean).join(" / ") ||
+                ACHIEVEMENT_WORKBENCH_EMPTY_TEXT,
+            formatValue(record?.name),
+            formatValue(record?.points),
+            ...dimensionList.map((dimension) =>
+                formatValue(getAchievementWorkbenchDimensionValue(record, dimension?.key))
+            ),
+            hasCompletionRate
+                ? `${(completionRate * 100).toFixed(2)}%`
+                : ACHIEVEMENT_WORKBENCH_EMPTY_TEXT,
+            tags || ACHIEVEMENT_WORKBENCH_EMPTY_TEXT,
+            ...completionSets.map((completedIds) =>
+                completedIds.has(String(record?.id))
+                    ? translateLabel("pages.wiki.compare.ui.status.completed")
+                    : translateLabel("pages.wiki.compare.ui.status.incomplete")
+            ),
+        ];
+    });
+
+    return [headers, ...rows];
 }

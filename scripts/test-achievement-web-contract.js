@@ -25,6 +25,14 @@ function read(relativePath) {
     return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
 }
 
+function sliceBetween(source, startToken, endToken) {
+    const start = source.indexOf(startToken);
+    const end = source.indexOf(endToken, start + startToken.length);
+    assert.ok(start >= 0, `缺少源码片段起点：${startToken}`);
+    assert.ok(end > start, `缺少源码片段终点：${endToken}`);
+    return source.slice(start, end);
+}
+
 function listSourceFiles(directory) {
     return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
         const target = path.join(directory, entry.name);
@@ -39,6 +47,7 @@ const locales = ["zh-CN", "zh-TW", "en-US", "vi"].map((locale) => ({
 }));
 const i18nScopes = [
     "sidebar",
+    "difficultyDimensions",
     "overview.ui.workbench",
     "compare.ui.workbench",
     "leap.ui.workbench",
@@ -53,6 +62,27 @@ i18nScopes.forEach((scope) => {
             collectLeafPaths(getScope(messages, scope)).sort(),
             baseline,
             `${locale} 的 pages.wiki.${scope} 键集合与 zh-CN 不一致`
+        );
+    });
+});
+
+locales.forEach(({ locale, messages }) => {
+    const difficultyDimensions = getScope(messages, "difficultyDimensions");
+    assert.strictEqual(
+        typeof difficultyDimensions?.sortLoadFailed,
+        "string",
+        `${locale} 缺少难度排序数据加载失败文案`
+    );
+
+    const leapWorkbench = getScope(messages, "leap.ui.workbench");
+    ["planClientMismatchTitle", "planClientMismatchDescription", "planClientMismatchWarning"].forEach((key) => {
+        assert.strictEqual(typeof leapWorkbench?.[key], "string", `${locale} 缺少渡劫方案跨客户端文案 ${key}`);
+    });
+    ["std", "origin"].forEach((client) => {
+        assert.strictEqual(
+            typeof leapWorkbench?.clients?.[client],
+            "string",
+            `${locale} 缺少渡劫方案客户端名称 ${client}`
         );
     });
 });
@@ -88,6 +118,15 @@ Object.entries(wrappers).forEach(([file, component]) => {
 });
 
 const nav = read("src/components/wiki/AchievementWorkbenchNav.vue");
+const difficultyStarsPath = path.join(ROOT, "src/components/wiki/AchievementDifficultyStars.vue");
+assert.ok(fs.existsSync(difficultyStarsPath), "缺少公共难度星级组件");
+const difficultyStars = fs.readFileSync(difficultyStarsPath, "utf8");
+assert.ok(difficultyStars.includes('name: "AchievementDifficultyStars"'));
+assert.ok(difficultyStars.includes("getAchievementWorkbenchRatingFill"));
+assert.ok(difficultyStars.includes('role="img"'));
+assert.ok(difficultyStars.includes(":aria-label=\"accessibleLabel\""));
+assert.ok(difficultyStars.includes("c-achievement-stars__filled"));
+assert.doesNotMatch(difficultyStars, /Math\.round/);
 const workbenchShell = read("src/views/wiki/index.vue");
 assert.ok(nav.includes('guideUrl: "/notice/95651"'));
 assert.ok(nav.includes('target="_blank"'));
@@ -109,11 +148,20 @@ const compareRoleBar = read("src/components/wiki/compare/AchievementCompareRoleB
 const compareFilters = read("src/components/wiki/compare/AchievementCompareFilters.vue");
 const compareCategories = read("src/components/wiki/compare/AchievementCompareCategoryTree.vue");
 const compareMatrix = read("src/components/wiki/compare/AchievementCompareMatrix.vue");
+const compareUtils = read("src/utils/achievementCompare.js");
 const leapPage = read("src/components/wiki/leap/AchievementLeapPage.vue");
 const leapDetailHeader = read("src/components/wiki/leap/AchievementLeapDetailHeader.vue");
 const leapPlanner = read("src/components/wiki/leap/AchievementLeapPlanner.vue");
 const leapPlanList = read("src/components/wiki/leap/AchievementLeapPlanList.vue");
 const leapRouteTable = read("src/components/wiki/leap/AchievementLeapRouteTable.vue");
+const leapAddDialog = read("src/components/wiki/leap/AchievementLeapAddDialog.vue");
+const progressInitializeSource = sliceBetween(progressPage, "async initializePage()", "async selectRole(");
+const progressVisibleRecordsSource = sliceBetween(progressPage, "async loadVisibleRecords()", "async setListFilter(");
+const progressSortSource = sliceBetween(progressPage, "async setListSort(", "updateSearchField(");
+const compareInitializeSource = sliceBetween(comparePage, "async initializePage()", "hasCompareRole(");
+const compareExportSource = sliceBetween(comparePage, "async exportComparison()", "    },\n};");
+const leapEnrichmentSource = sliceBetween(leapPage, "async enrichAchievementItems(", "replaceRouteDisplayItems(");
+const leapRecommendationSource = sliceBetween(leapPage, "async loadRecommendation()", "async loadPlans(");
 assert.doesNotMatch(progressPage, /AchievementTierAchievementsPage|TIER_VIEW_DEFINITIONS|openTierAchievements/);
 assert.ok(progressPage.includes(':active-tier="filters.tier"'));
 assert.ok(progressPage.includes('@select-tier="selectTier"'));
@@ -172,11 +220,43 @@ assert.doesNotMatch(progressFilters, /workbench\.allTiers/);
 assert.doesNotMatch(progressFilters, /<el-option value="retired"/);
 assert.ok(progressList.includes('<slot name="filters" />'));
 assert.ok(progressList.includes("fetchAchievementWorkbenchRewardItems"));
-assert.ok(progressList.includes("hasAchievementRewards"));
+assert.ok(progressList.includes('v-if="hasRewardReference(record)" class="m-progress-achievement-reward"'));
+assert.doesNotMatch(progressList, /record\.category\.(?:name|subName)/);
 assert.ok(progressList.includes("getRewardKey(record)"));
 assert.ok(progressList.includes('<jx3-item :item="getRewardItem(record)" />'));
 assert.ok(progressList.includes("pages.wiki.overview.ui.rewardLoading"));
 assert.ok(progressList.includes("pages.wiki.overview.ui.rewardUnavailable"));
+assert.ok(progressPage.includes("fetchAchievementWorkbenchDifficultyMetrics"));
+assert.ok(progressPage.includes("fetchAchievementWorkbenchTags"));
+assert.ok(progressPage.includes("fetchAchievementWorkbenchDifficultyDimensions"));
+assert.ok(progressPage.includes("resolveAchievementWorkbenchDimensions"));
+assert.ok(progressPage.includes("applyAchievementWorkbenchEnrichment"));
+assert.match(progressInitializeSource, /fetchAchievementWorkbenchDifficultyDimensions\(\)/);
+assert.doesNotMatch(progressInitializeSource, /loadDifficultyMetrics\(/);
+assert.match(progressVisibleRecordsSource, /loadVisibleEnrichment\(ids\)/);
+assert.ok(progressPage.includes(':dimensions="dimensions"'));
+assert.ok(progressPage.includes(':sort-loading="dimensionSortLoading"'));
+assert.ok(progressPage.includes('@update:sort="setListSort"'));
+assert.match(progressSortSource, /getAchievementWorkbenchDimensionSort/);
+assert.match(progressSortSource, /metricCandidateIds/);
+assert.match(progressSortSource, /throwOnError: true/);
+assert.match(progressSortSource, /isCurrentDimensionSortRequest/);
+assert.match(progressSortSource, /pages\.wiki\.difficultyDimensions\.sortLoadFailed/);
+assert.doesNotMatch(progressFilters, /difficultySortEnabled|timeCostSortEnabled|futureSortsEnabled/);
+assert.ok(progressFilters.includes('v-for="dimension in dimensions"'));
+assert.ok(progressFilters.includes('`dimension:${dimension.key}:asc`'));
+assert.ok(progressFilters.includes("pages.wiki.difficultyDimensions.sortAscending"));
+assert.ok(progressFilters.includes(':disabled="sortLoading"'));
+assert.ok(progressList.includes("AchievementDifficultyStars"));
+assert.ok(progressList.includes('v-for="dimension in dimensions"'));
+assert.ok(progressList.includes("getAchievementWorkbenchDimensionValue"));
+assert.doesNotMatch(progressList, /Math\.round|formatDifficultyRating|formatDifficulty\(/);
+assert.ok(progressList.includes("getDisplayTags(record)"));
+assert.ok(progressList.includes("record.tier === 'wujia'"));
+assert.doesNotMatch(progressList, /record\.completionStatistics\?\.completedRoleCount/);
+assert.doesNotMatch(progressList, /record\.completionStatistics\?\.totalRoleCount/);
+assert.match(progressList, /v-if="record\.map\?\.name"[\s\S]*?<Location/);
+assert.match(progressPage, /async loadCurrentRole[\s\S]*?this\.recordRequestId \+= 1;/);
 assert.ok(categoryBoard.includes('require.context("@/assets/img/wiki/overview/item"'));
 assert.ok(categoryBoard.includes("category.children"));
 assert.ok(categoryBoard.includes("m-progress-category-browser"));
@@ -215,8 +295,97 @@ assert.ok(compareCategories.includes('require.context("@/assets/img/wiki/overvie
 assert.ok(compareCategories.includes("m-compare-category-browser"));
 assert.ok(compareCategories.includes("m-compare-subcategory-panel"));
 assert.ok(compareMatrix.includes('<slot name="filters" />'));
+assert.ok(comparePage.includes("fetchAchievementWorkbenchDifficultyMetrics"));
+assert.ok(comparePage.includes("fetchAchievementWorkbenchTags"));
+assert.ok(comparePage.includes("fetchAchievementWorkbenchDifficultyDimensions"));
+assert.ok(comparePage.includes("resolveAchievementWorkbenchDimensions"));
+assert.ok(comparePage.includes("applyAchievementWorkbenchEnrichment"));
+assert.ok(comparePage.includes("resetCompareView()"));
+assert.match(comparePage, /resetCompareView\(\)[\s\S]*?this\.searchRecords = null;[\s\S]*?this\.keyword = "";/);
+assert.match(compareInitializeSource, /fetchAchievementWorkbenchDifficultyDimensions\(\)/);
+assert.ok(comparePage.includes(':definitions="definitions"'));
+assert.ok(compareMatrix.includes("AchievementDifficultyStars"));
+assert.ok(compareMatrix.includes('v-for="definition in definitions"'));
+assert.ok(compareMatrix.includes("getAchievementWorkbenchDimensionValue"));
+assert.doesNotMatch(compareMatrix, /Math\.round|formatDifficultyRating|formatDifficulty\(/);
+assert.doesNotMatch(compareMatrix, /record\.cost\?\.(?:money|time|luck)|record\.costEffectiveness/);
+assert.ok(compareMatrix.includes("record.completionStatistics?.rate"));
+assert.ok(compareMatrix.includes("record.tags"));
+assert.ok(compareMatrix.includes("getDisplayTags(record)"));
+assert.match(compareMatrix, /v-if="record\.tier === 'wujia'"/);
+assert.match(compareMatrix, /v-if="record\.map\?\.name"/);
+assert.doesNotMatch(compareMatrix, /record\.category\.(?:name|subName)/);
+assert.match(compareMatrix, /\.m-compare-achievement\s*\{[\s\S]*?align-items:\s*start;/);
+assert.doesNotMatch(compareMatrix, /formatLevel\(/);
+assert.doesNotMatch(compareMatrix, /formatMinutes\(record\.estimatedMinutes\)/);
+assert.ok(compareUtils.includes("buildAchievementCompareExportData"));
+assert.ok(compareUtils.includes("getAchievementWorkbenchDimensionValue"));
+assert.match(compareUtils, /const completionSets = roleList\.map\([\s\S]*?getRoleCompletedAchievementSource\(role\)/);
+assert.match(compareExportSource, /dimensions:\s*snapshot\.definitions/);
+assert.match(compareExportSource, /hasOwnProperty\.call\(role, "completedAchievements"\)/);
+assert.match(compareExportSource, /buildAchievementCompareExportData\(/);
+assert.doesNotMatch(compareExportSource, /completedRoleCount|totalRoleCount/);
+assert.ok(compareCategories.includes(".m-compare-category-card.is-all small"));
+assert.match(
+    comparePage,
+    /async addRole[\s\S]*?const pageRequestId = this\.pageRequestId;[\s\S]*?await fetchAchievementWorkbenchRoleState[\s\S]*?pageRequestId !== this\.pageRequestId[\s\S]*?this\.hasCompareRole\(roleId\)/
+);
 assert.ok(leapPage.includes('name: "leap-detail"'));
 assert.ok(leapPage.includes("this.$route.params.id || this.$route.query.id"));
+assert.ok(leapPage.includes("fetchAchievementWorkbenchDifficulty"));
+assert.ok(leapPage.includes("fetchAchievementWorkbenchDifficultyMetrics"));
+assert.ok(leapPage.includes("fetchAchievementWorkbenchTags"));
+assert.ok(leapPage.includes("fetchAchievementWorkbenchDifficultyDimensions"));
+assert.ok(leapPage.includes("resolveAchievementWorkbenchDimensions"));
+assert.ok(leapPage.includes("applyAchievementWorkbenchEnrichment"));
+assert.doesNotMatch(leapPage, /getAchievementLeapCost(?:Score|Tier)/);
+assert.match(leapPage, /resetClientState\(\)[\s\S]*?this\.plansPage = 1;/);
+assert.match(
+    leapPage,
+    /resetPlanner\(\)[\s\S]*?this\.routeRequestId \+= 1;[\s\S]*?this\.routeLoading = false;/
+);
+assert.ok((leapPage.match(/:dimensions="dimensions"/g) || []).length >= 3);
+assert.ok(leapRouteTable.includes("AchievementDifficultyStars"));
+assert.ok(leapRouteTable.includes('v-for="dimension in dimensions"'));
+assert.ok(leapRouteTable.includes("getAchievementWorkbenchDimensionValue"));
+assert.ok(leapRouteTable.includes("getAchievementWorkbenchDimensionSort"));
+assert.ok(leapRouteTable.includes('`dimension:${dimension.key}:asc`'));
+assert.doesNotMatch(leapRouteTable, /Math\.round|formatDifficultyRating|costTier|cost-effectiveness-desc/);
+assert.doesNotMatch(leapRouteTable, /item\.cost\?\.(?:money|time|luck)|item\.costEffectiveness/);
+assert.ok(leapRouteTable.includes("item.completionStatistics?.rate"));
+assert.ok(leapRouteTable.includes("item.tags"));
+assert.ok(leapRouteTable.includes("getDisplayTags(item)"));
+assert.ok(leapRouteTable.includes("showCompletionRateColumn"));
+assert.ok(leapRouteTable.includes("showTagsColumn"));
+assert.ok(leapRouteTable.includes("showSchoolRestrictionColumn"));
+assert.ok(leapRouteTable.includes("showGuideNoteColumn"));
+assert.match(leapRouteTable, /v-if="item\.map\?\.name"/);
+assert.doesNotMatch(leapRouteTable, /formatLevel\(/);
+assert.doesNotMatch(leapRouteTable, /compareNullable\(left\.estimatedMinutes, right\.estimatedMinutes\)/);
+assert.match(leapEnrichmentSource, /this\.maps/);
+assert.match(leapEnrichmentSource, /item\.map\?\.id/);
+assert.match(leapEnrichmentSource, /mapById\.get\(/);
+assert.ok(leapAddDialog.includes("AchievementDifficultyStars"));
+assert.ok(leapAddDialog.includes("overallDimension()"));
+assert.ok(leapAddDialog.includes('v-if="overallDimension"'));
+assert.doesNotMatch(leapAddDialog, /Math\.round|\.repeat\(stars\)/);
+assert.match(leapRecommendationSource, /fetchAchievementWorkbenchDifficulty\(/);
+assert.doesNotMatch(leapRecommendationSource, /fetchAchievementWorkbenchDifficultyMetrics\(/);
+assert.match(leapPage, /async loadRoleState[\s\S]*?this\.routeRequestId \+= 1;/);
+assert.match(leapPage, /async loadRoleState[\s\S]*?this\.editorRequestId \+= 1;/);
+assert.match(leapPage, /async generateRoute[\s\S]*?const roleRequestId = this\.roleRequestId;/);
+assert.match(
+    leapPage,
+    /async preparePlanForEditor[\s\S]*?const requestId = \+\+this\.editorRequestId;[\s\S]*?const roleRequestId = this\.roleRequestId;[\s\S]*?isCurrentEditorRequest/
+);
+assert.match(
+    leapPage,
+    /async saveRoute[\s\S]*?const requestId = \+\+this\.saveRequestId;[\s\S]*?const roleRequestId = this\.roleRequestId;[\s\S]*?isCurrentSaveRequest/
+);
+assert.match(
+    leapPage,
+    /async handleRoleChange[\s\S]*?const client = this\.currentClient;[\s\S]*?const loaded = await this\.loadRoleState[\s\S]*?!loaded[\s\S]*?client !== this\.currentClient/
+);
 assert.ok(leapPage.includes("requestPlanGuidance(plan)"));
 assert.ok(leapPage.includes("guidanceRequest"));
 assert.ok(leapDetailHeader.includes("request-guidance"));
@@ -227,8 +396,9 @@ assert.ok(leapDetailHeader.includes('class="u-leap-detail-menu-button" type="pri
 assert.ok(leapDetailHeader.includes('class="u-leap-detail-menu-button" type="danger"'));
 assert.ok(leapDetailHeader.includes("min-width: 88px"));
 assert.doesNotMatch(leapDetailHeader, /\.u-leap-detail-menu-button\s*\{[^}]*width:\s*100%/);
-assert.ok(leapDetailHeader.includes("@click=\"$emit('edit', plan)\""));
-assert.ok(leapDetailHeader.includes("@click=\"$emit('delete', plan)\""));
+assert.ok(leapDetailHeader.includes("@click=\"emitPlanAction('edit')\""));
+assert.ok(leapDetailHeader.includes("@click=\"emitPlanAction('delete')\""));
+assert.ok(leapDetailHeader.includes("if (this.actionsDisabled || !this.plan) return;"));
 assert.ok(leapPage.includes("await this.$confirm("));
 assert.ok(leapPage.includes("if (this.detailId === String(plan.id)) await this.closePlanDetail();"));
 assert.ok(leapPage.includes('@remove="removeGeneratedRouteItem"'));

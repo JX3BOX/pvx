@@ -17,12 +17,15 @@ import {
     deleteAchievementWorkbenchLeapPlan,
     fetchAchievementWorkbenchCatalog,
     fetchAchievementWorkbenchDifficulty,
+    fetchAchievementWorkbenchDifficultyDimensions,
+    fetchAchievementWorkbenchDifficultyMetrics,
     fetchAchievementWorkbenchLeapPlan,
     fetchAchievementWorkbenchLeapPlans,
     fetchAchievementWorkbenchMaps,
     fetchAchievementWorkbenchRecordsBatched,
     fetchAchievementWorkbenchRoles,
     fetchAchievementWorkbenchRoleState,
+    fetchAchievementWorkbenchTags,
     saveAchievementWorkbenchLeapPlan,
     searchAchievementWorkbenchRecords,
 } from "@/service/achievementWorkbench";
@@ -38,6 +41,10 @@ import {
 } from "@/utils/achievementLeap";
 import { buildAchievementOverallProgress } from "@/utils/achievementProgress";
 import { buildAchievementSchoolEligibilityContext } from "@/utils/achievementSchoolEligibility";
+import {
+    applyAchievementWorkbenchEnrichment,
+    resolveAchievementWorkbenchDimensions,
+} from "@/utils/achievementWorkbench";
 import { __Links } from "@/utils/config";
 
 const PLAN_PAGE_SIZE = 9;
@@ -83,6 +90,7 @@ export default {
             metadata: {},
             roles: [],
             maps: [],
+            dimensions: resolveAchievementWorkbenchDimensions([]),
             currentRoleId: "",
             roleState: emptyRoleState(),
             plans: [],
@@ -103,18 +111,27 @@ export default {
             editingPlan: null,
             detailPlan: null,
             detailRoute: null,
+            detailClientMismatch: null,
             saveDialogVisible: false,
             addDialogVisible: false,
             addSearchResults: [],
             guidanceRequest: null,
+            guidanceRequestId: 0,
+            pageRequestId: 0,
             roleRequestId: 0,
+            plansRequestId: 0,
             routeRequestId: 0,
             detailRequestId: 0,
             recommendationRequestId: 0,
             addSearchRequestId: 0,
+            editorRequestId: 0,
+            saveRequestId: 0,
         };
     },
     computed: {
+        currentClient() {
+            return this.$store.state.client === "origin" ? "origin" : "std";
+        },
         loginUrl() {
             return __Links.account.login + "?redirect=" + encodeURIComponent(location.href);
         },
@@ -161,14 +178,21 @@ export default {
         },
     },
     watch: {
+        currentClient(nextClient, previousClient) {
+            if (!previousClient || nextClient === previousClient) return;
+            this.resetClientState();
+            this.initializePage();
+        },
         detailId: {
             handler(id) {
+                this.detailRequestId += 1;
+                this.editorRequestId += 1;
+                this.detailLoading = false;
+                this.detailPlan = null;
+                this.detailRoute = null;
+                this.detailClientMismatch = null;
                 if (id && this.metadata && Object.keys(this.metadata).length) this.loadPlanDetail(id);
-                if (!id) {
-                    this.detailPlan = null;
-                    this.detailRoute = null;
-                }
-                this.guidanceRequest = null;
+                this.invalidateGuidanceRequest();
             },
         },
     },
@@ -176,13 +200,134 @@ export default {
         this.initializePage();
     },
     beforeUnmount() {
+        this.pageRequestId += 1;
         this.roleRequestId += 1;
+        this.plansRequestId += 1;
         this.routeRequestId += 1;
         this.detailRequestId += 1;
         this.recommendationRequestId += 1;
         this.addSearchRequestId += 1;
+        this.editorRequestId += 1;
+        this.saveRequestId += 1;
+        this.invalidateGuidanceRequest();
     },
     methods: {
+        invalidateGuidanceRequest() {
+            this.guidanceRequestId += 1;
+            this.guidanceRequest = null;
+            this.guidanceSubmitting = false;
+        },
+        normalizePlanClient(client) {
+            const normalized = String(client || "")
+                .trim()
+                .toLowerCase();
+            return normalized === "std" || normalized === "origin" ? normalized : null;
+        },
+        getClientLabel(client) {
+            const normalized = this.normalizePlanClient(client) || this.currentClient;
+            return this.$t(`pages.wiki.leap.ui.workbench.clients.${normalized}`);
+        },
+        getPlanClientMismatch(plan) {
+            const planClient = this.normalizePlanClient(plan?.client);
+            if (!planClient || planClient === this.currentClient) return null;
+            return { planClient, currentClient: this.currentClient };
+        },
+        warnPlanClientMismatch(plan) {
+            const mismatch = this.getPlanClientMismatch(plan);
+            if (!mismatch) return false;
+            this.$message.warning(
+                this.$t("pages.wiki.leap.ui.workbench.planClientMismatchWarning", {
+                    client: this.getClientLabel(mismatch.planClient),
+                })
+            );
+            return true;
+        },
+        resetClientState() {
+            this.pageRequestId += 1;
+            this.roleRequestId += 1;
+            this.plansRequestId += 1;
+            this.routeRequestId += 1;
+            this.detailRequestId += 1;
+            this.recommendationRequestId += 1;
+            this.addSearchRequestId += 1;
+            this.editorRequestId += 1;
+            this.saveRequestId += 1;
+            this.invalidateGuidanceRequest();
+            this.roleLoading = false;
+            this.plansLoading = false;
+            this.routeLoading = false;
+            this.detailLoading = false;
+            this.recommendationLoading = false;
+            this.addSearchLoading = false;
+            this.saving = false;
+            this.menus = {};
+            this.metadata = {};
+            this.maps = [];
+            this.dimensions = resolveAchievementWorkbenchDimensions([]);
+            this.plans = [];
+            this.plansTotal = 0;
+            this.plansPage = 1;
+            this.roleState = emptyRoleState();
+            this.generatedRoute = null;
+            this.detailPlan = null;
+            this.detailRoute = null;
+            this.detailClientMismatch = null;
+            this.addSearchResults = [];
+            this.recommendation = null;
+            this.editingPlan = null;
+            this.saveDialogVisible = false;
+            this.addDialogVisible = false;
+        },
+        async enrichAchievementItems(items, client = this.currentClient) {
+            const records = Array.isArray(items) ? items : [];
+            const ids = records.map((item) => item.id);
+            if (!ids.length) return records;
+
+            const [difficultyResult, tagsResult] = await Promise.allSettled([
+                fetchAchievementWorkbenchDifficultyMetrics(ids, { client }),
+                fetchAchievementWorkbenchTags(ids, { client }),
+            ]);
+            if (difficultyResult.status === "rejected" && client === this.currentClient) {
+                console.warn("Failed to load leap display difficulty metrics:", difficultyResult.reason);
+            }
+            if (tagsResult.status === "rejected" && client === this.currentClient) {
+                console.warn("Failed to load leap display tags:", tagsResult.reason);
+            }
+            const mapById = new Map(this.maps.map((map) => [String(map.id), map]));
+            const enrichedRecords = applyAchievementWorkbenchEnrichment(records, {
+                difficultyById: difficultyResult.status === "fulfilled" ? difficultyResult.value : {},
+                tagsById: tagsResult.status === "fulfilled" ? tagsResult.value : {},
+            });
+            return enrichedRecords.map((item) => {
+                const mapId = String(item.map?.id ?? "");
+                const resolvedMap = mapId ? mapById.get(mapId) : null;
+                return {
+                    ...item,
+                    map: {
+                        ...(item.map || {}),
+                        name: item.map?.name || resolvedMap?.name || null,
+                    },
+                };
+            });
+        },
+        replaceRouteDisplayItems(route, items) {
+            const incomplete = items.filter((item) => !item.completed);
+            const hasDifficulty =
+                incomplete.length > 0 &&
+                incomplete.every((item) => item.difficulty !== null && item.difficulty !== undefined);
+            return {
+                ...route,
+                items,
+                averageDifficulty: hasDifficulty
+                    ? Number(
+                          (
+                              incomplete.reduce((total, item) => total + Number(item.difficulty), 0) /
+                              incomplete.length
+                          ).toFixed(2)
+                      )
+                    : null,
+            };
+        },
         createDefaultForm(roleId = "", currentPoints = 0) {
             return {
                 title: this.$t ? this.$t("pages.wiki.leap.ui.workbench.defaultPlanName") : "",
@@ -200,19 +345,26 @@ export default {
                 return;
             }
 
+            const requestId = ++this.pageRequestId;
             this.pageLoading = true;
             this.pageError = false;
-            const client = this.$store.state.client || "std";
+            const client = this.currentClient;
             try {
-                const [catalog, roles, maps] = await Promise.all([
+                const [catalog, roles, maps, dimensionDefinitions] = await Promise.all([
                     fetchAchievementWorkbenchCatalog(client),
                     fetchAchievementWorkbenchRoles(),
                     fetchAchievementWorkbenchMaps(client).catch(() => []),
+                    fetchAchievementWorkbenchDifficultyDimensions().catch((error) => {
+                        console.warn("Failed to load leap difficulty dimensions:", error);
+                        return [];
+                    }),
                 ]);
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.menus = catalog.menus;
                 this.metadata = catalog.metadata;
                 this.roles = roles;
                 this.maps = maps;
+                this.dimensions = resolveAchievementWorkbenchDimensions(dimensionDefinitions);
 
                 const queryRoleId = String(this.$route.query.jx3id || "");
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
@@ -223,48 +375,89 @@ export default {
                     "";
 
                 if (this.currentRoleId) await this.loadRoleState(this.currentRoleId, { resetForm: true });
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 await this.loadPlans();
-                if (this.detailId) await this.loadPlanDetail(this.detailId);
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
             } catch (error) {
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 console.error("Failed to initialize achievement leap page:", error);
                 this.pageError = true;
             } finally {
-                this.pageLoading = false;
+                if (requestId === this.pageRequestId) this.pageLoading = false;
             }
         },
         async loadRoleState(roleId, { resetForm = false } = {}) {
             const requestId = ++this.roleRequestId;
+            const client = this.currentClient;
+            this.routeRequestId += 1;
+            this.detailRequestId += 1;
+            this.recommendationRequestId += 1;
+            this.addSearchRequestId += 1;
+            this.editorRequestId += 1;
+            this.saveRequestId += 1;
+            this.invalidateGuidanceRequest();
             this.roleLoading = true;
+            this.routeLoading = false;
+            this.detailLoading = false;
+            this.recommendationLoading = false;
+            this.addSearchLoading = false;
+            this.saving = false;
             try {
                 const state = await fetchAchievementWorkbenchRoleState(roleId);
-                if (requestId !== this.roleRequestId) return;
+                if (requestId !== this.roleRequestId || client !== this.currentClient) return false;
+                this.generatedRoute = null;
+                this.editingPlan = null;
+                this.addSearchResults = [];
+                this.saveDialogVisible = false;
+                this.addDialogVisible = false;
                 this.currentRoleId = roleId;
                 this.roleState = state;
                 localStorage.setItem("wiki_last_sync", roleId);
                 const points = buildAchievementOverallProgress(this.metadata, state.completedIds).completedPoints || 0;
                 if (resetForm) this.plannerForm = this.createDefaultForm(roleId, points);
                 else this.plannerForm = { ...this.plannerForm, roleId };
-                this.generatedRoute = null;
-                this.editingPlan = null;
-                this.addSearchResults = [];
                 this.loadRecommendation();
                 if (this.detailId) await this.loadPlanDetail(this.detailId);
+                return (
+                    requestId === this.roleRequestId &&
+                    roleId === this.currentRoleId &&
+                    client === this.currentClient
+                );
             } catch (error) {
+                if (requestId !== this.roleRequestId || client !== this.currentClient) return false;
                 console.error("Failed to load leap role state:", error);
                 this.$message.error(this.$t("pages.wiki.leap.ui.workbench.roleLoadFailed"));
+                return false;
             } finally {
-                if (requestId === this.roleRequestId) this.roleLoading = false;
+                if (requestId === this.roleRequestId && client === this.currentClient) this.roleLoading = false;
             }
         },
         async handleRoleChange(roleId) {
-            if (!roleId || roleId === this.currentRoleId || this.roleLoading) return;
-            await this.loadRoleState(roleId, { resetForm: true });
+            if (!roleId || roleId === this.currentRoleId || this.roleLoading) {
+                this.plannerForm = { ...this.plannerForm, roleId: this.currentRoleId };
+                return;
+            }
+            const pageRequestId = this.pageRequestId;
+            const client = this.currentClient;
+            const loaded = await this.loadRoleState(roleId, { resetForm: true });
+            if (
+                !loaded ||
+                pageRequestId !== this.pageRequestId ||
+                client !== this.currentClient ||
+                roleId !== this.currentRoleId
+            ) {
+                this.plannerForm = { ...this.plannerForm, roleId: this.currentRoleId };
+                return;
+            }
             this.$router.replace({
                 name: "leap",
                 query: { ...this.$route.query, jx3id: roleId },
             });
         },
         resetPlanner() {
+            this.editorRequestId += 1;
+            this.routeRequestId += 1;
+            this.routeLoading = false;
             this.plannerForm = {
                 ...this.plannerForm,
                 categoryIds: [],
@@ -277,6 +470,7 @@ export default {
         },
         async loadRecommendation() {
             const requestId = ++this.recommendationRequestId;
+            const client = this.currentClient;
             this.recommendationLoading = true;
             try {
                 const baseCandidates = buildAchievementLeapCandidates({
@@ -291,12 +485,14 @@ export default {
                     schoolEligibility: this.schoolEligibility,
                 });
                 const difficultyById = await fetchAchievementWorkbenchDifficulty(
-                    baseCandidates.map((item) => item.id)
+                    baseCandidates.map((item) => item.id),
+                    500,
+                    { client }
                 ).catch((error) => {
                     console.error("Failed to load recommendation difficulty:", error);
                     return {};
                 });
-                if (requestId !== this.recommendationRequestId) return;
+                if (requestId !== this.recommendationRequestId || client !== this.currentClient) return;
                 const candidates = buildAchievementLeapCandidates({
                     metadata: this.metadata,
                     menus: this.menus,
@@ -317,22 +513,26 @@ export default {
             }
         },
         async loadPlans() {
+            const requestId = ++this.plansRequestId;
+            const client = this.currentClient;
             this.plansLoading = true;
             try {
                 const result = await fetchAchievementWorkbenchLeapPlans({
-                    client: this.$store.state.client || "std",
+                    client,
                     page: this.plansPage,
                     per: this.plansPageSize,
                 });
+                if (requestId !== this.plansRequestId || client !== this.currentClient) return;
                 this.plans = result.list;
                 this.plansTotal = result.total;
             } catch (error) {
+                if (requestId !== this.plansRequestId || client !== this.currentClient) return;
                 console.error("Failed to load achievement leap plans:", error);
                 this.plans = [];
                 this.plansTotal = 0;
                 this.$message.error(this.$t("pages.wiki.leap.ui.workbench.planListLoadFailed"));
             } finally {
-                this.plansLoading = false;
+                if (requestId === this.plansRequestId && client === this.currentClient) this.plansLoading = false;
             }
         },
         async changePlansPage(page) {
@@ -352,6 +552,9 @@ export default {
             }
 
             const requestId = ++this.routeRequestId;
+            const roleRequestId = this.roleRequestId;
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
             this.routeLoading = true;
             try {
                 let scopedRecords = [];
@@ -359,7 +562,7 @@ export default {
                 if (form.mapId) {
                     scopedRecords = await searchAchievementWorkbenchRecords({
                         mapId: form.mapId,
-                        client: this.$store.state.client || "std",
+                        client,
                         metadata: this.metadata,
                         completedIds: this.roleState.completedIds,
                     });
@@ -376,11 +579,18 @@ export default {
                     schoolEligibility: this.schoolEligibility,
                 });
                 const candidateIds = baseCandidates.map((item) => item.id);
-                const difficultyById = await fetchAchievementWorkbenchDifficulty(candidateIds).catch((error) => {
+                const difficultyById = await fetchAchievementWorkbenchDifficulty(candidateIds, 500, { client }).catch((error) => {
                     console.error("Failed to load achievement leap difficulty:", error);
                     return {};
                 });
-                if (requestId !== this.routeRequestId) return;
+                if (
+                    requestId !== this.routeRequestId ||
+                    roleRequestId !== this.roleRequestId ||
+                    roleId !== this.currentRoleId ||
+                    client !== this.currentClient
+                ) {
+                    return;
+                }
 
                 const difficultyAvailable = Object.values(difficultyById).some(
                     (value) => value !== null && value !== undefined
@@ -408,8 +618,17 @@ export default {
                     ids: route.items.map((item) => item.id),
                     metadata: this.metadata,
                     completedIds: this.roleState.completedIds,
+                    client,
+                    includeHidden: true,
                 });
-                if (requestId !== this.routeRequestId) return;
+                if (
+                    requestId !== this.routeRequestId ||
+                    roleRequestId !== this.roleRequestId ||
+                    roleId !== this.currentRoleId ||
+                    client !== this.currentClient
+                ) {
+                    return;
+                }
 
                 const hydratedCandidates = buildAchievementLeapCandidates({
                     metadata: this.metadata,
@@ -426,6 +645,16 @@ export default {
                     targetPoints: form.targetPoints,
                     strategy: form.strategy,
                 });
+                const enrichedItems = await this.enrichAchievementItems(route.items, client);
+                if (
+                    requestId !== this.routeRequestId ||
+                    roleRequestId !== this.roleRequestId ||
+                    roleId !== this.currentRoleId ||
+                    client !== this.currentClient
+                ) {
+                    return;
+                }
+                route = this.replaceRouteDisplayItems(route, enrichedItems);
                 this.generatedRoute = {
                     ...route,
                     generationMode: options.mode || "custom",
@@ -443,6 +672,14 @@ export default {
                 await this.$nextTick();
                 document.querySelector(".m-leap-generated-result")?.scrollIntoView({ behavior: "smooth", block: "start" });
             } catch (error) {
+                if (
+                    requestId !== this.routeRequestId ||
+                    roleRequestId !== this.roleRequestId ||
+                    roleId !== this.currentRoleId ||
+                    client !== this.currentClient
+                ) {
+                    return;
+                }
                 console.error("Failed to generate achievement leap route:", error);
                 this.$message.error(this.$t("pages.wiki.leap.ui.createFailed"));
             } finally {
@@ -476,18 +713,21 @@ export default {
         },
         async searchAddRouteItems(keyword) {
             const requestId = ++this.addSearchRequestId;
+            const client = this.currentClient;
             this.addSearchLoading = true;
             try {
                 const records = await searchAchievementWorkbenchRecords({
                     keyword,
-                    client: this.$store.state.client || "std",
+                    client,
                     metadata: this.metadata,
                     completedIds: this.roleState.completedIds,
                 });
                 const allowedIds = records.map((record) => record.id);
-                const difficultyById = await fetchAchievementWorkbenchDifficulty(allowedIds).catch(() => ({}));
-                if (requestId !== this.addSearchRequestId) return;
-                this.addSearchResults = buildAchievementLeapCandidates({
+                const difficultyById = await fetchAchievementWorkbenchDifficulty(allowedIds, 500, { client }).catch(
+                    () => ({})
+                );
+                if (requestId !== this.addSearchRequestId || client !== this.currentClient) return;
+                const candidates = buildAchievementLeapCandidates({
                     metadata: this.metadata,
                     menus: this.menus,
                     completedIds: this.roleState.completedIds,
@@ -496,7 +736,11 @@ export default {
                     allowedIds,
                     schoolEligibility: this.schoolEligibility,
                 });
+                const enrichedItems = await this.enrichAchievementItems(candidates, client);
+                if (requestId !== this.addSearchRequestId || client !== this.currentClient) return;
+                this.addSearchResults = enrichedItems;
             } catch (error) {
+                if (requestId !== this.addSearchRequestId || client !== this.currentClient) return;
                 console.error("Failed to search achievement leap route items:", error);
                 if (requestId === this.addSearchRequestId) this.addSearchResults = [];
                 this.$message.error(this.$t("pages.wiki.leap.ui.workbench.addRouteItemsSearchFailed"));
@@ -529,36 +773,51 @@ export default {
                     roleSchool: route.roleSchool || this.schoolEligibility.school,
                     selectedPoints: route.selectedPoints,
                 },
-                client: this.$store.state.client || "std",
+                client: this.currentClient,
             };
         },
         async saveRoute(title) {
             if (!this.canSaveRoute || this.saving) return;
+            const requestId = ++this.saveRequestId;
+            const roleRequestId = this.roleRequestId;
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
+            const editingPlanId = this.editingPlan?.id || null;
+            const isEditing = Boolean(editingPlanId);
+            const payload = this.buildPlanPayload(title);
             this.saving = true;
             try {
-                const saved = await saveAchievementWorkbenchLeapPlan(
-                    this.buildPlanPayload(title),
-                    this.editingPlan?.id || null
-                );
+                const saved = await saveAchievementWorkbenchLeapPlan(payload, editingPlanId);
+                if (!this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client)) return;
                 this.saveDialogVisible = false;
                 this.$message.success(
-                    this.editingPlan
+                    isEditing
                         ? this.$t("pages.wiki.leap.ui.workbench.updateSuccess")
                         : this.$t("pages.wiki.leap.ui.createSuccess")
                 );
                 this.editingPlan = null;
                 await this.loadPlans();
+                if (!this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client)) return;
                 if (saved.id) await this.openPlan(saved);
             } catch (error) {
+                if (!this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client)) return;
                 console.error("Failed to save achievement leap plan:", error);
                 this.$message.error(
-                    this.editingPlan
+                    isEditing
                         ? this.$t("pages.wiki.leap.ui.workbench.updateFailed")
                         : this.$t("pages.wiki.leap.ui.createFailed")
                 );
             } finally {
-                this.saving = false;
+                if (this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client)) this.saving = false;
             }
+        },
+        isCurrentSaveRequest(requestId, roleRequestId, roleId, client) {
+            return (
+                requestId === this.saveRequestId &&
+                roleRequestId === this.roleRequestId &&
+                roleId === this.currentRoleId &&
+                client === this.currentClient
+            );
         },
         async openPlan(plan) {
             await this.$router.push({
@@ -575,32 +834,45 @@ export default {
         async loadPlanDetail(id) {
             if (!id || !Object.keys(this.metadata).length) return;
             const requestId = ++this.detailRequestId;
+            const client = this.currentClient;
             this.detailLoading = true;
+            this.detailPlan = null;
+            this.detailRoute = null;
+            this.detailClientMismatch = null;
             try {
                 const plan = await fetchAchievementWorkbenchLeapPlan(id);
-                if (requestId !== this.detailRequestId) return;
-                const { items, difficultyById } = await this.hydratePlanItems(plan.schema);
-                if (requestId !== this.detailRequestId) return;
+                if (requestId !== this.detailRequestId || client !== this.currentClient) return;
                 this.detailPlan = plan;
+                const mismatch = this.getPlanClientMismatch(plan);
+                if (mismatch) {
+                    this.detailClientMismatch = mismatch;
+                    return;
+                }
+                const { items, difficultyById } = await this.hydratePlanItems(plan.schema, client);
+                if (requestId !== this.detailRequestId || client !== this.currentClient) return;
                 this.detailRoute = this.buildDetailRoute(plan, items, difficultyById);
             } catch (error) {
+                if (requestId !== this.detailRequestId || client !== this.currentClient) return;
                 console.error("Failed to load achievement leap plan detail:", error);
                 this.detailPlan = null;
                 this.detailRoute = null;
+                this.detailClientMismatch = null;
                 this.$message.error(this.$t("pages.wiki.leap.ui.workbench.planDetailLoadFailed"));
             } finally {
                 if (requestId === this.detailRequestId) this.detailLoading = false;
             }
         },
-        async hydratePlanItems(schema) {
+        async hydratePlanItems(schema, client = this.currentClient) {
             const regularSchema = filterAchievementLeapIds(schema, this.metadata);
             const [records, difficultyById] = await Promise.all([
                 fetchAchievementWorkbenchRecordsBatched({
                     ids: regularSchema,
                     metadata: this.metadata,
                     completedIds: this.roleState.completedIds,
+                    client,
+                    includeHidden: true,
                 }),
-                fetchAchievementWorkbenchDifficulty(regularSchema).catch(() => ({})),
+                fetchAchievementWorkbenchDifficulty(regularSchema, 500, { client }).catch(() => ({})),
             ]);
             const candidates = buildAchievementLeapCandidates({
                 metadata: this.metadata,
@@ -613,11 +885,12 @@ export default {
             });
             const candidateMap = new Map(candidates.map((item) => [item.id, item]));
             const completed = new Set(this.roleState.completedIds.map(String));
+            const items = regularSchema
+                .map((id) => candidateMap.get(String(id)))
+                .filter(Boolean)
+                .map((item) => ({ ...item, completed: completed.has(String(item.id)) }));
             return {
-                items: regularSchema
-                    .map((id) => candidateMap.get(String(id)))
-                    .filter(Boolean)
-                    .map((item) => ({ ...item, completed: completed.has(String(item.id)) })),
+                items: await this.enrichAchievementItems(items, client),
                 difficultyById,
             };
         },
@@ -653,16 +926,23 @@ export default {
             };
         },
         async preparePlanForEditor(plan, { copy = false } = {}) {
-            this.closePlanDetail();
+            if (this.warnPlanClientMismatch(plan)) return;
+            const requestId = ++this.editorRequestId;
+            const roleRequestId = this.roleRequestId;
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
             const source = plan.schema?.length ? plan : await fetchAchievementWorkbenchLeapPlan(plan.id);
-            const { items } = await this.hydratePlanItems(source.schema);
+            if (!this.isCurrentEditorRequest(requestId, roleRequestId, roleId, client)) return;
+            if (this.warnPlanClientMismatch(source)) return;
+            const { items } = await this.hydratePlanItems(source.schema, client);
+            if (!this.isCurrentEditorRequest(requestId, roleRequestId, roleId, client)) return;
             const progress = buildAchievementLeapPlanProgress(source, this.metadata, this.roleState.completedIds);
             const targetPoints = Number(source.meta?.targetPoints) || this.currentPoints + progress.remainingPoints;
             this.plannerForm = {
                 title: copy
                     ? this.$t("pages.wiki.leap.ui.workbench.copyTitle", { title: source.title })
                     : source.title,
-                roleId: this.currentRoleId,
+                roleId,
                 targetPoints,
                 categoryIds: source.meta?.categoryIds || [],
                 mapId: source.meta?.mapId || "",
@@ -671,8 +951,24 @@ export default {
             };
             this.generatedRoute = this.buildDetailRoute(source, items);
             this.editingPlan = copy ? null : source;
+            await this.closePlanDetail();
             await this.$nextTick();
+            if (
+                roleRequestId !== this.roleRequestId ||
+                roleId !== this.currentRoleId ||
+                client !== this.currentClient
+            ) {
+                return;
+            }
             document.querySelector(".m-leap-planner")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        },
+        isCurrentEditorRequest(requestId, roleRequestId, roleId, client) {
+            return (
+                requestId === this.editorRequestId &&
+                roleRequestId === this.roleRequestId &&
+                roleId === this.currentRoleId &&
+                client === this.currentClient
+            );
         },
         editPlan(plan) {
             return this.preparePlanForEditor(plan);
@@ -707,6 +1003,10 @@ export default {
         },
         async requestPlanGuidance(plan) {
             if (!plan?.id || this.guidanceSubmitting || this.guidanceRequest) return;
+            const requestId = ++this.guidanceRequestId;
+            const planId = String(plan.id);
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
             const roleLabel = [this.currentRole?.name, this.currentRole?.server].filter(Boolean).join(" · ");
             try {
                 await this.$confirm(
@@ -725,20 +1025,29 @@ export default {
                 return;
             }
 
+            if (!this.isCurrentGuidanceRequest(requestId, roleId, client)) return;
             this.guidanceSubmitting = true;
             try {
                 await new Promise((resolve) => window.setTimeout(resolve, 350));
+                if (!this.isCurrentGuidanceRequest(requestId, roleId, client)) return;
                 this.guidanceRequest = {
-                    planId: String(plan.id),
-                    roleId: this.currentRoleId,
-                    client: this.$store.state.client || "std",
+                    planId,
+                    roleId,
+                    client,
                     status: "pending",
                     requestedAt: new Date().toISOString(),
                 };
                 this.$message.success(this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationSuccess"));
             } finally {
-                this.guidanceSubmitting = false;
+                if (requestId === this.guidanceRequestId) this.guidanceSubmitting = false;
             }
+        },
+        isCurrentGuidanceRequest(requestId, roleId, client) {
+            return (
+                requestId === this.guidanceRequestId &&
+                roleId === this.currentRoleId &&
+                client === this.currentClient
+            );
         },
     },
 };
@@ -791,6 +1100,7 @@ export default {
                 :plan="detailPlan"
                 :guidance-submitting="guidanceSubmitting"
                 :guidance-requested="Boolean(guidanceRequest)"
+                :actions-disabled="Boolean(detailClientMismatch)"
                 @back="closePlanDetail"
                 @request-guidance="requestPlanGuidance"
                 @edit="editPlan"
@@ -798,14 +1108,34 @@ export default {
                 @delete="deletePlan"
             />
 
+            <PvxEmptyState
+                v-if="detailClientMismatch"
+                :title="
+                    $t('pages.wiki.leap.ui.workbench.planClientMismatchTitle', {
+                        client: getClientLabel(detailClientMismatch.planClient),
+                    })
+                "
+                :description="
+                    $t('pages.wiki.leap.ui.workbench.planClientMismatchDescription', {
+                        client: getClientLabel(detailClientMismatch.planClient),
+                    })
+                "
+            >
+                <template #icon><WarningFilled /></template>
+            </PvxEmptyState>
             <AchievementLeapSummary
-                v-if="detailRoute"
+                v-else-if="detailRoute"
                 :route="detailRoute"
                 :title="detailPlan?.title"
             />
-            <AchievementLeapRouteTable v-if="detailRoute" :items="detailRoute.items" :loading="detailLoading" />
+            <AchievementLeapRouteTable
+                v-if="detailRoute"
+                :items="detailRoute.items"
+                :dimensions="dimensions"
+                :loading="detailLoading"
+            />
             <PvxEmptyState
-                v-else-if="!detailLoading"
+                v-else-if="!detailLoading && !detailClientMismatch"
                 :title="$t('pages.wiki.leap.ui.workbench.planDetailLoadFailed')"
                 :description="$t('pages.wiki.leap.ui.loadFailedDescription')"
             >
@@ -862,6 +1192,7 @@ export default {
                 </div>
                 <AchievementLeapRouteTable
                     :items="generatedRoute.items"
+                    :dimensions="dimensions"
                     :loading="routeLoading"
                     removable
                     @remove="removeGeneratedRouteItem"
@@ -894,6 +1225,7 @@ export default {
         <AchievementLeapAddDialog
             v-model="addDialogVisible"
             :results="addSearchResults"
+            :dimensions="dimensions"
             :selected-ids="generatedRouteIds"
             :loading="addSearchLoading"
             @search="searchAddRouteItems"

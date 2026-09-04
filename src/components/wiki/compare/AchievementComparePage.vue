@@ -13,22 +13,31 @@ import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import {
     fetchAchievementWorkbenchCatalog,
+    fetchAchievementWorkbenchDifficultyDimensions,
+    fetchAchievementWorkbenchDifficultyMetrics,
     fetchAchievementWorkbenchFriendRoles,
     fetchAchievementWorkbenchFriends,
     fetchAchievementWorkbenchMaps,
     fetchAchievementWorkbenchRecords,
     fetchAchievementWorkbenchRoles,
     fetchAchievementWorkbenchRoleState,
+    fetchAchievementWorkbenchTags,
     searchAchievementWorkbenchRecords,
 } from "@/service/achievementWorkbench";
 import {
+    applyAchievementWorkbenchEnrichment,
+    resolveAchievementWorkbenchDimensions,
+} from "@/utils/achievementWorkbench";
+import {
     buildAchievementCategoryComparison,
     buildAchievementCompareCategoryTree,
+    buildAchievementCompareExportData,
     buildAchievementCrossStatistics,
     buildAchievementRoleProgress,
     COMMON_UNFINISHED_FILTER,
     filterAchievementIdsForCompare,
     filterAchievements,
+    normalizeCompletedAchievementIds,
 } from "@/utils/achievementCompare";
 import { paginateAchievementItems } from "@/utils/achievementProgress";
 import { selectMenuRootsByGeneral } from "@/utils/achievementStatistics";
@@ -74,6 +83,7 @@ export default {
             currentRoleId: "",
             records: [],
             searchRecords: null,
+            definitions: resolveAchievementWorkbenchDimensions([]),
             selectedFilters: [],
             activeCategoryId: "all",
             activeDetailId: "",
@@ -83,11 +93,19 @@ export default {
             pageSize: 20,
             roleSummaryCollapsed: false,
             roleDialogVisible: false,
+            difficultyById: {},
+            tagsById: {},
+            enrichmentClient: "",
+            enrichmentEpoch: 0,
+            pageRequestId: 0,
             recordRequestId: 0,
             friendRoleRequestId: 0,
         };
     },
     computed: {
+        currentClient() {
+            return this.$store.state.client === "origin" ? "origin" : "std";
+        },
         loginUrl() {
             return __Links.account.login + "?redirect=" + encodeURIComponent(location.href);
         },
@@ -147,9 +165,14 @@ export default {
             return paginateAchievementItems(this.resultIds, this.page, this.pageSize);
         },
         visibleRecords() {
-            if (!this.searchMode) return this.records;
-            const recordMap = new Map(this.statusFilteredSearchRecords.map((record) => [String(record.id), record]));
-            return this.visibleIds.map((id) => recordMap.get(String(id))).filter(Boolean);
+            const records = this.searchMode
+                ? this.visibleIds
+                      .map((id) =>
+                          this.statusFilteredSearchRecords.find((record) => String(record.id) === String(id))
+                      )
+                      .filter(Boolean)
+                : this.records;
+            return this.enrichRecords(records);
         },
         resultPoints() {
             const searchPointMap = new Map(
@@ -223,53 +246,89 @@ export default {
             return !this.exporting && this.compareRoles.length > 0 && this.resultIds.length > 0;
         },
     },
+    watch: {
+        currentClient(nextClient, previousClient) {
+            if (!previousClient || nextClient === previousClient) return;
+            this.initializePage();
+        },
+    },
     mounted() {
         this.initializePage();
     },
     beforeUnmount() {
+        this.pageRequestId += 1;
         this.recordRequestId += 1;
         this.friendRoleRequestId += 1;
+        this.enrichmentEpoch += 1;
     },
     methods: {
+        resetCompareView() {
+            this.recordRequestId += 1;
+            this.friendRoleRequestId += 1;
+            this.roleLoading = false;
+            this.recordLoading = false;
+            this.recordError = false;
+            this.addingRoles = false;
+            this.roleDialogVisible = false;
+            this.friendRoles = [];
+            this.friendRolesLoading = false;
+            this.compareRoles = [];
+            this.currentRoleId = "";
+            this.records = [];
+            this.searchRecords = null;
+            this.selectedFilters = [];
+            this.activeCategoryId = "all";
+            this.activeDetailId = "";
+            this.keyword = "";
+            this.mapId = "";
+            this.page = 1;
+        },
         async initializePage() {
             if (!this.isLogin) {
                 this.pageLoading = false;
                 return;
             }
 
+            const requestId = ++this.pageRequestId;
+            this.resetCompareView();
             this.pageLoading = true;
             this.pageError = false;
-            this.recordError = false;
-            const client = this.$store.state.client || "std";
+            const client = this.currentClient;
+            this.resetEnrichment(client);
+            this.definitions = resolveAchievementWorkbenchDimensions([]);
 
             try {
-                const [catalog, roles, maps, friends] = await Promise.all([
+                const [catalog, roles, maps, friends, definitions] = await Promise.all([
                     fetchAchievementWorkbenchCatalog(client),
                     fetchAchievementWorkbenchRoles(),
                     fetchAchievementWorkbenchMaps(client).catch(() => []),
                     fetchAchievementWorkbenchFriends().catch(() => []),
+                    fetchAchievementWorkbenchDifficultyDimensions().catch((error) => {
+                        console.warn("Failed to load comparison difficulty dimensions:", error);
+                        return [];
+                    }),
                 ]);
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.menus = catalog.menus;
                 this.metadata = catalog.metadata;
                 this.userRoles = roles;
                 this.maps = maps;
                 this.friends = friends;
-                this.compareRoles = [];
-                this.currentRoleId = "";
-                this.selectedFilters = [];
-
+                this.definitions = resolveAchievementWorkbenchDimensions(definitions);
                 const routeRoleId = String(this.$route.query.jx3id || "");
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
                 const preferredRoleId = routeRoleId || lastRoleId;
                 const initialRole = roles.find((role) => role.id === preferredRoleId) || roles[0] || null;
                 this.currentRoleId = String(initialRole?.id || initialRole?.jx3id || "");
                 if (initialRole) await this.addRole(initialRole, false);
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 await this.loadVisibleRecords();
             } catch (error) {
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 console.error("Failed to initialize achievement comparison:", error);
                 this.pageError = true;
             } finally {
-                this.pageLoading = false;
+                if (requestId === this.pageRequestId) this.pageLoading = false;
             }
         },
         hasCompareRole(roleId) {
@@ -279,9 +338,19 @@ export default {
             const roleId = String(roleInfo?.id || roleInfo?.jx3id || "");
             if (!roleId || this.hasCompareRole(roleId) || this.compareRoles.length >= MAX_COMPARE_ROLES) return;
 
+            const pageRequestId = this.pageRequestId;
+            const client = this.currentClient;
             this.roleLoading = true;
             try {
                 const state = await fetchAchievementWorkbenchRoleState(roleId);
+                if (
+                    pageRequestId !== this.pageRequestId ||
+                    client !== this.currentClient ||
+                    this.hasCompareRole(roleId) ||
+                    this.compareRoles.length >= MAX_COMPARE_ROLES
+                ) {
+                    return;
+                }
                 this.compareRoles = [
                     ...this.compareRoles,
                     {
@@ -297,7 +366,9 @@ export default {
                     await this.loadVisibleRecords();
                 }
             } finally {
-                this.roleLoading = false;
+                if (pageRequestId === this.pageRequestId && client === this.currentClient) {
+                    this.roleLoading = false;
+                }
             }
         },
         openRoleDialog() {
@@ -322,6 +393,8 @@ export default {
         },
         async confirmAddRoles(payload) {
             if (this.addingRoles) return;
+            const pageRequestId = this.pageRequestId;
+            const client = this.currentClient;
             const source = payload.roleType === "self" ? this.availableOwnRoles : this.availableFriendRoles;
             const roles = payload.roleIds
                 .map((roleId) => source.find((role) => String(role.id || role.jx3id) === String(roleId)))
@@ -334,15 +407,22 @@ export default {
 
             this.addingRoles = true;
             try {
-                for (const role of roles) await this.addRole(role, false);
+                for (const role of roles) {
+                    if (pageRequestId !== this.pageRequestId || client !== this.currentClient) return;
+                    await this.addRole(role, false);
+                }
+                if (pageRequestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.roleDialogVisible = false;
                 this.page = 1;
                 await this.loadVisibleRecords();
             } catch (error) {
+                if (pageRequestId !== this.pageRequestId || client !== this.currentClient) return;
                 console.error("Failed to add comparison roles:", error);
                 this.$message.error(this.$t("pages.wiki.compare.ui.states.loadFailed"));
             } finally {
-                this.addingRoles = false;
+                if (pageRequestId === this.pageRequestId && client === this.currentClient) {
+                    this.addingRoles = false;
+                }
             }
         },
         async removeRole(role) {
@@ -414,20 +494,34 @@ export default {
             }
 
             const requestId = ++this.recordRequestId;
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
             this.recordLoading = true;
             this.recordError = false;
             try {
                 const records = await searchAchievementWorkbenchRecords({
                     keyword,
                     mapId,
-                    client: this.$store.state.client || "std",
+                    client,
                     metadata: this.metadata,
                 });
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 this.searchRecords = this.enrichRecords(records);
                 this.records = [];
+                await this.$nextTick();
+                this.loadVisibleEnrichment();
             } catch (error) {
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 console.error("Failed to search comparison achievements:", error);
                 this.searchRecords = [];
                 this.recordError = true;
@@ -445,8 +539,72 @@ export default {
             this.page = 1;
             await this.loadVisibleRecords();
         },
-        enrichRecords(records) {
-            const menuEntries = Array.isArray(this.menus) ? this.menus : Object.values(this.menus || {});
+        resetEnrichment(client) {
+            this.enrichmentEpoch += 1;
+            this.enrichmentClient = client;
+            this.difficultyById = {};
+            this.tagsById = {};
+        },
+        getMissingEnrichmentIds(ids, source) {
+            return [...new Set((ids || []).map((id) => String(id).trim()).filter(Boolean))].filter(
+                (id) => !Object.prototype.hasOwnProperty.call(source, id)
+            );
+        },
+        isCurrentEnrichmentRequest(client, epoch) {
+            return (
+                client === this.currentClient &&
+                client === this.enrichmentClient &&
+                epoch === this.enrichmentEpoch
+            );
+        },
+        async loadDifficultyMetrics(ids, options = {}) {
+            const client = options.client || this.currentClient;
+            const epoch = options.epoch ?? this.enrichmentEpoch;
+            const missingIds = this.getMissingEnrichmentIds(ids, this.difficultyById);
+            if (!missingIds.length || !this.isCurrentEnrichmentRequest(client, epoch)) return;
+
+            try {
+                const difficultyById = await fetchAchievementWorkbenchDifficultyMetrics(missingIds, { client });
+                if (!this.isCurrentEnrichmentRequest(client, epoch)) return;
+                this.difficultyById = {
+                    ...this.difficultyById,
+                    ...difficultyById,
+                };
+            } catch (error) {
+                if (this.isCurrentEnrichmentRequest(client, epoch)) {
+                    console.warn("Failed to load comparison difficulty metrics:", error);
+                }
+            }
+        },
+        async loadTags(ids, options = {}) {
+            const client = options.client || this.currentClient;
+            const epoch = options.epoch ?? this.enrichmentEpoch;
+            const missingIds = this.getMissingEnrichmentIds(ids, this.tagsById);
+            if (!missingIds.length || !this.isCurrentEnrichmentRequest(client, epoch)) return;
+
+            try {
+                const tagsById = await fetchAchievementWorkbenchTags(missingIds, { client });
+                if (!this.isCurrentEnrichmentRequest(client, epoch)) return;
+                this.tagsById = {
+                    ...this.tagsById,
+                    ...tagsById,
+                };
+            } catch (error) {
+                if (this.isCurrentEnrichmentRequest(client, epoch)) {
+                    console.warn("Failed to load comparison achievement tags:", error);
+                }
+            }
+        },
+        loadVisibleEnrichment(ids = this.visibleIds) {
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
+            this.loadDifficultyMetrics(ids, { client, epoch });
+            this.loadTags(ids, { client, epoch });
+        },
+        enrichRecords(records, context = {}) {
+            const menus = context.menus ?? this.menus;
+            const maps = context.maps ?? this.maps;
+            const menuEntries = Array.isArray(menus) ? menus : Object.values(menus || {});
             const categoryNames = new Map(menuEntries.map((menu) => [String(menu.sub), menu.name]));
             const detailNames = new Map();
             menuEntries.forEach((menu) => {
@@ -454,9 +612,13 @@ export default {
                     detailNames.set(`${menu.sub}:${child.detail}`, child.name);
                 });
             });
-            const mapNames = new Map(this.maps.map((map) => [String(map.id), map.name]));
+            const mapNames = new Map(maps.map((map) => [String(map.id), map.name]));
+            const enrichedRecords = applyAchievementWorkbenchEnrichment(records, {
+                difficultyById: context.difficultyById ?? this.difficultyById,
+                tagsById: context.tagsById ?? this.tagsById,
+            });
 
-            return records.map((record) => ({
+            return enrichedRecords.map((record) => ({
                 ...record,
                 category: {
                     ...record.category,
@@ -473,21 +635,38 @@ export default {
             }));
         },
         async loadVisibleRecords() {
-            if (this.searchMode) return;
+            if (this.searchMode) {
+                this.loadVisibleEnrichment();
+                return;
+            }
             const requestId = ++this.recordRequestId;
             const ids = this.visibleIds;
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
             this.recordLoading = true;
             this.recordError = false;
             try {
                 const records = await fetchAchievementWorkbenchRecords({
                     ids,
                     metadata: this.metadata,
+                    client,
                 });
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 const recordMap = new Map(this.enrichRecords(records).map((record) => [String(record.id), record]));
                 this.records = ids.map((id) => recordMap.get(String(id))).filter(Boolean);
+                this.loadVisibleEnrichment(ids);
             } catch (error) {
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 console.error("Failed to load comparison records:", error);
                 this.records = [];
                 this.recordError = true;
@@ -497,70 +676,98 @@ export default {
         },
         async changePage(page) {
             this.page = Number(page) || 1;
-            if (!this.searchMode) await this.loadVisibleRecords();
+            await this.loadVisibleRecords();
         },
         retryRecords() {
             return this.searchMode ? this.runSearch() : this.loadVisibleRecords();
         },
-        async fetchExportRecords() {
-            if (this.searchMode) {
-                const recordMap = new Map(
-                    this.statusFilteredSearchRecords.map((record) => [String(record.id), record])
-                );
-                return this.resultIds.map((id) => recordMap.get(String(id))).filter(Boolean);
+        async fetchExportRecords(snapshot = {}) {
+            const ids = snapshot.ids || [...this.resultIds];
+            const client = snapshot.client || this.currentClient;
+            const metadata = snapshot.metadata || this.metadata;
+            const searchMode = snapshot.searchMode ?? this.searchMode;
+            let records = [];
+            if (searchMode) {
+                const sourceRecords = snapshot.searchRecords || this.statusFilteredSearchRecords;
+                const recordMap = new Map(sourceRecords.map((record) => [String(record.id), record]));
+                records = ids.map((id) => recordMap.get(String(id))).filter(Boolean);
             }
 
-            const records = [];
             const batchSize = 300;
-            for (let index = 0; index < this.resultIds.length; index += batchSize) {
-                const batch = this.resultIds.slice(index, index + batchSize);
-                const response = await fetchAchievementWorkbenchRecords({
-                    ids: batch,
-                    metadata: this.metadata,
-                });
-                records.push(...response);
+            if (!searchMode) {
+                for (let index = 0; index < ids.length; index += batchSize) {
+                    const batch = ids.slice(index, index + batchSize);
+                    const response = await fetchAchievementWorkbenchRecords({
+                        ids: batch,
+                        metadata,
+                        client,
+                    });
+                    records.push(...response);
+                }
             }
-            return this.enrichRecords(records);
-        },
-        buildExcelData(records) {
-            const headers = [
-                this.$t("pages.wiki.compare.ui.export.headers.category"),
-                this.$t("pages.wiki.compare.ui.export.headers.achievement"),
-                this.$t("pages.wiki.compare.ui.export.headers.points"),
-                this.$t("pages.wiki.compare.ui.export.headers.difficulty"),
-                this.$t("pages.wiki.compare.ui.export.headers.estimatedTime"),
-                ...this.roleProgress.map((role) => `${role.name || "—"} · ${role.server || "—"}`),
-            ];
-            const completionSets = this.roleProgress.map(
-                (role) => new Set((role.completedAchievementIds || []).map(String))
-            );
-            const rows = records.map((record) => [
-                [record.category.name, record.category.subName].filter(Boolean).join(" / ") || "—",
-                record.name || "—",
-                record.points ?? "—",
-                record.difficulty ?? "—",
-                record.estimatedMinutes ?? "—",
-                ...completionSets.map((completedIds) =>
-                    completedIds.has(String(record.id))
-                        ? this.$t("pages.wiki.compare.ui.status.completed")
-                        : this.$t("pages.wiki.compare.ui.status.incomplete")
-                ),
+
+            const recordMap = new Map(records.map((record) => [String(record.id), record]));
+            const orderedRecords = ids.map((id) => recordMap.get(String(id))).filter(Boolean);
+            const [difficultyResult, tagsResult] = await Promise.allSettled([
+                fetchAchievementWorkbenchDifficultyMetrics(ids, { client }),
+                fetchAchievementWorkbenchTags(ids, { client }),
             ]);
-            return [headers, ...rows];
+            const difficultyById = {
+                ...(snapshot.difficultyById || this.difficultyById),
+                ...(difficultyResult.status === "fulfilled" ? difficultyResult.value : {}),
+            };
+            const tagsById = {
+                ...(snapshot.tagsById || this.tagsById),
+                ...(tagsResult.status === "fulfilled" ? tagsResult.value : {}),
+            };
+
+            return this.enrichRecords(orderedRecords, {
+                difficultyById,
+                tagsById,
+                menus: snapshot.menus,
+                maps: snapshot.maps,
+            });
         },
         async exportComparison() {
             if (!this.canExport) return;
+            const snapshot = {
+                ids: [...this.resultIds],
+                client: this.currentClient,
+                metadata: this.metadata,
+                menus: this.menus,
+                maps: [...this.maps],
+                searchMode: this.searchMode,
+                searchRecords: [...this.statusFilteredSearchRecords],
+                difficultyById: { ...this.difficultyById },
+                tagsById: { ...this.tagsById },
+                definitions: this.definitions.map((definition) => ({ ...definition })),
+                roles: this.roleProgress.map((role) => ({
+                    ...role,
+                    completedAchievementIds: normalizeCompletedAchievementIds(
+                        Object.prototype.hasOwnProperty.call(role, "completedAchievements")
+                            ? role.completedAchievements
+                            : role.completedAchievementIds
+                    ),
+                })),
+            };
             this.exporting = true;
             try {
-                const records = await this.fetchExportRecords();
-                const worksheet = XLSX.utils.aoa_to_sheet(this.buildExcelData(records));
+                const records = await this.fetchExportRecords(snapshot);
+                const exportData = buildAchievementCompareExportData({
+                    records,
+                    roles: snapshot.roles,
+                    dimensions: snapshot.definitions,
+                    translate: (key) => this.$t(key),
+                });
+                const worksheet = XLSX.utils.aoa_to_sheet(exportData);
                 worksheet["!cols"] = [
                     { wch: 24 },
                     { wch: 34 },
                     { wch: 12 },
-                    { wch: 12 },
-                    { wch: 14 },
-                    ...this.roleProgress.map(() => ({ wch: 18 })),
+                    ...snapshot.definitions.map(() => ({ wch: 14 })),
+                    { wch: 16 },
+                    { wch: 30 },
+                    ...snapshot.roles.map(() => ({ wch: 18 })),
                 ];
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(
@@ -678,6 +885,7 @@ export default {
                         :title="comparisonScopeTitle"
                         :records="visibleRecords"
                         :roles="roleProgress"
+                        :definitions="definitions"
                         :total="resultIds.length"
                         :page="page"
                         :page-size="pageSize"

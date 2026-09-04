@@ -23,8 +23,11 @@ export default {
     emits: ["update:modelValue", "role-change"],
     methods: {
         updateField(field, value) {
+            if (field === "roleId") {
+                this.$emit("role-change", value);
+                return;
+            }
             this.$emit("update:modelValue", { ...this.modelValue, [field]: value });
-            if (field === "roleId") this.$emit("role-change", value);
         },
         roleLabel(role) {
             return [role.name, role.server].filter(Boolean).join(" · ");

@@ -2,10 +2,13 @@
 import { Plus, Search } from "@element-plus/icons-vue";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { markRaw } from "vue";
+import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import { getAchievementWorkbenchDimensionValue } from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementLeapAddDialog",
     components: {
+        AchievementDifficultyStars,
         Plus,
     },
     props: {
@@ -14,6 +17,10 @@ export default {
             default: false,
         },
         results: {
+            type: Array,
+            default: () => [],
+        },
+        dimensions: {
             type: Array,
             default: () => [],
         },
@@ -41,6 +48,9 @@ export default {
         visibleResults() {
             return this.results.slice(0, 60);
         },
+        overallDimension() {
+            return this.dimensions.find((dimension) => dimension.key === "overall") || null;
+        },
     },
     watch: {
         modelValue(value) {
@@ -67,10 +77,12 @@ export default {
         formatNumber(value) {
             return Number(value || 0).toLocaleString();
         },
-        formatDifficulty(value) {
-            if (value === null || value === undefined) return "—";
-            const stars = Math.max(0, Math.min(5, Math.round(Number(value))));
-            return `${"★".repeat(stars)}${"☆".repeat(5 - stars)}`;
+        getDimensionValue(item, key) {
+            return getAchievementWorkbenchDimensionValue(item, key);
+        },
+        dimensionLabel(dimension) {
+            if (dimension?.i18nKey) return this.$t(dimension.i18nKey);
+            return dimension?.label || dimension?.key || "";
         },
     },
 };
@@ -116,7 +128,12 @@ export default {
                     </a>
                     <div class="m-leap-add-dialog__meta">
                         <span>+{{ formatNumber(item.points) }}</span>
-                        <small>{{ formatDifficulty(item.difficulty) }}</small>
+                        <small v-if="overallDimension">
+                            <AchievementDifficultyStars
+                                :value="getDimensionValue(item, overallDimension.key)"
+                                :label="dimensionLabel(overallDimension)"
+                            />
+                        </small>
                     </div>
                     <button type="button" :disabled="isSelected(item)" @click="$emit('add', item)">
                         <Plus />

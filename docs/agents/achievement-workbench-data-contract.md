@@ -1,10 +1,10 @@
 # 资历宝典统一字段协议
 
-> 最后更新：2026-09-03。当前前端规则版本：推荐 `stage-v1`，门派可完成性 `school-v1`。
+> 最后更新：2026-09-05。当前前端规则版本：推荐 `stage-v1`（冻结），门派可完成性 `school-v1`。
 
 ## 1. 目的
 
-资历宝典当前继续使用旧接口，但“魔盒成就百科”原型包含一批后端尚未提供的字段。所有新版页面必须消费本协议的标准模型，不直接依赖接口字段的大小写或历史命名。后端替换字段时优先修改
+资历宝典的基础成就信息继续使用 Node 接口，难度、完成统计和标签使用 CMS 公共接口增强。所有新版页面必须消费本协议的标准模型，不直接依赖接口字段的大小写或历史命名。后端替换字段时优先修改
 `src/utils/achievementWorkbench.js` 和 `src/service/achievementWorkbench.js`，不在三个页面重复兼容逻辑。
 
 ## 2. 空值规则
@@ -38,17 +38,30 @@
 | `completionByRole`   | `Record<string, boolean>`           | `completionByRole / doneBy`                         | 部分   |
 | `reward.itemType`    | `string \| null`                    | `rewardItemType / ItemType`                         | 当前   |
 | `reward.itemId`      | `string \| null`                    | `rewardItemId / ItemID`                             | 当前   |
-| `difficulty`         | `number \| null`                    | `difficulty / Difficulty / diff`                    | 待接口 |
+| `difficulty`         | `number \| null`                    | CMS `dimensions.overall / 10`；无 CMS 难度记录时才使用旧值 | 当前   |
+| `difficultyDimensions` | `Record<string, number \| null>`  | CMS `dimensions` 动态维度，键名转 camelCase         | 当前   |
 | `estimatedMinutes`   | `number \| null`                    | `estimatedMinutes / estMinutes`                     | 待接口 |
-| `cost.money`         | `number \| null`                    | `moneyCost / money`                                 | 待接口 |
-| `cost.time`          | `number \| null`                    | `timeCost / time`                                   | 待接口 |
-| `cost.luck`          | `number \| null`                    | `luckCost / luck`                                   | 待接口 |
-| `cost.tier`          | `string \| null`                    | `costTier`                                          | 待接口 |
+| `cost.money`         | `number \| null`                    | CMS `dimensions.money / 10`                         | 当前   |
+| `cost.time`          | `number \| null`                    | CMS `dimensions.time / 10`                          | 当前   |
+| `cost.luck`          | `number \| null`                    | CMS `dimensions.luck / 10`                          | 当前   |
+| `cost.tier`          | `string \| null`                    | 仅兼容旧 `costTier`，公共接口暂无来源                | 待接口 |
+| `costEffectiveness`  | `number \| null`                    | CMS `dimensions.cost_effectiveness / 10`            | 当前   |
+| `completionStatistics` | `{ completedRoleCount, totalRoleCount, rate }` | CMS 已同步角色样本完成统计                | 当前   |
+| `tags`               | `AchievementTag[]`                   | CMS 成就标签                                        | 当前   |
+| `tagGroups`          | `{ schools, festivals, activities, camps, unknown }` | 由标签前缀分组                         | 推导   |
 | `restriction.school` | `string \| null`                    | `schoolLimit / school / cls`                        | 待接口 |
 | `guideNote`          | `string \| null`                    | `guideNote / routeNote / note`                      | 待接口 |
 | `updatedAt`          | `string \| null`                    | `updatedAt / UpdatedAt`                             | 待接口 |
 
-成本类数值暂按原型使用 `1~5` 级，但前端只负责展示与排序，不擅自把它解释成具体金钱或时间数额。后端若改为实际数值，应新增单位字段或版本字段，不复用现有等级语义。
+难度维度接口的原始值为 `0~50`，标准模型统一除以 `10` 转为 `0~5` 级；`0` 是有效值。公共维度定义接口是三个页面展示项、名称和顺序的唯一配置来源，接口失败或返回空定义时才使用内置的 `money / time / luck / costEffectiveness / overall` 五维兼容配置。接口记录中显式存在但值为 `null` 的维度代表未配置，不得再由旧字段覆盖。`dimensions.time` 是时间成本等级，不是分钟，禁止写入 `estimatedMinutes`。CMS 难度记录中的 `remark` 是后台管理备注，不进入玩家端标准模型。
+
+难度值在 UI 中统一渲染为支持小数填充的五颗星，并在星级后显示一位小数（如 `2.5`），不显示可见的 `x/5`；`aria-label` 可使用“时间成本：2.5/5”保留完整语义。`0` 渲染为空星和 `0.0`，`null` 或非法值只渲染“—”。
+
+`completionStatistics.rate` 在 UI 中统一命名为“同步完成率”。它的分母是已将角色成就同步到本系统的角色样本，并非剑网 3 全服角色；`completedRoleCount` 与 `totalRoleCount` 只保留在标准模型中用于计算和排查，不直接展示给玩家。
+
+`cost.tier` 当前没有公共数据来源，第一阶段不展示对应筛选，也不根据其他成本维度在前端推导成本档位。
+
+标签接口当前仅提供 `tag_label`，没有独立的类型字段。适配器识别 `门派：`、`节日：`、`活动：`、`阵营：`（同时兼容半角冒号），并保留完整原始标签；未知前缀进入 `tagGroups.unknown`。第一阶段标签只用于原样展示和调整展示顺序（门派标签优先），不承担资格判断，也不直接改变 `stage-v1` 推荐和 `school-v1` 门派过滤。
 
 ## 4. 标准角色模型
 
@@ -70,16 +83,24 @@
 -   `fetchAchievementWorkbenchCatalog(client)`：菜单与点数元数据；
 -   `fetchAchievementWorkbenchRoles()`：本人角色；
 -   `fetchAchievementWorkbenchRoleState(jx3id)`：完成 ID、同步状态与更新时间；
--   `fetchAchievementWorkbenchRecords(options)`：批量成就详情并转换为标准模型。
+-   `fetchAchievementWorkbenchRecords(options)`：批量成就详情并转换为标准模型，显式透传 `client`，避免基础成就与 CMS 增强数据跨客户端混用。
 -   `fetchAchievementWorkbenchRecordsBatched(options)`：按安全批次读取较长方案或路线的成就详情；
--   `searchAchievementWorkbenchRecords(options)`：按关键词或地图调用现有搜索接口、展开系列成就并转换为标准模型；
+-   `searchAchievementWorkbenchRecords(options)`：按关键词或地图调用现有搜索接口、展开系列成就并转换为标准模型，并显式透传 `client`；
 -   `fetchAchievementWorkbenchMaps(client)`：读取并标准化地图选项；沿用旧地图选择器口径，仅保留具有有效 `RegionName` 的正式区域地图，区域为空的测试/内部场景不进入任何页面的筛选项。
 -   `fetchAchievementWorkbenchFriends()`：读取并标准化当前用户的亲友列表；
 -   `fetchAchievementWorkbenchFriendRoles(friendId)`：读取亲友角色并转换为标准角色模型。
--   `fetchAchievementWorkbenchDifficulty(ids)`：批量读取现有综合难度并统一换算为 `1~5` 星；
+-   `fetchAchievementWorkbenchDifficultyDimensions()`：读取、排序并标准化动态难度维度定义；定义使用 60 秒缓存和并发 single-flight，页面通过统一 fallback 处理失败；
+-   `fetchAchievementWorkbenchDifficultyMetrics(ids, options)`：按数字 ID 分批读取难度、成本与完成统计，显式传递 `client`，未配置 ID 返回 `null`；
+-   `fetchAchievementWorkbenchTags(ids, options)`：按数字 ID 分批读取并解析标签，显式传递 `client`，无标签 ID 返回空标签组；
+-   `src/utils/achievementWorkbench.js` 的 `applyAchievementWorkbenchEnrichment(records, context)`：按成就 ID 将难度和标签合并到基础标准记录；
+-   `fetchAchievementWorkbenchDifficulty(ids, batchSize, options)`：`stage-v1` 暂时保留的旧推荐入口；继续使用旧标量字段，但显式透传 `options.client`，公共接口接入页面期间不得改用新维度，避免推荐结果静默变化；
 -   `fetchAchievementWorkbenchLeapPlans(params)` / `fetchAchievementWorkbenchLeapPlan(id)`：标准化方案列表与详情；
 -   `saveAchievementWorkbenchLeapPlan(payload, id)`：无 `id` 时创建，有 `id` 时更新，继续保持旧接口写入语义；
 -   `deleteAchievementWorkbenchLeapPlan(id)`：删除用户方案。
+
+完成进度、角色对比和渡劫方案三页的展示字段统一通过上述增强接口读取，并消费同一份动态维度定义。完成进度默认只读取当前可见页的难度与标签，用户主动按某一维度排序时才补齐当前候选集；角色对比的页面与导出共用同一维度顺序；渡劫页只在候选和路线已经由旧规则确定后补充难度维度、完成统计与标签。
+
+推荐生成不属于本阶段新增范围。系统推荐和玩家自选均保持现有本地 mock/逻辑；`loadRecommendation`、候选难度上限和路线推荐排序继续使用 `fetchAchievementWorkbenchDifficulty(ids)`，现有 `stage-v1` 只作为兼容实现冻结，不继续增加前端标签资格或权重规则。本阶段不新增或接入后端生成接口，也不预设 endpoint、请求或响应结构。
 
 ### 5.1 成就团长指点（待接口）
 

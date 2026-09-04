@@ -1,4 +1,8 @@
 import { collectMenuAchievementIds, selectMenuRootsByGeneral } from "@/utils/achievementStatistics";
+import {
+    getAchievementWorkbenchDimensionSort,
+    getAchievementWorkbenchDimensionValue,
+} from "@/utils/achievementWorkbench";
 
 const VALID_GENERALS = new Set([0, 1, 2, 3]);
 
@@ -114,7 +118,68 @@ export function buildAchievementCategoryProgress({ menus, metadata, completedIds
         .filter((category) => category.totalCount > 0);
 }
 
-function compareAchievementIds(leftId, rightId, metadata, completed, sort) {
+function normalizeAchievementDimensionKey(metric) {
+    return metric === "difficulty" ? "overall" : metric;
+}
+
+function getAchievementSortDimensionKey(sort) {
+    const dimensionSort = getAchievementWorkbenchDimensionSort(sort);
+    if (dimensionSort) return dimensionSort.key;
+    if (sort === "difficulty-asc") return "overall";
+    if (sort === "time-asc") return "time";
+    return null;
+}
+
+function getAchievementDifficultyMetric(difficulty, metric) {
+    return getAchievementWorkbenchDimensionValue(difficulty, normalizeAchievementDimensionKey(metric));
+}
+
+function hasAchievementRecordMetric(record, metric) {
+    const dimensionKey = normalizeAchievementDimensionKey(metric);
+    const dimensions = record?.difficultyDimensions;
+    if (
+        dimensions &&
+        typeof dimensions === "object" &&
+        !Array.isArray(dimensions) &&
+        Object.prototype.hasOwnProperty.call(dimensions, dimensionKey)
+    ) {
+        return true;
+    }
+
+    const fallbackSources = {
+        money: record?.cost,
+        time: record?.cost,
+        luck: record?.cost,
+        costEffectiveness: record,
+        overall: record,
+    };
+    const fallbackKeys = {
+        money: "money",
+        time: "time",
+        luck: "luck",
+        costEffectiveness: "costEffectiveness",
+        overall: "difficulty",
+    };
+    const source = fallbackSources[dimensionKey];
+    const key = fallbackKeys[dimensionKey];
+    return Boolean(source && key && Object.prototype.hasOwnProperty.call(source, key));
+}
+
+function compareAchievementMetrics(leftValue, rightValue) {
+    if (leftValue === null && rightValue === null) return 0;
+    if (leftValue === null) return 1;
+    if (rightValue === null) return -1;
+    return leftValue - rightValue;
+}
+
+export function hasAchievementDifficultyMetricCoverage(ids, difficultyById = {}, metric = "difficulty") {
+    if (!normalizeAchievementDimensionKey(metric)) return false;
+    const normalizedIds = [...new Set((ids || []).map(String))];
+    if (!normalizedIds.length) return false;
+    return normalizedIds.every((id) => Object.prototype.hasOwnProperty.call(difficultyById, id));
+}
+
+function compareAchievementIds(leftId, rightId, metadata, completed, sort, difficultyById) {
     const left = metadata?.[leftId] || {};
     const right = metadata?.[rightId] || {};
     const leftPoint = getPoint(metadata, leftId);
@@ -123,6 +188,13 @@ function compareAchievementIds(leftId, rightId, metadata, completed, sort) {
     if (sort === "default") return 0;
     if (sort === "points-asc") return leftPoint - rightPoint || leftId.localeCompare(rightId);
     if (sort === "points-desc") return rightPoint - leftPoint || leftId.localeCompare(rightId);
+    const dimensionKey = getAchievementSortDimensionKey(sort);
+    if (dimensionKey) {
+        return compareAchievementMetrics(
+            getAchievementDifficultyMetric(difficultyById?.[leftId], dimensionKey),
+            getAchievementDifficultyMetric(difficultyById?.[rightId], dimensionKey)
+        );
+    }
 
     const completionOrder = Number(completed.has(leftId)) - Number(completed.has(rightId));
     return (
@@ -137,15 +209,21 @@ export function filterAchievementIds({
     tier = "all",
     completion = "all",
     sort = "default",
+    difficultyById = {},
 }) {
     const completed = normalizeCompletedIds(completedIds);
     const sourceIds = categoryAchievementIds || Object.keys(metadata || {});
-
-    return [...new Set(sourceIds.map(String))]
+    const filteredIds = [...new Set(sourceIds.map(String))]
         .filter((id) => isEligibleMetadata(metadata?.[id]))
         .filter((id) => tier === "all" || getAchievementTier(metadata[id]) === tier)
-        .filter((id) => completion === "all" || (completion === "completed" ? completed.has(id) : !completed.has(id)))
-        .sort((left, right) => compareAchievementIds(left, right, metadata, completed, sort));
+        .filter((id) => completion === "all" || (completion === "completed" ? completed.has(id) : !completed.has(id)));
+    const metric = getAchievementSortDimensionKey(sort);
+    const effectiveSort =
+        metric && !hasAchievementDifficultyMetricCoverage(filteredIds, difficultyById, metric) ? "default" : sort;
+
+    return filteredIds.sort((left, right) =>
+        compareAchievementIds(left, right, metadata, completed, effectiveSort, difficultyById)
+    );
 }
 
 function compareRecords(left, right, sort) {
@@ -155,15 +233,12 @@ function compareRecords(left, right, sort) {
     if (sort === "default") return 0;
     if (sort === "points-asc") return leftPoints - rightPoints || String(left?.id).localeCompare(String(right?.id));
     if (sort === "points-desc") return rightPoints - leftPoints || String(left?.id).localeCompare(String(right?.id));
-    if (sort === "difficulty-asc") {
-        const leftDifficulty = left?.difficulty ?? Number.POSITIVE_INFINITY;
-        const rightDifficulty = right?.difficulty ?? Number.POSITIVE_INFINITY;
-        return leftDifficulty - rightDifficulty || rightPoints - leftPoints;
-    }
-    if (sort === "time-asc") {
-        const leftMinutes = left?.estimatedMinutes ?? Number.POSITIVE_INFINITY;
-        const rightMinutes = right?.estimatedMinutes ?? Number.POSITIVE_INFINITY;
-        return leftMinutes - rightMinutes || rightPoints - leftPoints;
+    const dimensionKey = getAchievementSortDimensionKey(sort);
+    if (dimensionKey) {
+        return compareAchievementMetrics(
+            getAchievementDifficultyMetric(left, dimensionKey),
+            getAchievementDifficultyMetric(right, dimensionKey)
+        );
     }
 
     return Number(Boolean(left?.completed)) - Number(Boolean(right?.completed)) || rightPoints - leftPoints;
@@ -176,10 +251,11 @@ export function filterAchievementRecords({
     tier = "all",
     completion = "all",
     sort = "default",
+    difficultyById = null,
 }) {
     const categoryIds = categoryAchievementIds ? new Set(categoryAchievementIds.map(String)) : null;
 
-    return (Array.isArray(records) ? records : [])
+    const filteredRecords = (Array.isArray(records) ? records : [])
         .filter(
             (record) =>
                 categoryId === "all" ||
@@ -192,8 +268,20 @@ export function filterAchievementRecords({
             (record) =>
                 completion === "all" ||
                 (completion === "completed" ? record?.completed === true : record?.completed === false)
-        )
-        .sort((left, right) => compareRecords(left, right, sort));
+        );
+    const dimensionKey = getAchievementSortDimensionKey(sort);
+    const hasMetricCoverage =
+        !dimensionKey ||
+        (difficultyById
+            ? hasAchievementDifficultyMetricCoverage(
+                  filteredRecords.map((record) => record?.id),
+                  difficultyById,
+                  dimensionKey
+              )
+            : filteredRecords.every((record) => hasAchievementRecordMetric(record, dimensionKey)));
+    const effectiveSort = hasMetricCoverage ? sort : "default";
+
+    return filteredRecords.sort((left, right) => compareRecords(left, right, effectiveSort));
 }
 
 export function paginateAchievementItems(items, page = 1, pageSize = 20) {

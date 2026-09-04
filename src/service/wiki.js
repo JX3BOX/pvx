@@ -45,8 +45,23 @@ export function deleteWikiAchievementLeapSchema(id) {
     return $cms().delete(`/api/cms/pvx/wiki_achievement_leap_schema/${id}`);
 }
 //获取某些成就的综合难度及完成进度
-export function getWikiAchievementLeapSchemaProgress(params) {
-    return $cms().post(`/api/cms/pvx/wiki_achievement_difficulty/list`, params);
+export function getWikiAchievementLeapSchemaProgress(ids, params = {}) {
+    return $cms().post(`/api/cms/pvx/wiki_achievement_difficulty/list`, ids, { params });
+}
+
+// 获取启用的成就难度维度定义
+export function getWikiAchievementDifficultyDimensions() {
+    return $cms().get(`/api/cms/pvx/wiki_achievement_difficulty/dimensions`);
+}
+
+// 批量获取成就难度，使用 POST 避免成就 ID 过多导致查询串过长
+export function getWikiAchievementDifficultyList(ids, params = {}) {
+    return $cms().post(`/api/cms/pvx/wiki_achievement_difficulty/list`, ids, { params });
+}
+
+// 批量获取成就标签
+export function getWikiAchievementTagsByAchievements(ids, params = {}) {
+    return $cms().post(`/api/cms/pvx/wiki_achievement_tag/by-achievements`, ids, { params });
 }
 
 // 创建qqbot图片任务 刷图

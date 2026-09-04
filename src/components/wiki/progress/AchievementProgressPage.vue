@@ -10,12 +10,20 @@ import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import {
     fetchAchievementWorkbenchCatalog,
+    fetchAchievementWorkbenchDifficultyDimensions,
+    fetchAchievementWorkbenchDifficultyMetrics,
     fetchAchievementWorkbenchMaps,
     fetchAchievementWorkbenchRecords,
     fetchAchievementWorkbenchRoles,
     fetchAchievementWorkbenchRoleState,
+    fetchAchievementWorkbenchTags,
     searchAchievementWorkbenchRecords,
 } from "@/service/achievementWorkbench";
+import {
+    applyAchievementWorkbenchEnrichment,
+    getAchievementWorkbenchDimensionSort,
+    resolveAchievementWorkbenchDimensions,
+} from "@/utils/achievementWorkbench";
 import {
     buildAchievementCategoryProgress,
     buildAchievementOverallProgress,
@@ -71,11 +79,22 @@ export default {
             categorySort: "progress-asc",
             summaryCollapsed: false,
             filters: createDefaultFilters(),
+            dimensions: resolveAchievementWorkbenchDimensions([]),
+            difficultyById: {},
+            tagsById: {},
+            dimensionSortLoading: false,
+            enrichmentClient: "",
+            enrichmentEpoch: 0,
+            pageRequestId: 0,
             roleRequestId: 0,
             recordRequestId: 0,
+            dimensionSortRequestId: 0,
         };
     },
     computed: {
+        currentClient() {
+            return this.$store.state.client === "origin" ? "origin" : "std";
+        },
         loginUrl() {
             return __Links.account.login + "?redirect=" + encodeURIComponent(location.href);
         },
@@ -142,6 +161,16 @@ export default {
                 secondary: this.selectedCategory.name,
             });
         },
+        baseFilteredAchievementIds() {
+            return filterAchievementIds({
+                metadata: this.metadata,
+                completedIds: this.completedIds,
+                categoryAchievementIds: this.selectedCategory?.achievementIds || null,
+                tier: this.filters.tier,
+                completion: this.filters.completion,
+                sort: "default",
+            });
+        },
         filteredAchievementIds() {
             return filterAchievementIds({
                 metadata: this.metadata,
@@ -150,6 +179,7 @@ export default {
                 tier: this.filters.tier,
                 completion: this.filters.completion,
                 sort: this.filters.sort,
+                difficultyById: this.difficultyById,
             });
         },
         visibleAchievementIds() {
@@ -158,7 +188,7 @@ export default {
         searchMode() {
             return this.searchRecords !== null;
         },
-        filteredSearchRecords() {
+        baseFilteredSearchRecords() {
             if (!this.searchMode) return [];
             return filterAchievementRecords({
                 records: this.searchRecords,
@@ -166,12 +196,31 @@ export default {
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,
                 completion: this.filters.completion,
+                sort: "default",
+            });
+        },
+        metricCandidateIds() {
+            return this.searchMode
+                ? this.baseFilteredSearchRecords.map((record) => String(record.id))
+                : this.baseFilteredAchievementIds;
+        },
+        filteredSearchRecords() {
+            if (!this.searchMode) return [];
+            return filterAchievementRecords({
+                records: this.enrichRecords(this.searchRecords, { tagsById: {} }),
+                categoryId: this.filters.categoryId,
+                categoryAchievementIds: this.selectedCategory?.achievementIds || null,
+                tier: this.filters.tier,
+                completion: this.filters.completion,
                 sort: this.filters.sort,
+                difficultyById: this.difficultyById,
             });
         },
         visibleRecords() {
-            if (!this.searchMode) return this.records;
-            return paginateAchievementItems(this.filteredSearchRecords, this.page, this.pageSize);
+            const records = this.searchMode
+                ? paginateAchievementItems(this.filteredSearchRecords, this.page, this.pageSize)
+                : this.records;
+            return this.enrichRecords(records);
         },
         resultTotal() {
             return this.searchMode ? this.filteredSearchRecords.length : this.filteredAchievementIds.length;
@@ -184,9 +233,12 @@ export default {
                 }))
                 .sort((left, right) => left.label.localeCompare(right.label));
         },
-        futureSortsEnabled() {
-            const records = this.searchMode ? this.searchRecords : this.records;
-            return (records || []).some((record) => record.difficulty !== null || record.estimatedMinutes !== null);
+    },
+    watch: {
+        currentClient(nextClient, previousClient) {
+            if (!previousClient || nextClient === previousClient) return;
+            this.resetProgressView();
+            this.initializePage();
         },
     },
     mounted() {
@@ -194,12 +246,21 @@ export default {
         this.initializePage();
     },
     beforeUnmount() {
+        this.pageRequestId += 1;
         this.roleRequestId += 1;
         this.recordRequestId += 1;
+        this.dimensionSortRequestId += 1;
+        this.enrichmentEpoch += 1;
     },
     methods: {
+        cancelDimensionSortRequest() {
+            this.dimensionSortRequestId += 1;
+            this.dimensionSortLoading = false;
+        },
         resetProgressView() {
+            this.roleRequestId += 1;
             this.recordRequestId += 1;
+            this.cancelDimensionSortRequest();
             this.recordLoading = false;
             this.recordError = false;
             this.records = [];
@@ -217,31 +278,40 @@ export default {
                 return;
             }
 
+            const requestId = ++this.pageRequestId;
             this.pageLoading = true;
             this.pageError = false;
             this.recordError = false;
-            const client = this.$store.state.client || "std";
+            const client = this.currentClient;
+            this.resetEnrichment(client);
 
             try {
-                const [catalog, roles, maps] = await Promise.all([
+                const [catalog, roles, maps, rawDimensions] = await Promise.all([
                     fetchAchievementWorkbenchCatalog(client),
                     fetchAchievementWorkbenchRoles(),
                     fetchAchievementWorkbenchMaps(client).catch(() => []),
+                    fetchAchievementWorkbenchDifficultyDimensions().catch((error) => {
+                        console.warn("Failed to load achievement difficulty dimensions:", error);
+                        return [];
+                    }),
                 ]);
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.menus = catalog.menus;
                 this.metadata = catalog.metadata;
                 this.roles = roles;
                 this.maps = maps;
+                this.dimensions = resolveAchievementWorkbenchDimensions(rawDimensions);
 
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
                 this.currentRoleId = roles.some((role) => role.id === lastRoleId) ? lastRoleId : roles[0]?.id || "";
 
                 if (this.currentRoleId) await this.loadCurrentRole();
             } catch (error) {
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 console.error("Failed to initialize achievement progress:", error);
                 this.pageError = true;
             } finally {
-                this.pageLoading = false;
+                if (requestId === this.pageRequestId) this.pageLoading = false;
             }
         },
         async selectRole(roleId) {
@@ -252,13 +322,28 @@ export default {
             await this.loadCurrentRole();
         },
         async loadCurrentRole() {
+            this.cancelDimensionSortRequest();
             const requestId = ++this.roleRequestId;
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
+            const keepSearchMode = this.searchMode;
+            this.recordRequestId += 1;
+            this.recordLoading = false;
+            this.recordError = false;
+            this.records = [];
+            if (keepSearchMode) this.searchRecords = [];
             this.roleLoading = true;
             this.pageError = false;
 
             try {
-                const state = await fetchAchievementWorkbenchRoleState(this.currentRoleId);
-                if (requestId !== this.roleRequestId) return;
+                const state = await fetchAchievementWorkbenchRoleState(roleId);
+                if (
+                    requestId !== this.roleRequestId ||
+                    roleId !== this.currentRoleId ||
+                    client !== this.currentClient
+                ) {
+                    return;
+                }
                 this.completedIds = state.completedIds;
                 this.synced = state.synced;
                 this.$store.commit("SET_STATE", {
@@ -269,22 +354,128 @@ export default {
 
                 if (this.searchMode) {
                     await this.runSearch();
+                } else if (getAchievementWorkbenchDimensionSort(this.filters.sort)) {
+                    await this.setListSort(this.filters.sort);
                 } else {
                     await this.loadVisibleRecords();
                 }
             } catch (error) {
-                if (requestId !== this.roleRequestId) return;
+                if (
+                    requestId !== this.roleRequestId ||
+                    roleId !== this.currentRoleId ||
+                    client !== this.currentClient
+                ) {
+                    return;
+                }
                 console.error("Failed to load role achievements:", error);
                 this.pageError = true;
             } finally {
-                if (requestId === this.roleRequestId) this.roleLoading = false;
+                if (
+                    requestId === this.roleRequestId &&
+                    roleId === this.currentRoleId &&
+                    client === this.currentClient
+                ) {
+                    this.roleLoading = false;
+                }
             }
         },
-        enrichRecords(records) {
+        resetEnrichment(client) {
+            this.enrichmentEpoch += 1;
+            this.cancelDimensionSortRequest();
+            this.enrichmentClient = client;
+            this.difficultyById = {};
+            this.tagsById = {};
+        },
+        normalizeEnrichmentIds(ids) {
+            return [...new Set((ids || []).map((id) => String(id).trim()).filter(Boolean))];
+        },
+        getMissingEnrichmentIds(ids, source) {
+            return this.normalizeEnrichmentIds(ids).filter(
+                (id) => !Object.prototype.hasOwnProperty.call(source, id)
+            );
+        },
+        isCurrentEnrichmentRequest(client, epoch) {
+            return (
+                client === this.currentClient &&
+                client === this.enrichmentClient &&
+                epoch === this.enrichmentEpoch
+            );
+        },
+        isCurrentDimensionSortRequest({
+            requestId,
+            pageRequestId,
+            recordRequestId,
+            roleId,
+            client,
+            epoch,
+            candidateIds,
+        }) {
+            return (
+                requestId === this.dimensionSortRequestId &&
+                pageRequestId === this.pageRequestId &&
+                recordRequestId === this.recordRequestId &&
+                roleId === this.currentRoleId &&
+                this.isCurrentEnrichmentRequest(client, epoch) &&
+                candidateIds.join("\u0000") === this.metricCandidateIds.join("\u0000")
+            );
+        },
+        async loadDifficultyMetrics(ids, options = {}) {
+            const client = options.client || this.currentClient;
+            const epoch = options.epoch ?? this.enrichmentEpoch;
+            const missingIds = this.getMissingEnrichmentIds(ids, this.difficultyById);
+            if (!missingIds.length) return this.isCurrentEnrichmentRequest(client, epoch);
+            if (!this.isCurrentEnrichmentRequest(client, epoch)) return false;
+
+            try {
+                const difficultyById = await fetchAchievementWorkbenchDifficultyMetrics(missingIds, { client });
+                if (!this.isCurrentEnrichmentRequest(client, epoch)) return;
+                this.difficultyById = {
+                    ...this.difficultyById,
+                    ...difficultyById,
+                };
+                return true;
+            } catch (error) {
+                if (this.isCurrentEnrichmentRequest(client, epoch)) {
+                    console.warn("Failed to load achievement difficulty metrics:", error);
+                }
+                if (options.throwOnError) throw error;
+                return false;
+            }
+        },
+        async loadTags(ids, options = {}) {
+            const client = options.client || this.currentClient;
+            const epoch = options.epoch ?? this.enrichmentEpoch;
+            const missingIds = this.getMissingEnrichmentIds(ids, this.tagsById);
+            if (!missingIds.length || !this.isCurrentEnrichmentRequest(client, epoch)) return;
+
+            try {
+                const tagsById = await fetchAchievementWorkbenchTags(missingIds, { client });
+                if (!this.isCurrentEnrichmentRequest(client, epoch)) return;
+                this.tagsById = {
+                    ...this.tagsById,
+                    ...tagsById,
+                };
+            } catch (error) {
+                if (this.isCurrentEnrichmentRequest(client, epoch)) {
+                    console.warn("Failed to load achievement tags:", error);
+                }
+            }
+        },
+        loadVisibleEnrichment(ids) {
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
+            this.loadDifficultyMetrics(ids, { client, epoch });
+            this.loadTags(ids, { client, epoch });
+        },
+        enrichRecords(records, context = {}) {
             const categoryNames = new Map(this.categoryProgress.map((category) => [category.id, category.name]));
             const mapNames = new Map(this.maps.map((map) => [map.id, map.name]));
+            const enrichedRecords = applyAchievementWorkbenchEnrichment(records, {
+                difficultyById: context.difficultyById ?? this.difficultyById,
+                tagsById: context.tagsById ?? this.tagsById,
+            });
 
-            return records.map((record) => ({
+            return enrichedRecords.map((record) => ({
                 ...record,
                 category: {
                     ...record.category,
@@ -300,6 +491,8 @@ export default {
             if (this.searchMode) return;
             const requestId = ++this.recordRequestId;
             const ids = this.visibleAchievementIds;
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
             this.recordLoading = true;
             this.recordError = false;
 
@@ -308,14 +501,25 @@ export default {
                     ids,
                     metadata: this.metadata,
                     completedIds: this.completedIds,
-                    client: this.$store.state.client || "std",
+                    client,
                     includeHidden: false,
                 });
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 const recordMap = new Map(this.enrichRecords(records).map((record) => [record.id, record]));
                 this.records = ids.map((id) => recordMap.get(String(id))).filter(Boolean);
+                this.loadVisibleEnrichment(ids);
             } catch (error) {
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 console.error("Failed to load achievement records:", error);
                 this.records = [];
                 this.recordError = true;
@@ -324,12 +528,75 @@ export default {
             }
         },
         async setListFilter(key, value) {
+            this.cancelDimensionSortRequest();
             this.filters = {
                 ...this.filters,
                 [key]: value,
             };
             this.page = 1;
-            if (!this.searchMode) await this.loadVisibleRecords();
+            if (getAchievementWorkbenchDimensionSort(this.filters.sort)) {
+                await this.setListSort(this.filters.sort);
+                return;
+            }
+            if (!this.searchMode) {
+                await this.loadVisibleRecords();
+                return;
+            }
+            await this.$nextTick();
+            this.loadVisibleEnrichment(this.visibleRecords.map((record) => record.id));
+        },
+        async setListSort(sort) {
+            if (this.dimensionSortLoading) return;
+            const normalizedSort = String(sort || "default");
+            const dimensionSort = getAchievementWorkbenchDimensionSort(normalizedSort);
+            if (!dimensionSort) {
+                await this.setListFilter("sort", normalizedSort);
+                return;
+            }
+
+            const requestId = ++this.dimensionSortRequestId;
+            const pageRequestId = this.pageRequestId;
+            const recordRequestId = this.recordRequestId;
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
+            const candidateIds = [...this.metricCandidateIds];
+            const requestContext = {
+                requestId,
+                pageRequestId,
+                recordRequestId,
+                roleId,
+                client,
+                epoch,
+                candidateIds,
+            };
+            this.dimensionSortLoading = true;
+
+            try {
+                const loaded = await this.loadDifficultyMetrics(candidateIds, {
+                    client,
+                    epoch,
+                    throwOnError: true,
+                });
+                if (!loaded || !this.isCurrentDimensionSortRequest(requestContext)) return;
+
+                this.filters = {
+                    ...this.filters,
+                    sort: normalizedSort,
+                };
+                this.page = 1;
+                if (!this.searchMode) {
+                    await this.loadVisibleRecords();
+                    return;
+                }
+                await this.$nextTick();
+                this.loadVisibleEnrichment(this.visibleRecords.map((record) => record.id));
+            } catch (error) {
+                if (!this.isCurrentDimensionSortRequest(requestContext)) return;
+                this.$message.error(this.$t("pages.wiki.difficultyDimensions.sortLoadFailed"));
+            } finally {
+                if (requestId === this.dimensionSortRequestId) this.dimensionSortLoading = false;
+            }
         },
         updateSearchField(key, value) {
             this.filters = {
@@ -338,6 +605,7 @@ export default {
             };
         },
         async runSearch(overrides = {}) {
+            this.cancelDimensionSortRequest();
             this.filters = {
                 ...this.filters,
                 ...(overrides || {}),
@@ -345,14 +613,20 @@ export default {
             this.page = 1;
             const keyword = String(this.filters.keyword || "").trim();
             const mapId = String(this.filters.mapId || "");
+            const requestId = ++this.recordRequestId;
 
             if (!keyword && !mapId) {
                 this.searchRecords = null;
-                await this.loadVisibleRecords();
+                if (getAchievementWorkbenchDimensionSort(this.filters.sort)) {
+                    await this.setListSort(this.filters.sort);
+                } else {
+                    await this.loadVisibleRecords();
+                }
                 return;
             }
 
-            const requestId = ++this.recordRequestId;
+            const client = this.currentClient;
+            const epoch = this.enrichmentEpoch;
             this.recordLoading = true;
             this.recordError = false;
 
@@ -360,15 +634,31 @@ export default {
                 const records = await searchAchievementWorkbenchRecords({
                     keyword,
                     mapId,
-                    client: this.$store.state.client || "std",
+                    client,
                     metadata: this.metadata,
                     completedIds: this.completedIds,
                 });
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 this.searchRecords = this.enrichRecords(records);
                 this.records = [];
+                if (getAchievementWorkbenchDimensionSort(this.filters.sort)) {
+                    await this.setListSort(this.filters.sort);
+                    return;
+                }
+                await this.$nextTick();
+                this.loadVisibleEnrichment(this.visibleRecords.map((record) => record.id));
             } catch (error) {
-                if (requestId !== this.recordRequestId) return;
+                if (
+                    requestId !== this.recordRequestId ||
+                    !this.isCurrentEnrichmentRequest(client, epoch)
+                ) {
+                    return;
+                }
                 console.error("Failed to search achievements:", error);
                 this.searchRecords = [];
                 this.recordError = true;
@@ -377,6 +667,7 @@ export default {
             }
         },
         async resetListFilters() {
+            this.cancelDimensionSortRequest();
             this.filters = createDefaultFilters();
             this.searchRecords = null;
             this.page = 1;
@@ -384,7 +675,12 @@ export default {
         },
         async changePage(page) {
             this.page = Number(page) || 1;
-            if (!this.searchMode) await this.loadVisibleRecords();
+            if (!this.searchMode) {
+                await this.loadVisibleRecords();
+                return;
+            }
+            await this.$nextTick();
+            this.loadVisibleEnrichment(this.visibleRecords.map((record) => record.id));
         },
         retryRecords() {
             return this.searchMode ? this.runSearch() : this.loadVisibleRecords();
@@ -470,6 +766,7 @@ export default {
                 <AchievementProgressList
                     :title="achievementListTitle"
                     :records="visibleRecords"
+                    :dimensions="dimensions"
                     :total="resultTotal"
                     :page="page"
                     :page-size="pageSize"
@@ -487,13 +784,14 @@ export default {
                             :map-id="filters.mapId"
                             :sort="filters.sort"
                             :keyword="filters.keyword"
-                            :future-sorts-enabled="futureSortsEnabled"
-                            :loading="recordLoading"
+                            :dimensions="dimensions"
+                            :sort-loading="dimensionSortLoading"
+                            :loading="recordLoading || dimensionSortLoading"
                             :show-category="false"
                             @update:tier="setListFilter('tier', $event)"
                             @update:completion="setListFilter('completion', $event)"
                             @update:map-id="updateSearchField('mapId', $event)"
-                            @update:sort="setListFilter('sort', $event)"
+                            @update:sort="setListSort"
                             @update:keyword="updateSearchField('keyword', $event)"
                             @submit-search="runSearch"
                             @reset-filters="resetListFilters"

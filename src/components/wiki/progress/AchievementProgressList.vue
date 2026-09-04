@@ -1,14 +1,18 @@
 <script>
-import { Clock, Loading, Location, Medal, Present } from "@element-plus/icons-vue";
+import { Loading, Location, Medal, Present } from "@element-plus/icons-vue";
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
+import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
 import { fetchAchievementWorkbenchRewardItems } from "@/service/achievementWorkbench";
-import { formatAchievementWorkbenchValue } from "@/utils/achievementWorkbench";
+import {
+    formatAchievementWorkbenchValue,
+    getAchievementWorkbenchDimensionValue,
+} from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementProgressList",
     components: {
-        Clock,
+        AchievementDifficultyStars,
         Loading,
         Location,
         Medal,
@@ -27,6 +31,10 @@ export default {
             default: "",
         },
         records: {
+            type: Array,
+            default: () => [],
+        },
+        dimensions: {
             type: Array,
             default: () => [],
         },
@@ -55,9 +63,6 @@ export default {
         resolvedTitle() {
             return this.title || this.$t("pages.wiki.overview.ui.workbench.allCategories");
         },
-        hasAchievementRewards() {
-            return this.records.some((record) => this.hasRewardReference(record));
-        },
     },
     watch: {
         records: {
@@ -82,14 +87,16 @@ export default {
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
-        formatDifficulty(value) {
+        formatCompletionRate(value) {
             if (value === null || value === undefined) return "—";
-            const rating = Math.max(0, Math.min(5, Math.round(Number(value))));
-            return `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`;
-        },
-        formatMinutes(value) {
-            if (value === null || value === undefined) return "—";
-            return this.$t("pages.wiki.overview.ui.workbench.minutes", { count: this.formatNumber(value) });
+            const normalized = Number(value);
+            if (!Number.isFinite(normalized)) return "—";
+            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
+            return new Intl.NumberFormat(locale, {
+                style: "percent",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(normalized);
         },
         getStatusLabel(record) {
             if (record.completed === true) return this.$t("pages.wiki.overview.ui.completed");
@@ -104,6 +111,17 @@ export default {
                 retired: "statistics.retired",
             };
             return this.$t(`pages.wiki.overview.ui.${keys[record.tier] || keys.normal}`);
+        },
+        getDisplayTags(record) {
+            const tags = Array.isArray(record?.tags) ? record.tags : [];
+            return [...tags].sort((left, right) => Number(right?.type === "school") - Number(left?.type === "school"));
+        },
+        getDimensionLabel(dimension) {
+            if (dimension?.i18nKey) return this.$t(dimension.i18nKey);
+            return dimension?.label || dimension?.key || "—";
+        },
+        getDimensionValue(record, dimension) {
+            return getAchievementWorkbenchDimensionValue(record, dimension?.key);
         },
         hasRewardReference(record) {
             return Boolean(this.getRewardKey(record));
@@ -304,7 +322,10 @@ export default {
                                     {{ formatValue(record.name) }}
                                 </a>
                                 <span class="u-progress-points">+{{ formatNumber(record.points) }}</span>
-                                <span :class="['u-progress-tier', `is-${record.tier}`]">{{
+                                <span
+                                    v-if="record.tier === 'wujia'"
+                                    :class="['u-progress-tier', `is-${record.tier}`]"
+                                >{{
                                     getTierLabel(record)
                                 }}</span>
                             </div>
@@ -322,11 +343,39 @@ export default {
                         <p class="u-progress-description">{{ formatValue(record.shortDescription) }}</p>
 
                         <div class="m-progress-achievement-card__meta">
-                            <span>{{ formatValue(record.category.name || record.category.subName) }}</span>
-                            <span><Location aria-hidden="true" />{{ formatValue(record.map.name) }}</span>
-                            <span class="u-progress-difficulty">{{ formatDifficulty(record.difficulty) }}</span>
-                            <span><Clock aria-hidden="true" />{{ formatMinutes(record.estimatedMinutes) }}</span>
-                            <span v-if="hasAchievementRewards" class="m-progress-achievement-reward">
+                            <span
+                                v-for="tag in getDisplayTags(record)"
+                                :key="tag.id || tag.label"
+                                class="u-progress-achievement-tag"
+                            >
+                                {{ tag.label }}
+                            </span>
+                            <span v-if="record.map?.name"><Location aria-hidden="true" />{{ record.map.name }}</span>
+                            <span
+                                v-for="dimension in dimensions"
+                                :key="dimension.key"
+                                class="u-progress-dimension"
+                            >
+                                {{ getDimensionLabel(dimension) }}
+                                <AchievementDifficultyStars
+                                    class="u-progress-rating"
+                                    :value="getDimensionValue(record, dimension)"
+                                    :label="getDimensionLabel(dimension)"
+                                />
+                            </span>
+                            <span
+                                v-if="
+                                    record.completionStatistics?.rate !== null &&
+                                    record.completionStatistics?.rate !== undefined
+                                "
+                                class="u-progress-completion-statistics"
+                            >
+                                <span>
+                                    {{ $t("pages.wiki.overview.ui.workbench.completionRate") }}
+                                    <strong>{{ formatCompletionRate(record.completionStatistics.rate) }}</strong>
+                                </span>
+                            </span>
+                            <span v-if="hasRewardReference(record)" class="m-progress-achievement-reward">
                                 <span class="u-progress-reward-label">{{ $t("pages.wiki.overview.ui.reward") }}</span>
                                 <el-tooltip v-if="isItemReward(record)" placement="top">
                                     <template #content><jx3-item :item="getRewardItem(record)" /></template>
@@ -580,9 +629,37 @@ export default {
     }
 }
 
-.u-progress-difficulty {
-    color: #a8773c;
+.u-progress-dimension {
+    color: #8b9391;
+
+    strong {
+        color: #626a68;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.u-progress-rating {
+    color: #a8773c !important;
     letter-spacing: 0.04em;
+}
+
+.u-progress-completion-statistics {
+    strong {
+        color: #626a68;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+.u-progress-achievement-tag {
+    min-height: 20px;
+    padding: 1px 7px;
+    border: 1px solid rgba(64, 158, 255, 0.52);
+    border-radius: 4px;
+    color: #409eff;
+    background: #ecf5ff;
+    line-height: 1.4;
 }
 
 .m-progress-achievement-reward {

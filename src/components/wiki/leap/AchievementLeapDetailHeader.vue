@@ -26,6 +26,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        actionsDisabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ["back", "request-guidance", "edit", "copy", "delete"],
     computed: {
@@ -33,6 +37,12 @@ export default {
             if (this.guidanceSubmitting) return this.$t("pages.wiki.leap.ui.workbench.guidanceSubmitting");
             if (this.guidanceRequested) return this.$t("pages.wiki.leap.ui.workbench.guidanceSubmitted");
             return this.$t("pages.wiki.leap.ui.workbench.requestGuidance");
+        },
+    },
+    methods: {
+        emitPlanAction(action) {
+            if (this.actionsDisabled || !this.plan) return;
+            this.$emit(action, this.plan);
         },
     },
 };
@@ -54,35 +64,35 @@ export default {
             <button
                 type="button"
                 class="u-leap-detail-button is-primary"
-                :disabled="guidanceSubmitting || guidanceRequested"
-                @click="$emit('request-guidance', plan)"
+                :disabled="actionsDisabled || guidanceSubmitting || guidanceRequested"
+                @click="emitPlanAction('request-guidance')"
             >
                 <ChatDotRound />
                 {{ guidanceLabel }}
             </button>
 
-            <el-dropdown trigger="click">
-                <button type="button" class="u-leap-detail-button">
+            <el-dropdown trigger="click" :disabled="actionsDisabled">
+                <button type="button" class="u-leap-detail-button" :disabled="actionsDisabled">
                     {{ $t("pages.wiki.leap.ui.workbench.moreActions") }}
                     <ArrowDown />
                 </button>
                 <template #dropdown>
                     <el-dropdown-menu class="m-leap-detail-more-menu">
                         <el-dropdown-item v-if="plan.official">
-                            <el-button class="u-leap-detail-menu-button" type="primary" @click="$emit('copy', plan)">
+                            <el-button class="u-leap-detail-menu-button" type="primary" @click="emitPlanAction('copy')">
                                 <CopyDocument />
                                 {{ $t("pages.wiki.leap.ui.workbench.copyAsMine") }}
                             </el-button>
                         </el-dropdown-item>
                         <template v-else>
                             <el-dropdown-item>
-                                <el-button class="u-leap-detail-menu-button" type="primary" @click="$emit('edit', plan)">
+                                <el-button class="u-leap-detail-menu-button" type="primary" @click="emitPlanAction('edit')">
                                     <Edit />
                                     {{ $t("pages.wiki.leap.ui.workbench.editPlan") }}
                                 </el-button>
                             </el-dropdown-item>
                             <el-dropdown-item>
-                                <el-button class="u-leap-detail-menu-button" type="danger" @click="$emit('delete', plan)">
+                                <el-button class="u-leap-detail-menu-button" type="danger" @click="emitPlanAction('delete')">
                                     <Delete />
                                     {{ $t("pages.wiki.leap.ui.workbench.deletePlanShort") }}
                                 </el-button>

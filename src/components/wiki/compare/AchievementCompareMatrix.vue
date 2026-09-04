@@ -1,11 +1,16 @@
 <script>
 import { CircleCheckFilled, CircleCloseFilled, Medal, RefreshRight } from "@element-plus/icons-vue";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
-import { formatAchievementWorkbenchValue } from "@/utils/achievementWorkbench";
+import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import {
+    formatAchievementWorkbenchValue,
+    getAchievementWorkbenchDimensionValue,
+} from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementCompareMatrix",
     components: {
+        AchievementDifficultyStars,
         CircleCheckFilled,
         CircleCloseFilled,
         Medal,
@@ -21,6 +26,10 @@ export default {
             default: () => [],
         },
         roles: {
+            type: Array,
+            default: () => [],
+        },
+        definitions: {
             type: Array,
             default: () => [],
         },
@@ -49,7 +58,7 @@ export default {
     computed: {
         tableStyle() {
             return {
-                minWidth: `${Math.max(760, 390 + this.roles.length * 145)}px`,
+                minWidth: `${Math.max(940, 560 + this.roles.length * 145)}px`,
             };
         },
         roleCompletionSets() {
@@ -78,14 +87,27 @@ export default {
         roleName(role) {
             return role.name || this.$t("pages.wiki.compare.ui.common.unknown");
         },
-        formatDifficulty(value) {
-            if (value === null || value === undefined) return "—";
-            const rating = Math.max(0, Math.min(5, Math.round(Number(value))));
-            return `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`;
+        dimensionLabel(definition) {
+            if (definition?.i18nKey) return this.$t(definition.i18nKey);
+            return definition?.label || definition?.key || "—";
         },
-        formatMinutes(value) {
+        dimensionValue(record, definition) {
+            return getAchievementWorkbenchDimensionValue(record, definition?.key);
+        },
+        formatCompletionRate(value) {
             if (value === null || value === undefined) return "—";
-            return this.$t("pages.wiki.compare.ui.workbench.minutes", { count: this.formatNumber(value) });
+            const normalized = Number(value);
+            if (!Number.isFinite(normalized)) return "—";
+            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
+            return new Intl.NumberFormat(locale, {
+                style: "percent",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(normalized);
+        },
+        getDisplayTags(record) {
+            const tags = Array.isArray(record?.tags) ? record.tags : [];
+            return [...tags].sort((left, right) => Number(right?.type === "school") - Number(left?.type === "school"));
         },
     },
 };
@@ -155,18 +177,43 @@ export default {
                                         <span class="m-compare-achievement__title">
                                             <strong>{{ formatValue(record.name) }}</strong>
                                             <b>+{{ formatNumber(record.points) }}</b>
+                                            <span
+                                                v-if="record.tier === 'wujia'"
+                                                class="u-compare-achievement-tier"
+                                            >
+                                                {{ $t("pages.wiki.overview.ui.statistics.wujia") }}
+                                            </span>
                                         </span>
-                                        <span class="m-compare-achievement__meta">
-                                            {{ formatValue(record.category.name || record.category.subName) }}
-                                            · {{ formatValue(record.map.name) }}
+                                        <span v-if="record.tags?.length" class="m-compare-achievement__tags">
+                                            <span
+                                                v-for="tag in getDisplayTags(record)"
+                                                :key="tag.id || tag.label"
+                                                class="u-compare-achievement-tag"
+                                            >
+                                                {{ tag.label }}
+                                            </span>
                                         </span>
-                                        <span class="m-compare-achievement__future">
-                                            {{ $t("pages.wiki.compare.ui.workbench.difficulty") }}：{{
-                                                formatDifficulty(record.difficulty)
-                                            }}
-                                            · {{ $t("pages.wiki.compare.ui.workbench.estimatedTime") }}：{{
-                                                formatMinutes(record.estimatedMinutes)
-                                            }}
+                                        <span v-if="record.map?.name" class="m-compare-achievement__meta">
+                                            {{ record.map.name }}
+                                        </span>
+                                        <span class="m-compare-achievement__dimensions">
+                                            <span v-for="definition in definitions" :key="definition.key">
+                                                {{ dimensionLabel(definition) }}
+                                                <AchievementDifficultyStars
+                                                    :value="dimensionValue(record, definition)"
+                                                    :label="dimensionLabel(definition)"
+                                                />
+                                            </span>
+                                            <span
+                                                v-if="
+                                                    record.completionStatistics?.rate !== null &&
+                                                    record.completionStatistics?.rate !== undefined
+                                                "
+                                                class="u-compare-completion-rate"
+                                            >
+                                                {{ $t("pages.wiki.overview.ui.workbench.completionRate") }}
+                                                <strong>{{ formatCompletionRate(record.completionStatistics.rate) }}</strong>
+                                            </span>
                                         </span>
                                     </span>
                                 </a>
@@ -305,7 +352,7 @@ export default {
         position: sticky;
         left: 0;
         z-index: 1;
-        width: 390px;
+        width: 560px;
         text-align: left;
         background: #fffefa;
     }
@@ -329,7 +376,7 @@ export default {
     display: grid;
     min-width: 0;
     grid-template-columns: 44px minmax(0, 1fr);
-    align-items: center;
+    align-items: start;
     gap: 10px;
     color: inherit;
     text-decoration: none;
@@ -389,18 +436,67 @@ export default {
     }
 }
 
-.m-compare-achievement__meta,
-.m-compare-achievement__future {
-    overflow: hidden;
-    max-width: 100%;
-    color: #9ba09d;
+.u-compare-achievement-tier {
+    display: inline-flex;
+    min-height: 19px;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    color: #a07828;
+    background: rgba(179, 140, 61, 0.11);
     font-size: 10px;
-    text-overflow: ellipsis;
+    line-height: 1;
     white-space: nowrap;
 }
 
-.m-compare-achievement__future {
-    color: #adb1ae;
+.m-compare-achievement__meta {
+    max-width: 100%;
+    color: #9ba09d;
+    font-size: 10px;
+}
+
+.m-compare-achievement__tags {
+    display: flex;
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.u-compare-achievement-tag {
+    padding: 0 5px;
+    border: 1px solid rgba(64, 158, 255, 0.48);
+    border-radius: 4px;
+    color: #409eff;
+    background: #ecf5ff;
+    line-height: 17px;
+}
+
+.m-compare-achievement__dimensions {
+    display: flex;
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 3px 10px;
+    color: #8b9391;
+    font-size: 10px;
+
+    > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    strong {
+        color: #a8773c;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+    }
+
+    .u-compare-completion-rate strong {
+        color: #626a68;
+        font-weight: 650;
+        letter-spacing: 0;
+    }
 }
 
 .u-compare-completion {
@@ -484,7 +580,7 @@ export default {
 
 @media (max-width: 620px) {
     .m-compare-matrix-table .is-achievement {
-        width: 300px;
+        width: 480px;
     }
 }
 </style>

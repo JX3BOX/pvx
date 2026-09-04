@@ -229,6 +229,10 @@ export default {
 
     &.has-subcategories {
         grid-template-columns: minmax(142px, 0.84fr) minmax(168px, 1.16fr);
+
+        .m-compare-category-card.is-all small {
+            display: none;
+        }
     }
 }
 

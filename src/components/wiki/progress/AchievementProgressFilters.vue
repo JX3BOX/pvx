@@ -52,7 +52,11 @@ export default {
             type: String,
             default: "",
         },
-        futureSortsEnabled: {
+        dimensions: {
+            type: Array,
+            default: () => [],
+        },
+        sortLoading: {
             type: Boolean,
             default: false,
         },
@@ -84,6 +88,13 @@ export default {
             const value = mapId === "all" ? "" : String(mapId || "");
             this.$emit("update:map-id", value);
             this.$emit("submit-search", { mapId: value });
+        },
+        getDimensionLabel(dimension) {
+            if (dimension?.i18nKey) return this.$t(dimension.i18nKey);
+            return dimension?.label || dimension?.key || "—";
+        },
+        getDimensionSortValue(dimension) {
+            return `dimension:${dimension.key}:asc`;
         },
     },
 };
@@ -146,6 +157,8 @@ export default {
             <el-select
                 :model-value="sort"
                 class="u-progress-filter is-sort"
+                :disabled="sortLoading"
+                :loading="sortLoading"
                 :aria-label="$t('pages.wiki.overview.ui.workbench.sort')"
                 @change="$emit('update:sort', $event)"
             >
@@ -154,14 +167,14 @@ export default {
                 <el-option value="points-desc" :label="$t('pages.wiki.overview.ui.workbench.sortPointsDesc')" />
                 <el-option value="points-asc" :label="$t('pages.wiki.overview.ui.workbench.sortPointsAsc')" />
                 <el-option
-                    value="difficulty-asc"
-                    :disabled="!futureSortsEnabled"
-                    :label="$t('pages.wiki.overview.ui.workbench.sortDifficultyAsc')"
-                />
-                <el-option
-                    value="time-asc"
-                    :disabled="!futureSortsEnabled"
-                    :label="$t('pages.wiki.overview.ui.workbench.sortTimeAsc')"
+                    v-for="dimension in dimensions"
+                    :key="dimension.key"
+                    :value="getDimensionSortValue(dimension)"
+                    :label="
+                        $t('pages.wiki.difficultyDimensions.sortAscending', {
+                            label: getDimensionLabel(dimension),
+                        })
+                    "
                 />
             </el-select>
         </div>

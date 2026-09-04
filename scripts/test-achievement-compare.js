@@ -1,4 +1,5 @@
 const assert = require("assert");
+const fs = require("fs");
 const path = require("path");
 const babel = require("@babel/core");
 
@@ -28,13 +29,16 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
 }
 
 const statisticsModule = loadModule(path.resolve(__dirname, "../src/utils/achievementStatistics.js"));
+const workbenchModule = loadModule(path.resolve(__dirname, "../src/utils/achievementWorkbench.js"));
 const compare = loadModule(
     path.resolve(__dirname, "../src/utils/achievementCompare.js"),
     {
         "@/utils/achievementStatistics": "achievement-statistics-test-module",
+        "@/utils/achievementWorkbench": "achievement-workbench-test-module",
     },
     {
         "achievement-statistics-test-module": statisticsModule,
+        "achievement-workbench-test-module": workbenchModule,
     }
 );
 
@@ -102,5 +106,104 @@ assert.deepStrictEqual(
         ["b", 1, 1],
     ]
 );
+
+const exportDimensions = [
+    {
+        key: "money",
+        label: null,
+        i18nKey: "pages.wiki.difficultyDimensions.money",
+    },
+    {
+        key: "operation",
+        label: "操作难度",
+        i18nKey: null,
+    },
+    {
+        key: "overall",
+        label: null,
+        i18nKey: "pages.wiki.difficultyDimensions.overall",
+    },
+];
+const exportRecords = [
+    {
+        id: "1",
+        name: "零成本成就",
+        points: 0,
+        category: { name: "江湖", subName: "游历" },
+        difficultyDimensions: { money: 0, operation: null, overall: 4.5 },
+        completionStatistics: { completedRoleCount: 12, totalRoleCount: 96, rate: 0.125 },
+        tags: [
+            { type: "festival", label: "节日：花朝节" },
+            { type: "school", label: "门派：万花" },
+            { type: "activity", label: "活动：花朝节" },
+        ],
+    },
+    {
+        id: "2",
+        name: "操作入门",
+        points: null,
+        category: { name: null, subName: null },
+        difficultyDimensions: { money: null, operation: 0, overall: null },
+        completionStatistics: { completedRoleCount: 0, totalRoleCount: 96, rate: 0 },
+        tags: [],
+    },
+];
+const exportRoles = [
+    {
+        name: "甲",
+        server: "梦江南",
+        completedAchievements: ["1"],
+        completedAchievementIds: [],
+    },
+    { name: "乙", server: "长安城", completedAchievementIds: ["2"] },
+];
+const exportTranslations = {
+    "pages.wiki.compare.ui.export.headers.category": "成就分类",
+    "pages.wiki.compare.ui.export.headers.achievement": "成就名称",
+    "pages.wiki.compare.ui.export.headers.points": "资历点数",
+    "pages.wiki.difficultyDimensions.money": "金钱",
+    "pages.wiki.difficultyDimensions.overall": "综合难度",
+    "pages.wiki.compare.ui.export.headers.completionRate": "同步完成率",
+    "pages.wiki.compare.ui.export.headers.tags": "标签",
+    "pages.wiki.compare.ui.status.completed": "已完成",
+    "pages.wiki.compare.ui.status.incomplete": "未完成",
+};
+const exportData =
+    typeof compare.buildAchievementCompareExportData === "function"
+        ? compare.buildAchievementCompareExportData({
+              records: exportRecords,
+              roles: exportRoles,
+              dimensions: exportDimensions,
+              translate: (key) => exportTranslations[key] || key,
+          })
+        : null;
+assert.deepStrictEqual(exportData, [
+    ["成就分类", "成就名称", "资历点数", "金钱", "操作难度", "综合难度", "同步完成率", "标签", "甲 · 梦江南", "乙 · 长安城"],
+    [
+        "江湖 / 游历",
+        "零成本成就",
+        0,
+        0,
+        "—",
+        4.5,
+        "12.50%",
+        "门派：万花, 节日：花朝节, 活动：花朝节",
+        "已完成",
+        "未完成",
+    ],
+    ["—", "操作入门", "—", "—", 0, "—", "0.00%", "—", "未完成", "已完成"],
+]);
+
+const compareMatrixSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/compare/AchievementCompareMatrix.vue"),
+    "utf8"
+);
+assert.match(
+    compareMatrixSource,
+    /v-if="record\.tier === 'wujia'"[\s\S]*?pages\.wiki\.overview\.ui\.statistics\.wujia/,
+    "五甲记录应保留五甲档位 tag"
+);
+assert.doesNotMatch(compareMatrixSource, /v-if="record\.tier === 'normal'"/, "普通记录不应显示档位 tag");
+assert.match(compareMatrixSource, /v-for="tag in getDisplayTags\(record\)"/, "业务 tags 应继续通过门派优先排序输出");
 
 console.log("Achievement compare tests passed.");

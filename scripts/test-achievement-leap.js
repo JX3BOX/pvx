@@ -1,4 +1,5 @@
 const assert = require("assert");
+const fs = require("fs");
 const path = require("path");
 const babel = require("@babel/core");
 
@@ -18,6 +19,21 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
                 };
             },
         ],
+        presets: [[require.resolve("@babel/preset-env"), { targets: { node: "current" } }]],
+    });
+    const loadedModule = { exports: {} };
+    const localRequire = (request) => injectedModules[request] || require(request);
+    new Function("module", "exports", "require", result.code)(loadedModule, loadedModule.exports, localRequire);
+    return loadedModule.exports;
+}
+
+function loadVueScriptModule(file, injectedModules = {}) {
+    const source = fs.readFileSync(file, "utf8");
+    const script = source.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+    assert.ok(script, `Missing script block in ${file}`);
+    const result = babel.transformSync(script, {
+        babelrc: false,
+        configFile: false,
         presets: [[require.resolve("@babel/preset-env"), { targets: { node: "current" } }]],
     });
     const loadedModule = { exports: {} };
@@ -297,4 +313,602 @@ assert.deepStrictEqual(progress, {
     progress: 60,
 });
 
-console.log("Achievement leap tests passed.");
+const leapPageSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapPage.vue"),
+    "utf8"
+);
+const routeTableSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapRouteTable.vue"),
+    "utf8"
+);
+const addDialogSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapAddDialog.vue"),
+    "utf8"
+);
+const baseSettingsSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapBaseSettings.vue"),
+    "utf8"
+);
+const detailHeaderSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapDetailHeader.vue"),
+    "utf8"
+);
+
+const enrichmentSource = leapPageSource.slice(
+    leapPageSource.indexOf("async enrichAchievementItems"),
+    leapPageSource.indexOf("replaceRouteDisplayItems")
+);
+const recommendationSource = leapPageSource.slice(
+    leapPageSource.indexOf("async loadRecommendation"),
+    leapPageSource.indexOf("async loadPlans")
+);
+
+// SFC contract: the page owns the resolved definitions and passes them to every display consumer.
+assert.match(leapPageSource, /fetchAchievementWorkbenchDifficultyDimensions/);
+assert.match(leapPageSource, /dimensions:\s*resolveAchievementWorkbenchDimensions\(\[\]\)/);
+assert.match(leapPageSource, /fetchAchievementWorkbenchDifficultyDimensions\(\)\.catch\(/);
+assert.ok((leapPageSource.match(/:dimensions="dimensions"/g) || []).length >= 3);
+assert.match(routeTableSource, /dimensions:\s*\{/);
+assert.match(addDialogSource, /dimensions:\s*\{/);
+
+// SFC contract: RouteTable renders and sorts every resolved dimension through shared helpers/components.
+assert.match(routeTableSource, /import AchievementDifficultyStars/);
+assert.match(routeTableSource, /getAchievementWorkbenchDimensionSort/);
+assert.match(routeTableSource, /getAchievementWorkbenchDimensionValue/);
+assert.match(routeTableSource, /v-for="dimension in dimensions"/);
+assert.match(routeTableSource, /<AchievementDifficultyStars/);
+assert.match(routeTableSource, /:value="getDimensionValue\(item, dimension\.key\)"/);
+assert.match(routeTableSource, /:value="`dimension:\$\{dimension\.key\}:asc`"/);
+assert.ok(!routeTableSource.includes("cost-effectiveness-desc"));
+assert.ok(!routeTableSource.includes("costTier"));
+assert.ok(!routeTableSource.includes("Math.round"));
+
+// SFC contract: optional metadata columns are decided from the whole route, while map stays row-local.
+["CompletionRate", "Tags", "SchoolRestriction", "GuideNote"].forEach((name) => {
+    assert.match(routeTableSource, new RegExp(`show${name}Column\\(\\)`));
+    assert.ok((routeTableSource.match(new RegExp(`v-if="show${name}Column"`, "g")) || []).length >= 2);
+});
+assert.match(routeTableSource, /v-if="item\.map\?\.name"/);
+assert.match(routeTableSource, /getDisplayTags\(item\)/);
+
+// SFC contract: normalized SceneID/map.id values are resolved against the page map list before display.
+assert.match(enrichmentSource, /this\.maps/);
+assert.match(enrichmentSource, /item\.map\?\.id/);
+assert.match(enrichmentSource, /mapById\.get\(/);
+assert.match(enrichmentSource, /item\.map\?\.name\s*\|\|\s*resolvedMap\?\.name/);
+
+// SFC contract: AddDialog shows shared overall stars only when the resolved definition exists.
+assert.match(addDialogSource, /import AchievementDifficultyStars/);
+assert.match(addDialogSource, /overallDimension\(\)/);
+assert.match(addDialogSource, /v-if="overallDimension"/);
+assert.match(addDialogSource, /<AchievementDifficultyStars/);
+assert.match(addDialogSource, /getDimensionValue\(item, overallDimension\.key\)/);
+assert.ok(!addDialogSource.includes("Math.round"));
+assert.ok(!addDialogSource.includes('.repeat(stars)'));
+
+// Recommendation is frozen on the stage-v1 scalar difficulty path; new metrics are display-only.
+assert.match(recommendationSource, /buildAchievementLeapRecommendation\(/);
+assert.match(recommendationSource, /fetchAchievementWorkbenchDifficulty\(/);
+assert.ok(!recommendationSource.includes("fetchAchievementWorkbenchDifficultyMetrics("));
+
+// Detail mismatch state owns a dedicated empty state and disables every plan action in the header.
+assert.match(leapPageSource, /planClientMismatchTitle/);
+assert.match(leapPageSource, /planClientMismatchDescription/);
+assert.match(leapPageSource, /:actions-disabled="Boolean\(detailClientMismatch\)"/);
+assert.match(detailHeaderSource, /actionsDisabled/);
+assert.ok((detailHeaderSource.match(/:disabled="[^"]*actionsDisabled[^"]*"/g) || []).length >= 2);
+
+const pageComponentImports = [
+    "@/components/wiki/leap/AchievementLeapAddDialog.vue",
+    "@/components/wiki/leap/AchievementLeapBaseSettings.vue",
+    "@/components/wiki/leap/AchievementLeapDetailHeader.vue",
+    "@/components/wiki/leap/AchievementLeapPlanner.vue",
+    "@/components/wiki/leap/AchievementLeapPlanList.vue",
+    "@/components/wiki/leap/AchievementLeapRecommendation.vue",
+    "@/components/wiki/leap/AchievementLeapRouteTable.vue",
+    "@/components/wiki/leap/AchievementLeapSaveDialog.vue",
+    "@/components/wiki/leap/AchievementLeapSummary.vue",
+    "@/components/design/PvxActionButton.vue",
+    "@/components/design/PvxEmptyState.vue",
+    "@/components/design/PvxSurface.vue",
+];
+
+let pageRoleStateLoader = async (roleId) => ({
+    jx3id: roleId,
+    completedIds: [],
+    synced: true,
+    updatedAt: null,
+});
+let pagePlanLoader = async (id) => ({ id, client: "std", schema: [] });
+let pageRecordsLoader = async () => [];
+let pageDifficultyLoader = async () => ({});
+
+function buildPageTestCandidates({ metadata = {}, records = [], allowedIds = null, difficultyById = {} } = {}) {
+    const allowed = allowedIds == null ? null : new Set(allowedIds.map(String));
+    const recordMap = new Map(records.map((record) => [String(record.id), record]));
+    const ids = records.length ? records.map((record) => String(record.id)) : allowedIds || Object.keys(metadata);
+    return [...new Set(ids.map(String))]
+        .filter((id) => Number(metadata[id]?.general) === 1)
+        .filter((id) => !allowed || allowed.has(id))
+        .map((id) => ({
+            ...recordMap.get(id),
+            id,
+            points: Number(metadata[id]?.point) || 0,
+            difficulty: recordMap.get(id)?.difficulty ?? difficultyById[id] ?? null,
+        }));
+}
+
+function buildPageTestRoute({ candidates = [], currentPoints = 0, targetPoints = 0, strategy = "big-first" } = {}) {
+    const selectedPoints = candidates.reduce((total, item) => total + Number(item.points || 0), 0);
+    return {
+        items: candidates,
+        requestedStrategy: strategy,
+        strategy,
+        currentPoints,
+        targetPoints,
+        targetGap: Math.max(0, targetPoints - currentPoints),
+        selectedPoints,
+        projectedPoints: currentPoints + selectedPoints,
+        remainingGap: Math.max(0, targetPoints - currentPoints - selectedPoints),
+        reached: currentPoints + selectedPoints >= targetPoints,
+        totalMinutes: null,
+        averageDifficulty: null,
+        averageCostScore: null,
+    };
+}
+
+const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapPage.vue"), {
+    ...Object.fromEntries(pageComponentImports.map((request) => [request, {}])),
+    "@element-plus/icons-vue": {},
+    "@jx3box/jx3box-common/js/user": { isLogin: () => true },
+    "@/service/achievementWorkbench": {
+        fetchAchievementWorkbenchDifficulty: (...args) => pageDifficultyLoader(...args),
+        fetchAchievementWorkbenchLeapPlan: (...args) => pagePlanLoader(...args),
+        fetchAchievementWorkbenchRecordsBatched: (...args) => pageRecordsLoader(...args),
+        fetchAchievementWorkbenchRoleState: (...args) => pageRoleStateLoader(...args),
+    },
+    "@/utils/achievementLeap": {
+        buildAchievementLeapCandidates: buildPageTestCandidates,
+        buildAchievementLeapPlanProgress: () => ({ remainingPoints: 0 }),
+        buildAchievementLeapRoute: buildPageTestRoute,
+        filterAchievementLeapIds: (ids, sourceMetadata) =>
+            [...new Set((ids || []).map(String))].filter((id) => Number(sourceMetadata[id]?.general) === 1),
+    },
+    "@/utils/achievementProgress": {
+        buildAchievementOverallProgress: () => ({ completedPoints: 0 }),
+    },
+    "@/utils/achievementSchoolEligibility": {
+        buildAchievementSchoolEligibilityContext: () => ({ version: "school-v1", school: null }),
+    },
+    "@/utils/achievementWorkbench": {
+        applyAchievementWorkbenchEnrichment: (records) => records,
+        resolveAchievementWorkbenchDimensions: () => [],
+    },
+    "@/utils/config": { __Links: { account: { login: "" } } },
+}).default;
+
+const baseSettings = loadVueScriptModule(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapBaseSettings.vue"),
+    { "@/components/design/PvxSurface.vue": {} }
+).default;
+const detailHeader = loadVueScriptModule(
+    path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapDetailHeader.vue"),
+    {
+        "@element-plus/icons-vue": {},
+        "@/components/design/PvxSurface.vue": {},
+    }
+).default;
+
+function createGuidanceTestVm(successMessages) {
+    const vm = {
+        ...leapPage.data(),
+        $store: { state: { client: "std" } },
+        $route: { params: {}, query: {} },
+        $t: (key) => key,
+        $confirm: () => Promise.resolve(),
+        $nextTick: () => Promise.resolve(),
+        $router: {
+            push: () => Promise.resolve(),
+            replace: () => Promise.resolve(),
+        },
+        $message: {
+            success: (message) => successMessages.push(message),
+            error: () => {},
+            warning: () => {},
+        },
+        roles: [
+            { id: "role-std", name: "旧角色", server: "旧服" },
+            { id: "role-origin", name: "新角色", server: "新服" },
+        ],
+        currentRoleId: "role-std",
+    };
+    Object.entries(leapPage.methods).forEach(([name, method]) => {
+        vm[name] = method.bind(vm);
+    });
+    ["currentClient", "currentRole", "detailId"].forEach((name) => {
+        Object.defineProperty(vm, name, {
+            configurable: true,
+            get: () => leapPage.computed[name].call(vm),
+        });
+    });
+    vm.loadRecommendation = () => {};
+    return vm;
+}
+
+function runBaseSettingsStateTests() {
+    const roleEvents = [];
+    const roleVm = {
+        modelValue: { title: "方案", roleId: "role-std" },
+        $emit: (...args) => roleEvents.push(args),
+    };
+    baseSettings.methods.updateField.call(roleVm, "roleId", "role-origin");
+    assert.deepStrictEqual(roleEvents, [["role-change", "role-origin"]]);
+
+    const titleEvents = [];
+    baseSettings.methods.updateField.call(
+        { ...roleVm, $emit: (...args) => titleEvents.push(args) },
+        "title",
+        "新方案"
+    );
+    assert.deepStrictEqual(titleEvents, [["update:modelValue", { title: "新方案", roleId: "role-std" }]]);
+    assert.match(baseSettingsSource, /:model-value="modelValue\.roleId"/);
+}
+
+function runDetailHeaderStateTests() {
+    const emitted = [];
+    const plan = { id: "plan-origin" };
+    detailHeader.methods.emitPlanAction.call(
+        { actionsDisabled: true, plan, $emit: (...args) => emitted.push(args) },
+        "edit"
+    );
+    assert.deepStrictEqual(emitted, []);
+    detailHeader.methods.emitPlanAction.call(
+        { actionsDisabled: false, plan, $emit: (...args) => emitted.push(args) },
+        "copy"
+    );
+    assert.deepStrictEqual(emitted, [["copy", plan]]);
+}
+
+async function runLeapStateConsistencyTests() {
+    const originalDocument = global.document;
+    const originalLocalStorage = global.localStorage;
+    const originalConsoleError = console.error;
+    global.document = { querySelector: () => null };
+    global.localStorage = { setItem: () => {} };
+    console.error = () => {};
+
+    try {
+        const hydrationCalls = [];
+        pageRecordsLoader = async (options) => {
+            hydrationCalls.push(options);
+            const visible = { id: "visible", name: "可见成就" };
+            const hidden = { id: "hidden", name: "隐藏成就" };
+            return options.includeHidden ? [visible, hidden] : [visible];
+        };
+        pageDifficultyLoader = async () => ({});
+        const hydrationVm = createGuidanceTestVm([]);
+        hydrationVm.metadata = {
+            hidden: { general: 1, visible: false, point: 10 },
+            visible: { general: 1, visible: true, point: 20 },
+        };
+        hydrationVm.roleState = { completedIds: [] };
+        hydrationVm.enrichAchievementItems = async (items) => items;
+        const hydrated = await hydrationVm.hydratePlanItems(["hidden", "visible"], "std");
+        assert.strictEqual(hydrationCalls[0].includeHidden, true);
+        assert.deepStrictEqual(hydrated.items.map((item) => item.id), ["hidden", "visible"]);
+
+        let generatedHydrationOptions = null;
+        pageRecordsLoader = async (options) => {
+            generatedHydrationOptions = options;
+            return options.ids.map((id) => ({ id }));
+        };
+        const generationVm = createGuidanceTestVm([]);
+        generationVm.metadata = {
+            hidden: { general: 1, visible: false, point: 10 },
+            visible: { general: 1, visible: true, point: 20 },
+        };
+        generationVm.roleState = { completedIds: [] };
+        generationVm.currentPoints = 0;
+        generationVm.schoolEligibility = { version: "school-v1", school: null };
+        generationVm.plannerForm = {
+            ...generationVm.plannerForm,
+            title: "方案",
+            targetPoints: 20,
+            maxDifficulty: null,
+        };
+        generationVm.enrichAchievementItems = async (items) => items;
+        await generationVm.generateRoute();
+        assert.strictEqual(generatedHydrationOptions.includeHidden, true);
+
+        let rejectRoleState;
+        pageRoleStateLoader = () =>
+            new Promise((resolve, reject) => {
+                rejectRoleState = reject;
+            });
+        const rejectedRoleVm = createGuidanceTestVm([]);
+        const preservedRoute = { items: [{ id: "visible" }] };
+        const preservedEditingPlan = { id: "plan-editing" };
+        const preservedSearchResults = [{ id: "search-result" }];
+        rejectedRoleVm.generatedRoute = preservedRoute;
+        rejectedRoleVm.editingPlan = preservedEditingPlan;
+        rejectedRoleVm.addSearchResults = preservedSearchResults;
+        rejectedRoleVm.saveDialogVisible = true;
+        rejectedRoleVm.addDialogVisible = true;
+        rejectedRoleVm.plannerForm = { ...rejectedRoleVm.plannerForm, roleId: "role-origin" };
+        const rejectedRoleChange = rejectedRoleVm.handleRoleChange("role-origin");
+        await Promise.resolve();
+        const stateWhileRoleLoading = {
+            generatedRoute: rejectedRoleVm.generatedRoute,
+            editingPlan: rejectedRoleVm.editingPlan,
+            addSearchResults: rejectedRoleVm.addSearchResults,
+            saveDialogVisible: rejectedRoleVm.saveDialogVisible,
+            addDialogVisible: rejectedRoleVm.addDialogVisible,
+        };
+        rejectRoleState(new Error("role rejected"));
+        await rejectedRoleChange;
+        assert.deepStrictEqual(stateWhileRoleLoading, {
+            generatedRoute: preservedRoute,
+            editingPlan: preservedEditingPlan,
+            addSearchResults: preservedSearchResults,
+            saveDialogVisible: true,
+            addDialogVisible: true,
+        });
+        assert.strictEqual(rejectedRoleVm.currentRoleId, "role-std");
+        assert.strictEqual(rejectedRoleVm.plannerForm.roleId, "role-std");
+        assert.strictEqual(rejectedRoleVm.generatedRoute, preservedRoute);
+        assert.strictEqual(rejectedRoleVm.editingPlan, preservedEditingPlan);
+        assert.strictEqual(rejectedRoleVm.addSearchResults, preservedSearchResults);
+        assert.strictEqual(rejectedRoleVm.saveDialogVisible, true);
+        assert.strictEqual(rejectedRoleVm.addDialogVisible, true);
+
+        pageRoleStateLoader = async (roleId) => ({ jx3id: roleId, completedIds: [], synced: true });
+        let replacedRoleId = null;
+        const successfulRoleVm = createGuidanceTestVm([]);
+        successfulRoleVm.generatedRoute = preservedRoute;
+        successfulRoleVm.editingPlan = preservedEditingPlan;
+        successfulRoleVm.addSearchResults = preservedSearchResults;
+        successfulRoleVm.saveDialogVisible = true;
+        successfulRoleVm.addDialogVisible = true;
+        successfulRoleVm.$router.replace = ({ query }) => {
+            replacedRoleId = query.jx3id;
+            return Promise.resolve();
+        };
+        await successfulRoleVm.handleRoleChange("role-origin");
+        assert.strictEqual(successfulRoleVm.currentRoleId, "role-origin");
+        assert.strictEqual(successfulRoleVm.plannerForm.roleId, "role-origin");
+        assert.strictEqual(replacedRoleId, "role-origin");
+        assert.strictEqual(successfulRoleVm.generatedRoute, null);
+        assert.strictEqual(successfulRoleVm.editingPlan, null);
+        assert.deepStrictEqual(successfulRoleVm.addSearchResults, []);
+        assert.strictEqual(successfulRoleVm.saveDialogVisible, false);
+        assert.strictEqual(successfulRoleVm.addDialogVisible, false);
+
+        let resolveSlowRoleState;
+        let resolveLatestRoleState;
+        pageRoleStateLoader = (roleId) =>
+            new Promise((resolve) => {
+                if (roleId === "role-slow") resolveSlowRoleState = resolve;
+                else resolveLatestRoleState = resolve;
+            });
+        const concurrentRoleVm = createGuidanceTestVm([]);
+        concurrentRoleVm.generatedRoute = preservedRoute;
+        const slowRoleChange = concurrentRoleVm.loadRoleState("role-slow", { resetForm: true });
+        const latestRoleChange = concurrentRoleVm.loadRoleState("role-latest", { resetForm: true });
+        resolveLatestRoleState({ jx3id: "role-latest", completedIds: [], synced: true });
+        await latestRoleChange;
+        const latestRoute = { items: [{ id: "latest" }] };
+        concurrentRoleVm.generatedRoute = latestRoute;
+        resolveSlowRoleState({ jx3id: "role-slow", completedIds: [], synced: true });
+        await slowRoleChange;
+        assert.strictEqual(concurrentRoleVm.currentRoleId, "role-latest");
+        assert.strictEqual(concurrentRoleVm.generatedRoute, latestRoute);
+
+        const originPlan = { id: "plan-origin", title: "缘起方案", client: "origin", schema: ["visible"] };
+        pagePlanLoader = async () => originPlan;
+        const detailVm = createGuidanceTestVm([]);
+        detailVm.metadata = { visible: { general: 1, visible: true, point: 20 } };
+        let detailHydrationCount = 0;
+        detailVm.hydratePlanItems = async () => {
+            detailHydrationCount += 1;
+            return { items: [{ id: "visible" }], difficultyById: {} };
+        };
+        detailVm.buildDetailRoute = () => ({ items: [{ id: "visible" }] });
+        await detailVm.loadPlanDetail(originPlan.id);
+        assert.strictEqual(detailHydrationCount, 0);
+        assert.strictEqual(detailVm.detailPlan, originPlan);
+        assert.deepStrictEqual(detailVm.detailClientMismatch, {
+            planClient: "origin",
+            currentClient: "std",
+        });
+        assert.strictEqual(detailVm.detailRoute, null);
+
+        detailVm.$store.state.client = "origin";
+        await detailVm.loadPlanDetail(originPlan.id);
+        assert.strictEqual(detailHydrationCount, 1);
+        assert.strictEqual(detailVm.detailClientMismatch, null);
+        assert.deepStrictEqual(detailVm.detailRoute.items.map((item) => item.id), ["visible"]);
+
+        const warningMessages = [];
+        let closeCount = 0;
+        let editorHydrationCount = 0;
+        const editorVm = createGuidanceTestVm([]);
+        editorVm.$t = (key, params) => ({ key, params });
+        editorVm.$message.warning = (message) => warningMessages.push(message);
+        editorVm.closePlanDetail = () => {
+            closeCount += 1;
+        };
+        editorVm.hydratePlanItems = async () => {
+            editorHydrationCount += 1;
+            return { items: [] };
+        };
+        await editorVm.preparePlanForEditor(originPlan, { copy: true });
+        assert.strictEqual(closeCount, 0);
+        assert.strictEqual(editorHydrationCount, 0);
+        assert.deepStrictEqual(warningMessages, [
+            {
+                key: "pages.wiki.leap.ui.workbench.planClientMismatchWarning",
+                params: {
+                    client: {
+                        key: "pages.wiki.leap.ui.workbench.clients.origin",
+                        params: undefined,
+                    },
+                },
+            },
+        ]);
+
+        let resolveDetailPlan;
+        pagePlanLoader = () =>
+            new Promise((resolve) => {
+                resolveDetailPlan = resolve;
+            });
+        const staleDetailVm = createGuidanceTestVm([]);
+        staleDetailVm.metadata = { visible: { general: 1, visible: true, point: 20 } };
+        staleDetailVm.hydratePlanItems = async () => ({ items: [{ id: "visible" }], difficultyById: {} });
+        staleDetailVm.buildDetailRoute = () => ({ items: [{ id: "visible" }] });
+        const staleDetailRequest = staleDetailVm.loadPlanDetail("plan-a");
+        const detailRequestIdBeforeClear = staleDetailVm.detailRequestId;
+        leapPage.watch.detailId.handler.call(staleDetailVm, "");
+        const loadingAfterDetailClear = staleDetailVm.detailLoading;
+        resolveDetailPlan({ id: "plan-a", title: "方案 A", client: "std", schema: ["visible"] });
+        await staleDetailRequest;
+        assert.ok(staleDetailVm.detailRequestId > detailRequestIdBeforeClear);
+        assert.strictEqual(loadingAfterDetailClear, false);
+        assert.strictEqual(staleDetailVm.detailPlan, null);
+        assert.strictEqual(staleDetailVm.detailRoute, null);
+
+        let resolveEditorHydration;
+        const staleEditorVm = createGuidanceTestVm([]);
+        staleEditorVm.metadata = { visible: { general: 1, visible: true, point: 20 } };
+        staleEditorVm.hydratePlanItems = () =>
+            new Promise((resolve) => {
+                resolveEditorHydration = resolve;
+            });
+        staleEditorVm.buildDetailRoute = (plan, items) => ({ planId: plan.id, items });
+        let editorCloseCount = 0;
+        staleEditorVm.closePlanDetail = () => {
+            editorCloseCount += 1;
+            return Promise.resolve();
+        };
+        const detailLoads = [];
+        staleEditorVm.loadPlanDetail = (id) => {
+            detailLoads.push(id);
+        };
+        const staleEditorRequest = staleEditorVm.preparePlanForEditor({
+            id: "plan-a",
+            title: "方案 A",
+            client: "std",
+            schema: ["visible"],
+            meta: { targetPoints: 100 },
+        });
+        await Promise.resolve();
+        const editorRequestIdBeforeNavigation = staleEditorVm.editorRequestId;
+        leapPage.watch.detailId.handler.call(staleEditorVm, "plan-b");
+        const routeAfterNavigation = { planId: "plan-b", items: [{ id: "plan-b" }] };
+        staleEditorVm.generatedRoute = routeAfterNavigation;
+        resolveEditorHydration({ items: [{ id: "visible" }] });
+        await staleEditorRequest;
+        assert.ok(staleEditorVm.editorRequestId > editorRequestIdBeforeNavigation);
+        assert.deepStrictEqual(detailLoads, ["plan-b"]);
+        assert.strictEqual(staleEditorVm.generatedRoute, routeAfterNavigation);
+        assert.strictEqual(staleEditorVm.editingPlan, null);
+        assert.strictEqual(editorCloseCount, 0);
+    } finally {
+        pageRoleStateLoader = async (roleId) => ({
+            jx3id: roleId,
+            completedIds: [],
+            synced: true,
+            updatedAt: null,
+        });
+        pagePlanLoader = async (id) => ({ id, client: "std", schema: [] });
+        pageRecordsLoader = async () => [];
+        pageDifficultyLoader = async () => ({});
+        console.error = originalConsoleError;
+        if (originalDocument === undefined) delete global.document;
+        else global.document = originalDocument;
+        if (originalLocalStorage === undefined) delete global.localStorage;
+        else global.localStorage = originalLocalStorage;
+    }
+}
+
+async function startGuidanceRequest(vm, plan) {
+    let finishDelay = null;
+    global.window.setTimeout = (resolve) => {
+        finishDelay = resolve;
+    };
+    const pending = vm.requestPlanGuidance(plan);
+    await Promise.resolve();
+    assert.strictEqual(typeof finishDelay, "function");
+    return { finishDelay, pending };
+}
+
+async function runGuidanceInvalidationTests() {
+    const originalWindow = global.window;
+    const originalLocalStorage = global.localStorage;
+    global.window = {};
+    global.localStorage = { setItem: () => {} };
+
+    try {
+        // Regression: an old std request must not publish after client reset + origin role load.
+        const clientSwitchMessages = [];
+        const clientSwitchVm = createGuidanceTestVm(clientSwitchMessages);
+        const clientSwitchRequest = await startGuidanceRequest(clientSwitchVm, {
+            id: "plan-std",
+            title: "旧方案",
+        });
+        clientSwitchVm.$store.state.client = "origin";
+        clientSwitchVm.resetClientState();
+        await clientSwitchVm.loadRoleState("role-origin", { resetForm: true });
+        clientSwitchRequest.finishDelay();
+        await clientSwitchRequest.pending;
+        assert.strictEqual(clientSwitchVm.guidanceRequest, null);
+        assert.strictEqual(clientSwitchVm.guidanceSubmitting, false);
+        assert.deepStrictEqual(clientSwitchMessages, []);
+
+        // Navigation and unmount are also invalidation boundaries for the same pending side effect.
+        const navigationMessages = [];
+        const navigationVm = createGuidanceTestVm(navigationMessages);
+        const navigationRequest = await startGuidanceRequest(navigationVm, { id: "plan-a", title: "方案 A" });
+        leapPage.watch.detailId.handler.call(navigationVm, "plan-b");
+        navigationRequest.finishDelay();
+        await navigationRequest.pending;
+        assert.strictEqual(navigationVm.guidanceRequest, null);
+        assert.strictEqual(navigationVm.guidanceSubmitting, false);
+        assert.deepStrictEqual(navigationMessages, []);
+
+        const unmountMessages = [];
+        const unmountVm = createGuidanceTestVm(unmountMessages);
+        const unmountRequest = await startGuidanceRequest(unmountVm, { id: "plan-a", title: "方案 A" });
+        leapPage.beforeUnmount.call(unmountVm);
+        unmountRequest.finishDelay();
+        await unmountRequest.pending;
+        assert.strictEqual(unmountVm.guidanceRequest, null);
+        assert.deepStrictEqual(unmountMessages, []);
+
+        // A request whose captured context stays current still publishes exactly that context.
+        const successMessages = [];
+        const successVm = createGuidanceTestVm(successMessages);
+        const successfulRequest = await startGuidanceRequest(successVm, { id: "plan-std", title: "方案" });
+        successfulRequest.finishDelay();
+        await successfulRequest.pending;
+        assert.strictEqual(successVm.guidanceRequest.planId, "plan-std");
+        assert.strictEqual(successVm.guidanceRequest.roleId, "role-std");
+        assert.strictEqual(successVm.guidanceRequest.client, "std");
+        assert.strictEqual(successMessages.length, 1);
+    } finally {
+        if (originalWindow === undefined) delete global.window;
+        else global.window = originalWindow;
+        if (originalLocalStorage === undefined) delete global.localStorage;
+        else global.localStorage = originalLocalStorage;
+    }
+}
+
+Promise.resolve()
+    .then(runBaseSettingsStateTests)
+    .then(runDetailHeaderStateTests)
+    .then(runLeapStateConsistencyTests)
+    .then(runGuidanceInvalidationTests)
+    .then(() => console.log("Achievement leap tests passed."))
+    .catch((error) => {
+        console.error(error);
+        process.exitCode = 1;
+    });

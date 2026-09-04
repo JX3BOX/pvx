@@ -14,12 +14,21 @@ import {
     deleteWikiAchievementLeapSchema,
     getMyKith,
     getMyKithRoles,
+    getWikiAchievementDifficultyDimensions,
+    getWikiAchievementDifficultyList,
     getWikiAchievementLeapSchema,
     getWikiAchievementLeapSchemaList,
     getWikiAchievementLeapSchemaProgress,
+    getWikiAchievementTagsByAchievements,
     updateWikiAchievementLeapSchema,
 } from "@/service/wiki";
-import { normalizeAchievementWorkbenchRecords, normalizeAchievementWorkbenchRole } from "@/utils/achievementWorkbench";
+import {
+    normalizeAchievementWorkbenchDifficulty,
+    normalizeAchievementWorkbenchDifficultyDimensions,
+    normalizeAchievementWorkbenchRecords,
+    normalizeAchievementWorkbenchRole,
+    normalizeAchievementWorkbenchTags,
+} from "@/utils/achievementWorkbench";
 import { normalizeAchievementLeapPlan } from "@/utils/achievementLeap";
 import { normalizeAchievementMetadata } from "@/utils/achievementStatistics";
 
@@ -36,9 +45,57 @@ const CURRENT_DETAIL_ATTRIBUTES = [
     "ItemID",
 ].join(",");
 
+const ACHIEVEMENT_WORKBENCH_DIMENSION_CACHE_TTL = 60_000;
+const ACHIEVEMENT_WORKBENCH_PUBLIC_BATCH_SIZE = 5000;
+const ACHIEVEMENT_WORKBENCH_PUBLIC_MAX_BATCH_SIZE = 20000;
+
+let difficultyDimensionsCache = null;
+let difficultyDimensionsCachedAt = 0;
+let difficultyDimensionsPromise = null;
+
 function normalizeCompletedAchievementIds(value) {
     const source = Array.isArray(value) ? value : String(value || "").split(",");
     return [...new Set(source.map((id) => String(id).trim()).filter(Boolean))];
+}
+
+function normalizeAchievementApiIds(value) {
+    return [
+        ...new Set(
+            normalizeCompletedAchievementIds(value)
+                .map(Number)
+                .filter((id) => Number.isSafeInteger(id) && id > 0)
+        ),
+    ];
+}
+
+function normalizeAchievementClient(value) {
+    return value === "origin" ? "origin" : "std";
+}
+
+function normalizeBatchSize(value, fallback = 500) {
+    const size = Math.floor(Number(value));
+    return Number.isFinite(size) && size > 0 ? size : fallback;
+}
+
+function getSuccessfulCmsData(response, resourceName) {
+    const payload = response?.data;
+    if (
+        !payload ||
+        typeof payload !== "object" ||
+        Array.isArray(payload) ||
+        !Object.prototype.hasOwnProperty.call(payload, "code")
+    ) {
+        throw new Error(`${resourceName}响应格式异常`);
+    }
+    if (payload.code !== 0 && payload.code !== "0") {
+        const error = new Error(payload.msg || `${resourceName}加载失败`);
+        error.code = payload.code;
+        throw error;
+    }
+    if (!Array.isArray(payload.data)) {
+        throw new Error(`${resourceName}响应格式异常`);
+    }
+    return payload.data;
 }
 
 function flattenAchievementRecords(records) {
@@ -155,6 +212,7 @@ export async function fetchAchievementWorkbenchRecords({
     const response = await getAchievementsPost({
         ids: normalizedIds.join(","),
         attributes,
+        client,
     });
 
     const batchRecords = response.data?.data || [];
@@ -230,17 +288,101 @@ export async function fetchAchievementWorkbenchRewardItems(keys = [], client = "
     return response?.data?.list || [];
 }
 
-export async function fetchAchievementWorkbenchDifficulty(ids = [], batchSize = 500) {
+export async function fetchAchievementWorkbenchDifficultyDimensions(options = {}) {
+    const force = options.force === true;
+    const cacheFresh =
+        difficultyDimensionsCache !== null &&
+        Date.now() - difficultyDimensionsCachedAt < ACHIEVEMENT_WORKBENCH_DIMENSION_CACHE_TTL;
+
+    if (difficultyDimensionsPromise) return difficultyDimensionsPromise;
+    if (!force && cacheFresh) return difficultyDimensionsCache;
+
+    const request = getWikiAchievementDifficultyDimensions().then((response) =>
+        normalizeAchievementWorkbenchDifficultyDimensions(
+            getSuccessfulCmsData(response, "成就难度维度") || []
+        )
+    );
+    difficultyDimensionsPromise = request;
+
+    try {
+        const dimensions = await request;
+        difficultyDimensionsCache = dimensions;
+        difficultyDimensionsCachedAt = Date.now();
+        return dimensions;
+    } finally {
+        if (difficultyDimensionsPromise === request) difficultyDimensionsPromise = null;
+    }
+}
+
+export async function fetchAchievementWorkbenchDifficultyMetrics(ids = [], options = {}) {
+    const normalizedIds = normalizeAchievementApiIds(ids);
+    if (!normalizedIds.length) return {};
+    const client = normalizeAchievementClient(options.client);
+    const batchSize = Math.min(
+        normalizeBatchSize(options.batchSize, ACHIEVEMENT_WORKBENCH_PUBLIC_BATCH_SIZE),
+        ACHIEVEMENT_WORKBENCH_PUBLIC_MAX_BATCH_SIZE
+    );
+    const requestedIds = new Set(normalizedIds.map(String));
+    const result = Object.fromEntries(normalizedIds.map((id) => [String(id), null]));
+
+    for (let index = 0; index < normalizedIds.length; index += batchSize) {
+        const chunk = normalizedIds.slice(index, index + batchSize);
+        const response = await getWikiAchievementDifficultyList(chunk, { client });
+        const records = getSuccessfulCmsData(response, "成就难度");
+        (Array.isArray(records) ? records : []).forEach((record) => {
+            const normalized = normalizeAchievementWorkbenchDifficulty(record);
+            if (normalized.achievementId && requestedIds.has(normalized.achievementId)) {
+                result[normalized.achievementId] = normalized;
+            }
+        });
+    }
+
+    return result;
+}
+
+export async function fetchAchievementWorkbenchTags(ids = [], options = {}) {
+    const normalizedIds = normalizeAchievementApiIds(ids);
+    if (!normalizedIds.length) return {};
+    const client = normalizeAchievementClient(options.client);
+    const batchSize = Math.min(
+        normalizeBatchSize(options.batchSize, ACHIEVEMENT_WORKBENCH_PUBLIC_BATCH_SIZE),
+        ACHIEVEMENT_WORKBENCH_PUBLIC_MAX_BATCH_SIZE
+    );
+    const requestedIds = new Set(normalizedIds.map(String));
+    const result = Object.fromEntries(
+        normalizedIds.map((id) => [String(id), normalizeAchievementWorkbenchTags([])])
+    );
+
+    for (let index = 0; index < normalizedIds.length; index += batchSize) {
+        const chunk = normalizedIds.slice(index, index + batchSize);
+        const response = await getWikiAchievementTagsByAchievements(chunk, { client });
+        const records = getSuccessfulCmsData(response, "成就标签");
+        (Array.isArray(records) ? records : []).forEach((record) => {
+            const achievementId = String(record?.achievement_id ?? record?.achievementId ?? "");
+            if (achievementId && requestedIds.has(achievementId)) {
+                result[achievementId] = normalizeAchievementWorkbenchTags(record?.tags);
+            }
+        });
+    }
+
+    return result;
+}
+
+// stage-v1 推荐仍依赖这个旧标量入口。页面接入新维度期间不要改为调用
+// fetchAchievementWorkbenchDifficultyMetrics，避免接口替换静默改变推荐结果。
+export async function fetchAchievementWorkbenchDifficulty(ids = [], batchSize = 500, options = {}) {
     const normalizedIds = normalizeCompletedAchievementIds(ids);
     if (!normalizedIds.length) return {};
+    const normalizedBatchSize = normalizeBatchSize(batchSize);
+    const client = normalizeAchievementClient(options.client);
     const chunks = [];
-    for (let index = 0; index < normalizedIds.length; index += batchSize) {
-        chunks.push(normalizedIds.slice(index, index + batchSize));
+    for (let index = 0; index < normalizedIds.length; index += normalizedBatchSize) {
+        chunks.push(normalizedIds.slice(index, index + normalizedBatchSize));
     }
 
     const result = {};
     for (const chunk of chunks) {
-        const response = await getWikiAchievementLeapSchemaProgress(chunk);
+        const response = await getWikiAchievementLeapSchemaProgress(chunk, { client });
         (response.data?.data || []).forEach((item) => {
             const id = String(item?.achievement_id ?? item?.id ?? "");
             if (!id) return;

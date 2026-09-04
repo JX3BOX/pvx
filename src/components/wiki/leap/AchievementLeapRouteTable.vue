@@ -4,17 +4,27 @@ import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { markRaw } from "vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { formatAchievementWorkbenchValue } from "@/utils/achievementWorkbench";
+import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import {
+    formatAchievementWorkbenchValue,
+    getAchievementWorkbenchDimensionSort,
+    getAchievementWorkbenchDimensionValue,
+} from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementLeapRouteTable",
     components: {
+        AchievementDifficultyStars,
         Delete,
         PvxEmptyState,
         PvxSurface,
     },
     props: {
         items: {
+            type: Array,
+            default: () => [],
+        },
+        dimensions: {
             type: Array,
             default: () => [],
         },
@@ -33,7 +43,6 @@ export default {
             searchIcon: markRaw(Search),
             keyword: "",
             categoryId: "all",
-            costTier: "all",
             completion: "all",
             sort: "route",
             page: 1,
@@ -49,29 +58,40 @@ export default {
             });
             return [...categoryMap].map(([id, name]) => ({ id, name }));
         },
-        hasDifficulty() {
-            return this.items.some((item) => item.difficulty !== null && item.difficulty !== undefined);
+        showCompletionRateColumn() {
+            return this.items.some((item) => this.hasDisplayValue(item.completionStatistics?.rate));
         },
-        hasEstimatedMinutes() {
-            return this.items.some((item) => item.estimatedMinutes !== null && item.estimatedMinutes !== undefined);
+        showTagsColumn() {
+            return this.items.some((item) =>
+                this.getDisplayTags(item).some((tag) => this.hasDisplayValue(tag?.label))
+            );
         },
-        hasCostScore() {
-            return this.items.some((item) => item.costScore !== null && item.costScore !== undefined);
+        showSchoolRestrictionColumn() {
+            return this.items.some((item) => this.hasDisplayValue(item.restriction?.school));
+        },
+        showGuideNoteColumn() {
+            return this.items.some((item) => this.hasDisplayValue(item.guideNote));
         },
         filteredItems() {
             const keyword = this.keyword.trim().toLowerCase();
+            const dimensionSort = getAchievementWorkbenchDimensionSort(this.sort);
             const source = this.items
                 .map((item, routeIndex) => ({ ...item, routeIndex }))
                 .filter((item) => {
                     if (keyword) {
-                        const haystack = [item.name, item.shortDescription, item.guideNote, item.map?.name]
+                        const haystack = [
+                            item.name,
+                            item.shortDescription,
+                            item.guideNote,
+                            item.map?.name,
+                            ...(item.tags || []).map((tag) => tag.label),
+                        ]
                             .filter(Boolean)
                             .join(" ")
                             .toLowerCase();
                         if (!haystack.includes(keyword)) return false;
                     }
                     if (this.categoryId !== "all" && String(item.category?.id) !== this.categoryId) return false;
-                    if (this.costTier !== "all" && item.costTier !== this.costTier) return false;
                     if (
                         this.completion !== "all" &&
                         (this.completion === "completed") !== Boolean(item.completed)
@@ -83,14 +103,13 @@ export default {
 
             source.sort((left, right) => {
                 if (this.sort === "points-desc") return right.points - left.points;
-                if (this.sort === "difficulty-asc") {
-                    return this.compareNullable(left.difficulty, right.difficulty) || right.points - left.points;
-                }
-                if (this.sort === "time-asc") {
-                    return this.compareNullable(left.estimatedMinutes, right.estimatedMinutes) || right.points - left.points;
-                }
-                if (this.sort === "cost-asc") {
-                    return this.compareNullable(left.costScore, right.costScore) || right.points - left.points;
+                if (dimensionSort) {
+                    return (
+                        this.compareNullable(
+                            this.getDimensionValue(left, dimensionSort.key),
+                            this.getDimensionValue(right, dimensionSort.key)
+                        ) || left.routeIndex - right.routeIndex
+                    );
                 }
                 return left.routeIndex - right.routeIndex;
             });
@@ -106,9 +125,6 @@ export default {
             this.page = 1;
         },
         categoryId() {
-            this.page = 1;
-        },
-        costTier() {
             this.page = 1;
         },
         completion() {
@@ -135,17 +151,33 @@ export default {
         formatValue(value) {
             return formatAchievementWorkbenchValue(value);
         },
-        formatDifficulty(value) {
-            if (value === null || value === undefined) return "—";
-            const stars = Math.max(0, Math.min(5, Math.round(Number(value))));
-            return `${"★".repeat(stars)}${"☆".repeat(5 - stars)}`;
+        getDimensionValue(item, key) {
+            return getAchievementWorkbenchDimensionValue(item, key);
         },
-        formatCost(dimension, value) {
-            if (value === null || value === undefined) return "—";
-            return this.$t(`pages.wiki.leap.ui.workbench.costLevels.${dimension}.${value}`);
+        dimensionLabel(dimension) {
+            if (dimension?.i18nKey) return this.$t(dimension.i18nKey);
+            return dimension?.label || dimension?.key || "—";
         },
-        costTierLabel(value) {
-            return value ? this.$t(`pages.wiki.leap.ui.workbench.costTiers.${value}`) : "—";
+        hasDimensionValue(key) {
+            return this.items.some((item) => this.getDimensionValue(item, key) !== null);
+        },
+        hasDisplayValue(value) {
+            return value !== null && value !== undefined && String(value).trim() !== "";
+        },
+        formatCompletionRate(value) {
+            if (value === null || value === undefined) return "—";
+            const normalized = Number(value);
+            if (!Number.isFinite(normalized)) return "—";
+            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
+            return new Intl.NumberFormat(locale, {
+                style: "percent",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(normalized);
+        },
+        getDisplayTags(item) {
+            const tags = Array.isArray(item?.tags) ? item.tags : [];
+            return [...tags].sort((left, right) => Number(right?.type === "school") - Number(left?.type === "school"));
         },
         categoryLabel(item) {
             return item.category?.subName || item.category?.name || "—";
@@ -179,13 +211,6 @@ export default {
                 <el-option :label="$t('pages.wiki.leap.ui.workbench.allCategories')" value="all" />
                 <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id" />
             </el-select>
-            <el-select v-model="costTier">
-                <el-option :label="$t('pages.wiki.leap.ui.workbench.allCostTiers')" value="all" />
-                <el-option :label="$t('pages.wiki.leap.ui.workbench.costTiers.free')" value="free" />
-                <el-option :label="$t('pages.wiki.leap.ui.workbench.costTiers.good')" value="good" />
-                <el-option :label="$t('pages.wiki.leap.ui.workbench.costTiers.grind')" value="grind" />
-                <el-option :label="$t('pages.wiki.leap.ui.workbench.costTiers.trap')" value="trap" />
-            </el-select>
             <el-select v-model="completion">
                 <el-option :label="$t('pages.wiki.leap.ui.all')" value="all" />
                 <el-option :label="$t('pages.wiki.leap.ui.incomplete')" value="incomplete" />
@@ -195,19 +220,11 @@ export default {
                 <el-option :label="$t('pages.wiki.leap.ui.workbench.routeOrder')" value="route" />
                 <el-option :label="$t('pages.wiki.leap.ui.workbench.pointsDescending')" value="points-desc" />
                 <el-option
-                    :label="$t('pages.wiki.leap.ui.workbench.difficultyAscending')"
-                    value="difficulty-asc"
-                    :disabled="!hasDifficulty"
-                />
-                <el-option
-                    :label="$t('pages.wiki.leap.ui.workbench.timeAscendingPending')"
-                    value="time-asc"
-                    :disabled="!hasEstimatedMinutes"
-                />
-                <el-option
-                    :label="$t('pages.wiki.leap.ui.workbench.costAscendingPending')"
-                    value="cost-asc"
-                    :disabled="!hasCostScore"
+                    v-for="dimension in dimensions"
+                    :key="dimension.key"
+                    :label="$t('pages.wiki.difficultyDimensions.sortAscending', { label: dimensionLabel(dimension) })"
+                    :value="`dimension:${dimension.key}:asc`"
+                    :disabled="!hasDimensionValue(dimension.key)"
                 />
             </el-select>
         </div>
@@ -220,13 +237,17 @@ export default {
                         <th>{{ $t("pages.wiki.leap.ui.achievementName") }}</th>
                         <th>{{ $t("pages.wiki.leap.ui.workbench.category") }}</th>
                         <th>{{ $t("pages.wiki.leap.ui.points") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.money") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.timeCost") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.luck") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.difficulty") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.costPerformance") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.schoolRestriction") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.routeNote") }}</th>
+                        <th v-for="dimension in dimensions" :key="dimension.key">
+                            {{ dimensionLabel(dimension) }}
+                        </th>
+                        <th v-if="showCompletionRateColumn">
+                            {{ $t("pages.wiki.leap.ui.workbench.globalCompletionRate") }}
+                        </th>
+                        <th v-if="showTagsColumn">{{ $t("pages.wiki.leap.ui.workbench.tags") }}</th>
+                        <th v-if="showSchoolRestrictionColumn">
+                            {{ $t("pages.wiki.leap.ui.workbench.schoolRestriction") }}
+                        </th>
+                        <th v-if="showGuideNoteColumn">{{ $t("pages.wiki.leap.ui.workbench.routeNote") }}</th>
                         <th v-if="removable" class="u-leap-route-action">
                             {{ $t("pages.wiki.leap.ui.workbench.action") }}
                         </th>
@@ -254,18 +275,25 @@ export default {
                         </td>
                         <td>{{ categoryLabel(item) }}</td>
                         <td class="u-leap-number">{{ formatValue(item.points) }}</td>
-                        <td>{{ formatCost("money", item.cost?.money) }}</td>
-                        <td>{{ formatCost("time", item.cost?.time) }}</td>
-                        <td>{{ formatCost("luck", item.cost?.luck) }}</td>
-                        <td class="u-leap-difficulty">{{ formatDifficulty(item.difficulty) }}</td>
-                        <td>
-                            <span v-if="item.costTier" class="u-leap-cost-tier" :class="`is-${item.costTier}`">
-                                {{ costTierLabel(item.costTier) }}
-                            </span>
-                            <span v-else>—</span>
+                        <td v-for="dimension in dimensions" :key="dimension.key" class="u-leap-rating">
+                            <AchievementDifficultyStars
+                                :value="getDimensionValue(item, dimension.key)"
+                                :label="dimensionLabel(dimension)"
+                            />
                         </td>
-                        <td>{{ formatValue(item.restriction?.school) }}</td>
-                        <td class="u-leap-note">{{ formatValue(item.guideNote) }}</td>
+                        <td v-if="showCompletionRateColumn">
+                            {{ formatCompletionRate(item.completionStatistics?.rate) }}
+                        </td>
+                        <td v-if="showTagsColumn" class="u-leap-tags">
+                            <div class="u-leap-tag-list">
+                                <span v-for="tag in getDisplayTags(item)" :key="tag.id || tag.label" class="u-leap-tag">
+                                    {{ tag.label }}
+                                </span>
+                                <span v-if="!item.tags?.length">—</span>
+                            </div>
+                        </td>
+                        <td v-if="showSchoolRestrictionColumn">{{ formatValue(item.restriction?.school) }}</td>
+                        <td v-if="showGuideNoteColumn" class="u-leap-note">{{ formatValue(item.guideNote) }}</td>
                         <td v-if="removable" class="u-leap-route-action">
                             <button
                                 type="button"
@@ -345,7 +373,7 @@ export default {
 
 .m-leap-route__filters {
     display: grid;
-    grid-template-columns: minmax(220px, 1.6fr) repeat(4, minmax(140px, 1fr));
+    grid-template-columns: minmax(220px, 1.6fr) repeat(3, minmax(140px, 1fr));
     gap: 10px;
     margin-bottom: 12px;
 }
@@ -360,7 +388,7 @@ export default {
 
 table {
     width: 100%;
-    min-width: 1360px;
+    min-width: 1580px;
     border-collapse: collapse;
     background: #fffdf8;
 }
@@ -392,8 +420,7 @@ tbody tr.is-completed {
     opacity: 0.62;
 }
 
-.u-leap-status,
-.u-leap-cost-tier {
+.u-leap-status {
     display: inline-flex;
     padding: 4px 8px;
     border-radius: 999px;
@@ -406,26 +433,6 @@ tbody tr.is-completed {
 .u-leap-status.is-completed {
     color: #356b5c;
     background: #e5f0ea;
-}
-
-.u-leap-cost-tier.is-free {
-    color: #356b5c;
-    background: #e5f0ea;
-}
-
-.u-leap-cost-tier.is-good {
-    color: #47777d;
-    background: #e4eff0;
-}
-
-.u-leap-cost-tier.is-grind {
-    color: #946c2f;
-    background: #f5ecd8;
-}
-
-.u-leap-cost-tier.is-trap {
-    color: #a3543f;
-    background: #f8e8e3;
 }
 
 .u-leap-achievement-cell a {
@@ -461,9 +468,31 @@ tbody tr.is-completed {
 }
 
 .u-leap-number,
-.u-leap-difficulty {
+.u-leap-rating {
     color: #8e6d32;
     font-variant-numeric: tabular-nums;
+}
+
+.u-leap-rating {
+    letter-spacing: 0.04em;
+}
+
+.u-leap-tags {
+    max-width: 280px;
+    white-space: normal;
+}
+
+.u-leap-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.u-leap-tag {
+    padding: 3px 6px;
+    border-radius: 999px;
+    color: #47777d;
+    background: #e7f0ef;
 }
 
 .u-leap-note {
