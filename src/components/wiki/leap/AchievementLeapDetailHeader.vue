@@ -18,11 +18,7 @@ export default {
             type: Object,
             default: null,
         },
-        guidanceSubmitting: {
-            type: Boolean,
-            default: false,
-        },
-        guidanceRequested: {
+        guidanceAllowed: {
             type: Boolean,
             default: false,
         },
@@ -32,13 +28,6 @@ export default {
         },
     },
     emits: ["back", "request-guidance", "edit", "copy", "delete"],
-    computed: {
-        guidanceLabel() {
-            if (this.guidanceSubmitting) return this.$t("pages.wiki.leap.ui.workbench.guidanceSubmitting");
-            if (this.guidanceRequested) return this.$t("pages.wiki.leap.ui.workbench.guidanceSubmitted");
-            return this.$t("pages.wiki.leap.ui.workbench.requestGuidance");
-        },
-    },
     methods: {
         emitPlanAction(action) {
             if (this.actionsDisabled || !this.plan) return;
@@ -62,13 +51,14 @@ export default {
 
         <div v-if="plan" class="m-leap-detail-header__actions">
             <button
+                v-if="guidanceAllowed"
                 type="button"
                 class="u-leap-detail-button is-primary"
-                :disabled="actionsDisabled || guidanceSubmitting || guidanceRequested"
+                :disabled="actionsDisabled"
                 @click="emitPlanAction('request-guidance')"
             >
                 <ChatDotRound />
-                {{ guidanceLabel }}
+                {{ $t('achievementConsultation.title') }}
             </button>
 
             <el-dropdown trigger="click" :disabled="actionsDisabled">

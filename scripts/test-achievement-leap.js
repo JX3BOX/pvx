@@ -404,6 +404,7 @@ const pageComponentImports = [
     "@/components/wiki/leap/AchievementLeapAddDialog.vue",
     "@/components/wiki/leap/AchievementLeapBaseSettings.vue",
     "@/components/wiki/leap/AchievementLeapDetailHeader.vue",
+    "@/components/wiki/consultation/PlanConsultations.vue",
     "@/components/wiki/leap/AchievementLeapPlanner.vue",
     "@/components/wiki/leap/AchievementLeapPlanList.vue",
     "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue",
@@ -463,7 +464,7 @@ const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/
     "@/utils/achievementRecommendation": loadModule(path.resolve(__dirname, "../src/utils/achievementRecommendation.js")),
     ...Object.fromEntries(pageComponentImports.map((request) => [request, {}])),
     "@element-plus/icons-vue": {},
-    "@jx3box/jx3box-common/js/user": { isLogin: () => true },
+    "@jx3box/jx3box-common/js/user": { isLogin: () => true, getInfo: () => ({ uid: 42 }) },
     "@/service/achievementWorkbench": {
         fetchAchievementWorkbenchDifficulty: (...args) => pageDifficultyLoader(...args),
         fetchAchievementWorkbenchLeapPlan: (...args) => pagePlanLoader(...args),
@@ -528,7 +529,7 @@ function createGuidanceTestVm(successMessages) {
     Object.entries(leapPage.methods).forEach(([name, method]) => {
         vm[name] = method.bind(vm);
     });
-    ["currentClient", "currentRole", "detailId"].forEach((name) => {
+    ["currentClient", "currentRole", "detailId", "canConsultPlan"].forEach((name) => {
         Object.defineProperty(vm, name, {
             configurable: true,
             get: () => leapPage.computed[name].call(vm),
@@ -839,83 +840,30 @@ async function runLeapStateConsistencyTests() {
     }
 }
 
-async function startGuidanceRequest(vm, plan) {
-    let finishDelay = null;
-    global.window.setTimeout = (resolve) => {
-        finishDelay = resolve;
-    };
-    const pending = vm.requestPlanGuidance(plan);
-    await Promise.resolve();
-    assert.strictEqual(typeof finishDelay, "function");
-    return { finishDelay, pending };
-}
-
-async function runGuidanceInvalidationTests() {
-    const originalWindow = global.window;
-    const originalLocalStorage = global.localStorage;
-    global.window = {};
-    global.localStorage = { setItem: () => {} };
-
-    try {
-        // Regression: an old std request must not publish after client reset + origin role load.
-        const clientSwitchMessages = [];
-        const clientSwitchVm = createGuidanceTestVm(clientSwitchMessages);
-        const clientSwitchRequest = await startGuidanceRequest(clientSwitchVm, {
-            id: "plan-std",
-            title: "旧方案",
-        });
-        clientSwitchVm.$store.state.client = "origin";
-        clientSwitchVm.resetClientState();
-        await clientSwitchVm.loadRoleState("role-origin", { resetForm: true });
-        clientSwitchRequest.finishDelay();
-        await clientSwitchRequest.pending;
-        assert.strictEqual(clientSwitchVm.guidanceRequest, null);
-        assert.strictEqual(clientSwitchVm.guidanceSubmitting, false);
-        assert.deepStrictEqual(clientSwitchMessages, []);
-
-        // Navigation and unmount are also invalidation boundaries for the same pending side effect.
-        const navigationMessages = [];
-        const navigationVm = createGuidanceTestVm(navigationMessages);
-        const navigationRequest = await startGuidanceRequest(navigationVm, { id: "plan-a", title: "方案 A" });
-        leapPage.watch.detailId.handler.call(navigationVm, "plan-b");
-        navigationRequest.finishDelay();
-        await navigationRequest.pending;
-        assert.strictEqual(navigationVm.guidanceRequest, null);
-        assert.strictEqual(navigationVm.guidanceSubmitting, false);
-        assert.deepStrictEqual(navigationMessages, []);
-
-        const unmountMessages = [];
-        const unmountVm = createGuidanceTestVm(unmountMessages);
-        const unmountRequest = await startGuidanceRequest(unmountVm, { id: "plan-a", title: "方案 A" });
-        leapPage.beforeUnmount.call(unmountVm);
-        unmountRequest.finishDelay();
-        await unmountRequest.pending;
-        assert.strictEqual(unmountVm.guidanceRequest, null);
-        assert.deepStrictEqual(unmountMessages, []);
-
-        // A request whose captured context stays current still publishes exactly that context.
-        const successMessages = [];
-        const successVm = createGuidanceTestVm(successMessages);
-        const successfulRequest = await startGuidanceRequest(successVm, { id: "plan-std", title: "方案" });
-        successfulRequest.finishDelay();
-        await successfulRequest.pending;
-        assert.strictEqual(successVm.guidanceRequest.planId, "plan-std");
-        assert.strictEqual(successVm.guidanceRequest.roleId, "role-std");
-        assert.strictEqual(successVm.guidanceRequest.client, "std");
-        assert.strictEqual(successMessages.length, 1);
-    } finally {
-        if (originalWindow === undefined) delete global.window;
-        else global.window = originalWindow;
-        if (originalLocalStorage === undefined) delete global.localStorage;
-        else global.localStorage = originalLocalStorage;
-    }
+function runConsultationEntryTests() {
+    const view = createGuidanceTestVm([]);
+    view.detailPlan = { id: "10", client: "std", raw: { user_id: 42 } };
+    assert.strictEqual(view.canConsultPlan, true);
+    let opened = 0;
+    view.$refs = { consultations: { openCreate: () => { opened++; } } };
+    view.requestPlanGuidance();
+    assert.strictEqual(opened, 1);
+    view.detailPlan.raw.user_id = 99;
+    assert.strictEqual(view.canConsultPlan, false);
+    view.requestPlanGuidance();
+    assert.strictEqual(opened, 1);
+    view.detailPlan.raw.user_id = 42;
+    view.$store.state.client = "origin";
+    assert.strictEqual(view.canConsultPlan, false);
+    assert(!leapPageSource.includes("guidanceSimulation"));
+    assert(leapPageSource.includes('<PlanConsultations v-if="canConsultPlan"'));
 }
 
 Promise.resolve()
     .then(runBaseSettingsStateTests)
     .then(runDetailHeaderStateTests)
     .then(runLeapStateConsistencyTests)
-    .then(runGuidanceInvalidationTests)
+    .then(runConsultationEntryTests)
     .then(() => console.log("Achievement leap tests passed."))
     .catch((error) => {
         console.error(error);

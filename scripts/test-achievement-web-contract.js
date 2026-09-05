@@ -94,6 +94,8 @@ const rootRouter = read("src/router/index.js");
     ["compare", "/compare", "@/views/wiki/compare.vue"],
     ["leap", "/leap", "@/views/wiki/leap.vue"],
     ["leap-detail", "/leap/:id", "@/views/wiki/leap.vue"],
+    ["consultation", "/consultation", "@/views/wiki/consultation.vue"],
+    ["consultation-detail", "/consultation/:id", "@/views/wiki/consultation.vue"],
 ].forEach(([name, routePath, component]) => {
     assert.match(router, new RegExp(`name: ["']${name}["'][\\s\\S]+?path: ["']${routePath}["']`));
     assert.ok(router.includes(`import("${component}")`), `${name} 路由未挂载 ${component}`);
@@ -103,13 +105,14 @@ assert.doesNotMatch(rootRouter, /name: ["']overview-(normal|hidden|wujia|retired
 assert.doesNotMatch(rootRouter, /name: ["']overview-retired["']/);
 assert.match(rootRouter, /name: ["']leap-detail["'][\s\S]+?path: ["']leap\/:id["']/);
 assert.ok(rootRouter.includes('import("@/views/wiki/overview.vue")'));
-assert.strictEqual((router.match(/workbenchPrimary: true/g) || []).length, 3);
-assert.strictEqual((rootRouter.match(/workbenchPrimary: true/g) || []).length, 3);
+assert.strictEqual((router.match(/workbenchPrimary: true/g) || []).length, 4);
+assert.strictEqual((rootRouter.match(/workbenchPrimary: true/g) || []).length, 4);
 
 const wrappers = {
     "src/views/wiki/overview.vue": "@/components/wiki/progress/AchievementProgressPage.vue",
     "src/views/wiki/compare.vue": "@/components/wiki/compare/AchievementComparePage.vue",
     "src/views/wiki/leap.vue": "@/components/wiki/leap/AchievementLeapPage.vue",
+    "src/views/wiki/consultation.vue": "@/components/wiki/consultation/ConsultationWorkspace.vue",
 };
 Object.entries(wrappers).forEach(([file, component]) => {
     const source = read(file);
@@ -132,7 +135,7 @@ assert.ok(nav.includes('guideUrl: "/notice/95651"'));
 assert.ok(nav.includes('target="_blank"'));
 assert.deepStrictEqual(
     [...nav.matchAll(/routeName: "([^"]+)"/g)].map((match) => match[1]),
-    ["overview", "compare", "leap"]
+    ["overview", "compare", "leap", "consultation"]
 );
 assert.ok(workbenchShell.includes('this.$route.meta.workbenchPrimary === true'));
 assert.ok(workbenchShell.includes('<AchievementWorkbenchNav v-if="showWorkbenchNav"'));
@@ -387,10 +390,13 @@ assert.match(
     leapPage,
     /async handleRoleChange[\s\S]*?const client = this\.currentClient;[\s\S]*?const loaded = await this\.loadRoleState[\s\S]*?!loaded[\s\S]*?client !== this\.currentClient/
 );
-assert.ok(leapPage.includes("requestPlanGuidance(plan)"));
-assert.ok(leapPage.includes("guidanceRequest"));
+assert.ok(leapPage.includes("requestPlanGuidance()"));
+assert.ok(leapPage.includes("<PlanConsultations"));
+assert.ok(leapPage.includes("this.$refs.consultations?.openCreate()"));
+assert.doesNotMatch(leapPage, /guidanceSimulation|guidanceRequestId/);
 assert.ok(leapDetailHeader.includes("request-guidance"));
-assert.ok(leapDetailHeader.includes("requestGuidance"));
+assert.ok(leapDetailHeader.includes('v-if="guidanceAllowed"'));
+assert.ok(leapDetailHeader.includes("achievementConsultation.title"));
 assert.ok(leapDetailHeader.includes('<el-dropdown trigger="click"'));
 assert.ok(leapDetailHeader.includes("moreActions"));
 assert.ok(leapDetailHeader.includes('class="u-leap-detail-menu-button" type="primary"'));

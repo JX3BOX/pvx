@@ -65,6 +65,18 @@ const routes = [
         },
     },
     {
+        name: "consultation",
+        path: "/consultation",
+        component: () => import("@/views/wiki/consultation.vue"),
+        meta: { workbenchPrimary: true, i18n: { title: "achievementConsultation.title" } },
+    },
+    {
+        name: "consultation-detail",
+        path: "/consultation/:id",
+        component: () => import("@/views/wiki/consultation.vue"),
+        meta: { i18n: { title: "achievementConsultation.detail" } },
+    },
+    {
         name: "catalogue",
         path: "/catalogue",
         meta: {

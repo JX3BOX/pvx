@@ -4,6 +4,7 @@ import { FolderOpened, Plus, UserFilled, WarningFilled, MagicStick } from "@elem
 import AchievementLeapAddDialog from "@/components/wiki/leap/AchievementLeapAddDialog.vue";
 import AchievementLeapBaseSettings from "@/components/wiki/leap/AchievementLeapBaseSettings.vue";
 import AchievementLeapDetailHeader from "@/components/wiki/leap/AchievementLeapDetailHeader.vue";
+import PlanConsultations from "@/components/wiki/consultation/PlanConsultations.vue";
 import AchievementLeapPlanList from "@/components/wiki/leap/AchievementLeapPlanList.vue";
 import AchievementLeapRecommendationDrawer from "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue";
 import AchievementLeapRouteTable from "@/components/wiki/leap/AchievementLeapRouteTable.vue";
@@ -64,6 +65,7 @@ export default {
         AchievementLeapAddDialog,
         AchievementLeapBaseSettings,
         AchievementLeapDetailHeader,
+        PlanConsultations,
         AchievementLeapPlanList,
         AchievementLeapRecommendationDrawer,
         AchievementLeapRouteTable,
@@ -89,7 +91,6 @@ export default {
             detailLoading: false,
             recommendationLoading: false,
             addSearchLoading: false,
-            guidanceSubmitting: false,
             saving: false,
             menus: {},
             metadata: {},
@@ -124,8 +125,6 @@ export default {
             saveDialogVisible: false,
             addDialogVisible: false,
             addSearchResults: [],
-            guidanceRequest: null,
-            guidanceRequestId: 0,
             pageRequestId: 0,
             roleRequestId: 0,
             plansRequestId: 0,
@@ -179,6 +178,11 @@ export default {
         detailMode() {
             return Boolean(this.detailId);
         },
+        canConsultPlan() {
+            const uid = User.getInfo()?.uid;
+            return Boolean(this.isLogin && uid && this.currentClient === "std" && this.detailPlan?.client === "std" &&
+                String(this.detailPlan.raw?.user_id) === String(uid));
+        },
         canSaveRoute() {
             return Boolean(this.generatedRoute?.items?.length && !this.routeLoading);
         },
@@ -201,7 +205,6 @@ export default {
                 this.detailRoute = null;
                 this.detailClientMismatch = null;
                 if (id && this.metadata && Object.keys(this.metadata).length) this.loadPlanDetail(id);
-                this.invalidateGuidanceRequest();
             },
         },
     },
@@ -218,14 +221,8 @@ export default {
         this.addSearchRequestId += 1;
         this.editorRequestId += 1;
         this.saveRequestId += 1;
-        this.invalidateGuidanceRequest();
     },
     methods: {
-        invalidateGuidanceRequest() {
-            this.guidanceRequestId += 1;
-            this.guidanceRequest = null;
-            this.guidanceSubmitting = false;
-        },
         normalizePlanClient(client) {
             const normalized = String(client || "")
                 .trim()
@@ -261,7 +258,6 @@ export default {
             this.addSearchRequestId += 1;
             this.editorRequestId += 1;
             this.saveRequestId += 1;
-            this.invalidateGuidanceRequest();
             this.roleLoading = false;
             this.plansLoading = false;
             this.routeLoading = false;
@@ -406,7 +402,6 @@ export default {
             this.addSearchRequestId += 1;
             this.editorRequestId += 1;
             this.saveRequestId += 1;
-            this.invalidateGuidanceRequest();
             this.roleLoading = true;
             this.routeLoading = false;
             this.detailLoading = false;
@@ -1050,53 +1045,8 @@ export default {
                 this.$message.error(this.$t("pages.wiki.leap.ui.deleteFailed"));
             }
         },
-        async requestPlanGuidance(plan) {
-            if (!plan?.id || this.guidanceSubmitting || this.guidanceRequest) return;
-            const requestId = ++this.guidanceRequestId;
-            const planId = String(plan.id);
-            const roleId = this.currentRoleId;
-            const client = this.currentClient;
-            const roleLabel = [this.currentRole?.name, this.currentRole?.server].filter(Boolean).join(" · ");
-            try {
-                await this.$confirm(
-                    this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationDescription", {
-                        role: roleLabel,
-                        title: plan.title,
-                    }),
-                    this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationTitle"),
-                    {
-                        confirmButtonText: this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationConfirm"),
-                        cancelButtonText: this.$t("pages.wiki.leap.ui.cancel"),
-                        type: "info",
-                    }
-                );
-            } catch {
-                return;
-            }
-
-            if (!this.isCurrentGuidanceRequest(requestId, roleId, client)) return;
-            this.guidanceSubmitting = true;
-            try {
-                await new Promise((resolve) => window.setTimeout(resolve, 350));
-                if (!this.isCurrentGuidanceRequest(requestId, roleId, client)) return;
-                this.guidanceRequest = {
-                    planId,
-                    roleId,
-                    client,
-                    status: "pending",
-                    requestedAt: new Date().toISOString(),
-                };
-                this.$message.success(this.$t("pages.wiki.leap.ui.workbench.guidanceSimulationSuccess"));
-            } finally {
-                if (requestId === this.guidanceRequestId) this.guidanceSubmitting = false;
-            }
-        },
-        isCurrentGuidanceRequest(requestId, roleId, client) {
-            return (
-                requestId === this.guidanceRequestId &&
-                roleId === this.currentRoleId &&
-                client === this.currentClient
-            );
+        requestPlanGuidance() {
+            if (this.canConsultPlan) return this.$refs.consultations?.openCreate();
         },
     },
 };
@@ -1147,8 +1097,7 @@ export default {
         <div v-else-if="detailMode" class="m-leap-page-content" v-loading="detailLoading">
             <AchievementLeapDetailHeader
                 :plan="detailPlan"
-                :guidance-submitting="guidanceSubmitting"
-                :guidance-requested="Boolean(guidanceRequest)"
+                :guidance-allowed="canConsultPlan"
                 :actions-disabled="Boolean(detailClientMismatch)"
                 @back="closePlanDetail"
                 @request-guidance="requestPlanGuidance"
@@ -1177,6 +1126,8 @@ export default {
                 :route="detailRoute"
                 :title="detailPlan?.title"
             />
+            <PlanConsultations v-if="canConsultPlan" :key="detailPlan.id" ref="consultations"
+                :plan="detailPlan" :roles="roles" :default-role-id="currentRoleId" />
             <AchievementLeapRouteTable
                 v-if="detailRoute"
                 :items="detailRoute.items"

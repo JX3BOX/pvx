@@ -1,5 +1,7 @@
 <script>
-import { DataAnalysis, MagicStick, QuestionFilled, User } from "@element-plus/icons-vue";
+import { DataAnalysis, MagicStick, QuestionFilled, User, ChatDotRound } from "@element-plus/icons-vue";
+import Account from "@jx3box/jx3box-common/js/user";
+import { getConsultationAccess } from "@/service/achievementConsultation";
 
 const NAV_ITEMS = Object.freeze([
     {
@@ -26,6 +28,15 @@ export default {
         MagicStick,
         QuestionFilled,
         User,
+        ChatDotRound,
+    },
+    async created() {
+        if (!Account.isLogin()) return;
+        try {
+            if ((await getConsultationAccess()).is_expert) this.navItems = [...NAV_ITEMS, {
+                routeName: "consultation", labelKey: "achievementConsultation.title", icon: "ChatDotRound",
+            }];
+        } catch { /* Expert navigation stays hidden until the server confirms access. */ }
     },
     data() {
         return {
