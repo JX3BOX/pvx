@@ -123,6 +123,7 @@ export default {
                         <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" />
                         <span>
                             <strong>{{ item.name || item.id }}</strong>
+                            <small v-if="item.shortDescription" class="u-leap-add-description">{{ item.shortDescription }}</small>
                             <small>{{ item.category?.subName || item.category?.name || "—" }}</small>
                         </span>
                     </a>
@@ -131,6 +132,7 @@ export default {
                         <small v-if="overallDimension">
                             <AchievementDifficultyStars
                                 :value="getDimensionValue(item, overallDimension.key)"
+                                :dimension-key="overallDimension.key"
                                 :score-labels="overallDimension.scoreLabels"
                                 :label="dimensionLabel(overallDimension)"
                             />
@@ -232,7 +234,7 @@ export default {
 .c-leap-add-dialog .m-leap-add-dialog__results article > a {
     display: flex;
     min-width: 0;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     color: #34484a;
     text-decoration: none;
@@ -261,6 +263,12 @@ export default {
 
 .c-leap-add-dialog .m-leap-add-dialog__results small {
     color: #899293;
+}
+
+.c-leap-add-dialog .m-leap-add-dialog__results .u-leap-add-description {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
 }
 
 .c-leap-add-dialog .m-leap-add-dialog__meta {

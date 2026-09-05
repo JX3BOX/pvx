@@ -53,8 +53,8 @@ function loadDifficultyStars() {
     return component;
 }
 
-async function renderRating(value, label = "金钱") {
-    return renderToString(createSSRApp(loadDifficultyStars(), { value, label }));
+async function renderRating(value, label = "金钱", props = {}) {
+    return renderToString(createSSRApp(loadDifficultyStars(), { value, label, ...props }));
 }
 
 function loadLeapSummary() {
@@ -120,6 +120,23 @@ async function main() {
     const fractional = await renderRating(2.5, "时间成本");
     assert.match(fractional, /c-achievement-stars__value[^>]*>2\.5<\/span>/);
     assert.match(fractional, /aria-label="时间成本：2\.5\/5"/);
+
+    const overallBands = Array.from({ length: 6 }, (_, score) => ({ min: score * 10, label: `${score}星` }));
+    for (const value of [0, 0.5, 2.5, 5, "0.5"]) {
+        const overall = await renderRating(value, "综合难度", { dimensionKey: "overall", scoreLabels: overallBands });
+        assert.match(overall, /c-achievement-stars__value/, "综合难度不能被整数档位文案覆盖");
+        assert.ok(overall.includes(`>${Number(value).toFixed(1)}</span>`), "综合难度应保留一位小数");
+        assert.ok(overall.includes(`style="width:${Number(value) * 20}%;"`), "星级填充应保留原始分数");
+        assert.doesNotMatch(overall, /c-achievement-score-label/);
+    }
+
+    const moneyBands = [{ min: 0, label: "免费" }, { min: 20, label: "少量" }];
+    const money = await renderRating(1.5, "金钱", { dimensionKey: "money", scoreLabels: moneyBands });
+    assert.match(money, /c-achievement-score-label[^>]*>免费<\/span>/, "其他维度的小数应按区间显示文案");
+    assert.match(money, /title="金钱：1\.5\/5"/, "文案应保留准确分数提示");
+
+    const emptyOverall = await renderRating(null, "综合难度", { dimensionKey: "overall", scoreLabels: overallBands });
+    assert.match(emptyOverall, />—<\/span>/);
 
     const empty = await renderRating(null);
     assert.match(empty, />—<\/span>/);

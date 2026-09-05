@@ -35,8 +35,6 @@ import {
     buildAchievementLeapCandidates,
     buildAchievementLeapCategoryOptions,
     buildAchievementLeapPlanProgress,
-    buildAchievementLeapRoute,
-    buildAchievementLeapRouteMetrics,
     filterAchievementLeapIds,
     removeAchievementLeapRouteItem,
 } from "@/utils/achievementLeap";
@@ -87,7 +85,6 @@ export default {
             pageError: false,
             roleLoading: false,
             plansLoading: false,
-            routeLoading: false,
             detailLoading: false,
             recommendationLoading: false,
             addSearchLoading: false,
@@ -128,7 +125,6 @@ export default {
             pageRequestId: 0,
             roleRequestId: 0,
             plansRequestId: 0,
-            routeRequestId: 0,
             detailRequestId: 0,
             recommendationRequestId: 0,
             addSearchRequestId: 0,
@@ -163,14 +159,6 @@ export default {
                 schoolEligibility: this.schoolEligibility,
             });
         },
-        mapOptions() {
-            return [...this.maps]
-                .map((map) => ({
-                    ...map,
-                    label: map.regionName ? `${map.regionName} · ${map.name}` : map.name,
-                }))
-                .sort((left, right) => left.label.localeCompare(right.label));
-        },
         detailId() {
             const id = this.$route.params.id || this.$route.query.id;
             return id ? String(id) : "";
@@ -184,7 +172,7 @@ export default {
                 String(this.detailPlan.raw?.user_id) === String(uid));
         },
         canSaveRoute() {
-            return Boolean(this.generatedRoute?.items?.length && !this.routeLoading);
+            return Boolean(this.generatedRoute?.items?.length);
         },
         generatedRouteIds() {
             return (this.generatedRoute?.items || []).map((item) => String(item.id));
@@ -215,7 +203,6 @@ export default {
         this.pageRequestId += 1;
         this.roleRequestId += 1;
         this.plansRequestId += 1;
-        this.routeRequestId += 1;
         this.detailRequestId += 1;
         this.recommendationRequestId += 1;
         this.addSearchRequestId += 1;
@@ -252,7 +239,6 @@ export default {
             this.pageRequestId += 1;
             this.roleRequestId += 1;
             this.plansRequestId += 1;
-            this.routeRequestId += 1;
             this.detailRequestId += 1;
             this.recommendationRequestId += 1;
             this.addSearchRequestId += 1;
@@ -260,7 +246,6 @@ export default {
             this.saveRequestId += 1;
             this.roleLoading = false;
             this.plansLoading = false;
-            this.routeLoading = false;
             this.detailLoading = false;
             this.recommendationLoading = false;
             this.addSearchLoading = false;
@@ -318,24 +303,6 @@ export default {
                     },
                 };
             });
-        },
-        replaceRouteDisplayItems(route, items) {
-            const incomplete = items.filter((item) => !item.completed);
-            const hasDifficulty =
-                incomplete.length > 0 &&
-                incomplete.every((item) => item.difficulty !== null && item.difficulty !== undefined);
-            return {
-                ...route,
-                items,
-                averageDifficulty: hasDifficulty
-                    ? Number(
-                          (
-                              incomplete.reduce((total, item) => total + Number(item.difficulty), 0) /
-                              incomplete.length
-                          ).toFixed(2)
-                      )
-                    : null,
-            };
         },
         createDefaultForm(roleId = "", currentPoints = 0) {
             return {
@@ -396,14 +363,12 @@ export default {
         async loadRoleState(roleId, { resetForm = false } = {}) {
             const requestId = ++this.roleRequestId;
             const client = this.currentClient;
-            this.routeRequestId += 1;
             this.detailRequestId += 1;
             this.recommendationRequestId += 1;
             this.addSearchRequestId += 1;
             this.editorRequestId += 1;
             this.saveRequestId += 1;
             this.roleLoading = true;
-            this.routeLoading = false;
             this.detailLoading = false;
             this.recommendationLoading = false;
             this.recommendation = null;
@@ -461,20 +426,6 @@ export default {
                 name: "leap",
                 query: { ...this.$route.query, jx3id: roleId },
             });
-        },
-        resetPlanner() {
-            this.editorRequestId += 1;
-            this.routeRequestId += 1;
-            this.routeLoading = false;
-            this.plannerForm = {
-                ...this.plannerForm,
-                categoryIds: [],
-                mapId: "",
-                maxDifficulty: 3,
-                strategy: "easy-first",
-            };
-            this.generatedRoute = null;
-            this.editingPlan = null;
         },
         changeRecommendationOptions(options) {
             this.recommendationOptions = options;
@@ -538,156 +489,9 @@ export default {
             this.plansPage = page;
             await this.loadPlans();
         },
-        async generateRoute(options = {}) {
-            if (this.routeLoading) return;
-            const form = this.plannerForm;
-            if (!String(form.title || "").trim()) {
-                this.$message.warning(this.$t("pages.wiki.leap.ui.enterPlanNameWarning"));
-                return;
-            }
-            if (Number(form.targetPoints) <= this.currentPoints) {
-                this.$message.warning(this.$t("pages.wiki.leap.ui.workbench.targetMustExceedCurrent"));
-                return;
-            }
-
-            const requestId = ++this.routeRequestId;
-            const roleRequestId = this.roleRequestId;
-            const roleId = this.currentRoleId;
-            const client = this.currentClient;
-            this.routeLoading = true;
-            try {
-                let scopedRecords = [];
-                let allowedIds = null;
-                if (form.mapId) {
-                    scopedRecords = await searchAchievementWorkbenchRecords({
-                        mapId: form.mapId,
-                        client,
-                        metadata: this.metadata,
-                        completedIds: this.roleState.completedIds,
-                    });
-                    allowedIds = scopedRecords.map((record) => record.id);
-                }
-
-                const baseCandidates = buildAchievementLeapCandidates({
-                    metadata: this.metadata,
-                    menus: this.menus,
-                    completedIds: this.roleState.completedIds,
-                    records: scopedRecords,
-                    categoryIds: form.categoryIds,
-                    allowedIds,
-                    schoolEligibility: this.schoolEligibility,
-                });
-                const candidateIds = baseCandidates.map((item) => item.id);
-                const difficultyById = await fetchAchievementWorkbenchDifficulty(candidateIds, 500, { client }).catch((error) => {
-                    console.error("Failed to load achievement leap difficulty:", error);
-                    return {};
-                });
-                if (
-                    requestId !== this.routeRequestId ||
-                    roleRequestId !== this.roleRequestId ||
-                    roleId !== this.currentRoleId ||
-                    client !== this.currentClient
-                ) {
-                    return;
-                }
-
-                const difficultyAvailable = Object.values(difficultyById).some(
-                    (value) => value !== null && value !== undefined
-                );
-                const candidates = buildAchievementLeapCandidates({
-                    metadata: this.metadata,
-                    menus: this.menus,
-                    completedIds: this.roleState.completedIds,
-                    records: scopedRecords,
-                    difficultyById,
-                    categoryIds: form.categoryIds,
-                    allowedIds,
-                    maxDifficulty: form.maxDifficulty,
-                    enforceDifficulty: difficultyAvailable,
-                    schoolEligibility: this.schoolEligibility,
-                });
-                let route = buildAchievementLeapRoute({
-                    candidates,
-                    currentPoints: this.currentPoints,
-                    targetPoints: form.targetPoints,
-                    strategy: form.strategy,
-                });
-
-                const detailRecords = await fetchAchievementWorkbenchRecordsBatched({
-                    ids: route.items.map((item) => item.id),
-                    metadata: this.metadata,
-                    completedIds: this.roleState.completedIds,
-                    client,
-                    includeHidden: true,
-                });
-                if (
-                    requestId !== this.routeRequestId ||
-                    roleRequestId !== this.roleRequestId ||
-                    roleId !== this.currentRoleId ||
-                    client !== this.currentClient
-                ) {
-                    return;
-                }
-
-                const hydratedCandidates = buildAchievementLeapCandidates({
-                    metadata: this.metadata,
-                    menus: this.menus,
-                    completedIds: this.roleState.completedIds,
-                    records: [...scopedRecords, ...detailRecords],
-                    difficultyById,
-                    allowedIds: route.items.map((item) => item.id),
-                    schoolEligibility: this.schoolEligibility,
-                });
-                route = buildAchievementLeapRoute({
-                    candidates: hydratedCandidates,
-                    currentPoints: this.currentPoints,
-                    targetPoints: form.targetPoints,
-                    strategy: form.strategy,
-                });
-                const enrichedItems = await this.enrichAchievementItems(route.items, client);
-                if (
-                    requestId !== this.routeRequestId ||
-                    roleRequestId !== this.roleRequestId ||
-                    roleId !== this.currentRoleId ||
-                    client !== this.currentClient
-                ) {
-                    return;
-                }
-                route = this.replaceRouteDisplayItems(route, enrichedItems);
-                this.generatedRoute = {
-                    ...route,
-                    generationMode: options.mode || "custom",
-                    recommendationVersion: options.recommendation?.version || null,
-                    recommendationStage: options.recommendation?.stageKey || null,
-                    schoolEligibilityVersion: this.schoolEligibility.version,
-                    roleSchool: this.schoolEligibility.school,
-                };
-
-                if (!route.items.length) {
-                    this.$message.warning(this.$t("pages.wiki.leap.ui.workbench.noCandidates"));
-                } else if (!difficultyAvailable && form.maxDifficulty !== null) {
-                    this.$message.warning(this.$t("pages.wiki.leap.ui.workbench.difficultyFallback"));
-                }
-                await this.$nextTick();
-                document.querySelector(".m-leap-generated-result")?.scrollIntoView({ behavior: "smooth", block: "start" });
-            } catch (error) {
-                if (
-                    requestId !== this.routeRequestId ||
-                    roleRequestId !== this.roleRequestId ||
-                    roleId !== this.currentRoleId ||
-                    client !== this.currentClient
-                ) {
-                    return;
-                }
-                console.error("Failed to generate achievement leap route:", error);
-                this.$message.error(this.$t("pages.wiki.leap.ui.createFailed"));
-            } finally {
-                if (requestId === this.routeRequestId) this.routeLoading = false;
-            }
-        },
         async createRecommendedPlan(selection) {
             const recommendation = selection?.recommendation;
-            if (!selection?.ready || !selection.items.length || this.saving || this.roleLoading || this.routeLoading ||
+            if (!selection?.ready || !selection.items.length || this.saving || this.roleLoading ||
                 this.recommendationLoading || recommendation !== this.recommendation || this.currentClient !== "std") return;
             if (!String(this.plannerForm.title || "").trim()) {
                 this.$message.warning(this.$t("pages.wiki.leap.ui.enterPlanNameWarning"));
@@ -1004,7 +808,7 @@ export default {
             ) {
                 return;
             }
-            document.querySelector(".m-leap-planner")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            document.querySelector(".m-leap-generated-result")?.scrollIntoView({ behavior: "smooth", block: "start" });
         },
         isCurrentEditorRequest(requestId, roleRequestId, roleId, client) {
             return (
@@ -1124,7 +928,6 @@ export default {
             <AchievementLeapSummary
                 v-else-if="detailRoute"
                 :route="detailRoute"
-                :title="detailPlan?.title"
             />
             <PlanConsultations v-if="canConsultPlan" :key="detailPlan.id" ref="consultations"
                 :plan="detailPlan" :roles="roles" :default-role-id="currentRoleId" />
@@ -1155,7 +958,7 @@ export default {
             <div class="m-leap-recommendation-entry">
                 <el-button
                     type="primary" size="large"
-                    :disabled="currentClient !== 'std' || roleLoading || routeLoading || saving || !currentRole?.roleId"
+                    :disabled="currentClient !== 'std' || roleLoading || saving || !currentRole?.roleId"
                     @click="recommendationDrawerVisible = true"
                 ><template #icon><MagicStick /></template>{{ $t('achievementRecommendation.title') }}</el-button>
             </div>
@@ -1183,7 +986,6 @@ export default {
                     :items="generatedRoute.items"
                     :maps="maps"
                     :dimensions="dimensions"
-                    :loading="routeLoading"
                     removable
                     @remove="removeGeneratedRouteItem"
                 />
@@ -1217,7 +1019,7 @@ export default {
             :role-loading="roleLoading"
             :client="currentClient"
             :role-available="Boolean(currentRole?.roleId)"
-            :disabled="roleLoading || routeLoading || saving"
+            :disabled="roleLoading || saving"
             :error="recommendationError"
             :metadata="metadata"
             :maps="maps"

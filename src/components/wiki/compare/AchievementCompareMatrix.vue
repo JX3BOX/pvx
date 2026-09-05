@@ -43,7 +43,7 @@ export default {
         },
         pageSize: {
             type: Number,
-            default: 20,
+            default: 15,
         },
         loading: {
             type: Boolean,
@@ -93,17 +93,6 @@ export default {
         },
         dimensionValue(record, definition) {
             return getAchievementWorkbenchDimensionValue(record, definition?.key);
-        },
-        formatCompletionRate(value) {
-            if (value === null || value === undefined) return "—";
-            const normalized = Number(value);
-            if (!Number.isFinite(normalized)) return "—";
-            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
-            return new Intl.NumberFormat(locale, {
-                style: "percent",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }).format(normalized);
         },
         getDisplayTags(record) {
             const tags = Array.isArray(record?.tags) ? record.tags : [];
@@ -193,6 +182,7 @@ export default {
                                                 {{ tag.label }}
                                             </span>
                                         </span>
+                                        <span v-if="record.shortDescription" class="m-compare-achievement__description">{{ record.shortDescription }}</span>
                                         <span v-if="record.map?.name" class="m-compare-achievement__meta">
                                             {{ record.map.name }}
                                         </span>
@@ -201,19 +191,10 @@ export default {
                                                 {{ dimensionLabel(definition) }}
                                                 <AchievementDifficultyStars
                                                     :value="dimensionValue(record, definition)"
+                                                    :dimension-key="definition.key"
                                                     :score-labels="definition.scoreLabels"
                                                     :label="dimensionLabel(definition)"
                                                 />
-                                            </span>
-                                            <span
-                                                v-if="
-                                                    record.completionStatistics?.rate !== null &&
-                                                    record.completionStatistics?.rate !== undefined
-                                                "
-                                                class="u-compare-completion-rate"
-                                            >
-                                                {{ $t("pages.wiki.overview.ui.workbench.completionRate") }}
-                                                <strong>{{ formatCompletionRate(record.completionStatistics.rate) }}</strong>
                                             </span>
                                         </span>
                                     </span>
@@ -255,7 +236,6 @@ export default {
 <style lang="less" scoped>
 .m-compare-matrix {
     display: flex;
-    height: 100%;
     min-width: 0;
     overflow: hidden;
     flex-direction: column;
@@ -297,17 +277,15 @@ export default {
 
 .m-compare-matrix__body {
     position: relative;
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    overflow: hidden;
+    min-width: 0;
 }
 
 .m-compare-matrix-scroll {
     width: 100%;
     min-height: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
 }
 
 .m-compare-matrix-table {
@@ -325,8 +303,6 @@ export default {
     }
 
     th {
-        position: sticky;
-        top: 0;
         z-index: 2;
         height: 62px;
         color: #53605f;
@@ -417,6 +393,14 @@ export default {
     gap: 2px;
 }
 
+.m-compare-achievement__description {
+    color: #7f8887;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
 .m-compare-achievement__title {
     width: 100%;
     align-items: baseline;
@@ -493,11 +477,6 @@ export default {
         letter-spacing: 0.03em;
     }
 
-    .u-compare-completion-rate strong {
-        color: #626a68;
-        font-weight: 650;
-        letter-spacing: 0;
-    }
 }
 
 .u-compare-completion {
@@ -529,7 +508,7 @@ export default {
 .m-compare-matrix-state {
     display: flex;
     width: 100%;
-    min-height: 0;
+    min-height: 380px;
     align-items: center;
     justify-content: center;
     flex-direction: column;

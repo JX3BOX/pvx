@@ -821,6 +821,7 @@ export default {
                     fileName: "seniority-comparison-{date}.xlsx",
                     headers: {
                         achievement: "Achievement",
+                        description: "Achievement description",
                         category: "Category",
                         points: "Seniority Points",
                         difficulty: "Difficulty",
@@ -908,7 +909,7 @@ export default {
                 guideStep3:
                     "Completed achievements are excluded, and the remaining goals are ordered from easier to harder.",
                 guideGotIt: "Got it",
-                planList: "My Seniority Plans",
+                planList: "Seniority Plans",
                 listDescription: "Review each plan's total points and the seniority still available to this character.",
                 createPlan: "Create plan",
                 createFirstPlan: "Create your first plan",
@@ -986,7 +987,7 @@ export default {
                 createFailed: "Could not create the plan. Please try again later.",
                 workbench: {
                     baseSettings: "PLAN BASICS",
-                    baseSettingsDescription: "Shared by system recommendations and custom plans",
+                    baseSettingsDescription: "Set the plan name and target points",
                     plannerKicker: "CUSTOM PLAN",
                     plannerTitle: "Choose your conditions and build a focused route",
                     plannerDescription: "Keep full control by combining this character's incomplete achievements by category, map, difficulty, and strategy.",
@@ -1059,8 +1060,8 @@ export default {
                     hourValue: "{value} hr",
                     strategyFallback: "The selected strategy lacks required data, so the route was sorted using available fields.",
                     costLedger: "DIFFICULTY DIMENSIONS",
-                    routeList: "Achievement difficulty dimensions and route",
-                    costLedgerDescription: "Dimension names, order, and visibility come from the public difficulty API. Configured values use a 0–5 star scale and can be sorted.",
+                    routeList: "Plan achievements",
+                    costLedgerDescription: "Filtering and sorting only change this view, not your plan.",
                     searchRoute: "Search achievements, maps, or route notes",
                     category: "Category",
                     money: "Money",

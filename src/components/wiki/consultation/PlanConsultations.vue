@@ -1,11 +1,12 @@
 <script>
 import { createConsultation, getConsultations, getConsultationExperts } from "@/service/achievementConsultation";
 import ConsultationDetail from "./ConsultationDetail.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
 import { ChatDotRound } from "@element-plus/icons-vue";
 
 export default {
     name: "PlanConsultations",
-    components: { ConsultationDetail, ChatDotRound },
+    components: { ConsultationDetail, ChatDotRound, PvxSurface },
     props: { plan: { type: Object, required: true }, roles: { type: Array, required: true }, defaultRoleId: { type: String, default: "" } },
     data: () => ({ rows: [], total: 0, pendingId: null, page: 1, loading: false, error: "", saving: false, dialog: false, detailId: null,
         experts: [], expertsLoading: false, expertsError: false, requestId: 0, expertRequestId: 0,
@@ -56,11 +57,11 @@ export default {
 </script>
 
 <template>
-    <section class="m-plan-consultations" v-loading="loading">
-        <header><h2><el-icon><ChatDotRound /></el-icon>{{ $t('achievementConsultation.title') }}</h2><el-button :disabled="loading || saving" @click="openCreate">{{ $t(pendingId ? 'achievementConsultation.detail' : 'achievementConsultation.request') }}</el-button></header>
+    <PvxSurface class="m-plan-consultations" padding="small" radius="medium" v-loading="loading">
+        <header><h2><el-icon><ChatDotRound /></el-icon>{{ $t('achievementConsultation.records') }}</h2></header>
         <el-alert v-if="error" :title="error" type="error" :closable="false" />
         <el-button v-if="error" @click="load">{{ $t('achievementRecommendation.retry') }}</el-button>
-        <el-empty v-else-if="!loading && !rows.length" :description="$t('achievementConsultation.noRequests')" :image-size="48" />
+        <p v-else-if="!loading && !rows.length" class="m-plan-consultations__empty" role="status">{{ $t('achievementConsultation.noRequests') }}</p>
         <div v-for="row in rows" :key="row.id" class="m-plan-consultation-row">
             <div><strong>{{ row.question }}</strong><small>{{ row.expert?.display_name || row.target_expert?.display_name || $t('achievementConsultation.public') }} · {{ $t(`achievementConsultation.${row.status}`) }}</small></div>
             <el-button text @click="detailId = row.id">{{ $t(row.status === 'answered' ? 'achievementConsultation.viewAdvice' : 'achievementConsultation.detail') }}</el-button>
@@ -83,14 +84,15 @@ export default {
         </el-dialog>
         <el-dialog :model-value="Boolean(detailId)" :title="$t('achievementConsultation.detail')" width="min(1180px, calc(100vw - 24px))" append-to-body destroy-on-close
             @update:model-value="!$event && (detailId = null)"><ConsultationDetail v-if="detailId" :id="detailId" @changed="load" /></el-dialog>
-    </section>
+    </PvxSurface>
 </template>
 
 <style lang="less" scoped>
-.m-plan-consultations { border-top: 1px solid #e2e8e6; padding: 20px 0; min-width: 0;
+.m-plan-consultations { min-width: 0;
     header { display: flex; justify-content: space-between; align-items: center; gap: 12px; } h2 { display: flex; align-items: center; gap: 8px; font-size: 17px; margin: 0; color: #47777d; }
     :deep(.el-select) { width: 100%; }
 }
+.m-plan-consultations__empty { margin: 8px 0 0; color: #7a8586; font-size: 13px; line-height: 1.6; }
 .m-plan-consultation-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #edf0ee;
     > div { min-width: 0; } strong { display: block; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
     small { display: block; margin-top: 5px; color: #7a8586; } .el-button { flex: none; }

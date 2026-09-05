@@ -189,6 +189,9 @@ const moneyBands = [{ min: 0, label: "免费" }, { min: 20, label: "少量" }, {
 for (const [value, label] of [[0, "免费"], [1.9, "免费"], [2, "少量"], [2.9, "少量"], [3, "花钱"], [4, "花钱"], [4.1, "巨花钱"], [5, "巨花钱"]]) {
     assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(value, moneyBands), label);
 }
+for (const [value, label] of [[0.5, "免费"], [1.99, "免费"], [2.99, "少量"], [4.09, "花钱"], ["4.1", "巨花钱"]]) {
+    assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(value, moneyBands), label, "小数不能四舍五入后提前进入下一档");
+}
 for (const value of [null, undefined, "", false, -1, 5.1]) assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(value, moneyBands), null);
 assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(5, [{ min: 0, label: "低概率" }, { min: 50, label: "纯看脸" }]), "纯看脸");
 assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(4.9, [{ min: 0, label: "低概率" }, { min: 50, label: "纯看脸" }]), "低概率");

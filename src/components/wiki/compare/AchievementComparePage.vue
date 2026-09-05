@@ -90,7 +90,7 @@ export default {
             mapId: "",
             keyword: "",
             page: 1,
-            pageSize: 20,
+            pageSize: 15,
             roleSummaryCollapsed: false,
             roleDialogVisible: false,
             difficultyById: {},
@@ -953,15 +953,10 @@ export default {
 
 .m-compare-browser-grid {
     display: grid;
-    height: 752px;
     min-width: 0;
     grid-template-columns: minmax(320px, 360px) minmax(620px, 1fr);
-    align-items: stretch;
+    align-items: start;
     gap: 12px;
-}
-
-.m-compare-page-content.is-summary-collapsed .m-compare-browser-grid {
-    height: clamp(480px, calc(100vh - 244px), 820px);
 }
 
 .m-compare-page-state {

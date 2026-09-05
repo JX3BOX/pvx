@@ -64,6 +64,11 @@ export function getWikiAchievementTagsByAchievements(ids, params = {}) {
     return $cms().post(`/api/cms/pvx/wiki_achievement_tag/by-achievements`, ids, { params });
 }
 
+// 获取公开成就标签详情
+export function getWikiAchievementTag(tagId, params = {}) {
+    return $cms().get(`/api/cms/pvx/wiki_achievement_tag/${tagId}`, { params });
+}
+
 export function getWikiAchievementRecommendation(payload) {
     return $cms().post(`/api/cms/pvx/wiki_achievement_recommendation`, payload);
 }

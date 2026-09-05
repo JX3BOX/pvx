@@ -190,7 +190,6 @@ export default {
 <style lang="less" scoped>
 .m-compare-categories {
     display: flex;
-    height: 100%;
     min-width: 0;
     overflow: hidden;
     flex-direction: column;
@@ -239,10 +238,6 @@ export default {
 .m-compare-category-list,
 .m-compare-subcategory-list {
     min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(71, 119, 125, 0.28) transparent;
 }
 
 .m-compare-category-list {
@@ -461,12 +456,6 @@ export default {
     }
 }
 
-@media (max-width: 1060px) {
-    .m-compare-categories {
-        height: 360px;
-    }
-}
-
 @media (max-width: 620px) {
     .m-compare-categories {
         height: auto;
@@ -474,11 +463,6 @@ export default {
 
     .m-compare-category-browser.has-subcategories {
         grid-template-columns: minmax(0, 1fr);
-    }
-
-    .m-compare-category-list,
-    .m-compare-subcategory-list {
-        max-height: 280px;
     }
 
     .m-compare-subcategory-panel {

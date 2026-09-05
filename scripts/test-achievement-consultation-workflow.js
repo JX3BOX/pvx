@@ -38,6 +38,7 @@ async function run() {
     };
     const player = load("src/components/wiki/consultation/PlanConsultations.vue", {
         "@/service/achievementConsultation": api, "./ConsultationDetail.vue": {}, "@element-plus/icons-vue": {},
+        "@/components/design/PvxSurface.vue": {},
     });
     const vm = instance(player, { plan: { id: "10", raw: { user_id: 7 } }, roles: [{ id: "991", roleId: 77 }], defaultRoleId: "991" });
     await vm.openCreate();

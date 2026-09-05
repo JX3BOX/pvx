@@ -38,14 +38,13 @@ export default {
 </script>
 
 <template>
-    <PvxSurface class="m-leap-detail-header" padding="medium">
+    <PvxSurface class="m-leap-detail-header" padding="small" radius="medium">
         <div class="m-leap-detail-header__identity">
             <button type="button" class="u-leap-detail-button is-back" @click="$emit('back')">
                 <ArrowLeft />
                 {{ $t("pages.wiki.leap.ui.title") }}
             </button>
             <i aria-hidden="true"></i>
-            <span>{{ $t("pages.wiki.leap.ui.planDetail") }}</span>
             <h1 :title="plan?.title">{{ plan?.title || $t("pages.wiki.leap.ui.unnamedPlan") }}</h1>
         </div>
 
@@ -122,14 +121,6 @@ export default {
     height: 22px;
     flex: none;
     background: rgba(62, 82, 82, 0.15);
-}
-
-.m-leap-detail-header__identity > span {
-    flex: none;
-    color: #a88139;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
 }
 
 .m-leap-detail-header__identity h1 {
@@ -238,10 +229,6 @@ export default {
     }
 
     .m-leap-detail-header__identity > i {
-        display: none;
-    }
-
-    .m-leap-detail-header__identity > span {
         display: none;
     }
 

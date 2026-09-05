@@ -1,4 +1,5 @@
 export default {
+    records: "諮詢記錄",
     title: "渡劫諮詢",
     refresh: "重新整理列表",
     emptyQueue: "暫無符合條件的求助",

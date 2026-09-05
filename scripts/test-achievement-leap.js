@@ -336,7 +336,7 @@ const detailHeaderSource = fs.readFileSync(
 
 const enrichmentSource = leapPageSource.slice(
     leapPageSource.indexOf("async enrichAchievementItems"),
-    leapPageSource.indexOf("replaceRouteDisplayItems")
+    leapPageSource.indexOf("createDefaultForm")
 );
 const recommendationSource = leapPageSource.slice(
     leapPageSource.indexOf("async loadRecommendation"),
@@ -365,7 +365,7 @@ assert.ok(!routeTableSource.includes("costTier"));
 assert.ok(!routeTableSource.includes("Math.round"));
 
 // SFC contract: optional metadata columns are decided from the whole route, while map stays row-local.
-["CompletionRate", "Tags", "SchoolRestriction", "GuideNote"].forEach((name) => {
+["Tags", "SchoolRestriction", "GuideNote"].forEach((name) => {
     assert.match(routeTableSource, new RegExp(`show${name}Column\\(\\)`));
     assert.ok((routeTableSource.match(new RegExp(`v-if="show${name}Column"`, "g")) || []).length >= 2);
 });
@@ -405,7 +405,6 @@ const pageComponentImports = [
     "@/components/wiki/leap/AchievementLeapBaseSettings.vue",
     "@/components/wiki/leap/AchievementLeapDetailHeader.vue",
     "@/components/wiki/consultation/PlanConsultations.vue",
-    "@/components/wiki/leap/AchievementLeapPlanner.vue",
     "@/components/wiki/leap/AchievementLeapPlanList.vue",
     "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue",
     "@/components/wiki/leap/AchievementLeapRouteTable.vue",
@@ -441,25 +440,6 @@ function buildPageTestCandidates({ metadata = {}, records = [], allowedIds = nul
         }));
 }
 
-function buildPageTestRoute({ candidates = [], currentPoints = 0, targetPoints = 0, strategy = "big-first" } = {}) {
-    const selectedPoints = candidates.reduce((total, item) => total + Number(item.points || 0), 0);
-    return {
-        items: candidates,
-        requestedStrategy: strategy,
-        strategy,
-        currentPoints,
-        targetPoints,
-        targetGap: Math.max(0, targetPoints - currentPoints),
-        selectedPoints,
-        projectedPoints: currentPoints + selectedPoints,
-        remainingGap: Math.max(0, targetPoints - currentPoints - selectedPoints),
-        reached: currentPoints + selectedPoints >= targetPoints,
-        totalMinutes: null,
-        averageDifficulty: null,
-        averageCostScore: null,
-    };
-}
-
 const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapPage.vue"), {
     "@/utils/achievementRecommendation": loadModule(path.resolve(__dirname, "../src/utils/achievementRecommendation.js")),
     ...Object.fromEntries(pageComponentImports.map((request) => [request, {}])),
@@ -474,7 +454,6 @@ const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/
     "@/utils/achievementLeap": {
         buildAchievementLeapCandidates: buildPageTestCandidates,
         buildAchievementLeapPlanProgress: () => ({ remainingPoints: 0 }),
-        buildAchievementLeapRoute: buildPageTestRoute,
         filterAchievementLeapIds: (ids, sourceMetadata) =>
             [...new Set((ids || []).map(String))].filter((id) => Number(sourceMetadata[id]?.general) === 1),
     },
@@ -600,29 +579,6 @@ async function runLeapStateConsistencyTests() {
         const hydrated = await hydrationVm.hydratePlanItems(["hidden", "visible"], "std");
         assert.strictEqual(hydrationCalls[0].includeHidden, true);
         assert.deepStrictEqual(hydrated.items.map((item) => item.id), ["hidden", "visible"]);
-
-        let generatedHydrationOptions = null;
-        pageRecordsLoader = async (options) => {
-            generatedHydrationOptions = options;
-            return options.ids.map((id) => ({ id }));
-        };
-        const generationVm = createGuidanceTestVm([]);
-        generationVm.metadata = {
-            hidden: { general: 1, visible: false, point: 10 },
-            visible: { general: 1, visible: true, point: 20 },
-        };
-        generationVm.roleState = { completedIds: [] };
-        generationVm.currentPoints = 0;
-        generationVm.schoolEligibility = { version: "school-v1", school: null };
-        generationVm.plannerForm = {
-            ...generationVm.plannerForm,
-            title: "方案",
-            targetPoints: 20,
-            maxDifficulty: null,
-        };
-        generationVm.enrichAchievementItems = async (items) => items;
-        await generationVm.generateRoute();
-        assert.strictEqual(generatedHydrationOptions.includeHidden, true);
 
         let rejectRoleState;
         pageRoleStateLoader = () =>

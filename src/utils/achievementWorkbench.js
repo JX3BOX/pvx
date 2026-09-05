@@ -283,8 +283,7 @@ export function getAchievementWorkbenchScoreLabel(value, bands = []) {
     if (!isPresent(value) || typeof value === "boolean") return null;
     const rating = normalizeNumber(value);
     if (rating === null || rating < 0 || rating > 5) return null;
-    const rawScore = Math.round(rating * 10);
-    return [...bands].reverse().find((band) => rawScore >= band.min)?.label || null;
+    return [...bands].reverse().find((band) => rating >= band.min / 10)?.label || null;
 }
 
 export function getAchievementWorkbenchDimensionSort(value = "") {

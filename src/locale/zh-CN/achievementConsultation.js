@@ -1,4 +1,5 @@
 export default {
+    records: "咨询记录",
     title: "渡劫咨询",
     refresh: "刷新列表",
     emptyQueue: "暂无符合条件的求助",

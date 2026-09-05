@@ -816,6 +816,7 @@ export default {
                     fileName: "so-sanh-tham-nien-{date}.xlsx",
                     headers: {
                         achievement: "Thành tựu",
+                        description: "Mô tả thành tựu",
                         category: "Danh mục",
                         points: "Điểm thâm niên",
                         difficulty: "Độ khó",
@@ -903,7 +904,7 @@ export default {
                 guideStep3:
                     "Các thành tựu đã hoàn thành sẽ được loại bỏ; mục tiêu còn lại được xếp từ dễ đến khó.",
                 guideGotIt: "Đã hiểu",
-                planList: "Kế hoạch thâm niên của tôi",
+                planList: "Kế hoạch thâm niên",
                 listDescription: "Xem tổng điểm và số thâm niên nhân vật vẫn có thể nhận trong mỗi kế hoạch.",
                 createPlan: "Tạo kế hoạch",
                 createFirstPlan: "Tạo kế hoạch đầu tiên",
@@ -981,7 +982,7 @@ export default {
                 createFailed: "Không thể tạo kế hoạch. Vui lòng thử lại sau.",
                 workbench: {
                     baseSettings: "THÔNG TIN KẾ HOẠCH",
-                    baseSettingsDescription: "Dùng chung cho đề xuất hệ thống và kế hoạch tự chọn",
+                    baseSettingsDescription: "Đặt tên kế hoạch và điểm mục tiêu",
                     plannerKicker: "KẾ HOẠCH TỰ CHỌN",
                     plannerTitle: "Tự chọn điều kiện và tạo lộ trình phù hợp",
                     plannerDescription: "Giữ quyền kiểm soát bằng cách kết hợp thành tựu chưa hoàn thành theo phân loại, bản đồ, độ khó và chiến lược.",
@@ -1054,8 +1055,8 @@ export default {
                     hourValue: "{value} giờ",
                     strategyFallback: "Thiếu dữ liệu cho chiến lược đã chọn, lộ trình đã tự động dùng các trường hiện có.",
                     costLedger: "CÁC CHIỀU ĐỘ KHÓ",
-                    routeList: "Các chiều độ khó và lộ trình thành tựu",
-                    costLedgerDescription: "Tên, thứ tự và mục hiển thị lấy từ API độ khó công khai. Giá trị đã cấu hình dùng thang sao 0–5 và có thể sắp xếp.",
+                    routeList: "Thành tựu trong kế hoạch",
+                    costLedgerDescription: "Lọc và sắp xếp chỉ thay đổi cách hiển thị, không sửa kế hoạch.",
                     searchRoute: "Tìm thành tựu, bản đồ hoặc ghi chú",
                     category: "Phân loại",
                     money: "Tiền",

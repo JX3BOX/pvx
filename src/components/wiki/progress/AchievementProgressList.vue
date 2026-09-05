@@ -87,17 +87,6 @@ export default {
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
-        formatCompletionRate(value) {
-            if (value === null || value === undefined) return "—";
-            const normalized = Number(value);
-            if (!Number.isFinite(normalized)) return "—";
-            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
-            return new Intl.NumberFormat(locale, {
-                style: "percent",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }).format(normalized);
-        },
         getStatusLabel(record) {
             if (record.completed === true) return this.$t("pages.wiki.overview.ui.completed");
             if (record.completed === false) return this.$t("pages.wiki.overview.ui.incomplete");
@@ -340,7 +329,7 @@ export default {
                             </span>
                         </div>
 
-                        <p class="u-progress-description">{{ formatValue(record.shortDescription) }}</p>
+                        <p v-if="record.shortDescription" class="u-progress-description">{{ record.shortDescription }}</p>
 
                         <div class="m-progress-achievement-card__meta">
                             <span
@@ -360,21 +349,10 @@ export default {
                                 <AchievementDifficultyStars
                                     class="u-progress-rating"
                                     :value="getDimensionValue(record, dimension)"
+                                    :dimension-key="dimension.key"
                                     :score-labels="dimension.scoreLabels"
                                     :label="getDimensionLabel(dimension)"
                                 />
-                            </span>
-                            <span
-                                v-if="
-                                    record.completionStatistics?.rate !== null &&
-                                    record.completionStatistics?.rate !== undefined
-                                "
-                                class="u-progress-completion-statistics"
-                            >
-                                <span>
-                                    {{ $t("pages.wiki.overview.ui.workbench.completionRate") }}
-                                    <strong>{{ formatCompletionRate(record.completionStatistics.rate) }}</strong>
-                                </span>
                             </span>
                             <span v-if="hasRewardReference(record)" class="m-progress-achievement-reward">
                                 <span class="u-progress-reward-label">{{ $t("pages.wiki.overview.ui.reward") }}</span>
@@ -605,8 +583,8 @@ export default {
     overflow: hidden;
     color: #7f8887;
     font-size: 12px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
 }
 
 .m-progress-achievement-card__meta {
@@ -643,14 +621,6 @@ export default {
 .u-progress-rating {
     color: #a8773c !important;
     letter-spacing: 0.04em;
-}
-
-.u-progress-completion-statistics {
-    strong {
-        color: #626a68;
-        font-weight: 650;
-        font-variant-numeric: tabular-nums;
-    }
 }
 
 .u-progress-achievement-tag {

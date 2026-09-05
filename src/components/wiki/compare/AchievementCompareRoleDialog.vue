@@ -183,6 +183,13 @@ export default {
     max-width: calc(100vw - 32px);
     border-radius: 12px;
 
+    .el-dialog__footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
     .el-select {
         width: 100%;
     }
@@ -195,13 +202,21 @@ export default {
 }
 
 .u-compare-dialog-button {
-    min-height: 36px;
-    padding: 7px 16px;
+    display: inline-flex;
+    height: 32px;
+    min-height: 32px;
+    min-width: 84px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
     border: 1px solid rgba(70, 74, 66, 0.16);
     border-radius: 7px;
     color: #687270;
     background: #fffefa;
     font: inherit;
+    font-size: 12px;
+    white-space: nowrap;
     cursor: pointer;
 
     &.is-primary {

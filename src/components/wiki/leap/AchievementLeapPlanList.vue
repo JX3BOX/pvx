@@ -75,12 +75,8 @@ export default {
 <template>
     <PvxSurface class="m-leap-plan-list" padding="medium" v-loading="loading">
         <header class="m-leap-plan-list__header">
-            <div>
-                <span>{{ $t("pages.wiki.leap.ui.planManagement") }}</span>
-                <h2>{{ $t("pages.wiki.leap.ui.planList") }}</h2>
-                <p>{{ $t("pages.wiki.leap.ui.listDescription") }}</p>
-            </div>
-            <strong>{{ $t("pages.wiki.leap.ui.workbench.savedPlanCount", { count: total }) }}</strong>
+            <h2>{{ $t("pages.wiki.leap.ui.planList") }}</h2>
+            <span>{{ $t("pages.wiki.leap.ui.workbench.savedPlanCount", { count: total }) }}</span>
         </header>
 
         <div v-if="plans.length" class="m-leap-plan-list__grid">
@@ -167,35 +163,22 @@ export default {
 
 .m-leap-plan-list__header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-}
-
-.m-leap-plan-list__header span {
-    color: #a88139;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-bottom: 12px;
 }
 
 .m-leap-plan-list__header h2 {
-    margin: 4px 0;
-    font-size: 20px;
-}
-
-.m-leap-plan-list__header p {
     margin: 0;
-    color: #7b8586;
+    color: #384246;
+    font-size: 16px;
 }
 
-.m-leap-plan-list__header > strong {
-    padding: 6px 10px;
-    border-radius: 999px;
-    color: #547277;
-    background: #edf2ef;
-    font-size: 13px;
+.m-leap-plan-list__header > span {
+    color: #a0a7a4;
+    font-size: 11px;
     white-space: nowrap;
 }
 
@@ -389,10 +372,6 @@ export default {
 }
 
 @media (max-width: 720px) {
-    .m-leap-plan-list__header {
-        display: grid;
-    }
-
     .m-leap-plan-list__grid {
         grid-template-columns: minmax(0, 1fr);
     }

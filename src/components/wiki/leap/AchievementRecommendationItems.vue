@@ -18,8 +18,19 @@ export default {
         promoteTo: { type: String, default: "" },
     },
     emits: ["move", "remove"],
+    computed: {
+        displayTagsById() {
+            return Object.fromEntries(this.items.map((item) => [item.id, this.getDisplayTags(item)]));
+        },
+    },
     methods: {
         getLink, iconLink, getAchievementWorkbenchDimensionValue,
+        getDisplayTags(item) {
+            const tags = Array.isArray(item?.tags) ? item.tags : [];
+            return tags
+                .filter((tag) => typeof tag?.label === "string" && tag.label.trim() && !["普通成就", "常规成就"].includes(tag.label.trim()))
+                .sort((left, right) => Number(right.type === "school") - Number(left.type === "school"));
+        },
         change(event) {
             const change = event.added || event.moved;
             if (!change || !this.editable || this.disabled) return;
@@ -42,15 +53,20 @@ export default {
                     <a :href="getLink('achievement', item.id)" target="_blank" rel="noopener noreferrer" :title="item.name">
                         <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" /><span>{{ item.name }}</span>
                     </a>
+                    <p v-if="item.shortDescription" class="m-recommendation-item-description">{{ item.shortDescription }}</p>
                     <small :title="[item.category.name, item.category.subName, item.map.name].filter(Boolean).join(' · ')">
                         {{ [item.category.name, item.category.subName, item.map.name].filter(Boolean).join(' · ') }}
                     </small>
+                    <div v-if="displayTagsById[item.id].length" class="m-recommendation-item-tags">
+                        <span v-for="tag in displayTagsById[item.id]" :key="tag.id || tag.label"
+                            class="u-recommendation-achievement-tag" :title="tag.description || tag.label">{{ tag.label }}</span>
+                    </div>
                 </div>
                 <div v-if="dimensions.length" class="m-recommendation-item-dimensions">
                     <span v-for="dimension in dimensions" :key="dimension.key" class="m-recommendation-dimension-badge">
                         <small>{{ dimension.label }}</small>
                         <AchievementDifficultyStars :value="getAchievementWorkbenchDimensionValue(item, dimension.key)"
-                            :label="dimension.label" :score-labels="dimension.scoreLabels" />
+                            :dimension-key="dimension.key" :label="dimension.label" :score-labels="dimension.scoreLabels" />
                     </span>
                 </div>
                 <div class="m-server-recommendation__item-status">
@@ -96,8 +112,14 @@ export default {
 .m-server-recommendation__item-content { min-width: 0; flex: 1;
     a { display: flex; align-items: center; gap: 7px; color: #365f64; text-decoration: none; height: 28px; }
     img { width: 24px; height: 24px; flex: none; border-radius: 4px; }
-    span, small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    a > span, > small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     small { color: #7a8586; font-size: 11px; }
+}
+.m-recommendation-item-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.m-recommendation-item-description { margin: 4px 0; color: #7a8586; font-size: 12px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.u-recommendation-achievement-tag { box-sizing: border-box; max-width: 100%; min-height: 20px; padding: 1px 7px;
+    border: 1px solid rgba(64, 158, 255, 0.52); border-radius: 4px; color: #409eff; background: #ecf5ff;
+    font-size: 11px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; word-break: break-word;
 }
 .u-recommendation-order { width: 30px; flex: none; color: #87918a; font-size: 11px; }
 .m-server-recommendation__item-status { flex: none; width: 40px; text-align: center; font-variant-numeric: tabular-nums;

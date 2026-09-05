@@ -5,7 +5,7 @@ import { defaultAchievementRecommendationOptions } from "@/utils/achievementReco
 
 export default {
     name: "AchievementLeapRecommendationDrawer",
-    components: { AchievementLeapRecommendation, RefreshLeft },
+    components: { RefreshLeft, AchievementLeapRecommendation },
     props: {
         modelValue: { type: Boolean, default: false },
         options: { type: Object, required: true },
@@ -81,8 +81,13 @@ export default {
             else entries[key] = value;
             this.updateOptions({ [field]: entries });
         },
-        reset() {
+        async reset() {
+            if (this.controlsDisabled || this.loading) return;
+            const hadRecommendation = Boolean(this.recommendation);
             this.$emit("update:options", defaultAchievementRecommendationOptions());
+            if (!hadRecommendation) return;
+            await this.$nextTick();
+            this.requestRecommendation();
         },
     },
 };
@@ -95,7 +100,6 @@ export default {
         size="min(1380px, 100vw)"
         class="m-leap-recommendation-drawer"
         append-to-body
-        destroy-on-close
         :close-on-click-modal="!disabled"
         :close-on-press-escape="!disabled"
         :show-close="!disabled"
@@ -107,14 +111,18 @@ export default {
                 <el-radio-button label="settings">{{ $t('achievementRecommendation.preferences') }}</el-radio-button>
             </el-radio-group>
         </div>
-        <div v-if="modelValue" class="m-recommendation-workspace" :class="`is-mobile-${mobileView}`">
+        <!-- Keep the draft mounted after first opening; recommendation changes reset it explicitly. -->
+        <div class="m-recommendation-workspace" :class="`is-mobile-${mobileView}`">
             <section class="m-recommendation-settings">
                 <el-form label-position="top" :disabled="controlsDisabled">
                     <div class="m-recommendation-settings__heading">
                         <h3>{{ $t('achievementRecommendation.preferences') }}</h3>
-                        <el-tooltip :content="$t('achievementRecommendation.reset')">
-                            <el-button circle :aria-label="$t('achievementRecommendation.reset')" @click="reset">
-                                <template #icon><RefreshLeft /></template>
+                        <el-tooltip :content="$t('achievementRecommendation.resetHint')">
+                            <el-button :disabled="controlsDisabled || loading" @click="reset">
+                                <el-icon><RefreshLeft /></el-icon>
+                                <span>
+                                {{ $t('achievementRecommendation.reset') }}
+                                </span>
                             </el-button>
                         </el-tooltip>
                     </div>

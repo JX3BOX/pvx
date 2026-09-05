@@ -19,6 +19,7 @@ import {
     getWikiAchievementLeapSchema,
     getWikiAchievementLeapSchemaList,
     getWikiAchievementLeapSchemaProgress,
+    getWikiAchievementTag,
     getWikiAchievementTagsByAchievements,
     getWikiAchievementRecommendation,
     updateWikiAchievementLeapSchema,
@@ -79,7 +80,7 @@ function normalizeBatchSize(value, fallback = 500) {
     return Number.isFinite(size) && size > 0 ? size : fallback;
 }
 
-function getSuccessfulCmsData(response, resourceName) {
+function getSuccessfulCmsPayload(response, resourceName) {
     const payload = response?.data;
     if (
         !payload ||
@@ -94,10 +95,15 @@ function getSuccessfulCmsData(response, resourceName) {
         error.code = payload.code;
         throw error;
     }
-    if (!Array.isArray(payload.data)) {
+    return payload.data;
+}
+
+function getSuccessfulCmsData(response, resourceName) {
+    const data = getSuccessfulCmsPayload(response, resourceName);
+    if (!Array.isArray(data)) {
         throw new Error(`${resourceName}响应格式异常`);
     }
-    return payload.data;
+    return data;
 }
 
 function flattenAchievementRecords(records) {
@@ -391,7 +397,20 @@ export async function fetchAchievementWorkbenchTags(ids = [], options = {}) {
     return result;
 }
 
-// 玩家自选方案仍使用旧标量难度，新推荐不经过这里，避免重新筛选服务端结果。
+export async function fetchAchievementWorkbenchTag(tagId, options = {}) {
+    const id = typeof tagId === "number" || typeof tagId === "string" ? Number(tagId) : NaN;
+    if (!Number.isSafeInteger(id) || id <= 0) return null;
+    const client = normalizeAchievementClient(options.client);
+    const response = await getWikiAchievementTag(id, { client });
+    const data = getSuccessfulCmsPayload(response, "成就标签");
+    if (data === null) return null;
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new Error("成就标签响应格式异常");
+    }
+    return normalizeAchievementWorkbenchTags([data]).tags[0] || null;
+}
+
+// 方案详情与手动添加保留旧标量难度兼容读取，新推荐不经过这里，避免重新筛选服务端结果。
 export async function fetchAchievementWorkbenchDifficulty(ids = [], batchSize = 500, options = {}) {
     const normalizedIds = normalizeCompletedAchievementIds(ids);
     if (!normalizedIds.length) return {};

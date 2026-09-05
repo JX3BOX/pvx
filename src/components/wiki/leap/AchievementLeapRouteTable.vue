@@ -60,9 +60,6 @@ export default {
             });
             return [...categoryMap].map(([id, name]) => ({ id, name }));
         },
-        showCompletionRateColumn() {
-            return this.items.some((item) => this.hasDisplayValue(item.completionStatistics?.rate));
-        },
         showTagsColumn() {
             return this.items.some((item) =>
                 this.getDisplayTags(item).some((tag) => this.hasDisplayValue(tag?.label))
@@ -172,17 +169,6 @@ export default {
         hasDisplayValue(value) {
             return value !== null && value !== undefined && String(value).trim() !== "";
         },
-        formatCompletionRate(value) {
-            if (value === null || value === undefined) return "—";
-            const normalized = Number(value);
-            if (!Number.isFinite(normalized)) return "—";
-            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
-            return new Intl.NumberFormat(locale, {
-                style: "percent",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }).format(normalized);
-        },
         getDisplayTags(item) {
             const tags = Array.isArray(item?.tags) ? item.tags : [];
             return [...tags].sort((left, right) => Number(right?.type === "school") - Number(left?.type === "school"));
@@ -198,10 +184,9 @@ export default {
 </script>
 
 <template>
-    <PvxSurface class="m-leap-route" padding="medium" v-loading="loading">
+    <PvxSurface class="m-leap-route" padding="small" radius="medium" v-loading="loading">
         <header class="m-leap-route__header">
             <div>
-                <span>{{ $t("pages.wiki.leap.ui.workbench.costLedger") }}</span>
                 <h2>{{ $t("pages.wiki.leap.ui.workbench.routeList") }}</h2>
                 <p>{{ $t("pages.wiki.leap.ui.workbench.costLedgerDescription") }}</p>
             </div>
@@ -249,9 +234,6 @@ export default {
                         <th v-for="dimension in dimensions" :key="dimension.key">
                             {{ dimensionLabel(dimension) }}
                         </th>
-                        <th v-if="showCompletionRateColumn">
-                            {{ $t("pages.wiki.leap.ui.workbench.globalCompletionRate") }}
-                        </th>
                         <th v-if="showTagsColumn">{{ $t("pages.wiki.leap.ui.workbench.tags") }}</th>
                         <th v-if="showSchoolRestrictionColumn">
                             {{ $t("pages.wiki.leap.ui.workbench.schoolRestriction") }}
@@ -278,6 +260,7 @@ export default {
                                 <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" />
                                 <span>
                                     <strong>{{ item.name || item.id }}</strong>
+                                    <small v-if="item.shortDescription" class="u-leap-achievement-description">{{ item.shortDescription }}</small>
                                     <small v-if="item.map?.name">{{ item.map.name }}</small>
                                     <small v-if="item.campRestricted" class="u-camp-restricted">{{ $t("achievementRecommendation.campRestricted") }}</small>
                                 </span>
@@ -289,12 +272,10 @@ export default {
                         <td v-for="dimension in dimensions" :key="dimension.key" class="u-leap-rating">
                             <AchievementDifficultyStars
                                 :value="getDimensionValue(item, dimension.key)"
+                                :dimension-key="dimension.key"
                                 :score-labels="dimension.scoreLabels"
                                 :label="dimensionLabel(dimension)"
                             />
-                        </td>
-                        <td v-if="showCompletionRateColumn">
-                            {{ formatCompletionRate(item.completionStatistics?.rate) }}
                         </td>
                         <td v-if="showTagsColumn" class="u-leap-tags">
                             <div class="u-leap-tag-list">
@@ -341,7 +322,6 @@ export default {
             />
         </div>
 
-        <p class="u-leap-route-hint">{{ $t("pages.wiki.leap.ui.workbench.costFormulaHint") }}</p>
     </PvxSurface>
 </template>
 
@@ -362,21 +342,16 @@ export default {
     margin-bottom: 16px;
 }
 
-.m-leap-route__header span {
-    color: #a88139;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-}
-
 .m-leap-route__header h2 {
-    margin: 4px 0;
-    font-size: 20px;
+    margin: 0 0 4px;
+    font-size: 17px;
+    line-height: 1.5;
 }
 
 .m-leap-route__header p {
     margin: 0;
     color: #7a8586;
+    font-size: 12px;
     line-height: 1.6;
 }
 
@@ -403,7 +378,7 @@ export default {
 
 table {
     width: 100%;
-    min-width: 1580px;
+    min-width: 1120px;
     border-collapse: collapse;
     background: #fffdf8;
 }
@@ -416,6 +391,7 @@ td {
     font-size: 12px;
     text-align: left;
     white-space: nowrap;
+    vertical-align: top;
 }
 
 th {
@@ -452,8 +428,9 @@ tbody tr.is-completed {
 
 .u-leap-achievement-cell a {
     display: flex;
-    max-width: 300px;
-    align-items: center;
+    min-width: 220px;
+    max-width: 320px;
+    align-items: flex-start;
     gap: 9px;
     color: #34484a;
     text-decoration: none;
@@ -462,6 +439,7 @@ tbody tr.is-completed {
 .u-leap-achievement-cell img {
     width: 34px;
     height: 34px;
+    flex: none;
     border-radius: 7px;
     object-fit: cover;
 }
@@ -480,6 +458,12 @@ tbody tr.is-completed {
 
 .u-leap-achievement-cell small {
     color: #9aa2a2;
+}
+
+.u-leap-achievement-cell .u-leap-achievement-description {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
 }
 
 .u-leap-number,
@@ -558,13 +542,6 @@ th.u-leap-route-action {
     display: flex;
     justify-content: center;
     margin-top: 16px;
-}
-
-.u-leap-route-hint {
-    margin: 12px 0 0;
-    color: #939b9b;
-    font-size: 12px;
-    line-height: 1.6;
 }
 
 @media (max-width: 1120px) {

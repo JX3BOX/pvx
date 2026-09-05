@@ -1,4 +1,5 @@
 export default {
+    records: "Lịch sử tư vấn",
     title: "Tư vấn thành tựu",
     refresh: "Tải lại danh sách",
     emptyQueue: "Không có yêu cầu phù hợp.",

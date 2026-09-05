@@ -4,6 +4,7 @@ import { getAchievementWorkbenchRatingFill, getAchievementWorkbenchScoreLabel } 
 export default {
     name: "AchievementDifficultyStars",
     props: {
+        dimensionKey: { type: String, default: "" },
         scoreLabels: { type: Array, default: () => [] },
         value: {
             type: [Number, String],
@@ -19,7 +20,10 @@ export default {
         },
     },
     computed: {
-        scoreLabel() { return getAchievementWorkbenchScoreLabel(this.value, this.scoreLabels); },
+        scoreLabel() {
+            if (this.dimensionKey === "overall") return null;
+            return getAchievementWorkbenchScoreLabel(this.value, this.scoreLabels);
+        },
         fillPercent() {
             return getAchievementWorkbenchRatingFill(this.value, this.max);
         },

@@ -30,11 +30,11 @@ export default {
 </script>
 
 <template>
-    <PvxSurface class="m-leap-summary" padding="medium">
+    <PvxSurface class="m-leap-summary" padding="small" radius="medium">
         <header class="m-leap-summary__header">
             <div>
-                <span>{{ $t("pages.wiki.leap.ui.workbench.planOverview") }}</span>
-                <h2>{{ title || $t("pages.wiki.leap.ui.unnamedPlan") }}</h2>
+                <span v-if="title">{{ $t("pages.wiki.leap.ui.workbench.planOverview") }}</span>
+                <h2>{{ title || $t("pages.wiki.leap.ui.workbench.planOverview") }}</h2>
             </div>
             <span class="u-leap-summary-status" :class="{ 'is-reached': route.reached }">
                 {{
@@ -105,10 +105,10 @@ export default {
     align-items: center;
     justify-content: space-between;
     gap: 14px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
-.m-leap-summary__header span:first-child {
+.m-leap-summary__header > div > span {
     color: #a88139;
     font-size: 12px;
     font-weight: 700;
@@ -116,11 +116,13 @@ export default {
 }
 
 .m-leap-summary__header h2 {
-    margin: 4px 0 0;
-    font-size: 20px;
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
 }
 
 .u-leap-summary-status {
+    flex: none;
     padding: 6px 10px;
     border-radius: 999px;
     color: #a3543f;
@@ -147,7 +149,7 @@ export default {
     display: grid;
     min-width: 0;
     gap: 6px;
-    padding: 15px;
+    padding: 12px 14px;
     border-right: 1px solid rgba(69, 86, 84, 0.1);
 }
 

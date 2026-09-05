@@ -104,10 +104,26 @@ const calls = {
     maps: [],
     progress: [],
     search: [],
+    tagDetail: [],
     tagsByAchievements: [],
     update: [],
 };
 let difficultyDimensionFailuresRemaining = 0;
+let tagDetailResponse = {
+    data: {
+        code: 0,
+        msg: "Success",
+        data: {
+            tag_id: 7,
+            tag_label: "门派：苍云",
+            tag_desc: "苍云相关成就",
+            tag_type: "normal",
+            tag_value: null,
+            tag_remark: "仅供管理端查看的备注",
+            achievement_count: 16,
+        },
+    },
+};
 
 const achievementService = {
     getAchievementPointsV2: async () => ({ data: { data: { points: {} } } }),
@@ -284,6 +300,11 @@ const wikiService = {
             },
         };
     },
+    getWikiAchievementTag: async (id, params) => {
+        calls.tagDetail.push([id, params]);
+        if (tagDetailResponse instanceof Error) throw tagDetailResponse;
+        return tagDetailResponse;
+    },
     updateWikiAchievementLeapSchema: async (id, payload) => {
         calls.update.push([id, payload]);
         return { data: { data: { id, title: `${payload.title}-已更新` } } };
@@ -322,6 +343,8 @@ const service = loadModule(
     await wikiApi.getWikiAchievementLeapSchemaProgress([101, 102], { client: "origin" });
     await wikiApi.getWikiAchievementDifficultyList([7456, 7457], { client: "origin" });
     await wikiApi.getWikiAchievementTagsByAchievements([7456], { client: "std" });
+    await wikiApi.getWikiAchievementTag(7, { client: "origin" });
+    await wikiApi.getWikiAchievementTag(8);
     assert.deepStrictEqual(wikiApiCalls, [
         ["get", "/api/cms/pvx/wiki_achievement_difficulty/dimensions"],
         [
@@ -342,6 +365,8 @@ const service = loadModule(
             [7456],
             { params: { client: "std" } },
         ],
+        ["get", "/api/cms/pvx/wiki_achievement_tag/7", { params: { client: "origin" } }],
+        ["get", "/api/cms/pvx/wiki_achievement_tag/8", { params: {} }],
     ]);
 
     const dimensions = await service.fetchAchievementWorkbenchDifficultyDimensions();
@@ -417,6 +442,53 @@ const service = loadModule(
         camps: [],
         unknown: [],
     });
+
+    const tagDetail = await service.fetchAchievementWorkbenchTag("7", { client: "origin" });
+    assert.deepStrictEqual(calls.tagDetail, [[7, { client: "origin" }]]);
+    assert.deepStrictEqual(tagDetail, {
+        id: "7",
+        label: "门派：苍云",
+        description: "苍云相关成就",
+        type: "school",
+        category: "门派",
+        value: "苍云",
+    });
+    assert.ok(!Object.prototype.hasOwnProperty.call(tagDetail, "tag_remark"), "公开标签不能暴露管理备注");
+
+    tagDetailResponse.data.code = "0";
+    assert.deepStrictEqual(await service.fetchAchievementWorkbenchTag(7), tagDetail, "字符串 0 也是成功码");
+    assert.deepStrictEqual(calls.tagDetail.at(-1), [7, { client: "std" }]);
+    await service.fetchAchievementWorkbenchTag("0007", { client: "invalid-client" });
+    assert.deepStrictEqual(calls.tagDetail.at(-1), [7, { client: "std" }], "客户端参数使用已有归一化规则");
+
+    const validTagCallCount = calls.tagDetail.length;
+    for (const invalidId of [undefined, null, "", " ", 0, -7, 7.5, Infinity, NaN, Number.MAX_SAFE_INTEGER + 1, "7,8", "../7", true, false, [], {}]) {
+        assert.strictEqual(await service.fetchAchievementWorkbenchTag(invalidId), null);
+    }
+    assert.strictEqual(calls.tagDetail.length, validTagCallCount, "非法标签 ID 不能发送请求");
+
+    for (const emptyRecord of [null, {}, { tag_id: 7 }, { tag_id: 7, tag_label: "  " }, { tag_id: 7, tag_desc: "没有名称" }]) {
+        tagDetailResponse = { data: { code: 0, data: emptyRecord } };
+        assert.strictEqual(await service.fetchAchievementWorkbenchTag(7), null, "空记录或没有名称时不创建占位标签");
+    }
+    tagDetailResponse = { data: { code: 0, data: { tag_id: 7, tag_label: "门派：苍云", tag_desc: "", tag_remark: "不能回退成公开描述" } } };
+    assert.strictEqual((await service.fetchAchievementWorkbenchTag(7)).description, null, "空公开描述不能回退到管理备注");
+
+    tagDetailResponse = { data: { code: 1001, msg: "标签加载失败", data: null } };
+    await assert.rejects(
+        () => service.fetchAchievementWorkbenchTag(7),
+        (error) => error.message === "标签加载失败" && error.code === 1001
+    );
+    for (const code of [null, false, ""]) {
+        tagDetailResponse = { data: { code, data: null } };
+        await assert.rejects(() => service.fetchAchievementWorkbenchTag(7), /成就标签加载失败/);
+    }
+    for (const malformedResponse of [{}, { data: {} }, { data: { code: 0 } }, { data: { code: 0, data: [] } }, { data: { code: 0, data: "7" } }]) {
+        tagDetailResponse = malformedResponse;
+        await assert.rejects(() => service.fetchAchievementWorkbenchTag(7), /成就标签响应格式异常/);
+    }
+    tagDetailResponse = new Error("标签网络请求失败");
+    await assert.rejects(() => service.fetchAchievementWorkbenchTag(7), /标签网络请求失败/);
 
     const defaultTagBatchOffset = calls.tagsByAchievements.length;
     await service.fetchAchievementWorkbenchTags(

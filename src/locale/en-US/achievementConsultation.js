@@ -1,4 +1,5 @@
 export default {
+    records: "Consultation history",
     title: "Achievement consultation",
     refresh: "Refresh requests",
     emptyQueue: "No matching requests.",

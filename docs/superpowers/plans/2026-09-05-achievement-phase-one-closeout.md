@@ -1,5 +1,7 @@
 # 资历宝典第一阶段收尾 Implementation Plan
 
+> 历史计划说明：下文保留当时的测试命令。现已统一为 `npm run test:achievement`；单项测试可直接运行对应的 `scripts/test-achievement-*.js` 文件。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在不改动 OS、不设计或实现推荐生成逻辑的前提下，完成 PVX 资历宝典三个页面对公共难度维度、批量难度、同步完成率和成就标签接口的接入收口，使展示、排序、导出、空值规则和请求性能保持一致。

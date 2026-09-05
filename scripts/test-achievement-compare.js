@@ -128,6 +128,7 @@ const exportRecords = [
     {
         id: "1",
         name: "零成本成就",
+        shortDescription: "完成江湖游历\n不消耗金钱",
         points: 0,
         category: { name: "江湖", subName: "游历" },
         difficultyDimensions: { money: 0, operation: null, overall: 4.5 },
@@ -160,6 +161,7 @@ const exportRoles = [
 const exportTranslations = {
     "pages.wiki.compare.ui.export.headers.category": "成就分类",
     "pages.wiki.compare.ui.export.headers.achievement": "成就名称",
+    "pages.wiki.compare.ui.export.headers.description": "成就描述",
     "pages.wiki.compare.ui.export.headers.points": "资历点数",
     "pages.wiki.difficultyDimensions.money": "金钱",
     "pages.wiki.difficultyDimensions.overall": "综合难度",
@@ -178,20 +180,20 @@ const exportData =
           })
         : null;
 assert.deepStrictEqual(exportData, [
-    ["成就分类", "成就名称", "资历点数", "金钱", "操作难度", "综合难度", "同步完成率", "标签", "甲 · 梦江南", "乙 · 长安城"],
+    ["成就分类", "成就名称", "成就描述", "资历点数", "金钱", "操作难度", "综合难度", "标签", "甲 · 梦江南", "乙 · 长安城"],
     [
         "江湖 / 游历",
         "零成本成就",
+        "完成江湖游历\n不消耗金钱",
         0,
         0,
         "—",
         4.5,
-        "12.50%",
         "门派：万花, 节日：花朝节, 活动：花朝节",
         "已完成",
         "未完成",
     ],
-    ["—", "操作入门", "—", "—", 0, "—", "0.00%", "—", "未完成", "已完成"],
+    ["—", "操作入门", "—", "—", "—", 0, "—", "—", "未完成", "已完成"],
 ]);
 
 const compareMatrixSource = fs.readFileSync(

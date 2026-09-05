@@ -290,6 +290,7 @@ export default {
     svg {
         width: 14px;
         height: 14px;
+        flex-shrink: 0;
     }
 
     &:disabled {
@@ -305,7 +306,7 @@ export default {
 
 .u-compare-search-button,
 .u-compare-reset-button {
-    width: 84px;
+    min-width: 84px;
 }
 
 .u-compare-search-button,

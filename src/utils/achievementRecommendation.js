@@ -1,4 +1,19 @@
 // The server owns eligibility and ordering. Detail queries must not change either.
+export function formatAchievementRecommendationDate(value, locale = "zh-CN") {
+    if (typeof value !== "string" || !value.trim()) return "";
+    const date = new Date(value);
+    return Number.isFinite(date.getTime()) ? date.toLocaleString(locale, { timeZone: "Asia/Shanghai" }) : "";
+}
+
+export function achievementRecommendationExclusions(summary) {
+    if (!summary || typeof summary !== "object" || Array.isArray(summary)) return [];
+    // Reasons may overlap. Keep server counts separate; never invent a deduplicated total.
+    return Object.entries(summary).flatMap(([reason, value]) => {
+        const count = typeof value === "number" || typeof value === "string" ? Number(value) : NaN;
+        return Number.isSafeInteger(count) && count > 0 ? [{ reason, count }] : [];
+    });
+}
+
 export function defaultAchievementRecommendationOptions() {
     return { categoryIds: null, dimensionWeights: {}, directionWeights: {} };
 }
@@ -28,18 +43,26 @@ export function selectAchievementRecommendation(recommendation, metadata, target
 }
 
 export function selectAchievementRecommendationItems(items, currentPoints, targetPoints) {
+    const selection = resolveAchievementRecommendationSelection(items, currentPoints, targetPoints);
+    if (selection.missingPointId !== null) throw new Error(`Missing achievement points: ${selection.missingPointId}`);
+    return selection.items;
+}
+
+export function resolveAchievementRecommendationSelection(items, currentPoints, targetPoints) {
     const gap = Number(targetPoints) - currentPoints;
-    if (!(gap > 0)) return [];
+    if (!(gap > 0)) return { items: [], missingPointId: null };
     const selected = [];
     let points = 0;
     for (const row of items) {
         if (points >= gap) break;
         const point = row.points;
-        if (!Number.isFinite(point) || point < 0) throw new Error(`Missing achievement points: ${row.id}`);
+        // Only the prefix needed to reach the target participates in validation.
+        // Unknown points inside it must neither be treated as zero nor skipped.
+        if (!Number.isFinite(point) || point < 0) return { items: [], missingPointId: row.id };
         selected.push(row);
         points += point;
     }
-    return selected;
+    return { items: selected, missingPointId: null };
 }
 
 export function moveAchievementRecommendationGroup(groups, group, offset) {
