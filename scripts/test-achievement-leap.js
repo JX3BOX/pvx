@@ -346,7 +346,8 @@ const recommendationSource = leapPageSource.slice(
 // SFC contract: the page owns the resolved definitions and passes them to every display consumer.
 assert.match(leapPageSource, /fetchAchievementWorkbenchDifficultyDimensions/);
 assert.match(leapPageSource, /dimensions:\s*resolveAchievementWorkbenchDimensions\(\[\]\)/);
-assert.match(leapPageSource, /fetchAchievementWorkbenchDifficultyDimensions\(\)\.catch\(/);
+assert.match(leapPageSource, /fetchAchievementWorkbenchDifficultyDimensions\(\),/);
+assert.ok(!leapPageSource.includes("fetchAchievementWorkbenchDifficultyDimensions().catch("), "recommendation definitions must not silently fall back");
 assert.ok((leapPageSource.match(/:dimensions="dimensions"/g) || []).length >= 3);
 assert.match(routeTableSource, /dimensions:\s*\{/);
 assert.match(addDialogSource, /dimensions:\s*\{/);
@@ -386,9 +387,10 @@ assert.match(addDialogSource, /getDimensionValue\(item, overallDimension\.key\)/
 assert.ok(!addDialogSource.includes("Math.round"));
 assert.ok(!addDialogSource.includes('.repeat(stars)'));
 
-// Recommendation is frozen on the stage-v1 scalar difficulty path; new metrics are display-only.
-assert.match(recommendationSource, /buildAchievementLeapRecommendation\(/);
-assert.match(recommendationSource, /fetchAchievementWorkbenchDifficulty\(/);
+// Server recommendations must bypass the old local ranking and difficulty filters.
+assert.match(recommendationSource, /fetchAchievementWorkbenchRecommendation\(/);
+assert.ok(!recommendationSource.includes("buildAchievementLeapRecommendation("));
+assert.ok(!recommendationSource.includes("fetchAchievementWorkbenchDifficulty("));
 assert.ok(!recommendationSource.includes("fetchAchievementWorkbenchDifficultyMetrics("));
 
 // Detail mismatch state owns a dedicated empty state and disables every plan action in the header.
@@ -404,7 +406,7 @@ const pageComponentImports = [
     "@/components/wiki/leap/AchievementLeapDetailHeader.vue",
     "@/components/wiki/leap/AchievementLeapPlanner.vue",
     "@/components/wiki/leap/AchievementLeapPlanList.vue",
-    "@/components/wiki/leap/AchievementLeapRecommendation.vue",
+    "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue",
     "@/components/wiki/leap/AchievementLeapRouteTable.vue",
     "@/components/wiki/leap/AchievementLeapSaveDialog.vue",
     "@/components/wiki/leap/AchievementLeapSummary.vue",
@@ -458,6 +460,7 @@ function buildPageTestRoute({ candidates = [], currentPoints = 0, targetPoints =
 }
 
 const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapPage.vue"), {
+    "@/utils/achievementRecommendation": loadModule(path.resolve(__dirname, "../src/utils/achievementRecommendation.js")),
     ...Object.fromEntries(pageComponentImports.map((request) => [request, {}])),
     "@element-plus/icons-vue": {},
     "@jx3box/jx3box-common/js/user": { isLogin: () => true },
@@ -669,12 +672,18 @@ async function runLeapStateConsistencyTests() {
         successfulRoleVm.addSearchResults = preservedSearchResults;
         successfulRoleVm.saveDialogVisible = true;
         successfulRoleVm.addDialogVisible = true;
+        successfulRoleVm.recommendation = { role: { role_id: 1 } };
+        successfulRoleVm.recommendationLoading = true;
+        const previousRecommendationRequest = successfulRoleVm.recommendationRequestId;
         successfulRoleVm.$router.replace = ({ query }) => {
             replacedRoleId = query.jx3id;
             return Promise.resolve();
         };
         await successfulRoleVm.handleRoleChange("role-origin");
         assert.strictEqual(successfulRoleVm.currentRoleId, "role-origin");
+        assert.strictEqual(successfulRoleVm.recommendation, null);
+        assert.strictEqual(successfulRoleVm.recommendationLoading, false);
+        assert.ok(successfulRoleVm.recommendationRequestId > previousRecommendationRequest);
         assert.strictEqual(successfulRoleVm.plannerForm.roleId, "role-origin");
         assert.strictEqual(replacedRoleId, "role-origin");
         assert.strictEqual(successfulRoleVm.generatedRoute, null);

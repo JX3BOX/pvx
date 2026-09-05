@@ -20,6 +20,7 @@ import {
     getWikiAchievementLeapSchemaList,
     getWikiAchievementLeapSchemaProgress,
     getWikiAchievementTagsByAchievements,
+    getWikiAchievementRecommendation,
     updateWikiAchievementLeapSchema,
 } from "@/service/wiki";
 import {
@@ -41,6 +42,7 @@ const CURRENT_DETAIL_ATTRIBUTES = [
     "IconID",
     "Point",
     "SceneID",
+    "dwMapID",
     "ItemType",
     "ItemID",
 ].join(",");
@@ -159,6 +161,27 @@ export async function fetchAchievementWorkbenchCatalog(client = "std") {
 export async function fetchAchievementWorkbenchRoles() {
     const response = await getUserRoles();
     return (response.data?.data?.list || []).map((role) => normalizeAchievementWorkbenchRole(role, { isSelf: true }));
+}
+
+export async function fetchAchievementWorkbenchRecommendation({ roleId, camp, preferences = {} }) {
+    if (!Number.isSafeInteger(roleId) || roleId <= 0) throw new Error("Invalid recommendation role ID");
+    const response = await getWikiAchievementRecommendation({
+        role_id: roleId, camp,
+        ...(preferences.category_ids !== undefined ? { category_ids: preferences.category_ids } : {}),
+        ...(preferences.dimension_weights ? { dimension_weights: preferences.dimension_weights } : {}),
+        ...(preferences.dimension_ranges ? { dimension_ranges: preferences.dimension_ranges } : {}),
+        ...(preferences.direction_weights ? { direction_weights: preferences.direction_weights } : {}),
+    });
+    const payload = response?.data;
+    if (payload?.code !== 0 && payload?.code !== "0") {
+        throw new Error(payload?.msg || "Recommendation request failed");
+    }
+    const result = payload.data;
+    if (!result?.role || !Array.isArray(result.recommendations) ||
+        !Array.isArray(result.camp_restricted_ids) || !Array.isArray(result.upcoming_events)) {
+        throw new Error("Invalid recommendation response");
+    }
+    return result;
 }
 
 export async function fetchAchievementWorkbenchFriends() {
@@ -368,8 +391,7 @@ export async function fetchAchievementWorkbenchTags(ids = [], options = {}) {
     return result;
 }
 
-// stage-v1 推荐仍依赖这个旧标量入口。页面接入新维度期间不要改为调用
-// fetchAchievementWorkbenchDifficultyMetrics，避免接口替换静默改变推荐结果。
+// 玩家自选方案仍使用旧标量难度，新推荐不经过这里，避免重新筛选服务端结果。
 export async function fetchAchievementWorkbenchDifficulty(ids = [], batchSize = 500, options = {}) {
     const normalizedIds = normalizeCompletedAchievementIds(ids);
     if (!normalizedIds.length) return {};

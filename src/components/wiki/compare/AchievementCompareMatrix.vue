@@ -201,6 +201,7 @@ export default {
                                                 {{ dimensionLabel(definition) }}
                                                 <AchievementDifficultyStars
                                                     :value="dimensionValue(record, definition)"
+                                                    :score-labels="definition.scoreLabels"
                                                     :label="dimensionLabel(definition)"
                                                 />
                                             </span>

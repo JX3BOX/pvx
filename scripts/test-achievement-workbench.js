@@ -55,6 +55,11 @@ assert.deepStrictEqual(difficultyDimensions, [
     {
         id: "4",
         key: "costEffectiveness",
+        apiKey: "cost_effectiveness",
+        scoreLabels: [],
+        visible: true,
+        recommendationDirection: null,
+        recommendationWeight: null,
         label: "性价比",
         description: "综合资历收益与投入成本后的性价比",
         sortOrder: 40,
@@ -63,6 +68,11 @@ assert.deepStrictEqual(difficultyDimensions, [
     {
         id: "5",
         key: "overall",
+        apiKey: "overall",
+        scoreLabels: [],
+        visible: true,
+        recommendationDirection: null,
+        recommendationWeight: null,
         label: "综合难度",
         description: "获取成就的整体难度",
         sortOrder: 50,
@@ -137,6 +147,11 @@ assert.deepStrictEqual(
         {
             id: "9",
             key: "operation",
+            apiKey: "operation",
+            scoreLabels: [],
+            visible: true,
+            recommendationDirection: null,
+            recommendationWeight: null,
             label: "操作",
             description: "操作要求",
             sortOrder: 5,
@@ -147,6 +162,11 @@ assert.deepStrictEqual(
             id: "1",
             key: "money",
             label: "接口金钱",
+            apiKey: "money",
+            scoreLabels: [],
+            visible: true,
+            recommendationDirection: null,
+            recommendationWeight: null,
             description: null,
             sortOrder: 10,
             required: true,
@@ -165,6 +185,17 @@ const dynamicDimensionRecord = {
     cost: { money: 3, time: 1, luck: 2 },
     costEffectiveness: 4,
 };
+const moneyBands = [{ min: 0, label: "免费" }, { min: 20, label: "少量" }, { min: 30, label: "花钱" }, { min: 41, label: "巨花钱" }];
+for (const [value, label] of [[0, "免费"], [1.9, "免费"], [2, "少量"], [2.9, "少量"], [3, "花钱"], [4, "花钱"], [4.1, "巨花钱"], [5, "巨花钱"]]) {
+    assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(value, moneyBands), label);
+}
+for (const value of [null, undefined, "", false, -1, 5.1]) assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(value, moneyBands), null);
+assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(5, [{ min: 0, label: "低概率" }, { min: 50, label: "纯看脸" }]), "纯看脸");
+assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(4.9, [{ min: 0, label: "低概率" }, { min: 50, label: "纯看脸" }]), "低概率");
+assert.strictEqual(workbench.getAchievementWorkbenchScoreLabel(2, []), null);
+const labeledDimensions = normalizeAchievementWorkbenchDifficultyDimensions([{ dimension_key: "money", score_labels: moneyBands }]);
+assert.deepStrictEqual(labeledDimensions[0].scoreLabels, moneyBands);
+assert.deepStrictEqual(resolveAchievementWorkbenchDimensions(labeledDimensions)[0].scoreLabels, moneyBands, "normalizing twice must preserve labels");
 assert.strictEqual(getAchievementWorkbenchDimensionValue(dynamicDimensionRecord, "operation"), 2.5);
 assert.strictEqual(getAchievementWorkbenchDimensionValue(dynamicDimensionRecord, "money"), 0);
 assert.strictEqual(getAchievementWorkbenchDimensionValue(dynamicDimensionRecord, "overall"), null);
@@ -420,6 +451,7 @@ assert.deepStrictEqual(prototypeRecord.completionByRole, { r1: true, r2: false }
 
 const role = normalizeAchievementWorkbenchRole(
     {
+        ID: 456,
         jx3id: 123,
         name: "叶知秋",
         server: "蝶恋花",
@@ -433,6 +465,7 @@ const role = normalizeAchievementWorkbenchRole(
 assert.deepStrictEqual(role, {
     id: "123",
     jx3id: "123",
+    roleId: 456,
     name: "叶知秋",
     server: "蝶恋花",
     school: "藏剑",

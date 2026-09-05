@@ -216,12 +216,17 @@ export function normalizeAchievementWorkbenchDifficultyDimensions(rawDimensions 
         .map((dimension) => ({
             id: normalizeString(pickFirst(dimension, ["dimensionId", "dimension_id", "id"])),
             key: normalizeDimensionKey(pickFirst(dimension, ["dimensionKey", "dimension_key", "key"])),
+            apiKey: normalizeString(pickFirst(dimension, ["apiKey", "dimension_key", "key"])),
             label: normalizeString(pickFirst(dimension, ["dimensionLabel", "dimension_label", "label"])),
             description: normalizeString(
                 pickFirst(dimension, ["dimensionDescription", "dimension_desc", "description"])
             ),
+            scoreLabels: pickFirst(dimension, ["scoreLabels", "score_labels"]) || [],
             sortOrder: normalizeNumber(pickFirst(dimension, ["sortOrder", "sort_order"])),
             required: normalizeBoolean(pickFirst(dimension, ["required", "isRequired", "is_required"])) ?? false,
+            visible: normalizeBoolean(pickFirst(dimension, ["visible", "is_visible"])) ?? true,
+            recommendationDirection: pickFirst(dimension, ["recommendationDirection", "recommendation_direction"]),
+            recommendationWeight: normalizeNumber(pickFirst(dimension, ["recommendationWeight", "recommendation_weight"])),
         }))
         .filter((dimension) => dimension.key)
         .sort(
@@ -234,7 +239,7 @@ export function resolveAchievementWorkbenchDimensions(rawDimensions = []) {
     const normalized = normalizeAchievementWorkbenchDifficultyDimensions(rawDimensions);
     const source = normalized.length ? normalized : ACHIEVEMENT_WORKBENCH_FALLBACK_DIMENSIONS;
 
-    return source.map((dimension) => ({
+    return source.filter((dimension) => dimension.visible !== false).map((dimension) => ({
         ...dimension,
         i18nKey: ACHIEVEMENT_WORKBENCH_DIMENSION_I18N_KEYS[dimension.key] || null,
     }));
@@ -272,6 +277,14 @@ export function getAchievementWorkbenchRatingFill(value, max = 5) {
     const normalizedMax = normalizeNumber(max);
     if (normalized === null || normalizedMax === null || normalizedMax <= 0) return null;
     return Math.max(0, Math.min(100, (normalized / normalizedMax) * 100));
+}
+
+export function getAchievementWorkbenchScoreLabel(value, bands = []) {
+    if (!isPresent(value) || typeof value === "boolean") return null;
+    const rating = normalizeNumber(value);
+    if (rating === null || rating < 0 || rating > 5) return null;
+    const rawScore = Math.round(rating * 10);
+    return [...bands].reverse().find((band) => rawScore >= band.min)?.label || null;
 }
 
 export function getAchievementWorkbenchDimensionSort(value = "") {
@@ -386,7 +399,7 @@ export function normalizeAchievementWorkbenchRecord(raw = {}, context = {}) {
             subName: normalizeString(pickFirst(raw, ["subCategory", "subCategoryName", "SubCategoryName"])),
         },
         map: {
-            id: normalizeString(pickFirst(raw, ["mapId", "MapID", "SceneID"])),
+            id: normalizeString(pickFirst(raw, ["mapId", "MapID", "SceneID"]) || raw.dwMapID),
             name: normalizeString(pickFirst(raw, ["mapName", "MapName", "map"])),
         },
         points: normalizeNumber(
@@ -432,6 +445,7 @@ export function normalizeAchievementWorkbenchRole(raw = {}, options = {}) {
     return {
         id,
         jx3id: id,
+        roleId: normalizeNumber(raw.ID),
         name: normalizeString(pickFirst(raw, ["name", "Name"])),
         server: normalizeString(pickFirst(raw, ["server", "Server"])),
         school: normalizeString(pickFirst(raw, ["school", "mount", "School"])),

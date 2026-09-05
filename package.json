@@ -18,6 +18,7 @@
         "test:achievement-compare": "node scripts/test-achievement-compare.js",
         "test:achievement-leap": "node scripts/test-achievement-leap.js",
         "test:achievement-service": "node scripts/test-achievement-service.js",
+        "test:achievement-recommendation": "node scripts/test-achievement-recommendation.js",
         "test:achievement-web-contract": "node scripts/test-achievement-web-contract.js",
         "verify:legacy-js": "node scripts/verify-legacy-js.js",
         "update": "npm --registry https://registry.npmjs.org install @jx3box/jx3box-common@latest @jx3box/jx3box-data@latest @jx3box/jx3box-ui@latest @jx3box/jx3box-editor@latest @jx3box/jx3box-facedat@latest @jx3box/jx3box-map@latest"

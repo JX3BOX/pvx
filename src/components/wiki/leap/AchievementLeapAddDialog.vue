@@ -131,6 +131,7 @@ export default {
                         <small v-if="overallDimension">
                             <AchievementDifficultyStars
                                 :value="getDimensionValue(item, overallDimension.key)"
+                                :score-labels="overallDimension.scoreLabels"
                                 :label="dimensionLabel(overallDimension)"
                             />
                         </small>

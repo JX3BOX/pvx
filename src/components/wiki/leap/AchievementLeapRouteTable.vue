@@ -5,6 +5,7 @@ import { markRaw } from "vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import { achievementRecommendationGroupLabel } from "@/utils/achievementRecommendation";
 import {
     formatAchievementWorkbenchValue,
     getAchievementWorkbenchDimensionSort,
@@ -20,6 +21,7 @@ export default {
         PvxSurface,
     },
     props: {
+        maps: { type: Array, default: () => [] },
         items: {
             type: Array,
             default: () => [],
@@ -71,6 +73,9 @@ export default {
         },
         showGuideNoteColumn() {
             return this.items.some((item) => this.hasDisplayValue(item.guideNote));
+        },
+        showRecommendationColumn() {
+            return this.items.some((item) => item.recommendationGroup);
         },
         filteredItems() {
             const keyword = this.keyword.trim().toLowerCase();
@@ -138,6 +143,9 @@ export default {
         },
     },
     methods: {
+        recommendationGroupLabel(group) {
+            return group ? achievementRecommendationGroupLabel(group, this.maps, this.$t) : "—";
+        },
         iconLink,
         getLink,
         compareNullable(left, right) {
@@ -235,6 +243,7 @@ export default {
                     <tr>
                         <th>{{ $t("pages.wiki.leap.ui.status") }}</th>
                         <th>{{ $t("pages.wiki.leap.ui.achievementName") }}</th>
+                        <th v-if="showRecommendationColumn">{{ $t("achievementRecommendation.groupColumn") }}</th>
                         <th>{{ $t("pages.wiki.leap.ui.workbench.category") }}</th>
                         <th>{{ $t("pages.wiki.leap.ui.points") }}</th>
                         <th v-for="dimension in dimensions" :key="dimension.key">
@@ -270,14 +279,17 @@ export default {
                                 <span>
                                     <strong>{{ item.name || item.id }}</strong>
                                     <small v-if="item.map?.name">{{ item.map.name }}</small>
+                                    <small v-if="item.campRestricted" class="u-camp-restricted">{{ $t("achievementRecommendation.campRestricted") }}</small>
                                 </span>
                             </a>
                         </td>
+                        <td v-if="showRecommendationColumn">{{ recommendationGroupLabel(item.recommendationGroup) }}</td>
                         <td>{{ categoryLabel(item) }}</td>
                         <td class="u-leap-number">{{ formatValue(item.points) }}</td>
                         <td v-for="dimension in dimensions" :key="dimension.key" class="u-leap-rating">
                             <AchievementDifficultyStars
                                 :value="getDimensionValue(item, dimension.key)"
+                                :score-labels="dimension.scoreLabels"
                                 :label="dimensionLabel(dimension)"
                             />
                         </td>
@@ -334,6 +346,9 @@ export default {
 </template>
 
 <style lang="less" scoped>
+.u-camp-restricted {
+    color: #ae3b40;
+}
 .m-leap-route {
     min-width: 0;
     color: #344143;

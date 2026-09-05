@@ -1,9 +1,10 @@
 <script>
-import { getAchievementWorkbenchRatingFill } from "@/utils/achievementWorkbench";
+import { getAchievementWorkbenchRatingFill, getAchievementWorkbenchScoreLabel } from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementDifficultyStars",
     props: {
+        scoreLabels: { type: Array, default: () => [] },
         value: {
             type: [Number, String],
             default: null,
@@ -18,6 +19,7 @@ export default {
         },
     },
     computed: {
+        scoreLabel() { return getAchievementWorkbenchScoreLabel(this.value, this.scoreLabels); },
         fillPercent() {
             return getAchievementWorkbenchRatingFill(this.value, this.max);
         },
@@ -46,7 +48,8 @@ export default {
 </script>
 
 <template>
-    <span v-if="hasValue" class="c-achievement-rating" role="img" :aria-label="accessibleLabel">
+    <span v-if="scoreLabel" class="c-achievement-score-label" :title="accessibleLabel">{{ scoreLabel }}</span>
+    <span v-else-if="hasValue" class="c-achievement-rating" role="img" :aria-label="accessibleLabel">
         <span class="c-achievement-stars" aria-hidden="true">
             <span class="c-achievement-stars__empty">☆☆☆☆☆</span>
             <span class="c-achievement-stars__filled" :style="fillStyle">★★★★★</span>
@@ -57,6 +60,7 @@ export default {
 </template>
 
 <style lang="less" scoped>
+.c-achievement-score-label { color: #365f64; overflow-wrap: anywhere; }
 .c-achievement-rating {
     display: inline-flex;
     align-items: center;

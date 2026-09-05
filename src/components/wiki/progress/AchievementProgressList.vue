@@ -360,6 +360,7 @@ export default {
                                 <AchievementDifficultyStars
                                     class="u-progress-rating"
                                     :value="getDimensionValue(record, dimension)"
+                                    :score-labels="dimension.scoreLabels"
                                     :label="getDimensionLabel(dimension)"
                                 />
                             </span>

@@ -1,12 +1,11 @@
 <script>
 import User from "@jx3box/jx3box-common/js/user";
-import { FolderOpened, Plus, UserFilled, WarningFilled } from "@element-plus/icons-vue";
+import { FolderOpened, Plus, UserFilled, WarningFilled, MagicStick } from "@element-plus/icons-vue";
 import AchievementLeapAddDialog from "@/components/wiki/leap/AchievementLeapAddDialog.vue";
 import AchievementLeapBaseSettings from "@/components/wiki/leap/AchievementLeapBaseSettings.vue";
 import AchievementLeapDetailHeader from "@/components/wiki/leap/AchievementLeapDetailHeader.vue";
-import AchievementLeapPlanner from "@/components/wiki/leap/AchievementLeapPlanner.vue";
 import AchievementLeapPlanList from "@/components/wiki/leap/AchievementLeapPlanList.vue";
-import AchievementLeapRecommendation from "@/components/wiki/leap/AchievementLeapRecommendation.vue";
+import AchievementLeapRecommendationDrawer from "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue";
 import AchievementLeapRouteTable from "@/components/wiki/leap/AchievementLeapRouteTable.vue";
 import AchievementLeapSaveDialog from "@/components/wiki/leap/AchievementLeapSaveDialog.vue";
 import AchievementLeapSummary from "@/components/wiki/leap/AchievementLeapSummary.vue";
@@ -25,6 +24,7 @@ import {
     fetchAchievementWorkbenchRecordsBatched,
     fetchAchievementWorkbenchRoles,
     fetchAchievementWorkbenchRoleState,
+    fetchAchievementWorkbenchRecommendation,
     fetchAchievementWorkbenchTags,
     saveAchievementWorkbenchLeapPlan,
     searchAchievementWorkbenchRecords,
@@ -34,8 +34,8 @@ import {
     buildAchievementLeapCandidates,
     buildAchievementLeapCategoryOptions,
     buildAchievementLeapPlanProgress,
-    buildAchievementLeapRecommendation,
     buildAchievementLeapRoute,
+    buildAchievementLeapRouteMetrics,
     filterAchievementLeapIds,
     removeAchievementLeapRouteItem,
 } from "@/utils/achievementLeap";
@@ -46,6 +46,11 @@ import {
     resolveAchievementWorkbenchDimensions,
 } from "@/utils/achievementWorkbench";
 import { __Links } from "@/utils/config";
+import {
+    selectAchievementRecommendationItems, buildAchievementRecommendationPlan,
+    achievementRecommendationPlanMetadata, flattenAchievementRecommendation,
+    defaultAchievementRecommendationOptions, achievementRecommendationPreferences,
+} from "@/utils/achievementRecommendation";
 
 const PLAN_PAGE_SIZE = 9;
 
@@ -59,9 +64,8 @@ export default {
         AchievementLeapAddDialog,
         AchievementLeapBaseSettings,
         AchievementLeapDetailHeader,
-        AchievementLeapPlanner,
         AchievementLeapPlanList,
-        AchievementLeapRecommendation,
+        AchievementLeapRecommendationDrawer,
         AchievementLeapRouteTable,
         AchievementLeapSaveDialog,
         AchievementLeapSummary,
@@ -72,6 +76,7 @@ export default {
         PvxSurface,
         UserFilled,
         WarningFilled,
+        MagicStick,
     },
     data() {
         return {
@@ -91,6 +96,7 @@ export default {
             roles: [],
             maps: [],
             dimensions: resolveAchievementWorkbenchDimensions([]),
+            recommendationDimensions: [],
             currentRoleId: "",
             roleState: emptyRoleState(),
             plans: [],
@@ -108,6 +114,9 @@ export default {
             },
             generatedRoute: null,
             recommendation: null,
+            recommendationDrawerVisible: false,
+            recommendationOptions: defaultAchievementRecommendationOptions(),
+            recommendationError: "",
             editingPlan: null,
             detailPlan: null,
             detailRoute: null,
@@ -264,6 +273,7 @@ export default {
             this.metadata = {};
             this.maps = [];
             this.dimensions = resolveAchievementWorkbenchDimensions([]);
+            this.recommendationDimensions = [];
             this.plans = [];
             this.plansTotal = 0;
             this.plansPage = 1;
@@ -274,6 +284,9 @@ export default {
             this.detailClientMismatch = null;
             this.addSearchResults = [];
             this.recommendation = null;
+            this.recommendationDrawerVisible = false;
+            this.recommendationOptions = defaultAchievementRecommendationOptions();
+            this.recommendationError = "";
             this.editingPlan = null;
             this.saveDialogVisible = false;
             this.addDialogVisible = false;
@@ -354,10 +367,7 @@ export default {
                     fetchAchievementWorkbenchCatalog(client),
                     fetchAchievementWorkbenchRoles(),
                     fetchAchievementWorkbenchMaps(client).catch(() => []),
-                    fetchAchievementWorkbenchDifficultyDimensions().catch((error) => {
-                        console.warn("Failed to load leap difficulty dimensions:", error);
-                        return [];
-                    }),
+                    fetchAchievementWorkbenchDifficultyDimensions(),
                 ]);
                 if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.menus = catalog.menus;
@@ -365,6 +375,7 @@ export default {
                 this.roles = roles;
                 this.maps = maps;
                 this.dimensions = resolveAchievementWorkbenchDimensions(dimensionDefinitions);
+                this.recommendationDimensions = dimensionDefinitions;
 
                 const queryRoleId = String(this.$route.query.jx3id || "");
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
@@ -400,6 +411,9 @@ export default {
             this.routeLoading = false;
             this.detailLoading = false;
             this.recommendationLoading = false;
+            this.recommendation = null;
+            this.recommendationOptions = defaultAchievementRecommendationOptions();
+            this.recommendationError = "";
             this.addSearchLoading = false;
             this.saving = false;
             try {
@@ -416,7 +430,6 @@ export default {
                 const points = buildAchievementOverallProgress(this.metadata, state.completedIds).completedPoints || 0;
                 if (resetForm) this.plannerForm = this.createDefaultForm(roleId, points);
                 else this.plannerForm = { ...this.plannerForm, roleId };
-                this.loadRecommendation();
                 if (this.detailId) await this.loadPlanDetail(this.detailId);
                 return (
                     requestId === this.roleRequestId &&
@@ -468,46 +481,37 @@ export default {
             this.generatedRoute = null;
             this.editingPlan = null;
         },
+        changeRecommendationOptions(options) {
+            this.recommendationOptions = options;
+            this.invalidateRecommendation();
+        },
+        invalidateRecommendation() {
+            this.recommendationRequestId += 1;
+            this.recommendation = null;
+            this.recommendationError = "";
+            this.recommendationLoading = false;
+        },
         async loadRecommendation() {
             const requestId = ++this.recommendationRequestId;
             const client = this.currentClient;
+            const roleId = this.currentRole?.roleId;
+            this.recommendation = null;
+            this.recommendationError = "";
+            this.recommendationLoading = false;
+            if (client !== "std" || !roleId || this.roleLoading) return;
             this.recommendationLoading = true;
             try {
-                const baseCandidates = buildAchievementLeapCandidates({
-                    metadata: this.metadata,
-                    menus: this.menus,
-                    completedIds: this.roleState.completedIds,
-                    schoolEligibility: this.schoolEligibility,
-                });
-                this.recommendation = buildAchievementLeapRecommendation({
-                    candidates: baseCandidates,
-                    currentPoints: this.currentPoints,
-                    schoolEligibility: this.schoolEligibility,
-                });
-                const difficultyById = await fetchAchievementWorkbenchDifficulty(
-                    baseCandidates.map((item) => item.id),
-                    500,
-                    { client }
-                ).catch((error) => {
-                    console.error("Failed to load recommendation difficulty:", error);
-                    return {};
+                const result = await fetchAchievementWorkbenchRecommendation({
+                    roleId, camp: "neutral",
+                    preferences: achievementRecommendationPreferences(this.recommendationOptions, this.categoryOptions),
                 });
                 if (requestId !== this.recommendationRequestId || client !== this.currentClient) return;
-                const candidates = buildAchievementLeapCandidates({
-                    metadata: this.metadata,
-                    menus: this.menus,
-                    completedIds: this.roleState.completedIds,
-                    difficultyById,
-                    schoolEligibility: this.schoolEligibility,
-                });
-                this.recommendation = buildAchievementLeapRecommendation({
-                    candidates,
-                    currentPoints: this.currentPoints,
-                    schoolEligibility: this.schoolEligibility,
-                });
+                this.recommendation = result;
             } catch (error) {
-                console.error("Failed to build achievement leap recommendation:", error);
-                if (requestId === this.recommendationRequestId) this.recommendation = null;
+                console.error("Failed to load achievement recommendation:", error);
+                if (requestId === this.recommendationRequestId) {
+                    this.recommendationError = this.$t("achievementRecommendation.requestFailed");
+                }
             } finally {
                 if (requestId === this.recommendationRequestId) this.recommendationLoading = false;
             }
@@ -686,17 +690,49 @@ export default {
                 if (requestId === this.routeRequestId) this.routeLoading = false;
             }
         },
-        async generateRecommendedRoute(recommendation) {
-            if (!recommendation?.categoryIds?.length || this.routeLoading) return;
-            this.plannerForm = {
-                ...this.plannerForm,
-                categoryIds: [...recommendation.categoryIds],
-                mapId: "",
-                maxDifficulty: recommendation.maxDifficulty,
-                strategy: recommendation.strategy,
-            };
-            await this.$nextTick();
-            await this.generateRoute({ mode: "recommended", recommendation });
+        async createRecommendedPlan(selection) {
+            const recommendation = selection?.recommendation;
+            if (!selection?.ready || !selection.items.length || this.saving || this.roleLoading || this.routeLoading ||
+                this.recommendationLoading || recommendation !== this.recommendation || this.currentClient !== "std") return;
+            if (!String(this.plannerForm.title || "").trim()) {
+                this.$message.warning(this.$t("pages.wiki.leap.ui.enterPlanNameWarning"));
+                return;
+            }
+            const targetPoints = Number(this.plannerForm.targetPoints);
+            const currentPoints = recommendation.role.current_points;
+            if (!Number.isFinite(targetPoints) || targetPoints <= currentPoints) {
+                this.$message.warning(this.$t("pages.wiki.leap.ui.workbench.targetMustExceedCurrent"));
+                return;
+            }
+            const requestId = ++this.saveRequestId;
+            const roleRequestId = this.roleRequestId;
+            const roleId = this.currentRoleId;
+            const client = this.currentClient;
+            const recommendationRequestId = this.recommendationRequestId;
+            const isCurrent = () => this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client) &&
+                recommendationRequestId === this.recommendationRequestId && recommendation === this.recommendation;
+            const items = selectAchievementRecommendationItems(selection.items, currentPoints, targetPoints);
+            if (!items.length) return;
+            const payload = buildAchievementRecommendationPlan({ items, recommendation,
+                title: this.plannerForm.title, targetPoints, roleId,
+                preferences: achievementRecommendationPreferences(this.recommendationOptions, this.categoryOptions),
+            });
+            this.saving = true;
+            let saved;
+            try {
+                saved = await saveAchievementWorkbenchLeapPlan(payload);
+            } catch (error) {
+                console.error("Failed to create recommended plan:", error);
+                if (isCurrent()) this.$message.error(this.$t("pages.wiki.leap.ui.createFailed"));
+                return;
+            } finally {
+                if (requestId === this.saveRequestId) this.saving = false;
+            }
+            if (!isCurrent()) return;
+            this.recommendationDrawerVisible = false;
+            this.$message.success(this.$t("pages.wiki.leap.ui.createSuccess"));
+            await this.loadPlans();
+            if (isCurrent() && saved.id) await this.openPlan(saved);
         },
         openSaveDialog() {
             if (!this.canSaveRoute) return;
@@ -769,6 +805,9 @@ export default {
                     generationMode: route.generationMode || "custom",
                     recommendationVersion: route.recommendationVersion || null,
                     recommendationStage: route.recommendationStage || null,
+                    recommendationCamp: route.recommendationCamp || null,
+                    recommendationPreferences: route.recommendationPreferences || null,
+                    ...achievementRecommendationPlanMetadata(route.items),
                     schoolEligibilityVersion: route.schoolEligibilityVersion || this.schoolEligibility.version,
                     roleSchool: route.roleSchool || this.schoolEligibility.school,
                     selectedPoints: route.selectedPoints,
@@ -895,6 +934,11 @@ export default {
             };
         },
         buildDetailRoute(plan, items) {
+            const recommendationItems = new Map(flattenAchievementRecommendation({
+                recommendations: plan.meta?.recommendationGroups || [],
+                camp_restricted_ids: plan.meta?.campRestrictedIds || [],
+            }).map((item) => [item.id, item]));
+            items = items.map((item) => ({ ...item, ...recommendationItems.get(String(item.id)) }));
             const progress = buildAchievementLeapPlanProgress(plan, this.metadata, this.roleState.completedIds);
             const incomplete = items.filter((item) => !item.completed);
             const targetPoints = Number(plan.meta?.targetPoints) || this.currentPoints + progress.remainingPoints;
@@ -902,6 +946,11 @@ export default {
             const hasDifficulty = incomplete.length > 0 && incomplete.every((item) => item.difficulty !== null);
             return {
                 items,
+                generationMode: plan.meta?.generationMode || "custom",
+                recommendationVersion: plan.meta?.recommendationVersion || null,
+                recommendationStage: plan.meta?.recommendationStage || null,
+                recommendationCamp: plan.meta?.recommendationCamp || null,
+                recommendationPreferences: plan.meta?.recommendationPreferences || null,
                 requestedStrategy: plan.meta?.strategy || "big-first",
                 strategy: plan.meta?.generatedStrategy || plan.meta?.strategy || "big-first",
                 currentPoints: this.currentPoints,
@@ -1131,6 +1180,7 @@ export default {
             <AchievementLeapRouteTable
                 v-if="detailRoute"
                 :items="detailRoute.items"
+                :maps="maps"
                 :dimensions="dimensions"
                 :loading="detailLoading"
             />
@@ -1151,25 +1201,13 @@ export default {
                 @role-change="handleRoleChange"
             />
 
-            <AchievementLeapRecommendation
-                :recommendation="recommendation"
-                :current-points="currentPoints"
-                :role-school="schoolEligibility.school"
-                :loading="recommendationLoading"
-                @apply="generateRecommendedRoute"
-                @refresh="loadRecommendation"
-            />
-
-            <AchievementLeapPlanner
-                v-model="plannerForm"
-                :categories="categoryOptions"
-                :maps="mapOptions"
-                :current-points="currentPoints"
-                :role-school="schoolEligibility.school"
-                :generating="routeLoading || roleLoading"
-                @generate="generateRoute"
-                @reset="resetPlanner"
-            />
+            <div class="m-leap-recommendation-entry">
+                <el-button
+                    type="primary" size="large"
+                    :disabled="currentClient !== 'std' || roleLoading || routeLoading || saving || !currentRole?.roleId"
+                    @click="recommendationDrawerVisible = true"
+                ><template #icon><MagicStick /></template>{{ $t('achievementRecommendation.title') }}</el-button>
+            </div>
 
             <section v-if="generatedRoute" class="m-leap-generated-result">
                 <AchievementLeapSummary :route="generatedRoute" :title="plannerForm.title" />
@@ -1192,6 +1230,7 @@ export default {
                 </div>
                 <AchievementLeapRouteTable
                     :items="generatedRoute.items"
+                    :maps="maps"
                     :dimensions="dimensions"
                     :loading="routeLoading"
                     removable
@@ -1211,6 +1250,32 @@ export default {
                 @page-change="changePlansPage"
             />
         </div>
+
+        <AchievementLeapRecommendationDrawer
+            v-model="recommendationDrawerVisible"
+            v-model:target-points="plannerForm.targetPoints"
+            v-model:plan-title="plannerForm.title"
+            :options="recommendationOptions"
+            :dimensions="recommendationDimensions"
+            :categories="categoryOptions"
+            :recommendation="recommendation"
+            :loading="recommendationLoading"
+            :saving="saving"
+            :roles="roles"
+            :role-id="currentRoleId"
+            :role-loading="roleLoading"
+            :client="currentClient"
+            :role-available="Boolean(currentRole?.roleId)"
+            :disabled="roleLoading || routeLoading || saving"
+            :error="recommendationError"
+            :metadata="metadata"
+            :maps="maps"
+            :menus="menus"
+            @update:options="changeRecommendationOptions"
+            @role-change="handleRoleChange"
+            @apply="createRecommendedPlan"
+            @refresh="loadRecommendation"
+        />
 
         <AchievementLeapSaveDialog
             v-model="saveDialogVisible"
@@ -1235,6 +1300,14 @@ export default {
 </template>
 
 <style lang="less" scoped>
+.m-leap-recommendation-entry {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 16px;
+    border-bottom: 1px solid #dce5df;
+    :deep(.el-button) { border-color: #47777d; color: #fff; background: #47777d; border-radius: 6px; min-height: 46px; font-weight: 600; }
+    :deep(.el-button.is-disabled) { opacity: 0.5; }
+}
 .p-achievement-leap-new,
 .m-leap-page-content,
 .m-leap-generated-result {

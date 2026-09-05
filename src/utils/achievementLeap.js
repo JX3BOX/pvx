@@ -543,7 +543,7 @@ export function sortAchievementLeapCandidates(candidates, requestedStrategy = "e
     return { items: result, strategy };
 }
 
-function buildAchievementLeapRouteMetrics(items, currentPoints, targetPoints) {
+export function buildAchievementLeapRouteMetrics(items, currentPoints, targetPoints) {
     const source = Array.isArray(items) ? items : [];
     const current = Math.max(0, Number(currentPoints) || 0);
     const target = Math.max(0, Number(targetPoints) || 0);
