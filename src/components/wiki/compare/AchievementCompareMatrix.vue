@@ -2,6 +2,7 @@
 import { CircleCheckFilled, CircleCloseFilled, Medal, RefreshRight } from "@element-plus/icons-vue";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 import {
     formatAchievementWorkbenchValue,
     getAchievementWorkbenchDimensionValue,
@@ -9,6 +10,7 @@ import {
 
 export default {
     name: "AchievementCompareMatrix",
+    mixins: [responsivePagination],
     components: {
         AchievementDifficultyStars,
         CircleCheckFilled,
@@ -58,7 +60,8 @@ export default {
     computed: {
         tableStyle() {
             return {
-                minWidth: `${Math.max(940, 560 + this.roles.length * 145)}px`,
+                "--compare-desktop-width": `${Math.max(940, 560 + this.roles.length * 145)}px`,
+                "--compare-mobile-width": `${244 + this.roles.length * 128}px`,
             };
         },
         roleCompletionSets() {
@@ -129,7 +132,13 @@ export default {
                 <p>{{ $t("pages.wiki.compare.ui.states.noResultsDescription") }}</p>
             </div>
 
-            <div v-else class="m-compare-matrix-scroll">
+            <div
+                v-else
+                class="m-compare-matrix-scroll"
+                tabindex="0"
+                role="region"
+                :aria-label="$t('pages.wiki.compare.ui.matrix.completion')"
+            >
                 <table class="m-compare-matrix-table" :style="tableStyle">
                     <thead>
                         <tr>
@@ -223,12 +232,17 @@ export default {
         <div v-if="total > pageSize" class="m-compare-pagination">
             <el-pagination
                 background
-                layout="prev, pager, next"
+                :layout="isPaginationPhoneViewport ? 'prev, slot, next' : 'prev, pager, next'"
                 :current-page="page"
                 :page-size="pageSize"
+                :pager-count="responsivePagerCount"
                 :total="total"
                 @current-change="$emit('page-change', $event)"
-            />
+            >
+                <span class="u-achievement-pagination-status" aria-live="polite">
+                    {{ page }} / {{ Math.max(1, Math.ceil(total / pageSize)) }}
+                </span>
+            </el-pagination>
         </div>
     </section>
 </template>
@@ -247,6 +261,7 @@ export default {
 .m-compare-matrix__filters,
 .m-compare-matrix__header,
 .m-compare-pagination {
+    min-width: 0;
     flex: none;
 }
 
@@ -282,14 +297,37 @@ export default {
 
 .m-compare-matrix-scroll {
     width: 100%;
+    max-width: 100%;
     min-height: 0;
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #9caaa7 #f3f1e9;
+
+    &::-webkit-scrollbar {
+        height: 7px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: #9caaa7;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f3f1e9;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #47777d;
+        outline-offset: -2px;
+    }
 }
 
 .m-compare-matrix-table {
     width: 100%;
+    min-width: var(--compare-desktop-width);
     border-collapse: collapse;
     table-layout: fixed;
 
@@ -558,9 +596,134 @@ export default {
     border-top: 1px solid rgba(70, 74, 66, 0.08);
 }
 
-@media (max-width: 620px) {
-    .m-compare-matrix-table .is-achievement {
-        width: 480px;
+@media (max-width: @phone) {
+    .m-compare-matrix__header {
+        min-height: 52px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 5px 10px;
+        padding: 12px;
+
+        h2 {
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        > span {
+            max-width: 100%;
+            padding-top: 3px;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-compare-matrix-table {
+        min-width: var(--compare-mobile-width);
+
+        th,
+        td {
+            box-sizing: border-box;
+            padding: 12px 10px;
+            vertical-align: top;
+        }
+
+        th strong {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .is-achievement {
+            position: static;
+            width: 244px;
+        }
+    }
+
+    .m-compare-achievement {
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .u-compare-achievement-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 7px;
+    }
+
+    .m-compare-achievement__title {
+        flex-wrap: wrap;
+        gap: 4px 6px;
+
+        strong {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-compare-achievement__dimensions > span {
+        max-width: 100%;
+        flex-wrap: wrap;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .m-compare-achievement__meta,
+    .u-compare-achievement-tag {
+        overflow-wrap: anywhere;
+    }
+
+    .u-compare-completion {
+        max-width: 100%;
+        padding: 5px 7px;
+        line-height: 1.4;
+        white-space: normal;
+        overflow-wrap: anywhere;
+
+        svg {
+            flex: none;
+        }
+    }
+
+    .m-compare-matrix-state {
+        box-sizing: border-box;
+        min-height: 240px;
+        padding: 28px 16px;
+        overflow-wrap: anywhere;
+
+        button {
+            min-height: 44px;
+        }
+    }
+
+    .m-compare-pagination {
+        min-width: 0;
+        padding: 12px 0;
+
+        :deep(.el-pagination) {
+            --el-pagination-button-width: 36px;
+            --el-pagination-button-height: 36px;
+            max-width: 100%;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .u-achievement-pagination-status {
+            min-width: 72px;
+            color: #687274;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
+
+        :deep(.el-pagination.is-background .btn-prev),
+        :deep(.el-pagination.is-background .btn-next) {
+            box-sizing: border-box;
+            min-width: 36px;
+            height: 36px;
+            flex: none;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 </style>

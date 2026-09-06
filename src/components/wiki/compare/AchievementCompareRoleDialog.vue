@@ -131,6 +131,7 @@ export default {
                 <el-select
                     v-model="form.friendId"
                     filterable
+                    popper-class="m-achievement-compare-role-popper"
                     :placeholder="$t('pages.wiki.compare.ui.role.selectFriend')"
                     @change="selectFriend"
                 >
@@ -148,6 +149,7 @@ export default {
                     v-model="form.roleIds"
                     multiple
                     filterable
+                    popper-class="m-achievement-compare-role-popper"
                     :multiple-limit="remainingSlots"
                     :loading="loadingFriendRoles"
                     :disabled="form.roleType === 'friend' && !form.friendId"
@@ -228,6 +230,130 @@ export default {
     &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+}
+
+@media (max-width: @phone) {
+    .m-achievement-compare-role-dialog {
+        --el-dialog-margin-top: 12px;
+        display: flex;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        flex-direction: column;
+        margin-bottom: 12px;
+        padding: 16px;
+        box-sizing: border-box;
+
+        .el-dialog__header,
+        .el-dialog__footer {
+            flex: none;
+        }
+
+        .el-dialog__header {
+            padding-right: 28px;
+        }
+
+        .el-dialog__title {
+            overflow-wrap: anywhere;
+        }
+
+        .el-dialog__body {
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .el-form-item {
+            margin-bottom: 20px;
+        }
+
+        .el-form-item__label,
+        .el-form-item__content,
+        .el-radio__label {
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .el-radio-group {
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .el-radio {
+            height: auto;
+            min-width: 0;
+            min-height: 44px;
+            flex: 1 1 100px;
+            margin: 0;
+            padding: 8px 10px;
+            border: 1px solid rgba(70, 74, 66, 0.16);
+            border-radius: 7px;
+            box-sizing: border-box;
+
+            &.is-checked {
+                border-color: #47777d;
+                background: rgba(71, 119, 125, 0.06);
+            }
+        }
+
+        .el-select__wrapper {
+            min-height: 44px;
+        }
+
+        .el-select__input {
+            font-size: 16px;
+        }
+
+        .el-tag {
+            max-width: 100%;
+            height: auto;
+            min-height: 26px;
+        }
+
+        .el-tag__content {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .el-dialog__footer {
+            gap: 8px;
+            padding-top: 16px;
+        }
+
+        .u-compare-dialog-button {
+            height: auto;
+            min-width: 0;
+            min-height: 44px;
+            flex: 1 1 0;
+            padding: 10px;
+            line-height: 1.4;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-achievement-compare-role-popper.el-select__popper {
+        max-width: calc(100vw - 32px);
+
+        .el-select-dropdown__wrap {
+            max-height: 40vh;
+        }
+
+        .el-select-dropdown__item {
+            display: flex;
+            height: auto;
+            min-height: 44px;
+            align-items: center;
+            padding: 9px 28px 9px 12px;
+            line-height: 1.5;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
     }
 }
 </style>

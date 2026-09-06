@@ -168,10 +168,12 @@ export default {
 <style lang="less">
 .c-leap-add-dialog {
     max-width: calc(100vw - 32px);
+    box-sizing: border-box;
 }
 
 .c-leap-add-dialog .m-leap-add-dialog {
     display: grid;
+    min-width: 0;
     gap: 14px;
     color: #405052;
 }
@@ -304,7 +306,40 @@ export default {
     background: transparent;
 }
 
-@media (max-width: 720px) {
+@media (max-width: @phone) {
+    .c-leap-add-dialog {
+        display: flex;
+        flex-direction: column;
+        margin-block: 16px;
+        padding: 16px;
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+
+        .el-dialog__header {
+            flex: none;
+            padding-right: 32px;
+        }
+
+        .el-dialog__title {
+            overflow-wrap: anywhere;
+        }
+
+        .el-dialog__body {
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        .el-dialog__footer {
+            flex: none;
+        }
+
+        .el-input__wrapper {
+            min-height: 42px;
+            box-sizing: border-box;
+        }
+    }
+
     .c-leap-add-dialog .m-leap-add-dialog__search,
     .c-leap-add-dialog .m-leap-add-dialog__results article {
         grid-template-columns: minmax(0, 1fr);
@@ -314,9 +349,38 @@ export default {
         min-height: 44px;
     }
 
+    .c-leap-add-dialog .m-leap-add-dialog__results {
+        max-height: none;
+        padding-right: 0;
+        overflow: visible;
+    }
+
+    .c-leap-add-dialog .m-leap-add-dialog__results article {
+        min-width: 0;
+        gap: 10px;
+    }
+
+    .c-leap-add-dialog .m-leap-add-dialog__results strong,
+    .c-leap-add-dialog .m-leap-add-dialog__results small,
+    .c-leap-add-dialog .m-leap-add-dialog > p {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
     .c-leap-add-dialog .m-leap-add-dialog__meta {
         display: flex;
+        min-width: 0;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
         text-align: left;
+    }
+
+    .c-leap-add-dialog .m-leap-add-dialog__search > button,
+    .c-leap-add-dialog .u-leap-add-dialog-close {
+        width: 100%;
+        min-height: 44px;
+        box-sizing: border-box;
     }
 }
 </style>

@@ -112,6 +112,7 @@ export default {
             <el-select
                 :model-value="mapSelectValue"
                 class="u-compare-map-filter"
+                popper-class="m-achievement-compare-map-popper"
                 filterable
                 :aria-label="$t('pages.wiki.compare.ui.map.label')"
                 @change="changeMap"
@@ -216,6 +217,7 @@ export default {
 
 .u-compare-status-filter,
 .u-compare-map-filter {
+    min-width: 0;
     :deep(.el-select__wrapper) {
         min-height: 32px;
         border-radius: 7px;
@@ -365,37 +367,84 @@ export default {
     }
 }
 
-@media (max-width: 620px) {
-    .u-compare-status-filter,
-    .u-compare-map-filter {
+@media (max-width: @phone) {
+    .m-compare-filters {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .u-compare-status-filter {
         width: 100%;
+        max-width: none;
         flex-basis: 100%;
     }
 
+    .u-compare-map-filter {
+        width: 0;
+        flex: 1 1 0;
+    }
+
     .m-compare-filter-actions {
-        width: 100%;
+        max-width: 50%;
+        flex: 0 1 auto;
 
         .u-compare-toolbar-button {
-            flex: 1;
+            width: 100%;
+            min-width: 0;
         }
     }
 
     .m-compare-search-row {
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
         :deep(.el-input) {
-            flex-basis: 100%;
+            grid-column: 1 / -1;
         }
     }
 
+    .m-compare-filters :deep(.el-select__wrapper),
+    .m-compare-filters :deep(.el-input__wrapper) {
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    .m-compare-filters :deep(.el-input__inner),
+    .m-compare-filters :deep(.el-select__input) {
+        font-size: 16px;
+    }
+
     .u-compare-search-button,
-    .u-compare-reset-button {
-        flex: 1;
+    .u-compare-reset-button,
+    .u-compare-toolbar-button {
+        height: auto;
+        min-height: 44px;
+        min-width: 0;
+        padding: 8px 10px;
+        line-height: 1.4;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     .m-compare-result-line {
         align-items: flex-start;
         flex-wrap: wrap;
+        gap: 5px 8px;
+        line-height: 1.5;
+
+        > span {
+            flex-basis: 100%;
+        }
+
+        b {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        i {
+            flex: none;
+            margin-top: 7px;
+        }
     }
 }
 </style>
@@ -444,6 +493,24 @@ export default {
     .el-select-dropdown__item.is-disabled {
         color: #b0b7b4;
         background: transparent;
+    }
+}
+
+@media (max-width: @phone) {
+    .m-achievement-compare-status-popper.el-select__popper,
+    .m-achievement-compare-map-popper.el-select__popper {
+        max-width: calc(100vw - 32px);
+
+        .el-select-dropdown__item {
+            display: flex;
+            height: auto;
+            min-height: 44px;
+            align-items: center;
+            padding: 9px 28px 9px 10px;
+            line-height: 1.5;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
     }
 }
 </style>

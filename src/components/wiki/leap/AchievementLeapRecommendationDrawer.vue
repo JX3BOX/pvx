@@ -251,7 +251,7 @@ export default {
     .el-collapse-item__content { padding-bottom: 8px; }
 }
 .m-recommendation-mobile-tabs { display: none; }
-@media (max-width: 760px) {
+@media (max-width: @phone) {
     .m-recommendation-mobile-tabs { display: block; flex: none; padding: 10px 12px; border-bottom: 1px solid #e2e8e6; }
     .m-recommendation-workspace { grid-template-columns: minmax(0, 1fr); }
     .is-mobile-preview .m-recommendation-settings, .is-mobile-settings .m-recommendation-preview { display: none; }
@@ -259,5 +259,90 @@ export default {
     .m-recommendation-settings { border-right: 0; }
     .m-leap-recommendation-drawer .el-drawer__header { padding: 14px 16px; }
     .m-leap-recommendation-drawer .el-drawer__footer { padding: 12px; }
+
+    .m-leap-recommendation-drawer {
+        height: 100vh;
+        height: 100dvh;
+        max-width: 100%;
+
+        .el-drawer__title {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            line-height: 1.5;
+        }
+
+        .el-drawer__close-btn {
+            flex: none;
+            min-width: 36px;
+            min-height: 36px;
+        }
+
+        .el-input__wrapper,
+        .el-select__wrapper {
+            min-height: 40px;
+            box-sizing: border-box;
+        }
+
+        .el-form-item__label {
+            height: auto;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .m-recommendation-actions .el-button {
+            width: 100%;
+            min-height: 44px;
+        }
+
+        .m-recommendation-mobile-tabs .el-radio-group {
+            display: flex;
+            width: 100%;
+        }
+
+        .m-recommendation-mobile-tabs .el-radio-button {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .m-recommendation-mobile-tabs .el-radio-button__inner {
+            display: flex;
+            width: 100%;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            white-space: normal;
+            line-height: 1.5;
+        }
+
+        .m-recommendation-settings__heading {
+            flex-wrap: wrap;
+            gap: 8px;
+
+            .el-button {
+                min-height: 40px;
+                height: auto;
+                max-width: 100%;
+
+                > span {
+                    white-space: normal;
+                }
+            }
+        }
+
+        .m-recommendation-settings {
+            overscroll-behavior: contain;
+        }
+
+        .m-recommendation-preferences .el-collapse-item__header {
+            min-height: 44px;
+            height: auto;
+            line-height: 1.5;
+        }
+
+        .m-recommendation-preview {
+            padding-right: 8px;
+        }
+    }
 }
 </style>

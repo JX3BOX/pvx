@@ -4,6 +4,7 @@ import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import { markRaw } from "vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
 import { achievementRecommendationGroupLabel } from "@/utils/achievementRecommendation";
 import {
@@ -14,6 +15,7 @@ import {
 
 export default {
     name: "AchievementLeapRouteTable",
+    mixins: [responsivePagination],
     components: {
         AchievementDifficultyStars,
         Delete,
@@ -222,7 +224,8 @@ export default {
             </el-select>
         </div>
 
-        <div v-if="filteredItems.length" class="m-leap-route__scroll">
+        <div v-if="filteredItems.length" class="m-leap-route__scroll" tabindex="0" role="region"
+            :aria-label="$t('pages.wiki.leap.ui.workbench.routeList')">
             <table>
                 <thead>
                     <tr>
@@ -316,10 +319,15 @@ export default {
             <el-pagination
                 v-model:current-page="page"
                 background
-                layout="prev, pager, next"
+                :layout="isPaginationPhoneViewport ? 'prev, slot, next' : 'prev, pager, next'"
+                :pager-count="responsivePagerCount"
                 :page-size="pageSize"
                 :total="filteredItems.length"
-            />
+            >
+                <span class="u-achievement-pagination-status" aria-live="polite">
+                    {{ page }} / {{ Math.max(1, Math.ceil(filteredItems.length / pageSize)) }}
+                </span>
+            </el-pagination>
         </div>
 
     </PvxSurface>
@@ -369,16 +377,35 @@ export default {
 }
 
 .m-leap-route__scroll {
+    min-width: 0;
     width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
     border: 1px solid rgba(68, 86, 84, 0.13);
     border-radius: 11px;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #99afae #f0ece3;
+}
+
+.m-leap-route__scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.m-leap-route__scroll::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: #99afae;
+}
+
+.m-leap-route__scroll:focus-visible {
+    outline: 2px solid #47777d;
+    outline-offset: 2px;
 }
 
 table {
     width: 100%;
-    min-width: 1120px;
     border-collapse: collapse;
     background: #fffdf8;
 }
@@ -544,19 +571,93 @@ th.u-leap-route-action {
     margin-top: 16px;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: @ipad) {
     .m-leap-route__filters {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: @phone) {
     .m-leap-route__header {
         display: grid;
+        gap: 8px;
     }
 
     .m-leap-route__filters {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .m-leap-route__header > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .m-leap-route__header > strong {
+        white-space: normal;
+    }
+
+    .m-leap-route__filters :deep(.el-select),
+    .m-leap-route__filters :deep(.el-input) {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .m-leap-route__filters :deep(.el-select__wrapper),
+    .m-leap-route__filters :deep(.el-input__wrapper) {
+        min-height: 40px;
+        box-sizing: border-box;
+    }
+
+    th,
+    td {
+        padding: 10px;
+    }
+
+    .u-leap-achievement-cell a {
+        min-width: 190px;
+        max-width: 260px;
+    }
+
+    .u-leap-achievement-cell strong,
+    .u-leap-note {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .u-leap-remove-button {
+        min-height: 40px;
+    }
+
+    .m-leap-route__pagination {
+        min-width: 0;
+        padding: 12px 0;
+
+        :deep(.el-pagination) {
+            --el-pagination-button-width: 36px;
+            --el-pagination-button-height: 36px;
+            max-width: 100%;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .u-achievement-pagination-status {
+            min-width: 72px;
+            color: #687274;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
+
+        :deep(.el-pagination.is-background .btn-prev),
+        :deep(.el-pagination.is-background .btn-next) {
+            box-sizing: border-box;
+            min-width: 36px;
+            height: 36px;
+            flex: none;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 </style>

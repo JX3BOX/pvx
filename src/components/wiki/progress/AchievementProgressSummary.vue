@@ -197,7 +197,7 @@ export default {
                                     :src="showSchoolIcon(currentRole.school)"
                                     :alt="$t('pages.wiki.overview.ui.schoolIcon')"
                                 />
-                                {{ currentRole?.name || "—" }}
+                                <span>{{ currentRole?.name || "—" }}</span>
                             </dd>
                         </div>
                         <div>
@@ -702,7 +702,7 @@ export default {
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: @phone) {
     .m-progress-rolebar {
         align-items: stretch;
         flex-direction: column;
@@ -718,27 +718,144 @@ export default {
 
     .u-progress-role-select {
         width: 100%;
+        min-width: 0;
+
+        :deep(.el-select__wrapper) {
+            min-height: 44px;
+            box-sizing: border-box;
+        }
     }
 
     .m-progress-rolebar__status {
+        min-width: 0;
+        flex-wrap: wrap;
         justify-content: space-between;
+        gap: 8px;
+    }
+
+    .m-progress-sync {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .u-progress-sync-dot,
+    .u-progress-summary-toggle svg {
+        flex: none;
+    }
+
+    .u-progress-summary-toggle {
+        min-height: 44px;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
     }
 
     .m-progress-summary-grid {
-        padding: 12px;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .m-progress-overall-card,
+    .m-progress-tier-panel {
+        min-width: 0;
+        padding: 10px;
     }
 
     .m-progress-overall-card__body {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: 108px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .m-progress-ring {
+        width: 108px;
+        height: 108px;
+    }
+
+    .m-progress-ring__inner {
+        width: 90px;
+        height: 90px;
+
+        strong {
+            font-size: 20px;
+        }
+
+        span {
+            max-width: 82px;
+            font-size: 10px;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-progress-role-meta {
+        min-width: 0;
+        gap: 8px;
+
+        > div {
+            min-width: 0;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        dt,
+        dd,
+        dd > span {
+            min-width: 0;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        dd {
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        img {
+            flex: none;
+        }
     }
 
     .m-progress-tier-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    .m-progress-tier-card {
+        min-height: 0;
+        padding: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .m-progress-tier-card__header {
+        flex-wrap: wrap;
+
+        h3 {
+            flex: 1 1 auto;
+
+            svg {
+                flex: none;
+            }
+        }
+
+        > span {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+    }
+
     .m-progress-tier-card__footer {
-        align-items: flex-start;
-        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .u-progress-tier-link-hint {
+        max-width: 100%;
+        box-sizing: border-box;
+        line-height: 1.4;
+
+        svg {
+            flex: none;
+        }
     }
 }
 

@@ -456,13 +456,63 @@ export default {
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: @phone) {
     .m-compare-categories {
         height: auto;
     }
 
     .m-compare-category-browser.has-subcategories {
         grid-template-columns: minmax(0, 1fr);
+
+        .m-compare-category-card.is-all small {
+            display: block;
+        }
+    }
+
+    .m-compare-categories__header {
+        min-height: 56px;
+        padding: 12px;
+
+        > div {
+            min-width: 0;
+        }
+
+        h2,
+        span {
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-compare-category-list {
+        gap: 4px;
+        padding: 8px;
+    }
+
+    .m-compare-category-card {
+        min-height: 44px;
+        grid-template-columns: 28px minmax(0, 1fr) 12px;
+        padding: 6px 8px;
+
+        &.is-all {
+            grid-template-columns: 28px minmax(0, 1fr);
+        }
+    }
+
+    .u-compare-category-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .m-compare-category-card__body strong,
+    .m-compare-subcategory-panel__header strong,
+    .m-compare-subcategory-list button span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.5;
+    }
+
+    .m-compare-subcategory-list button {
+        min-height: 44px;
     }
 
     .m-compare-subcategory-panel {

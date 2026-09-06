@@ -169,7 +169,18 @@ export default {
             this.resetScroll();
         },
         restoreDraft() { if (!this.disabled) this.resetDraft(); },
-        resetScroll() { this.$nextTick(() => { if (this.$refs.results) this.$refs.results.scrollTop = 0; }); },
+        resetScroll() {
+            this.$nextTick(() => {
+                const results = this.$refs.results;
+                if (!results) return;
+                results.scrollTop = 0;
+                // Narrow previews scroll as one surface, including filters and summaries.
+                if (this.$el.scrollTop > 0) {
+                    const resultsTop = results.getBoundingClientRect().top - this.$el.getBoundingClientRect().top + this.$el.scrollTop;
+                    this.$el.scrollTop = Math.min(this.$el.scrollTop, resultsTop);
+                }
+            });
+        },
         jumpTo(group) { this.activeGroup = group; this.expandedGroups = []; this.resetScroll(); },
         ensureActiveGroup() {
             if (!this.groupIndex.some((group) => group.group === this.activeGroup)) this.jumpTo(this.groupIndex[0]?.group || "");
@@ -432,6 +443,7 @@ export default {
             </div>
             <div class="m-server-recommendation__filters">
                 <el-cascader v-model="filters.categories" :options="filterOptions.categories" :props="{ multiple: true, checkStrictly: true }"
+                    popper-class="m-leap-recommendation-category-popper"
                     clearable filterable collapse-tags @visible-change="($event) => $event && loadFilterIndex()" :placeholder="$t('achievementRecommendation.filterCategories')" />
                 <el-select v-model="filters.mapIds" multiple clearable filterable collapse-tags :loading="filterIndexLoading"
                     @visible-change="($event) => $event && loadFilterIndex()" :placeholder="$t('achievementRecommendation.filterMaps')">
@@ -563,7 +575,102 @@ export default {
     :deep(.el-collapse-item__header) { padding-inline: 10px; color: #365f64; }
     :deep(.el-collapse-item__content) { padding-bottom: 0; }
 }
-@media (max-width: 760px) {
-    .m-server-recommendation__filters { grid-template-columns: repeat(2, minmax(0, 1fr)); .el-input { grid-column: 1 / -1; } }
+@media (max-width: @phone) {
+    .m-server-recommendation {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-right: 4px;
+
+        > * {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        :deep(.el-button) {
+            min-height: 40px;
+            height: auto;
+            max-width: 100%;
+            margin-left: 0;
+        }
+
+        :deep(.el-button > span) {
+            white-space: normal;
+            line-height: 1.4;
+        }
+    }
+
+    .m-server-recommendation__header-actions {
+        width: 100%;
+        gap: 8px;
+
+        > .el-button {
+            flex: 1;
+        }
+    }
+
+    .m-server-recommendation__filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .m-server-recommendation__results {
+        flex: none;
+        overflow: visible;
+    }
+
+    .m-recommendation-view-scope {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+
+        :deep(.el-radio-button) {
+            flex: 1;
+            min-width: 0;
+        }
+
+        :deep(.el-radio-button__inner) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-height: 40px;
+            box-sizing: border-box;
+            padding: 6px 8px;
+        }
+    }
+
+    .m-recommendation-related :deep(.el-collapse-item__header) {
+        height: auto;
+        min-height: 44px;
+        line-height: 1.5;
+
+        > span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+}
+</style>
+
+<style lang="less">
+@media (max-width: @phone) {
+    .m-leap-recommendation-category-popper {
+        max-width: calc(100vw - 32px);
+
+        .el-cascader-panel {
+            max-width: 100%;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .el-cascader-menu {
+            flex: none;
+        }
+
+        .el-cascader-node {
+            min-height: 40px;
+        }
+    }
 }
 </style>

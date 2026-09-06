@@ -97,6 +97,7 @@ export default {
 
 <style lang="less" scoped>
 .m-leap-summary {
+    min-width: 0;
     color: #314043;
 }
 
@@ -105,6 +106,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     gap: 14px;
+    flex-wrap: wrap;
     margin-bottom: 12px;
 }
 
@@ -119,10 +121,18 @@ export default {
     margin: 0;
     font-size: 17px;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.m-leap-summary__header > div {
+    min-width: 0;
 }
 
 .u-leap-summary-status {
     flex: none;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
     padding: 6px 10px;
     border-radius: 999px;
     color: #a3543f;
@@ -179,7 +189,7 @@ export default {
     font-size: 12px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: @ipad) {
     .m-leap-summary__grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -193,7 +203,7 @@ export default {
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: @phone) {
     .m-leap-summary__header {
         align-items: flex-start;
     }
@@ -203,6 +213,7 @@ export default {
     }
 
     .m-leap-summary__grid > div {
+        padding: 10px;
         border-right: 1px solid rgba(69, 86, 84, 0.1) !important;
         border-bottom: 1px solid rgba(69, 86, 84, 0.1);
     }
@@ -213,6 +224,23 @@ export default {
 
     .m-leap-summary__grid > div:nth-last-child(-n + 2) {
         border-bottom: 0;
+    }
+
+    .m-leap-summary__grid strong {
+        min-width: 0;
+        font-size: 17px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .m-leap-summary__grid strong :deep(.c-achievement-rating) {
+        max-width: 100%;
+        flex-wrap: wrap;
+        font-size: 12px;
+    }
+
+    .m-leap-summary__grid > div > span {
+        overflow-wrap: anywhere;
     }
 }
 </style>

@@ -87,6 +87,7 @@ export default {
 
 <style lang="less" scoped>
 .m-leap-base-settings {
+    min-width: 0;
     color: #2e3738;
 }
 
@@ -94,10 +95,12 @@ export default {
     display: flex;
     align-items: baseline;
     gap: 10px;
+    flex-wrap: wrap;
     margin-bottom: 14px;
 }
 
 .m-leap-base-settings__header strong {
+    flex: none;
     color: #344547;
     font-size: 15px;
 }
@@ -126,7 +129,7 @@ export default {
     width: 100%;
 }
 
-@media (max-width: 960px) {
+@media (max-width: @ipad-y) {
     .m-leap-base-settings__grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -136,7 +139,12 @@ export default {
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: @phone) {
+    .m-leap-base-settings {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
     .m-leap-base-settings__header {
         display: grid;
         gap: 4px;
@@ -148,6 +156,17 @@ export default {
 
     .m-leap-base-field.is-name {
         grid-column: auto;
+    }
+
+    .m-leap-base-field :deep(.el-input__wrapper),
+    .m-leap-base-field :deep(.el-select__wrapper) {
+        min-height: 42px;
+        box-sizing: border-box;
+    }
+
+    .m-leap-base-settings__header span,
+    .m-leap-base-field > span {
+        overflow-wrap: anywhere;
     }
 }
 </style>

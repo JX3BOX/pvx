@@ -154,6 +154,7 @@ export default {
 
 <style lang="less" scoped>
 .m-compare-role-overview {
+    min-width: 0;
     overflow: hidden;
     border: 1px solid rgba(70, 74, 66, 0.14);
     border-radius: 14px;
@@ -181,6 +182,7 @@ export default {
     gap: 10px;
 
     strong {
+        flex: none;
         color: #384246;
         font-size: 15px;
     }
@@ -395,28 +397,119 @@ export default {
     }
 }
 
-@media (max-width: 1180px) {
+@media (max-width: @ipad) {
     .m-compare-role-bar {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: @phone) {
     .m-compare-role-overview__header {
         align-items: flex-start;
         flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .m-compare-role-overview__title {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+
+        strong {
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+
+        span {
+            overflow: visible;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
     }
 
     .m-compare-role-overview__actions {
         width: 100%;
 
         button {
-            flex: 1;
+            height: auto;
+            min-width: 0;
+            min-height: 44px;
+            flex: 1 1 0;
+            padding: 8px;
+            line-height: 1.4;
+
+            span {
+                min-width: 0;
+                overflow-wrap: anywhere;
+            }
+
+            svg {
+                flex: none;
+            }
         }
     }
 
     .m-compare-role-bar {
         grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .m-compare-role-card {
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 9px;
+        padding: 12px 45px 12px 10px;
+    }
+
+    .u-compare-role-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .m-compare-role-card__name {
+        flex-wrap: wrap;
+
+        strong {
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        span {
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-compare-role-card__main > p {
+        margin-top: 4px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .m-compare-role-card__stats {
+        flex-wrap: wrap;
+        gap: 3px 8px;
+        line-height: 1.5;
+
+        span {
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .u-compare-remove-role {
+        top: 3px;
+        right: 3px;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+    }
+
+    .u-compare-current-role-lock {
+        top: 10px;
+        right: 10px;
     }
 }
 </style>

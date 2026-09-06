@@ -839,4 +839,10 @@ export default {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+@media (max-width: @phone) {
+    .m-progress-page-state {
+        min-height: 320px;
+    }
+}
 </style>

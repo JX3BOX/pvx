@@ -69,22 +69,24 @@ export default {
                             :dimension-key="dimension.key" :label="dimension.label" :score-labels="dimension.scoreLabels" />
                     </span>
                 </div>
-                <div class="m-server-recommendation__item-status">
-                    <strong>{{ item.points }}</strong>
-                    <small>{{ $t('achievementRecommendation.achievementPoints') }}</small>
-                    <el-tooltip v-if="item.campRestricted" :content="$t('achievementRecommendation.campRestricted')">
-                        <small class="u-recommendation-warning">{{ $t('achievementRecommendation.camp') }}</small>
+                <div class="m-recommendation-item-footer">
+                    <div class="m-server-recommendation__item-status">
+                        <strong>{{ item.points }}</strong>
+                        <small>{{ $t('achievementRecommendation.achievementPoints') }}</small>
+                        <el-tooltip v-if="item.campRestricted" :content="$t('achievementRecommendation.campRestricted')">
+                            <small class="u-recommendation-warning">{{ $t('achievementRecommendation.camp') }}</small>
+                        </el-tooltip>
+                    </div>
+                    <el-tooltip v-if="editable && promoteTo" :content="$t('achievementRecommendation.moveToCurrent')">
+                        <el-button text :disabled="disabled" :aria-label="$t('achievementRecommendation.moveToCurrent')"
+                            @click="$emit('move', { id: item.id, group: promoteTo, beforeId: null })"><template #icon><Top /></template></el-button>
+                    </el-tooltip>
+                    <el-tooltip v-if="editable" :content="$t('achievementRecommendation.remove')">
+                        <el-button text :disabled="disabled" :aria-label="$t('achievementRecommendation.remove')" @click="$emit('remove', item)">
+                            <template #icon><Delete /></template>
+                        </el-button>
                     </el-tooltip>
                 </div>
-                <el-tooltip v-if="editable && promoteTo" :content="$t('achievementRecommendation.moveToCurrent')">
-                    <el-button text :disabled="disabled" :aria-label="$t('achievementRecommendation.moveToCurrent')"
-                        @click="$emit('move', { id: item.id, group: promoteTo, beforeId: null })"><template #icon><Top /></template></el-button>
-                </el-tooltip>
-                <el-tooltip v-if="editable" :content="$t('achievementRecommendation.remove')">
-                    <el-button text :disabled="disabled" :aria-label="$t('achievementRecommendation.remove')" @click="$emit('remove', item)">
-                        <template #icon><Delete /></template>
-                    </el-button>
-                </el-tooltip>
             </div>
         </template>
         <template #footer>
@@ -95,6 +97,7 @@ export default {
 
 <style lang="less" scoped>
 .m-recommendation-items { min-height: 48px; }
+.m-recommendation-item-footer { display: contents; }
 .m-server-recommendation__item { min-height: 76px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
     border-bottom: 1px solid #edf0ee; font-size: 13px;
     &.is-selected { background: #f3f8f6; }
@@ -126,12 +129,90 @@ export default {
     strong { font-weight: 500; } small { display: block; font-size: 10px; color: #47777d; }
 }
 .u-recommendation-warning { color: #ae3b40 !important; }
-@media (max-width: 760px) {
-    .m-recommendation-item-dimensions { width: 106px; max-width: 34%; gap: 3px;
-        .m-recommendation-dimension-badge { > small, > :last-child { padding-inline: 3px; } }
+@media (max-width: @phone) {
+    .m-server-recommendation__item {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 10px 6px;
+        padding: 12px 8px;
     }
-    .m-server-recommendation__item { gap: 4px; padding-inline: 4px; }
-    .u-recommendation-order, .m-server-recommendation__item-content img { display: none; }
-    .m-server-recommendation__item-status { width: 36px; }
+
+    .m-server-recommendation__item-content {
+        grid-column: 1 / -1;
+        grid-row: 1;
+
+        a {
+            height: auto;
+            min-height: 28px;
+            align-items: flex-start;
+        }
+
+        a > span,
+        > small {
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.5;
+        }
+    }
+
+    .m-recommendation-item-dimensions {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: auto;
+        max-width: 100%;
+        justify-content: flex-start;
+        gap: 6px;
+
+        .m-recommendation-dimension-badge {
+            flex-wrap: wrap;
+
+            > small {
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+                overflow-wrap: anywhere;
+            }
+        }
+    }
+
+    .m-recommendation-item-handle {
+        grid-column: 1;
+        grid-row: 3;
+        min-height: 36px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .u-recommendation-order {
+        grid-column: 2;
+        grid-row: 3;
+        width: auto;
+        align-self: center;
+    }
+
+    .m-recommendation-item-footer {
+        display: flex;
+        grid-column: 3;
+        grid-row: 3;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+
+        :deep(.el-button) {
+            width: 36px;
+            height: 36px;
+        }
+    }
+
+    .m-server-recommendation__item-status {
+        width: auto;
+        max-width: 84px;
+        min-width: 0;
+        padding-inline: 4px;
+        overflow-wrap: anywhere;
+    }
 }
 </style>

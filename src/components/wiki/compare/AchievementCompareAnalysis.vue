@@ -255,6 +255,7 @@ export default {
 
 <style lang="less" scoped>
 .m-compare-analysis {
+    min-width: 0;
     overflow: hidden;
     border: 1px solid rgba(70, 74, 66, 0.14);
     border-radius: 12px;
@@ -380,6 +381,7 @@ export default {
     gap: 8px;
 
     article {
+        min-width: 0;
         padding: 10px;
         border: 1px solid rgba(70, 74, 66, 0.09);
         border-radius: 8px;
@@ -390,6 +392,7 @@ export default {
         span,
         small {
             display: block;
+            overflow-wrap: anywhere;
         }
 
         strong {
@@ -446,13 +449,17 @@ export default {
 
     span {
         display: inline-flex;
+        min-width: 0;
+        max-width: 100%;
         align-items: center;
         gap: 4px;
+        overflow-wrap: anywhere;
     }
 
     i {
         width: 7px;
         height: 7px;
+        flex: none;
         border-radius: 50%;
     }
 }
@@ -507,7 +514,7 @@ export default {
     text-align: center;
 }
 
-@media (max-width: 800px) {
+@media (max-width: @ipad-y) {
     .m-compare-analysis__body {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -521,13 +528,59 @@ export default {
     }
 }
 
-@media (max-width: 480px) {
-    .m-compare-analysis > summary small {
-        display: none;
+@media (max-width: @phone) {
+    .m-compare-analysis > summary {
+        display: grid;
+        grid-template-columns: 25px minmax(0, 1fr);
+        gap: 5px 9px;
+        padding: 12px;
+
+        strong,
+        small {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        small {
+            grid-column: 2;
+            line-height: 1.5;
+        }
+    }
+
+    .m-compare-analysis__body {
+        gap: 8px;
+        padding: 0 8px 8px;
+    }
+
+    .m-compare-analysis-card {
+        padding: 12px;
+    }
+
+    .m-compare-analysis-title {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+        overflow-wrap: anywhere;
     }
 
     .m-compare-total-bars > div {
-        grid-template-columns: 68px minmax(0, 1fr) 58px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 5px 8px;
+
+        > span {
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        > div {
+            grid-row: 2;
+            grid-column: 1 / -1;
+        }
+
+        > b {
+            grid-row: 1;
+            grid-column: 2;
+        }
     }
 }
 </style>

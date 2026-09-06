@@ -324,32 +324,61 @@ export default {
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: @phone) {
+    .m-progress-filters,
+    .m-progress-filters.is-embedded {
+        gap: 10px;
+        padding: 12px;
+
+        .m-progress-filter-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
     .u-progress-filter,
     .u-progress-filter.is-map,
     .u-progress-filter.is-sort {
-        width: calc(50% - 4px);
+        width: 100%;
+        min-width: 0;
+    }
+
+    .u-progress-filter.is-map,
+    .u-progress-filter.is-sort {
+        grid-column: 1 / -1;
+    }
+
+    :deep(.el-select__wrapper),
+    :deep(.el-input__wrapper) {
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    :deep(.el-select__selection),
+    :deep(.el-input) {
+        min-width: 0;
     }
 
     .m-progress-search {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        > .el-input {
+            grid-column: 1 / -1;
+        }
     }
 
     .u-progress-search-button,
     .u-progress-clear-button {
-        width: 36px;
-        height: 32px;
-        padding: 0;
+        width: 100%;
+        height: auto;
+        min-height: 44px;
+        padding: 8px;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
 
-        span {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
+        svg {
+            flex: none;
         }
     }
 }

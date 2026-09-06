@@ -942,6 +942,7 @@ export default {
 <style lang="less" scoped>
 .p-achievement-compare-new {
     width: 100%;
+    max-width: 100%;
     min-width: 0;
 }
 
@@ -954,7 +955,7 @@ export default {
 .m-compare-browser-grid {
     display: grid;
     min-width: 0;
-    grid-template-columns: minmax(320px, 360px) minmax(620px, 1fr);
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
     align-items: start;
     gap: 12px;
 }
@@ -1051,10 +1052,35 @@ export default {
     background: rgba(255, 254, 250, 0.45);
 }
 
-@media (max-width: 1060px) {
+@media (max-width: @ipad) {
     .m-compare-browser-grid {
         height: auto;
         grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: @phone) {
+    .m-compare-page-content,
+    .m-compare-browser-grid {
+        gap: 10px;
+    }
+
+    .m-compare-page-state {
+        min-height: 320px;
+    }
+
+    .m-compare-empty-roles :deep(.c-pvx-empty-state) {
+        padding: 28px 16px;
+    }
+
+    .u-compare-empty-add-role {
+        max-width: 100%;
+        min-height: 44px;
+        height: auto;
+        padding: 10px 14px;
+        line-height: 1.5;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 }
 </style>

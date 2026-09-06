@@ -207,30 +207,36 @@ export default {
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: @phone) {
     .m-achievement-workbench-nav {
+        position: static;
         min-height: 52px;
         gap: 8px;
         padding: 0 8px 0 4px;
         border-radius: 10px 10px 0 0;
     }
 
+    .m-achievement-workbench-nav__tabs {
+        flex: 1;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .u-achievement-workbench-tab {
-        gap: 6px;
+        flex: 1 0 auto;
         min-height: 52px;
-        padding: 0 12px;
+        padding: 0 10px;
         font-size: 13px;
     }
 
     .u-achievement-workbench-tab__icon {
-        width: 18px;
-        height: 18px;
+        display: none;
     }
 
     .u-achievement-workbench-guide {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+        flex: 0 0 44px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
         padding: 0;
 
         span {

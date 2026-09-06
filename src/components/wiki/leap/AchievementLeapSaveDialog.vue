@@ -81,6 +81,11 @@ export default {
 </template>
 
 <style lang="less">
+.c-leap-save-dialog {
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
+}
+
 .c-leap-save-dialog .m-leap-save-dialog {
     display: grid;
     gap: 16px;
@@ -91,10 +96,12 @@ export default {
     margin: 0;
     color: #7c8586;
     line-height: 1.7;
+    overflow-wrap: anywhere;
 }
 
 .c-leap-save-dialog .m-leap-save-dialog label {
     display: grid;
+    min-width: 0;
     gap: 7px;
     font-size: 13px;
 }
@@ -122,5 +129,43 @@ export default {
     border-color: #aeb8b8;
     background: #aeb8b8;
     cursor: not-allowed;
+}
+
+@media (max-width: @phone) {
+    .c-leap-save-dialog {
+        margin-block: 16px;
+        padding: 16px;
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+
+        .el-dialog__title {
+            overflow-wrap: anywhere;
+        }
+
+        .el-dialog__header {
+            padding-right: 32px;
+        }
+
+        .el-dialog__footer {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .el-input__wrapper {
+            min-height: 42px;
+            box-sizing: border-box;
+        }
+
+        .u-leap-dialog-cancel,
+        .u-leap-dialog-save {
+            min-width: 0;
+            min-height: 44px;
+            padding-inline: 8px;
+            overflow-wrap: anywhere;
+        }
+    }
 }
 </style>

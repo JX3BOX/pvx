@@ -2,10 +2,12 @@
 import { Document } from "@element-plus/icons-vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 import { buildAchievementLeapPlanProgress } from "@/utils/achievementLeap";
 
 export default {
     name: "AchievementLeapPlanList",
+    mixins: [responsivePagination],
     components: {
         Document,
         PvxEmptyState,
@@ -147,17 +149,23 @@ export default {
             <el-pagination
                 :current-page="page"
                 background
-                layout="prev, pager, next"
+                :layout="isPaginationPhoneViewport ? 'prev, slot, next' : 'prev, pager, next'"
+                :pager-count="responsivePagerCount"
                 :page-size="pageSize"
                 :total="total"
                 @current-change="$emit('page-change', $event)"
-            />
+            >
+                <span class="u-achievement-pagination-status" aria-live="polite">
+                    {{ page }} / {{ Math.max(1, Math.ceil(total / pageSize)) }}
+                </span>
+            </el-pagination>
         </div>
     </PvxSurface>
 </template>
 
 <style lang="less" scoped>
 .m-leap-plan-list {
+    min-width: 0;
     color: #344143;
 }
 
@@ -359,21 +367,100 @@ export default {
     margin-top: 18px;
 }
 
-@media (max-width: 1600px) {
+@media (max-width: @smallpc) {
     .m-leap-plan-list__grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: @ipad) {
     .m-leap-plan-list__grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: @phone) {
+    .m-leap-plan-list {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
     .m-leap-plan-list__grid {
         grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .m-leap-plan-card {
+        min-height: 0;
+        padding: 14px 12px 14px 16px;
+    }
+
+    .m-leap-plan-card__title-row {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .m-leap-plan-card__title-row h3,
+    .u-leap-plan-description {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .m-leap-plan-card__title-row h3 {
+        flex: 1 1 140px;
+        font-size: 16px;
+    }
+
+    .u-leap-plan-source {
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+    }
+
+    .m-leap-plan-card__stats div {
+        padding: 9px 7px;
+        overflow-wrap: anywhere;
+    }
+
+    .m-leap-plan-card__stats strong {
+        font-size: 15px;
+    }
+
+    .m-leap-plan-list__header > span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .m-leap-plan-list__pagination {
+        min-width: 0;
+        padding: 12px 0;
+
+        :deep(.el-pagination) {
+            --el-pagination-button-width: 36px;
+            --el-pagination-button-height: 36px;
+            max-width: 100%;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .u-achievement-pagination-status {
+            min-width: 72px;
+            color: #687274;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
+
+        :deep(.el-pagination.is-background .btn-prev),
+        :deep(.el-pagination.is-background .btn-next) {
+            box-sizing: border-box;
+            min-width: 36px;
+            height: 36px;
+            flex: none;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 

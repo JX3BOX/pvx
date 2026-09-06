@@ -95,6 +95,51 @@ export default {
 .m-recommendation-index-actions { display: flex;
     :deep(.el-button) { padding: 4px; margin: 0; width: 24px; height: 26px; }
 }
+
+@media (max-width: @phone) {
+    .m-recommendation-group-pager {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0 12px;
+        padding-block: 4px;
+    }
+
+    .m-recommendation-index-trigger {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        min-height: 40px;
+        height: auto;
+        max-width: 100%;
+
+        :deep(span) {
+            white-space: normal;
+        }
+    }
+
+    .m-recommendation-page-link {
+        min-height: 40px;
+        grid-row: 2;
+
+        span {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            line-height: 1.5;
+        }
+    }
+
+    .m-recommendation-page-link.is-next {
+        grid-column: 2;
+    }
+
+    .m-recommendation-index-actions :deep(.el-button) {
+        width: 36px;
+        height: 36px;
+    }
+
+    .m-recommendation-index-link {
+        min-height: 36px;
+        box-sizing: border-box;
+    }
+}
 </style>
 
 <style lang="less">

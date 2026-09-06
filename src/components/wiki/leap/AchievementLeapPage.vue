@@ -1136,20 +1136,51 @@ export default {
     cursor: not-allowed;
 }
 
-@media (max-width: 720px) {
+@media (max-width: @phone) {
+    .p-achievement-leap-new,
+    .m-leap-page-content,
+    .m-leap-generated-result {
+        gap: 12px;
+    }
+
+    .m-leap-recommendation-entry {
+        padding-top: 0;
+
+        :deep(.el-button) {
+            width: 100%;
+            height: auto;
+            min-height: 44px;
+        }
+
+        :deep(.el-button > span) {
+            white-space: normal;
+        }
+    }
+
+    .m-leap-page-state {
+        min-height: 300px;
+    }
+
     .m-leap-generated-actions {
         display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
     }
 
     .m-leap-generated-actions p {
         margin: 0;
+        grid-column: 1 / -1;
+        overflow-wrap: anywhere;
     }
 
-    .m-leap-generated-actions {
-        grid-template-columns: 1fr 1fr;
+    .m-leap-generated-actions > button {
+        min-width: 0;
+        min-height: 44px;
+        padding-inline: 8px;
+        overflow-wrap: anywhere;
     }
 
-    .m-leap-generated-actions p {
+    .m-leap-generated-actions .u-leap-save-button {
         grid-column: 1 / -1;
     }
 }

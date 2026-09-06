@@ -733,14 +733,152 @@ export default {
     }
 }
 
-@media (max-width: 560px) {
+@media (max-width: @phone) {
     .m-progress-categories__header {
+        min-height: 0;
         align-items: stretch;
         flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+
+        > div {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
     }
 
-    .u-progress-category-sort {
+    .u-progress-category-sort,
+    .m-progress-categories.is-compact-overview .u-progress-category-sort {
         width: 100%;
+        min-width: 0;
+    }
+
+    .u-progress-category-sort :deep(.el-select__wrapper) {
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    .m-progress-category-browser.has-subcategories {
+        grid-template-columns: minmax(0, 1fr);
+
+        .m-progress-category-list {
+            border-bottom: 1px solid rgba(70, 74, 66, 0.1);
+        }
+
+        .m-progress-category-card__line strong {
+            font-size: 13px;
+        }
+    }
+
+    .m-progress-category-list,
+    .m-progress-subcategory-list {
+        padding: 8px;
+    }
+
+    .m-progress-category-card {
+        align-items: center;
+        gap: 8px;
+        padding: 9px 4px 9px 8px;
+    }
+
+    .m-progress-category-card__body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: baseline;
+        gap: 4px 8px;
+
+        .m-progress-category-card__line {
+            display: contents;
+
+            strong {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            > span {
+                grid-column: 1;
+                grid-row: 3;
+            }
+        }
+
+        .m-progress-category-track {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            margin-top: 0;
+        }
+
+        .m-progress-category-card__meta {
+            grid-column: 2;
+            grid-row: 3;
+            margin-top: 0;
+            text-align: right;
+        }
+    }
+
+    .m-progress-category-card__line,
+    .m-progress-subcategory-card__line {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 4px 8px;
+
+        strong {
+            overflow: visible;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        > span {
+            grid-column: 1 / -1;
+            grid-row: 2;
+            overflow-wrap: anywhere;
+        }
+
+        b {
+            grid-column: 2;
+            grid-row: 1;
+            white-space: nowrap;
+        }
+    }
+
+    .m-progress-category-card__meta {
+        overflow-wrap: anywhere;
+    }
+
+    .m-progress-category-node.is-expanded .u-progress-category-direction svg {
+        transform: rotate(90deg);
+    }
+
+    .m-progress-subcategory-panel {
+        border-left: 0;
+    }
+
+    .m-progress-subcategory-panel__header {
+        min-height: 0;
+        padding: 12px;
+
+        strong {
+            overflow: visible;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        small {
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-progress-subcategory-card {
+        min-height: 52px;
+    }
+
+    .m-progress-subcategory-card__line {
+        strong {
+            font-size: 13px;
+        }
+
+        span,
+        b {
+            font-size: 11px;
+        }
     }
 }
 </style>

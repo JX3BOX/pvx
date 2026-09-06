@@ -3,6 +3,7 @@ import { Loading, Location, Medal, Present } from "@element-plus/icons-vue";
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 import { fetchAchievementWorkbenchRewardItems } from "@/service/achievementWorkbench";
 import {
     formatAchievementWorkbenchValue,
@@ -11,6 +12,7 @@ import {
 
 export default {
     name: "AchievementProgressList",
+    mixins: [responsivePagination],
     components: {
         AchievementDifficultyStars,
         Loading,
@@ -299,6 +301,7 @@ export default {
                         :href="getLink('achievement', record.id)"
                         target="_blank"
                         rel="noopener noreferrer"
+                        :aria-label="formatValue(record.name)"
                     >
                         <img v-if="record.iconId" :src="iconLink(record.iconId)" alt="" />
                         <Medal v-else aria-hidden="true" />
@@ -339,21 +342,25 @@ export default {
                             >
                                 {{ tag.label }}
                             </span>
-                            <span v-if="record.map?.name"><Location aria-hidden="true" />{{ record.map.name }}</span>
-                            <span
-                                v-for="dimension in dimensions"
-                                :key="dimension.key"
-                                class="u-progress-dimension"
-                            >
-                                {{ getDimensionLabel(dimension) }}
-                                <AchievementDifficultyStars
-                                    class="u-progress-rating"
-                                    :value="getDimensionValue(record, dimension)"
-                                    :dimension-key="dimension.key"
-                                    :score-labels="dimension.scoreLabels"
-                                    :label="getDimensionLabel(dimension)"
-                                />
+                            <span v-if="record.map?.name" class="u-progress-map">
+                                <Location aria-hidden="true" />{{ record.map.name }}
                             </span>
+                            <div v-if="dimensions.length" class="m-progress-achievement-dimensions">
+                                <span
+                                    v-for="dimension in dimensions"
+                                    :key="dimension.key"
+                                    class="u-progress-dimension"
+                                >
+                                    <span class="u-progress-dimension-label">{{ getDimensionLabel(dimension) }}</span>
+                                    <AchievementDifficultyStars
+                                        class="u-progress-rating"
+                                        :value="getDimensionValue(record, dimension)"
+                                        :dimension-key="dimension.key"
+                                        :score-labels="dimension.scoreLabels"
+                                        :label="getDimensionLabel(dimension)"
+                                    />
+                                </span>
+                            </div>
                             <span v-if="hasRewardReference(record)" class="m-progress-achievement-reward">
                                 <span class="u-progress-reward-label">{{ $t("pages.wiki.overview.ui.reward") }}</span>
                                 <el-tooltip v-if="isItemReward(record)" placement="top">
@@ -402,12 +409,17 @@ export default {
         <div v-if="total > pageSize" class="m-progress-pagination">
             <el-pagination
                 background
-                layout="prev, pager, next"
+                :layout="isPaginationPhoneViewport ? 'prev, slot, next' : 'prev, pager, next'"
                 :current-page="page"
                 :page-size="pageSize"
+                :pager-count="responsivePagerCount"
                 :total="total"
                 @current-change="$emit('page-change', $event)"
-            />
+            >
+                <span class="u-achievement-pagination-status" aria-live="polite">
+                    {{ page }} / {{ Math.max(1, Math.ceil(total / pageSize)) }}
+                </span>
+            </el-pagination>
         </div>
     </section>
 </template>
@@ -618,6 +630,10 @@ export default {
     }
 }
 
+.m-progress-achievement-dimensions {
+    display: contents;
+}
+
 .u-progress-rating {
     color: #a8773c !important;
     letter-spacing: 0.04em;
@@ -728,36 +744,159 @@ export default {
     border-top: 1px solid rgba(70, 74, 66, 0.1);
 }
 
-@media (max-width: 560px) {
+@media (max-width: @phone) {
     .m-progress-list__header {
+        min-height: 0;
         align-items: flex-start;
         flex-direction: column;
         gap: 5px;
+        padding: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .m-progress-list__body {
+        min-width: 0;
+        padding: 8px;
     }
 
     .m-progress-achievement-card {
-        grid-template-columns: 40px minmax(0, 1fr);
+        grid-template-columns: 44px minmax(0, 1fr);
+        align-items: start;
         gap: 10px;
         padding: 10px;
     }
 
     .u-progress-achievement-icon {
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
+        box-sizing: border-box;
+    }
+
+    .m-progress-achievement-card__content {
+        display: contents;
     }
 
     .m-progress-achievement-card__title {
+        grid-column: 2;
         align-items: stretch;
         flex-direction: column;
         gap: 6px;
+
+        a {
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
     }
 
     .u-progress-status {
         width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
     }
 
     .u-progress-description {
-        white-space: normal;
+        grid-column: 1 / -1;
+        margin: 0;
+        line-height: 1.7;
+    }
+
+    .m-progress-achievement-card__meta {
+        grid-column: 1 / -1;
+        gap: 8px;
+        font-size: 12px;
+
+        > span {
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-wrap: anywhere;
+        }
+
+        svg {
+            flex: none;
+        }
+    }
+
+    .u-progress-map {
+        flex-basis: 100%;
+    }
+
+    .m-progress-achievement-dimensions {
+        display: grid;
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        padding: 10px 0;
+        border-top: 1px solid rgba(70, 74, 66, 0.09);
+
+        .u-progress-dimension {
+            min-width: 0;
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .u-progress-dimension-label,
+        .u-progress-rating {
+            max-width: 100%;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    .m-progress-achievement-reward {
+        width: 100%;
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .u-progress-reward-trigger {
+        width: 36px;
+        height: 36px;
+        box-sizing: border-box;
+    }
+
+    .m-progress-list-state {
+        min-height: 240px;
+        padding: 16px 8px;
+        overflow-wrap: anywhere;
+
+        button {
+            min-height: 44px;
+        }
+    }
+
+    .m-progress-pagination {
+        min-width: 0;
+        padding: 12px 0;
+
+        :deep(.el-pagination) {
+            --el-pagination-button-width: 36px;
+            --el-pagination-button-height: 36px;
+            max-width: 100%;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .u-achievement-pagination-status {
+            min-width: 72px;
+            color: #687274;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+        }
+
+        :deep(.el-pagination.is-background .btn-prev),
+        :deep(.el-pagination.is-background .btn-next) {
+            box-sizing: border-box;
+            min-width: 36px;
+            height: 36px;
+            flex: none;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
 

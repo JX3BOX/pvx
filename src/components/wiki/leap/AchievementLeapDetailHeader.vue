@@ -206,7 +206,7 @@ export default {
     margin-right: 6px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: @phone) {
     .m-leap-detail-header {
         flex-wrap: wrap;
         gap: 12px;
@@ -214,31 +214,47 @@ export default {
 
     .m-leap-detail-header__identity {
         flex-basis: 100%;
-    }
-
-    .m-leap-detail-header__actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
-}
-
-@media (max-width: 460px) {
-    .m-leap-detail-header__identity {
-        display: grid;
-        grid-template-columns: auto 1fr;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .m-leap-detail-header__identity > i {
         display: none;
     }
 
+    .m-leap-detail-header__identity h1 {
+        width: 100%;
+        font-size: 19px;
+        line-height: 1.5;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
     .m-leap-detail-header__actions {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .u-leap-detail-button {
+        min-height: 44px;
+        max-width: 100%;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
     }
 
     .m-leap-detail-header__actions .is-primary {
-        width: 100%;
+        flex: 1;
+    }
+
+    .m-leap-detail-header__actions :deep(.el-dropdown) {
+        flex: none;
+        max-width: 100%;
+    }
+
+    .u-leap-detail-menu-button {
+        min-height: 40px;
     }
 }
 </style>

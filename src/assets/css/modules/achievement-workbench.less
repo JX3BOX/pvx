@@ -80,8 +80,10 @@
     }
 }
 
-@media (max-width: 720px) {
+@media (max-width: @phone) {
     .m-achievement-main.c-achievement-workbench {
+        min-height: calc(100vh - @header-height);
+        min-height: calc(100dvh - @header-height);
         padding: 8px;
     }
 
@@ -92,6 +94,6 @@
 
     .m-achievement-main.c-achievement-workbench .m-achievement-content.m-achievement-workbench-content {
         min-height: 480px;
-        padding: 10px;
+        padding: 12px 8px;
     }
 }
