@@ -510,7 +510,7 @@ export default {
             const recommendationRequestId = this.recommendationRequestId;
             const isCurrent = () => this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client) &&
                 recommendationRequestId === this.recommendationRequestId && recommendation === this.recommendation;
-            const items = selectAchievementRecommendationItems(selection.items, currentPoints, targetPoints);
+            const items = selectAchievementRecommendationItems(selection.items, currentPoints, targetPoints, selection.includedIds);
             if (!items.length) return;
             const payload = buildAchievementRecommendationPlan({ items, recommendation,
                 title: this.plannerForm.title, targetPoints, roleId,

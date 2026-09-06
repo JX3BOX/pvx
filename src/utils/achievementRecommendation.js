@@ -1,4 +1,4 @@
-// The server owns eligibility and ordering. Detail queries must not change either.
+// The server owns eligibility. Detail queries must not change the draft order.
 export function formatAchievementRecommendationDate(value, locale = "zh-CN") {
     if (typeof value !== "string" || !value.trim()) return "";
     const date = new Date(value);
@@ -42,25 +42,26 @@ export function selectAchievementRecommendation(recommendation, metadata, target
         recommendation.role.current_points, targetPoints).map(({ points, ...row }) => row);
 }
 
-export function selectAchievementRecommendationItems(items, currentPoints, targetPoints) {
-    const selection = resolveAchievementRecommendationSelection(items, currentPoints, targetPoints);
+export function selectAchievementRecommendationItems(items, currentPoints, targetPoints, includedIds = []) {
+    const selection = resolveAchievementRecommendationSelection(items, currentPoints, targetPoints, includedIds);
     if (selection.missingPointId !== null) throw new Error(`Missing achievement points: ${selection.missingPointId}`);
     return selection.items;
 }
 
-export function resolveAchievementRecommendationSelection(items, currentPoints, targetPoints) {
+export function resolveAchievementRecommendationSelection(items, currentPoints, targetPoints, includedIds = []) {
     const gap = Number(targetPoints) - currentPoints;
-    if (!(gap > 0)) return { items: [], missingPointId: null };
+    const included = new Set(includedIds.map(String));
+    if (!(gap > 0) && !included.size) return { items: [], missingPointId: null };
     const selected = [];
     let points = 0;
     for (const row of items) {
-        if (points >= gap) break;
+        const neededForTarget = points < gap;
+        if (!neededForTarget && !included.has(String(row.id))) continue;
         const point = row.points;
-        // Only the prefix needed to reach the target participates in validation.
-        // Unknown points inside it must neither be treated as zero nor skipped.
+        // Validate the target prefix and explicitly included extras, even after reaching the target.
         if (!Number.isFinite(point) || point < 0) return { items: [], missingPointId: row.id };
         selected.push(row);
-        points += point;
+        if (neededForTarget) points += point;
     }
     return { items: selected, missingPointId: null };
 }
@@ -81,6 +82,17 @@ export function removeAchievementRecommendationItem(groups, id) {
 
 export function achievementRecommendationPlace(group) {
     return /^bucket:\d+:((?:scene|map):.+)$/.exec(group)?.[1] || null;
+}
+
+export function arrangeAchievementRecommendationGroups(groups) {
+    const places = new Map();
+    groups.forEach((group) => {
+        // Keep scene IDs separate from world-map IDs and preserve first-appearance order.
+        const key = achievementRecommendationPlace(group.group) || group.group;
+        if (!places.has(key)) places.set(key, []);
+        places.get(key).push({ ...group, ids: [...group.ids] });
+    });
+    return [...places.values()].flat();
 }
 
 export function moveAchievementRecommendationItem(groups, id, targetGroup, beforeId = null) {

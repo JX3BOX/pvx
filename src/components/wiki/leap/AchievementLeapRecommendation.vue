@@ -3,13 +3,14 @@ import { Search, Refresh, Back } from "@element-plus/icons-vue";
 import { fetchAchievementWorkbenchRecordsBatched, fetchAchievementWorkbenchDifficultyMetrics,
     fetchAchievementWorkbenchTags, fetchAchievementWorkbenchTag } from "@/service/achievementWorkbench";
 import { applyAchievementWorkbenchEnrichment, normalizeAchievementWorkbenchTags } from "@/utils/achievementWorkbench";
-import AchievementRecommendationGroupIndex from "./AchievementRecommendationGroupIndex.vue";
 import AchievementRecommendationItems from "./AchievementRecommendationItems.vue";
+import AchievementRecommendationCandidatesDialog from "./AchievementRecommendationCandidatesDialog.vue";
+import AchievementRecommendationActionDialog from "./AchievementRecommendationActionDialog.vue";
 import {
-    flattenAchievementRecommendation, hydrateAchievementRecommendation, achievementRecommendationGroupLabel,
-    resolveAchievementRecommendationSelection, removeAchievementRecommendationItem,
+    flattenAchievementRecommendation, hydrateAchievementRecommendation, arrangeAchievementRecommendationGroups,
+    resolveAchievementRecommendationSelection,
     filterAchievementRecommendationItems, enrichAchievementRecommendationRecords, achievementRecommendationFilterOptions,
-    achievementRecommendationPlace, moveAchievementRecommendationItem,
+    moveAchievementRecommendationItem, achievementRecommendationPlace,
     formatAchievementRecommendationDate, achievementRecommendationExclusions,
 } from "@/utils/achievementRecommendation";
 
@@ -19,7 +20,7 @@ const exclusionReasons = new Set(["completed", "dependency_or_series", "mount_or
 
 export default {
     name: "AchievementLeapRecommendation",
-    components: { Search, Refresh, Back, AchievementRecommendationGroupIndex, AchievementRecommendationItems },
+    components: { Search, Refresh, Back, AchievementRecommendationItems, AchievementRecommendationCandidatesDialog, AchievementRecommendationActionDialog },
     props: {
         dimensions: { type: Array, default: () => [] },
         hasRequested: { type: Boolean, default: false },
@@ -37,12 +38,13 @@ export default {
     },
     emits: ["selection-change", "refresh"],
     data() {
-        return { tab: "recommended", showSelectedOnly: true, groups: [], recordCache: {}, filters: emptyFilters(), activeGroup: "",
-            detailStates: {}, difficultyCache: {}, difficultyStates: {}, expandedGroups: [], contextId: 0, requestId: 0,
+        return { tab: "recommended", candidatesVisible: false, selectedDraftIds: null, autoFillExcludedIds: [], pendingAction: null, actionNotice: "", groups: [], recordCache: {}, filters: emptyFilters(),
+            detailStates: {}, difficultyCache: {}, difficultyStates: {}, contextId: 0, requestId: 0,
             tagCache: {}, tagStates: {}, eventTagCache: {}, eventTagsLoading: false, eventTagsError: false,
             filterIndex: {}, filterIndexReady: false, filterIndexLoading: false, filterIndexError: false };
     },
     computed: {
+        hasPreview() { return Boolean(this.recommendation) && this.client === "std" && this.roleAvailable && !this.loading && !this.error; },
         snapshotDateLabel() { return this.dateLabel(this.recommendation?.role.snapshot_updated_at); },
         exclusions() { return achievementRecommendationExclusions(this.recommendation?.excluded_summary); },
         draftRows() {
@@ -51,40 +53,69 @@ export default {
         upcomingRows() {
             return (this.recommendation?.upcoming_events || []).flatMap((event) => event.ids.map((id) => ({
                 id: String(id), recommendationGroup: `event:${event.tag_id}`, nextStartAt: event.next_start_at,
+                eventLabel: this.eventGroupLabel(event),
             })));
         },
         draftItems() {
-            // Catalog points keep plan selection independent of which groups have been visited.
+            // Catalog points keep plan selection independent of detail loading and filters.
             return this.draftRows.map((row) => ({ ...row, points: this.metadata[row.id]?.point }));
         },
         selectionResult() {
-            return resolveAchievementRecommendationSelection(this.draftItems, this.recommendation?.role.current_points || 0, this.targetPoints);
+            const currentPoints = this.recommendation?.role.current_points || 0;
+            if (this.selectedDraftIds !== null) {
+                // Keep explicit membership, including extras and replacements chosen after a removal.
+                const ids = new Set(this.selectedDraftIds);
+                return resolveAchievementRecommendationSelection(this.draftItems.filter((item) => ids.has(item.id)), currentPoints, currentPoints, this.selectedDraftIds);
+            }
+            return resolveAchievementRecommendationSelection(this.draftItems, currentPoints, this.targetPoints);
         },
         pointsMissing() { return this.selectionResult.missingPointId !== null; },
         sourceRows() { return this.tab === "upcoming" ? this.upcomingRows : this.draftRows; },
         hasFilters() { return Boolean(this.filters.keyword.trim() || this.filters.mapIds.length || this.filters.categories.length); },
         indexedItems() { return this.sourceRows.filter((row) => this.filterIndex[row.id]).map((row) => ({ ...this.filterIndex[row.id], ...row })); },
         matchingRows() {
-            const rows = this.hasFilters ? filterAchievementRecommendationItems(this.indexedItems, this.filters) : this.sourceRows;
-            return this.tab === "recommended" && this.showSelectedOnly ? rows.filter((row) => this.selectedIds.has(row.id)) : rows;
+            const rows = this.filterRows(this.sourceRows, this.indexedItems);
+            return this.tab === "recommended" ? rows.filter((row) => this.selectedIds.has(row.id)) : rows;
         },
-        activeRows() { return this.matchingRows.filter((row) => row.recommendationGroup === this.activeGroup); },
-        relatedGroups() {
-            const place = this.tab === "recommended" ? achievementRecommendationPlace(this.activeGroup) : null;
-            return place ? this.groupIndex.filter((group) => group.group !== this.activeGroup && achievementRecommendationPlace(group.group) === place) : [];
+        detailRows() { return this.matchingRows; },
+        candidateRows() { return this.pointsMissing ? [] : this.draftRows.filter((row) => !this.selectedIds.has(row.id)); },
+        indexedCandidates() { return this.candidateRows.filter((row) => this.filterIndex[row.id]).map((row) => ({ ...this.filterIndex[row.id], ...row })); },
+        matchingCandidates() {
+            return this.filterRows(this.candidateRows, this.indexedCandidates);
         },
-        requestedGroups() {
-            return [this.activeGroup, ...this.relatedGroups.filter((group) => this.expandedGroups.includes(group.group)).map((group) => group.group)].filter(Boolean);
+        candidateDetailRows() { return this.candidatesVisible ? this.matchingCandidates : []; },
+        visibleCandidates() { return this.hydrateRows(this.matchingCandidates); },
+        originalGroupById() {
+            return Object.fromEntries((this.recommendation?.recommendations || []).flatMap(({ group, ids }) => ids.map((id) => [String(id), group])));
         },
-        detailRows() {
-            return this.matchingRows.filter((row) => this.requestedGroups.includes(row.recommendationGroup));
+        relatedActionRows() {
+            if (!this.pendingAction) return [];
+            const group = this.originalGroupById[this.pendingAction.id];
+            const key = achievementRecommendationPlace(group) || group;
+            const rows = this.pendingAction.source === "selected" ? this.draftRows.filter((row) => this.selectedIds.has(row.id)) : this.candidateRows;
+            return rows.filter((row) => {
+                const originalGroup = this.originalGroupById[row.id];
+                return (achievementRecommendationPlace(originalGroup) || originalGroup) === key;
+            });
         },
-        detailsLoading() { return Boolean(this.detailStates[this.activeGroup]?.loading); },
-        detailsError() { return Boolean(this.detailStates[this.activeGroup]?.error); },
-        loadedCount() { return this.detailStates[this.activeGroup]?.count || 0; },
-        rows() {
-            return this.groupRows(this.activeGroup);
+        actionRows() {
+            return this.pendingAction?.scope === "related" ? this.relatedActionRows
+                : this.relatedActionRows.filter((row) => row.id === this.pendingAction?.id);
         },
+        actionItems() {
+            return this.actionRows.map((row) => ({ ...row, selected: this.selectedIds.has(row.id),
+                name: this.recordCache[row.id]?.name || this.filterIndex[row.id]?.name || `#${row.id}` }));
+        },
+        actionMissingPointId() {
+            return this.pendingAction?.type === "add" ? this.actionRows.find((row) => {
+                const point = this.metadata[row.id]?.point;
+                return !Number.isFinite(point) || point < 0;
+            })?.id || null : null;
+        },
+        detailsLoading() { return Boolean(this.detailStates[this.tab]?.loading); },
+        detailsError() { return Boolean(this.detailStates[this.tab]?.error); },
+        loadedCount() { return this.rows.length; },
+        rows() { return this.hydrateRows(this.matchingRows); },
         filterOptions() {
             return achievementRecommendationFilterOptions(this.indexedItems, this.maps);
         },
@@ -105,22 +136,14 @@ export default {
         },
         emptyMessage() {
             if (this.recommendation?.role.status === "no_sortable_dimensions") return "achievementRecommendation.noDimensions";
-            if (this.tab === "recommended" && this.showSelectedOnly) {
+            if (this.tab === "recommended") {
                 if (this.pointsMissing) return "achievementRecommendation.selectionUnavailable";
                 if (!this.selectedItems.length) return "achievementRecommendation.noSelected";
             }
             return this.hasFilters ? "achievementRecommendation.noFilterResults" : "achievementRecommendation.empty";
         },
         selection() {
-            return { recommendation: this.recommendation, items: this.selectedItems, ready: !this.pointsMissing && this.tab === "recommended" };
-        },
-        groupIndex() {
-            const counts = new Map();
-            this.matchingRows.forEach((row) => counts.set(row.recommendationGroup, (counts.get(row.recommendationGroup) || 0) + 1));
-            const groups = this.tab === "upcoming"
-                ? (this.recommendation?.upcoming_events || []).map((event) => ({ group: `event:${event.tag_id}`, label: this.eventGroupLabel(event) }))
-                : this.groups.map((group) => ({ group: group.group, label: this.groupLabel(group.group) }));
-            return groups.filter((group) => counts.has(group.group)).map((group) => ({ ...group, count: counts.get(group.group) }));
+            return { recommendation: this.recommendation, items: this.selectedItems, includedIds: [...(this.selectedDraftIds || [])], ready: !this.pointsMissing && this.tab === "recommended" };
         },
     },
     watch: {
@@ -133,22 +156,21 @@ export default {
             this.resetDraft();
         } },
         detailRows: { immediate: true, handler() {
-            this.requestedGroups.forEach((group) => {
-                this.loadDetails(group);
-                this.loadDifficulty(group);
-                this.loadTags(group);
-            });
+            this.loadDetails();
+            this.loadDifficulty();
+            this.loadTags();
         } },
         selection: { immediate: true, handler(value) { this.$emit("selection-change", value); } },
-        filters: { deep: true, handler() { if (this.hasFilters) this.loadFilterIndex(); this.expandedGroups = []; this.resetScroll(); } },
-        showSelectedOnly() { this.expandedGroups = []; this.resetScroll(); },
-        groupIndex() { this.ensureActiveGroup(); },
-        tab() { this.jumpTo(this.groupIndex[0]?.group || ""); if (this.tab === "upcoming") this.loadEventTags(); },
+        filters: { deep: true, handler() { if (this.hasFilters) this.loadFilterIndex(); this.resetScroll(); } },
+        candidateDetailRows: { handler() {
+            if (!this.candidatesVisible) return;
+            this.loadDetails("candidates"); this.loadDifficulty("candidates"); this.loadTags("candidates");
+        } },
+        tab() { this.resetScroll(); if (this.tab === "upcoming") this.loadEventTags(); },
     },
     beforeUnmount() { this.contextId += 1; },
     methods: {
         formatNumber(value) { return value.toLocaleString(this.$i18n.locale); },
-        groupLabel(group) { return achievementRecommendationGroupLabel(group, this.maps, this.$t); },
         dateLabel(value) { return formatAchievementRecommendationDate(value, this.$i18n.locale); },
         exclusionLabel(reason) {
             return exclusionReasons.has(reason) ? this.$t(`achievementRecommendation.reasons.${reason}`)
@@ -160,30 +182,93 @@ export default {
             return `${name} · ${date ? this.$t("achievementRecommendation.opensAt", { date }) : this.$t("achievementRecommendation.eventTimeUnknown")}`;
         },
         resetDraft() {
-            this.groups = (this.recommendation?.recommendations || []).map((group) => ({ ...group, ids: [...group.ids] }));
+            this.groups = arrangeAchievementRecommendationGroups(this.recommendation?.recommendations || []);
+            this.selectedDraftIds = null;
+            this.autoFillExcludedIds = [];
+            this.pendingAction = null;
+            this.actionNotice = "";
             this.filters = emptyFilters();
             this.tab = "recommended";
-            this.showSelectedOnly = true;
-            this.expandedGroups = [];
-            this.activeGroup = this.groups[0]?.group || "";
+            this.candidatesVisible = false;
             this.resetScroll();
         },
         restoreDraft() { if (!this.disabled) this.resetDraft(); },
         resetScroll() {
             this.$nextTick(() => {
+                const preview = this.$el;
                 const results = this.$refs.results;
-                if (!results) return;
-                results.scrollTop = 0;
-                // Narrow previews scroll as one surface, including filters and summaries.
-                if (this.$el.scrollTop > 0) {
-                    const resultsTop = results.getBoundingClientRect().top - this.$el.getBoundingClientRect().top + this.$el.scrollTop;
-                    this.$el.scrollTop = Math.min(this.$el.scrollTop, resultsTop);
-                }
+                if (!preview || !results || preview.scrollTop <= 0) return;
+                const resultsTop = results.getBoundingClientRect().top - preview.getBoundingClientRect().top + preview.scrollTop;
+                // Keep the first result below the sticky controls after filtering or switching scope.
+                const toolbarHeight = this.$refs.toolbar?.offsetHeight || 0;
+                preview.scrollTop = Math.min(preview.scrollTop, Math.max(0, resultsTop - toolbarHeight));
             });
         },
-        jumpTo(group) { this.activeGroup = group; this.expandedGroups = []; this.resetScroll(); },
-        ensureActiveGroup() {
-            if (!this.groupIndex.some((group) => group.group === this.activeGroup)) this.jumpTo(this.groupIndex[0]?.group || "");
+        hydrateRows(rows) {
+            // Reveal a continuous prefix as batches arrive, without skipping unloaded rows.
+            const firstMissing = rows.findIndex((row) => !this.recordCache[row.id]);
+            const loaded = firstMissing < 0 ? rows : rows.slice(0, firstMissing);
+            return applyAchievementWorkbenchEnrichment(
+                hydrateAchievementRecommendation(loaded, loaded.map((row) => this.recordCache[row.id])),
+                { difficultyById: this.difficultyCache, tagsById: this.tagCache }
+            );
+        },
+        filterRows(rows, indexedItems) {
+            if (!this.hasFilters) return rows;
+            const ids = new Set(filterAchievementRecommendationItems(indexedItems, this.filters).map((item) => item.id));
+            // The lightweight index decides membership only; its empty fields must not replace full details.
+            return rows.filter((row) => ids.has(row.id));
+        },
+        rowsForScope(scope) { return scope === "candidates" ? this.matchingCandidates : this.matchingRows; },
+        scopeActive(scope) { return scope === "candidates" ? this.candidatesVisible : scope === this.tab; },
+        requestAction(type, item, source) {
+            if (this.disabled || this.tab !== "recommended" || !["add", "remove"].includes(type)) return;
+            if (!["selected", "candidates"].includes(source) || (type === "add" && source !== "candidates")) return;
+            const rows = source === "selected" ? this.selectedItems : this.candidateRows;
+            if (!rows.some((row) => row.id === item.id) || (type === "add" && !this.candidatesVisible)) return;
+            this.pendingAction = { type, id: item.id, source, scope: "single" };
+            this.loadFilterIndex();
+        },
+        confirmAction() {
+            if (this.disabled || !this.pendingAction || !this.actionRows.length || this.actionMissingPointId) return;
+            const ids = new Set(this.actionRows.map((row) => row.id));
+            const type = this.pendingAction.type;
+            const selected = this.selectedItems.map((item) => item.id);
+            let filled = 0;
+            if (type === "add") {
+                this.selectedDraftIds = [...new Set([...selected, ...ids])];
+                this.autoFillExcludedIds = this.autoFillExcludedIds.filter((id) => !ids.has(id));
+            } else if (this.pendingAction.source === "selected") filled = this.removeSelectedItems(ids);
+            else {
+                this.selectedDraftIds = selected;
+                this.groups = this.groups.map((group) => ({ ...group, ids: group.ids.filter((id) => !ids.has(String(id))) }))
+                    .filter((group) => group.ids.length);
+            }
+            this.actionNotice = this.$t(type === "add" ? "achievementRecommendation.candidatesAdded"
+                : this.pendingAction.source === "selected" ? (filled ? "achievementRecommendation.selectionRefilled" : "achievementRecommendation.selectionRemoved")
+                    : "achievementRecommendation.candidatesRemoved", { count: ids.size, filled });
+            this.pendingAction = null;
+        },
+        removeSelectedItems(ids) {
+            const removed = new Set([...ids].map(String));
+            const selected = this.selectedItems;
+            if (!selected.some((item) => removed.has(item.id))) return 0;
+            const kept = selected.filter((item) => !removed.has(item.id));
+            this.autoFillExcludedIds = [...new Set([...this.autoFillExcludedIds, ...removed])];
+            const excluded = new Set([...this.autoFillExcludedIds, ...kept.map((item) => item.id)]);
+            let projected = this.recommendation.role.current_points + kept.reduce((sum, item) => sum + item.points, 0);
+            const replacements = [];
+            // Fill only the deficit, preserving existing extras and ignoring display filters.
+            for (const item of this.draftItems) {
+                if (projected >= this.targetPoints) break;
+                if (excluded.has(item.id)) continue;
+                replacements.push(item.id);
+                // Include the unknown required item so selection validation blocks saving instead of skipping it.
+                if (!Number.isFinite(item.points) || item.points < 0) break;
+                projected += item.points;
+            }
+            this.selectedDraftIds = [...kept.map((item) => item.id), ...replacements];
+            return this.pointsMissing ? 0 : replacements.length;
         },
         async loadFilterIndex() {
             if (!this.recommendation || this.filterIndexReady || this.filterIndexLoading) return;
@@ -210,129 +295,107 @@ export default {
                 if (contextId === this.contextId) this.filterIndexLoading = false;
             }
         },
-        groupRows(group) {
-            const rows = this.matchingRows.filter((row) => row.recommendationGroup === group);
-            if (rows.some((row) => !this.recordCache[row.id])) return [];
-            return applyAchievementWorkbenchEnrichment(
-                hydrateAchievementRecommendation(rows, rows.map((row) => this.recordCache[row.id])),
-                { difficultyById: this.difficultyCache, tagsById: this.tagCache }
-            );
-        },
         moveItem({ id, group, beforeId }) {
             if (this.disabled || this.tab !== "recommended") return;
+            this.selectedDraftIds = this.selectedItems.map((item) => item.id);
             this.groups = moveAchievementRecommendationItem(this.groups, id, group, beforeId);
-            if (!this.groups.some((entry) => entry.group === this.activeGroup)) this.jumpTo(group);
-        },
-        reorderGroups(entries) {
-            if (this.disabled || this.tab !== "recommended") return;
-            const byGroup = new Map(this.groups.map((group) => [group.group, group]));
-            const reordered = entries.map((entry) => byGroup.get(entry.group));
-            const visible = new Set(entries.map((entry) => entry.group));
-            let index = 0;
-            this.groups = this.groups.map((group) => visible.has(group.group) ? reordered[index++] : group);
         },
         removeItem(item) {
-            if (this.disabled) return;
-            const index = this.groups.findIndex((group) => group.group === this.activeGroup);
-            this.groups = removeAchievementRecommendationItem(this.groups, item.id);
-            if (!this.groups.some((group) => group.group === this.activeGroup)) {
-                this.jumpTo(this.groups[Math.min(index, this.groups.length - 1)]?.group || "");
-            }
+            if (this.disabled || this.tab !== "recommended") return;
+            this.removeSelectedItems([item.id]);
         },
-        async loadDetails(group = this.activeGroup) {
-            if (this.detailStates[group]?.loading) return;
+        async loadDetails(tab = this.tab) {
+            if (this.detailStates[tab]?.loading) return;
             const requestId = ++this.requestId;
             const contextId = this.contextId;
-            const rows = this.matchingRows.filter((row) => row.recommendationGroup === group);
+            const rows = this.rowsForScope(tab);
             const ids = [...new Set(rows.map((row) => row.id))].filter((id) => !this.recordCache[id]);
-            this.detailStates[group] = { requestId, loading: Boolean(ids.length), error: false, count: rows.length - ids.length };
-            const isCurrent = () => contextId === this.contextId && this.detailStates[group]?.requestId === requestId;
+            this.detailStates[tab] = { requestId, loading: Boolean(ids.length), error: false, count: rows.length - ids.length };
+            const isCurrent = () => contextId === this.contextId && this.detailStates[tab]?.requestId === requestId;
             if (!ids.length) return;
             try {
-                // Expanded related groups load independently; leaving a group stops its queued batches.
+                // Load sequential batches across group boundaries; leaving the tab stops queued batches.
                 for (let start = 0; start < ids.length; start += 240) {
                     const batch = ids.slice(start, start + 240);
                     const details = await fetchAchievementWorkbenchRecordsBatched({ ids: batch, metadata: this.metadata,
                         completedIds: [], client: "std", includeHidden: true });
-                    if (!isCurrent() || !this.requestedGroups.includes(group)) return;
+                    if (!isCurrent() || !this.scopeActive(tab)) return;
                     hydrateAchievementRecommendation(batch.map((id) => ({ id })), details);
                     enrichAchievementRecommendationRecords(details, this.menus, this.maps).forEach((record) => {
                         this.recordCache[record.id] = record;
                     });
-                    this.detailStates[group].count += batch.length;
+                    this.detailStates[tab].count += batch.length;
                 }
             } catch (error) {
-                if (isCurrent() && this.requestedGroups.includes(group)) {
-                    this.detailStates[group].error = true;
+                if (isCurrent() && this.scopeActive(tab)) {
+                    this.detailStates[tab].error = true;
                     console.error("Failed to load recommendation details:", error);
                 }
             } finally {
                 if (isCurrent()) {
-                    this.detailStates[group].loading = false;
-                    // A filter can change the needed IDs while the same group's request is in flight.
-                    if (!this.detailStates[group].error && this.requestedGroups.includes(group) &&
-                        this.matchingRows.some((row) => row.recommendationGroup === group && !this.recordCache[row.id])) this.loadDetails(group);
+                    this.detailStates[tab].loading = false;
+                    // Filters and selection can change the needed IDs while a batch is in flight.
+                    if (!this.detailStates[tab].error && this.scopeActive(tab) &&
+                        this.rowsForScope(tab).some((row) => !this.recordCache[row.id])) this.loadDetails(tab);
                 }
             }
         },
-        async loadDifficulty(group = this.activeGroup) {
-            if (this.difficultyStates[group]?.loading) return;
+        async loadDifficulty(tab = this.tab) {
+            if (this.difficultyStates[tab]?.loading) return;
             const requestId = ++this.requestId;
             const contextId = this.contextId;
-            const needsDifficulty = (row) => row.recommendationGroup === group &&
-                !Object.prototype.hasOwnProperty.call(this.difficultyCache, row.id);
-            const ids = [...new Set(this.matchingRows.filter(needsDifficulty).map((row) => row.id))];
-            this.difficultyStates[group] = { requestId, loading: Boolean(ids.length), error: false };
-            const isCurrent = () => contextId === this.contextId && this.difficultyStates[group]?.requestId === requestId;
+            const needsDifficulty = (row) => !Object.prototype.hasOwnProperty.call(this.difficultyCache, row.id);
+            const ids = [...new Set(this.rowsForScope(tab).filter(needsDifficulty).map((row) => row.id))];
+            this.difficultyStates[tab] = { requestId, loading: Boolean(ids.length), error: false };
+            const isCurrent = () => contextId === this.contextId && this.difficultyStates[tab]?.requestId === requestId;
             if (!ids.length) return;
             try {
                 for (let start = 0; start < ids.length; start += 240) {
                     const batch = ids.slice(start, start + 240);
                     const difficultyById = await fetchAchievementWorkbenchDifficultyMetrics(batch, { client: "std" });
-                    if (!isCurrent() || !this.requestedGroups.includes(group)) return;
+                    if (!isCurrent() || !this.scopeActive(tab)) return;
                     // A successful response may contain unconfigured scores (null); cache those too.
                     batch.forEach((id) => { this.difficultyCache[id] = difficultyById[id] ?? null; });
                 }
             } catch (error) {
-                if (isCurrent() && this.requestedGroups.includes(group)) {
-                    this.difficultyStates[group].error = true;
+                if (isCurrent() && this.scopeActive(tab)) {
+                    this.difficultyStates[tab].error = true;
                     console.error("Failed to load recommendation difficulty:", error);
                 }
             } finally {
                 if (isCurrent()) {
-                    this.difficultyStates[group].loading = false;
-                    if (!this.difficultyStates[group].error && this.requestedGroups.includes(group) &&
-                        this.matchingRows.some(needsDifficulty)) this.loadDifficulty(group);
+                    this.difficultyStates[tab].loading = false;
+                    if (!this.difficultyStates[tab].error && this.scopeActive(tab) &&
+                        this.rowsForScope(tab).some(needsDifficulty)) this.loadDifficulty(tab);
                 }
             }
         },
-        async loadTags(group = this.activeGroup) {
-            if (this.tagStates[group]?.loading) return;
+        async loadTags(tab = this.tab) {
+            if (this.tagStates[tab]?.loading) return;
             const requestId = ++this.requestId;
             const contextId = this.contextId;
-            const needsTags = (row) => row.recommendationGroup === group &&
-                !Object.prototype.hasOwnProperty.call(this.tagCache, row.id);
-            const ids = [...new Set(this.matchingRows.filter(needsTags).map((row) => row.id))];
-            this.tagStates[group] = { requestId, loading: Boolean(ids.length), error: false };
-            const isCurrent = () => contextId === this.contextId && this.tagStates[group]?.requestId === requestId;
+            const needsTags = (row) => !Object.prototype.hasOwnProperty.call(this.tagCache, row.id);
+            const ids = [...new Set(this.rowsForScope(tab).filter(needsTags).map((row) => row.id))];
+            this.tagStates[tab] = { requestId, loading: Boolean(ids.length), error: false };
+            const isCurrent = () => contextId === this.contextId && this.tagStates[tab]?.requestId === requestId;
             if (!ids.length) return;
             try {
                 for (let start = 0; start < ids.length; start += 240) {
                     const batch = ids.slice(start, start + 240);
                     const tagsById = await fetchAchievementWorkbenchTags(batch, { client: "std" });
-                    if (!isCurrent() || !this.requestedGroups.includes(group)) return;
+                    if (!isCurrent() || !this.scopeActive(tab)) return;
                     batch.forEach((id) => { this.tagCache[id] = tagsById[id] || normalizeAchievementWorkbenchTags([]); });
                 }
             } catch (error) {
-                if (isCurrent() && this.requestedGroups.includes(group)) {
-                    this.tagStates[group].error = true;
+                if (isCurrent() && this.scopeActive(tab)) {
+                    this.tagStates[tab].error = true;
                     console.error("Failed to load recommendation tags:", error);
                 }
             } finally {
                 if (isCurrent()) {
-                    this.tagStates[group].loading = false;
-                    if (!this.tagStates[group].error && this.requestedGroups.includes(group) &&
-                        this.matchingRows.some(needsTags)) this.loadTags(group);
+                    this.tagStates[tab].loading = false;
+                    if (!this.tagStates[tab].error && this.scopeActive(tab) &&
+                        this.rowsForScope(tab).some(needsTags)) this.loadTags(tab);
                 }
             }
         },
@@ -368,23 +431,58 @@ export default {
 
 <template>
     <div class="m-server-recommendation" :aria-label="$t('achievementRecommendation.preview')" :aria-busy="loading || detailsLoading">
-        <header class="m-server-recommendation__header">
-            <h2>{{ $t('achievementRecommendation.preview') }}</h2>
-            <div class="m-server-recommendation__header-actions">
-            <el-tooltip v-if="hasRequested" :content="$t('achievementRecommendation.refreshHint')">
-                <el-button :disabled="!canRequest" :loading="loading" @click="$emit('refresh')">
-                    <el-icon v-if="!loading"><Refresh /></el-icon>
-                    <span>{{ $t('achievementRecommendation.refresh') }}</span>
-                </el-button>
-            </el-tooltip>
-            <el-tooltip v-if="recommendation" :content="$t('achievementRecommendation.restoreDraftHint')">
-                <el-button :disabled="disabled || !recommendation || detailsLoading" :aria-label="$t('achievementRecommendation.restoreDraft')" @click="restoreDraft">
-                    <el-icon><Back /></el-icon>
-                    <span>{{ $t('achievementRecommendation.restoreDraft') }}</span>
-                </el-button>
-            </el-tooltip>
-            </div>
-        </header>
+        <div ref="toolbar" class="m-recommendation-toolbar">
+            <header class="m-server-recommendation__header">
+                <h2>{{ $t('achievementRecommendation.preview') }}</h2>
+                <div class="m-server-recommendation__header-actions">
+                <el-tooltip v-if="hasRequested" :content="$t('achievementRecommendation.refreshHint')">
+                    <el-button :disabled="!canRequest" :loading="loading" :aria-label="$t('achievementRecommendation.refresh')" @click="$emit('refresh')">
+                        <el-icon v-if="!loading"><Refresh /></el-icon>
+                        <span class="m-recommendation-action-label">{{ $t('achievementRecommendation.refresh') }}</span>
+                    </el-button>
+                </el-tooltip>
+                <el-tooltip v-if="recommendation" :content="$t('achievementRecommendation.restoreDraftHint')">
+                    <el-button :disabled="disabled || !recommendation || detailsLoading" :aria-label="$t('achievementRecommendation.restoreDraft')" @click="restoreDraft">
+                        <el-icon><Back /></el-icon>
+                        <span class="m-recommendation-action-label">{{ $t('achievementRecommendation.restoreDraft') }}</span>
+                    </el-button>
+                </el-tooltip>
+                </div>
+            </header>
+            <template v-if="hasPreview">
+                <div v-if="tab === 'recommended'" class="m-recommendation-selection">
+                    <div class="m-recommendation-selection__summary" aria-live="polite">
+                        <template v-if="!pointsMissing">
+                            <strong>{{ $t('achievementRecommendation.selectedSummary', { count: formatNumber(selectedItems.length), points: formatNumber(selectedPoints) }) }}</strong>
+                            <span class="m-recommendation-selection__hint">{{ $t('achievementRecommendation.saveSelectedHint') }}</span>
+                            <div v-if="targetSummary" class="m-recommendation-selection__target">
+                                <span>{{ $t('achievementRecommendation.projectedSummary', { projected: formatNumber(targetSummary.projectedPoints), target: formatNumber(targetSummary.targetPoints) }) }}</span>
+                                <strong v-if="targetSummary.remainingPoints">{{ $t('achievementRecommendation.targetShortfall', { points: formatNumber(targetSummary.remainingPoints) }) }}</strong>
+                                <strong v-else-if="targetSummary.surplusPoints">{{ $t('achievementRecommendation.targetSurplus', { points: formatNumber(targetSummary.surplusPoints) }) }}</strong>
+                                <strong v-else>{{ $t('achievementRecommendation.targetReached') }}</strong>
+                            </div>
+                        </template>
+                        <span v-else>{{ $t('achievementRecommendation.selectionUnavailable') }}</span>
+                    </div>
+                    <el-button class="m-recommendation-candidates-button" plain type="primary" :disabled="disabled || pointsMissing"
+                        @click="candidatesVisible = true">
+                        {{ $t('achievementRecommendation.viewCandidatesCount', { count: pointsMissing ? '—' : formatNumber(candidateRows.length) }) }}
+                    </el-button>
+                </div>
+                <div class="m-server-recommendation__counts">
+                    <nav class="m-recommendation-view-scope" :aria-label="$t('achievementRecommendation.viewScope')">
+                        <strong>{{ $t(tab === 'upcoming' ? 'achievementRecommendation.upcomingList' : 'achievementRecommendation.selectedList') }}</strong>
+                        <el-button v-if="tab === 'recommended' && upcomingRows.length" link type="primary" :disabled="disabled" @click="tab = 'upcoming'">
+                            {{ $t('achievementRecommendation.upcoming', { count: formatNumber(upcomingRows.length) }) }}
+                        </el-button>
+                        <el-button v-else-if="tab === 'upcoming'" link type="primary" :disabled="disabled" @click="tab = 'recommended'">
+                            {{ $t('achievementRecommendation.returnToSelected') }}
+                        </el-button>
+                    </nav>
+                    <span>{{ $t('achievementRecommendation.visibleCount', { count: visibleRows.length }) }}</span>
+                </div>
+            </template>
+        </div>
         <div v-if="!hasRequested" class="m-server-recommendation__start">
             <el-button type="primary" size="large" :disabled="!canRequest" @click="$emit('refresh')">
                 {{ $t('achievementRecommendation.start') }}
@@ -417,10 +515,6 @@ export default {
                     </div></dl>
                 </div>
             </details>
-            <el-tabs v-model="tab" class="m-server-recommendation__tabs">
-                <el-tab-pane name="recommended" :label="$t('achievementRecommendation.available', { count: draftRows.length })" />
-                <el-tab-pane name="upcoming" :label="$t('achievementRecommendation.upcoming', { count: upcomingRows.length })" />
-            </el-tabs>
             <template v-if="tab === 'upcoming'">
                 <p v-if="eventTagsLoading" role="status">{{ $t('achievementRecommendation.loadingEventNames') }}</p>
                 <div v-else-if="eventTagsError" class="m-recommendation-difficulty-error" role="alert">
@@ -428,19 +522,6 @@ export default {
                     <el-button text :disabled="disabled" @click="loadEventTags">{{ $t('achievementRecommendation.retry') }}</el-button>
                 </div>
             </template>
-            <div v-if="tab === 'recommended'" class="m-recommendation-selection" aria-live="polite">
-                <template v-if="!pointsMissing">
-                    <strong>{{ $t('achievementRecommendation.selectedSummary', { count: formatNumber(selectedItems.length), points: formatNumber(selectedPoints) }) }}</strong>
-                    <span class="m-recommendation-selection__hint">{{ $t('achievementRecommendation.saveSelectedHint') }}</span>
-                    <div v-if="targetSummary" class="m-recommendation-selection__target">
-                        <span>{{ $t('achievementRecommendation.projectedSummary', { projected: formatNumber(targetSummary.projectedPoints), target: formatNumber(targetSummary.targetPoints) }) }}</span>
-                        <strong v-if="targetSummary.remainingPoints" class="u-recommendation-warning">{{ $t('achievementRecommendation.targetShortfall', { points: formatNumber(targetSummary.remainingPoints) }) }}</strong>
-                        <strong v-else-if="targetSummary.surplusPoints">{{ $t('achievementRecommendation.targetSurplus', { points: formatNumber(targetSummary.surplusPoints) }) }}</strong>
-                        <strong v-else>{{ $t('achievementRecommendation.targetReached') }}</strong>
-                    </div>
-                </template>
-                <span v-else>{{ $t('achievementRecommendation.selectionUnavailable') }}</span>
-            </div>
             <div class="m-server-recommendation__filters">
                 <el-cascader v-model="filters.categories" :options="filterOptions.categories" :props="{ multiple: true, checkStrictly: true }"
                     popper-class="m-leap-recommendation-category-popper"
@@ -458,80 +539,67 @@ export default {
                 {{ $t('achievementRecommendation.filterIndexFailed') }}
                 <el-button text @click="loadFilterIndex">{{ $t('achievementRecommendation.retry') }}</el-button>
             </div>
-            <div class="m-server-recommendation__counts">
-                <el-radio-group v-if="tab === 'recommended'" v-model="showSelectedOnly" size="small" :disabled="disabled"
-                    class="m-recommendation-view-scope" :aria-label="$t('achievementRecommendation.viewScope')">
-                    <el-radio-button :label="true">{{ $t('achievementRecommendation.selectedOnly') }}</el-radio-button>
-                    <el-radio-button :label="false">{{ $t('achievementRecommendation.allCandidates', { count: formatNumber(draftRows.length) }) }}</el-radio-button>
-                </el-radio-group>
-                <span>{{ $t('achievementRecommendation.groupVisibleCount', { count: visibleRows.length }) }}</span>
-            </div>
             <p v-if="tab === 'recommended'" class="m-recommendation-candidate-hint">{{ $t('achievementRecommendation.candidateHint') }}</p>
+            <p v-if="actionNotice && !candidatesVisible" class="m-recommendation-candidate-hint" role="status">{{ actionNotice }}</p>
             <el-alert v-if="pointsMissing" :title="$t('achievementRecommendation.pointsMissing', { id: selectionResult.missingPointId })" type="error" :closable="false" />
-            <AchievementRecommendationGroupIndex v-if="groupIndex.length" :groups="groupIndex" :active="activeGroup" :disabled="disabled"
-                :editable="tab === 'recommended'" @jump="jumpTo" @reorder="reorderGroups" />
             <div ref="results" class="m-server-recommendation__results">
                 <p v-if="hasFilters && !filterIndexReady" role="status">{{ $t(filterIndexError ? 'achievementRecommendation.filterIndexFailed' : 'achievementRecommendation.loadingFilterIndex') }}</p>
-                <p v-else-if="detailsLoading" role="status">{{ $t('achievementRecommendation.loadingDetails', { count: loadedCount, total: activeRows.length }) }}</p>
-                <div v-else-if="detailsError" role="alert">
-                    <p>{{ $t('achievementRecommendation.detailsFailed') }}</p>
-                    <el-button @click="loadDetails()">{{ $t('achievementRecommendation.retry') }}</el-button>
-                </div>
-                <p v-else-if="!rows.length" role="status">{{ $t(emptyMessage) }}</p>
                 <template v-else>
-                    <h3 class="m-recommendation-active-group">{{ tab === 'upcoming' ? groupIndex.find((group) => group.group === activeGroup)?.label : groupLabel(activeGroup) }}</h3>
-                    <p v-if="difficultyStates[activeGroup]?.loading" role="status">{{ $t('achievementRecommendation.loadingDifficulty') }}</p>
-                    <div v-else-if="difficultyStates[activeGroup]?.error" class="m-recommendation-difficulty-error" role="alert">
+                    <p v-if="difficultyStates[tab]?.loading" role="status">{{ $t('achievementRecommendation.loadingDifficulty') }}</p>
+                    <div v-else-if="difficultyStates[tab]?.error" class="m-recommendation-difficulty-error" role="alert">
                         <span>{{ $t('achievementRecommendation.difficultyFailed') }}</span>
                         <el-button text :disabled="disabled" @click="loadDifficulty()">{{ $t('achievementRecommendation.retryDifficulty') }}</el-button>
                     </div>
-                    <p v-if="tagStates[activeGroup]?.loading" role="status">{{ $t('achievementRecommendation.loadingTags') }}</p>
-                    <div v-else-if="tagStates[activeGroup]?.error" class="m-recommendation-difficulty-error" role="alert">
+                    <p v-if="tagStates[tab]?.loading" role="status">{{ $t('achievementRecommendation.loadingTags') }}</p>
+                    <div v-else-if="tagStates[tab]?.error" class="m-recommendation-difficulty-error" role="alert">
                         <span>{{ $t('achievementRecommendation.tagsFailed') }}</span>
                         <el-button text :disabled="disabled" @click="loadTags()">{{ $t('achievementRecommendation.retryTags') }}</el-button>
                     </div>
-                    <AchievementRecommendationItems :items="visibleRows" :group="activeGroup" :selected-ids="selectedIds"
-                        :dimensions="dimensions"
-                        :disabled="disabled" :editable="tab === 'recommended'" @move="moveItem" @remove="removeItem" />
+                    <AchievementRecommendationItems v-if="visibleRows.length" :items="visibleRows" :selected-ids="selectedIds"
+                        :dimensions="dimensions" :disabled="disabled" :editable="tab === 'recommended'" @move="moveItem" @remove="requestAction('remove', $event, 'selected')" />
+                    <p v-if="detailsLoading" role="status">{{ $t('achievementRecommendation.loadingDetails', { count: loadedCount, total: matchingRows.length }) }}</p>
+                    <div v-else-if="detailsError" role="alert">
+                        <p>{{ $t('achievementRecommendation.detailsFailed') }}</p>
+                        <el-button :disabled="disabled" @click="loadDetails()">{{ $t('achievementRecommendation.retry') }}</el-button>
+                    </div>
+                    <p v-else-if="!visibleRows.length" role="status">{{ $t(emptyMessage) }}</p>
                 </template>
-                <section v-if="relatedGroups.length" class="m-recommendation-related">
-                    <h3>{{ $t('achievementRecommendation.samePlaceGroups') }}</h3>
-                    <el-collapse v-model="expandedGroups">
-                        <el-collapse-item v-for="group in relatedGroups" :key="group.group" :name="group.group">
-                            <template #title><span>{{ groupLabel(group.group) }} · {{ group.count }}</span></template>
-                            <template v-if="expandedGroups.includes(group.group)">
-                                <p v-if="detailStates[group.group]?.loading" role="status">{{ $t('achievementRecommendation.loadingDetails', { count: detailStates[group.group].count, total: group.count }) }}</p>
-                                <div v-else-if="detailStates[group.group]?.error" role="alert">
-                                    <p>{{ $t('achievementRecommendation.detailsFailed') }}</p>
-                                    <el-button @click="loadDetails(group.group)">{{ $t('achievementRecommendation.retry') }}</el-button>
-                                </div>
-                                <template v-else>
-                                    <p v-if="difficultyStates[group.group]?.loading" role="status">{{ $t('achievementRecommendation.loadingDifficulty') }}</p>
-                                    <div v-else-if="difficultyStates[group.group]?.error" class="m-recommendation-difficulty-error" role="alert">
-                                        <span>{{ $t('achievementRecommendation.difficultyFailed') }}</span>
-                                        <el-button text :disabled="disabled" @click="loadDifficulty(group.group)">{{ $t('achievementRecommendation.retryDifficulty') }}</el-button>
-                                    </div>
-                                    <p v-if="tagStates[group.group]?.loading" role="status">{{ $t('achievementRecommendation.loadingTags') }}</p>
-                                    <div v-else-if="tagStates[group.group]?.error" class="m-recommendation-difficulty-error" role="alert">
-                                        <span>{{ $t('achievementRecommendation.tagsFailed') }}</span>
-                                        <el-button text :disabled="disabled" @click="loadTags(group.group)">{{ $t('achievementRecommendation.retryTags') }}</el-button>
-                                    </div>
-                                    <AchievementRecommendationItems :items="groupRows(group.group)" :group="group.group"
-                                        :dimensions="dimensions"
-                                        :selected-ids="selectedIds" :disabled="disabled" :promote-to="activeGroup" @move="moveItem" @remove="removeItem" />
-                                </template>
-                            </template>
-                        </el-collapse-item>
-                    </el-collapse>
-                </section>
             </div>
         </template>
+        <AchievementRecommendationCandidatesDialog v-model="candidatesVisible" v-model:filters="filters"
+            :notice="actionNotice"
+            :items="visibleCandidates" :total="candidateRows.length" :matching-count="matchingCandidates.length"
+            :dimensions="dimensions" :disabled="disabled" :metadata="metadata" :filter-options="filterOptions"
+            :filter-index-loading="filterIndexLoading" :filter-index-error="filterIndexError"
+            :waiting-for-index="hasFilters && !filterIndexReady"
+            :detail-state="detailStates.candidates" :difficulty-state="difficultyStates.candidates" :tag-state="tagStates.candidates"
+            @load-index="loadFilterIndex" @retry-details="loadDetails('candidates')"
+            @retry-difficulty="loadDifficulty('candidates')" @retry-tags="loadTags('candidates')"
+            @add="requestAction('add', $event, 'candidates')" @remove="requestAction('remove', $event, 'candidates')" />
+        <AchievementRecommendationActionDialog v-if="pendingAction" :action="pendingAction.type" :scope="pendingAction.scope"
+            :source="pendingAction.source"
+            :items="actionItems" :related-count="relatedActionRows.length" :missing-point-id="actionMissingPointId" :disabled="disabled"
+            @update:scope="pendingAction.scope = $event" @cancel="pendingAction = null" @confirm="confirmAction" />
     </div>
 </template>
 
 <style lang="less" scoped>
 .m-server-recommendation { height: 100%; min-height: 0; min-width: 0; display: flex; flex-direction: column; color: #314043;
+    overflow-y: auto; overscroll-behavior: contain; padding-right: 4px;
+    > * { flex-shrink: 0; min-width: 0; }
     p { font-size: 13px; color: #7a8586; }
+}
+.m-recommendation-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex: none;
+    padding-bottom: 10px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8e6;
+    .m-server-recommendation__header { margin-bottom: 10px; }
+    .m-recommendation-selection { margin: 0 0 8px; }
+    .m-server-recommendation__counts { padding: 0; }
 }
 .m-server-recommendation__header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; flex: none;
     h2 { margin: 0; font-size: 18px; line-height: 1.4; } }
@@ -553,34 +621,30 @@ export default {
     p { margin: 0 0 8px; line-height: 1.5; }
 }
 .m-recommendation-exclusions__content { padding: 0 10px 10px; max-height: 120px; overflow-y: auto; }
-.m-server-recommendation__tabs { flex: none; :deep(.el-tabs__header) { margin-bottom: 10px; } :deep(.el-tabs__content) { display: none; } }
-.m-recommendation-selection { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; flex: none; margin-bottom: 10px; padding: 10px 12px;
+.m-recommendation-selection { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; flex: none; margin-bottom: 10px; padding: 10px 12px;
     background: #f3f8f6; border: 1px solid #e2e8e6; border-radius: 6px; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums;
     strong { color: #47777d; font-weight: 600; }
 }
+.m-recommendation-selection__summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; flex: 1; min-width: 0; }
+.m-recommendation-candidates-button { flex: none; margin-left: auto; }
 .m-recommendation-selection__hint { color: #697374; }
 .m-recommendation-selection__target { display: flex; flex-wrap: wrap; gap: 4px 12px; width: 100%; }
-.m-recommendation-view-scope { max-width: 100%; :deep(.el-radio-button__inner) { white-space: normal; line-height: 1.5; } }
-.m-server-recommendation__filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: none;
+.m-recommendation-view-scope {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; max-width: 100%;
+    > strong { color: #314043; font-size: 13px; }
+    :deep(.el-button) { min-height: 32px; height: auto; padding: 4px 0; margin: 0; font-size: 12px; }
+    :deep(.el-button > span) { white-space: normal; line-height: 1.5; }
+}
+.m-server-recommendation__filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: none; margin-bottom: 10px;
     .el-cascader, .el-select, .el-input { width: 100%; min-width: 0; } svg { width: 16px; height: 16px; }
 }
 .m-server-recommendation__counts { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; font-size: 12px; color: #697374; flex: none;
     strong { font-weight: 500; color: #47777d; }
 }
-.m-server-recommendation__results { flex: 1; min-height: 0; border-top: 1px solid #e2e8e6; overflow-y: auto; overscroll-behavior: contain; }
-.m-recommendation-active-group { margin: 0; padding: 10px; font-size: 12px; font-weight: 500; color: #697374; }
+.m-server-recommendation__results { flex: none; border-top: 1px solid #e2e8e6; }
 .m-recommendation-difficulty-error { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 4px 10px; font-size: 13px; color: #ae3b40; }
-.m-recommendation-related { margin-top: 20px;
-    h3 { font-size: 14px; margin: 0; padding: 12px 10px; background: #f3f6f4; color: #365f64; }
-    :deep(.el-collapse-item__header) { padding-inline: 10px; color: #365f64; }
-    :deep(.el-collapse-item__content) { padding-bottom: 0; }
-}
 @media (max-width: @phone) {
     .m-server-recommendation {
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        padding-right: 4px;
-
         > * {
             min-width: 0;
             overflow-wrap: anywhere;
@@ -600,55 +664,28 @@ export default {
     }
 
     .m-server-recommendation__header-actions {
-        width: 100%;
+        flex: none;
         gap: 8px;
 
-        > .el-button {
-            flex: 1;
+        :deep(.el-button) {
+            width: 40px;
+            padding: 0;
         }
     }
+
+    .m-recommendation-action-label,
+    .m-recommendation-selection__hint { display: none; }
+
+    .m-recommendation-toolbar {
+        .m-server-recommendation__header { flex-wrap: nowrap; }
+        .m-recommendation-selection { padding: 8px; gap: 4px; }
+    }
+
 
     .m-server-recommendation__filters {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .m-server-recommendation__results {
-        flex: none;
-        overflow: visible;
-    }
-
-    .m-recommendation-view-scope {
-        display: flex;
-        align-items: stretch;
-        width: 100%;
-
-        :deep(.el-radio-button) {
-            flex: 1;
-            min-width: 0;
-        }
-
-        :deep(.el-radio-button__inner) {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            min-height: 40px;
-            box-sizing: border-box;
-            padding: 6px 8px;
-        }
-    }
-
-    .m-recommendation-related :deep(.el-collapse-item__header) {
-        height: auto;
-        min-height: 44px;
-        line-height: 1.5;
-
-        > span {
-            min-width: 0;
-            overflow-wrap: anywhere;
-        }
-    }
 }
 </style>
 

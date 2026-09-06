@@ -169,8 +169,9 @@ const pageSource = fs.readFileSync(path.join(root, pageFile), "utf8");
 for (const [, key] of pageSource.matchAll(/from "([^"]+\.vue)"/g)) pageDependencies[key] = {};
 const page = load(pageFile, pageDependencies).default;
 const panel = load("src/components/wiki/leap/AchievementLeapRecommendation.vue", {
+    "./AchievementRecommendationCandidatesDialog.vue": { render: () => null },
+    "./AchievementRecommendationActionDialog.vue": { render: () => null },
     "./AchievementRecommendationItems.vue": {},
-    "./AchievementRecommendationGroupIndex.vue": {},
     "@/components/design/PvxSurface.vue": {},
     "@element-plus/icons-vue": {},
     "@jx3box/jx3box-common/js/utils": { getLink() {}, iconLink() {} },
@@ -198,8 +199,6 @@ assert.strictEqual(utils.achievementRecommendationPlace("bucket:2:map:100"), "ma
 assert.strictEqual(utils.achievementRecommendationPlace("bucket:2:direction:reading"), null);
 assert.deepStrictEqual(drawer.data().expandedPreferences, [], "both preference sections start collapsed");
 const recommendationTemplate = fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendation.vue"), "utf8");
-assert.ok(recommendationTemplate.indexOf("$t('achievementRecommendation.selectedOnly')") <
-    recommendationTemplate.indexOf("$t('achievementRecommendation.allCandidates'"), "selected view comes before candidate backups");
 for (const key of ["candidateHint", "refreshHint", "restoreDraftHint"]) {
     assert.ok(recommendationTemplate.includes(`achievementRecommendation.${key}`), `show clear ${key}`);
 }
@@ -209,8 +208,6 @@ function panelVm(props = {}) {
     Object.entries(panel.methods).forEach(([name, method]) => { vm[name] = method.bind(vm); });
     Object.entries(panel.computed).forEach(([name, getter]) => Object.defineProperty(vm, name, { get: () => getter.call(vm) }));
     vm.resetDraft();
-    // Loader fixtures explicitly inspect the full candidate pool unless requested otherwise.
-    vm.showSelectedOnly = props.showSelectedOnly ?? false;
     return vm;
 }
 assert.deepStrictEqual(drawer.computed.visibleDimensions.call({ dimensions: definitions }).map((d) => d.key), ["time"]);
@@ -298,20 +295,18 @@ async function testDrawerDraftLifecycle() {
         assert.strictEqual(activePanel, undefined, "closed drawer must not fetch recommendation details before first opening");
         await update({ modelValue: true });
         activePanel.moveItem({ id: "2", group: "bucket:0:scene:100", beforeId: "9" });
-        activePanel.reorderGroups([...activePanel.groups].reverse());
-        activePanel.jumpTo("bucket:1:direction:reading");
-        activePanel.showSelectedOnly = false;
+        activePanel.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "2" });
+        activePanel.filters.keyword = "backup query";
         await update({ modelValue: false });
         await update({ modelValue: true });
-        assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5"], ["2", "9"]],
+        assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5", "2", "9"]],
             "closing and reopening must preserve both group and item ordering");
         activePanel.removeItem({ id: "9" });
         await update({ modelValue: false });
         await update({ modelValue: true });
-        assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5"], ["2"]],
-            "closing and reopening must preserve removed items and manual ordering");
-        assert.strictEqual(activePanel.activeGroup, "bucket:1:direction:reading", "reopening must preserve the active group");
-        assert.strictEqual(activePanel.showSelectedOnly, false, "reopening preserves the explicitly chosen candidate view");
+        assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5", "2", "9"]],
+            "unselecting preserves candidate data and manual ordering");
+        assert.strictEqual(activePanel.filters.keyword, "backup query", "reopening preserves shared filters");
         assert.deepStrictEqual(activePanel.selection.items.map((item) => item.id), ["5", "2"], "saved selection uses the retained draft");
         activePanel.restoreDraft();
         await vue.nextTick();
@@ -325,7 +320,6 @@ async function testDrawerDraftLifecycle() {
         await update({ recommendation: { ...result, recommendations: [{ group: "new", ids: [5] }] } });
         await update({ modelValue: true });
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids), [[5]], "new recommendations replace the draft even while closed");
-        assert.strictEqual(activePanel.activeGroup, "new");
     } finally {
         app.unmount();
     }
@@ -340,15 +334,11 @@ function testRecommendationViewScope() {
     ] };
     const vm = panelVm({ recommendation, targetPoints: 100000,
         metadata: Object.fromEntries(ids.map((id) => [id, { point: id === 120 ? 260 : 40 }])) });
-    assert.strictEqual(vm.matchingRows.length, 300);
+    assert.strictEqual(vm.candidateRows.length, 180);
     assert.strictEqual(vm.selectedItems.length, 120);
     assert.deepStrictEqual(vm.targetSummary, { projectedPoints: 100020, targetPoints: 100000, remainingPoints: 0, surplusPoints: 20 });
-    vm.jumpTo("third");
-    vm.showSelectedOnly = true;
-    vm.ensureActiveGroup();
     assert.strictEqual(vm.matchingRows.length, 120, "selected-only view excludes candidates outside the saved selection");
-    assert.deepStrictEqual(vm.groupIndex.map(({ group, count }) => [group, count]), [["first", 100], ["second", 20]]);
-    assert.strictEqual(vm.activeGroup, "first", "a hidden active group falls back to a visible selected group");
+    assert.deepStrictEqual(vm.matchingRows.map((row) => row.id), ids.slice(0, 120).map(String), "selection spans original group boundaries in one list");
     const selection = vm.selection;
     const payload = utils.buildAchievementRecommendationPlan({ items: selection.items, recommendation,
         title: "Selected only", targetPoints: 100000, roleId: "42", preferences: {} });
@@ -359,15 +349,17 @@ function testRecommendationViewScope() {
         mapIds: [], category: { id: "1", name: "Category" } }]));
     vm.filterIndexReady = true;
     vm.filters.keyword = "achievement-120";
-    vm.ensureActiveGroup();
     assert.strictEqual(vm.matchingRows.length, 1);
-    assert.strictEqual(vm.activeGroup, "second");
     assert.deepStrictEqual(vm.selection.items, selection.items, "view scope and search cannot alter the saved selection");
     assert.strictEqual(vm.targetSummary.projectedPoints, 100020, "projected points must not use just the visible search results");
     vm.filters.keyword = "";
-    vm.showSelectedOnly = false;
-    assert.strictEqual(vm.matchingRows.length, 300, "switching back restores candidates without resetting edits");
-    vm.showSelectedOnly = true;
+    vm.candidatesVisible = true;
+    assert.strictEqual(vm.matchingRows.length, 120, "opening alternatives never changes the main list");
+    assert.strictEqual(vm.matchingCandidates.length, 180, "alternatives exclude selected achievements");
+    vm.filters.keyword = "achievement-121";
+    assert.deepStrictEqual(vm.matchingCandidates.map((row) => row.id), ["121"]);
+    assert.strictEqual(vm.matchingRows.length, 0, "candidate filters stay synchronized with the main list");
+    vm.filters.keyword = "";
     vm.tab = "upcoming";
     assert.deepStrictEqual(vm.matchingRows.map((item) => item.id), ["6"], "upcoming events are not filtered by the plan selection");
     vm.tab = "recommended";
@@ -383,15 +375,165 @@ function testRecommendationViewScope() {
     assert.strictEqual(vm.matchingRows.length, 0);
     assert.deepStrictEqual(vm.targetSummary, { projectedPoints: 95000, targetPoints: 95000, remainingPoints: 0, surplusPoints: 0 });
     vm.resetDraft();
-    assert.strictEqual(vm.showSelectedOnly, true, "explicit draft reset defaults to the saved selection view");
-    assert.strictEqual(panel.data().showSelectedOnly, true, "new panels default to selected achievements");
+    assert.strictEqual(vm.candidatesVisible, false, "reset closes alternatives");
+    assert.strictEqual(panel.data().candidatesVisible, false, "alternatives are loaded only when opened");
     const editVm = panelVm({ targetPoints: 50010 });
-    editVm.showSelectedOnly = true;
     editVm.removeItem({ id: "2" });
-    assert.deepStrictEqual(editVm.matchingRows.map((item) => item.id), ["9", "5"], "removing a selected item can bring the next candidate into the view");
+    assert.deepStrictEqual(editVm.matchingRows.map((item) => item.id), ["9", "5"], "a removal refills the target deficit from other candidates");
     assert.deepStrictEqual(editVm.targetSummary, { projectedPoints: 50020, targetPoints: 50010, remainingPoints: 0, surplusPoints: 10 });
-    editVm.reorderGroups([...editVm.groups].reverse());
-    assert.deepStrictEqual(editVm.matchingRows.map((item) => item.id), ["5"], "manual ordering recalculates selection before filtering the view");
+    editVm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "9" });
+    assert.deepStrictEqual(editVm.matchingRows.map((item) => item.id), ["5", "9"], "manual ordering cannot change selection membership");
+}
+
+function testFilteredRecommendationDetails() {
+    const vm = panelVm({ targetPoints: 50010 });
+    vm.recordCache = Object.fromEntries(utils.enrichAchievementRecommendationRecords(records.map((record) => ({ ...record,
+        iconId: `icon-${record.id}`, shortDescription: `description-${record.id}` })), menus, maps).map((record) => [record.id, record]));
+    vm.filterIndex = Object.fromEntries(Object.values(vm.recordCache).map((record) => [record.id, {
+        ...record, iconId: "", shortDescription: "", points: 0,
+    }]));
+    vm.filterIndexReady = true;
+    assert.strictEqual(vm.visibleRows.find((row) => row.id === "2").iconId, "icon-2");
+    vm.filters = { keyword: "秘境", mapIds: ["100"], categories: [["11"]] };
+    assert.strictEqual(vm.visibleRows.length, 1);
+    assert.strictEqual(vm.visibleRows[0].iconId, "icon-2", "filter index must not overwrite the full-detail icon");
+    assert.strictEqual(vm.visibleRows[0].shortDescription, "description-2", "filtering preserves the description too");
+    assert.strictEqual(vm.visibleRows[0].points, 10, "index defaults cannot overwrite point display");
+    assert.strictEqual(vm.visibleRows[0].campRestricted, true, "draft eligibility metadata remains authoritative");
+    vm.filters = { keyword: "长安", mapIds: ["200"], categories: [["6"]] };
+    assert.strictEqual(vm.visibleCandidates[0].iconId, "icon-5", "candidate filters use the same complete details");
+    assert.strictEqual(vm.visibleCandidates[0].shortDescription, "description-5");
+    assert.deepStrictEqual(vm.matchingRows, [], "candidate and selected views share the same filters");
+}
+
+function testCandidateActions() {
+    const recommendation = { ...result, recommendations: [
+        { group: "bucket:0:scene:100", ids: [9, 2] },
+        { group: "bucket:2:scene:100", ids: [5, 6] },
+        { group: "bucket:0:map:100", ids: [7] },
+    ] };
+    const vm = panelVm({ recommendation, targetPoints: 50010, metadata: { ...metadata, 6: { point: 30 }, 7: { point: 40 } } });
+    vm.filterIndexReady = true;
+    vm.candidatesVisible = true;
+    const ids = () => vm.selection.items.map((item) => item.id);
+    vm.requestAction("add", { id: "5" }, "candidates");
+    assert.deepStrictEqual(ids(), ["9", "2"], "opening confirmation cannot mutate selection");
+    assert.deepStrictEqual(vm.actionRows.map((row) => row.id), ["5"], "confirmations default to a single item");
+    assert.deepStrictEqual(vm.relatedActionRows.map((row) => row.id), ["5", "6"], "related additions ignore selected items and distinguish scene/map IDs");
+    vm.pendingAction = null;
+    assert.deepStrictEqual(ids(), ["9", "2"], "cancel keeps the selection intact");
+    vm.requestAction("add", { id: "5" }, "candidates");
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["9", "2", "5"], "an addition keeps every original selected item and adds an extra");
+    assert.strictEqual(vm.targetSummary.surplusPoints, 20);
+    assert.deepStrictEqual(vm.candidateRows.map((row) => row.id), ["6", "7"]);
+    vm.requestAction("remove", { id: "6" }, "candidates");
+    vm.pendingAction.scope = "related";
+    assert.deepStrictEqual(vm.actionRows.map((row) => row.id), ["6"], "deleting alternatives cannot reach related selected items");
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["9", "2", "5"], "deleting alternatives leaves selection unchanged");
+    vm.requestAction("remove", { id: "2" }, "selected");
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["9", "5"]);
+    assert.deepStrictEqual(vm.candidateRows.map((row) => row.id), ["2", "7"], "unselected items return to alternatives without replacements");
+    vm.requestAction("remove", { id: "9" }, "selected");
+    vm.pendingAction.scope = "related";
+    assert.deepStrictEqual(vm.actionRows.map((row) => row.id), ["9", "5"], "related selected removals cannot delete unselected siblings");
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["7"], "group removal refills from candidates outside all prior removals");
+    assert.deepStrictEqual(vm.candidateRows.map((row) => row.id), ["9", "2", "5"]);
+    assert.strictEqual(vm.targetSummary.remainingPoints, 0);
+    vm.requestAction("add", { id: "5" }, "candidates");
+    vm.pendingAction.scope = "related";
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["9", "2", "5", "7"], "bulk add keeps the existing selection and includes available candidates in the same map");
+    vm.requestAction("add", { id: "5" }, "candidates");
+    assert.strictEqual(vm.pendingAction, null, "an already-selected item cannot be added twice");
+    vm.targetPoints = 51000;
+    assert.deepStrictEqual(ids(), ["9", "2", "5", "7"], "target edits do not silently undo manual membership");
+    vm.requestAction("remove", { id: "7" }, "selected");
+    vm.disabled = true;
+    vm.confirmAction();
+    assert.ok(vm.selectedIds.has("7"), "disabled confirmations cannot edit the draft");
+    vm.disabled = false;
+    vm.targetPoints = 50010;
+    vm.restoreDraft();
+    assert.strictEqual(vm.pendingAction, null, "reset invalidates pending confirmations");
+    assert.deepStrictEqual(ids(), ["9", "2"]);
+    assert.deepStrictEqual(vm.candidateRows.map((row) => row.id), ["5", "6", "7"], "undo restores deleted alternatives too");
+    vm.metadata = { ...vm.metadata, 6: {} };
+    vm.candidatesVisible = true;
+    vm.requestAction("add", { id: "5" }, "candidates");
+    vm.pendingAction.scope = "related";
+    assert.strictEqual(vm.actionMissingPointId, "6");
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["9", "2"], "invalid points prevent partial group additions");
+    vm.pendingAction.scope = "single";
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), ["9", "2", "5"], "a valid single addition can proceed independently");
+}
+
+function testRemovalRefill() {
+    const ids = [1, 2, 3, 4, 5];
+    const vm = panelVm({ recommendation: { ...result, recommendations: [{ group: "same-map", ids }] },
+        targetPoints: 50050, metadata: { 1: { point: 30 }, 2: { point: 20 }, 3: { point: 10 }, 4: { point: 30 }, 5: { point: 40 } } });
+    vm.filterIndexReady = true;
+    vm.candidatesVisible = true;
+    const selected = () => vm.selection.items.map((item) => item.id);
+    const remove = (id) => { vm.requestAction("remove", { id }, "selected"); vm.confirmAction(); };
+    vm.requestAction("add", { id: "3" }, "candidates"); vm.confirmAction();
+    remove("3");
+    assert.deepStrictEqual(selected(), ["1", "2"], "no replacements are added when the remaining total meets the target");
+    vm.filters.keyword = "no visible matches";
+    remove("1");
+    assert.deepStrictEqual(selected(), ["2", "4"], "refill follows the full candidate order and excludes previous removals regardless of filters");
+    assert.deepStrictEqual(vm.autoFillExcludedIds, ["3", "1"]);
+    remove("4");
+    assert.deepStrictEqual(selected(), ["2", "5"], "subsequent removal cannot immediately reselect previously removed achievements");
+    remove("5");
+    assert.deepStrictEqual(selected(), ["2"], "candidate exhaustion preserves the remaining manual selection");
+    assert.strictEqual(vm.targetSummary.remainingPoints, 30);
+    assert.strictEqual(vm.selection.ready, true, "an honest shortfall remains saveable when points are complete");
+    vm.requestAction("add", { id: "1" }, "candidates"); vm.confirmAction();
+    assert.deepStrictEqual(selected(), ["1", "2"], "an explicit selection can restore an automatically excluded item");
+    assert.ok(!vm.autoFillExcludedIds.includes("1"));
+    vm.restoreDraft();
+    assert.deepStrictEqual(vm.autoFillExcludedIds, [], "undo resets automatic refill exclusions");
+    vm.filterIndexReady = true;
+    vm.metadata[3] = {};
+    remove("1");
+    assert.strictEqual(vm.selectionResult.missingPointId, "3", "refill cannot skip a required candidate with missing points");
+    assert.strictEqual(vm.selection.ready, false);
+}
+
+async function testCandidateLoading() {
+    const vm = panelVm({ targetPoints: 50010 });
+    const calls = [];
+    detailLoader = async ({ ids }) => { calls.push(ids); return records.filter((record) => ids.includes(record.id)); };
+    await vm.loadDetails();
+    assert.deepStrictEqual(calls, [["9", "2"]], "main view only loads selected details");
+    vm.candidatesVisible = true;
+    await vm.loadDetails("candidates");
+    assert.deepStrictEqual(calls, [["9", "2"], ["5"]], "alternatives load independently when opened");
+    assert.deepStrictEqual(vm.visibleRows.map((item) => item.id), ["9", "2"]);
+    assert.deepStrictEqual(vm.visibleCandidates.map((item) => item.id), ["5"]);
+    vm.filterIndexReady = true;
+    vm.requestAction("add", { id: "5" }, "candidates");
+    vm.confirmAction();
+    await vm.loadDetails();
+    assert.strictEqual(calls.length, 2, "adding reuses the alternative detail cache");
+    assert.deepStrictEqual(vm.visibleRows.map((item) => item.id), ["9", "2", "5"]);
+    assert.deepStrictEqual(vm.visibleCandidates, []);
+    const pending = deferred();
+    const closed = panelVm({ targetPoints: 50010 });
+    closed.candidatesVisible = true;
+    detailLoader = () => pending.promise;
+    const loading = closed.loadDetails("candidates");
+    closed.candidatesVisible = false;
+    pending.resolve(records.filter((record) => record.id === "5"));
+    await loading;
+    assert.deepStrictEqual(closed.recordCache, {}, "closing alternatives stops stale dialog results");
+    detailLoader = async ({ ids }) => records.filter((record) => ids.includes(record.id));
 }
 
 function testRequiredRecommendationPoints() {
@@ -407,8 +549,8 @@ function testRequiredRecommendationPoints() {
     assert.strictEqual(vm.selection.ready, false, "increasing the target must revalidate the newly required item");
     assert.deepStrictEqual(vm.selection.items, [], "unknown points cannot be silently treated as zero or skipped");
     vm.targetPoints = 50050;
-    vm.reorderGroups([...vm.groups].reverse());
-    assert.strictEqual(vm.selection.ready, false, "moving an unknown item ahead of the target boundary must block creation");
+    vm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "9" });
+    assert.strictEqual(vm.selection.ready, true, "reordering cannot select an unknown alternative");
     vm.removeItem({ id: "5" });
     assert.strictEqual(vm.selection.ready, true, "an explicit removal can resolve missing required points");
     for (const point of [undefined, null, NaN, -1, "30"]) {
@@ -431,21 +573,21 @@ async function testIndependentRecommendationData() {
     difficultyLoader = (ids) => { metricCalls.push(ids); return pendingMetrics.promise; };
     panel.watch.detailRows.handler.call(vm);
     await flush();
-    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["9", "2"], "slow difficulty must not hide successfully loaded details");
+    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["9", "2", "5"], "slow difficulty must not hide successfully loaded details");
     assert.strictEqual(vm.detailsLoading, false);
     assert.strictEqual(vm.selection.ready, true, "difficulty is optional for creating a plan");
-    assert.deepStrictEqual(metricCalls, [["9", "2"]], "difficulty still loads lazily for requested groups only");
+    assert.deepStrictEqual(metricCalls, [["9", "2", "5"]], "difficulty batches cross group boundaries without loading upcoming activities");
     pendingMetrics.reject(new Error("difficulty offline"));
     await flush();
     assert.strictEqual(vm.detailsError, false);
-    assert.strictEqual(vm.difficultyStates[vm.activeGroup].error, true);
-    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["9", "2"]);
-    vm.moveItem({ id: "2", group: vm.activeGroup, beforeId: "9" });
+    assert.strictEqual(vm.difficultyStates[vm.tab].error, true);
+    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["9", "2", "5"]);
+    vm.moveItem({ id: "2", group: "bucket:0:scene:100", beforeId: "9" });
     difficultyLoader = async (ids) => { metricCalls.push(ids); return defaultDifficultyLoader(ids); };
     await vm.loadDifficulty();
-    assert.strictEqual(vm.difficultyStates[vm.activeGroup].error, false);
+    assert.strictEqual(vm.difficultyStates[vm.tab].error, false);
     assert.strictEqual(vm.rows[0].difficultyDimensions.money, 1.9);
-    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["2", "9"], "difficulty retry preserves manual edits");
+    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["2", "9", "5"], "difficulty retry preserves manual edits");
     assert.strictEqual(detailCalls.length, 1, "retrying difficulty must not refetch successful details");
     await vm.loadDifficulty();
     assert.strictEqual(metricCalls.length, 2, "successful difficulty is cached across revisits");
@@ -453,10 +595,10 @@ async function testIndependentRecommendationData() {
     const missingVm = panelVm();
     difficultyLoader = async (ids) => Object.fromEntries(ids.map((id) => [id, null]));
     await missingVm.loadDifficulty();
-    assert.strictEqual(missingVm.difficultyStates[missingVm.activeGroup].error, false, "unconfigured ratings are not transport errors");
+    assert.strictEqual(missingVm.difficultyStates[missingVm.tab].error, false, "unconfigured ratings are not transport errors");
     difficultyLoader = async () => { throw new Error("must use cached unconfigured values"); };
     await missingVm.loadDifficulty();
-    assert.strictEqual(missingVm.difficultyStates[missingVm.activeGroup].error, false);
+    assert.strictEqual(missingVm.difficultyStates[missingVm.tab].error, false);
 
     const raceVm = panelVm();
     const oldMetrics = deferred();
@@ -468,21 +610,7 @@ async function testIndependentRecommendationData() {
     oldMetrics.resolve({ 9: { difficultyDimensions: { money: 5 } } });
     await oldRequest;
     assert.strictEqual(raceVm.difficultyCache[9].difficultyDimensions.money, 1.9, "old results cannot overwrite a new recommendation");
-    assert.strictEqual(raceVm.difficultyStates[raceVm.activeGroup].loading, false);
-
-    const relatedVm = panelVm({ recommendation: { ...result, recommendations: [result.recommendations[0],
-        { group: "bucket:2:scene:100", ids: [5] }] } });
-    relatedVm.expandedGroups = ["bucket:2:scene:100"];
-    difficultyLoader = async (ids) => {
-        if (ids.includes("5")) throw new Error("related group difficulty offline");
-        return defaultDifficultyLoader(ids);
-    };
-    panel.watch.detailRows.handler.call(relatedVm);
-    await flush();
-    assert.strictEqual(relatedVm.detailsError, false);
-    assert.strictEqual(relatedVm.difficultyStates[relatedVm.activeGroup].error, false);
-    assert.strictEqual(relatedVm.difficultyStates["bucket:2:scene:100"].error, true);
-    assert.deepStrictEqual(relatedVm.groupRows("bucket:2:scene:100").map((item) => item.id), ["5"], "related-group failure preserves its details too");
+    assert.strictEqual(raceVm.difficultyStates[raceVm.tab].loading, false);
 
     const detailFailureVm = panelVm();
     let cachedMetricCalls = 0;
@@ -498,7 +626,8 @@ async function testIndependentRecommendationData() {
     assert.strictEqual(cachedMetricCalls, 1, "detail retry does not refetch successful difficulty");
 
     const batchIds = Array.from({ length: 242 }, (_, i) => i + 1000);
-    const batchVm = panelVm({ recommendation: { ...result, recommendations: [{ group: "large", ids: batchIds }] } });
+    const batchVm = panelVm({ recommendation: { ...result, recommendations: [{ group: "large", ids: batchIds }] },
+        metadata: Object.fromEntries(batchIds.map((id) => [id, { point: 10 }])), targetPoints: 60000 });
     const batches = [];
     difficultyLoader = async (ids) => {
         batches.push(ids);
@@ -506,14 +635,48 @@ async function testIndependentRecommendationData() {
         return defaultDifficultyLoader(ids);
     };
     await batchVm.loadDifficulty();
-    assert.strictEqual(batchVm.difficultyStates.large.error, true);
+    assert.strictEqual(batchVm.difficultyStates.recommended.error, true);
     assert.strictEqual(Object.keys(batchVm.difficultyCache).length, 240, "a later batch failure keeps earlier successful difficulty");
     difficultyLoader = async (ids) => { batches.push(ids); return defaultDifficultyLoader(ids); };
     await batchVm.loadDifficulty();
     assert.deepStrictEqual(batches.map((batch) => batch.length), [240, 2, 2], "retry fetches only failed or missing difficulty IDs");
-    assert.strictEqual(batchVm.difficultyStates.large.error, false);
+    assert.strictEqual(batchVm.difficultyStates.recommended.error, false);
     assert.strictEqual(Object.keys(batchVm.difficultyCache).length, 242);
     difficultyLoader = defaultDifficultyLoader;
+}
+
+async function testContinuousRecommendationBatches() {
+    const ids = Array.from({ length: 242 }, (_, index) => index + 1000);
+    const batchRecords = ids.map((id) => ({ id: String(id), name: `Achievement ${id}`, points: 10,
+        category: { id: "11", subId: "112" }, map: { id: "100" } }));
+    const vm = panelVm({ recommendation: { ...result, recommendations: [
+        { group: "bucket:0:scene:100", ids: ids.slice(0, 100) },
+        { group: "bucket:2:scene:100", ids: ids.slice(100) },
+    ] }, metadata: Object.fromEntries(ids.map((id) => [id, { point: 10 }])), targetPoints: 60000 });
+    const tail = deferred();
+    const calls = [];
+    detailLoader = async ({ ids }) => {
+        calls.push(ids);
+        if (ids.includes("1240")) return tail.promise;
+        return batchRecords.filter((record) => ids.includes(record.id));
+    };
+    const loading = vm.loadDetails();
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepStrictEqual(calls.map((batch) => batch.length), [240, 2], "requests combine groups into bounded sequential batches");
+    assert.strictEqual(vm.detailsLoading, true);
+    assert.deepStrictEqual(vm.visibleRows.map((row) => row.id), ids.slice(0, 240).map(String), "loaded rows appear before the complete list finishes");
+    tail.reject(new Error("tail offline"));
+    await loading;
+    assert.strictEqual(vm.detailsError, true);
+    assert.strictEqual(vm.visibleRows.length, 240, "a later failure preserves the already visible prefix");
+    detailLoader = async ({ ids }) => { calls.push(ids); return batchRecords.filter((record) => ids.includes(record.id)); };
+    await vm.loadDetails();
+    assert.deepStrictEqual(calls.map((batch) => batch.length), [240, 2, 2], "retry only loads missing details");
+    assert.strictEqual(vm.detailsError, false);
+    assert.deepStrictEqual(vm.visibleRows.map((row) => row.id), ids.map(String));
+    vm.filters = { keyword: "", mapIds: ["100"], categories: [] };
+    vm.filterIndex = Object.fromEntries(batchRecords.map((row) => [row.id, { ...row, mapIds: ["100"] }]));
+    assert.deepStrictEqual(vm.visibleRows.map((row) => row.id), ids.map(String), "filtering keeps the continuous order");
 }
 
 async function testRecommendationPresentation() {
@@ -539,9 +702,9 @@ async function testRecommendationPresentation() {
     tagsLoader = async () => { throw new Error("tags offline"); };
     await vm.loadDetails();
     await vm.loadTags();
-    assert.strictEqual(vm.tagStates[vm.activeGroup].error, true);
+    assert.strictEqual(vm.tagStates[vm.tab].error, true);
     assert.strictEqual(vm.detailsError, false);
-    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["9", "2"], "optional tag failure must not hide details");
+    assert.deepStrictEqual(vm.rows.map((item) => item.id), ["9", "2", "5"], "optional tag failure must not hide details");
     assert.strictEqual(vm.selection.ready, true);
     const calls = [];
     tagsLoader = async (ids) => {
@@ -565,7 +728,8 @@ async function testRecommendationPresentation() {
     assert.deepStrictEqual(oldVm.tagCache, {}, "a previous recommendation's tags must not overwrite a new result");
 
     const batchIds = Array.from({ length: 242 }, (_, i) => i + 1000);
-    const batchVm = panelVm({ recommendation: { ...result, recommendations: [{ group: "large", ids: batchIds }] } });
+    const batchVm = panelVm({ recommendation: { ...result, recommendations: [{ group: "large", ids: batchIds }] },
+        metadata: Object.fromEntries(batchIds.map((id) => [id, { point: 10 }])), targetPoints: 60000 });
     const batches = [];
     tagsLoader = async (ids) => {
         batches.push(ids);
@@ -573,7 +737,7 @@ async function testRecommendationPresentation() {
         return defaultTagsLoader(ids);
     };
     await batchVm.loadTags();
-    assert.strictEqual(batchVm.tagStates.large.error, true);
+    assert.strictEqual(batchVm.tagStates.recommended.error, true);
     assert.strictEqual(Object.keys(batchVm.tagCache).length, 240);
     tagsLoader = async (ids) => { batches.push(ids); return defaultTagsLoader(ids); };
     await batchVm.loadTags();
@@ -582,15 +746,15 @@ async function testRecommendationPresentation() {
 
     const eventsVm = panelVm({ $t: (key, params) => params?.id ? `活动标签 #${params.id}` : key });
     eventsVm.tab = "upcoming";
-    assert.match(eventsVm.groupIndex[0].label, /活动标签 #7/);
+    assert.match(eventsVm.upcomingRows[0].eventLabel, /活动标签 #7/);
     eventTagLoader = async () => { throw new Error("event name offline"); };
     await eventsVm.loadEventTags();
     assert.strictEqual(eventsVm.eventTagsError, true);
-    assert.match(eventsVm.groupIndex[0].label, /活动标签 #7/, "event ID remains usable when public tag names fail");
+    assert.match(eventsVm.upcomingRows[0].eventLabel, /活动标签 #7/, "event ID remains usable when public tag names fail");
     let eventRequests = 0;
     eventTagLoader = async (id) => { eventRequests++; return { id: String(id), label: "节日：冬至", description: "节日说明" }; };
     await eventsVm.loadEventTags();
-    assert.match(eventsVm.groupIndex[0].label, /节日：冬至/);
+    assert.match(eventsVm.upcomingRows[0].eventLabel, /节日：冬至/);
     assert.strictEqual(eventsVm.eventTagsError, false);
     await eventsVm.loadEventTags();
     assert.strictEqual(eventRequests, 1);
@@ -631,11 +795,11 @@ async function testRecommendationSummaryRendering() {
     const template = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendation.vue"), "utf8")).descriptor.template.content;
     const render = new Function("Vue", compile(template, { mode: "function", prefixIdentifiers: true }).code)(vue);
     const translations = load("src/locale/zh-CN/achievementRecommendation.js").default;
-    const renderSummary = async (role, excluded_summary) => {
+    const renderSummary = async (role, excluded_summary, { recommendations = [], upcoming_events = [], targetPoints = 50030 } = {}) => {
         const component = { ...panel, render, components: { ...panel.components,
             RefreshLeft: { render: () => null }, Search: { render: () => null } } };
-        const app = vue.createSSRApp(component, { recommendation: { ...result, role, recommendations: [], upcoming_events: [], excluded_summary },
-            hasRequested: true, canRequest: true, roleAvailable: true, targetPoints: 50030 });
+        const app = vue.createSSRApp(component, { recommendation: { ...result, role, recommendations, upcoming_events, excluded_summary },
+            hasRequested: true, canRequest: true, roleAvailable: true, metadata, targetPoints });
         app.config.globalProperties.$i18n = { locale: "zh-CN" };
         app.config.globalProperties.$t = (key, params = {}) => {
             const text = key.split(".").slice(1).reduce((value, name) => value?.[name], translations) || key;
@@ -648,7 +812,20 @@ async function testRecommendationSummaryRendering() {
     };
     const html = await renderSummary({ ...result.role, snapshot_updated_at: "2026-09-04T16:00:00Z", snapshot_stale: true },
         { completed: 300, missing_dimensions: 4, future_rule: 2, empty: 0 });
+    const navigation = (markup) => markup.match(/<nav\b[\s\S]*?<\/nav>/)?.[0] || "";
     assert.match(html, /成就同步时间：2026\/9\/5/);
+    assert.match(html, /入选 0 项/, "the sticky summary remains visible with a valid recommendation");
+    assert.match(html, /预计达到/, "the sticky summary retains the target projection");
+    assert.match(html, /已入选清单/, "the main list defaults to selected achievements");
+    assert.doesNotMatch(navigation(html), /查看候选|待开放活动|当前推荐/, "the main list no longer has a candidate scope switch");
+    assert.match(html, /查看候选 \(0\)/, "the summary owns the alternative dialog button");
+    const alternatives = await renderSummary(result.role, {}, { recommendations: result.recommendations, targetPoints: 50010 });
+    assert.match(alternatives, /查看候选 \(1\)/, "the button counts only unselected candidates");
+    assert.doesNotMatch(alternatives, /当前推荐|只看已入选|全部候选/, "the default view does not repeat the candidate pool as tabs or radio buttons");
+    const allSelected = await renderSummary(result.role, {}, { recommendations: result.recommendations });
+    assert.match(allSelected, /查看候选 \(0\)/, "an empty dialog explains when all candidates are selected");
+    const upcoming = await renderSummary(result.role, {}, { upcoming_events: result.upcoming_events });
+    assert.match(navigation(upcoming), /待开放活动 \(1\)/, "only nonempty upcoming activities show an entry");
     assert.match(html, /UTC\+8/);
     assert.match(html, /快照较旧/);
     assert.match(html, /href="https:\/\/www\.jx3box\.com\/dashboard\/role\/sync" target="_blank" rel="noopener noreferrer"/);
@@ -704,7 +881,12 @@ async function main() {
     await testRecommendationSummaryRendering();
     testRecommendationViewScope();
     testRequiredRecommendationPoints();
+    testFilteredRecommendationDetails();
+    testCandidateActions();
+    testRemovalRefill();
+    await testCandidateLoading();
     await testIndependentRecommendationData();
+    await testContinuousRecommendationBatches();
     await testDrawerDraftLifecycle();
     assert.strictEqual(await service.fetchAchievementWorkbenchRecommendation({ roleId: 42, camp: "haoqi" }), result);
     assert.deepStrictEqual(apiCalls, [
@@ -805,6 +987,14 @@ async function main() {
         camp_restricted_ids: plan.meta.campRestrictedIds,
     });
     assert.deepStrictEqual(restored, rows.slice(0, 2));
+    const manualSelection = { ...selection, includedIds: ["9", "2", "5"] };
+    await page.methods.createRecommendedPlan.call(vm, manualSelection);
+    assert.deepStrictEqual(savedPlans[1].payload.schema, ["9", "2", "5"], "saving must retain manual additions beyond the target");
+    assert.strictEqual(savedPlans[1].payload.meta.selectedPoints, 30);
+    const manualShortfall = { ...selection, items: selection.items.filter((item) => item.id === "9"), includedIds: ["9"] };
+    await page.methods.createRecommendedPlan.call(vm, manualShortfall);
+    assert.deepStrictEqual(savedPlans[2].payload.schema, ["9"], "saving an edited shortfall must not pull in candidates");
+    openedPlans.splice(1);
     const pendingSave = deferred();
     let saveCalls = 0;
     planSaver = () => { saveCalls += 1; return pendingSave.promise; };
@@ -824,77 +1014,52 @@ async function main() {
     assert.strictEqual(messages[messages.length - 1], "pages.wiki.leap.ui.createFailed");
 
     const detailVm = panelVm();
-    const requestedGroups = [];
-    detailLoader = async ({ ids }) => { requestedGroups.push(ids); return records.filter((record) => ids.includes(record.id)); };
+    const requestedBatches = [];
+    detailLoader = async ({ ids }) => { requestedBatches.push(ids); return records.filter((record) => ids.includes(record.id)); };
     await detailVm.loadDetails();
     await detailVm.loadDifficulty();
-    assert.deepStrictEqual(requestedGroups, [["9", "2"]], "initial fetch must only request the first group, not upcoming events");
-    assert.deepStrictEqual(detailVm.rows.map((row) => row.id), ["9", "2"]);
-    assert.strictEqual(detailVm.rows[0].difficultyDimensions.money, 1.9, "recommendation details include current-group difficulty metrics");
-    assert.deepStrictEqual(detailVm.selection.items.map((row) => row.id), ["9", "2", "5"], "unvisited groups still contribute to the plan");
-    assert.strictEqual(detailVm.selection.ready, true);
-    const unvisitedPlan = utils.buildAchievementRecommendationPlan({ items: detailVm.selection.items, recommendation: result,
-        title: "Lazy plan", targetPoints: 50030, roleId: "42", preferences: {} });
-    assert.deepStrictEqual(unvisitedPlan.schema, ["9", "2", "5"]);
-    detailVm.jumpTo(result.recommendations[1].group);
+    assert.deepStrictEqual(requestedBatches, [["9", "2", "5"]], "one list loads all matching groups together, excluding upcoming events");
+    assert.deepStrictEqual(detailVm.rows.map((row) => row.id), ["9", "2", "5"]);
+    assert.strictEqual(detailVm.rows[0].difficultyDimensions.money, 1.9);
+    detailVm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "9" });
     await detailVm.loadDetails();
-    detailVm.jumpTo(result.recommendations[0].group);
-    await detailVm.loadDetails();
-    assert.strictEqual(requestedGroups.length, 2, "returning to a group uses its detail cache");
-    detailVm.reorderGroups([...detailVm.groups].reverse());
-    await detailVm.loadDetails();
-    assert.strictEqual(requestedGroups.length, 2, "reordering must not fetch other groups");
-    assert.strictEqual(detailVm.activeGroup, result.recommendations[0].group, "reorder preserves the active group identity");
+    assert.strictEqual(requestedBatches.length, 1, "reordering reuses detail cache");
     assert.deepStrictEqual(detailVm.selection.items.map((row) => row.id), ["5", "9", "2"]);
     detailVm.filters.keyword = "not found";
     assert.deepStrictEqual(detailVm.visibleRows, []);
     assert.strictEqual(detailVm.selection.items.length, 3, "view filters do not remove plan items");
-    detailVm.removeItem({ id: "9" });
-    detailVm.removeItem({ id: "2" });
-    assert.strictEqual(detailVm.activeGroup, result.recommendations[1].group, "empty group falls back to its neighbor");
-    assert.strictEqual(detailVm.filters.keyword, "not found", "moving between groups preserves global filters");
-    detailVm.removeItem({ id: "5" });
+    for (const id of ["9", "2", "5"]) detailVm.removeItem({ id });
     await detailVm.loadDetails();
-    assert.strictEqual(detailVm.activeGroup, "");
     assert.deepStrictEqual(detailVm.selection.items, []);
     detailVm.resetDraft();
     await detailVm.loadDetails();
-    assert.strictEqual(requestedGroups.length, 2, "restoring a draft also reuses details");
+    assert.strictEqual(requestedBatches.length, 1, "restoring a draft reuses details");
     detailVm.tab = "upcoming";
-    detailVm.jumpTo("event:7");
     assert.strictEqual(detailVm.selection.ready, false);
     const originalGroups = detailVm.groups;
-    detailVm.reorderGroups([...detailVm.groups].reverse());
-    assert.strictEqual(detailVm.groups, originalGroups, "upcoming groups are read-only");
+    detailVm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "9" });
+    detailVm.removeItem({ id: "9" });
+    assert.strictEqual(detailVm.groups, originalGroups, "upcoming items are read-only");
 
     const raceVm = panelVm();
     const oldDetails = deferred();
     detailLoader = () => oldDetails.promise;
-    const oldPage = raceVm.loadDetails();
-    raceVm.jumpTo(result.recommendations[1].group);
+    const oldDetailRequest = raceVm.loadDetails();
+    raceVm.recommendation = { ...result, recommendations: [result.recommendations[1]] };
+    panel.watch.recommendation.handler.call(raceVm);
     detailLoader = async () => [records[0]];
     await raceVm.loadDetails();
     oldDetails.resolve(records);
-    await oldPage;
+    await oldDetailRequest;
     assert.deepStrictEqual(raceVm.rows.map((record) => record.id), ["5"]);
-    assert.deepStrictEqual(Object.keys(raceVm.recordCache), ["5"], "stale responses cannot populate another recommendation's cache");
+    assert.deepStrictEqual(Object.keys(raceVm.recordCache), ["5"], "stale responses cannot populate a new recommendation's cache");
     assert.strictEqual(raceVm.detailsLoading, false);
-    raceVm.jumpTo(result.recommendations[0].group);
-    detailLoader = async () => [];
-    await raceVm.loadDetails();
-    assert.strictEqual(raceVm.detailsError, true, "missing active-group details show a retryable error");
-    detailLoader = async () => records.slice(1);
-    await raceVm.loadDetails();
-    assert.strictEqual(raceVm.detailsError, false);
-    assert.deepStrictEqual(raceVm.rows.map((row) => row.id), ["9", "2"]);
-    const missingPointsVm = panelVm({ metadata: {} });
-    assert.strictEqual(missingPointsVm.selection.ready, false);
-    assert.strictEqual(missingPointsVm.pointsMissing, true);
+
     const filterVm = panelVm();
     const indexCalls = [];
     const allRecords = [...records, { id: "6", name: "活动", category: { id: "18", subId: "181" }, map: { id: "300" } }];
     detailLoader = async (options, batchSize) => { indexCalls.push({ ...options, batchSize }); return allRecords.filter((item) => options.ids.includes(item.id)); };
-    assert.deepStrictEqual(filterVm.filterOptions.maps, [], "filter choices must not fall back to the current group's details");
+    assert.deepStrictEqual(filterVm.filterOptions.maps, []);
     await filterVm.loadFilterIndex();
     assert.strictEqual(indexCalls.length, 1);
     assert.strictEqual(indexCalls[0].attributes, "ID,Name,Sub,Detail,SceneID,dwMapID");
@@ -903,40 +1068,23 @@ async function main() {
     assert.deepStrictEqual(Object.keys(filterVm.recordCache), [], "search index never substitutes for full scored details");
     const fullOptions = filterVm.filterOptions;
     filterVm.filters.keyword = "长安";
-    filterVm.ensureActiveGroup();
-    assert.strictEqual(filterVm.activeGroup, result.recommendations[1].group, "global name search finds an unvisited group");
-    assert.deepStrictEqual(filterVm.activeRows.map((row) => row.id), ["5"]);
-    assert.deepStrictEqual(filterVm.filterOptions, fullOptions, "options remain global even when results are narrowed");
+    assert.deepStrictEqual(filterVm.matchingRows.map((row) => row.id), ["5"]);
+    assert.deepStrictEqual(filterVm.filterOptions, fullOptions, "options remain global when results are narrowed");
     filterVm.filters = { ...noFilters, mapIds: ["200"] };
-    filterVm.ensureActiveGroup();
-    assert.deepStrictEqual(filterVm.groupIndex.map((group) => group.count), [1, 1]);
-    filterVm.jumpTo(result.recommendations[0].group);
-    assert.deepStrictEqual(filterVm.filters.mapIds, ["200"]);
-    assert.deepStrictEqual(filterVm.activeRows.map((row) => row.id), ["9"], "only matching items of each group are displayed");
+    assert.deepStrictEqual(filterVm.matchingRows.map((row) => row.id), ["9", "5"], "map search returns matches from every group in one list");
     filterVm.filters = { ...noFilters, categories: [["11", "112"]] };
-    filterVm.ensureActiveGroup();
-    assert.deepStrictEqual(filterVm.activeRows.map((row) => row.id), ["2"]);
-    assert.strictEqual(filterVm.groupIndex.length, 1);
+    assert.deepStrictEqual(filterVm.matchingRows.map((row) => row.id), ["2"]);
     assert.strictEqual(filterVm.selection.items.length, 3, "filters do not change the saved plan");
     filterVm.filters.keyword = "none";
-    filterVm.ensureActiveGroup();
-    assert.strictEqual(filterVm.activeGroup, "");
-    assert.deepStrictEqual(filterVm.groupIndex, []);
+    assert.deepStrictEqual(filterVm.matchingRows, []);
     filterVm.filters = { ...noFilters };
-    filterVm.ensureActiveGroup();
-    assert.strictEqual(filterVm.groupIndex.length, 2, "clearing filters restores all groups");
+    assert.strictEqual(filterVm.matchingRows.length, 3);
     await filterVm.loadFilterIndex();
-    assert.strictEqual(indexCalls.length, 1, "index is cached across filters and page navigation");
+    assert.strictEqual(indexCalls.length, 1, "filter index is cached");
     filterVm.tab = "upcoming";
     filterVm.filters.keyword = "活动";
-    filterVm.ensureActiveGroup();
-    assert.strictEqual(filterVm.activeGroup, "event:7");
+    assert.deepStrictEqual(filterVm.matchingRows.map((row) => row.id), ["6"]);
     assert.deepStrictEqual(filterVm.filterOptions.maps.map((map) => map.id), ["300"], "tabs have independent candidate sets");
-    const subsetVm = panelVm({ recommendation: { ...result, recommendations: [
-        { group: "a", ids: [9] }, { group: "hidden", ids: [2] }, { group: "b", ids: [5] },
-    ] } });
-    subsetVm.reorderGroups([{ group: "b" }, { group: "a" }]);
-    assert.deepStrictEqual(subsetVm.groups.map((group) => group.group), ["b", "hidden", "a"], "filtered group reorder preserves hidden groups and their slots");
     const staleIndexVm = panelVm();
     const pendingIndex = deferred();
     detailLoader = () => pendingIndex.promise;
@@ -953,47 +1101,40 @@ async function main() {
     await staleIndexVm.loadFilterIndex();
     assert.strictEqual(staleIndexVm.filterIndexReady, true);
     assert.strictEqual(staleIndexVm.filterIndexError, false);
-    const relatedResult = { ...result, recommendations: [result.recommendations[0],
-        { group: "bucket:2:scene:100", ids: [5] }, { group: "bucket:3:map:100", ids: [6] }] };
-    const relatedVm = panelVm({ recommendation: relatedResult, metadata: { ...metadata, 6: { point: 10 } } });
-    assert.deepStrictEqual(relatedVm.relatedGroups.map((group) => group.group), ["bucket:2:scene:100"], "scene and world-map IDs are distinct namespaces");
-    const relatedCalls = [];
-    detailLoader = async ({ ids }) => { relatedCalls.push(ids); return records.filter((record) => ids.includes(record.id)); };
-    await relatedVm.loadDetails();
-    assert.deepStrictEqual(relatedCalls, [["9", "2"]], "collapsed same-place groups do not load eagerly");
-    relatedVm.expandedGroups = ["bucket:2:scene:100"];
-    const pendingRelated = deferred();
-    detailLoader = () => pendingRelated.promise;
-    const relatedLoading = relatedVm.loadDetails("bucket:2:scene:100");
-    assert.strictEqual(relatedVm.detailsLoading, false, "loading another group must not hide the active list");
-    assert.deepStrictEqual(relatedVm.rows.map((item) => item.id), ["9", "2"]);
-    pendingRelated.resolve([records[0]]);
-    await relatedLoading;
-    assert.deepStrictEqual(relatedVm.groupRows("bucket:2:scene:100").map((item) => item.id), ["5"]);
-    relatedVm.moveItem({ id: "5", group: relatedVm.activeGroup, beforeId: "2" });
-    assert.deepStrictEqual(relatedVm.groups[0].ids.map(String), ["9", "5", "2"]);
-    assert.strictEqual(relatedVm.relatedGroups.length, 0, "moving the last item removes its empty source group");
-    assert.deepStrictEqual(relatedResult.recommendations[1].ids, [5], "draft moves never mutate the server response");
-    assert.deepStrictEqual(relatedVm.draftRows.map((item) => item.id).sort(), ["2", "5", "6", "9"]);
-    assert.strictEqual(relatedVm.draftRows.find((item) => item.id === "2").campRestricted, true);
-    relatedVm.moveItem({ id: "2", group: relatedVm.activeGroup, beforeId: "9" });
-    assert.deepStrictEqual(relatedVm.groups[0].ids.map(String), ["2", "9", "5"], "within-group moves preserve the requested order");
-    const movedPlan = utils.buildAchievementRecommendationPlan({ items: relatedVm.selection.items, recommendation: relatedResult,
+
+    const placesResult = { ...result, recommendations: [result.recommendations[0],
+        { group: "bucket:3:map:100", ids: [6] }, { group: "bucket:2:scene:100", ids: [5] }] };
+    const placesVm = panelVm({ recommendation: placesResult, metadata: { ...metadata, 6: { point: 10 } } });
+    assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "5", "6"],
+        "same scene stays adjacent across cost bands, while map and scene ID namespaces stay separate");
+    assert.deepStrictEqual(placesResult.recommendations.map((group) => group.ids), [[9, 2], [6], [5]], "arranging the draft must not mutate the response");
+    detailLoader = async ({ ids }) => allRecords.filter((record) => ids.includes(record.id));
+    await placesVm.loadDetails();
+    assert.deepStrictEqual(placesVm.visibleRows.map((row) => row.id), ["9", "2", "5"], "main list omits the remaining candidate");
+    placesVm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "2" });
+    assert.deepStrictEqual(placesVm.groups[0].ids.map(String), ["9", "5", "2"]);
+    assert.strictEqual(placesVm.groups.length, 2, "moving the last item removes its empty source group");
+    assert.strictEqual(placesVm.draftRows.find((item) => item.id === "2").campRestricted, true);
+    placesVm.moveItem({ id: "2", group: "bucket:0:scene:100", beforeId: "9" });
+    const movedPlan = utils.buildAchievementRecommendationPlan({ items: placesVm.selection.items, recommendation: placesResult,
         title: "Moved plan", targetPoints: 50030, roleId: "42", preferences: {} });
     assert.deepStrictEqual(movedPlan.schema, ["2", "9", "5"]);
     assert.deepStrictEqual(movedPlan.meta.recommendationGroups[0].ids, ["2", "9", "5"]);
     assert.deepStrictEqual(movedPlan.meta.campRestrictedIds, ["2"]);
     const dropEvents = [];
-    const listVm = { items: [{ id: "2" }, { id: "5" }], group: relatedVm.activeGroup, editable: true, disabled: false,
-        $emit: (...args) => dropEvents.push(args) };
-    itemList.methods.change.call(listVm, { moved: { element: { id: "5" }, newIndex: 0 } });
-    assert.deepStrictEqual(dropEvents[0], ["move", { id: "5", group: relatedVm.activeGroup, beforeId: "2" }]);
-    itemList.methods.change.call(listVm, { removed: { element: { id: "5" } } });
-    assert.strictEqual(dropEvents.length, 1, "cross-list source removal cannot apply the same move twice");
+    const listVm = { items: [{ id: "2", recommendationGroup: "first" }, { id: "5", recommendationGroup: "second" }],
+        editable: true, disabled: false, $emit: (...args) => dropEvents.push(args) };
+    itemList.methods.change.call(listVm, { moved: { element: listVm.items[1], newIndex: 0 } });
+    assert.deepStrictEqual(dropEvents[0], ["move", { id: "5", group: "first", beforeId: "2" }]);
+    itemList.methods.change.call(listVm, { moved: { element: listVm.items[0], newIndex: 1 } });
+    assert.deepStrictEqual(dropEvents[1], ["move", { id: "2", group: "second", beforeId: null }], "dropping at the end appends to the final group");
+    listVm.disabled = true;
+    itemList.methods.change.call(listVm, { moved: { element: listVm.items[0], newIndex: 1 } });
+    assert.strictEqual(dropEvents.length, 2);
     const filteredMove = utils.moveAchievementRecommendationItem([{ group: "target", ids: [1, 2, 3, 4] }], "4", "target", "2");
-    assert.deepStrictEqual(filteredMove[0].ids, [1, 4, 2, 3], "hidden filtered rows remain in the draft around the visible insertion anchor");
-    relatedVm.restoreDraft();
-    assert.deepStrictEqual(relatedVm.groups, relatedResult.recommendations, "restore undoes item ordering and cross-group moves");
+    assert.deepStrictEqual(filteredMove[0].ids, [1, 4, 2, 3], "hidden filtered rows remain in the draft around the insertion anchor");
+    placesVm.restoreDraft();
+    assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "5", "6"], "restore returns to the original map-adjacent order");
     assert.strictEqual(drawer.computed.canRequest.call({ controlsDisabled: true, roleAvailable: true }), false);
     assert.strictEqual(drawer.computed.canRequest.call({ controlsDisabled: false, roleAvailable: true, loading: false }), true);
     assert.strictEqual(drawer.computed.canRequest.call({ controlsDisabled: false, roleAvailable: false, loading: false }), false);
@@ -1012,7 +1153,7 @@ async function main() {
     assert.strictEqual(drawer.computed.canApply.call(drawerVm), true);
     drawerVm.selection = { ...selection, recommendation: { ...result } };
     assert.strictEqual(drawer.computed.canApply.call(drawerVm), false, "an old preview cannot be submitted for a new recommendation");
-    const upcomingRows = panel.computed.upcomingRows.call({ recommendation: result });
+    const upcomingRows = panel.computed.upcomingRows.call({ recommendation: result, eventGroupLabel: () => "event" });
     assert.deepStrictEqual(
         upcomingRows.map((row) => row.id),
         ["6"]

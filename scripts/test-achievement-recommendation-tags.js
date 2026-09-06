@@ -36,7 +36,7 @@ function loadComponent() {
     const icon = { render: () => h("svg") };
     const component = evaluateModule(descriptor.script.content, componentPath, (request) => {
         if (request === "vuedraggable") return draggable;
-        if (request === "@element-plus/icons-vue") return { Delete: icon, Rank: icon, Top: icon };
+        if (request === "@element-plus/icons-vue") return { Delete: icon, Rank: icon };
         if (request === "@jx3box/jx3box-common/js/utils") {
             return { getLink: (_, id) => `/achievement/${id}`, iconLink: (id) => `/icons/${id}.png` };
         }
@@ -55,11 +55,12 @@ const translations = {
     "achievementRecommendation.camp": "阵营",
     "achievementRecommendation.campRestricted": "阵营受限",
     "achievementRecommendation.remove": "移除",
-    "achievementRecommendation.moveToCurrent": "移入当前阶段",
+    "achievementRecommendation.addCandidate": "选入",
+    "achievementRecommendation.removeCandidate": "从候选中删除",
 };
 
 async function renderItems(items, props = {}) {
-    const app = createSSRApp(component, { items, group: "current", selectedIds: new Set(), ...props });
+    const app = createSSRApp(component, { items, selectedIds: new Set(), ...props });
     app.config.globalProperties.$t = (key) => translations[key] || key;
     app.component("el-tooltip", {
         props: ["content"],
@@ -92,7 +93,7 @@ async function main() {
     const ordered = component.methods.getDisplayTags(item);
     assert.deepStrictEqual(ordered.map((tag) => tag.id), [2, 5, 1, 3, 4, 6], "门派前置，同类及其余标签保持输入顺序");
     assert.deepStrictEqual(tags.map((tag) => tag.id), [1, 2, 3, 4, 5, 6], "展示排序不能修改父组件传入的标签");
-    const html = await renderItems([item], { promoteTo: "next" });
+    const html = await renderItems([item]);
     const described = await renderItems([makeItem([], { shortDescription: "完成江湖游历\n<script>说明</script>" })]);
     assert.match(described, /m-recommendation-item-description/);
     assert.ok(described.includes("完成江湖游历\n&lt;script&gt;说明&lt;/script&gt;"), "成就描述保留换行并按纯文本安全渲染");
@@ -100,8 +101,21 @@ async function main() {
     assert.deepStrictEqual(renderedTagLabels(html), ordered.map((tag) => tag.label), "模板应实际渲染排序后的标签");
     assert.match(html, /title="参加江湖行活动"/, "业务标签保留描述提示");
     assert.match(html, /aria-label="移除"/, "标签展示不能移除已有操作");
-    assert.match(html, /aria-label="移入当前阶段"/);
     assert.match(html, /class="m-recommendation-item-handle"/, "拖动排序入口仍存在");
+    const continuous = await renderItems([
+        makeItem([], { recommendationGroup: "first" }),
+        makeItem([], { id: "102", recommendationGroup: "second" }),
+    ]);
+    assert.deepStrictEqual([...continuous.matchAll(/class="u-recommendation-order">(\d+)<\/span>/g)].map((match) => match[1]),
+        ["1", "2"], "不同原始分组在同一列表连续编号");
+    const upcoming = await renderItems([makeItem([], { eventLabel: "冬至 · 2026/12/22 开放 (UTC+8)" })], { editable: false });
+    assert.match(upcoming, /冬至 · 2026\/12\/22 开放 \(UTC\+8\)/, "移除分组标题后，活动名称与开放时间保留在条目中");
+    const candidate = await renderItems([makeItem([])], { editable: false, candidateMode: true });
+    assert.match(candidate, /选入/);
+    assert.match(candidate, /aria-label="从候选中删除"/, "候选操作与已入选移除有明确区分");
+    assert.doesNotMatch(candidate, /class="m-recommendation-item-handle"/, "候选没有影响已入选排序的拖动入口");
+    const unavailableCandidate = await renderItems([makeItem([])], { editable: false, candidateMode: true, unavailableIds: new Set(["101"]) });
+    assert.match(unavailableCandidate, /<button[^>]*class="m-recommendation-add-candidate"[^>]*disabled/, "缺失资历的候选不能加入");
 
     for (const emptyTags of [undefined, null, [], {}, [null, {}, { label: "" }, { label: "  " }, { label: 0 }]]) {
         assert.deepStrictEqual(component.methods.getDisplayTags(makeItem(emptyTags)), []);

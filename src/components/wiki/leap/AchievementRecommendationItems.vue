@@ -1,5 +1,5 @@
 <script>
-import { Delete, Rank, Top } from "@element-plus/icons-vue";
+import { Delete, Rank } from "@element-plus/icons-vue";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import Draggable from "vuedraggable";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
@@ -7,17 +7,17 @@ import { getAchievementWorkbenchDimensionValue } from "@/utils/achievementWorkbe
 
 export default {
     name: "AchievementRecommendationItems",
-    components: { Delete, Rank, Top, Draggable, AchievementDifficultyStars },
+    components: { Delete, Rank, Draggable, AchievementDifficultyStars },
     props: {
         dimensions: { type: Array, default: () => [] },
         items: { type: Array, required: true },
-        group: { type: String, required: true },
         selectedIds: { type: Set, required: true },
+        candidateMode: { type: Boolean, default: false },
+        unavailableIds: { type: Set, default: () => new Set() },
         disabled: { type: Boolean, default: false },
         editable: { type: Boolean, default: true },
-        promoteTo: { type: String, default: "" },
     },
-    emits: ["move", "remove"],
+    emits: ["move", "remove", "add"],
     computed: {
         displayTagsById() {
             return Object.fromEntries(this.items.map((item) => [item.id, this.getDisplayTags(item)]));
@@ -35,7 +35,10 @@ export default {
             const change = event.added || event.moved;
             if (!change || !this.editable || this.disabled) return;
             const remaining = this.items.filter((item) => item.id !== change.element.id);
-            this.$emit("move", { id: change.element.id, group: this.group, beforeId: remaining[change.newIndex]?.id || null });
+            const next = remaining[change.newIndex];
+            const previous = remaining[change.newIndex - 1];
+            const group = next?.recommendationGroup || previous?.recommendationGroup;
+            if (group) this.$emit("move", { id: change.element.id, group, beforeId: next?.id || null });
         },
     },
 };
@@ -43,7 +46,7 @@ export default {
 
 <template>
     <Draggable :model-value="items" item-key="id" group="achievement-recommendation-items" :animation="150"
-        handle=".m-recommendation-item-handle" :disabled="disabled || !editable" :data-group="group"
+        handle=".m-recommendation-item-handle" :disabled="disabled || !editable"
         class="m-recommendation-items" @change="change">
         <template #item="{ element: item, index }">
             <div class="m-server-recommendation__item" :data-id="item.id" :class="{ 'is-selected': editable && selectedIds.has(item.id) }">
@@ -54,6 +57,7 @@ export default {
                         <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" /><span>{{ item.name }}</span>
                     </a>
                     <p v-if="item.shortDescription" class="m-recommendation-item-description">{{ item.shortDescription }}</p>
+                    <p v-if="item.eventLabel" class="m-recommendation-item-description">{{ item.eventLabel }}</p>
                     <small :title="[item.category.name, item.category.subName, item.map.name].filter(Boolean).join(' · ')">
                         {{ [item.category.name, item.category.subName, item.map.name].filter(Boolean).join(' · ') }}
                     </small>
@@ -77,12 +81,11 @@ export default {
                             <small class="u-recommendation-warning">{{ $t('achievementRecommendation.camp') }}</small>
                         </el-tooltip>
                     </div>
-                    <el-tooltip v-if="editable && promoteTo" :content="$t('achievementRecommendation.moveToCurrent')">
-                        <el-button text :disabled="disabled" :aria-label="$t('achievementRecommendation.moveToCurrent')"
-                            @click="$emit('move', { id: item.id, group: promoteTo, beforeId: null })"><template #icon><Top /></template></el-button>
-                    </el-tooltip>
-                    <el-tooltip v-if="editable" :content="$t('achievementRecommendation.remove')">
-                        <el-button text :disabled="disabled" :aria-label="$t('achievementRecommendation.remove')" @click="$emit('remove', item)">
+                    <el-button v-if="candidateMode" class="m-recommendation-add-candidate" type="primary" plain
+                        :disabled="disabled || unavailableIds.has(item.id)" :title="unavailableIds.has(item.id) ? $t('achievementRecommendation.pointsMissing', { id: item.id }) : ''"
+                        @click="$emit('add', item)">{{ $t('achievementRecommendation.addCandidate') }}</el-button>
+                    <el-tooltip v-if="editable || candidateMode" :content="$t(candidateMode ? 'achievementRecommendation.removeCandidate' : 'achievementRecommendation.remove')">
+                        <el-button text :disabled="disabled" :aria-label="$t(candidateMode ? 'achievementRecommendation.removeCandidate' : 'achievementRecommendation.remove')" @click="$emit('remove', item)">
                             <template #icon><Delete /></template>
                         </el-button>
                     </el-tooltip>
@@ -102,6 +105,9 @@ export default {
     border-bottom: 1px solid #edf0ee; font-size: 13px;
     &.is-selected { background: #f3f8f6; }
     :deep(.el-button) { padding: 6px; width: 28px; margin: 0; flex: none; }
+}
+.m-server-recommendation__item :deep(.m-recommendation-add-candidate) { width: auto; height: auto; min-height: 32px; padding: 6px 10px;
+    > span { white-space: normal; line-height: 1.4; }
 }
 .m-recommendation-item-handle { display: flex; flex: none; padding: 4px; color: #87918a; cursor: grab; touch-action: none;
     svg { width: 16px; height: 16px; }
@@ -204,6 +210,13 @@ export default {
         :deep(.el-button) {
             width: 36px;
             height: 36px;
+        }
+
+        :deep(.el-button.m-recommendation-add-candidate) {
+            width: auto;
+            max-width: 140px;
+            height: auto;
+            min-height: 40px;
         }
     }
 

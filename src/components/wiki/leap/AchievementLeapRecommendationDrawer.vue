@@ -67,6 +67,20 @@ export default {
             return Object.prototype.hasOwnProperty.call(this.options.dimensionWeights, dimension.apiKey)
                 ? this.options.dimensionWeights[dimension.apiKey] : 1;
         },
+        dimensionPreferenceOptions(dimension) {
+            const known = ["money", "time", "luck", "costEffectiveness", "overall"].includes(dimension.key);
+            // Cost-saving copy assumes lower cost is preferred; custom directions use neutral copy.
+            const reversedCost = dimension.key !== "costEffectiveness" && dimension.recommendationDirection === "higher";
+            const key = known && !reversedCost ? dimension.key : "generic";
+            return ["care", "normal", "ignore"].map((level, index) => ({
+                value: 2 - index,
+                label: this.$t(`achievementRecommendation.dimensionPreferences.${key}.${level}`),
+            }));
+        },
+        updateDimensionPreference(dimension, value) {
+            if (this.controlsDisabled) return;
+            this.updateEntry("dimensionWeights", dimension.apiKey, value === 1 ? undefined : value);
+        },
         directionLevel(direction) {
             return [0, 1.3, undefined, 0.7].indexOf(this.options.directionWeights[direction]);
         },
@@ -154,11 +168,16 @@ export default {
                     </el-form-item>
                     <el-collapse v-model="expandedPreferences" class="m-recommendation-preferences">
                         <el-collapse-item name="dimensions" :title="$t('achievementRecommendation.dimensions')">
-                            <div v-for="dimension in visibleDimensions" :key="dimension.apiKey" class="m-recommendation-preference-row">
-                                <span :title="dimension.description || dimension.label">{{ dimension.label }}<small>{{ dimensionWeight(dimension) }}×</small></span>
-                                <el-slider :model-value="dimensionWeight(dimension)" :min="0" :max="2" :step="0.1"
-                                    :aria-label="`${dimension.label} ${$t('achievementRecommendation.weight')}`"
-                                    @update:model-value="updateEntry('dimensionWeights', dimension.apiKey, $event === 1 ? undefined : $event)" />
+                            <p class="m-recommendation-dimensions-hint">{{ $t('achievementRecommendation.dimensionsHint') }}</p>
+                            <div v-for="dimension in visibleDimensions" :key="dimension.apiKey" class="m-recommendation-dimension-preference">
+                                <span :title="dimension.description || dimension.label">{{ dimension.label }}</span>
+                                <el-radio-group :model-value="dimensionWeight(dimension)" :aria-label="dimension.label"
+                                    :disabled="controlsDisabled" class="m-recommendation-dimension-options"
+                                    @update:model-value="updateDimensionPreference(dimension, $event)">
+                                    <el-radio-button v-for="option in dimensionPreferenceOptions(dimension)" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </el-radio-button>
+                                </el-radio-group>
                             </div>
                         </el-collapse-item>
                         <el-collapse-item name="directions" :title="$t('achievementRecommendation.directionPreferences')">
@@ -244,7 +263,58 @@ export default {
 .m-recommendation-preference-row { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 48px; font-size: 12px;
     > span { min-width: 0; overflow-wrap: anywhere; }
     small { display: block; color: #7a8586; font-size: 10px; }
-    .el-slider { width: calc(100% - 12px); margin-inline: 6px; }
+    .el-slider {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding-inline: calc(var(--el-slider-button-wrapper-size) / 2 + 2px);
+        margin-inline: 0;
+    }
+}
+.m-leap-recommendation-drawer {
+    .m-recommendation-dimensions-hint { margin: 0 0 4px; font-size: 12px; line-height: 1.6; color: #697374; }
+    .m-recommendation-dimension-preference {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 0;
+        font-size: 12px;
+        > span { color: #314043; overflow-wrap: anywhere; }
+    }
+    .m-recommendation-dimension-options {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
+        .el-radio-button { display: flex; min-width: 0; }
+        .el-radio-button__inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 40px;
+            padding: 8px 4px;
+            box-sizing: border-box;
+            border: 1px solid #dce5e2;
+            border-radius: 6px;
+            box-shadow: none;
+            outline: none;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .el-radio-button.is-active .el-radio-button__inner {
+            border-color: var(--el-color-primary);
+            background: var(--el-color-primary-light-9);
+            color: var(--el-color-primary);
+        }
+        .el-radio-button.is-disabled .el-radio-button__inner { opacity: 0.6; }
+        .el-radio-button:focus-within .el-radio-button__inner {
+            outline: 2px solid var(--el-color-primary);
+            outline-offset: -3px;
+        }
+    }
 }
 .m-recommendation-preferences { --el-collapse-header-bg-color: transparent; --el-collapse-content-bg-color: transparent;
     .el-collapse-item__header { font-size: 14px; color: #314043; }
