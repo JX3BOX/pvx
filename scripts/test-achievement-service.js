@@ -332,6 +332,17 @@ const service = loadModule(
 );
 
 (async () => {
+    const originalGetRoleAchievements = achievementService.getRoleGameAchievements;
+    achievementService.getRoleGameAchievements = async () => ({
+        data: { data: { jx3id: "432345564228640185", achievements: "1,2", updated_at: "2025-05-26 20:51:50" } },
+    });
+    const syncedRole = await service.fetchAchievementWorkbenchRoleState("432345564228640185");
+    assert.strictEqual(syncedRole.updatedAt, "2025-05-26 20:51:50");
+    assert.strictEqual(syncedRole.synced, true);
+    achievementService.getRoleGameAchievements = originalGetRoleAchievements;
+    assert.strictEqual((await service.fetchAchievementWorkbenchRoleState("other-role")).updatedAt, null);
+    assert.strictEqual((await service.fetchAchievementWorkbenchRoleState(null)).updatedAt, null);
+
     await achievementApi.getAchievementsPost({ ids: "7456", client: "origin" });
     await achievementApi.searchAchievements({ keyword: "测试", client: "origin" });
     assert.deepStrictEqual(achievementApiCalls, [

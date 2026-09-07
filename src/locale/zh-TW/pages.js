@@ -652,6 +652,7 @@ export default {
                 workbench: {
                     currentRole: "目前角色",
                     synced: "角色成就已同步",
+                    lastSyncedAt: "最後同步：{time}",
                     notSynced: "角色尚未同步",
                     summaryCollapse: "收起總覽",
                     summaryExpand: "展開總覽",

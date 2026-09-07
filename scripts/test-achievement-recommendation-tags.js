@@ -108,8 +108,8 @@ async function main() {
     ]);
     assert.deepStrictEqual([...continuous.matchAll(/class="u-recommendation-order">(\d+)<\/span>/g)].map((match) => match[1]),
         ["1", "2"], "不同原始分组在同一列表连续编号");
-    const upcoming = await renderItems([makeItem([], { eventLabel: "冬至 · 2026/12/22 开放 (UTC+8)" })], { editable: false });
-    assert.match(upcoming, /冬至 · 2026\/12\/22 开放 \(UTC\+8\)/, "移除分组标题后，活动名称与开放时间保留在条目中");
+    const upcoming = await renderItems([makeItem([], { eventLabel: "冬至 · 2026/12/22 开放" })], { editable: false });
+    assert.match(upcoming, /冬至 · 2026\/12\/22 开放/, "移除分组标题后，活动名称与开放时间保留在条目中");
     const candidate = await renderItems([makeItem([])], { editable: false, candidateMode: true });
     assert.match(candidate, /选入/);
     assert.match(candidate, /aria-label="从候选中删除"/, "候选操作与已入选移除有明确区分");

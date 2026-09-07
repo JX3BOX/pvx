@@ -40,7 +40,6 @@ export default {
     },
     data() {
         return {
-            guideUrl: "/notice/95651",
             navItems: NAV_ITEMS,
         };
     },
@@ -72,7 +71,7 @@ export default {
             </router-link>
         </div>
 
-        <a class="u-achievement-workbench-guide" :href="guideUrl" target="_blank" rel="noopener noreferrer">
+        <a class="u-achievement-workbench-guide" :href="$router.resolve({ name: 'achievement-guide' }).href" target="_blank" rel="noopener noreferrer">
             <QuestionFilled aria-hidden="true" />
             <span>{{ $t("pages.wiki.sidebar.guide") }}</span>
         </a>

@@ -826,9 +826,9 @@ async function testRecommendationSummaryRendering() {
     assert.match(allSelected, /查看候选 \(0\)/, "an empty dialog explains when all candidates are selected");
     const upcoming = await renderSummary(result.role, {}, { upcoming_events: result.upcoming_events });
     assert.match(navigation(upcoming), /待开放活动 \(1\)/, "only nonempty upcoming activities show an entry");
-    assert.match(html, /UTC\+8/);
+    assert.doesNotMatch(html, /UTC\+8/);
     assert.match(html, /快照较旧/);
-    assert.match(html, /href="https:\/\/www\.jx3box\.com\/dashboard\/role\/sync" target="_blank" rel="noopener noreferrer"/);
+    assert.match(html, /href="\/pvx\/achievements\/guide#sync" target="_blank" rel="noopener noreferrer"/);
     assert.match(html, /重新生成推荐不会同步游戏数据/);
     assert.match(html, /<dt>已完成<\/dt><dd>300<\/dd>/);
     assert.match(html, /其他原因（future_rule）/);

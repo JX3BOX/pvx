@@ -78,6 +78,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        syncedAt: {
+            type: String,
+            default: null,
+        },
         synced: {
             type: Boolean,
             default: false,
@@ -147,12 +151,18 @@ export default {
             </div>
             <div class="m-progress-rolebar__status">
                 <div class="m-progress-sync" :class="{ 'is-synced': synced }">
-                    <span class="u-progress-sync-dot" aria-hidden="true"></span>
-                    {{
-                        synced
-                            ? $t("pages.wiki.overview.ui.workbench.synced")
-                            : $t("pages.wiki.overview.ui.workbench.notSynced")
-                    }}
+                    <div class="m-progress-sync__text">
+                        <span class="u-progress-sync-label">
+                            <span class="u-progress-sync-dot" aria-hidden="true"></span>
+                            {{
+                            synced
+                                ? $t("pages.wiki.overview.ui.workbench.synced")
+                                : $t("pages.wiki.overview.ui.workbench.notSynced")
+                        }}</span>
+                        <span v-if="synced && syncedAt && !loading" class="u-progress-sync-time">
+                            {{ $t("pages.wiki.overview.ui.workbench.lastSyncedAt", { time: syncedAt }) }}
+                        </span>
+                    </div>
                 </div>
                 <button
                     type="button"
@@ -330,18 +340,45 @@ export default {
 
 .m-progress-sync {
     display: inline-flex;
-    align-items: center;
-    gap: 7px;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 8px;
     color: #9c7960;
     font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+}
+
+.m-progress-sync__text {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+    text-align: right;
+}
+
+.u-progress-sync-label {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.u-progress-sync-time {
+    color: #858c88;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+    font-variant-numeric: tabular-nums;
 }
 
 .u-progress-sync-dot {
-    width: 7px;
-    height: 7px;
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-top: 6px;
     border-radius: 50%;
     background: #b98a6a;
-    box-shadow: 0 0 0 4px rgba(185, 138, 106, 0.12);
+    box-shadow: 0 0 0 3px rgba(185, 138, 106, 0.1);
 }
 
 .m-progress-sync.is-synced {
@@ -349,7 +386,7 @@ export default {
 
     .u-progress-sync-dot {
         background: #4e876d;
-        box-shadow: 0 0 0 4px rgba(78, 135, 109, 0.12);
+        box-shadow: 0 0 0 3px rgba(78, 135, 109, 0.1);
     }
 }
 

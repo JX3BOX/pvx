@@ -131,7 +131,7 @@ assert.ok(difficultyStars.includes(":aria-label=\"accessibleLabel\""));
 assert.ok(difficultyStars.includes("c-achievement-stars__filled"));
 assert.doesNotMatch(difficultyStars, /Math\.round/);
 const workbenchShell = read("src/views/wiki/index.vue");
-assert.ok(nav.includes('guideUrl: "/notice/95651"'));
+assert.ok(nav.includes("$router.resolve({ name: 'achievement-guide' }).href"));
 assert.ok(nav.includes('target="_blank"'));
 assert.deepStrictEqual(
     [...nav.matchAll(/routeName: "([^"]+)"/g)].map((match) => match[1]),

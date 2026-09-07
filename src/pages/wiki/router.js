@@ -7,6 +7,12 @@ const routes = [
         redirect: "/overview",
     },
     {
+        name: "achievement-guide",
+        path: "/guide",
+        component: () => import("@/views/wiki/guide.vue"),
+        meta: { i18n: { title: "achievementGuide.title" } },
+    },
+    {
         name: "overview",
         path: "/overview",
         component: () => import("@/views/wiki/overview.vue"),

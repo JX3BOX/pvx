@@ -223,7 +223,7 @@ export async function fetchAchievementWorkbenchRoleState(jx3id) {
         jx3id: String(data.jx3id || jx3id),
         completedIds: normalizeCompletedAchievementIds(data.achievements),
         synced: Boolean(data.jx3id),
-        updatedAt: data.updatedAt || null,
+        updatedAt: data.updated_at || data.updatedAt || null,
     };
 }
 

@@ -501,8 +501,8 @@ export default {
                 </el-tooltip>
             </div>
             <div class="m-recommendation-snapshot">
-                <span>{{ $t('achievementRecommendation.snapshot') }}：{{ snapshotDateLabel ? `${snapshotDateLabel} (UTC+8)` : $t('achievementRecommendation.snapshotUnknown') }}</span>
-                <a href="https://www.jx3box.com/dashboard/role/sync" target="_blank" rel="noopener noreferrer"
+                <span>{{ $t('achievementRecommendation.snapshot') }}：{{ snapshotDateLabel || $t('achievementRecommendation.snapshotUnknown') }}</span>
+                <a href="/pvx/achievements/guide#sync" target="_blank" rel="noopener noreferrer"
                     :title="$t('achievementRecommendation.syncGuideHint')">{{ $t('achievementRecommendation.syncGuide') }}</a>
                 <span class="m-recommendation-snapshot__hint">{{ $t('achievementRecommendation.syncGuideHint') }}</span>
             </div>

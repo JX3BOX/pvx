@@ -662,6 +662,7 @@ export default {
                 workbench: {
                     currentRole: "Current Character",
                     synced: "Character achievements synced",
+                    lastSyncedAt: "Last synced: {time}",
                     notSynced: "Character not yet synced",
                     summaryCollapse: "Collapse overview",
                     summaryExpand: "Expand overview",

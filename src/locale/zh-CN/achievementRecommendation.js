@@ -67,7 +67,7 @@ export default {
     noDimensions: "暂无可用于排序的评分维度。",
     available: "当前推荐 ({count})",
     upcoming: "待开放活动 ({count})",
-    opensAt: "{date} 开放 (UTC+8)",
+    opensAt: "{date} 开放",
     apply: "创建渡劫方案",
     groupIndex: "地图与分组索引",
     viewIndex: "查看索引",

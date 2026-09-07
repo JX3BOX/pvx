@@ -67,7 +67,7 @@ export default {
     noDimensions: "No scoring dimensions are available for ranking.",
     available: "Recommended ({count})",
     upcoming: "Upcoming events ({count})",
-    opensAt: "Opens {date} (UTC+8)",
+    opensAt: "Opens {date}",
     apply: "Create plan",
     groupIndex: "Maps and groups",
     viewIndex: "Group index",

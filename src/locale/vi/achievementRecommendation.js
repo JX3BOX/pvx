@@ -67,7 +67,7 @@ export default {
     noDimensions: "Chưa có tiêu chí điểm để xếp hạng.",
     available: "Đề xuất ({count})",
     upcoming: "Sự kiện sắp mở ({count})",
-    opensAt: "Mở lúc {date} (UTC+8)",
+    opensAt: "Mở lúc {date}",
     apply: "Tạo kế hoạch",
     groupIndex: "Bản đồ và nhóm",
     viewIndex: "Mục lục nhóm",

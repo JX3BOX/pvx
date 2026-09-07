@@ -72,6 +72,7 @@ export default {
             currentRoleId: "",
             completedIds: [],
             synced: false,
+            syncedAt: null,
             records: [],
             searchRecords: null,
             page: 1,
@@ -333,6 +334,7 @@ export default {
             this.records = [];
             if (keepSearchMode) this.searchRecords = [];
             this.roleLoading = true;
+            this.syncedAt = null;
             this.pageError = false;
 
             try {
@@ -346,6 +348,7 @@ export default {
                 }
                 this.completedIds = state.completedIds;
                 this.synced = state.synced;
+                this.syncedAt = state.updatedAt;
                 this.$store.commit("SET_STATE", {
                     key: "achievements",
                     value: state.completedIds,
@@ -749,6 +752,7 @@ export default {
                 :active-tier="filters.tier"
                 :loading="roleLoading"
                 :synced="synced"
+                :synced-at="syncedAt"
                 @select-role="selectRole"
                 @select-tier="selectTier"
                 @update:collapsed="summaryCollapsed = $event"

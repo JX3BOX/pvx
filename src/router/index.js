@@ -117,6 +117,12 @@ const routes = [
         component: () => import("@/views/wiki/index.vue"),
         children: [
             {
+                name: "achievement-guide",
+                path: "guide",
+                component: () => import("@/views/wiki/guide.vue"),
+                meta: { i18n: { title: "achievementGuide.title" } },
+            },
+            {
                 name: "overview",
                 path: "",
                 component: () => import("@/views/wiki/overview.vue"),

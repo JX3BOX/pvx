@@ -659,6 +659,7 @@ export default {
                 workbench: {
                     currentRole: "Nhân vật hiện tại",
                     synced: "Đã đồng bộ thành tựu nhân vật",
+                    lastSyncedAt: "Đồng bộ lần cuối: {time}",
                     notSynced: "Nhân vật chưa được đồng bộ",
                     summaryCollapse: "Thu gọn tổng quan",
                     summaryExpand: "Mở rộng tổng quan",
