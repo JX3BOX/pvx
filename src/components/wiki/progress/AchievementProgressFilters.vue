@@ -171,9 +171,12 @@ export default {
                     :key="dimension.key"
                     :value="getDimensionSortValue(dimension)"
                     :label="
-                        $t('pages.wiki.difficultyDimensions.sortAscending', {
-                            label: getDimensionLabel(dimension),
-                        })
+                        $t(
+                            dimension.key === 'costEffectiveness'
+                                ? 'pages.wiki.difficultyDimensions.sortDescending'
+                                : 'pages.wiki.difficultyDimensions.sortAscending',
+                            { label: getDimensionLabel(dimension) }
+                        )
                     "
                 />
             </el-select>

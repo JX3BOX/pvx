@@ -167,6 +167,9 @@ let eventTagLoader = async () => null;
 const savedPlans = [];
 let planSaver = async (payload, id) => { savedPlans.push({ payload, id }); return { ...payload, id: "88" }; };
 const pageDependencies = {
+    "@/utils/achievementLeapDetail": load("src/utils/achievementLeapDetail.js", {
+        "@/utils/achievementLeap": leapUtils, "@/utils/achievementRecommendation": utils,
+    }),
     "@jx3box/jx3box-common/js/user": { isLogin: () => true },
     "@element-plus/icons-vue": {},
     "@/service/achievementWorkbench": {

@@ -26,7 +26,7 @@ export default {
         <CommonHeader />
 
         <main class="m-achievement-main c-achievement-workbench">
-            <div class="m-achievement-workbench-shell" :class="{ 'is-subpage': !showWorkbenchNav, 'is-full-width': showWorkbenchNav || $route.name === 'leap-detail' }">
+            <div class="m-achievement-workbench-shell" :class="{ 'is-subpage': !showWorkbenchNav, 'is-full-width': showWorkbenchNav || ['leap-detail', 'consultation-detail'].includes($route.name) }">
                 <AchievementWorkbenchNav v-if="showWorkbenchNav" />
                 <section class="m-achievement-content m-achievement-workbench-content">
                     <router-view />

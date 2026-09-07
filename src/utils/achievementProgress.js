@@ -1,4 +1,5 @@
 import { collectMenuAchievementIds, selectMenuRootsByGeneral } from "@/utils/achievementStatistics";
+import { isAchievementEligibleForSchool } from "@/utils/achievementSchoolEligibility";
 import {
     getAchievementWorkbenchDimensionSort,
     getAchievementWorkbenchDimensionValue,
@@ -26,21 +27,28 @@ function isEligibleMetadata(item) {
     return Boolean(item && VALID_GENERALS.has(Number(item.general)) && Number.isFinite(Number(item.point)));
 }
 
-function summarizeIds(ids, metadata, completedIds) {
+function summarizeIds(ids, metadata, completedIds, schoolEligibility = null) {
     const completed = normalizeCompletedIds(completedIds);
     const uniqueIds = [...new Set((ids || []).map(String))].filter((id) => isEligibleMetadata(metadata?.[id]));
     const completedAchievementIds = uniqueIds.filter((id) => completed.has(id));
     const totalPoints = uniqueIds.reduce((total, id) => total + getPoint(metadata, id), 0);
     const completedPoints = completedAchievementIds.reduce((total, id) => total + getPoint(metadata, id), 0);
+    // 门派豁免只影响汇总百分比，不改变实际完成数量、资历或完成 ID。
+    const exemptIds = schoolEligibility?.school
+        ? uniqueIds.filter((id) => !completed.has(id) && !isAchievementEligibleForSchool({
+            id, metadataItem: metadata[id], context: schoolEligibility,
+        }))
+        : [];
+    const progressPoints = completedPoints + exemptIds.reduce((total, id) => total + getPoint(metadata, id), 0);
 
     return {
         achievementIds: uniqueIds,
         completedCount: completedAchievementIds.length,
         completedPoints,
         countProgress: uniqueIds.length
-            ? Number(((completedAchievementIds.length / uniqueIds.length) * 100).toFixed(2))
+            ? Number((((completedAchievementIds.length + exemptIds.length) / uniqueIds.length) * 100).toFixed(2))
             : null,
-        pointProgress: totalPoints ? Number(((completedPoints / totalPoints) * 100).toFixed(2)) : null,
+        pointProgress: totalPoints ? Number(((progressPoints / totalPoints) * 100).toFixed(2)) : null,
         remainingCount: Math.max(0, uniqueIds.length - completedAchievementIds.length),
         remainingPoints: Math.max(0, totalPoints - completedPoints),
         totalCount: uniqueIds.length,
@@ -48,7 +56,7 @@ function summarizeIds(ids, metadata, completedIds) {
     };
 }
 
-function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadata, completedIds }) {
+function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadata, completedIds, schoolEligibility = null }) {
     const subId = String(menu?.sub ?? parentId ?? fallbackId);
     const detailId = menu?.detail === null || menu?.detail === undefined ? String(fallbackId) : String(menu.detail);
     const id = parentId === null ? subId : `${subId}:${detailId}`;
@@ -71,7 +79,7 @@ function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadat
         detailId: parentId === null ? null : detailId,
         name: menu?.name || fallbackId,
         children,
-        ...summarizeIds([...collectMenuAchievementIds([menu])], metadata, completedIds),
+        ...summarizeIds([...collectMenuAchievementIds([menu])], metadata, completedIds, parentId === null ? schoolEligibility : null),
     };
 }
 
@@ -84,8 +92,8 @@ export function getAchievementTier(metadataItem) {
     return "normal";
 }
 
-export function buildAchievementOverallProgress(metadata, completedIds) {
-    return summarizeIds(Object.keys(metadata || {}), metadata, completedIds);
+export function buildAchievementOverallProgress(metadata, completedIds, schoolEligibility = null) {
+    return summarizeIds(Object.keys(metadata || {}), metadata, completedIds, schoolEligibility);
 }
 
 export function buildAchievementTierProgress(metadata, completedIds) {
@@ -108,12 +116,12 @@ export function buildAchievementTierProgress(metadata, completedIds) {
     }));
 }
 
-export function buildAchievementCategoryProgress({ menus, metadata, completedIds }) {
+export function buildAchievementCategoryProgress({ menus, metadata, completedIds, schoolEligibility = null }) {
     const regularMenus = selectMenuRootsByGeneral(menus, metadata, 1);
 
     return normalizeMenuEntries(regularMenus)
         .map(([fallbackId, menu]) =>
-            buildCategoryProgressEntry({ menu, fallbackId, metadata, completedIds })
+            buildCategoryProgressEntry({ menu, fallbackId, metadata, completedIds, schoolEligibility })
         )
         .filter((category) => category.totalCount > 0);
 }

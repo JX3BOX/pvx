@@ -57,15 +57,22 @@ function loadVueOptionsComponent(file, aliases = {}, injectedModules = {}) {
 
 const statisticsModule = loadModule(path.resolve(__dirname, "../src/utils/achievementStatistics.js"));
 const workbenchModule = loadModule(path.resolve(__dirname, "../src/utils/achievementWorkbench.js"));
+const schoolEligibilityModule = loadModule(
+    path.resolve(__dirname, "../src/utils/achievementSchoolEligibility.js"),
+    { "@/utils/achievementStatistics": "achievement-statistics-test-module" },
+    { "achievement-statistics-test-module": statisticsModule }
+);
 const progress = loadModule(
     path.resolve(__dirname, "../src/utils/achievementProgress.js"),
     {
         "@/utils/achievementStatistics": "achievement-statistics-test-module",
         "@/utils/achievementWorkbench": "achievement-workbench-test-module",
+        "@/utils/achievementSchoolEligibility": "achievement-school-eligibility-test-module",
     },
     {
         "achievement-statistics-test-module": statisticsModule,
         "achievement-workbench-test-module": workbenchModule,
+        "achievement-school-eligibility-test-module": schoolEligibilityModule,
     }
 );
 const progressPage = loadVueOptionsComponent(
@@ -83,6 +90,7 @@ const progressPage = loadVueOptionsComponent(
         "@/service/achievementWorkbench": "achievement-service-test-module",
         "@/utils/achievementWorkbench": "achievement-workbench-test-module",
         "@/utils/achievementProgress": "achievement-progress-test-module",
+        "@/utils/achievementSchoolEligibility": "achievement-school-eligibility-test-module",
         "@/utils/config": "achievement-config-test-module",
     },
     {
@@ -92,6 +100,7 @@ const progressPage = loadVueOptionsComponent(
         "achievement-service-test-module": {},
         "achievement-workbench-test-module": workbenchModule,
         "achievement-progress-test-module": progress,
+        "achievement-school-eligibility-test-module": schoolEligibilityModule,
         "achievement-config-test-module": { __Links: { account: { login: "" } } },
     }
 );
@@ -148,6 +157,64 @@ assert.deepStrictEqual(
         ["10:102", "10", "江湖见闻", 1],
     ]
 );
+
+const schoolMenus = {
+    martial: { sub: "martial", name: "武学", children: [
+        { detail: "tc", name: "天策招式", achievements: [1] },
+        { detail: "wh", name: "万花招式", achievements: [2, 2] },
+        { detail: "shared", name: "无相楼招式", achievements: [3, 4] },
+    ] },
+    other: { sub: "other", name: "其他", achievements: [5] },
+};
+const schoolMetadata = Object.fromEntries([10, 20, 30, 40, 50].map((point, index) => [
+    String(index + 1), { point, general: 1, visible: true },
+]));
+schoolMetadata[5].restriction = { school: "万花" };
+const schoolCompletedIds = [1];
+const tianCeEligibility = schoolEligibilityModule.buildAchievementSchoolEligibilityContext({
+    menus: schoolMenus, roleSchool: "1",
+});
+const adjustedOverall = progress.buildAchievementOverallProgress(schoolMetadata, schoolCompletedIds, tianCeEligibility);
+assert.strictEqual(adjustedOverall.pointProgress, 53.33, "其他门派限定计入百分比分子，不从分母删除");
+assert.strictEqual(adjustedOverall.completedPoints, 10, "资历点仍是实际获得的点数");
+assert.strictEqual(adjustedOverall.completedCount, 1, "完成数量仍是真实完成数量");
+assert.strictEqual(adjustedOverall.totalPoints, 150);
+assert.strictEqual(adjustedOverall.remainingPoints, 140);
+const adjustedCategories = progress.buildAchievementCategoryProgress({
+    menus: schoolMenus, metadata: schoolMetadata, completedIds: schoolCompletedIds, schoolEligibility: tianCeEligibility,
+});
+assert.strictEqual(adjustedCategories[0].pointProgress, 30, "一级分类按角色门派调整");
+assert.strictEqual(adjustedCategories[0].completedPoints, 10);
+assert.deepStrictEqual(adjustedCategories[0].children.map((child) => child.pointProgress), [100, 0, 0], "二级分类保持实际进度，通用招式不豁免");
+assert.strictEqual(adjustedCategories[1].pointProgress, 100, "识别元数据里的显式门派限制");
+assert.strictEqual(progress.buildAchievementOverallProgress(schoolMetadata, [1, 2], tianCeEligibility).pointProgress, 53.33, "已完成的其他门派成就不能重复计入");
+assert.strictEqual(progress.buildAchievementOverallProgress(schoolMetadata, [1, 2, 3, 4, 5], tianCeEligibility).pointProgress, 100);
+for (const roleSchool of [null, "未知门派"]) {
+    const context = schoolEligibilityModule.buildAchievementSchoolEligibilityContext({ menus: schoolMenus, roleSchool });
+    assert.strictEqual(progress.buildAchievementOverallProgress(schoolMetadata, [1], context).pointProgress, 6.67, "门派未知时不推断豁免");
+}
+const unrestrictedMetadata = { ...schoolMetadata, 2: { ...schoolMetadata[2], restriction: { school: "不限" } },
+    5: { ...schoolMetadata[5], restriction: { school: "天策/万花" } } };
+assert.strictEqual(progress.buildAchievementOverallProgress(unrestrictedMetadata, [1], tianCeEligibility).pointProgress, 6.67, "通用和包含本门派的限制不能豁免");
+assert.strictEqual(progress.buildAchievementOverallProgress({}, [], tianCeEligibility).pointProgress, null);
+assert.strictEqual(progress.buildAchievementOverallProgress({ 5: { ...schoolMetadata[5], point: 0 } }, [], tianCeEligibility).pointProgress, null);
+assert.deepStrictEqual(schoolCompletedIds, [1], "真实完成列表不能被改写");
+assert.ok(progress.filterAchievementIds({ metadata: schoolMetadata, completedIds: schoolCompletedIds, completion: "incomplete" }).includes("2"), "其他门派成就仍可筛选为未完成");
+
+// 普通页面切换角色及咨询快照都走同一个组件的统计计算。
+const schoolPage = { ...progressPage.data(), snapshot: null, metadata: schoolMetadata, menus: schoolMenus,
+    completedIds: schoolCompletedIds, roles: [{ id: "tc", school: "傲血战意" }, { id: "wh", school: "万花" }],
+    currentRoleId: "tc", $t: (key) => key };
+for (const key of ["currentRole", "schoolEligibility", "overallProgress", "categoryProgress", "sortedCategoryProgress", "categories"]) {
+    Object.defineProperty(schoolPage, key, { get: progressPage.computed[key].bind(schoolPage) });
+}
+assert.strictEqual(schoolPage.overallProgress.pointProgress, 53.33);
+assert.strictEqual(schoolPage.categories[0].pointProgress, 53.33, "全部与总览口径一致");
+schoolPage.currentRoleId = "wh";
+assert.strictEqual(schoolPage.overallProgress.pointProgress, 6.67, "切换角色后按新门派计算");
+schoolPage.snapshot = { role: { school: "天策府" } };
+assert.strictEqual(schoolPage.overallProgress.pointProgress, 53.33, "咨询页面使用咨询角色门派，而非当前登录角色");
+assert.strictEqual(schoolPage.categoryProgress[0].children[1].pointProgress, 0);
 
 assert.deepStrictEqual(progress.filterAchievementIds({ metadata, completedIds: [1, 4, 5], completion: "incomplete" }), [
     "2",
@@ -278,6 +345,31 @@ assert.deepStrictEqual(
         ),
     }),
     Object.keys(metadata)
+);
+
+// 性价比“从高到低”使用成本等级升序：白给、划算、硬干、深坑、巨渊，未评分最后。
+const costEffectivenessById = Object.fromEntries(
+    [50, null, 0, 20, 30, 40].map((score, index) => [
+        String(index + 1),
+        workbenchModule.normalizeAchievementWorkbenchDifficulty({ dimensions: { cost_effectiveness: score } }),
+    ])
+);
+const costEffectivenessOrder = ["3", "4", "5", "6", "1", "2"];
+assert.deepStrictEqual(
+    progress.filterAchievementIds({
+        metadata,
+        completedIds: [],
+        sort: "dimension:costEffectiveness:asc",
+        difficultyById: costEffectivenessById,
+    }),
+    costEffectivenessOrder
+);
+assert.deepStrictEqual(
+    progress.filterAchievementRecords({
+        records: Object.entries(costEffectivenessById).map(([id, difficulty]) => ({ id, ...difficulty })),
+        sort: "dimension:costEffectiveness:asc",
+    }).map((item) => item.id),
+    costEffectivenessOrder
 );
 
 const filteredRecords = progress.filterAchievementRecords({

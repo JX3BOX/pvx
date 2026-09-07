@@ -33,6 +33,7 @@ import {
     paginateAchievementItems,
 } from "@/utils/achievementProgress";
 import { __Links } from "@/utils/config";
+import { buildAchievementSchoolEligibilityContext } from "@/utils/achievementSchoolEligibility";
 
 const createDefaultFilters = () => ({
     categoryId: "all",
@@ -45,6 +46,9 @@ const createDefaultFilters = () => ({
 
 export default {
     name: "AchievementProgressPage",
+    props: {
+        snapshot: { type: Object, default: null },
+    },
     components: {
         AchievementCategoryBoard,
         AchievementProgressFilters,
@@ -94,16 +98,24 @@ export default {
     },
     computed: {
         currentClient() {
+            if (this.snapshot) return "std";
             return this.$store.state.client === "origin" ? "origin" : "std";
         },
         loginUrl() {
             return __Links.account.login + "?redirect=" + encodeURIComponent(location.href);
         },
         currentRole() {
+            if (this.snapshot) return this.snapshot.role;
             return this.roles.find((role) => role.id === this.currentRoleId) || null;
         },
+        schoolEligibility() {
+            return buildAchievementSchoolEligibilityContext({
+                menus: this.menus,
+                roleSchool: this.currentRole?.school,
+            });
+        },
         overallProgress() {
-            return buildAchievementOverallProgress(this.metadata, this.completedIds);
+            return buildAchievementOverallProgress(this.metadata, this.completedIds, this.schoolEligibility);
         },
         tierProgress() {
             return buildAchievementTierProgress(this.metadata, this.completedIds);
@@ -113,6 +125,7 @@ export default {
                 menus: this.menus,
                 metadata: this.metadata,
                 completedIds: this.completedIds,
+                schoolEligibility: this.schoolEligibility,
             });
         },
         sortedCategoryProgress() {
@@ -236,6 +249,10 @@ export default {
         },
     },
     watch: {
+        snapshot() {
+            this.resetProgressView();
+            this.initializePage();
+        },
         currentClient(nextClient, previousClient) {
             if (!previousClient || nextClient === previousClient) return;
             this.resetProgressView();
@@ -274,6 +291,24 @@ export default {
             return this.setListFilter("tier", tier);
         },
         async initializePage() {
+            if (this.snapshot) {
+                this.pageRequestId += 1;
+                this.resetProgressView();
+                this.resetEnrichment(this.currentClient);
+                this.menus = this.snapshot.catalog.menus;
+                this.metadata = this.snapshot.catalog.metadata;
+                this.maps = this.snapshot.maps;
+                this.dimensions = this.snapshot.dimensions;
+                this.roles = [];
+                this.currentRoleId = String(this.snapshot.role?.id || "");
+                this.completedIds = this.snapshot.completedIds;
+                this.synced = this.snapshot.synced;
+                this.syncedAt = this.snapshot.syncedAt;
+                this.pageLoading = false;
+                this.pageError = false;
+                await this.loadVisibleRecords();
+                return;
+            }
             if (!this.isLogin) {
                 this.pageLoading = false;
                 return;
@@ -316,6 +351,7 @@ export default {
             }
         },
         async selectRole(roleId) {
+            if (this.snapshot) return;
             if (!roleId || roleId === this.currentRoleId || this.roleLoading) return;
             this.currentRoleId = roleId;
             localStorage.setItem("wiki_last_sync", roleId);
@@ -323,6 +359,7 @@ export default {
             await this.loadCurrentRole();
         },
         async loadCurrentRole() {
+            if (this.snapshot) return;
             this.cancelDimensionSortRequest();
             const requestId = ++this.roleRequestId;
             const roleId = this.currentRoleId;
@@ -743,6 +780,7 @@ export default {
 
         <div v-else class="m-progress-page-content">
             <AchievementProgressSummary
+                :show-toolbar="!snapshot"
                 :collapsed="summaryCollapsed"
                 :current-role="currentRole"
                 :current-role-id="currentRoleId"

@@ -455,6 +455,10 @@ function buildPageTestCandidates({ metadata = {}, records = [], allowedIds = nul
 }
 
 const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/wiki/leap/AchievementLeapPage.vue"), {
+    "@/utils/achievementLeapDetail": loadModule(path.resolve(__dirname, "../src/utils/achievementLeapDetail.js"), {}, {
+        "@/utils/achievementLeap": leap,
+        "@/utils/achievementRecommendation": loadModule(path.resolve(__dirname, "../src/utils/achievementRecommendation.js")),
+    }),
     "@/utils/achievementRecommendation": loadModule(path.resolve(__dirname, "../src/utils/achievementRecommendation.js")),
     ...Object.fromEntries(pageComponentImports.map((request) => [request, {}])),
     "@element-plus/icons-vue": {},

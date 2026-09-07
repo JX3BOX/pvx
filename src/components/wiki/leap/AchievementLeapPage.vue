@@ -1,4 +1,5 @@
 <script>
+import { buildAchievementLeapDetailRoute } from "@/utils/achievementLeapDetail";
 import User from "@jx3box/jx3box-common/js/user";
 import { FolderOpened, Plus, UserFilled, WarningFilled } from "@element-plus/icons-vue";
 import AchievementLeapAddDialog from "@/components/wiki/leap/AchievementLeapAddDialog.vue";
@@ -46,7 +47,7 @@ import {
 import { __Links } from "@/utils/config";
 import {
     selectAchievementRecommendationItems, buildAchievementRecommendationPlan,
-    achievementRecommendationPlanMetadata, flattenAchievementRecommendation,
+    achievementRecommendationPlanMetadata,
     defaultAchievementRecommendationOptions, achievementRecommendationPreferences,
 } from "@/utils/achievementRecommendation";
 
@@ -708,45 +709,7 @@ export default {
             };
         },
         buildDetailRoute(plan, items) {
-            const recommendationItems = new Map(flattenAchievementRecommendation({
-                recommendations: plan.meta?.recommendationGroups || [],
-                camp_restricted_ids: plan.meta?.campRestrictedIds || [],
-            }).map((item) => [item.id, item]));
-            items = items.map((item) => ({ ...item, ...recommendationItems.get(String(item.id)) }));
-            const progress = buildAchievementLeapPlanProgress(plan, this.metadata, this.roleState.completedIds);
-            const incomplete = items.filter((item) => !item.completed);
-            const targetPoints = Number(plan.meta?.targetPoints) || this.currentPoints + progress.remainingPoints;
-            const hasMinutes = incomplete.length > 0 && incomplete.every((item) => item.estimatedMinutes !== null);
-            const hasDifficulty = incomplete.length > 0 && incomplete.every((item) => item.difficulty !== null);
-            return {
-                items,
-                generationMode: plan.meta?.generationMode || "custom",
-                recommendationVersion: plan.meta?.recommendationVersion || null,
-                recommendationStage: plan.meta?.recommendationStage || null,
-                recommendationCamp: plan.meta?.recommendationCamp || null,
-                recommendationPreferences: plan.meta?.recommendationPreferences || null,
-                requestedStrategy: plan.meta?.strategy || "big-first",
-                strategy: plan.meta?.generatedStrategy || plan.meta?.strategy || "big-first",
-                currentPoints: this.currentPoints,
-                targetPoints,
-                targetGap: Math.max(0, targetPoints - this.currentPoints),
-                selectedPoints: progress.remainingPoints,
-                projectedPoints: this.currentPoints + progress.remainingPoints,
-                remainingGap: Math.max(0, targetPoints - this.currentPoints - progress.remainingPoints),
-                reached: this.currentPoints + progress.remainingPoints >= targetPoints,
-                totalMinutes: hasMinutes
-                    ? incomplete.reduce((total, item) => total + Number(item.estimatedMinutes), 0)
-                    : null,
-                averageDifficulty: hasDifficulty
-                    ? Number(
-                          (
-                              incomplete.reduce((total, item) => total + Number(item.difficulty), 0) /
-                              incomplete.length
-                          ).toFixed(2)
-                      )
-                    : null,
-                averageCostScore: null,
-            };
+            return buildAchievementLeapDetailRoute(plan, items, this.metadata, this.roleState.completedIds, this.currentPoints);
         },
         async preparePlanForEditor(plan, { copy = false } = {}) {
             if (this.warnPlanClientMismatch(plan)) return;

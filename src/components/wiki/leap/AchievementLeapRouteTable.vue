@@ -217,7 +217,14 @@ export default {
                 <el-option
                     v-for="dimension in dimensions"
                     :key="dimension.key"
-                    :label="$t('pages.wiki.difficultyDimensions.sortAscending', { label: dimensionLabel(dimension) })"
+                    :label="
+                        $t(
+                            dimension.key === 'costEffectiveness'
+                                ? 'pages.wiki.difficultyDimensions.sortDescending'
+                                : 'pages.wiki.difficultyDimensions.sortAscending',
+                            { label: dimensionLabel(dimension) }
+                        )
+                    "
                     :value="`dimension:${dimension.key}:asc`"
                     :disabled="!hasDimensionValue(dimension.key)"
                 />

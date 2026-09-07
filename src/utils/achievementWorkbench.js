@@ -287,6 +287,8 @@ export function getAchievementWorkbenchScoreLabel(value, bands = []) {
 }
 
 export function getAchievementWorkbenchDimensionSort(value = "") {
+    // 性价比原始分值也是成本等级：低分为白给/划算，高分为深坑/巨渊。
+    // 展示“性价比从高到低”时仍按该分值升序，不能反转为高成本优先。
     const matched = String(value).match(/^dimension:([A-Za-z][A-Za-z0-9]*):asc$/);
     return matched ? { key: matched[1], direction: "asc" } : null;
 }

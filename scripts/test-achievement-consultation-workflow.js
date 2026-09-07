@@ -56,7 +56,9 @@ async function run() {
     assert.strictEqual(writes.length, 1);
 
     const detail = load("src/components/wiki/consultation/ConsultationDetail.vue", {
-        "@tinymce/tinymce-vue": {}, "@jx3box/jx3box-editor/src/Article.vue": {}, "./ConsultationAchievements.vue": {},
+        "@/components/design/PvxSurface.vue": {},
+        "@tinymce/tinymce-vue": {}, "@jx3box/jx3box-editor/src/Article.vue": {}, "./ConsultationPlan.vue": {},
+        "@/components/wiki/progress/AchievementProgressPage.vue": {},
         "@/service/achievementConsultation": api,
         "@/utils/achievementWorkbench": { resolveAchievementWorkbenchDimensions: () => [] },
         "@/service/achievementWorkbench": { fetchAchievementWorkbenchCatalog: async () => ({ metadata: {}, menus: {} }),
@@ -64,10 +66,9 @@ async function run() {
     });
     const expert = instance(detail, { id: 1, $confirm: async () => {} });
     await expert.load();
-    assert.deepStrictEqual(expert.planIds, ["1", "3"]);
     assert.deepStrictEqual(expert.completedIds, [1, 2]);
-    expert.tab = "completed";
-    assert.deepStrictEqual(expert.visibleIds, [1, 2]);
+    expert.tab = "progress";
+    assert.deepStrictEqual(expert.progressSnapshot.completedIds, [1, 2]);
     expert.advice = "<p><strong>Start here</strong></p>";
     failReply = true;
     await expert.submit("reply");

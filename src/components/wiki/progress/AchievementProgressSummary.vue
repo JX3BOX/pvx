@@ -46,6 +46,7 @@ export default {
         WarningFilled,
     },
     props: {
+        showToolbar: { type: Boolean, default: true },
         collapsed: {
             type: Boolean,
             default: false,
@@ -132,7 +133,7 @@ export default {
         v-loading="loading"
         :aria-label="$t('pages.wiki.overview.ui.overview')"
     >
-        <div class="m-progress-rolebar">
+        <div v-if="showToolbar" class="m-progress-rolebar">
             <div class="m-progress-rolebar__control">
                 <span>{{ $t("pages.wiki.overview.ui.workbench.currentRole") }}</span>
                 <el-select

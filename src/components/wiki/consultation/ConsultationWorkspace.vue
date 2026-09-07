@@ -53,8 +53,11 @@ export default {
         <el-empty v-if="!checking && !authorized" :description="$t('achievementConsultation.expertOnly')" />
         <template v-if="authorized">
             <template v-if="detailId">
-                <router-link class="m-consultation-back" :to="{ name: 'consultation' }"><el-icon><ArrowLeft /></el-icon>{{ $t('achievementConsultation.back') }}</router-link>
-                <ConsultationDetail :key="detailId" :id="detailId" />
+                <ConsultationDetail :key="detailId" :id="detailId">
+                    <template #back>
+                        <router-link class="m-consultation-back" :to="{ name: 'consultation' }"><el-icon><ArrowLeft /></el-icon>{{ $t('achievementConsultation.back') }}</router-link>
+                    </template>
+                </ConsultationDetail>
             </template>
             <template v-else>
                 <header class="m-consultation-workspace-heading">
@@ -116,6 +119,7 @@ export default {
 .m-consultation-queue-date { font-size: 12px; color: #82908b; }
 .m-consultation-status { display: inline-block; padding: 3px 7px; border-radius: 4px; font-size: 12px; color: #7b8683; background: #f0f2f0; &.pending { color: #a07c35; background: #faf3e4; } &.answered { color: #47777d; background: #edf5f1; } }
 .m-consultation-open, .m-consultation-back { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
-.m-consultation-back { margin-bottom: 20px; }
+.m-consultation-back { flex: none; min-height: 36px; padding: 6px 11px; border: 1px solid rgba(71, 119, 125, 0.5); border-radius: 8px; background: rgba(255, 255, 255, 0.68); }
+.m-consultation-back:hover { border-color: #47777d; background: rgba(71, 119, 125, 0.08); }
 @media (max-width: 600px) { .m-consultation-toolbar { display: block; .el-select { width: 100%; margin-bottom: 12px; } } }
 </style>

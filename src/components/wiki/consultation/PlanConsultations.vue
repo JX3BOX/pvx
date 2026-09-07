@@ -11,9 +11,6 @@ export default {
     data: () => ({ rows: [], total: 0, pendingId: null, page: 1, loading: false, error: "", saving: false, dialog: false, detailId: null,
         experts: [], expertsLoading: false, expertsError: false, requestId: 0, expertRequestId: 0,
         form: { role_id: null, target_expert_id: null, question: "" } }),
-    computed: {
-        selectableExperts() { return this.experts.filter((expert) => String(expert.user_id) !== String(this.plan.raw?.user_id)); },
-    },
     watch: { 'plan.id': { immediate: true, handler() { this.dialog = false; this.detailId = null; this.page = 1; this.load(); } } },
     beforeUnmount() { this.requestId += 1; this.expertRequestId += 1; },
     methods: {
@@ -75,7 +72,7 @@ export default {
                 </el-select></el-form-item>
                 <el-form-item :label="$t('achievementConsultation.expert')"><el-select v-model="form.target_expert_id" :placeholder="$t('achievementConsultation.public')" filterable :loading="expertsLoading">
                     <el-option :value="null" :label="$t('achievementConsultation.public')" />
-                    <el-option v-for="expert in selectableExperts" :key="expert.user_id" :value="Number(expert.user_id)" :label="`${expert.user?.display_name || expert.user_id} (#${expert.user_id})`" />
+                    <el-option v-for="expert in experts" :key="expert.user_id" :value="Number(expert.user_id)" :label="`${expert.user?.display_name || expert.user_id} (#${expert.user_id})`" />
                 </el-select></el-form-item>
                 <el-button v-if="expertsError" @click="loadExperts">{{ $t('achievementConsultation.retryExperts') }}</el-button>
                 <el-form-item :label="$t('achievementConsultation.question')" required><el-input v-model="form.question" type="textarea" :rows="5" maxlength="2000" show-word-limit /></el-form-item>
