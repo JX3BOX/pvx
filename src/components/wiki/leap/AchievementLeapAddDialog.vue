@@ -14,6 +14,7 @@ export default {
     components: { AchievementSelectionBrowser },
     props: {
         modelValue: { type: Boolean, default: false },
+        filters: { type: Object, default: null },
         metadata: { type: Object, default: () => ({}) },
         menus: { type: Object, default: () => ({}) },
         maps: { type: Array, default: () => [] },
@@ -24,7 +25,7 @@ export default {
         selectedIds: { type: Array, default: () => [] },
         disabled: { type: Boolean, default: false },
     },
-    emits: ["update:modelValue", "add"],
+    emits: ["update:modelValue", "update:filters", "add"],
     data() {
         return {
             index: [],
@@ -38,10 +39,17 @@ export default {
             pageIds: [],
             contextId: 0,
             pageRequestId: 0,
-            filters: { keyword: "", mapIds: [], categories: [] },
+            localFilters: { keyword: "", mapIds: [], categories: [] },
         };
     },
     computed: {
+        selectionFilters: {
+            get() { return this.filters || this.localFilters; },
+            set(value) {
+                this.localFilters = value;
+                this.$emit("update:filters", value);
+            },
+        },
         visibleMetadata() {
             return Object.fromEntries(
                 Object.entries(this.metadata).filter(([, item]) => item?.visible === true)
@@ -91,7 +99,7 @@ export default {
             this.detailError = false;
             this.enrichmentFailedIds = [];
             this.pageIds = [];
-            this.filters = { keyword: "", mapIds: [], categories: [] };
+            this.localFilters = { keyword: "", mapIds: [], categories: [] };
             if (this.modelValue) this.loadIndex();
         },
         async loadIndex() {
@@ -231,7 +239,7 @@ export default {
         <p class="m-candidates-hint">{{ $t("achievementRecommendation.addAchievementsHint") }}</p>
         <AchievementSelectionBrowser
             v-if="modelValue"
-            v-model:filters="filters"
+            v-model:filters="selectionFilters"
             :index="index"
             :records="records"
             :maps="maps"

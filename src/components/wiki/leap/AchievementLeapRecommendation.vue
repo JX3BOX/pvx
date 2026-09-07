@@ -457,7 +457,7 @@ export default {
 </script>
 
 <template>
-    <div class="m-server-recommendation" :aria-label="$t('achievementRecommendation.preview')" :aria-busy="loading || detailsLoading">
+    <div class="m-server-recommendation" v-loading="loading" :aria-label="$t('achievementRecommendation.preview')" :aria-busy="loading || detailsLoading">
         <div ref="toolbar" class="m-recommendation-toolbar">
             <header class="m-server-recommendation__header">
                 <h2>{{ $t('achievementRecommendation.preview') }}</h2>
@@ -505,7 +505,7 @@ export default {
         </div>
         <p v-if="client !== 'std'" role="status">{{ $t('achievementRecommendation.stdOnly') }}</p>
         <p v-else-if="!roleAvailable" role="status">{{ $t('achievementRecommendation.roleRequired') }}</p>
-        <p v-else-if="loading" role="status">{{ $t('achievementRecommendation.loading') }}</p>
+        <div v-else-if="loading" class="m-recommendation-loading" />
         <el-alert v-else-if="error" :title="error" type="error" :closable="false" />
         <template v-else-if="recommendation">
             <div class="m-server-recommendation__summary">
@@ -531,8 +531,8 @@ export default {
                 </div>
             </details>
             <template v-if="tab === 'upcoming'">
-                <p v-if="eventTagsLoading" role="status">{{ $t('achievementRecommendation.loadingEventNames') }}</p>
-                <div v-else-if="eventTagsError" class="m-recommendation-difficulty-error" role="alert">
+
+                <div v-if="!eventTagsLoading && eventTagsError" class="m-recommendation-difficulty-error" role="alert">
                     <span>{{ $t('achievementRecommendation.eventNamesFailed') }}</span>
                     <el-button text :disabled="disabled" @click="loadEventTags">{{ $t('achievementRecommendation.retry') }}</el-button>
                 </div>
@@ -549,8 +549,8 @@ export default {
                     <template #prefix><Search /></template>
                 </el-input>
             </div>
-            <p v-if="filterIndexLoading" role="status">{{ $t('achievementRecommendation.loadingFilterIndex') }}</p>
-            <div v-else-if="filterIndexError" role="alert">
+
+            <div v-if="!filterIndexLoading && filterIndexError" role="alert">
                 {{ $t('achievementRecommendation.filterIndexFailed') }}
                 <el-button text @click="loadFilterIndex">{{ $t('achievementRecommendation.retry') }}</el-button>
             </div>
@@ -568,27 +568,26 @@ export default {
                 </nav>
                 <span>{{ $t('achievementRecommendation.visibleCount', { count: visibleRows.length }) }}</span>
             </div>
-            <div ref="results" class="m-server-recommendation__results">
-                <p v-if="hasFilters && !filterIndexReady" role="status">{{ $t(filterIndexError ? 'achievementRecommendation.filterIndexFailed' : 'achievementRecommendation.loadingFilterIndex') }}</p>
+            <div ref="results" class="m-server-recommendation__results" v-loading="filterIndexLoading || detailsLoading || difficultyStates[tab]?.loading || tagStates[tab]?.loading || eventTagsLoading">
+                <template v-if="hasFilters && !filterIndexReady"><p v-if="filterIndexError" role="status">{{ $t('achievementRecommendation.filterIndexFailed') }}</p></template>
                 <template v-else>
-                    <p v-if="difficultyStates[tab]?.loading" role="status">{{ $t('achievementRecommendation.loadingDifficulty') }}</p>
-                    <div v-else-if="difficultyStates[tab]?.error" class="m-recommendation-difficulty-error" role="alert">
+
+                    <div v-if="!difficultyStates[tab]?.loading && difficultyStates[tab]?.error" class="m-recommendation-difficulty-error" role="alert">
                         <span>{{ $t('achievementRecommendation.difficultyFailed') }}</span>
                         <el-button text :disabled="disabled" @click="loadDifficulty()">{{ $t('achievementRecommendation.retryDifficulty') }}</el-button>
                     </div>
-                    <p v-if="tagStates[tab]?.loading" role="status">{{ $t('achievementRecommendation.loadingTags') }}</p>
-                    <div v-else-if="tagStates[tab]?.error" class="m-recommendation-difficulty-error" role="alert">
+
+                    <div v-if="!tagStates[tab]?.loading && tagStates[tab]?.error" class="m-recommendation-difficulty-error" role="alert">
                         <span>{{ $t('achievementRecommendation.tagsFailed') }}</span>
                         <el-button text :disabled="disabled" @click="loadTags()">{{ $t('achievementRecommendation.retryTags') }}</el-button>
                     </div>
                     <AchievementRecommendationItems v-if="visibleRows.length" :items="visibleRows" :selected-ids="selectedIds"
                         :dimensions="dimensions" :disabled="disabled" :editable="tab === 'recommended'" @move="moveItem" @remove="requestAction('remove', $event, 'selected')" />
-                    <p v-if="detailsLoading" role="status">{{ $t('achievementRecommendation.loadingDetails', { count: loadedCount, total: matchingRows.length }) }}</p>
-                    <div v-else-if="detailsError" role="alert">
+                    <div v-if="!detailsLoading && detailsError" role="alert">
                         <p>{{ $t('achievementRecommendation.detailsFailed') }}</p>
                         <el-button :disabled="disabled" @click="loadDetails()">{{ $t('achievementRecommendation.retry') }}</el-button>
                     </div>
-                    <p v-else-if="!visibleRows.length" role="status">{{ $t(emptyMessage) }}</p>
+                    <p v-else-if="!detailsLoading && !visibleRows.length" role="status">{{ $t(emptyMessage) }}</p>
                 </template>
             </div>
         </template>
@@ -602,7 +601,7 @@ export default {
             @load-index="loadFilterIndex" @retry-details="loadDetails('candidates')"
             @retry-difficulty="loadDifficulty('candidates')" @retry-tags="loadTags('candidates')"
             @add="requestAction('add', $event, 'candidates')" @remove="requestAction('remove', $event, 'candidates')" />
-        <AchievementLeapAddDialog v-model="addVisible" :metadata="metadata" :menus="menus" :maps="maps"
+        <AchievementLeapAddDialog v-model="addVisible" v-model:filters="filters" :metadata="metadata" :menus="menus" :maps="maps"
             :completed-ids="completedIds" :school-eligibility="schoolEligibility" :client="client"
             :dimensions="dimensions" :selected-ids="[...selectedIds]" :disabled="disabled || pointsMissing"
             @add="requestManualAdd" />
@@ -619,6 +618,7 @@ export default {
     .el-button { margin: 0; min-height: 36px; height: auto; }
     :deep(.el-button > span) { white-space: normal; }
 }
+.m-recommendation-loading { min-height: 160px; }
 .m-server-recommendation { min-height: 0; min-width: 0; display: flex; flex-direction: column; color: #314043;
     padding-right: 4px;
     > * { flex-shrink: 0; min-width: 0; }
@@ -681,7 +681,7 @@ export default {
 .m-server-recommendation__counts { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; font-size: 12px; color: #697374; flex: none;
     strong { font-weight: 500; color: #47777d; }
 }
-.m-server-recommendation__results { flex: none; border-top: 1px solid #e2e8e6; }
+.m-server-recommendation__results { min-height: 100px; flex: none; border-top: 1px solid #e2e8e6; }
 .m-recommendation-difficulty-error { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 4px 10px; font-size: 13px; color: #ae3b40; }
 @media (max-width: @phone) {
     .m-server-recommendation {

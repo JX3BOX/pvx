@@ -113,11 +113,8 @@ export default {
         </div>
         <div ref="list" class="m-selection-browser-content" :aria-busy="loading">
             <slot name="status" />
-            <div v-if="loading" class="m-candidates-loading" :class="{ 'is-empty': !visibleRecords.length }" role="status">
+            <div v-if="loading" class="m-candidates-loading" :aria-label="$t('achievementRecommendation.loadingAchievements')" :class="{ 'is-empty': !visibleRecords.length }" role="status">
                 <el-icon class="is-loading" aria-hidden="true"><Loading /></el-icon>
-                <span>{{ pageIds.length
-                    ? $t('achievementRecommendation.loadingDetails', { count: visibleRecords.length, total: pageIds.length })
-                    : $t('achievementRecommendation.loadingAchievements') }}</span>
             </div>
             <AchievementRecommendationItems v-if="visibleRecords.length" :items="visibleRecords" :dimensions="dimensions"
                 :selected-ids="selectedIdSet" :editable="false" candidate-mode :removable="false"

@@ -860,7 +860,7 @@ export default {
         </PvxSurface>
 
         <PvxSurface v-else-if="pageLoading" class="m-leap-page-state is-loading" padding="none" v-loading="true">
-            <span>{{ $t("pages.wiki.leap.ui.workbench.loading") }}</span>
+
         </PvxSurface>
 
         <PvxSurface v-else-if="!roles.length" class="m-leap-page-state" padding="none">

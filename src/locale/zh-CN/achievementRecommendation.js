@@ -122,7 +122,7 @@ export default {
     cancelAction: "取消",
     confirmAddCount: "确认选入 {count} 项",
     confirmRemoveCount: "确认删除 {count} 项",
-    candidateHint: "候选与已入选共用筛选条件。移除后若预计资历不足，会从其余候选中自动补入；手动选入的项目会额外保留。",
+    candidateHint: "移除后若预计资历不足，会从其余候选中自动补入；手动选入的项目会额外保留。",
     confirmRemoveSelectedHint: "移除后回到候选，并保留其他已入选项目。预计资历低于目标时，会从其余候选按顺序补入；已移除的项目不会被自动选回。",
     selectionRemoved: "已将 {count} 项成就移回候选",
     selectionRefilled: "已将 {count} 项成就移回候选，自动补入 {filled} 项",

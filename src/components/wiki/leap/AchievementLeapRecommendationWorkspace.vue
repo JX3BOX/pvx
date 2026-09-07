@@ -156,17 +156,17 @@ export default {
                         <el-form-item :label="$t('achievementRecommendation.planTitle')">
                             <el-input :model-value="planTitle" maxlength="40" @update:model-value="$emit('update:planTitle', $event)" />
                         </el-form-item>
-                        <el-form-item :label="$t('achievementRecommendation.targetPoints')">
-                            <el-input-number
-                                :model-value="targetPoints" :min="1" :step="1000" :precision="0" controls-position="right"
-                                @update:model-value="$emit('update:targetPoints', $event)"
-                            />
-                        </el-form-item>
                         <el-form-item :label="$t('achievementRecommendation.chooseRole')">
                             <el-select :model-value="roleId" filterable :loading="roleLoading" :placeholder="$t('achievementRecommendation.chooseRole')"
                                 @update:model-value="$emit('role-change', $event)">
                                 <el-option v-for="role in roles" :key="role.id" :value="role.id" :label="[role.name, role.server].filter(Boolean).join(' · ')" />
                             </el-select>
+                        </el-form-item>
+                        <el-form-item :label="$t('achievementRecommendation.targetPoints')">
+                            <el-input-number
+                                :model-value="targetPoints" :min="1" :step="1000" :precision="0" controls-position="right"
+                                @update:model-value="$emit('update:targetPoints', $event)"
+                            />
                         </el-form-item>
                     </div>
                     <el-collapse v-model="expandedPreferences" class="m-recommendation-preferences">
@@ -263,7 +263,7 @@ export default {
 .m-recommendation-settings-toggle { display: none; }
 .m-recommendation-actions {
     position: sticky; bottom: 0; z-index: 6;
-    display: flex; justify-content: flex-end; padding: 12px 20px; margin-top: 12px;
+    display: flex; justify-content: center; padding: 12px 20px; margin-top: 12px;
     border: 1px solid #e2e8e6; border-radius: 10px; background: #fffdf9;
     .el-button { margin: 0; max-width: 100%; height: auto; min-height: 40px; }
     .el-button > span { white-space: normal; }

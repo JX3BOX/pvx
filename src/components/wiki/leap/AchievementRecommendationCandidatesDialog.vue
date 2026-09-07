@@ -80,9 +80,9 @@ export default {
         <div class="m-candidates-status">
             <span>{{ $t('achievementRecommendation.visibleCount', { count: items.length }) }}</span>
         </div>
-        <div v-if="loadingMessage" class="m-candidates-loading" :class="{ 'is-empty': waitingForIndex || !items.length }" role="status">
+        <div v-if="loadingMessage" class="m-candidates-loading" :aria-label="$t('achievementRecommendation.loadingAchievements')" :class="{ 'is-empty': waitingForIndex || !items.length }" role="status">
             <el-icon class="is-loading" aria-hidden="true"><Loading /></el-icon>
-            <span>{{ loadingMessage }}</span>
+
         </div>
         <div v-if="!filterIndexLoading && filterIndexError" class="m-candidates-error" role="alert">
             <span>{{ $t('achievementRecommendation.filterIndexFailed') }}</span>
