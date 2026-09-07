@@ -1,386 +1,259 @@
 <script>
-import { Plus, Search } from "@element-plus/icons-vue";
-import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
-import { markRaw } from "vue";
-import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
-import { getAchievementWorkbenchDimensionValue } from "@/utils/achievementWorkbench";
+import AchievementSelectionBrowser from "./AchievementSelectionBrowser.vue";
+import {
+    fetchAchievementWorkbenchRecordsBatched,
+    fetchAchievementWorkbenchDifficultyMetrics,
+    fetchAchievementWorkbenchTags,
+} from "@/service/achievementWorkbench";
+import { buildAchievementLeapCandidates } from "@/utils/achievementLeap";
+import { enrichAchievementRecommendationRecords } from "@/utils/achievementRecommendation";
+import { applyAchievementWorkbenchEnrichment } from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementLeapAddDialog",
-    components: {
-        AchievementDifficultyStars,
-        Plus,
-    },
+    components: { AchievementSelectionBrowser },
     props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        results: {
-            type: Array,
-            default: () => [],
-        },
-        dimensions: {
-            type: Array,
-            default: () => [],
-        },
-        selectedIds: {
-            type: Array,
-            default: () => [],
-        },
-        loading: {
-            type: Boolean,
-            default: false,
-        },
+        modelValue: { type: Boolean, default: false },
+        metadata: { type: Object, default: () => ({}) },
+        menus: { type: Object, default: () => ({}) },
+        maps: { type: Array, default: () => [] },
+        completedIds: { type: Array, default: () => [] },
+        schoolEligibility: { type: Object, default: null },
+        client: { type: String, default: "std" },
+        dimensions: { type: Array, default: () => [] },
+        selectedIds: { type: Array, default: () => [] },
+        disabled: { type: Boolean, default: false },
     },
-    emits: ["update:modelValue", "search", "add"],
+    emits: ["update:modelValue", "add"],
     data() {
         return {
-            searchIcon: markRaw(Search),
-            keyword: "",
-            searched: false,
+            index: [],
+            indexReady: false,
+            indexLoading: false,
+            indexError: false,
+            recordCache: {},
+            detailLoading: false,
+            detailError: false,
+            enrichmentFailedIds: [],
+            pageIds: [],
+            contextId: 0,
+            pageRequestId: 0,
+            filters: { keyword: "", mapIds: [], categories: [] },
         };
     },
     computed: {
-        selectedIdSet() {
-            return new Set(this.selectedIds.map(String));
+        visibleMetadata() {
+            return Object.fromEntries(
+                Object.entries(this.metadata).filter(([, item]) => item?.visible === true)
+            );
         },
-        visibleResults() {
-            return this.results.slice(0, 60);
+        records() {
+            return this.pageIds.map((id) => this.recordCache[id]).filter(Boolean);
         },
-        overallDimension() {
-            return this.dimensions.find((dimension) => dimension.key === "overall") || null;
+        enrichmentError() {
+            return this.pageIds.some((id) => this.enrichmentFailedIds.includes(id));
         },
     },
     watch: {
-        modelValue(value) {
-            if (!value) return;
-            this.keyword = "";
-            this.searched = false;
+        modelValue: {
+            immediate: true,
+            handler(value) {
+                if (value) this.loadIndex();
+            },
+        },
+        completedIds() {
+            this.resetContext();
+        },
+        client() {
+            this.resetContext();
+        },
+        schoolEligibility() {
+            this.resetContext();
+        },
+        metadata() {
+            this.resetContext();
         },
     },
+    beforeUnmount() {
+        this.contextId += 1;
+        this.pageRequestId += 1;
+    },
     methods: {
-        iconLink,
-        getLink,
-        close() {
-            this.$emit("update:modelValue", false);
+        resetContext() {
+            this.contextId += 1;
+            this.pageRequestId += 1;
+            this.index = [];
+            this.indexReady = false;
+            this.indexLoading = false;
+            this.indexError = false;
+            this.recordCache = {};
+            this.detailLoading = false;
+            this.detailError = false;
+            this.enrichmentFailedIds = [];
+            this.pageIds = [];
+            this.filters = { keyword: "", mapIds: [], categories: [] };
+            if (this.modelValue) this.loadIndex();
         },
-        submitSearch() {
-            const keyword = this.keyword.trim();
-            if (!keyword || this.loading) return;
-            this.searched = true;
-            this.$emit("search", keyword);
+        async loadIndex() {
+            if (this.indexReady || this.indexLoading) return;
+            const context = this.contextId;
+            this.indexLoading = true;
+            this.indexError = false;
+            try {
+                const candidates = buildAchievementLeapCandidates({
+                    metadata: this.visibleMetadata,
+                    menus: this.menus,
+                    completedIds: this.completedIds,
+                    schoolEligibility: this.schoolEligibility,
+                });
+                const records = await fetchAchievementWorkbenchRecordsBatched(
+                    {
+                        ids: candidates.map((item) => item.id),
+                        client: this.client,
+                        metadata: this.metadata,
+                        completedIds: this.completedIds,
+                        attributes: "ID,Name,ShortDesc,Sub,Detail,SceneID,dwMapID",
+                    },
+                    1000
+                );
+                if (context !== this.contextId) return;
+                const returnedIds = new Set(records.map((record) => record.id));
+                if (candidates.some((item) => !returnedIds.has(item.id)))
+                    throw new Error("Incomplete achievement catalog");
+                const allowed = buildAchievementLeapCandidates({
+                    metadata: this.visibleMetadata,
+                    menus: this.menus,
+                    completedIds: this.completedIds,
+                    schoolEligibility: this.schoolEligibility,
+                    records,
+                    allowedIds: records.map((record) => record.id),
+                });
+                this.index = enrichAchievementRecommendationRecords(allowed, this.menus, this.maps);
+                this.indexReady = true;
+            } catch (error) {
+                if (context === this.contextId) {
+                    this.indexError = true;
+                    console.error("Failed to load unfinished achievements:", error);
+                }
+            } finally {
+                if (context === this.contextId) this.indexLoading = false;
+            }
         },
-        isSelected(item) {
-            return this.selectedIdSet.has(String(item.id));
+        async loadPage(ids = this.pageIds, retry = false) {
+            this.pageIds = ids;
+            const request = ++this.pageRequestId;
+            const context = this.contextId;
+            const missing = ids.filter((id) => retry || !this.recordCache[id]);
+            this.detailLoading = Boolean(missing.length);
+            this.detailError = false;
+            if (!missing.length) return;
+            const client = this.client;
+            const current = () => context === this.contextId && request === this.pageRequestId;
+            const results = await Promise.allSettled([
+                fetchAchievementWorkbenchRecordsBatched({
+                    ids: missing,
+                    client,
+                    metadata: this.metadata,
+                    completedIds: this.completedIds,
+                }),
+                fetchAchievementWorkbenchDifficultyMetrics(missing, { client }),
+                fetchAchievementWorkbenchTags(missing, { client }),
+            ]);
+            if (!current()) return;
+            const [details, difficulty, tags] = results;
+            if (details.status === "fulfilled") {
+                const allowedIds = new Set(this.index.map((item) => item.id));
+                const records = enrichAchievementRecommendationRecords(
+                    details.value.filter((item) => allowedIds.has(item.id)),
+                    this.menus,
+                    this.maps
+                );
+                const enriched = applyAchievementWorkbenchEnrichment(records, {
+                    difficultyById: difficulty.status === "fulfilled" ? difficulty.value : {},
+                    tagsById: tags.status === "fulfilled" ? tags.value : {},
+                });
+                enriched.forEach((record) => {
+                    this.recordCache[record.id] = record;
+                });
+                this.detailError = missing.some((id) => !this.recordCache[id]);
+            } else {
+                this.detailError = true;
+                console.error("Failed to load achievement details:", details.reason);
+            }
+            const failed = difficulty.status === "rejected" || tags.status === "rejected";
+            this.enrichmentFailedIds = [
+                ...new Set([
+                    ...this.enrichmentFailedIds.filter((id) => !missing.includes(id)),
+                    ...(failed ? missing : []),
+                ]),
+            ];
+            this.detailLoading = false;
         },
-        formatNumber(value) {
-            return Number(value || 0).toLocaleString();
+        retry() {
+            if (this.indexError) this.loadIndex();
+            else this.loadPage(this.pageIds, true);
         },
-        getDimensionValue(item, key) {
-            return getAchievementWorkbenchDimensionValue(item, key);
-        },
-        dimensionLabel(dimension) {
-            if (dimension?.i18nKey) return this.$t(dimension.i18nKey);
-            return dimension?.label || dimension?.key || "";
+        add(item) {
+            const id = String(item.id);
+            if (
+                this.disabled ||
+                this.selectedIds.map(String).includes(id) ||
+                !this.index.some((record) => record.id === id)
+            )
+                return;
+            const [candidate] = buildAchievementLeapCandidates({
+                metadata: this.visibleMetadata,
+                menus: this.menus,
+                completedIds: this.completedIds,
+                schoolEligibility: this.schoolEligibility,
+                records: [item],
+                allowedIds: [id],
+            });
+            // The editor's route summaries also require normalized cost and duration fields.
+            if (candidate) this.$emit("add", { ...item, ...candidate });
         },
     },
 };
 </script>
 
 <template>
-    <el-dialog
+    <el-dialog draggable
         :model-value="modelValue"
-        class="c-leap-add-dialog"
-        width="760px"
+        class="c-leap-add-dialog m-recommendation-candidates-dialog"
+        width="1100px"
+        top="6vh"
         append-to-body
         destroy-on-close
-        :title="$t('pages.wiki.leap.ui.workbench.addRouteItems')"
+        :close-on-click-modal="false"
+        :title="$t('achievementRecommendation.addAchievements')"
         @update:model-value="$emit('update:modelValue', $event)"
     >
-        <div class="m-leap-add-dialog">
-            <p>{{ $t("pages.wiki.leap.ui.workbench.addRouteItemsDescription") }}</p>
-            <div class="m-leap-add-dialog__search">
-                <el-input
-                    v-model="keyword"
-                    clearable
-                    :prefix-icon="searchIcon"
-                    :placeholder="$t('pages.wiki.leap.ui.workbench.searchRouteItemsToAdd')"
-                    @keyup.enter="submitSearch"
-                />
-                <button type="button" :disabled="!keyword.trim() || loading" @click="submitSearch">
-                    {{
-                        loading
-                            ? $t("pages.wiki.leap.ui.workbench.searchingRouteItems")
-                            : $t("pages.wiki.leap.ui.workbench.searchRouteItems")
-                    }}
-                </button>
-            </div>
-
-            <div v-if="visibleResults.length" class="m-leap-add-dialog__results" v-loading="loading">
-                <article v-for="item in visibleResults" :key="item.id">
-                    <a :href="getLink('achievement', item.id)" target="_blank" rel="noopener noreferrer">
-                        <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" />
-                        <span>
-                            <strong>{{ item.name || item.id }}</strong>
-                            <small v-if="item.shortDescription" class="u-leap-add-description">{{ item.shortDescription }}</small>
-                            <small>{{ item.category?.subName || item.category?.name || "—" }}</small>
-                        </span>
-                    </a>
-                    <div class="m-leap-add-dialog__meta">
-                        <span>+{{ formatNumber(item.points) }}</span>
-                        <small v-if="overallDimension">
-                            <AchievementDifficultyStars
-                                :value="getDimensionValue(item, overallDimension.key)"
-                                :dimension-key="overallDimension.key"
-                                :score-labels="overallDimension.scoreLabels"
-                                :label="dimensionLabel(overallDimension)"
-                            />
-                        </small>
-                    </div>
-                    <button type="button" :disabled="isSelected(item)" @click="$emit('add', item)">
-                        <Plus />
-                        {{
-                            isSelected(item)
-                                ? $t("pages.wiki.leap.ui.workbench.routeItemAdded")
-                                : $t("pages.wiki.leap.ui.workbench.addRouteItem")
-                        }}
-                    </button>
-                </article>
-            </div>
-
-            <div v-else class="m-leap-add-dialog__empty" v-loading="loading">
-                {{
-                    searched
-                        ? $t("pages.wiki.leap.ui.workbench.noRouteItemsToAdd")
-                        : $t("pages.wiki.leap.ui.workbench.addRouteItemsSearchHint")
-                }}
-            </div>
-        </div>
-        <template #footer>
-            <button type="button" class="u-leap-add-dialog-close" @click="close">
-                {{ $t("pages.wiki.leap.ui.workbench.finishAdding") }}
-            </button>
-        </template>
+        <p class="m-candidates-hint">{{ $t("achievementRecommendation.addAchievementsHint") }}</p>
+        <AchievementSelectionBrowser
+            v-if="modelValue"
+            v-model:filters="filters"
+            :index="index"
+            :records="records"
+            :maps="maps"
+            :dimensions="dimensions"
+            :selected-ids="selectedIds"
+            :disabled="disabled"
+            :loading="indexLoading || detailLoading"
+            :error="indexError || detailError"
+            @visible-ids="loadPage"
+            @retry="retry"
+            @add="add"
+        >
+            <template #status>
+                <p v-if="enrichmentError" class="m-candidates-hint" role="status">
+                    {{ $t("achievementRecommendation.enrichmentFailed") }}
+                    <el-button text @click="loadPage(pageIds, true)">{{
+                        $t("achievementRecommendation.retry")
+                    }}</el-button>
+                </p>
+            </template>
+        </AchievementSelectionBrowser>
     </el-dialog>
 </template>
 
-<style lang="less">
-.c-leap-add-dialog {
-    max-width: calc(100vw - 32px);
-    box-sizing: border-box;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog {
-    display: grid;
-    min-width: 0;
-    gap: 14px;
-    color: #405052;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog > p {
-    margin: 0;
-    color: #7b8586;
-    line-height: 1.65;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__search {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 10px;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__search > button,
-.c-leap-add-dialog .u-leap-add-dialog-close,
-.c-leap-add-dialog .m-leap-add-dialog__results article > button {
-    display: inline-flex;
-    min-height: 38px;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 8px 14px;
-    border: 1px solid #47777d;
-    border-radius: 8px;
-    color: #fff;
-    background: #47777d;
-    cursor: pointer;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__search > button:disabled,
-.c-leap-add-dialog .m-leap-add-dialog__results article > button:disabled {
-    border-color: #b7c0c0;
-    color: #fff;
-    background: #b7c0c0;
-    cursor: not-allowed;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results {
-    display: grid;
-    max-height: min(520px, 60vh);
-    gap: 8px;
-    padding-right: 4px;
-    overflow-y: auto;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results article {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border: 1px solid rgba(70, 91, 90, 0.12);
-    border-radius: 10px;
-    background: #fffdf8;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results article > a {
-    display: flex;
-    min-width: 0;
-    align-items: flex-start;
-    gap: 10px;
-    color: #34484a;
-    text-decoration: none;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results img {
-    width: 42px;
-    height: 42px;
-    flex: 0 0 auto;
-    border-radius: 8px;
-    object-fit: cover;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results a > span {
-    display: grid;
-    min-width: 0;
-    gap: 3px;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results strong,
-.c-leap-add-dialog .m-leap-add-dialog__results small {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results small {
-    color: #899293;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results .u-leap-add-description {
-    white-space: pre-line;
-    overflow-wrap: anywhere;
-    line-height: 1.5;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__meta {
-    display: grid;
-    min-width: 84px;
-    gap: 3px;
-    color: #a88139;
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__meta small {
-    color: #93805e;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__results svg {
-    width: 14px;
-}
-
-.c-leap-add-dialog .m-leap-add-dialog__empty {
-    display: flex;
-    min-height: 160px;
-    align-items: center;
-    justify-content: center;
-    border: 1px dashed rgba(70, 91, 90, 0.22);
-    border-radius: 10px;
-    color: #929a9b;
-    text-align: center;
-}
-
-.c-leap-add-dialog .u-leap-add-dialog-close {
-    color: #47777d;
-    background: transparent;
-}
-
-@media (max-width: @phone) {
-    .c-leap-add-dialog {
-        display: flex;
-        flex-direction: column;
-        margin-block: 16px;
-        padding: 16px;
-        max-height: calc(100vh - 32px);
-        max-height: calc(100dvh - 32px);
-
-        .el-dialog__header {
-            flex: none;
-            padding-right: 32px;
-        }
-
-        .el-dialog__title {
-            overflow-wrap: anywhere;
-        }
-
-        .el-dialog__body {
-            min-height: 0;
-            overflow-y: auto;
-            overscroll-behavior: contain;
-        }
-
-        .el-dialog__footer {
-            flex: none;
-        }
-
-        .el-input__wrapper {
-            min-height: 42px;
-            box-sizing: border-box;
-        }
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__search,
-    .c-leap-add-dialog .m-leap-add-dialog__results article {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__results article > button {
-        min-height: 44px;
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__results {
-        max-height: none;
-        padding-right: 0;
-        overflow: visible;
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__results article {
-        min-width: 0;
-        gap: 10px;
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__results strong,
-    .c-leap-add-dialog .m-leap-add-dialog__results small,
-    .c-leap-add-dialog .m-leap-add-dialog > p {
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__meta {
-        display: flex;
-        min-width: 0;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-        text-align: left;
-    }
-
-    .c-leap-add-dialog .m-leap-add-dialog__search > button,
-    .c-leap-add-dialog .u-leap-add-dialog-close {
-        width: 100%;
-        min-height: 44px;
-        box-sizing: border-box;
-    }
-}
-</style>
+<style lang="less" src="@/assets/css/modules/achievement-selection-dialog.less"></style>

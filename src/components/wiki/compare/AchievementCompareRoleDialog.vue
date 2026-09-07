@@ -105,7 +105,7 @@ export default {
 </script>
 
 <template>
-    <el-dialog
+    <el-dialog draggable
         :model-value="modelValue"
         class="m-achievement-compare-role-dialog"
         :title="$t('pages.wiki.compare.ui.actions.addRole')"

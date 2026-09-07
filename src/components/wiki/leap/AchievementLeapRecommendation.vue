@@ -1,11 +1,12 @@
 <script>
-import { Search, Refresh, Back } from "@element-plus/icons-vue";
+import { Search, Refresh, Back, Plus } from "@element-plus/icons-vue";
 import { fetchAchievementWorkbenchRecordsBatched, fetchAchievementWorkbenchDifficultyMetrics,
     fetchAchievementWorkbenchTags, fetchAchievementWorkbenchTag } from "@/service/achievementWorkbench";
 import { applyAchievementWorkbenchEnrichment, normalizeAchievementWorkbenchTags } from "@/utils/achievementWorkbench";
 import AchievementRecommendationItems from "./AchievementRecommendationItems.vue";
 import AchievementRecommendationCandidatesDialog from "./AchievementRecommendationCandidatesDialog.vue";
 import AchievementRecommendationActionDialog from "./AchievementRecommendationActionDialog.vue";
+import AchievementLeapAddDialog from "./AchievementLeapAddDialog.vue";
 import {
     flattenAchievementRecommendation, hydrateAchievementRecommendation, arrangeAchievementRecommendationGroups,
     resolveAchievementRecommendationSelection,
@@ -20,7 +21,7 @@ const exclusionReasons = new Set(["completed", "dependency_or_series", "mount_or
 
 export default {
     name: "AchievementLeapRecommendation",
-    components: { Search, Refresh, Back, AchievementRecommendationItems, AchievementRecommendationCandidatesDialog, AchievementRecommendationActionDialog },
+    components: { Search, Refresh, Back, Plus, AchievementLeapAddDialog, AchievementRecommendationItems, AchievementRecommendationCandidatesDialog, AchievementRecommendationActionDialog },
     props: {
         dimensions: { type: Array, default: () => [] },
         hasRequested: { type: Boolean, default: false },
@@ -32,13 +33,15 @@ export default {
         client: { type: String, default: "std" },
         error: { type: String, default: "" },
         metadata: { type: Object, default: () => ({}) },
+        completedIds: { type: Array, default: () => [] },
+        schoolEligibility: { type: Object, default: null },
         menus: { type: Object, default: () => ({}) },
         maps: { type: Array, default: () => [] },
         targetPoints: { type: Number, required: true },
     },
     emits: ["selection-change", "refresh"],
     data() {
-        return { tab: "recommended", candidatesVisible: false, selectedDraftIds: null, autoFillExcludedIds: [], pendingAction: null, actionNotice: "", groups: [], recordCache: {}, filters: emptyFilters(),
+        return { tab: "recommended", candidatesVisible: false, addVisible: false, selectedDraftIds: null, autoFillExcludedIds: [], pendingAction: null, groups: [], recordCache: {}, filters: emptyFilters(),
             detailStates: {}, difficultyCache: {}, difficultyStates: {}, contextId: 0, requestId: 0,
             tagCache: {}, tagStates: {}, eventTagCache: {}, eventTagsLoading: false, eventTagsError: false,
             filterIndex: {}, filterIndexReady: false, filterIndexLoading: false, filterIndexError: false };
@@ -86,10 +89,12 @@ export default {
         candidateDetailRows() { return this.candidatesVisible ? this.matchingCandidates : []; },
         visibleCandidates() { return this.hydrateRows(this.matchingCandidates); },
         originalGroupById() {
-            return Object.fromEntries((this.recommendation?.recommendations || []).flatMap(({ group, ids }) => ids.map((id) => [String(id), group])));
+            return Object.fromEntries([...this.draftRows.map((row) => [row.id, row.recommendationGroup]),
+                ...(this.recommendation?.recommendations || []).flatMap(({ group, ids }) => ids.map((id) => [String(id), group]))]);
         },
         relatedActionRows() {
             if (!this.pendingAction) return [];
+            if (this.pendingAction.source === "manual") return [this.pendingAction.item];
             const group = this.originalGroupById[this.pendingAction.id];
             const key = achievementRecommendationPlace(group) || group;
             const rows = this.pendingAction.source === "selected" ? this.draftRows.filter((row) => this.selectedIds.has(row.id)) : this.candidateRows;
@@ -104,7 +109,7 @@ export default {
         },
         actionItems() {
             return this.actionRows.map((row) => ({ ...row, selected: this.selectedIds.has(row.id),
-                name: this.recordCache[row.id]?.name || this.filterIndex[row.id]?.name || `#${row.id}` }));
+                name: row.name || this.recordCache[row.id]?.name || this.filterIndex[row.id]?.name || `#${row.id}` }));
         },
         actionMissingPointId() {
             return this.pendingAction?.type === "add" ? this.actionRows.find((row) => {
@@ -186,10 +191,10 @@ export default {
             this.selectedDraftIds = null;
             this.autoFillExcludedIds = [];
             this.pendingAction = null;
-            this.actionNotice = "";
             this.filters = emptyFilters();
             this.tab = "recommended";
             this.candidatesVisible = false;
+            this.addVisible = false;
             this.resetScroll();
         },
         restoreDraft() { if (!this.disabled) this.resetDraft(); },
@@ -221,6 +226,14 @@ export default {
         },
         rowsForScope(scope) { return scope === "candidates" ? this.matchingCandidates : this.matchingRows; },
         scopeActive(scope) { return scope === "candidates" ? this.candidatesVisible : scope === this.tab; },
+        requestManualAdd(item) {
+            const id = String(item.id);
+            if (this.disabled || this.pointsMissing || !this.addVisible || this.tab !== "recommended" ||
+                this.selectedIds.has(id) || this.completedIds.map(String).includes(id)) return;
+            const point = this.metadata[id]?.point;
+            if (!Number.isFinite(point) || point <= 0 || Number(this.metadata[id]?.general) !== 1) return;
+            this.pendingAction = { type: "add", id, source: "manual", scope: "single", item: { ...item, id } };
+        },
         requestAction(type, item, source) {
             if (this.disabled || this.tab !== "recommended" || !["add", "remove"].includes(type)) return;
             if (!["selected", "candidates"].includes(source) || (type === "add" && source !== "candidates")) return;
@@ -236,6 +249,19 @@ export default {
             const selected = this.selectedItems.map((item) => item.id);
             let filled = 0;
             if (type === "add") {
+                if (this.pendingAction.source === "manual") {
+                    const item = this.pendingAction.item;
+                    if (this.completedIds.map(String).includes(item.id) || this.selectedIds.has(item.id)) { this.pendingAction = null; return; }
+                    // Only confirmation extends the draft; cancelled additions leave membership untouched.
+                    this.recordCache[item.id] = item;
+                    this.filterIndex[item.id] = item;
+                    if (!this.draftRows.some((row) => row.id === item.id)) {
+                        const group = this.originalGroupById[item.id] || `manual:${item.id}`;
+                        const existing = this.groups.find((entry) => entry.group === group);
+                        this.groups = existing ? this.groups.map((entry) => entry === existing ? { ...entry, ids: [...entry.ids, item.id] } : entry)
+                            : [...this.groups, { group, ids: [item.id] }];
+                    }
+                }
                 this.selectedDraftIds = [...new Set([...selected, ...ids])];
                 this.autoFillExcludedIds = this.autoFillExcludedIds.filter((id) => !ids.has(id));
             } else if (this.pendingAction.source === "selected") filled = this.removeSelectedItems(ids);
@@ -244,10 +270,11 @@ export default {
                 this.groups = this.groups.map((group) => ({ ...group, ids: group.ids.filter((id) => !ids.has(String(id))) }))
                     .filter((group) => group.ids.length);
             }
-            this.actionNotice = this.$t(type === "add" ? "achievementRecommendation.candidatesAdded"
+            const message = this.$t(type === "add" ? "achievementRecommendation.candidatesAdded"
                 : this.pendingAction.source === "selected" ? (filled ? "achievementRecommendation.selectionRefilled" : "achievementRecommendation.selectionRemoved")
                     : "achievementRecommendation.candidatesRemoved", { count: ids.size, filled });
             this.pendingAction = null;
+            this.$message.success(message);
         },
         removeSelectedItems(ids) {
             const removed = new Set([...ids].map(String));
@@ -273,7 +300,7 @@ export default {
         async loadFilterIndex() {
             if (!this.recommendation || this.filterIndexReady || this.filterIndexLoading) return;
             const contextId = this.contextId;
-            const ids = [...new Set([...flattenAchievementRecommendation(this.recommendation), ...this.upcomingRows].map((row) => row.id))];
+            const ids = [...new Set([...this.draftRows, ...this.upcomingRows].map((row) => row.id))];
             this.filterIndexLoading = true;
             this.filterIndexError = false;
             try {
@@ -282,12 +309,12 @@ export default {
                 for (let start = 0; start < ids.length; start += 1000) {
                     const batch = ids.slice(start, start + 1000);
                     const result = await fetchAchievementWorkbenchRecordsBatched({ ids: batch, client: "std", includeHidden: true,
-                        attributes: "ID,Name,Sub,Detail,SceneID,dwMapID" }, 1000);
+                        attributes: "ID,Name,ShortDesc,Sub,Detail,SceneID,dwMapID" }, 1000);
                     if (contextId !== this.contextId) return;
                     hydrateAchievementRecommendation(batch.map((id) => ({ id })), result);
                     records.push(...result);
                 }
-                this.filterIndex = Object.fromEntries(enrichAchievementRecommendationRecords(records, this.menus, this.maps).map((record) => [record.id, record]));
+                this.filterIndex = { ...this.filterIndex, ...Object.fromEntries(enrichAchievementRecommendationRecords(records, this.menus, this.maps).map((record) => [record.id, record])) };
                 this.filterIndexReady = true;
             } catch (error) {
                 if (contextId === this.contextId) { this.filterIndexError = true; console.error("Failed to load recommendation filter index:", error); }
@@ -464,10 +491,15 @@ export default {
                         </template>
                         <span v-else>{{ $t('achievementRecommendation.selectionUnavailable') }}</span>
                     </div>
+                    <div class="m-recommendation-selection__actions">
                     <el-button class="m-recommendation-candidates-button" plain type="primary" :disabled="disabled || pointsMissing"
                         @click="candidatesVisible = true">
                         {{ $t('achievementRecommendation.viewCandidatesCount', { count: pointsMissing ? '—' : formatNumber(candidateRows.length) }) }}
                     </el-button>
+                    <el-button type="primary" :disabled="disabled || pointsMissing" @click="addVisible = true">
+                        <el-icon><Plus /></el-icon>{{ $t('achievementRecommendation.addAchievements') }}
+                    </el-button>
+                    </div>
                 </div>
                 <div class="m-server-recommendation__counts">
                     <nav class="m-recommendation-view-scope" :aria-label="$t('achievementRecommendation.viewScope')">
@@ -540,7 +572,6 @@ export default {
                 <el-button text @click="loadFilterIndex">{{ $t('achievementRecommendation.retry') }}</el-button>
             </div>
             <p v-if="tab === 'recommended'" class="m-recommendation-candidate-hint">{{ $t('achievementRecommendation.candidateHint') }}</p>
-            <p v-if="actionNotice && !candidatesVisible" class="m-recommendation-candidate-hint" role="status">{{ actionNotice }}</p>
             <el-alert v-if="pointsMissing" :title="$t('achievementRecommendation.pointsMissing', { id: selectionResult.missingPointId })" type="error" :closable="false" />
             <div ref="results" class="m-server-recommendation__results">
                 <p v-if="hasFilters && !filterIndexReady" role="status">{{ $t(filterIndexError ? 'achievementRecommendation.filterIndexFailed' : 'achievementRecommendation.loadingFilterIndex') }}</p>
@@ -567,15 +598,19 @@ export default {
             </div>
         </template>
         <AchievementRecommendationCandidatesDialog v-model="candidatesVisible" v-model:filters="filters"
-            :notice="actionNotice"
+            :filter-options="filterOptions"
             :items="visibleCandidates" :total="candidateRows.length" :matching-count="matchingCandidates.length"
-            :dimensions="dimensions" :disabled="disabled" :metadata="metadata" :filter-options="filterOptions"
+            :dimensions="dimensions" :disabled="disabled" :metadata="metadata"
             :filter-index-loading="filterIndexLoading" :filter-index-error="filterIndexError"
             :waiting-for-index="hasFilters && !filterIndexReady"
             :detail-state="detailStates.candidates" :difficulty-state="difficultyStates.candidates" :tag-state="tagStates.candidates"
             @load-index="loadFilterIndex" @retry-details="loadDetails('candidates')"
             @retry-difficulty="loadDifficulty('candidates')" @retry-tags="loadTags('candidates')"
             @add="requestAction('add', $event, 'candidates')" @remove="requestAction('remove', $event, 'candidates')" />
+        <AchievementLeapAddDialog v-model="addVisible" :metadata="metadata" :menus="menus" :maps="maps"
+            :completed-ids="completedIds" :school-eligibility="schoolEligibility" :client="client"
+            :dimensions="dimensions" :selected-ids="[...selectedIds]" :disabled="disabled || pointsMissing"
+            @add="requestManualAdd" />
         <AchievementRecommendationActionDialog v-if="pendingAction" :action="pendingAction.type" :scope="pendingAction.scope"
             :source="pendingAction.source"
             :items="actionItems" :related-count="relatedActionRows.length" :missing-point-id="actionMissingPointId" :disabled="disabled"
@@ -584,6 +619,11 @@ export default {
 </template>
 
 <style lang="less" scoped>
+.m-recommendation-selection__actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    .el-button { margin: 0; min-height: 36px; height: auto; }
+    :deep(.el-button > span) { white-space: normal; }
+}
 .m-server-recommendation { height: 100%; min-height: 0; min-width: 0; display: flex; flex-direction: column; color: #314043;
     overflow-y: auto; overscroll-behavior: contain; padding-right: 4px;
     > * { flex-shrink: 0; min-width: 0; }
@@ -680,6 +720,8 @@ export default {
         .m-server-recommendation__header { flex-wrap: nowrap; }
         .m-recommendation-selection { padding: 8px; gap: 4px; }
     }
+    .m-recommendation-selection__summary { flex-basis: 100%; }
+    .m-recommendation-selection__actions { width: 100%; .el-button { flex: 1; } }
 
 
     .m-server-recommendation__filters {

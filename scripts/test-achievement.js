@@ -8,6 +8,7 @@ const suites = [
     "progress",
     "compare",
     "leap",
+    "browser",
     "service",
     "recommendation",
     "recommendation-tags",

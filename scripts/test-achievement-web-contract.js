@@ -375,11 +375,13 @@ assert.doesNotMatch(leapRouteTable, /compareNullable\(left\.estimatedMinutes, ri
 assert.match(leapEnrichmentSource, /this\.maps/);
 assert.match(leapEnrichmentSource, /item\.map\?\.id/);
 assert.match(leapEnrichmentSource, /mapById\.get\(/);
-assert.ok(leapAddDialog.includes("AchievementDifficultyStars"));
-assert.match(leapAddDialog, /v-if="item\.shortDescription"/);
-assert.ok(leapAddDialog.includes("overallDimension()"));
-assert.ok(leapAddDialog.includes('v-if="overallDimension"'));
-assert.doesNotMatch(leapAddDialog, /Math\.round|\.repeat\(stars\)/);
+assert.ok(leapAddDialog.includes("AchievementSelectionBrowser"));
+const selectionBrowser = read("src/components/wiki/leap/AchievementSelectionBrowser.vue");
+assert.ok(selectionBrowser.includes("AchievementRecommendationItems"));
+assert.ok(selectionBrowser.includes("m-candidates-filters"));
+assert.ok(selectionBrowser.includes("selectedIdSet"));
+assert.ok(leapAddDialog.includes("completedIds"));
+assert.doesNotMatch(leapAddDialog, /slice\(0, 60\)/);
 assert.match(leapRecommendationSource, /fetchAchievementWorkbenchRecommendation\(/);
 assert.doesNotMatch(leapRecommendationSource, /fetchAchievementWorkbenchDifficulty\(/);
 assert.doesNotMatch(leapRecommendationSource, /fetchAchievementWorkbenchDifficultyMetrics\(/);

@@ -24,6 +24,8 @@ export default {
         client: { type: String, default: "std" },
         error: { type: String, default: "" },
         metadata: { type: Object, default: () => ({}) },
+        completedIds: { type: Array, default: () => [] },
+        schoolEligibility: { type: Object, default: null },
         maps: { type: Array, default: () => [] },
         menus: { type: Object, default: () => ({}) },
     },
@@ -196,6 +198,7 @@ export default {
                     :recommendation="recommendation" :loading="loading" :disabled="disabled"
                     :role-available="roleAvailable" :client="client" :error="error" :metadata="metadata" :maps="maps"
                     :menus="menus" :target-points="targetPoints"
+                    :completed-ids="completedIds" :school-eligibility="schoolEligibility"
                     :dimensions="visibleDimensions" :has-requested="hasRequested" :can-request="canRequest"
                     @refresh="requestRecommendation"
                     @selection-change="selection = $event"
@@ -282,6 +285,9 @@ export default {
         > span { color: #314043; overflow-wrap: anywhere; }
     }
     .m-recommendation-dimension-options {
+        --el-radio-button-checked-bg-color: #47777d;
+        --el-radio-button-checked-text-color: #fff;
+        --el-radio-button-checked-border-color: #47777d;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 4px;
@@ -303,16 +309,35 @@ export default {
             line-height: 1.5;
             white-space: normal;
             overflow-wrap: anywhere;
+            color: #586669;
+            background: #fff;
+            transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
         }
-        .el-radio-button.is-active .el-radio-button__inner {
-            border-color: var(--el-color-primary);
-            background: var(--el-color-primary-light-9);
-            color: var(--el-color-primary);
+        .el-radio-button.is-active .el-radio-button__original-radio:not(:disabled) + .el-radio-button__inner {
+            border-color: #47777d;
+            background: #47777d;
+            color: #fff;
+            box-shadow: none;
         }
         .el-radio-button.is-disabled .el-radio-button__inner { opacity: 0.6; }
-        .el-radio-button:focus-within .el-radio-button__inner {
-            outline: 2px solid var(--el-color-primary);
-            outline-offset: -3px;
+        .el-radio-button__original-radio:focus-visible + .el-radio-button__inner {
+            outline: 2px solid #75989c;
+            outline-offset: 2px;
+        }
+        @media (hover: hover) {
+            .el-radio-button__original-radio:not(:disabled) + .el-radio-button__inner:hover {
+                border-color: #a3bbbe;
+                background: #edf2f2;
+                color: #365f64;
+            }
+            .el-radio-button.is-active .el-radio-button__original-radio:not(:disabled) + .el-radio-button__inner:hover {
+                border-color: #365f64;
+                background: #365f64;
+                color: #fff;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .el-radio-button__inner { transition: none; }
         }
     }
 }

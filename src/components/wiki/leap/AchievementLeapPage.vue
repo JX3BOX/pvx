@@ -28,7 +28,6 @@ import {
     fetchAchievementWorkbenchRecommendation,
     fetchAchievementWorkbenchTags,
     saveAchievementWorkbenchLeapPlan,
-    searchAchievementWorkbenchRecords,
 } from "@/service/achievementWorkbench";
 import {
     addAchievementLeapRouteItem,
@@ -87,7 +86,6 @@ export default {
             plansLoading: false,
             detailLoading: false,
             recommendationLoading: false,
-            addSearchLoading: false,
             saving: false,
             menus: {},
             metadata: {},
@@ -121,13 +119,11 @@ export default {
             detailClientMismatch: null,
             saveDialogVisible: false,
             addDialogVisible: false,
-            addSearchResults: [],
             pageRequestId: 0,
             roleRequestId: 0,
             plansRequestId: 0,
             detailRequestId: 0,
             recommendationRequestId: 0,
-            addSearchRequestId: 0,
             editorRequestId: 0,
             saveRequestId: 0,
         };
@@ -177,6 +173,10 @@ export default {
         generatedRouteIds() {
             return (this.generatedRoute?.items || []).map((item) => String(item.id));
         },
+        recommendationEntryDisabled() {
+            return Boolean(this.editingPlan || this.generatedRoute || this.currentClient !== "std" ||
+                this.roleLoading || this.saving || !this.currentRole?.roleId);
+        },
     },
     watch: {
         currentClient(nextClient, previousClient) {
@@ -187,7 +187,7 @@ export default {
         detailId: {
             handler(id) {
                 this.detailRequestId += 1;
-                this.editorRequestId += 1;
+            this.editorRequestId += 1;
                 this.detailLoading = false;
                 this.detailPlan = null;
                 this.detailRoute = null;
@@ -205,7 +205,6 @@ export default {
         this.plansRequestId += 1;
         this.detailRequestId += 1;
         this.recommendationRequestId += 1;
-        this.addSearchRequestId += 1;
         this.editorRequestId += 1;
         this.saveRequestId += 1;
     },
@@ -241,14 +240,12 @@ export default {
             this.plansRequestId += 1;
             this.detailRequestId += 1;
             this.recommendationRequestId += 1;
-            this.addSearchRequestId += 1;
             this.editorRequestId += 1;
             this.saveRequestId += 1;
             this.roleLoading = false;
             this.plansLoading = false;
             this.detailLoading = false;
             this.recommendationLoading = false;
-            this.addSearchLoading = false;
             this.saving = false;
             this.menus = {};
             this.metadata = {};
@@ -263,7 +260,6 @@ export default {
             this.detailPlan = null;
             this.detailRoute = null;
             this.detailClientMismatch = null;
-            this.addSearchResults = [];
             this.recommendation = null;
             this.recommendationDrawerVisible = false;
             this.recommendationOptions = defaultAchievementRecommendationOptions();
@@ -365,7 +361,6 @@ export default {
             const client = this.currentClient;
             this.detailRequestId += 1;
             this.recommendationRequestId += 1;
-            this.addSearchRequestId += 1;
             this.editorRequestId += 1;
             this.saveRequestId += 1;
             this.roleLoading = true;
@@ -374,14 +369,12 @@ export default {
             this.recommendation = null;
             this.recommendationOptions = defaultAchievementRecommendationOptions();
             this.recommendationError = "";
-            this.addSearchLoading = false;
             this.saving = false;
             try {
                 const state = await fetchAchievementWorkbenchRoleState(roleId);
                 if (requestId !== this.roleRequestId || client !== this.currentClient) return false;
                 this.generatedRoute = null;
                 this.editingPlan = null;
-                this.addSearchResults = [];
                 this.saveDialogVisible = false;
                 this.addDialogVisible = false;
                 this.currentRoleId = roleId;
@@ -437,7 +430,12 @@ export default {
             this.recommendationError = "";
             this.recommendationLoading = false;
         },
+        openRecommendation() {
+            if (this.recommendationEntryDisabled) return;
+            this.recommendationDrawerVisible = true;
+        },
         async loadRecommendation() {
+            if (this.editingPlan || this.generatedRoute) return;
             const requestId = ++this.recommendationRequestId;
             const client = this.currentClient;
             const roleId = this.currentRole?.roleId;
@@ -529,9 +527,18 @@ export default {
             }
             if (!isCurrent()) return;
             this.recommendationDrawerVisible = false;
+            this.clearEditor();
             this.$message.success(this.$t("pages.wiki.leap.ui.createSuccess"));
             await this.loadPlans();
             if (isCurrent() && saved.id) await this.openPlan(saved);
+        },
+        clearEditor() {
+            this.editorRequestId += 1;
+            this.editingPlan = null;
+            this.generatedRoute = null;
+            this.saveDialogVisible = false;
+            this.addDialogVisible = false;
+            this.plannerForm = this.createDefaultForm(this.currentRoleId, this.currentPoints);
         },
         openSaveDialog() {
             if (!this.canSaveRoute) return;
@@ -543,45 +550,7 @@ export default {
         },
         openAddDialog() {
             if (!this.generatedRoute) return;
-            this.addSearchResults = [];
             this.addDialogVisible = true;
-        },
-        async searchAddRouteItems(keyword) {
-            const requestId = ++this.addSearchRequestId;
-            const client = this.currentClient;
-            this.addSearchLoading = true;
-            try {
-                const records = await searchAchievementWorkbenchRecords({
-                    keyword,
-                    client,
-                    metadata: this.metadata,
-                    completedIds: this.roleState.completedIds,
-                });
-                const allowedIds = records.map((record) => record.id);
-                const difficultyById = await fetchAchievementWorkbenchDifficulty(allowedIds, 500, { client }).catch(
-                    () => ({})
-                );
-                if (requestId !== this.addSearchRequestId || client !== this.currentClient) return;
-                const candidates = buildAchievementLeapCandidates({
-                    metadata: this.metadata,
-                    menus: this.menus,
-                    completedIds: this.roleState.completedIds,
-                    records,
-                    difficultyById,
-                    allowedIds,
-                    schoolEligibility: this.schoolEligibility,
-                });
-                const enrichedItems = await this.enrichAchievementItems(candidates, client);
-                if (requestId !== this.addSearchRequestId || client !== this.currentClient) return;
-                this.addSearchResults = enrichedItems;
-            } catch (error) {
-                if (requestId !== this.addSearchRequestId || client !== this.currentClient) return;
-                console.error("Failed to search achievement leap route items:", error);
-                if (requestId === this.addSearchRequestId) this.addSearchResults = [];
-                this.$message.error(this.$t("pages.wiki.leap.ui.workbench.addRouteItemsSearchFailed"));
-            } finally {
-                if (requestId === this.addSearchRequestId) this.addSearchLoading = false;
-            }
         },
         addGeneratedRouteItem(item) {
             if (!this.generatedRoute || !item?.id) return;
@@ -633,7 +602,7 @@ export default {
                         ? this.$t("pages.wiki.leap.ui.workbench.updateSuccess")
                         : this.$t("pages.wiki.leap.ui.createSuccess")
                 );
-                this.editingPlan = null;
+                this.clearEditor();
                 await this.loadPlans();
                 if (!this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client)) return;
                 if (saved.id) await this.openPlan(saved);
@@ -833,6 +802,7 @@ export default {
                         confirmButtonText: this.$t("pages.wiki.leap.ui.confirm"),
                         cancelButtonText: this.$t("pages.wiki.leap.ui.cancel"),
                         type: "warning",
+                        draggable: true,
                     }
                 );
             } catch {
@@ -958,8 +928,8 @@ export default {
             <div class="m-leap-recommendation-entry">
                 <el-button
                     type="primary" size="large"
-                    :disabled="currentClient !== 'std' || roleLoading || saving || !currentRole?.roleId"
-                    @click="recommendationDrawerVisible = true"
+                    :disabled="recommendationEntryDisabled"
+                    @click="openRecommendation"
                 ><template #icon><MagicStick /></template>{{ $t('achievementRecommendation.title') }}</el-button>
             </div>
 
@@ -971,7 +941,7 @@ export default {
                         <Plus />
                         {{ $t("pages.wiki.leap.ui.workbench.addRouteItems") }}
                     </button>
-                    <button type="button" class="u-leap-discard-button" @click="generatedRoute = null">
+                    <button type="button" class="u-leap-discard-button" @click="clearEditor">
                         {{ $t("pages.wiki.leap.ui.workbench.discardRoute") }}
                     </button>
                     <button type="button" class="u-leap-save-button" :disabled="!canSaveRoute" @click="openSaveDialog">
@@ -1019,7 +989,8 @@ export default {
             :role-loading="roleLoading"
             :client="currentClient"
             :role-available="Boolean(currentRole?.roleId)"
-            :disabled="roleLoading || saving"
+            :completed-ids="roleState.completedIds" :school-eligibility="schoolEligibility"
+            :disabled="recommendationEntryDisabled"
             :error="recommendationError"
             :metadata="metadata"
             :maps="maps"
@@ -1042,11 +1013,11 @@ export default {
 
         <AchievementLeapAddDialog
             v-model="addDialogVisible"
-            :results="addSearchResults"
+            :metadata="metadata" :menus="menus" :maps="maps" :client="currentClient"
+            :completed-ids="roleState.completedIds" :school-eligibility="schoolEligibility"
             :dimensions="dimensions"
             :selected-ids="generatedRouteIds"
-            :loading="addSearchLoading"
-            @search="searchAddRouteItems"
+            :disabled="roleLoading || saving"
             @add="addGeneratedRouteItem"
         />
     </div>

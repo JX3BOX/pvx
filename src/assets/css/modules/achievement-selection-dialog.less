@@ -1,0 +1,45 @@
+.m-recommendation-candidates-dialog,
+.m-recommendation-action-dialog {
+    --el-color-primary: #47777d;
+    --el-color-primary-light-3: #75989c;
+    --el-color-primary-light-5: #a3bbbe;
+    --el-color-primary-light-7: #c8d6d8;
+    --el-color-primary-light-8: #dae4e5;
+    --el-color-primary-light-9: #edf2f2;
+    --el-color-primary-dark-2: #365f64;
+}
+.m-recommendation-candidates-dialog {
+    display: flex; flex-direction: column; box-sizing: border-box;
+    max-width: calc(100vw - 32px); max-height: 88vh; max-height: 88dvh;
+    .el-dialog__header, .el-dialog__footer { flex: none; }
+    .el-dialog__title { overflow-wrap: anywhere; }
+    .el-dialog__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+    .m-candidates-hint { margin: 0 0 14px; line-height: 1.6; color: #697374; }
+    .m-candidates-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+        > * { width: 100%; min-width: 0; } svg { width: 16px; height: 16px; }
+    }
+    .m-candidates-status { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+        min-height: 36px; font-size: 12px; color: #47777d;
+        > :last-child { color: #697374; margin-left: auto; }
+    }
+    .m-candidates-error { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #ae3b40; }
+    .m-candidates-empty { padding: 48px 12px; text-align: center; color: #697374; }
+    .m-candidates-loading {
+        display: flex; align-items: center; gap: 8px; padding: 12px 0;
+        color: #47777d; font-size: 14px; line-height: 1.6;
+        .el-icon { flex: none; font-size: 18px; }
+        &.is-empty {
+            min-height: 160px; box-sizing: border-box; flex-direction: column; justify-content: center; text-align: center;
+            .el-icon { font-size: 32px; }
+        }
+    }
+    &.c-leap-add-dialog {
+        .el-dialog__body { display: flex; flex-direction: column; flex: 1 1 auto; overflow: hidden; }
+        .el-dialog__body > .m-candidates-hint { flex: none; }
+    }
+    @media (max-width: @phone) {
+        margin-top: 16px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+        .m-candidates-filters { grid-template-columns: minmax(0, 1fr); }
+        .el-button { min-height: 40px; }
+    }
+}

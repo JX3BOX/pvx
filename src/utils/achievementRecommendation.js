@@ -115,7 +115,7 @@ export function moveAchievementRecommendationItem(groups, id, targetGroup, befor
 export function filterAchievementRecommendationItems(items, filters) {
     const keyword = filters.keyword.trim().toLocaleLowerCase();
     const maps = new Set(filters.mapIds);
-    return items.filter((item) => (!keyword || (item.name || "").toLocaleLowerCase().includes(keyword)) &&
+    return items.filter((item) => (!keyword || [item.name, item.shortDescription].filter(Boolean).join(" ").toLocaleLowerCase().includes(keyword)) &&
         (!maps.size || item.mapIds.some((id) => maps.has(id))) &&
         (!filters.categories.length || filters.categories.some(([category, detail]) =>
             item.category.id === category && (!detail || item.category.subId === detail))));
@@ -200,6 +200,7 @@ export function buildAchievementRecommendationPlan({ items, recommendation, titl
 }
 
 export function achievementRecommendationGroupLabel(group, maps, translate) {
+    if (/^manual:\d+$/.test(group)) return translate("achievementRecommendation.manualGroup");
     const match = /^bucket:(\d+):(scene|map|direction):(.+)$/.exec(group);
     if (!match) return group;
     const [, bucket, kind, key] = match;

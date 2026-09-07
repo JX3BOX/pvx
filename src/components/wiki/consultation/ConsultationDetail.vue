@@ -48,7 +48,7 @@ export default {
             const id = this.id;
             const request = this.requestId;
             if (action === "cancel") {
-                try { await this.$confirm(this.$t('achievementConsultation.cancelConfirm'), this.$t('achievementConsultation.cancel'), { type: 'warning' }); }
+                try { await this.$confirm(this.$t('achievementConsultation.cancelConfirm'), this.$t('achievementConsultation.cancel'), { type: 'warning', draggable: true }); }
                 catch { return; }
                 if (request !== this.requestId || this.saving) return;
             }

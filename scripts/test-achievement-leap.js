@@ -379,11 +379,10 @@ assert.match(enrichmentSource, /mapById\.get\(/);
 assert.match(enrichmentSource, /item\.map\?\.name\s*\|\|\s*resolvedMap\?\.name/);
 
 // SFC contract: AddDialog shows shared overall stars only when the resolved definition exists.
-assert.match(addDialogSource, /import AchievementDifficultyStars/);
-assert.match(addDialogSource, /overallDimension\(\)/);
-assert.match(addDialogSource, /v-if="overallDimension"/);
-assert.match(addDialogSource, /<AchievementDifficultyStars/);
-assert.match(addDialogSource, /getDimensionValue\(item, overallDimension\.key\)/);
+assert.match(addDialogSource, /import AchievementSelectionBrowser/);
+assert.match(addDialogSource, /<AchievementSelectionBrowser/);
+assert.match(addDialogSource, /:dimensions="dimensions"/);
+assert.match(addDialogSource, /fetchAchievementWorkbenchDifficultyMetrics/);
 assert.ok(!addDialogSource.includes("Math.round"));
 assert.ok(!addDialogSource.includes('.repeat(stars)'));
 
@@ -588,10 +587,8 @@ async function runLeapStateConsistencyTests() {
         const rejectedRoleVm = createGuidanceTestVm([]);
         const preservedRoute = { items: [{ id: "visible" }] };
         const preservedEditingPlan = { id: "plan-editing" };
-        const preservedSearchResults = [{ id: "search-result" }];
         rejectedRoleVm.generatedRoute = preservedRoute;
         rejectedRoleVm.editingPlan = preservedEditingPlan;
-        rejectedRoleVm.addSearchResults = preservedSearchResults;
         rejectedRoleVm.saveDialogVisible = true;
         rejectedRoleVm.addDialogVisible = true;
         rejectedRoleVm.plannerForm = { ...rejectedRoleVm.plannerForm, roleId: "role-origin" };
@@ -600,7 +597,6 @@ async function runLeapStateConsistencyTests() {
         const stateWhileRoleLoading = {
             generatedRoute: rejectedRoleVm.generatedRoute,
             editingPlan: rejectedRoleVm.editingPlan,
-            addSearchResults: rejectedRoleVm.addSearchResults,
             saveDialogVisible: rejectedRoleVm.saveDialogVisible,
             addDialogVisible: rejectedRoleVm.addDialogVisible,
         };
@@ -609,7 +605,6 @@ async function runLeapStateConsistencyTests() {
         assert.deepStrictEqual(stateWhileRoleLoading, {
             generatedRoute: preservedRoute,
             editingPlan: preservedEditingPlan,
-            addSearchResults: preservedSearchResults,
             saveDialogVisible: true,
             addDialogVisible: true,
         });
@@ -617,7 +612,6 @@ async function runLeapStateConsistencyTests() {
         assert.strictEqual(rejectedRoleVm.plannerForm.roleId, "role-std");
         assert.strictEqual(rejectedRoleVm.generatedRoute, preservedRoute);
         assert.strictEqual(rejectedRoleVm.editingPlan, preservedEditingPlan);
-        assert.strictEqual(rejectedRoleVm.addSearchResults, preservedSearchResults);
         assert.strictEqual(rejectedRoleVm.saveDialogVisible, true);
         assert.strictEqual(rejectedRoleVm.addDialogVisible, true);
 
@@ -626,7 +620,6 @@ async function runLeapStateConsistencyTests() {
         const successfulRoleVm = createGuidanceTestVm([]);
         successfulRoleVm.generatedRoute = preservedRoute;
         successfulRoleVm.editingPlan = preservedEditingPlan;
-        successfulRoleVm.addSearchResults = preservedSearchResults;
         successfulRoleVm.saveDialogVisible = true;
         successfulRoleVm.addDialogVisible = true;
         successfulRoleVm.recommendation = { role: { role_id: 1 } };
@@ -645,7 +638,6 @@ async function runLeapStateConsistencyTests() {
         assert.strictEqual(replacedRoleId, "role-origin");
         assert.strictEqual(successfulRoleVm.generatedRoute, null);
         assert.strictEqual(successfulRoleVm.editingPlan, null);
-        assert.deepStrictEqual(successfulRoleVm.addSearchResults, []);
         assert.strictEqual(successfulRoleVm.saveDialogVisible, false);
         assert.strictEqual(successfulRoleVm.addDialogVisible, false);
 

@@ -169,6 +169,7 @@ const pageSource = fs.readFileSync(path.join(root, pageFile), "utf8");
 for (const [, key] of pageSource.matchAll(/from "([^"]+\.vue)"/g)) pageDependencies[key] = {};
 const page = load(pageFile, pageDependencies).default;
 const panel = load("src/components/wiki/leap/AchievementLeapRecommendation.vue", {
+    "./AchievementLeapAddDialog.vue": { render: () => null },
     "./AchievementRecommendationCandidatesDialog.vue": { render: () => null },
     "./AchievementRecommendationActionDialog.vue": { render: () => null },
     "./AchievementRecommendationItems.vue": {},
@@ -203,8 +204,8 @@ for (const key of ["candidateHint", "refreshHint", "restoreDraftHint"]) {
     assert.ok(recommendationTemplate.includes(`achievementRecommendation.${key}`), `show clear ${key}`);
 }
 function panelVm(props = {}) {
-    const vm = { ...panel.data(), recommendation: result, metadata, menus, maps, targetPoints: 50030,
-        disabled: false, $refs: {}, $nextTick: (callback) => callback(), $i18n: { locale: "zh-CN" }, $t: (key) => key, ...props };
+    const vm = { ...panel.data(), recommendation: result, metadata, menus, maps, completedIds: [], targetPoints: 50030,
+        disabled: false, messages: [], $message: { success(message) { vm.messages.push(message); } }, $refs: {}, $nextTick: (callback) => callback(), $i18n: { locale: "zh-CN" }, $t: (key) => key, ...props };
     Object.entries(panel.methods).forEach(([name, method]) => { vm[name] = method.bind(vm); });
     Object.entries(panel.computed).forEach(([name, getter]) => Object.defineProperty(vm, name, { get: () => getter.call(vm) }));
     vm.resetDraft();
@@ -425,6 +426,8 @@ function testCandidateActions() {
     vm.requestAction("add", { id: "5" }, "candidates");
     vm.confirmAction();
     assert.deepStrictEqual(ids(), ["9", "2", "5"], "an addition keeps every original selected item and adds an extra");
+    assert.deepStrictEqual(vm.messages, ["achievementRecommendation.candidatesAdded"], "confirmed additions show one success message");
+    assert.ok(!recommendationTemplate.includes("actionNotice"), "action feedback must not persist above the selected list");
     assert.strictEqual(vm.targetSummary.surplusPoints, 20);
     assert.deepStrictEqual(vm.candidateRows.map((row) => row.id), ["6", "7"]);
     vm.requestAction("remove", { id: "6" }, "candidates");
@@ -471,6 +474,46 @@ function testCandidateActions() {
     vm.pendingAction.scope = "single";
     vm.confirmAction();
     assert.deepStrictEqual(ids(), ["9", "2", "5"], "a valid single addition can proceed independently");
+}
+
+function testManualAdditions() {
+    const vm = panelVm({ targetPoints: 50010, metadata: { ...metadata, 5: { point: 20, general: 1 },
+        8: { point: 50, general: 1 }, 10: { point: 25, general: 1 }, 11: { point: null, general: 1 } }, completedIds: ["10"] });
+    const item = { id: "8", name: "额外成就", points: 50, category: { id: "11", subId: "111" }, mapIds: [] };
+    const ids = () => vm.selectedItems.map((entry) => entry.id);
+    const original = ids();
+    vm.addVisible = true;
+    vm.requestManualAdd(item);
+    assert.strictEqual(vm.pendingAction.source, "manual");
+    assert.deepStrictEqual(vm.actionItems.map((entry) => entry.name), ["额外成就"]);
+    assert.deepStrictEqual(ids(), original, "opening confirmation does not change selection");
+    vm.pendingAction = null;
+    assert.ok(!vm.draftRows.some((row) => row.id === "8"), "cancel leaves the recommendation pool untouched");
+    vm.requestManualAdd(item);
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), [...original, "8"], "manual additions outside server candidates retain the initial selection");
+    assert.strictEqual(vm.targetSummary.surplusPoints, 50);
+    assert.strictEqual(vm.originalGroupById[8], "manual:8");
+    assert.strictEqual(utils.achievementRecommendationGroupLabel("manual:8", [], (key) => key), "achievementRecommendation.manualGroup");
+    const savedItems = utils.selectAchievementRecommendationItems(vm.selection.items, 50000, 50010, vm.selection.includedIds);
+    assert.deepStrictEqual(savedItems.map((entry) => entry.id), ids(), "saving retains manually selected surplus achievements");
+    vm.requestManualAdd(item);
+    assert.strictEqual(vm.pendingAction, null, "duplicate manual additions are rejected");
+    for (const id of ["10", "11", "404"]) {
+        vm.requestManualAdd({ ...item, id });
+        assert.strictEqual(vm.pendingAction, null, "completed or invalid-point records cannot be added");
+    }
+    vm.requestAction("remove", item, "selected");
+    vm.confirmAction();
+    assert.deepStrictEqual(ids(), original);
+    assert.ok(vm.candidateRows.some((row) => row.id === "8"), "removed manual items return to candidates");
+    vm.requestManualAdd(item); vm.confirmAction();
+    assert.strictEqual(vm.draftRows.filter((row) => row.id === "8").length, 1, "re-adding does not duplicate the draft row");
+    vm.requestManualAdd({ ...item, id: "5", points: 20 }); vm.confirmAction();
+    assert.strictEqual(vm.draftRows.filter((row) => row.id === "5").length, 1, "existing server candidates use their original row");
+    vm.restoreDraft();
+    assert.deepStrictEqual(ids(), original, "undo restores the original membership");
+    assert.ok(!vm.draftRows.some((row) => row.id === "8"));
 }
 
 function testRemovalRefill() {
@@ -883,6 +926,7 @@ async function main() {
     testRequiredRecommendationPoints();
     testFilteredRecommendationDetails();
     testCandidateActions();
+    testManualAdditions();
     testRemovalRefill();
     await testCandidateLoading();
     await testIndependentRecommendationData();
@@ -962,20 +1006,36 @@ async function main() {
     vm.plannerForm = { title: "Plan", targetPoints: 50010 };
     vm.schoolEligibility = { version: "school-v1", school: null };
     vm.isCurrentSaveRequest = page.methods.isCurrentSaveRequest.bind(vm);
+    vm.createDefaultForm = page.methods.createDefaultForm.bind(vm);
+    vm.clearEditor = () => page.methods.clearEditor.call(vm);
     vm.loadPlans = async () => {};
     const openedPlans = [];
-    vm.openPlan = async (plan) => openedPlans.push(plan);
+    vm.openPlan = async (plan) => {
+        assert.strictEqual(vm.editingPlan, null, "exit editing before navigating to the created detail");
+        assert.strictEqual(vm.generatedRoute, null, "created detail navigation cannot carry an editor draft");
+        openedPlans.push(plan);
+    };
     const messages = [];
     vm.$message = {
         error: (message) => messages.push(message), warning: (message) => messages.push(message), success: (message) => messages.push(message),
     };
     vm.recommendationDrawerVisible = true;
     vm.editingPlan = { id: "old-plan" };
+    vm.generatedRoute = { items: [{ id: "old-item" }] };
+    vm.saveDialogVisible = true;
+    vm.addDialogVisible = true;
+    const previousEditorRequestId = vm.editorRequestId;
     const selection = { recommendation: result, ready: true, items: utils.hydrateAchievementRecommendation(rows, records) };
     await page.methods.createRecommendedPlan.call(vm, selection);
     assert.strictEqual(savedPlans.length, 1);
     assert.strictEqual(savedPlans[0].id, undefined, "system recommendation creates a new plan, never overwrites the open editor");
     assert.strictEqual(vm.recommendationDrawerVisible, false);
+    assert.strictEqual(vm.editingPlan, null, "successful recommendation creation exits an existing editor");
+    assert.strictEqual(vm.generatedRoute, null, "returning from the created detail must not restore the old route");
+    assert.strictEqual(vm.saveDialogVisible, false);
+    assert.strictEqual(vm.addDialogVisible, false);
+    assert.deepStrictEqual(vm.plannerForm, vm.createDefaultForm(vm.currentRoleId, vm.currentPoints));
+    assert.ok(vm.editorRequestId > previousEditorRequestId, "in-flight editor hydration cannot restore cleared state");
     const plan = savedPlans[0].payload;
     assert.deepStrictEqual(plan.schema, ["9", "2"]);
     assert.deepStrictEqual(plan.meta.recommendationPreferences, selectedPreferences);
@@ -988,10 +1048,12 @@ async function main() {
     });
     assert.deepStrictEqual(restored, rows.slice(0, 2));
     const manualSelection = { ...selection, includedIds: ["9", "2", "5"] };
+    vm.plannerForm = { title: "Plan", targetPoints: 50010 };
     await page.methods.createRecommendedPlan.call(vm, manualSelection);
     assert.deepStrictEqual(savedPlans[1].payload.schema, ["9", "2", "5"], "saving must retain manual additions beyond the target");
     assert.strictEqual(savedPlans[1].payload.meta.selectedPoints, 30);
     const manualShortfall = { ...selection, items: selection.items.filter((item) => item.id === "9"), includedIds: ["9"] };
+    vm.plannerForm = { title: "Plan", targetPoints: 50010 };
     await page.methods.createRecommendedPlan.call(vm, manualShortfall);
     assert.deepStrictEqual(savedPlans[2].payload.schema, ["9"], "saving an edited shortfall must not pull in candidates");
     openedPlans.splice(1);
@@ -999,19 +1061,51 @@ async function main() {
     let saveCalls = 0;
     planSaver = () => { saveCalls += 1; return pendingSave.promise; };
     vm.recommendationDrawerVisible = true;
+    vm.plannerForm = { title: "Plan", targetPoints: 50010 };
     const saving = page.methods.createRecommendedPlan.call(vm, selection);
     await page.methods.createRecommendedPlan.call(vm, selection);
     assert.strictEqual(saveCalls, 1, "double clicking cannot create duplicate plans");
     vm.recommendationRequestId += 1;
+    const preservedEditor = { id: "new-context-plan" };
+    const preservedRoute = { items: [{ id: "5" }] };
+    const preservedForm = vm.plannerForm;
+    vm.editingPlan = preservedEditor;
+    vm.generatedRoute = preservedRoute;
     pendingSave.resolve({ id: "stale" });
     await saving;
     assert.strictEqual(openedPlans.length, 1, "stale save cannot navigate the new role or recommendation");
+    assert.strictEqual(vm.editingPlan, preservedEditor, "stale saves cannot clear the current editor");
+    assert.strictEqual(vm.generatedRoute, preservedRoute);
     assert.strictEqual(vm.saving, false);
     planSaver = async () => { throw new Error("save offline"); };
     await page.methods.createRecommendedPlan.call(vm, selection);
     assert.strictEqual(vm.recommendationDrawerVisible, true, "failed save preserves the draft");
+    assert.strictEqual(vm.editingPlan, preservedEditor, "failed creation cannot discard the editor");
+    assert.strictEqual(vm.generatedRoute, preservedRoute);
+    assert.strictEqual(vm.plannerForm, preservedForm);
     assert.strictEqual(vm.saving, false);
     assert.strictEqual(messages[messages.length - 1], "pages.wiki.leap.ui.createFailed");
+
+    Object.defineProperty(vm, "recommendationEntryDisabled", {
+        get: () => page.computed.recommendationEntryDisabled.call(vm),
+    });
+    vm.recommendationDrawerVisible = false;
+    assert.strictEqual(vm.recommendationEntryDisabled, true, "the recommendation entry is disabled while editing");
+    page.methods.openRecommendation.call(vm);
+    assert.strictEqual(vm.recommendationDrawerVisible, false, "direct entry calls cannot open the drawer while editing");
+    let blockedRequests = 0;
+    recommendationLoader = async () => { blockedRequests += 1; return result; };
+    await page.methods.loadRecommendation.call(vm);
+    assert.strictEqual(blockedRequests, 0, "editing cannot start a recommendation request");
+    vm.editingPlan = null;
+    assert.strictEqual(vm.recommendationEntryDisabled, true, "a copied local draft also disables recommendations");
+    vm.clearEditor();
+    assert.strictEqual(vm.recommendationEntryDisabled, false, "discarding the editor re-enables recommendations");
+    page.methods.openRecommendation.call(vm);
+    assert.strictEqual(vm.recommendationDrawerVisible, true);
+    vm.saving = true;
+    assert.strictEqual(vm.recommendationEntryDisabled, true, "saving keeps the entry disabled");
+    vm.saving = false;
 
     const detailVm = panelVm();
     const requestedBatches = [];
@@ -1062,7 +1156,7 @@ async function main() {
     assert.deepStrictEqual(filterVm.filterOptions.maps, []);
     await filterVm.loadFilterIndex();
     assert.strictEqual(indexCalls.length, 1);
-    assert.strictEqual(indexCalls[0].attributes, "ID,Name,Sub,Detail,SceneID,dwMapID");
+    assert.strictEqual(indexCalls[0].attributes, "ID,Name,ShortDesc,Sub,Detail,SceneID,dwMapID");
     assert.strictEqual(indexCalls[0].batchSize, 1000);
     assert.deepStrictEqual(indexCalls[0].ids, ["9", "2", "5", "6"]);
     assert.deepStrictEqual(Object.keys(filterVm.recordCache), [], "search index never substitutes for full scored details");

@@ -12,6 +12,8 @@ export default {
         dimensions: { type: Array, default: () => [] },
         items: { type: Array, required: true },
         selectedIds: { type: Set, required: true },
+        removable: { type: Boolean, default: true },
+        orderOffset: { type: Number, default: 0 },
         candidateMode: { type: Boolean, default: false },
         unavailableIds: { type: Set, default: () => new Set() },
         disabled: { type: Boolean, default: false },
@@ -51,7 +53,7 @@ export default {
         <template #item="{ element: item, index }">
             <div class="m-server-recommendation__item" :data-id="item.id" :class="{ 'is-selected': editable && selectedIds.has(item.id) }">
                 <span v-if="editable" class="m-recommendation-item-handle" :title="$t('achievementRecommendation.dragItem')"><Rank /></span>
-                <span class="u-recommendation-order">{{ index + 1 }}</span>
+                <span class="u-recommendation-order">{{ orderOffset + index + 1 }}</span>
                 <div class="m-server-recommendation__item-content">
                     <a :href="getLink('achievement', item.id)" target="_blank" rel="noopener noreferrer" :title="item.name">
                         <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" /><span>{{ item.name }}</span>
@@ -82,9 +84,9 @@ export default {
                         </el-tooltip>
                     </div>
                     <el-button v-if="candidateMode" class="m-recommendation-add-candidate" type="primary" plain
-                        :disabled="disabled || unavailableIds.has(item.id)" :title="unavailableIds.has(item.id) ? $t('achievementRecommendation.pointsMissing', { id: item.id }) : ''"
-                        @click="$emit('add', item)">{{ $t('achievementRecommendation.addCandidate') }}</el-button>
-                    <el-tooltip v-if="editable || candidateMode" :content="$t(candidateMode ? 'achievementRecommendation.removeCandidate' : 'achievementRecommendation.remove')">
+                        :disabled="disabled || selectedIds.has(item.id) || unavailableIds.has(item.id)" :title="unavailableIds.has(item.id) ? $t('achievementRecommendation.pointsMissing', { id: item.id }) : ''"
+                        @click="$emit('add', item)">{{ $t(selectedIds.has(item.id) ? 'achievementRecommendation.alreadySelected' : 'achievementRecommendation.addCandidate') }}</el-button>
+                    <el-tooltip v-if="editable || (candidateMode && removable)" :content="$t(candidateMode ? 'achievementRecommendation.removeCandidate' : 'achievementRecommendation.remove')">
                         <el-button text :disabled="disabled" :aria-label="$t(candidateMode ? 'achievementRecommendation.removeCandidate' : 'achievementRecommendation.remove')" @click="$emit('remove', item)">
                             <template #icon><Delete /></template>
                         </el-button>
@@ -106,7 +108,7 @@ export default {
     &.is-selected { background: #f3f8f6; }
     :deep(.el-button) { padding: 6px; width: 28px; margin: 0; flex: none; }
 }
-.m-server-recommendation__item :deep(.m-recommendation-add-candidate) { width: auto; height: auto; min-height: 32px; padding: 6px 10px;
+.m-server-recommendation__item :deep(.m-recommendation-add-candidate) { width: auto; min-width: 56px; height: 28px; min-height: 28px; padding: 4px 12px; font-size: 12px; font-weight: 400; border-radius: 6px;
     > span { white-space: normal; line-height: 1.4; }
 }
 .m-recommendation-item-handle { display: flex; flex: none; padding: 4px; color: #87918a; cursor: grab; touch-action: none;

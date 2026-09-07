@@ -321,20 +321,23 @@ export default {
                                     getTierLabel(record)
                                 }}</span>
                             </div>
-                            <span
-                                class="u-progress-status"
-                                :class="{
-                                    'is-completed': record.completed === true,
-                                    'is-incomplete': record.completed === false,
-                                }"
-                            >
-                                {{ getStatusLabel(record) }}
-                            </span>
+                            <slot name="actions" :record="record">
+                                <span
+                                    class="u-progress-status"
+                                    :class="{
+                                        'is-completed': record.completed === true,
+                                        'is-incomplete': record.completed === false,
+                                    }"
+                                >
+                                    {{ getStatusLabel(record) }}
+                                </span>
+                            </slot>
                         </div>
 
                         <p v-if="record.shortDescription" class="u-progress-description">{{ record.shortDescription }}</p>
 
                         <div class="m-progress-achievement-card__meta">
+                            <slot name="metadata" :record="record" />
                             <span
                                 v-for="tag in getDisplayTags(record)"
                                 :key="tag.id || tag.label"

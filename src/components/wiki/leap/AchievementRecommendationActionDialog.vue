@@ -11,26 +11,22 @@ export default {
         disabled: { type: Boolean, default: false },
     },
     emits: ["update:scope", "cancel", "confirm"],
-    computed: { selectedCount() { return this.items.filter((item) => item.selected).length; } },
 };
 </script>
 
 <template>
-    <el-dialog :model-value="true" width="560px" class="m-recommendation-action-dialog" append-to-body
+    <el-dialog draggable :model-value="true" width="560px" class="m-recommendation-action-dialog" append-to-body
         :close-on-click-modal="false" :title="$t(action === 'add' ? 'achievementRecommendation.confirmAddTitle' : 'achievementRecommendation.confirmRemoveTitle')"
         @update:model-value="!$event && $emit('cancel')">
         <p>{{ $t(action === 'add' ? 'achievementRecommendation.confirmAddHint' : source === 'selected'
             ? 'achievementRecommendation.confirmRemoveSelectedHint' : 'achievementRecommendation.confirmRemoveHint') }}</p>
-        <el-radio-group :model-value="scope" :disabled="disabled" :aria-label="$t('achievementRecommendation.actionScope')"
+        <el-radio-group v-if="relatedCount > 1" :model-value="scope" :disabled="disabled" :aria-label="$t('achievementRecommendation.actionScope')"
             @update:model-value="$emit('update:scope', $event)">
             <el-radio value="single" border>{{ $t('achievementRecommendation.singleAchievement') }}</el-radio>
-            <el-radio value="related" border :disabled="relatedCount < 2">
+            <el-radio value="related" border>
                 {{ $t('achievementRecommendation.relatedAchievements', { count: relatedCount }) }}
             </el-radio>
         </el-radio-group>
-        <p class="m-recommendation-action-counts">
-            {{ $t('achievementRecommendation.actionCounts', { count: items.length, selected: selectedCount, candidates: items.length - selectedCount }) }}
-        </p>
         <ul class="m-recommendation-action-preview">
             <li v-for="item in items" :key="item.id">
                 <span>{{ item.name }}</span>
@@ -51,12 +47,11 @@ export default {
 <style lang="less">
 .m-recommendation-action-dialog {
     max-width: calc(100vw - 32px); box-sizing: border-box; color: #314043;
-    p { line-height: 1.6; }
-    .el-radio-group { display: flex; gap: 8px; }
+    p { margin: 0; line-height: 1.6; }
+    .el-radio-group { display: flex; gap: 8px; margin-top: 16px; }
     .el-radio { margin: 0; height: auto; min-height: 40px; padding: 10px; }
     .el-radio__label { white-space: normal; line-height: 1.4; }
-    .m-recommendation-action-counts { color: #697374; font-size: 13px; }
-    .m-recommendation-action-preview { padding: 0 10px; margin: 0; max-height: 240px; overflow-y: auto; list-style: none;
+    .m-recommendation-action-preview { padding: 0 10px; margin: 14px 0 0; max-height: 240px; overflow-y: auto; list-style: none;
         border: 1px solid #e2e8e6; border-radius: 6px;
         li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px solid #edf0ee;
             > span { overflow-wrap: anywhere; } small { flex: none; color: #47777d; }

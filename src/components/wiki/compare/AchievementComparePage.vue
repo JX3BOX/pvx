@@ -438,6 +438,7 @@ export default {
                         confirmButtonText: this.$t("pages.wiki.compare.ui.actions.confirm"),
                         cancelButtonText: this.$t("pages.wiki.compare.ui.actions.cancel"),
                         type: "warning",
+                        draggable: true,
                     }
                 );
             } catch {

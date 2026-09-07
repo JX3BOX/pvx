@@ -50,12 +50,22 @@ export default {
         },
     },
     watch: {
-        activeCategoryId(value) {
-            if (!value || value === "all") this.expandedCategoryId = null;
+        activeCategoryId: {
+            immediate: true,
+            handler(value) {
+                if (!value || value === "all") this.expandedCategoryId = null;
+                else this.expandActiveCategory();
+            },
         },
+        categories() { this.expandActiveCategory(); },
     },
     emits: ["select-category", "update:sort"],
     methods: {
+        expandActiveCategory() {
+            const root = this.categories.find((category) => category.id === this.activeCategoryId ||
+                (category.children || []).some((child) => child.id === this.activeCategoryId));
+            if (root) this.expandedCategoryId = root.children?.length ? root.id : null;
+        },
         formatNumber(value) {
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);

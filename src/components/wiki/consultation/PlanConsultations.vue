@@ -67,7 +67,7 @@ export default {
             <el-button text @click="detailId = row.id">{{ $t(row.status === 'answered' ? 'achievementConsultation.viewAdvice' : 'achievementConsultation.detail') }}</el-button>
         </div>
         <el-pagination v-if="total > 10" v-model:current-page="page" :total="total" :page-size="10" layout="prev, pager, next" @current-change="load" />
-        <el-dialog v-model="dialog" class="m-plan-consultation-dialog" :title="$t('achievementConsultation.request')" width="min(540px, calc(100vw - 24px))" append-to-body
+        <el-dialog draggable v-model="dialog" class="m-plan-consultation-dialog" :title="$t('achievementConsultation.request')" width="min(540px, calc(100vw - 24px))" append-to-body
             :close-on-click-modal="!saving" :close-on-press-escape="!saving" :show-close="!saving">
             <el-form label-position="top" :disabled="saving">
                 <el-form-item :label="$t('achievementRecommendation.chooseRole')" required><el-select v-model="form.role_id" filterable>
@@ -82,7 +82,7 @@ export default {
             </el-form>
             <template #footer><el-button type="primary" :loading="saving" :disabled="!form.role_id || !form.question.trim()" @click="submit">{{ $t('achievementConsultation.submit') }}</el-button></template>
         </el-dialog>
-        <el-dialog :model-value="Boolean(detailId)" :title="$t('achievementConsultation.detail')" width="min(1180px, calc(100vw - 24px))" append-to-body destroy-on-close
+        <el-dialog draggable :model-value="Boolean(detailId)" :title="$t('achievementConsultation.detail')" width="min(1180px, calc(100vw - 24px))" append-to-body destroy-on-close
             @update:model-value="!$event && (detailId = null)"><ConsultationDetail v-if="detailId" :id="detailId" @changed="load" /></el-dialog>
     </PvxSurface>
 </template>

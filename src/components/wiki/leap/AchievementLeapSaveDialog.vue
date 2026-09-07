@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-    <el-dialog
+    <el-dialog draggable
         :model-value="modelValue"
         class="c-leap-save-dialog"
         width="480px"
