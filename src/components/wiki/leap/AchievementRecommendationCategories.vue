@@ -72,8 +72,8 @@ export default {
 
     input {
         flex: none;
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
         margin: 0;
         accent-color: #365f64;
         cursor: inherit;
@@ -82,25 +82,25 @@ export default {
     label {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 6px;
         min-width: 0;
-        min-height: 56px;
+        min-height: 40px;
         box-sizing: border-box;
         margin: 0;
-        padding: 12px 14px;
+        padding: 8px 10px;
         border: 1px solid #e6e4dc;
-        border-radius: 10px;
-        background: #f8f5ee;
+        border-radius: 6px;
+        background: #fffdf9;
         cursor: pointer;
         line-height: 1.5;
-        font-size: 15px;
+        font-size: 12px;
     }
 
     input:focus-visible { outline: 2px solid #47777d; outline-offset: 3px; }
-    .m-recommendation-category-card.is-selected { border-color: #5b8b94; background: #e9e8e0; }
+    .m-recommendation-category-card.is-selected { border-color: #9bb6b9; background: #f3f6f5; }
     @media (hover: hover) {
-        label:not(.is-disabled):hover { border-color: #75989c; background: #f0eee6; }
-        .m-recommendation-category-card.is-selected:not(.is-disabled):hover { border-color: #365f64; background: #e1e4dc; }
+        label:not(.is-disabled):hover { border-color: #75989c; background: #f3f6f5; }
+        .m-recommendation-category-card.is-selected:not(.is-disabled):hover { border-color: #75989c; background: #edf2f2; }
     }
     label.is-disabled { opacity: 0.6; cursor: not-allowed; }
 }
@@ -113,18 +113,16 @@ export default {
 }
 .m-recommendation-category-card {
     &__name { flex: 1; min-width: 0; color: #365f64; font-weight: 600; overflow-wrap: anywhere; }
-    &__icon { display: inline-flex; flex: none; width: 22px; height: 22px; margin-right: -4px; }
+    &__icon { display: inline-flex; flex: none; width: 16px; height: 16px; }
     &__icon img, &__icon svg { width: 100%; height: 100%; object-fit: contain; }
-    &__count { flex: none; font-size: 13px; font-variant-numeric: tabular-nums; color: #8b999f; }
+    &__count { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: #8b999f; }
 }
 @media (max-width: @phone) {
     .m-recommendation-categories {
         gap: 12px;
-        label { gap: 6px; padding: 10px 8px; font-size: 13px; }
-        input { width: 16px; height: 16px; }
+        label { padding: 8px; }
     }
     .m-recommendation-categories__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .m-recommendation-category-card__icon { width: 18px; height: 18px; margin-right: 0; }
     .m-recommendation-category-card__count { font-size: 12px; }
 }
 </style>
