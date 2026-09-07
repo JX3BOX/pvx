@@ -1,12 +1,12 @@
 <script>
 import User from "@jx3box/jx3box-common/js/user";
-import { FolderOpened, Plus, UserFilled, WarningFilled, MagicStick } from "@element-plus/icons-vue";
+import { FolderOpened, Plus, UserFilled, WarningFilled } from "@element-plus/icons-vue";
 import AchievementLeapAddDialog from "@/components/wiki/leap/AchievementLeapAddDialog.vue";
 import AchievementLeapBaseSettings from "@/components/wiki/leap/AchievementLeapBaseSettings.vue";
 import AchievementLeapDetailHeader from "@/components/wiki/leap/AchievementLeapDetailHeader.vue";
 import PlanConsultations from "@/components/wiki/consultation/PlanConsultations.vue";
 import AchievementLeapPlanList from "@/components/wiki/leap/AchievementLeapPlanList.vue";
-import AchievementLeapRecommendationDrawer from "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue";
+import AchievementLeapRecommendationWorkspace from "@/components/wiki/leap/AchievementLeapRecommendationWorkspace.vue";
 import AchievementLeapRouteTable from "@/components/wiki/leap/AchievementLeapRouteTable.vue";
 import AchievementLeapSaveDialog from "@/components/wiki/leap/AchievementLeapSaveDialog.vue";
 import AchievementLeapSummary from "@/components/wiki/leap/AchievementLeapSummary.vue";
@@ -64,7 +64,7 @@ export default {
         AchievementLeapDetailHeader,
         PlanConsultations,
         AchievementLeapPlanList,
-        AchievementLeapRecommendationDrawer,
+        AchievementLeapRecommendationWorkspace,
         AchievementLeapRouteTable,
         AchievementLeapSaveDialog,
         AchievementLeapSummary,
@@ -75,7 +75,6 @@ export default {
         PvxSurface,
         UserFilled,
         WarningFilled,
-        MagicStick,
     },
     data() {
         return {
@@ -110,7 +109,8 @@ export default {
             },
             generatedRoute: null,
             recommendation: null,
-            recommendationDrawerVisible: false,
+            planListVisible: false,
+            recommendationFormDraft: null,
             recommendationOptions: defaultAchievementRecommendationOptions(),
             recommendationError: "",
             editingPlan: null,
@@ -152,7 +152,7 @@ export default {
         },
         categoryOptions() {
             return buildAchievementLeapCategoryOptions(this.menus, this.metadata, this.roleState.completedIds, {
-                schoolEligibility: this.schoolEligibility,
+                visibleOnly: true,
             });
         },
         detailId() {
@@ -173,7 +173,13 @@ export default {
         generatedRouteIds() {
             return (this.generatedRoute?.items || []).map((item) => String(item.id));
         },
-        recommendationEntryDisabled() {
+        recommendationForm() {
+            return this.recommendationFormDraft || this.plannerForm;
+        },
+        workspaceReady() {
+            return this.isLogin && !this.pageLoading && !this.pageError && this.roles.length > 0;
+        },
+        recommendationDisabled() {
             return Boolean(this.editingPlan || this.generatedRoute || this.currentClient !== "std" ||
                 this.roleLoading || this.saving || !this.currentRole?.roleId);
         },
@@ -187,7 +193,7 @@ export default {
         detailId: {
             handler(id) {
                 this.detailRequestId += 1;
-            this.editorRequestId += 1;
+                this.editorRequestId += 1;
                 this.detailLoading = false;
                 this.detailPlan = null;
                 this.detailRoute = null;
@@ -261,7 +267,8 @@ export default {
             this.detailRoute = null;
             this.detailClientMismatch = null;
             this.recommendation = null;
-            this.recommendationDrawerVisible = false;
+            this.planListVisible = false;
+            this.recommendationFormDraft = null;
             this.recommendationOptions = defaultAchievementRecommendationOptions();
             this.recommendationError = "";
             this.editingPlan = null;
@@ -377,6 +384,7 @@ export default {
                 this.editingPlan = null;
                 this.saveDialogVisible = false;
                 this.addDialogVisible = false;
+                this.recommendationFormDraft = null;
                 this.currentRoleId = roleId;
                 this.roleState = state;
                 localStorage.setItem("wiki_last_sync", roleId);
@@ -429,10 +437,6 @@ export default {
             this.recommendation = null;
             this.recommendationError = "";
             this.recommendationLoading = false;
-        },
-        openRecommendation() {
-            if (this.recommendationEntryDisabled) return;
-            this.recommendationDrawerVisible = true;
         },
         async loadRecommendation() {
             if (this.editingPlan || this.generatedRoute) return;
@@ -526,7 +530,7 @@ export default {
                 if (requestId === this.saveRequestId) this.saving = false;
             }
             if (!isCurrent()) return;
-            this.recommendationDrawerVisible = false;
+            this.planListVisible = false;
             this.clearEditor();
             this.$message.success(this.$t("pages.wiki.leap.ui.createSuccess"));
             await this.loadPlans();
@@ -538,7 +542,8 @@ export default {
             this.generatedRoute = null;
             this.saveDialogVisible = false;
             this.addDialogVisible = false;
-            this.plannerForm = this.createDefaultForm(this.currentRoleId, this.currentPoints);
+            this.plannerForm = this.recommendationFormDraft || this.plannerForm;
+            this.recommendationFormDraft = null;
         },
         openSaveDialog() {
             if (!this.canSaveRoute) return;
@@ -627,6 +632,7 @@ export default {
             );
         },
         async openPlan(plan) {
+            this.planListVisible = false;
             await this.$router.push({
                 name: "leap-detail",
                 params: { id: plan.id },
@@ -755,6 +761,7 @@ export default {
             if (!this.isCurrentEditorRequest(requestId, roleRequestId, roleId, client)) return;
             const progress = buildAchievementLeapPlanProgress(source, this.metadata, this.roleState.completedIds);
             const targetPoints = Number(source.meta?.targetPoints) || this.currentPoints + progress.remainingPoints;
+            if (!this.generatedRoute) this.recommendationFormDraft = this.plannerForm;
             this.plannerForm = {
                 title: copy
                     ? this.$t("pages.wiki.leap.ui.workbench.copyTitle", { title: source.title })
@@ -917,21 +924,13 @@ export default {
             </PvxEmptyState>
         </div>
 
-        <div v-else class="m-leap-page-content">
+        <div v-else-if="generatedRoute" class="m-leap-page-content">
             <AchievementLeapBaseSettings
                 v-model="plannerForm"
                 :roles="roles"
                 :loading="roleLoading"
                 @role-change="handleRoleChange"
             />
-
-            <div class="m-leap-recommendation-entry">
-                <el-button
-                    type="primary" size="large"
-                    :disabled="recommendationEntryDisabled"
-                    @click="openRecommendation"
-                ><template #icon><MagicStick /></template>{{ $t('achievementRecommendation.title') }}</el-button>
-            </div>
 
             <section v-if="generatedRoute" class="m-leap-generated-result">
                 <AchievementLeapSummary :route="generatedRoute" :title="plannerForm.title" />
@@ -961,6 +960,47 @@ export default {
                 />
             </section>
 
+        </div>
+
+        <!-- Retain recommendation ordering, selection and filters while viewing or editing a saved plan. -->
+        <AchievementLeapRecommendationWorkspace
+            v-if="workspaceReady"
+            v-show="!detailMode && !generatedRoute"
+            v-model:target-points="recommendationForm.targetPoints"
+            v-model:plan-title="recommendationForm.title"
+            :options="recommendationOptions"
+            :dimensions="recommendationDimensions"
+            :categories="categoryOptions"
+            :category-counts-ready="roleState.synced && !roleLoading"
+            :recommendation="recommendation"
+            :loading="recommendationLoading"
+            :saving="saving"
+            :roles="roles"
+            :role-id="currentRoleId"
+            :role-loading="roleLoading"
+            :client="currentClient"
+            :role-available="Boolean(currentRole?.roleId)"
+            :completed-ids="roleState.completedIds" :school-eligibility="schoolEligibility"
+            :disabled="recommendationDisabled"
+            :error="recommendationError"
+            :metadata="metadata"
+            :maps="maps"
+            :menus="menus"
+            @update:options="changeRecommendationOptions"
+            @role-change="handleRoleChange"
+            @apply="createRecommendedPlan"
+            @refresh="loadRecommendation"
+        >
+            <template #actions>
+                <el-button :disabled="saving" @click="planListVisible = true">
+                    <template #icon><FolderOpened /></template>
+                    {{ $t('achievementRecommendation.planListCount', { count: plansTotal }) }}
+                </el-button>
+            </template>
+        </AchievementLeapRecommendationWorkspace>
+
+        <el-drawer v-model="planListVisible" :title="$t('achievementRecommendation.planList')"
+            size="min(880px, 100vw)" class="m-leap-plan-list-drawer" append-to-body>
             <AchievementLeapPlanList
                 :plans="plans"
                 :metadata="metadata"
@@ -972,34 +1012,8 @@ export default {
                 @view="openPlan"
                 @page-change="changePlansPage"
             />
-        </div>
 
-        <AchievementLeapRecommendationDrawer
-            v-model="recommendationDrawerVisible"
-            v-model:target-points="plannerForm.targetPoints"
-            v-model:plan-title="plannerForm.title"
-            :options="recommendationOptions"
-            :dimensions="recommendationDimensions"
-            :categories="categoryOptions"
-            :recommendation="recommendation"
-            :loading="recommendationLoading"
-            :saving="saving"
-            :roles="roles"
-            :role-id="currentRoleId"
-            :role-loading="roleLoading"
-            :client="currentClient"
-            :role-available="Boolean(currentRole?.roleId)"
-            :completed-ids="roleState.completedIds" :school-eligibility="schoolEligibility"
-            :disabled="recommendationEntryDisabled"
-            :error="recommendationError"
-            :metadata="metadata"
-            :maps="maps"
-            :menus="menus"
-            @update:options="changeRecommendationOptions"
-            @role-change="handleRoleChange"
-            @apply="createRecommendedPlan"
-            @refresh="loadRecommendation"
-        />
+        </el-drawer>
 
         <AchievementLeapSaveDialog
             v-model="saveDialogVisible"
@@ -1024,14 +1038,6 @@ export default {
 </template>
 
 <style lang="less" scoped>
-.m-leap-recommendation-entry {
-    display: flex;
-    justify-content: center;
-    padding: 8px 0 16px;
-    border-bottom: 1px solid #dce5df;
-    :deep(.el-button) { border-color: #47777d; color: #fff; background: #47777d; border-radius: 6px; min-height: 46px; font-weight: 600; }
-    :deep(.el-button.is-disabled) { opacity: 0.5; }
-}
 .p-achievement-leap-new,
 .m-leap-page-content,
 .m-leap-generated-result {
@@ -1153,6 +1159,24 @@ export default {
 
     .m-leap-generated-actions .u-leap-save-button {
         grid-column: 1 / -1;
+    }
+}
+</style>
+
+<style lang="less">
+.m-leap-plan-list-drawer {
+    --el-color-primary: #47777d;
+    color: #314043;
+    .el-drawer__header { margin: 0; padding: 20px; border-bottom: 1px solid #e2e8e6; }
+    .el-drawer__title { font-size: 18px; font-weight: 600; }
+    .el-drawer__body { padding: 16px; background: #faf8f2; }
+    .m-leap-plan-list { padding: 0; border: 0; background: transparent; box-shadow: none; }
+    .m-leap-plan-list__header h2 { display: none; }
+    .m-leap-plan-list__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: @phone) {
+        .el-drawer__header { padding: 16px; }
+        .el-drawer__body { padding: 12px; }
+        .m-leap-plan-list__grid { grid-template-columns: minmax(0, 1fr); }
     }
 }
 </style>

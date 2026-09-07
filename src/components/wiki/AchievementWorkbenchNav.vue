@@ -85,7 +85,7 @@ export default {
     z-index: 20;
     display: flex;
     min-width: 0;
-    min-height: 58px;
+    min-height: var(--achievement-nav-height, 58px);
     align-items: stretch;
     justify-content: space-between;
     gap: 16px;

@@ -200,13 +200,13 @@ export default {
         restoreDraft() { if (!this.disabled) this.resetDraft(); },
         resetScroll() {
             this.$nextTick(() => {
-                const preview = this.$el;
                 const results = this.$refs.results;
-                if (!preview || !results || preview.scrollTop <= 0) return;
-                const resultsTop = results.getBoundingClientRect().top - preview.getBoundingClientRect().top + preview.scrollTop;
-                // Keep the first result below the sticky controls after filtering or switching scope.
-                const toolbarHeight = this.$refs.toolbar?.offsetHeight || 0;
-                preview.scrollTop = Math.min(preview.scrollTop, Math.max(0, resultsTop - toolbarHeight));
+                const toolbar = this.$refs.toolbar;
+                if (!results || !toolbar || !this.$el?.getClientRects().length) return;
+                const toolbarTop = Number.parseFloat(window.getComputedStyle(toolbar).top) || 0;
+                const offset = results.getBoundingClientRect().top - toolbar.offsetHeight - toolbarTop;
+                // Only move upward when filtering would leave the first result above the sticky controls.
+                if (offset < 0) window.scrollBy({ top: offset, behavior: "instant" });
             });
         },
         hydrateRows(rows) {
@@ -461,7 +461,29 @@ export default {
         <div ref="toolbar" class="m-recommendation-toolbar">
             <header class="m-server-recommendation__header">
                 <h2>{{ $t('achievementRecommendation.preview') }}</h2>
-                <div class="m-server-recommendation__header-actions">
+                <div v-if="hasPreview && tab === 'recommended'" class="m-recommendation-selection__summary" aria-live="polite">
+                    <template v-if="!pointsMissing">
+                        <strong>{{ $t('achievementRecommendation.selectedSummary', { count: formatNumber(selectedItems.length), points: formatNumber(selectedPoints) }) }}</strong>
+                        <div v-if="targetSummary" class="m-recommendation-selection__target">
+                            <span>{{ $t('achievementRecommendation.projectedSummary', { projected: formatNumber(targetSummary.projectedPoints), target: formatNumber(targetSummary.targetPoints) }) }}</span>
+                            <strong v-if="targetSummary.remainingPoints">{{ $t('achievementRecommendation.targetShortfall', { points: formatNumber(targetSummary.remainingPoints) }) }}</strong>
+                            <strong v-else-if="targetSummary.surplusPoints">{{ $t('achievementRecommendation.targetSurplus', { points: formatNumber(targetSummary.surplusPoints) }) }}</strong>
+                            <strong v-else>{{ $t('achievementRecommendation.targetReached') }}</strong>
+                        </div>
+                    </template>
+                    <span v-else>{{ $t('achievementRecommendation.selectionUnavailable') }}</span>
+                </div>
+            </header>
+            <div v-if="hasPreview && tab === 'recommended'" class="m-recommendation-selection__actions">
+                <el-button class="m-recommendation-candidates-button" plain type="primary" :disabled="disabled || pointsMissing"
+                    @click="candidatesVisible = true">
+                    {{ $t('achievementRecommendation.viewCandidatesCount', { count: pointsMissing ? '—' : formatNumber(candidateRows.length) }) }}
+                </el-button>
+                <el-button type="primary" :disabled="disabled || pointsMissing" @click="addVisible = true">
+                    <el-icon><Plus /></el-icon>{{ $t('achievementRecommendation.addAchievements') }}
+                </el-button>
+            </div>
+            <div v-if="hasRequested || recommendation" class="m-server-recommendation__header-actions">
                 <el-tooltip v-if="hasRequested" :content="$t('achievementRecommendation.refreshHint')">
                     <el-button :disabled="!canRequest" :loading="loading" :aria-label="$t('achievementRecommendation.refresh')" @click="$emit('refresh')">
                         <el-icon v-if="!loading"><Refresh /></el-icon>
@@ -474,46 +496,7 @@ export default {
                         <span class="m-recommendation-action-label">{{ $t('achievementRecommendation.restoreDraft') }}</span>
                     </el-button>
                 </el-tooltip>
-                </div>
-            </header>
-            <template v-if="hasPreview">
-                <div v-if="tab === 'recommended'" class="m-recommendation-selection">
-                    <div class="m-recommendation-selection__summary" aria-live="polite">
-                        <template v-if="!pointsMissing">
-                            <strong>{{ $t('achievementRecommendation.selectedSummary', { count: formatNumber(selectedItems.length), points: formatNumber(selectedPoints) }) }}</strong>
-                            <span class="m-recommendation-selection__hint">{{ $t('achievementRecommendation.saveSelectedHint') }}</span>
-                            <div v-if="targetSummary" class="m-recommendation-selection__target">
-                                <span>{{ $t('achievementRecommendation.projectedSummary', { projected: formatNumber(targetSummary.projectedPoints), target: formatNumber(targetSummary.targetPoints) }) }}</span>
-                                <strong v-if="targetSummary.remainingPoints">{{ $t('achievementRecommendation.targetShortfall', { points: formatNumber(targetSummary.remainingPoints) }) }}</strong>
-                                <strong v-else-if="targetSummary.surplusPoints">{{ $t('achievementRecommendation.targetSurplus', { points: formatNumber(targetSummary.surplusPoints) }) }}</strong>
-                                <strong v-else>{{ $t('achievementRecommendation.targetReached') }}</strong>
-                            </div>
-                        </template>
-                        <span v-else>{{ $t('achievementRecommendation.selectionUnavailable') }}</span>
-                    </div>
-                    <div class="m-recommendation-selection__actions">
-                    <el-button class="m-recommendation-candidates-button" plain type="primary" :disabled="disabled || pointsMissing"
-                        @click="candidatesVisible = true">
-                        {{ $t('achievementRecommendation.viewCandidatesCount', { count: pointsMissing ? '—' : formatNumber(candidateRows.length) }) }}
-                    </el-button>
-                    <el-button type="primary" :disabled="disabled || pointsMissing" @click="addVisible = true">
-                        <el-icon><Plus /></el-icon>{{ $t('achievementRecommendation.addAchievements') }}
-                    </el-button>
-                    </div>
-                </div>
-                <div class="m-server-recommendation__counts">
-                    <nav class="m-recommendation-view-scope" :aria-label="$t('achievementRecommendation.viewScope')">
-                        <strong>{{ $t(tab === 'upcoming' ? 'achievementRecommendation.upcomingList' : 'achievementRecommendation.selectedList') }}</strong>
-                        <el-button v-if="tab === 'recommended' && upcomingRows.length" link type="primary" :disabled="disabled" @click="tab = 'upcoming'">
-                            {{ $t('achievementRecommendation.upcoming', { count: formatNumber(upcomingRows.length) }) }}
-                        </el-button>
-                        <el-button v-else-if="tab === 'upcoming'" link type="primary" :disabled="disabled" @click="tab = 'recommended'">
-                            {{ $t('achievementRecommendation.returnToSelected') }}
-                        </el-button>
-                    </nav>
-                    <span>{{ $t('achievementRecommendation.visibleCount', { count: visibleRows.length }) }}</span>
-                </div>
-            </template>
+            </div>
         </div>
         <div v-if="!hasRequested" class="m-server-recommendation__start">
             <el-button type="primary" size="large" :disabled="!canRequest" @click="$emit('refresh')">
@@ -573,6 +556,18 @@ export default {
             </div>
             <p v-if="tab === 'recommended'" class="m-recommendation-candidate-hint">{{ $t('achievementRecommendation.candidateHint') }}</p>
             <el-alert v-if="pointsMissing" :title="$t('achievementRecommendation.pointsMissing', { id: selectionResult.missingPointId })" type="error" :closable="false" />
+            <div class="m-server-recommendation__counts">
+                <nav class="m-recommendation-view-scope" :aria-label="$t('achievementRecommendation.viewScope')">
+                    <strong>{{ $t(tab === 'upcoming' ? 'achievementRecommendation.upcomingList' : 'achievementRecommendation.selectedList') }}</strong>
+                    <el-button v-if="tab === 'recommended' && upcomingRows.length" link type="primary" :disabled="disabled" @click="tab = 'upcoming'">
+                        {{ $t('achievementRecommendation.upcoming', { count: formatNumber(upcomingRows.length) }) }}
+                    </el-button>
+                    <el-button v-else-if="tab === 'upcoming'" link type="primary" :disabled="disabled" @click="tab = 'recommended'">
+                        {{ $t('achievementRecommendation.returnToSelected') }}
+                    </el-button>
+                </nav>
+                <span>{{ $t('achievementRecommendation.visibleCount', { count: visibleRows.length }) }}</span>
+            </div>
             <div ref="results" class="m-server-recommendation__results">
                 <p v-if="hasFilters && !filterIndexReady" role="status">{{ $t(filterIndexError ? 'achievementRecommendation.filterIndexFailed' : 'achievementRecommendation.loadingFilterIndex') }}</p>
                 <template v-else>
@@ -620,32 +615,38 @@ export default {
 
 <style lang="less" scoped>
 .m-recommendation-selection__actions {
-    display: flex; gap: 8px; flex-wrap: wrap;
+    display: flex; flex: none; gap: 6px; flex-wrap: wrap;
     .el-button { margin: 0; min-height: 36px; height: auto; }
     :deep(.el-button > span) { white-space: normal; }
 }
-.m-server-recommendation { height: 100%; min-height: 0; min-width: 0; display: flex; flex-direction: column; color: #314043;
-    overflow-y: auto; overscroll-behavior: contain; padding-right: 4px;
+.m-server-recommendation { min-height: 0; min-width: 0; display: flex; flex-direction: column; color: #314043;
+    padding-right: 4px;
     > * { flex-shrink: 0; min-width: 0; }
     p { font-size: 13px; color: #7a8586; }
 }
 .m-recommendation-toolbar {
     position: sticky;
-    top: 0;
+    top: var(--achievement-sticky-top, 60px);
     z-index: 5;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
     flex: none;
-    padding-bottom: 10px;
+    padding: 8px 0;
     background: #fff;
     border-bottom: 1px solid #e2e8e6;
-    .m-server-recommendation__header { margin-bottom: 10px; }
-    .m-recommendation-selection { margin: 0 0 8px; }
-    .m-server-recommendation__counts { padding: 0; }
 }
-.m-server-recommendation__header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; flex: none;
-    h2 { margin: 0; font-size: 18px; line-height: 1.4; } }
-.m-server-recommendation__header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.m-server-recommendation__header {
+    display: flex; flex: 1; flex-wrap: wrap; gap: 6px 16px; align-items: center; min-width: 0;
+    h2 { flex: none; margin: 0; font-size: 16px; line-height: 1.5; }
+}
+.m-server-recommendation__header-actions {
+    display: flex; flex: none; align-items: center; gap: 6px;
+    .el-button { margin: 0; min-height: 36px; height: auto; }
+}
 .m-recommendation-candidate-hint { flex: none; margin: 0 0 10px; font-size: 12px; line-height: 1.5; }
-.m-server-recommendation__start { flex: 1; display: flex; align-items: center; justify-content: center; }
+.m-server-recommendation__start { min-height: 180px; display: flex; align-items: center; justify-content: center; }
 .m-server-recommendation__summary { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: #697374; padding: 8px 0; flex: none; }
 .u-recommendation-warning { color: #ae3b40 !important; }
 .m-recommendation-snapshot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-bottom: 8px;
@@ -661,14 +662,13 @@ export default {
     p { margin: 0 0 8px; line-height: 1.5; }
 }
 .m-recommendation-exclusions__content { padding: 0 10px 10px; max-height: 120px; overflow-y: auto; }
-.m-recommendation-selection { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; flex: none; margin-bottom: 10px; padding: 10px 12px;
-    background: #f3f8f6; border: 1px solid #e2e8e6; border-radius: 6px; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums;
+.m-recommendation-selection__summary {
+    display: flex; flex: 1; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; min-width: 220px;
+    font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums;
     strong { color: #47777d; font-weight: 600; }
 }
-.m-recommendation-selection__summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; flex: 1; min-width: 0; }
-.m-recommendation-candidates-button { flex: none; margin-left: auto; }
-.m-recommendation-selection__hint { color: #697374; }
-.m-recommendation-selection__target { display: flex; flex-wrap: wrap; gap: 4px 12px; width: 100%; }
+.m-recommendation-candidates-button { flex: none; }
+.m-recommendation-selection__target { display: flex; flex-wrap: wrap; gap: 4px 10px; }
 .m-recommendation-view-scope {
     display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; max-width: 100%;
     > strong { color: #314043; font-size: 13px; }
@@ -704,25 +704,18 @@ export default {
     }
 
     .m-server-recommendation__header-actions {
-        flex: none;
-        gap: 8px;
-
-        :deep(.el-button) {
-            width: 40px;
-            padding: 0;
-        }
+        gap: 6px;
+        :deep(.el-button) { width: 40px; padding: 0; }
     }
-
-    .m-recommendation-action-label,
-    .m-recommendation-selection__hint { display: none; }
-
-    .m-recommendation-toolbar {
-        .m-server-recommendation__header { flex-wrap: nowrap; }
-        .m-recommendation-selection { padding: 8px; gap: 4px; }
+    .m-recommendation-action-label { display: none; }
+    .m-recommendation-toolbar { gap: 6px 8px; padding: 6px 0; }
+    .m-server-recommendation__header { flex-basis: 100%; gap: 4px 10px; }
+    .m-recommendation-selection__summary { gap: 2px 8px; }
+    .m-recommendation-selection__target { gap: 2px 8px; }
+    .m-recommendation-selection__actions {
+        flex: 1; min-width: 0;
+        .el-button { flex: 1; padding: 8px 6px; font-size: 12px; }
     }
-    .m-recommendation-selection__summary { flex-basis: 100%; }
-    .m-recommendation-selection__actions { width: 100%; .el-button { flex: 1; } }
-
 
     .m-server-recommendation__filters {
         grid-template-columns: minmax(0, 1fr);

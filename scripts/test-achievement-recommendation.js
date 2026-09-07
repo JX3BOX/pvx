@@ -43,14 +43,31 @@ assert.strictEqual(definitions[0].apiKey, "cost_effectiveness");
 assert.strictEqual(workbench.normalizeAchievementWorkbenchDifficultyDimensions(definitions)[0].apiKey, "cost_effectiveness");
 assert.deepStrictEqual(workbench.resolveAchievementWorkbenchDimensions(definitions).map((d) => d.key), ["time"]);
 assert.deepStrictEqual(workbench.resolveAchievementWorkbenchDimensions(definitions.slice(0, 1)), [], "all hidden must not restore built-in stars");
-const categories = [{ id: "17", sourceIds: ["17", "41"] }, { id: "11", sourceIds: ["11"] }];
+const categories = [{ id: "17", name: "秘境", sourceIds: ["17", "41"] }, { id: "11", name: "任务", sourceIds: ["11"] }];
+const defaultDirections = Object.fromEntries(Object.keys(utils.ACHIEVEMENT_RECOMMENDATION_DIRECTION_CATEGORIES).map((key) => [key, 1]));
 const selectedOptions = { categoryIds: ["17"], dimensionWeights: { time: 0 }, directionWeights: { dungeon: 0.7 } };
 const selectedPreferences = utils.achievementRecommendationPreferences(selectedOptions, categories);
 assert.deepStrictEqual(selectedPreferences, { category_ids: [17, 41], dimension_weights: { time: 0 },
-    direction_weights: { dungeon: 0.7 } });
+    direction_weights: { ...defaultDirections, dungeon: 0.7 } });
 assert.strictEqual(selectedPreferences.dimension_ranges, undefined);
 assert.strictEqual(utils.achievementRecommendationPreferences(utils.defaultAchievementRecommendationOptions(), categories).category_ids, undefined);
 assert.deepStrictEqual(utils.achievementRecommendationPreferences({ ...selectedOptions, categoryIds: [] }, categories).category_ids, []);
+assert.deepStrictEqual(utils.achievementRecommendationDirections(["11"], categories), ["quest"]);
+assert.deepStrictEqual(utils.achievementRecommendationDirections(null, categories), ["dungeon", "quest"]);
+assert.deepStrictEqual(utils.achievementRecommendationDirections([], categories), []);
+assert.deepStrictEqual(utils.achievementRecommendationDirections(null, [
+    { id: "1", name: "足迹" }, { id: "2", name: "阵营" }, { id: "3", name: "剑侠录" },
+    { id: "4", name: "风雨江湖路" }, { id: "5", name: "新分类" },
+]), ["map", "pvp", "story", "other"], "category aliases share one direction and unknown categories fall back to other");
+assert.deepStrictEqual(utils.achievementRecommendationPreferences(utils.defaultAchievementRecommendationOptions(), categories).direction_weights, defaultDirections);
+assert.deepStrictEqual(utils.achievementRecommendationPreferences({ ...selectedOptions, categoryIds: ["11"],
+    directionWeights: { dungeon: 0, quest: 1.3, map: 0.7 } }, categories).direction_weights,
+{ ...defaultDirections, quest: 1.3 }, "hidden overrides always submit 1, including old exclusions");
+assert.deepStrictEqual(utils.achievementRecommendationPreferences({ ...selectedOptions, categoryIds: [],
+    directionWeights: { dungeon: 0.7, quest: 1.3 } }, categories).direction_weights, defaultDirections);
+for (const value of [undefined, null, 0, -1, 2, "0.7"]) {
+    assert.strictEqual(utils.achievementRecommendationDirectionWeight(value), 1, "unsupported legacy weights default to the stage");
+}
 const leapUtils = load("src/utils/achievementLeap.js", {
     "@/utils/achievementStatistics": {},
     "@/utils/achievementSchoolEligibility": {},
@@ -168,6 +185,14 @@ const pageFile = "src/components/wiki/leap/AchievementLeapPage.vue";
 const pageSource = fs.readFileSync(path.join(root, pageFile), "utf8");
 for (const [, key] of pageSource.matchAll(/from "([^"]+\.vue)"/g)) pageDependencies[key] = {};
 const page = load(pageFile, pageDependencies).default;
+let categoryBuildArguments;
+const countPage = load(pageFile, { ...pageDependencies, "@/utils/achievementLeap": {
+    ...leapUtils, buildAchievementLeapCategoryOptions: (...args) => { categoryBuildArguments = args; return []; },
+} }).default;
+countPage.computed.categoryOptions.call({ menus: {}, metadata: {}, roleState: { completedIds: [123] },
+    schoolEligibility: { school: "天策" } });
+assert.deepStrictEqual(categoryBuildArguments, [{}, {}, [123], { visibleOnly: true }],
+    "recommendation categories must not apply the local school-v1 eligibility context");
 const panel = load("src/components/wiki/leap/AchievementLeapRecommendation.vue", {
     "./AchievementLeapAddDialog.vue": { render: () => null },
     "./AchievementRecommendationCandidatesDialog.vue": { render: () => null },
@@ -183,22 +208,29 @@ const panel = load("src/components/wiki/leap/AchievementLeapRecommendation.vue",
         fetchAchievementWorkbenchTags: (...args) => tagsLoader(...args),
         fetchAchievementWorkbenchTag: (...args) => eventTagLoader(...args) },
 }).default;
-const drawer = load("src/components/wiki/leap/AchievementLeapRecommendationDrawer.vue", {
+const categorySelector = load("src/components/wiki/leap/AchievementRecommendationCategories.vue", {
+    "@element-plus/icons-vue": { CollectionTag: { render: () => null } },
+    "@/utils/achievementCategoryImages": { achievementCategoryImages: { 任务: "/icons/任务.png", 秘境: "/icons/秘境.png" } },
+}).default;
+const categoryTemplate = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementRecommendationCategories.vue"), "utf8")).descriptor.template.content;
+categorySelector.render = new Function("Vue", compile(categoryTemplate, { mode: "function", prefixIdentifiers: true }).code)(vue);
+const workspace = load("src/components/wiki/leap/AchievementLeapRecommendationWorkspace.vue", {
     "@element-plus/icons-vue": {}, "./AchievementLeapRecommendation.vue": panel,
+    "./AchievementRecommendationCategories.vue": categorySelector,
     "@/utils/achievementRecommendation": utils,
 }).default;
 const itemList = load("src/components/wiki/leap/AchievementRecommendationItems.vue", {
     "@element-plus/icons-vue": {}, "@jx3box/jx3box-common/js/utils": {}, "vuedraggable": {},
     "@/components/wiki/AchievementDifficultyStars.vue": {}, "@/utils/achievementWorkbench": workbench,
 }).default;
-assert.strictEqual(drawer.data().hasRequested, false);
-const requestVm = { ...drawer.data(), canRequest: true, $emit: (event) => assert.strictEqual(event, "refresh") };
-drawer.methods.requestRecommendation.call(requestVm);
+assert.strictEqual(workspace.data().hasRequested, false);
+const requestVm = { ...workspace.data(), canRequest: true, $emit: (event) => assert.strictEqual(event, "refresh") };
+workspace.methods.requestRecommendation.call(requestVm);
 assert.strictEqual(requestVm.hasRequested, true, "first request moves the button to the result header even before success");
 assert.strictEqual(utils.achievementRecommendationPlace("bucket:0:scene:100"), "scene:100");
 assert.strictEqual(utils.achievementRecommendationPlace("bucket:2:map:100"), "map:100");
 assert.strictEqual(utils.achievementRecommendationPlace("bucket:2:direction:reading"), null);
-assert.deepStrictEqual(drawer.data().expandedPreferences, [], "both preference sections start collapsed");
+assert.deepStrictEqual(workspace.data().expandedPreferences, ["categories"], "categories start expanded; both preference sections start collapsed");
 const recommendationTemplate = fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendation.vue"), "utf8");
 for (const key of ["candidateHint", "refreshHint", "restoreDraftHint"]) {
     assert.ok(recommendationTemplate.includes(`achievementRecommendation.${key}`), `show clear ${key}`);
@@ -211,23 +243,67 @@ function panelVm(props = {}) {
     vm.resetDraft();
     return vm;
 }
-assert.deepStrictEqual(drawer.computed.visibleDimensions.call({ dimensions: definitions }).map((d) => d.key), ["time"]);
-assert.strictEqual(drawer.methods.dimensionWeight.call({ options: utils.defaultAchievementRecommendationOptions() }, { apiKey: "constructor", recommendationWeight: 8 }), 1);
-assert.strictEqual(drawer.methods.directionLevel.call({ options: utils.defaultAchievementRecommendationOptions() }, "dungeon"), 2);
+assert.deepStrictEqual(workspace.computed.visibleDimensions.call({ dimensions: definitions }).map((d) => d.key), ["time"]);
+assert.strictEqual(workspace.methods.dimensionWeight.call({ options: utils.defaultAchievementRecommendationOptions() }, { apiKey: "constructor", recommendationWeight: 8 }), 1);
+assert.strictEqual(workspace.methods.directionWeight.call({ options: utils.defaultAchievementRecommendationOptions() }, "dungeon"), 1);
+const preferenceVm = { options: utils.defaultAchievementRecommendationOptions(), categories, controlsDisabled: false,
+    $t: (key) => key, $emit(event, value) { assert.strictEqual(event, "update:options"); this.options = value; } };
+Object.entries(workspace.methods).forEach(([key, method]) => { preferenceVm[key] = method.bind(preferenceVm); });
+Object.entries(workspace.computed).filter(([key]) => key.startsWith("direction")).forEach(([key, getter]) =>
+    Object.defineProperty(preferenceVm, key, { get: () => getter.call(preferenceVm) }));
+assert.deepStrictEqual(preferenceVm.directionPreferenceOptions.map((option) => option.value), [1.3, 1, 0.7]);
+preferenceVm.updateDirection("dungeon", 0.7);
+preferenceVm.updateCategories(["11"]);
+assert.deepStrictEqual(preferenceVm.directionOptions, ["quest"]);
+assert.deepStrictEqual(preferenceVm.options.directionWeights, {}, "deselecting a category discards its override");
+preferenceVm.updateDirection("quest", 1.3);
+preferenceVm.updateDirection("dungeon", 0.7);
+preferenceVm.updateDirection("quest", 0);
+assert.deepStrictEqual(preferenceVm.options.directionWeights, { quest: 1.3 }, "hidden directions and removed exclusion levels cannot be set");
+preferenceVm.updateDirection("quest", 1);
+assert.deepStrictEqual(preferenceVm.options.directionWeights, {});
+preferenceVm.updateCategories(null);
+assert.strictEqual(preferenceVm.directionWeight("dungeon"), 1, "reselecting does not restore a hidden preference");
+preferenceVm.controlsDisabled = true;
+preferenceVm.updateCategories([]);
+preferenceVm.updateDirection("quest", 0.7);
+assert.strictEqual(preferenceVm.options.categoryIds, null);
+assert.deepStrictEqual(preferenceVm.options.directionWeights, {});
+
+const categoryVm = { categories, modelValue: null, disabled: false,
+    $emit(event, value) { assert.strictEqual(event, "update:modelValue"); this.modelValue = value; } };
+Object.entries(categorySelector.methods).forEach(([key, method]) => { categoryVm[key] = method.bind(categoryVm); });
+Object.defineProperty(categoryVm, "cards", { get: () => categorySelector.computed.cards.call(categoryVm) });
+assert.ok(categoryVm.cards.every((card) => card.selected));
+assert.strictEqual(categoryVm.cards.find((card) => card.name === "任务").icon, "/icons/任务.png", "use the progress category icon registry");
+categoryVm.selectCategory("17", false);
+assert.deepStrictEqual(categoryVm.modelValue, ["11"]);
+categoryVm.selectCategory("17", true);
+assert.strictEqual(categoryVm.modelValue, null, "selecting every card restores all-category mode");
+categoryVm.selectAll(false);
+assert.deepStrictEqual(categoryVm.modelValue, []);
+assert.ok(categoryVm.cards.every((card) => !card.selected));
+categoryVm.selectCategory("17", true);
+assert.deepStrictEqual(categoryVm.modelValue, ["17"]);
+categoryVm.selectAll(true);
+categoryVm.disabled = true;
+categoryVm.selectAll(false);
+categoryVm.selectCategory("17", false);
+assert.strictEqual(categoryVm.modelValue, null, "disabled category controls cannot change the selection");
 const weightOptions = utils.defaultAchievementRecommendationOptions();
 const weightVm = {
     options: weightOptions,
     updateOptions(patch) { Object.assign(this.options, patch); },
 };
-drawer.methods.updateEntry.call(weightVm, "dimensionWeights", "time", 2);
-assert.strictEqual(drawer.methods.dimensionWeight.call(weightVm, { apiKey: "time", recommendationWeight: 10 }), 2);
+workspace.methods.updateEntry.call(weightVm, "dimensionWeights", "time", 2);
+assert.strictEqual(workspace.methods.dimensionWeight.call(weightVm, { apiKey: "time", recommendationWeight: 10 }), 2);
 const highWeightPreferences = utils.achievementRecommendationPreferences(weightVm.options, categories);
 assert.deepStrictEqual(highWeightPreferences.dimension_weights, { time: 2 });
-drawer.methods.updateEntry.call(weightVm, "dimensionWeights", "time", undefined);
-assert.strictEqual(drawer.methods.dimensionWeight.call(weightVm, { apiKey: "time", recommendationWeight: 8 }), 1);
+workspace.methods.updateEntry.call(weightVm, "dimensionWeights", "time", undefined);
+assert.strictEqual(workspace.methods.dimensionWeight.call(weightVm, { apiKey: "time", recommendationWeight: 8 }), 1);
 assert.ok(!pageSource.includes("<AchievementLeapPlanner"));
-assert.ok(pageSource.includes("<AchievementLeapRecommendationDrawer"));
-assert.ok(!pageSource.includes("<AchievementLeapRecommendation\n"), "recommendation results must not be inline on the planner page");
+assert.ok(pageSource.includes("<AchievementLeapRecommendationWorkspace"));
+assert.ok(pageSource.includes('v-show="!detailMode && !generatedRoute"'), "detail navigation must retain the recommendation component");
 function deferred() {
     let resolve;
     let reject;
@@ -238,9 +314,9 @@ function deferred() {
     return { promise, resolve, reject };
 }
 
-async function testDrawerDraftLifecycle() {
-    // Render the real drawer template and panel state without a browser or network.
-    const node = () => ({ children: [], parent: null });
+async function testWorkspaceDraftLifecycle() {
+    // Render the real workspace template and panel state without a browser or network.
+    const node = () => ({ children: [], parent: null, style: {} });
     const renderer = vue.createRenderer({
         createElement: node, createText: node, createComment: node,
         setText() {}, setElementText() {}, patchProp() {},
@@ -257,32 +333,21 @@ async function testDrawerDraftLifecycle() {
             entry.parent = null;
         },
     });
-    const template = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendationDrawer.vue"), "utf8")).descriptor.template.content;
+    const template = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendationWorkspace.vue"), "utf8")).descriptor.template.content;
     const render = new Function("Vue", compile(template, { mode: "function", prefixIdentifiers: true }).code)(vue);
     let activePanel;
-    const component = { ...drawer, render, components: { ...drawer.components,
+    const component = { ...workspace, render, components: { ...workspace.components,
         RefreshLeft: { render: () => null },
         AchievementLeapRecommendation: { ...panel, render: () => null, mounted() { activePanel = this; } },
     } };
-    const state = vue.reactive({ modelValue: false, recommendation: result });
-    const app = renderer.createApp({ render: () => vue.h(component, {
+    const state = vue.reactive({ detailMode: false, recommendation: result });
+    const app = renderer.createApp({ render: () => vue.withDirectives(vue.h(component, {
         ...state, options: utils.defaultAchievementRecommendationOptions(), metadata, maps, menus,
         targetPoints: 50030, roleAvailable: true, planTitle: "Draft", roleId: "42",
-    }) });
+    }), [[vue.vShow, !state.detailMode]]) });
     const slotContainer = { render() { return vue.h("div", this.$slots.default?.()); } };
     const controls = new Set([...template.matchAll(/<(el-[\w-]+)/g)].map(([, name]) => name));
-    controls.delete("el-drawer");
     for (const name of controls) app.component(name, slotContainer);
-    // Element Plus lazily mounts content, then only unmounts it on close when requested.
-    app.component("el-drawer", {
-        props: { modelValue: Boolean, destroyOnClose: Boolean },
-        data: () => ({ rendered: false }),
-        watch: { modelValue: { immediate: true, handler(value) {
-            if (value) this.rendered = true;
-            else if (this.destroyOnClose) this.rendered = false;
-        } } },
-        render() { return this.rendered ? vue.h("div", this.$slots.default?.()) : null; },
-    });
     app.config.globalProperties.$t = (key) => key;
     app.config.globalProperties.$i18n = { locale: "zh-CN" };
     detailLoader = async ({ ids }) => records.filter((record) => ids.includes(record.id));
@@ -293,33 +358,33 @@ async function testDrawerDraftLifecycle() {
         await new Promise((resolve) => setImmediate(resolve));
     };
     try {
-        assert.strictEqual(activePanel, undefined, "closed drawer must not fetch recommendation details before first opening");
-        await update({ modelValue: true });
+        assert.ok(activePanel, "the homepage mounts recommendation results directly");
+        await update({ detailMode: false });
         activePanel.moveItem({ id: "2", group: "bucket:0:scene:100", beforeId: "9" });
         activePanel.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "2" });
         activePanel.filters.keyword = "backup query";
-        await update({ modelValue: false });
-        await update({ modelValue: true });
+        await update({ detailMode: true });
+        await update({ detailMode: false });
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5", "2", "9"]],
-            "closing and reopening must preserve both group and item ordering");
+            "viewing a saved plan and returning must preserve both group and item ordering");
         activePanel.removeItem({ id: "9" });
-        await update({ modelValue: false });
-        await update({ modelValue: true });
+        await update({ detailMode: true });
+        await update({ detailMode: false });
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5", "2", "9"]],
             "unselecting preserves candidate data and manual ordering");
-        assert.strictEqual(activePanel.filters.keyword, "backup query", "reopening preserves shared filters");
+        assert.strictEqual(activePanel.filters.keyword, "backup query", "returning preserves shared filters");
         assert.deepStrictEqual(activePanel.selection.items.map((item) => item.id), ["5", "2"], "saved selection uses the retained draft");
         activePanel.restoreDraft();
         await vue.nextTick();
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids), [[9, 2], [5]], "explicit restore still resets the draft");
         activePanel.removeItem({ id: "9" });
-        await update({ modelValue: false });
+        await update({ detailMode: true });
         await update({ recommendation: null });
-        await update({ modelValue: true });
+        await update({ detailMode: false });
         assert.deepStrictEqual(activePanel.groups, [], "invalidated role or preferences cannot retain an old draft");
-        await update({ modelValue: false });
+        await update({ detailMode: true });
         await update({ recommendation: { ...result, recommendations: [{ group: "new", ids: [5] }] } });
-        await update({ modelValue: true });
+        await update({ detailMode: false });
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids), [[5]], "new recommendations replace the draft even while closed");
     } finally {
         app.unmount();
@@ -882,6 +947,19 @@ async function testRecommendationSummaryRendering() {
 }
 
 async function main() {
+    const categoryMessages = load("src/locale/zh-CN/achievementRecommendation.js").default;
+    const categoryApp = vue.createSSRApp(categorySelector, {
+        modelValue: null, countsReady: true,
+        categories: [{ id: "7", name: "任务", incompleteCount: 42, schoolExcludedCount: 999 }],
+    });
+    categoryApp.config.globalProperties.$t = (key, params = {}) =>
+        String(categoryMessages[key.replace("achievementRecommendation.", "")] || key)
+            .replace(/\{(\w+)\}/g, (_, token) => String(params[token] ?? ""));
+    const categoryHtml = await require("@vue/server-renderer").renderToString(categoryApp);
+    assert.ok(categoryHtml.includes("未完成 42"));
+    assert.ok(categoryHtml.includes("门派排除 —"));
+    assert.ok(!categoryHtml.includes("999"), "never display a frontend-computed school exclusion count as backend data");
+    assert.ok(categoryHtml.includes('/icons/任务.png'));
     const resetEvents = [];
     const resetVm = {
         controlsDisabled: false, loading: false, canRequest: true, recommendation: result,
@@ -891,8 +969,8 @@ async function main() {
         },
         $nextTick: () => Promise.resolve(),
     };
-    resetVm.requestRecommendation = drawer.methods.requestRecommendation.bind(resetVm);
-    const resetting = drawer.methods.reset.call(resetVm);
+    resetVm.requestRecommendation = workspace.methods.requestRecommendation.bind(resetVm);
+    const resetting = workspace.methods.reset.call(resetVm);
     assert.deepStrictEqual(resetEvents, [["update:options", utils.defaultAchievementRecommendationOptions()]],
         "reset updates preferences before requesting recommendations");
     await resetting;
@@ -900,12 +978,12 @@ async function main() {
         "reset automatically requests recommendations once after the update");
     resetEvents.length = 0;
     resetVm.loading = true;
-    await drawer.methods.reset.call(resetVm);
+    await workspace.methods.reset.call(resetVm);
     assert.strictEqual(resetEvents.length, 0, "loading prevents resetting and duplicate requests");
     resetVm.loading = false;
     resetVm.recommendation = result;
     resetVm.canRequest = false;
-    await drawer.methods.reset.call(resetVm);
+    await workspace.methods.reset.call(resetVm);
     assert.deepStrictEqual(resetEvents.map(([event]) => event), ["update:options"],
         "without an eligible role reset preferences but do not request");
     resetEvents.length = 0;
@@ -913,7 +991,7 @@ async function main() {
     resetVm.recommendation = null;
     for (const hasRequested of [false, true]) {
         resetVm.hasRequested = hasRequested;
-        await drawer.methods.reset.call(resetVm);
+        await workspace.methods.reset.call(resetVm);
         assert.deepStrictEqual(resetEvents.map(([event]) => event), ["update:options"],
             "without a current result reset must not generate, even after a failed request");
         resetEvents.length = 0;
@@ -931,7 +1009,7 @@ async function main() {
     await testCandidateLoading();
     await testIndependentRecommendationData();
     await testContinuousRecommendationBatches();
-    await testDrawerDraftLifecycle();
+    await testWorkspaceDraftLifecycle();
     assert.strictEqual(await service.fetchAchievementWorkbenchRecommendation({ roleId: 42, camp: "haoqi" }), result);
     assert.deepStrictEqual(apiCalls, [
         ["/api/cms/pvx/wiki_achievement_recommendation", { role_id: 42, camp: "haoqi" }],
@@ -1019,7 +1097,7 @@ async function main() {
     vm.$message = {
         error: (message) => messages.push(message), warning: (message) => messages.push(message), success: (message) => messages.push(message),
     };
-    vm.recommendationDrawerVisible = true;
+    vm.planListVisible = true;
     vm.editingPlan = { id: "old-plan" };
     vm.generatedRoute = { items: [{ id: "old-item" }] };
     vm.saveDialogVisible = true;
@@ -1029,12 +1107,12 @@ async function main() {
     await page.methods.createRecommendedPlan.call(vm, selection);
     assert.strictEqual(savedPlans.length, 1);
     assert.strictEqual(savedPlans[0].id, undefined, "system recommendation creates a new plan, never overwrites the open editor");
-    assert.strictEqual(vm.recommendationDrawerVisible, false);
+    assert.strictEqual(vm.planListVisible, false);
     assert.strictEqual(vm.editingPlan, null, "successful recommendation creation exits an existing editor");
     assert.strictEqual(vm.generatedRoute, null, "returning from the created detail must not restore the old route");
     assert.strictEqual(vm.saveDialogVisible, false);
     assert.strictEqual(vm.addDialogVisible, false);
-    assert.deepStrictEqual(vm.plannerForm, vm.createDefaultForm(vm.currentRoleId, vm.currentPoints));
+    assert.deepStrictEqual(vm.plannerForm, { title: "Plan", targetPoints: 50010 }, "saved recommendation keeps its title and target when returning");
     assert.ok(vm.editorRequestId > previousEditorRequestId, "in-flight editor hydration cannot restore cleared state");
     const plan = savedPlans[0].payload;
     assert.deepStrictEqual(plan.schema, ["9", "2"]);
@@ -1060,7 +1138,7 @@ async function main() {
     const pendingSave = deferred();
     let saveCalls = 0;
     planSaver = () => { saveCalls += 1; return pendingSave.promise; };
-    vm.recommendationDrawerVisible = true;
+    vm.planListVisible = true;
     vm.plannerForm = { title: "Plan", targetPoints: 50010 };
     const saving = page.methods.createRecommendedPlan.call(vm, selection);
     await page.methods.createRecommendedPlan.call(vm, selection);
@@ -1079,32 +1157,28 @@ async function main() {
     assert.strictEqual(vm.saving, false);
     planSaver = async () => { throw new Error("save offline"); };
     await page.methods.createRecommendedPlan.call(vm, selection);
-    assert.strictEqual(vm.recommendationDrawerVisible, true, "failed save preserves the draft");
+    assert.strictEqual(vm.planListVisible, true, "failed save preserves the draft");
     assert.strictEqual(vm.editingPlan, preservedEditor, "failed creation cannot discard the editor");
     assert.strictEqual(vm.generatedRoute, preservedRoute);
     assert.strictEqual(vm.plannerForm, preservedForm);
     assert.strictEqual(vm.saving, false);
     assert.strictEqual(messages[messages.length - 1], "pages.wiki.leap.ui.createFailed");
 
-    Object.defineProperty(vm, "recommendationEntryDisabled", {
-        get: () => page.computed.recommendationEntryDisabled.call(vm),
+    Object.defineProperty(vm, "recommendationDisabled", {
+        get: () => page.computed.recommendationDisabled.call(vm),
     });
-    vm.recommendationDrawerVisible = false;
-    assert.strictEqual(vm.recommendationEntryDisabled, true, "the recommendation entry is disabled while editing");
-    page.methods.openRecommendation.call(vm);
-    assert.strictEqual(vm.recommendationDrawerVisible, false, "direct entry calls cannot open the drawer while editing");
+    vm.planListVisible = false;
+    assert.strictEqual(vm.recommendationDisabled, true, "the recommendation entry is disabled while editing");
     let blockedRequests = 0;
     recommendationLoader = async () => { blockedRequests += 1; return result; };
     await page.methods.loadRecommendation.call(vm);
     assert.strictEqual(blockedRequests, 0, "editing cannot start a recommendation request");
     vm.editingPlan = null;
-    assert.strictEqual(vm.recommendationEntryDisabled, true, "a copied local draft also disables recommendations");
+    assert.strictEqual(vm.recommendationDisabled, true, "a copied local draft also disables recommendations");
     vm.clearEditor();
-    assert.strictEqual(vm.recommendationEntryDisabled, false, "discarding the editor re-enables recommendations");
-    page.methods.openRecommendation.call(vm);
-    assert.strictEqual(vm.recommendationDrawerVisible, true);
+    assert.strictEqual(vm.recommendationDisabled, false, "discarding the editor re-enables recommendations");
     vm.saving = true;
-    assert.strictEqual(vm.recommendationEntryDisabled, true, "saving keeps the entry disabled");
+    assert.strictEqual(vm.recommendationDisabled, true, "saving keeps the entry disabled");
     vm.saving = false;
 
     const detailVm = panelVm();
@@ -1229,24 +1303,24 @@ async function main() {
     assert.deepStrictEqual(filteredMove[0].ids, [1, 4, 2, 3], "hidden filtered rows remain in the draft around the insertion anchor");
     placesVm.restoreDraft();
     assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "5", "6"], "restore returns to the original map-adjacent order");
-    assert.strictEqual(drawer.computed.canRequest.call({ controlsDisabled: true, roleAvailable: true }), false);
-    assert.strictEqual(drawer.computed.canRequest.call({ controlsDisabled: false, roleAvailable: true, loading: false }), true);
-    assert.strictEqual(drawer.computed.canRequest.call({ controlsDisabled: false, roleAvailable: false, loading: false }), false);
-    assert.strictEqual(drawer.computed.controlsDisabled.call({ disabled: false, roleLoading: false, client: "std", roleAvailable: false }), false,
+    assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: true, roleAvailable: true }), false);
+    assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: false, roleAvailable: true, loading: false }), true);
+    assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: false, roleAvailable: false, loading: false }), false);
+    assert.strictEqual(workspace.computed.controlsDisabled.call({ disabled: false, roleLoading: false, client: "std", roleAvailable: false }), false,
         "role selection remains available when there is no current role");
-    const switchedDrawer = { hasRequested: true, selection: {} };
-    drawer.watch.roleId.call(switchedDrawer);
-    assert.deepStrictEqual(switchedDrawer, { hasRequested: false, selection: null });
-    const drawerTemplate = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendationDrawer.vue"), "utf8")).descriptor.template.content;
-    assert.ok(drawerTemplate.includes('v-for="role in roles"'));
-    assert.ok(drawerTemplate.includes("$emit('role-change', $event)"));
-    assert.ok(!drawerTemplate.includes('achievementRecommendation.chooseCamp'));
-    const drawerVm = { canRequest: true, recommendation: result, selection: { ...selection, ready: false }, planTitle: "Plan", targetPoints: 50010 };
-    assert.strictEqual(drawer.computed.canApply.call(drawerVm), false);
-    drawerVm.selection = selection;
-    assert.strictEqual(drawer.computed.canApply.call(drawerVm), true);
-    drawerVm.selection = { ...selection, recommendation: { ...result } };
-    assert.strictEqual(drawer.computed.canApply.call(drawerVm), false, "an old preview cannot be submitted for a new recommendation");
+    const switchedWorkspace = { hasRequested: true, selection: {} };
+    workspace.watch.roleId.call(switchedWorkspace);
+    assert.deepStrictEqual(switchedWorkspace, { hasRequested: false, selection: null });
+    const workspaceTemplate = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendationWorkspace.vue"), "utf8")).descriptor.template.content;
+    assert.ok(workspaceTemplate.includes('v-for="role in roles"'));
+    assert.ok(workspaceTemplate.includes("$emit('role-change', $event)"));
+    assert.ok(!workspaceTemplate.includes('achievementRecommendation.chooseCamp'));
+    const workspaceVm = { canRequest: true, recommendation: result, selection: { ...selection, ready: false }, planTitle: "Plan", targetPoints: 50010 };
+    assert.strictEqual(workspace.computed.canApply.call(workspaceVm), false);
+    workspaceVm.selection = selection;
+    assert.strictEqual(workspace.computed.canApply.call(workspaceVm), true);
+    workspaceVm.selection = { ...selection, recommendation: { ...result } };
+    assert.strictEqual(workspace.computed.canApply.call(workspaceVm), false, "an old preview cannot be submitted for a new recommendation");
     const upcomingRows = panel.computed.upcomingRows.call({ recommendation: result, eventGroupLabel: () => "event" });
     assert.deepStrictEqual(
         upcomingRows.map((row) => row.id),

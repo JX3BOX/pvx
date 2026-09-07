@@ -18,14 +18,51 @@ export function defaultAchievementRecommendationOptions() {
     return { categoryIds: null, dimensionWeights: {}, directionWeights: {} };
 }
 
+// These are category aliases for the preference UI, not eligibility rules for server results.
+export const ACHIEVEMENT_RECOMMENDATION_DIRECTION_CATEGORIES = {
+    dungeon: ["秘境"],
+    quest: ["任务"],
+    map: ["地图", "足迹"],
+    misc: ["杂闻"],
+    martial: ["武学"],
+    cultivation: ["修为"],
+    equipment: ["装备"],
+    crafting: ["技艺"],
+    reading: ["阅读"],
+    combat: ["战斗"],
+    reputation: ["声望"],
+    guild: ["帮会"],
+    pvp: ["对抗", "阵营"],
+    holiday: ["节日"],
+    activity: ["活动"],
+    story: ["剧情", "剑侠录", "风雨江湖路"],
+    housing: ["家园"],
+    other: ["其他"],
+};
+
+export function achievementRecommendationDirections(categoryIds, categories = []) {
+    const selected = categoryIds === null ? null : new Set(categoryIds.map(String));
+    const directions = new Set(categories.filter((category) => !selected || selected.has(String(category.id)))
+        .map((category) => Object.entries(ACHIEVEMENT_RECOMMENDATION_DIRECTION_CATEGORIES)
+            .find(([, names]) => names.includes(category.name))?.[0] || "other"));
+    return Object.keys(ACHIEVEMENT_RECOMMENDATION_DIRECTION_CATEGORIES).filter((key) => directions.has(key));
+}
+
+export function achievementRecommendationDirectionWeight(value) {
+    return [1.3, 0.7].includes(value) ? value : 1;
+}
+
 export function achievementRecommendationPreferences(options, categories) {
+    const directions = new Set(achievementRecommendationDirections(options.categoryIds, categories));
     return {
         ...(options.categoryIds === null ? {} : {
             category_ids: [...new Set(categories.filter((category) => options.categoryIds.includes(category.id))
                 .flatMap((category) => category.sourceIds).map(Number))],
         }),
         dimension_weights: { ...options.dimensionWeights },
-        direction_weights: { ...options.directionWeights },
+        direction_weights: Object.fromEntries(Object.keys(ACHIEVEMENT_RECOMMENDATION_DIRECTION_CATEGORIES)
+            .map((direction) => [direction, directions.has(direction)
+                ? achievementRecommendationDirectionWeight(options.directionWeights[direction]) : 1])),
     };
 }
 

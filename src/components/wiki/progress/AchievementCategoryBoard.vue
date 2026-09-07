@@ -1,15 +1,6 @@
 <script>
 import { ArrowRight, CollectionTag } from "@element-plus/icons-vue";
-
-function createImageAssetMap(context) {
-    return context.keys().reduce((assets, path) => {
-        const name = path.replace(/^\.\//, "").replace(/\.png$/, "");
-        assets[name] = context(path);
-        return assets;
-    }, {});
-}
-
-const CATEGORY_IMAGES = createImageAssetMap(require.context("@/assets/img/wiki/overview/item", false, /\.png$/));
+import { achievementCategoryImages } from "@/utils/achievementCategoryImages";
 
 export default {
     name: "AchievementCategoryBoard",
@@ -90,7 +81,7 @@ export default {
             return (category.children || []).some((child) => child.id === this.activeCategoryId);
         },
         getCategoryImage(name) {
-            return CATEGORY_IMAGES[name] || "";
+            return achievementCategoryImages[name] || "";
         },
     },
 };

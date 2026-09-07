@@ -149,6 +149,21 @@ const tianCeEligibility = schoolEligibility.buildAchievementSchoolEligibilityCon
     menus: schoolMenus,
     roleSchool: "傲血战意",
 });
+const countedMenus = { ...schoolMenus,
+    duplicateTask: { sub: "duplicate-task", name: "任务", achievements: [11, 12, 19] },
+    restricted: { sub: "restricted", name: "其他", achievements: [20] },
+};
+const countedMetadata = { ...schoolMetadata,
+    19: { point: 10, general: 1, visible: false },
+    20: { point: 10, general: 1, visible: true, restriction: { school: "万花" } },
+};
+const countedOptions = { visibleOnly: true };
+const countedCategories = leap.buildAchievementLeapCategoryOptions(countedMenus, countedMetadata, [11, 3025], countedOptions);
+assert.deepStrictEqual(countedCategories.map((category) => [category.name, category.incompleteCount]),
+    [["任务", 2], ["武学", 4], ["风雨江湖路", 2], ["其他", 1]],
+    "recommendation category counts deduplicate menus and omit completed/hidden achievements without applying local school rules");
+assert.deepStrictEqual(countedCategories[0].sourceIds, ["task", "duplicate-task"]);
+assert.ok(countedCategories.every((category) => category.schoolExcludedCount === undefined), "no school exclusion count is invented from frontend rules");
 assert.strictEqual(tianCeEligibility.school, "天策");
 assert.strictEqual(schoolEligibility.normalizeAchievementRoleSchool("1"), "天策");
 assert.strictEqual(schoolEligibility.normalizeAchievementRoleSchool("10026"), "天策");
@@ -405,7 +420,7 @@ const pageComponentImports = [
     "@/components/wiki/leap/AchievementLeapDetailHeader.vue",
     "@/components/wiki/consultation/PlanConsultations.vue",
     "@/components/wiki/leap/AchievementLeapPlanList.vue",
-    "@/components/wiki/leap/AchievementLeapRecommendationDrawer.vue",
+    "@/components/wiki/leap/AchievementLeapRecommendationWorkspace.vue",
     "@/components/wiki/leap/AchievementLeapRouteTable.vue",
     "@/components/wiki/leap/AchievementLeapSaveDialog.vue",
     "@/components/wiki/leap/AchievementLeapSummary.vue",
@@ -579,6 +594,27 @@ async function runLeapStateConsistencyTests() {
         assert.strictEqual(hydrationCalls[0].includeHidden, true);
         assert.deepStrictEqual(hydrated.items.map((item) => item.id), ["hidden", "visible"]);
 
+        const recommendationForm = { title: "主页推荐草稿", targetPoints: 20000 };
+        hydrationVm.plannerForm = recommendationForm;
+        hydrationVm.currentPoints = 0;
+        await hydrationVm.preparePlanForEditor({ id: "saved", title: "已有方案", schema: ["visible"], client: "std",
+            meta: { targetPoints: 30000 } });
+        assert.strictEqual(hydrationVm.recommendationFormDraft, recommendationForm);
+        assert.strictEqual(leapPage.computed.recommendationForm.call(hydrationVm), recommendationForm,
+            "editing a saved plan must not change the recommendation title or target");
+        hydrationVm.plannerForm.title = "编辑中的名称";
+        hydrationVm.clearEditor();
+        assert.strictEqual(hydrationVm.plannerForm, recommendationForm, "discarding or saving the editor restores the homepage form");
+        assert.strictEqual(hydrationVm.recommendationFormDraft, null);
+        hydrationVm.planListVisible = true;
+        const currentDraft = { recommendations: [] };
+        hydrationVm.recommendation = currentDraft;
+        await hydrationVm.openPlan({ id: "saved" });
+        assert.strictEqual(hydrationVm.planListVisible, false, "viewing a saved plan closes the list drawer");
+        assert.strictEqual(hydrationVm.recommendation, currentDraft);
+        await hydrationVm.closePlanDetail();
+        assert.strictEqual(hydrationVm.plannerForm, recommendationForm);
+
         let rejectRoleState;
         pageRoleStateLoader = () =>
             new Promise((resolve, reject) => {
@@ -622,6 +658,7 @@ async function runLeapStateConsistencyTests() {
         successfulRoleVm.editingPlan = preservedEditingPlan;
         successfulRoleVm.saveDialogVisible = true;
         successfulRoleVm.addDialogVisible = true;
+        successfulRoleVm.recommendationFormDraft = recommendationForm;
         successfulRoleVm.recommendation = { role: { role_id: 1 } };
         successfulRoleVm.recommendationLoading = true;
         const previousRecommendationRequest = successfulRoleVm.recommendationRequestId;
@@ -632,6 +669,7 @@ async function runLeapStateConsistencyTests() {
         await successfulRoleVm.handleRoleChange("role-origin");
         assert.strictEqual(successfulRoleVm.currentRoleId, "role-origin");
         assert.strictEqual(successfulRoleVm.recommendation, null);
+        assert.strictEqual(successfulRoleVm.recommendationFormDraft, null, "role changes must not restore the previous role draft");
         assert.strictEqual(successfulRoleVm.recommendationLoading, false);
         assert.ok(successfulRoleVm.recommendationRequestId > previousRecommendationRequest);
         assert.strictEqual(successfulRoleVm.plannerForm.roleId, "role-origin");

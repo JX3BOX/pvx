@@ -148,6 +148,7 @@ export function buildAchievementLeapCategoryOptions(menus, metadata, completedId
             (id) =>
                 isEligibleMetadata(metadata?.[id]) &&
                 getPoint(metadata, id) > 0 &&
+                (!options.visibleOnly || metadata?.[id]?.visible !== false) &&
                 isAchievementEligibleForSchool({
                     id,
                     metadataItem: metadata?.[id],
