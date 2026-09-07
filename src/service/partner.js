@@ -48,6 +48,7 @@ export const PARTNER_SKILL_FIELDS = ["SkillID", "IconID", "Name", "Desc", "Type"
  * @param {Array<number|string>|number|string} ids - 技能 dwID 数组或单个 ID（必传，最少1个）
  * @param {Array<string>|string} [fields] - 字段过滤（可选），默认返回 PARTNER_SKILL_FIELDS 指定字段
  *                                          传入空数组 [] 或 null 则返回所有字段
+ * @param {string} [client='std'] - 客户端类型：std / origin
  * @returns {Promise}
  *
  * @example
@@ -66,7 +67,7 @@ export const PARTNER_SKILL_FIELDS = ["SkillID", "IconID", "Name", "Desc", "Type"
  * // 获取所有字段（不传 fields 或传空数组）
  * getPartnerSkillDetail([31761, 31753], [])
  */
-export function getPartnerSkillDetail(ids, fields = PARTNER_SKILL_FIELDS) {
+export function getPartnerSkillDetail(ids, fields = PARTNER_SKILL_FIELDS, client = "std") {
     // 处理 ids 参数：支持数组或单个值
     const idList = Array.isArray(ids) ? ids : [ids];
     if (idList.length === 0) {
@@ -81,7 +82,7 @@ export function getPartnerSkillDetail(ids, fields = PARTNER_SKILL_FIELDS) {
     const idPart = `[${idList.join(",")}]`;
     const fieldPart = shouldFilter ? `[${Array.isArray(fields) ? fields.join(",") : fields}]` : "";
 
-    const resourcePath = fieldPart ? `resource/std/skill.${idPart}.${fieldPart}` : `resource/std/skill.${idPart}`;
+    const resourcePath = fieldPart ? `resource/${client}/skill.${idPart}.${fieldPart}` : `resource/${client}/skill.${idPart}`;
     return $.get(resourcePath);
 }
 
@@ -109,9 +110,10 @@ export function getPartnerItemDetail(sourceId, params = {}) {
  * 支持传入多个 sourceId，返回对应的物品数据
  *
  * @param {Array<string|number>} sourceIds - 物品 source ID 数组
+ * @param {Object} [params] - 查询参数，client 支持 std / origin
  * @returns {Promise<Object>} 返回以 sourceId 为 key 的物品详情对象
  */
-export function getPartnerItemsDetail(sourceIds) {
+export function getPartnerItemsDetail(sourceIds, params = {}) {
     const idList = Array.isArray(sourceIds) ? sourceIds : [sourceIds];
     if (idList.length === 0) {
         return Promise.resolve({});
@@ -119,7 +121,7 @@ export function getPartnerItemsDetail(sourceIds) {
 
     // 并行请求所有物品详情，使用 Promise.allSettled 确保单个失败不影响其他
     const requests = idList.map((id) =>
-        getPartnerItemDetail(id)
+        getPartnerItemDetail(id, params)
             .then((res) => ({ id, data: res?.data || null, success: true }))
             .catch((err) => ({ id, data: null, success: false, error: err }))
     );

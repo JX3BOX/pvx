@@ -170,7 +170,9 @@ export default {
             if (skill.type === 2) return this.$t("pages.partner.ui.skillTypes.active");
             return this.$t("pages.partner.ui.skillTypes.martialArt");
         },
-        getItemWikiUrl,
+        getItemWikiUrl(itemId) {
+            return getItemWikiUrl(itemId, this.$store.state.client);
+        },
         getSkillDbUrl,
     },
 };

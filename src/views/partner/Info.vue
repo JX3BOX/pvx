@@ -121,6 +121,9 @@ export default {
         };
     },
     computed: {
+        client() {
+            return this.$store.state.client;
+        },
         hasIntro() {
             const p = this.partner;
             if (!p) return false;
@@ -302,7 +305,7 @@ export default {
 
             try {
                 // 批量请求物品详情（使用完整 sourceId）
-                const details = await getPartnerItemsDetail(sourceIds);
+                const details = await getPartnerItemsDetail(sourceIds, { client: this.client });
 
                 // 更新物品详情缓存
                 this.itemDetails = { ...this.itemDetails, ...details };
@@ -320,8 +323,12 @@ export default {
         handleImageError(item) {
             this.failedItemIcons[this.getSourceId(item)] = true;
         },
-        getItemWikiUrl,
-        resolveSkillIcon,
+        getItemWikiUrl(itemId) {
+            return getItemWikiUrl(itemId, this.client);
+        },
+        resolveSkillIcon(iconId) {
+            return resolveSkillIcon(iconId, this.client);
+        },
     },
 };
 </script>

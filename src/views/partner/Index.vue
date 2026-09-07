@@ -123,6 +123,9 @@ export default {
         };
     },
     computed: {
+        client() {
+            return this.$store.state.client;
+        },
         infoTabs() {
             return [
                 { key: "info", label: this.$t("pages.partner.ui.tabs.info") },
@@ -158,7 +161,7 @@ export default {
             const requestId = ++this.searchRequestId;
             this.loading = true;
             try {
-                const res = await getPartnerList({ client: "std" });
+                const res = await getPartnerList({ client: this.client });
                 if (requestId !== this.searchRequestId) return;
                 const rawData = res?.data?.data || [];
                 // 映射接口字段为组件友好格式，传入 index 参数处理"全部"
@@ -188,11 +191,11 @@ export default {
             const requestId = ++this.detailRequestId;
             this.loading = true;
             try {
-                const res = await getPartnerDetail(id, { client: "std", id: id });
+                const res = await getPartnerDetail(id, { client: this.client, id: id });
                 if (requestId !== this.detailRequestId) return;
                 const rawDetail = res?.data?.data || null;
                 // 映射详情字段
-                const partner = mapPartnerDetail(rawDetail);
+                const partner = mapPartnerDetail(rawDetail, this.client);
                 if (!partner) {
                     this.selectedPartner = null;
                     return;
@@ -215,7 +218,7 @@ export default {
                     // 去重
                     const uniqueIds = [...new Set(skillIds)];
                     try {
-                        const skillRes = await getPartnerSkillDetail(uniqueIds);
+                        const skillRes = await getPartnerSkillDetail(uniqueIds, PARTNER_SKILL_FIELDS, this.client);
                         if (requestId !== this.detailRequestId) return;
                         // 兼容两种响应格式:
                         //   1. { data: { "id": {...} } }  — 对象以 ID 为 key
@@ -243,7 +246,7 @@ export default {
                                         ...s,
                                         name: detail.Name || s.name,
                                         desc: detail.Desc || s.desc,
-                                        icon: resolveSkillIcon(detail.IconID),
+                                        icon: resolveSkillIcon(detail.IconID, this.client),
                                         iconId: detail.IconID,
                                         level: detail.Level ?? s.level,
                                         type: detail.Type ?? s.type,
@@ -263,7 +266,7 @@ export default {
                                         skillDesc: detail.Desc || s.skillDesc,
                                         name: detail.Name || s.name,
                                         desc: detail.Desc || s.desc,
-                                        icon: resolveSkillIcon(detail.IconID),
+                                        icon: resolveSkillIcon(detail.IconID, this.client),
                                         iconId: detail.IconID,
                                         level: detail.Level ?? s.level,
                                     };
@@ -298,7 +301,7 @@ export default {
                 return;
             }
             const detailRouteName = this.$router.hasRoute("partner-detail") ? "partner-detail" : "detail";
-            this.$router.push({ name: detailRouteName, params: { id: partner.id } });
+            this.$router.push({ name: detailRouteName, params: { id: partner.id }, query: this.$route.query });
         },
         /**
          * 处理搜索（防抖由 Selector 内置）
@@ -310,7 +313,7 @@ export default {
         async fetchPartnerListWithKeyword(keyword) {
             const requestId = ++this.searchRequestId;
             try {
-                const params = { client: "std" };
+                const params = { client: this.client };
                 if (keyword) params.keyword = keyword;
                 const res = await getPartnerList(params);
                 if (requestId !== this.searchRequestId) return;

@@ -4,10 +4,11 @@
 import { KUNGFU_INDEX, SKILL_TYPE, SKILL_SHAPE } from "@/views/partner/const";
 
 // ==================== URL 生成 ====================
-// TODO 调整：仅需修改 4 个常量即可，业务代码无需变动
+// 链接地址统一由下方常量维护
 
 // 物品详情位于主站的独立物品库
 const ITEM_WIKI_BASE_URL = "https://www.jx3box.com";
+const ITEM_WIKI_ORIGIN_BASE_URL = "https://origin.jx3box.com";
 const ITEM_WIKI_PATH_PREFIX = "/item/view/";
 
 // 武学数据库（占位）
@@ -17,11 +18,13 @@ const SKILL_DB_PATH_PREFIX = "/skill/";
 /**
  * 生成物品百科跳转 URL
  * @param {string|number} itemId 道具 ID
+ * @param {string} [client='std'] 客户端类型：std / origin
  * @returns {string}
  */
-export function getItemWikiUrl(itemId) {
+export function getItemWikiUrl(itemId, client = "std") {
     if (itemId === undefined || itemId === null) return "";
-    return `${ITEM_WIKI_BASE_URL}${ITEM_WIKI_PATH_PREFIX}${itemId}`;
+    const baseUrl = client === "origin" ? ITEM_WIKI_ORIGIN_BASE_URL : ITEM_WIKI_BASE_URL;
+    return `${baseUrl}${ITEM_WIKI_PATH_PREFIX}${itemId}`;
 }
 
 /**
@@ -97,11 +100,13 @@ export function resolveAvatarPath(path) {
  * 将技能 IconID 转为可访问的图标 URL
  * 格式：https://icon.jx3box.com/icon/{IconID}.png
  * @param {number|string} iconId 技能图标 ID
+ * @param {string} [client='std'] 客户端类型：std / origin
  * @returns {string}
  */
-export function resolveSkillIcon(iconId) {
+export function resolveSkillIcon(iconId, client = "std") {
     if (!iconId) return "";
-    return `https://icon.jx3box.com/icon/${iconId}.png`;
+    const iconPath = client === "origin" ? "origin_icon" : "icon";
+    return `https://icon.jx3box.com/${iconPath}/${iconId}.png`;
 }
 
 // ==================== 数据转换 ====================
@@ -220,9 +225,10 @@ export function parseStoryContent(content) {
  * 字段名对齐 detail.json（大写开头：Skills, Stages, Stories, Voices）
  *
  * @param {Object} detail 接口返回的原始详情对象
+ * @param {string} [client='std'] 客户端类型：std / origin
  * @returns {Object} 组件友好的格式
  */
-export function mapPartnerDetail(detail) {
+export function mapPartnerDetail(detail, client = "std") {
     if (!detail) return null;
     // 基础信息复用列表映射
     const base = mapPartnerListItem(detail);
@@ -244,7 +250,7 @@ export function mapPartnerDetail(detail) {
             // 解锁道具（境界需要道具解锁）
             unlockItems: [],
             // 如果原始数据已有 IconID 则直接使用
-            icon: s.IconID ? resolveSkillIcon(s.IconID) : "",
+            icon: s.IconID ? resolveSkillIcon(s.IconID, client) : "",
             iconId: s.IconID || null,
         }));
 
@@ -259,7 +265,7 @@ export function mapPartnerDetail(detail) {
         shape: getSkillShape(s.type),
         openStage: s.openStage,
         // 如果原始数据已有 IconID 则直接使用，否则留空等待 skill detail API 补充
-        icon: s.IconID ? resolveSkillIcon(s.IconID) : "",
+        icon: s.IconID ? resolveSkillIcon(s.IconID, client) : "",
         iconId: s.IconID || null,
     }));
 
