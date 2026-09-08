@@ -138,12 +138,50 @@ assert.strictEqual(overall.pointProgress, 72.22);
 const tiers = Object.fromEntries(
     progress.buildAchievementTierProgress(metadata, [1, 4, 5]).map((item) => [item.key, item])
 );
-assert.strictEqual(tiers.normal.totalCount, 2);
+assert.strictEqual(tiers.normal.totalCount, 1);
+assert.strictEqual(tiers.normal.totalPoints, 20);
 assert.strictEqual(tiers.normal.completedCount, 1);
 assert.strictEqual(tiers.hidden.totalCount, 2);
 assert.strictEqual(tiers.hidden.completedPoints, 50);
 assert.strictEqual(tiers.wujia.totalPoints, 40);
 assert.strictEqual(tiers.retired.completedCount, 1);
+
+const tierScopeMetadata = {
+    ...metadata,
+    7: { point: 0, general: 1, visible: true },
+    8: { point: 0, general: 3, visible: false },
+};
+assert.strictEqual(progress.getAchievementTier(tierScopeMetadata[6]), "special");
+assert.strictEqual(progress.getAchievementTier(tierScopeMetadata[8]), "special");
+assert.deepStrictEqual(
+    progress.filterAchievementIds({ metadata: tierScopeMetadata, completedIds: [], tier: "normal" }),
+    ["1", "7"],
+    "常规成就只包括 general=1 的可见项，不能混入特殊成就，也不能排除零资历常规项"
+);
+const tierScopeRecords = workbenchModule.normalizeAchievementWorkbenchRecords(
+    Object.keys(tierScopeMetadata).map((id) => ({ ID: id })),
+    { metadata: tierScopeMetadata, completedIds: [] }
+);
+assert.deepStrictEqual(
+    progress.filterAchievementRecords({ records: tierScopeRecords, tier: "normal" }).map((record) => record.id),
+    ["1", "7"],
+    "搜索和地图接口返回的特殊成就也不能归入常规结果"
+);
+assert.deepStrictEqual(
+    progress.filterAchievementRecords({ records: tierScopeRecords, tier: "hidden" }).map((record) => record.id),
+    ["2", "4"],
+    "不可见特殊成就保持特殊档位，与目录统计一致"
+);
+
+assert.deepStrictEqual(
+    progress.filterAchievementRecords({
+        records: [...tierScopeRecords.map((record) => ({ ...record, tier: "normal" })), { id: "999", tier: "normal", points: 999 }],
+        metadata: tierScopeMetadata,
+        tier: "normal",
+    }).map((record) => record.id),
+    ["1", "7"],
+    "搜索的统计范围由当前目录元数据确定，接口档位兜底或未知 ID 不能扩大常规范围"
+);
 
 const categories = progress.buildAchievementCategoryProgress({ menus, metadata, completedIds: [1, 4] });
 assert.deepStrictEqual(

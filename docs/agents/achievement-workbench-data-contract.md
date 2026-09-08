@@ -5,7 +5,9 @@
 ## 1. 目的
 
 资历宝典的基础成就信息继续使用 Node 接口，难度、完成统计和标签使用 CMS 公共接口增强。所有新版页面必须消费本协议的标准模型，不直接依赖接口字段的大小写或历史命名。后端替换字段时优先修改
-`src/utils/achievementWorkbench.js` 和 `src/service/achievementWorkbench.js`，不在三个页面重复兼容逻辑。
+`src/utils/achievementWorkbench.js` 和 `src/service/achievementWorkbench.js`，不在四个模块重复兼容逻辑。
+
+本协议定义字段与接口边界；各模块及子页面的数量、资历和完成率遵循[统计业务规则 5.5](../project/achievement-statistics.md#55-当前-web-四模块统计范围)，不得因字段适配改变角色总量、常规结果或方案增量的作用域。
 
 ## 2. 空值规则
 
@@ -32,7 +34,7 @@
 | `points`             | `number \| null`                    | `points / Point`，可由点数元数据补足                | 当前   |
 | `general`            | `number \| null`                    | `general / General`，可由点数元数据补足             | 当前   |
 | `visible`            | `boolean \| null`                   | `visible / Visible / IsVisible`，可由点数元数据补足 | 当前   |
-| `tier`               | `normal / wujia / hidden / retired` | 显式 `tier` 或由 `general + visible` 推导           | 推导   |
+| `tier`               | `normal / wujia / hidden / retired / special` | 显式 `tier` 或由 `general + visible` 推导；`general=3` 固定为 `special`，不进入常规或隐藏档位 | 推导   |
 | `retired`            | `boolean`                           | `tier === retired`                                  | 推导   |
 | `completed`          | `boolean \| null`                   | 显式字段或角色已完成 ID 集合                        | 推导   |
 | `completionByRole`   | `Record<string, boolean>`           | `completionByRole / doneBy`                         | 部分   |
@@ -130,14 +132,16 @@
 渡劫方案的标准模型与旧路线纯函数位于 `src/utils/achievementLeap.js`。当前本地方案编辑、“添加成就”，以及保留的旧自选纯函数共用以下基础候选条件；这些条件不用于二次过滤 5.7 的后端推荐结果：
 
 -   当前角色尚未完成；
--   点数元数据 `general === 1`，不额外按 `visible` 过滤；
+-   点数元数据 `general === 1` 且 `visible === true`，与亲友对比和完成进度的常规档位一致；
 -   资历点数大于 `0`；
 -   符合当前角色门派可完成性；
 -   旧自选纯函数可再叠加所选一级分类、地图与难度上限；现行页面不提供独立的旧自选生成入口。
 
-“增加成就”与方案编辑的添加弹窗额外要求点数元数据 `visible === true`，只浏览未完成的普通可见成就。轻量目录先排除隐藏 ID，分页详情不启用隐藏详情补取；选入时再次使用可见目录校验。
+“增加成就”、方案详情和咨询方案统一排除隐藏 ID，分页详情不启用隐藏详情补取；选入时再次使用可见目录校验。
 
-分类按显示名称合并、按成就 ID 去重，避免同名目录重复展示；分类数量使用上述口径下的未完成数量，数量为 `0` 的分类不返回。现有方案的原始 `schema` 仍由接口保留，方案读取、进度计算和详情展示先过滤为 `general=1`；进入本地编辑与搜索添加时再应用本地候选条件。推荐工作区的直接创建使用后端结果与入选清单，不调用这些旧候选过滤器。
+分类按显示名称合并、按成就 ID 去重，避免同名目录重复展示；分类数量使用上述口径下的未完成数量，数量为 `0` 的分类不返回。现有方案的原始 `schema` 仍由接口保留，方案列表、详情、进度计算及咨询方案均只读取常规可见项；读取历史方案保留零资历常规项，进入本地编辑与搜索添加时再应用本地候选条件。推荐工作区的直接创建使用后端结果与入选清单，不调用这些旧候选过滤器。
+
+角色的“当前资历”和完成进度“总览”继续统计全档位已获得资历。方案预计达到值为全部当前资历加上方案中未完成的常规可见成就资历；方案自身数量、总资历和完成率仅按该方案的常规可见项计算。咨询中的完成进度复用主页面：总览为全档位，常规卡片与默认常规列表仅含常规可见成就。
 
 ### 5.4 `stage-v1` 旧推荐纯函数（仅兼容）
 

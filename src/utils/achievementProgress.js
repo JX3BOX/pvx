@@ -87,6 +87,7 @@ export function getAchievementTier(metadataItem) {
     if (!metadataItem) return "normal";
     const general = Number(metadataItem.general);
     if (general === 0) return "retired";
+    if (general === 3) return "special";
     if (metadataItem.visible === false && [1, 2].includes(general)) return "hidden";
     if (general === 2) return "wujia";
     return "normal";
@@ -102,6 +103,7 @@ export function buildAchievementTierProgress(metadata, completedIds) {
         wujia: [],
         hidden: [],
         retired: [],
+        special: [],
     };
 
     Object.entries(metadata || {}).forEach(([id, item]) => {
@@ -254,6 +256,7 @@ function compareRecords(left, right, sort) {
 
 export function filterAchievementRecords({
     records,
+    metadata = null,
     categoryId = "all",
     categoryAchievementIds = null,
     tier = "all",
@@ -264,6 +267,7 @@ export function filterAchievementRecords({
     const categoryIds = categoryAchievementIds ? new Set(categoryAchievementIds.map(String)) : null;
 
     const filteredRecords = (Array.isArray(records) ? records : [])
+        .filter((record) => !metadata || isEligibleMetadata(metadata[String(record?.id)]))
         .filter(
             (record) =>
                 categoryId === "all" ||
@@ -271,7 +275,8 @@ export function filterAchievementRecords({
                     ? categoryIds.has(String(record?.id))
                     : String(record?.category?.id) === String(categoryId))
         )
-        .filter((record) => tier === "all" || record?.tier === tier)
+        .filter((record) => tier === "all" ||
+            (metadata ? getAchievementTier(metadata[String(record?.id)]) : record?.tier) === tier)
         .filter(
             (record) =>
                 completion === "all" ||

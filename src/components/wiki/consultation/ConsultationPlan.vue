@@ -41,7 +41,7 @@ export default {
             const ids = filterAchievementLeapIds(this.normalizedPlan.schema, this.metadata);
             try {
                 const [records, difficultyById, metrics, tags] = await Promise.all([
-                    fetchAchievementWorkbenchRecordsBatched({ ids, metadata: this.metadata, completedIds: this.completedIds, client: "std", includeHidden: true }),
+                    fetchAchievementWorkbenchRecordsBatched({ ids, metadata: this.metadata, completedIds: this.completedIds, client: "std" }),
                     fetchAchievementWorkbenchDifficulty(ids, 500, { client: "std" }).catch(() => ({})),
                     fetchAchievementWorkbenchDifficultyMetrics(ids, { client: "std" }).catch(() => ({})),
                     fetchAchievementWorkbenchTags(ids, { client: "std" }).catch(() => ({})),

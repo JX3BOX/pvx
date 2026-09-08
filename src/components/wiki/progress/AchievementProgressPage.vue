@@ -206,6 +206,7 @@ export default {
             if (!this.searchMode) return [];
             return filterAchievementRecords({
                 records: this.searchRecords,
+                metadata: this.metadata,
                 categoryId: this.filters.categoryId,
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,
@@ -222,6 +223,7 @@ export default {
             if (!this.searchMode) return [];
             return filterAchievementRecords({
                 records: this.enrichRecords(this.searchRecords, { tagsById: {} }),
+                metadata: this.metadata,
                 categoryId: this.filters.categoryId,
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,

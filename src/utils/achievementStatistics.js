@@ -50,6 +50,14 @@ export function createAchievementPointMap(metadata) {
     }, {});
 }
 
+export function isRegularVisibleAchievement(item) {
+    return Number(item?.general) === 1 && item.visible === true;
+}
+
+export function selectRegularAchievementMetadata(metadata = {}) {
+    return Object.fromEntries(Object.entries(metadata).filter(([, item]) => isRegularVisibleAchievement(item)));
+}
+
 export function normalizeCompletedAchievementIds(value) {
     const source = Array.isArray(value) ? value : String(value || "").split(",");
     return new Set(source.map((id) => String(id).trim()).filter(Boolean));

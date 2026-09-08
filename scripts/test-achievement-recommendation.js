@@ -24,6 +24,9 @@ function load(file, dependencies = {}) {
 }
 
 const utils = load("src/utils/achievementRecommendation.js");
+const statistics = load("src/utils/achievementStatistics.js", {
+    "@jx3box/jx3box-common/data/firework_achievement_ids.json": require("@jx3box/jx3box-common/data/firework_achievement_ids.json"),
+});
 const workbench = load("src/utils/achievementWorkbench.js");
 const definitions = workbench.normalizeAchievementWorkbenchDifficultyDimensions([
     { dimension_id: 1, dimension_key: "cost_effectiveness", dimension_label: "性价比", is_visible: false,
@@ -69,7 +72,7 @@ for (const value of [undefined, null, 0, -1, 2, "0.7"]) {
     assert.strictEqual(utils.achievementRecommendationDirectionWeight(value), 1, "unsupported legacy weights default to the stage");
 }
 const leapUtils = load("src/utils/achievementLeap.js", {
-    "@/utils/achievementStatistics": {},
+    "@/utils/achievementStatistics": statistics,
     "@/utils/achievementSchoolEligibility": {},
 });
 const result = {
@@ -155,7 +158,7 @@ const service = load("src/service/achievementWorkbench.js", {
     "@/service/wiki": wiki,
     "@/utils/achievementWorkbench": workbench,
     "@/utils/achievementLeap": {},
-    "@/utils/achievementStatistics": {},
+    "@/utils/achievementStatistics": statistics,
 });
 let recommendationLoader = (...args) => service.fetchAchievementWorkbenchRecommendation(...args);
 let detailLoader = async () => records;

@@ -425,6 +425,14 @@ const hiddenWujiaRecord = normalizeAchievementWorkbenchRecord(
 );
 assert.strictEqual(hiddenWujiaRecord.tier, ACHIEVEMENT_WORKBENCH_TIERS.HIDDEN);
 
+for (const visible of [true, false]) {
+    const specialRecord = normalizeAchievementWorkbenchRecord(
+        { ID: 4096, tier: "normal" },
+        { metadata: { 4096: { point: 0, general: 3, visible } } }
+    );
+    assert.strictEqual(specialRecord.tier, "special", "general=3 不能被默认或旧档位标签归为常规成就");
+}
+
 const prototypeRecord = normalizeAchievementWorkbenchRecord({
     id: "a1",
     name: "高手！万花",

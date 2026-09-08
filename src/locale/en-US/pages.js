@@ -727,7 +727,7 @@ export default {
                 description: "Compare achievement progress across your characters and friends to find shared goals and seniority gaps.",
                 filters: {
                     title: "Completion status",
-                    placeholder: "Filter by status",
+                    placeholder: "All statuses",
                     commonIncomplete: "Incomplete for everyone",
                     commonIncompleteRecommended: "Incomplete for everyone (group up)",
                     commonCompleted: "Completed by everyone",

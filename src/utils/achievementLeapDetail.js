@@ -1,12 +1,14 @@
-import { buildAchievementLeapPlanProgress } from "@/utils/achievementLeap";
+import { buildAchievementLeapPlanProgress, filterAchievementLeapIds } from "@/utils/achievementLeap";
 import { flattenAchievementRecommendation } from "@/utils/achievementRecommendation";
 
 export function buildAchievementLeapDetailRoute(plan, items, metadata, completedIds, currentPoints) {
+    const regularIds = new Set(filterAchievementLeapIds(plan.schema, metadata));
     const recommendationItems = new Map(flattenAchievementRecommendation({
         recommendations: plan.meta?.recommendationGroups || [],
         camp_restricted_ids: plan.meta?.campRestrictedIds || [],
     }).map((item) => [item.id, item]));
-    items = items.map((item) => ({ ...item, ...recommendationItems.get(String(item.id)) }));
+    items = items.filter((item) => regularIds.has(String(item.id)))
+        .map((item) => ({ ...item, ...recommendationItems.get(String(item.id)) }));
     const progress = buildAchievementLeapPlanProgress(plan, metadata, completedIds);
     const incomplete = items.filter((item) => !item.completed);
     const targetPoints = Number(plan.meta?.targetPoints) || currentPoints + progress.remainingPoints;

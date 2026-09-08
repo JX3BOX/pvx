@@ -1,10 +1,8 @@
-import { collectMenuAchievementIds } from "@/utils/achievementStatistics";
+import { collectMenuAchievementIds, isRegularVisibleAchievement } from "@/utils/achievementStatistics";
 import {
     isAchievementEligibleForSchool,
     resolveAchievementSchoolRestriction,
 } from "@/utils/achievementSchoolEligibility";
-
-const ACHIEVEMENT_LEAP_GENERAL = 1;
 
 export const ACHIEVEMENT_LEAP_RECOMMENDATION_VERSION = "stage-v1";
 
@@ -92,12 +90,12 @@ function getCategoryIdentity(menu, fallbackId) {
 
 function isEligibleMetadata(item) {
     return Boolean(
-        item && Number(item.general) === ACHIEVEMENT_LEAP_GENERAL && normalizeNullableNumber(item.point) !== null
+        isRegularVisibleAchievement(item) && normalizeNullableNumber(item.point) !== null
     );
 }
 
 export function filterAchievementLeapIds(ids, metadata = {}) {
-    return normalizeIds(ids).filter((id) => Number(metadata?.[id]?.general) === ACHIEVEMENT_LEAP_GENERAL);
+    return normalizeIds(ids).filter((id) => isRegularVisibleAchievement(metadata?.[id]));
 }
 
 function resolveDifficulty(record, difficultyById, id) {

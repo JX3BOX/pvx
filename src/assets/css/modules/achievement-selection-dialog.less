@@ -1,5 +1,6 @@
 .m-recommendation-candidates-dialog,
 .m-recommendation-action-dialog {
+    --recommendation-table-sticky-top: 0px;
     --el-color-primary: #47777d;
     --el-color-primary-light-3: #75989c;
     --el-color-primary-light-5: #a3bbbe;
@@ -15,12 +16,8 @@
     .el-dialog__title { overflow-wrap: anywhere; }
     .el-dialog__body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
     .m-candidates-hint { margin: 0 0 14px; line-height: 1.6; color: #697374; }
-    .m-candidates-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+    .m-candidates-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px;
         > * { width: 100%; min-width: 0; } svg { width: 16px; height: 16px; }
-    }
-    .m-candidates-status { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-        min-height: 36px; font-size: 12px; color: #47777d;
-        > :last-child { color: #697374; margin-left: auto; }
     }
     .m-candidates-error { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: #ae3b40; }
     .m-candidates-empty { padding: 48px 12px; text-align: center; color: #697374; }

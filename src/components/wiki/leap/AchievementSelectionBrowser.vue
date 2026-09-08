@@ -108,16 +108,13 @@ export default {
                 <template #prefix><Search /></template>
             </el-input>
         </div>
-        <div class="m-candidates-status">
-            <span>{{ $t('achievementRecommendation.visibleCount', { count: visibleRecords.length }) }}</span>
-        </div>
         <div ref="list" class="m-selection-browser-content" :aria-busy="loading">
             <slot name="status" />
             <div v-if="loading" class="m-candidates-loading" :aria-label="$t('achievementRecommendation.loadingAchievements')" :class="{ 'is-empty': !visibleRecords.length }" role="status">
                 <el-icon class="is-loading" aria-hidden="true"><Loading /></el-icon>
             </div>
             <AchievementRecommendationItems v-if="visibleRecords.length" :items="visibleRecords" :dimensions="dimensions"
-                :selected-ids="selectedIdSet" :editable="false" candidate-mode :removable="false"
+                :selected-ids="selectedIdSet" :editable="false" candidate-mode table-layout :removable="false"
                 :order-offset="(currentPage - 1) * pageSize" :disabled="disabled" :unavailable-ids="unavailableIds" @add="add" />
             <div v-if="!loading && error" class="m-candidates-error" role="alert">
                 <span>{{ $t('achievementRecommendation.detailsFailed') }}</span>
@@ -140,7 +137,7 @@ export default {
 <style lang="less" scoped>
 .m-achievement-selection-browser {
     display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0;
-    .m-candidates-filters, .m-candidates-status { flex: none; }
+    .m-candidates-filters { flex: none; }
 }
 .m-selection-browser-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .m-selection-browser-pagination {

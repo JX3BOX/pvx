@@ -1,11 +1,10 @@
 <script>
-import { Download, Filter, RefreshLeft, Search } from "@element-plus/icons-vue";
+import { Download, RefreshLeft, Search } from "@element-plus/icons-vue";
 
 export default {
     name: "AchievementCompareFilters",
     components: {
         Download,
-        Filter,
         RefreshLeft,
         Search,
     },
@@ -29,14 +28,6 @@ export default {
         keyword: {
             type: String,
             default: "",
-        },
-        resultCount: {
-            type: Number,
-            default: 0,
-        },
-        resultPoints: {
-            type: Number,
-            default: 0,
         },
         loading: {
             type: Boolean,
@@ -65,10 +56,6 @@ export default {
         },
     },
     methods: {
-        formatNumber(value) {
-            const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
-            return new Intl.NumberFormat(locale).format(Number(value) || 0);
-        },
         changeMap(value) {
             const mapId = value === "all" ? "" : String(value || "");
             this.$emit("update:map-id", mapId);
@@ -96,9 +83,6 @@ export default {
                 :aria-label="$t('pages.wiki.compare.ui.filters.title')"
                 @change="$emit('update:selected-filters', $event)"
             >
-                <template #prefix>
-                    <Filter class="u-compare-status-filter-icon" aria-hidden="true" />
-                </template>
                 <el-option
                     v-for="option in filterOptions"
                     :key="option.value"
@@ -162,19 +146,6 @@ export default {
                 <span>{{ $t("pages.wiki.compare.ui.actions.reset") }}</span>
             </button>
         </div>
-
-        <p class="m-compare-result-line">
-            <span>{{ $t("pages.wiki.compare.ui.workbench.currentScope") }}</span>
-            <b>{{ $t("pages.wiki.compare.ui.matrix.achievementCount", { count: formatNumber(resultCount) }) }}</b>
-            <i aria-hidden="true"></i>
-            <b>
-                {{
-                    $t("pages.wiki.compare.ui.workbench.availablePoints", {
-                        points: formatNumber(resultPoints),
-                    })
-                }}
-            </b>
-        </p>
     </section>
 </template>
 
@@ -198,25 +169,10 @@ export default {
     gap: 8px;
 }
 
-.u-compare-status-filter {
-    width: min(100%, 380px);
-    max-width: 380px;
-    flex: 0 1 380px;
-}
-
+.u-compare-status-filter,
 .u-compare-map-filter {
     width: min(100%, 220px);
     flex: 0 1 220px;
-}
-
-.u-compare-status-filter-icon {
-    width: 15px;
-    height: 15px;
-    color: #47777d;
-}
-
-.u-compare-status-filter,
-.u-compare-map-filter {
     min-width: 0;
     :deep(.el-select__wrapper) {
         min-height: 32px;
@@ -237,6 +193,10 @@ export default {
 }
 
 .u-compare-status-filter {
+    :deep(.el-select__placeholder.is-transparent) {
+        color: var(--el-text-color-regular);
+    }
+
     :deep(.el-select__selection) {
         flex-wrap: nowrap;
     }
@@ -324,28 +284,6 @@ export default {
     background: rgba(255, 255, 252, 0.72);
 }
 
-.m-compare-result-line {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 9px;
-    margin: 0 2px;
-    color: #9a9f9c;
-    font-size: 11px;
-
-    b {
-        color: #687270;
-        font-weight: 500;
-    }
-
-    i {
-        width: 3px;
-        height: 3px;
-        border-radius: 50%;
-        background: #bbc0bc;
-    }
-}
-
 .m-compare-filters.is-embedded {
     border: 0;
     border-bottom: 1px solid rgba(70, 74, 66, 0.1);
@@ -424,27 +362,6 @@ export default {
         line-height: 1.4;
         white-space: normal;
         overflow-wrap: anywhere;
-    }
-
-    .m-compare-result-line {
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 5px 8px;
-        line-height: 1.5;
-
-        > span {
-            flex-basis: 100%;
-        }
-
-        b {
-            min-width: 0;
-            overflow-wrap: anywhere;
-        }
-
-        i {
-            flex: none;
-            margin-top: 7px;
-        }
     }
 }
 </style>

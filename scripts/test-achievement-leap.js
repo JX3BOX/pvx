@@ -110,6 +110,25 @@ const mergedCategoryCandidates = leap.buildAchievementLeapCandidates({
 assert.deepStrictEqual(mergedCategoryCandidates.map((item) => item.id), []);
 assert.deepStrictEqual(leap.filterAchievementLeapIds([2, 5], categoryMetadata), ["2"]);
 
+const mixedPlanMetadata = {
+    1: { point: 20, general: 1, visible: true },
+    2: { point: 0, general: 1, visible: true },
+    3: { point: 30, general: 1, visible: true },
+    4: { point: 200, general: 1, visible: false },
+    5: { point: 300, general: 2, visible: true },
+    6: { point: 400, general: 0, visible: false },
+    7: { point: 0, general: 3, visible: true },
+};
+const mixedPlan = { schema: [1, 2, 3, 4, 5, 6, 7, 1, 999], meta: {} };
+const mixedCompletedIds = [1, 2, 4, 5, 6, 7];
+assert.deepStrictEqual(leap.filterAchievementLeapIds(mixedPlan.schema, mixedPlanMetadata), ["1", "2", "3"]);
+assert.deepStrictEqual(leap.buildAchievementLeapPlanProgress(mixedPlan, mixedPlanMetadata, mixedCompletedIds), {
+    count: 3, totalPoints: 50, completedPoints: 20, remainingPoints: 30, completedCount: 2, progress: 40,
+}, "方案数量、资历和完成率只统计常规可见项，保留零资历项");
+assert.deepStrictEqual(leap.buildAchievementLeapCandidates({
+    metadata: mixedPlanMetadata, allowedIds: mixedPlan.schema, includeZeroPoints: true,
+}).map((item) => item.id), ["1", "2", "3"], "方案详情与编辑候选使用同一常规范围");
+
 const schoolMenus = {
     task: {
         sub: "task",
@@ -472,8 +491,7 @@ const leapPage = loadVueScriptModule(path.resolve(__dirname, "../src/components/
     "@/utils/achievementLeap": {
         buildAchievementLeapCandidates: buildPageTestCandidates,
         buildAchievementLeapPlanProgress: () => ({ remainingPoints: 0 }),
-        filterAchievementLeapIds: (ids, sourceMetadata) =>
-            [...new Set((ids || []).map(String))].filter((id) => Number(sourceMetadata[id]?.general) === 1),
+        filterAchievementLeapIds: leap.filterAchievementLeapIds,
     },
     "@/utils/achievementProgress": {
         buildAchievementOverallProgress: () => ({ completedPoints: 0 }),
@@ -595,8 +613,9 @@ async function runLeapStateConsistencyTests() {
         hydrationVm.roleState = { completedIds: [] };
         hydrationVm.enrichAchievementItems = async (items) => items;
         const hydrated = await hydrationVm.hydratePlanItems(["hidden", "visible"], "std");
-        assert.strictEqual(hydrationCalls[0].includeHidden, true);
-        assert.deepStrictEqual(hydrated.items.map((item) => item.id), ["hidden", "visible"]);
+        assert.notStrictEqual(hydrationCalls[0].includeHidden, true);
+        assert.deepStrictEqual(hydrationCalls[0].ids, ["visible"]);
+        assert.deepStrictEqual(hydrated.items.map((item) => item.id), ["visible"]);
 
         const recommendationForm = { title: "主页推荐草稿", targetPoints: 20000 };
         hydrationVm.plannerForm = recommendationForm;

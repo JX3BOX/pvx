@@ -61,6 +61,7 @@ export const ACHIEVEMENT_WORKBENCH_TIERS = Object.freeze({
     WUJIA: "wujia",
     HIDDEN: "hidden",
     RETIRED: "retired",
+    SPECIAL: "special",
 });
 
 export const ACHIEVEMENT_WORKBENCH_FIELD_STATUS = Object.freeze({
@@ -104,6 +105,7 @@ const TIER_ALIASES = Object.freeze({
     hidden: ACHIEVEMENT_WORKBENCH_TIERS.HIDDEN,
     limited: ACHIEVEMENT_WORKBENCH_TIERS.RETIRED,
     retired: ACHIEVEMENT_WORKBENCH_TIERS.RETIRED,
+    special: ACHIEVEMENT_WORKBENCH_TIERS.SPECIAL,
 });
 
 const ACHIEVEMENT_TAG_TYPE_BY_CATEGORY = Object.freeze({
@@ -195,6 +197,7 @@ function normalizeCompletionMap(value) {
 
 function inferTier({ explicitTier, general, visible, retired }) {
     if (retired === true || general === 0) return ACHIEVEMENT_WORKBENCH_TIERS.RETIRED;
+    if (general === 3) return ACHIEVEMENT_WORKBENCH_TIERS.SPECIAL;
     if (explicitTier) return explicitTier;
     if (visible === false) return ACHIEVEMENT_WORKBENCH_TIERS.HIDDEN;
     if (general === 2) return ACHIEVEMENT_WORKBENCH_TIERS.WUJIA;

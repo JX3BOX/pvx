@@ -44,7 +44,7 @@ async function run() {
     await vm.openCreate();
     await vm.loadExperts();
     assert.strictEqual(vm.form.role_id, 77, "submit database role ID, not jx3id");
-    assert.deepStrictEqual(vm.selectableExperts.map((row) => row.user_id), [42]);
+    assert.deepStrictEqual(vm.experts.map((row) => row.user_id), [7, 42], "expert options follow the API response");
     vm.form.question = "Please help";
     await vm.submit();
     assert.deepStrictEqual(writes[0], { plan_id: 10, role_id: 77, target_expert_id: null, question: "Please help" });

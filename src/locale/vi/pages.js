@@ -724,7 +724,7 @@ export default {
                 description: "Đặt tiến độ thành tựu của bạn và bạn bè cạnh nhau để tìm mục tiêu chung và chênh lệch điểm thâm niên.",
                 filters: {
                     title: "Trạng thái hoàn thành",
-                    placeholder: "Lọc theo trạng thái",
+                    placeholder: "Tất cả trạng thái",
                     commonIncomplete: "Tất cả chưa hoàn thành",
                     commonIncompleteRecommended: "Tất cả chưa hoàn thành (nên tổ đội)",
                     commonCompleted: "Tất cả đã hoàn thành",

@@ -283,7 +283,7 @@ assert.ok(comparePage.includes(':collapsed="roleSummaryCollapsed"'));
 assert.ok(comparePage.includes('@update:collapsed="roleSummaryCollapsed = $event"'));
 assert.ok(comparePage.includes('<template #filters>'));
 assert.ok(comparePage.includes('@reset-filters="resetCompareFilters"'));
-assert.ok(comparePage.includes("selectMenuRootsByGeneral(this.menus, this.metadata, 1)"));
+assert.ok(comparePage.includes("selectMenuRootsByGeneral(this.menus, this.regularMetadata, 1)"));
 assert.ok(comparePage.includes("pageSize: 15"));
 assert.match(compareMatrix, /pageSize:\s*\{\s*type: Number,\s*default: 15/);
 assert.doesNotMatch(comparePage, /height: 752px|calc\(100vh - 244px\)/);

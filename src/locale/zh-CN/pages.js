@@ -519,7 +519,7 @@ export default {
                 description: "并列查看自己与亲友角色的成就进度，快速找到共同目标与资历差距。",
                 filters: {
                     title: "完成状态",
-                    placeholder: "筛选完成状态",
+                    placeholder: "全部状态",
                     commonIncomplete: "共同未完成",
                     commonIncompleteRecommended: "共同未完成（推荐组队）",
                     commonCompleted: "共同已完成",

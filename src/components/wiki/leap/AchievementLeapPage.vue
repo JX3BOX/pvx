@@ -684,7 +684,6 @@ export default {
                     metadata: this.metadata,
                     completedIds: this.roleState.completedIds,
                     client,
-                    includeHidden: true,
                 }),
                 fetchAchievementWorkbenchDifficulty(regularSchema, 500, { client }).catch(() => ({})),
             ]);

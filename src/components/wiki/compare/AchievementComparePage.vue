@@ -40,7 +40,7 @@ import {
     normalizeCompletedAchievementIds,
 } from "@/utils/achievementCompare";
 import { paginateAchievementItems } from "@/utils/achievementProgress";
-import { selectMenuRootsByGeneral } from "@/utils/achievementStatistics";
+import { selectMenuRootsByGeneral, selectRegularAchievementMetadata } from "@/utils/achievementStatistics";
 import { __Links } from "@/utils/config";
 
 const MAX_COMPARE_ROLES = 4;
@@ -115,6 +115,9 @@ export default {
         remainingRoleSlots() {
             return Math.max(0, MAX_COMPARE_ROLES - this.compareRoles.length);
         },
+        regularMetadata() {
+            return selectRegularAchievementMetadata(this.metadata);
+        },
         roleProgress() {
             return buildAchievementRoleProgress(this.compareRoles, this.metadata).map((role) => ({
                 ...role,
@@ -122,23 +125,22 @@ export default {
             }));
         },
         catalogAchievementIds() {
-            return Object.entries(this.metadata)
-                .filter(([, item]) => [0, 1, 2, 3].includes(Number(item?.general)))
-                .map(([id]) => id);
+            return Object.keys(this.regularMetadata);
         },
         searchMode() {
             return this.searchRecords !== null;
         },
         statusFilteredSearchRecords() {
             if (!this.searchMode) return [];
-            return filterAchievements(this.searchRecords, this.compareRoles, this.selectedFilters);
+            const regularRecords = this.searchRecords.filter((record) => this.regularMetadata[String(record.id)]);
+            return filterAchievements(regularRecords, this.compareRoles, this.selectedFilters);
         },
         baseResultIds() {
             if (this.searchMode) return this.statusFilteredSearchRecords.map((record) => String(record.id));
             return filterAchievementIdsForCompare(this.catalogAchievementIds, this.compareRoles, this.selectedFilters);
         },
         regularMenus() {
-            return selectMenuRootsByGeneral(this.menus, this.metadata, 1);
+            return selectMenuRootsByGeneral(this.menus, this.regularMetadata, 1);
         },
         categoryTree() {
             return buildAchievementCompareCategoryTree(this.regularMenus, this.baseResultIds);
@@ -175,13 +177,10 @@ export default {
             return this.enrichRecords(records);
         },
         resultPoints() {
-            const searchPointMap = new Map(
-                (this.searchRecords || []).map((record) => [String(record.id), record.points])
+            return this.resultIds.reduce(
+                (total, id) => total + (Number(this.regularMetadata[String(id)]?.point) || 0),
+                0
             );
-            return this.resultIds.reduce((total, id) => {
-                const point = this.metadata[String(id)]?.point ?? searchPointMap.get(String(id));
-                return total + (Number(point) || 0);
-            }, 0);
         },
         mapOptions() {
             return [...this.maps]
@@ -225,14 +224,14 @@ export default {
         categoryComparison() {
             return buildAchievementCategoryComparison({
                 menus: this.regularMenus,
-                metadata: this.metadata,
+                metadata: this.regularMetadata,
                 roles: this.compareRoles,
             });
         },
         crossStatistics() {
             return buildAchievementCrossStatistics({
                 achievementIds: this.catalogAchievementIds,
-                metadata: this.metadata,
+                metadata: this.regularMetadata,
                 roles: this.compareRoles,
             });
         },
@@ -888,6 +887,7 @@ export default {
                         :roles="roleProgress"
                         :definitions="definitions"
                         :total="resultIds.length"
+                        :result-points="resultPoints"
                         :page="page"
                         :page-size="pageSize"
                         :loading="recordLoading"
@@ -903,8 +903,6 @@ export default {
                                 :map-options="mapOptions"
                                 :map-id="mapId"
                                 :keyword="keyword"
-                                :result-count="resultIds.length"
-                                :result-points="resultPoints"
                                 :loading="recordLoading || exporting"
                                 :can-export="canExport"
                                 @update:selected-filters="setSelectedFilters"

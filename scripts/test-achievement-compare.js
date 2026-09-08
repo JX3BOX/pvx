@@ -4,7 +4,9 @@ const path = require("path");
 const babel = require("@babel/core");
 
 function loadModule(file, aliases = {}, injectedModules = {}) {
-    const result = babel.transformFileSync(file, {
+    const source = fs.readFileSync(file, "utf8");
+    const script = file.endsWith(".vue") ? source.match(/<script>([\s\S]*?)<\/script>/)[1] : source;
+    const result = babel.transformSync(script, {
         babelrc: false,
         configFile: false,
         plugins: [
@@ -22,7 +24,11 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
         presets: [[require.resolve("@babel/preset-env"), { targets: { node: "current" } }]],
     });
     const loadedModule = { exports: {} };
-    const localRequire = (request) => injectedModules[request] || require(request);
+    const localRequire = (request) => {
+        if (request in injectedModules) return injectedModules[request];
+        if (request.endsWith(".vue") || request === "@element-plus/icons-vue") return {};
+        return require(request);
+    };
     const evaluate = new Function("module", "exports", "require", result.code);
     evaluate(loadedModule, loadedModule.exports, localRequire);
     return loadedModule.exports;
@@ -208,4 +214,96 @@ assert.match(
 assert.doesNotMatch(compareMatrixSource, /v-if="record\.tier === 'normal'"/, "普通记录不应显示档位 tag");
 assert.match(compareMatrixSource, /v-for="tag in getDisplayTags\(record\)"/, "业务 tags 应继续通过门派优先排序输出");
 
-console.log("Achievement compare tests passed.");
+const mixedMetadata = {
+    101: { point: 20, general: 1, visible: true },
+    102: { point: 0, general: 1, visible: true },
+    103: { point: 30, general: 1, visible: false },
+    104: { point: 100, general: 0, visible: true },
+    105: { point: 200, general: 2, visible: true },
+    106: { point: 300, general: 3, visible: true },
+};
+const mixedRecords = [
+    ...Object.entries(mixedMetadata).map(([id, item]) => ({ id, points: item.point })),
+    { id: "107", points: 999 },
+];
+const page = loadModule(
+    path.resolve(__dirname, "../src/components/wiki/compare/AchievementComparePage.vue"),
+    {},
+    {
+        "@jx3box/jx3box-common/js/user": { isLogin: () => true },
+        "xlsx": {},
+        "@/utils/achievementCompare": compare,
+        "@/utils/achievementStatistics": statisticsModule,
+        "@/utils/achievementWorkbench": workbenchModule,
+        "@/utils/achievementProgress": {},
+        "@/utils/config": {},
+        "@/service/achievementWorkbench": {
+            fetchAchievementWorkbenchRecords: async () => mixedRecords,
+            fetchAchievementWorkbenchDifficultyMetrics: async () => ({}),
+            fetchAchievementWorkbenchTags: async () => ({}),
+        },
+    }
+).default;
+const pageVm = {
+    ...page.data(),
+    $store: { state: { client: "std" } },
+    metadata: mixedMetadata,
+    menus: {
+        mixed: { sub: "mixed", children: [{ detail: "child", achievements: [101, 102, 103, 104, 105] }] },
+        special: { sub: "special", achievements: [106] },
+    },
+    compareRoles: [
+        { id: "r1", completedAchievements: [101, 103, 104, 105, 106] },
+        { id: "r2", completedAchievements: [102, 104] },
+    ],
+};
+Object.entries(page.methods).forEach(([key, method]) => {
+    pageVm[key] = method.bind(pageVm);
+});
+Object.entries(page.computed).forEach(([key, getter]) => {
+    Object.defineProperty(pageVm, key, { get: () => getter.call(pageVm) });
+});
+pageVm.enrichRecords = (records) => records;
+
+async function testRegularCompareScope() {
+    assert.deepStrictEqual(pageVm.resultIds, ["101", "102"], "全部分类只包含常规可见成就，保留零资历项");
+    assert.strictEqual(pageVm.resultPoints, 20);
+    assert.deepStrictEqual(pageVm.categoryTree.map((category) => [category.id, category.count]), [["mixed", 2]]);
+    assert.strictEqual(pageVm.categoryTree[0].children[0].count, 2);
+    assert.deepStrictEqual(
+        pageVm.roleProgress.map((role) => [role.totalCount, role.totalPoints, role.completedCount, role.completedPoints]),
+        [[6, 650, 5, 650], [6, 650, 2, 100]],
+        "角色概览使用全部资历，常规限制只影响对比列表和常规分析"
+    );
+    assert.strictEqual(pageVm.categoryComparison[0].totalCount, 2);
+    assert.deepStrictEqual(pageVm.categoryComparison[0].roleProgress.map((role) => role.totalPoints), [20, 20]);
+    assert.deepStrictEqual(
+        pageVm.crossStatistics.map((item) => [item.count, item.points]),
+        [[0, 0], [1, 20], [1, 0], [0, 0]]
+    );
+    assert.deepStrictEqual((await pageVm.fetchExportRecords()).map((record) => record.id), ["101", "102"]);
+
+    pageVm.selectedFilters = ["r1,2"];
+    assert.deepStrictEqual(pageVm.resultIds, ["101"], "完成状态应在常规范围内筛选");
+    pageVm.searchRecords = mixedRecords;
+    assert.deepStrictEqual(pageVm.resultIds, ["101"], "搜索和地图结果应与目录使用相同的常规范围");
+    pageVm.selectedFilters = [];
+    assert.deepStrictEqual(pageVm.resultIds, ["101", "102"], "清空完成状态不能让其他档位或未知 ID 进入搜索结果");
+    assert.strictEqual(pageVm.resultPoints, 20);
+    pageVm.activeCategoryId = "mixed";
+    pageVm.activeDetailId = "child";
+    assert.deepStrictEqual(pageVm.resultIds, ["101", "102"]);
+    assert.deepStrictEqual((await pageVm.fetchExportRecords()).map((record) => record.id), ["101", "102"]);
+    pageVm.selectedFilters = [compare.COMMON_UNFINISHED_FILTER];
+    assert.deepStrictEqual(pageVm.resultIds, []);
+    assert.strictEqual(pageVm.resultPoints, 0);
+}
+
+testRegularCompareScope()
+    .then(() => {
+        console.log("Achievement compare tests passed.");
+    })
+    .catch((error) => {
+        console.error(error);
+        process.exitCode = 1;
+    });

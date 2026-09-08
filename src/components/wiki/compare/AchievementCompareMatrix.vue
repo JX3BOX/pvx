@@ -39,6 +39,10 @@ export default {
             type: Number,
             default: 0,
         },
+        resultPoints: {
+            type: Number,
+            default: 0,
+        },
         page: {
             type: Number,
             default: 1,
@@ -113,7 +117,10 @@ export default {
 
         <div class="m-compare-matrix__header">
             <h2>{{ title || $t("pages.wiki.compare.ui.categories.all") }}</h2>
-            <span>{{ $t("pages.wiki.compare.ui.matrix.achievementCount", { count: formatNumber(total) }) }}</span>
+            <div class="m-compare-matrix__summary">
+                <span>{{ $t("pages.wiki.compare.ui.matrix.achievementCount", { count: formatNumber(total) }) }}</span>
+                <span>{{ $t("pages.wiki.compare.ui.workbench.availablePoints", { points: formatNumber(resultPoints) }) }}</span>
+            </div>
         </div>
 
         <div class="m-compare-matrix__body" v-loading="loading">
@@ -144,13 +151,6 @@ export default {
                         <tr>
                             <th class="is-achievement" scope="col">
                                 <span>{{ $t("pages.wiki.compare.ui.matrix.achievement") }}</span>
-                                <small>
-                                    {{
-                                        $t("pages.wiki.compare.ui.matrix.achievementCount", {
-                                            count: formatNumber(total),
-                                        })
-                                    }}
-                                </small>
                             </th>
                             <th v-for="role in roles" :key="role.id || role.jx3id" scope="col">
                                 <strong>{{ roleName(role) }}</strong>
@@ -267,7 +267,8 @@ export default {
 
 .m-compare-matrix__header {
     display: flex;
-    min-height: 58px;
+    min-height: 48px;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
@@ -282,12 +283,17 @@ export default {
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+}
 
-    span {
-        flex: none;
-        color: #9da39f;
-        font-size: 10px;
-    }
+.m-compare-matrix__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    min-width: 0;
+    color: #687270;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
 }
 
 .m-compare-matrix__body {
@@ -514,7 +520,6 @@ export default {
         font-weight: 500;
         letter-spacing: 0.03em;
     }
-
 }
 
 .u-compare-completion {
@@ -610,7 +615,7 @@ export default {
             overflow-wrap: anywhere;
         }
 
-        > span {
+        .m-compare-matrix__summary {
             max-width: 100%;
             padding-top: 3px;
             overflow-wrap: anywhere;

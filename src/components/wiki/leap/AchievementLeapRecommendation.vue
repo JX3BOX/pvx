@@ -173,8 +173,29 @@ export default {
         } },
         tab() { this.resetScroll(); if (this.tab === "upcoming") this.loadEventTags(); },
     },
-    beforeUnmount() { this.contextId += 1; },
+    mounted() {
+        if (!this.$refs.toolbar) return;
+        this.syncToolbarHeight();
+        if (typeof ResizeObserver !== "undefined") {
+            this.toolbarResizeObserver = new ResizeObserver(this.syncToolbarHeight);
+            this.toolbarResizeObserver.observe(this.$refs.toolbar);
+        } else {
+            window.addEventListener("resize", this.syncToolbarHeight);
+        }
+    },
+    updated() {
+        if (!this.toolbarResizeObserver) this.syncToolbarHeight();
+    },
+    beforeUnmount() {
+        this.contextId += 1;
+        this.toolbarResizeObserver?.disconnect();
+        if (typeof window !== "undefined") window.removeEventListener("resize", this.syncToolbarHeight);
+    },
     methods: {
+        syncToolbarHeight() {
+            const height = this.$refs.toolbar?.offsetHeight;
+            if (height) this.$el.style.setProperty("--recommendation-toolbar-height", `${height}px`);
+        },
         formatNumber(value) { return value.toLocaleString(this.$i18n.locale); },
         dateLabel(value) { return formatAchievementRecommendationDate(value, this.$i18n.locale); },
         exclusionLabel(reason) {
@@ -582,7 +603,7 @@ export default {
                         <el-button text :disabled="disabled" @click="loadTags()">{{ $t('achievementRecommendation.retryTags') }}</el-button>
                     </div>
                     <AchievementRecommendationItems v-if="visibleRows.length" :items="visibleRows" :selected-ids="selectedIds"
-                        :dimensions="dimensions" :disabled="disabled" :editable="tab === 'recommended'" @move="moveItem" @remove="requestAction('remove', $event, 'selected')" />
+                        :dimensions="dimensions" :disabled="disabled" :editable="tab === 'recommended'" table-layout @move="moveItem" @remove="requestAction('remove', $event, 'selected')" />
                     <div v-if="!detailsLoading && detailsError" role="alert">
                         <p>{{ $t('achievementRecommendation.detailsFailed') }}</p>
                         <el-button :disabled="disabled" @click="loadDetails()">{{ $t('achievementRecommendation.retry') }}</el-button>
@@ -681,7 +702,7 @@ export default {
 .m-server-recommendation__counts { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; font-size: 12px; color: #697374; flex: none;
     strong { font-weight: 500; color: #47777d; }
 }
-.m-server-recommendation__results { min-height: 100px; flex: none; border-top: 1px solid #e2e8e6; }
+.m-server-recommendation__results { min-height: 100px; flex: none; }
 .m-recommendation-difficulty-error { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 4px 10px; font-size: 13px; color: #ae3b40; }
 @media (max-width: @phone) {
     .m-server-recommendation {

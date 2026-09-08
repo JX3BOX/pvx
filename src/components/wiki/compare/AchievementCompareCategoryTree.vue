@@ -103,10 +103,7 @@ export default {
 <template>
     <section class="m-compare-categories" :aria-label="$t('pages.wiki.compare.ui.categories.title')">
         <header class="m-compare-categories__header">
-            <div>
-                <h2>{{ $t("pages.wiki.compare.ui.categories.title") }}</h2>
-                <span>{{ $t("pages.wiki.compare.ui.matrix.achievementCount", { count: formatNumber(total) }) }}</span>
-            </div>
+            <h2>{{ $t("pages.wiki.compare.ui.categories.title") }}</h2>
         </header>
 
         <div :class="['m-compare-category-browser', { 'has-subcategories': expandedCategory }]">
@@ -200,7 +197,7 @@ export default {
 
 .m-compare-categories__header {
     display: flex;
-    min-height: 62px;
+    min-height: 48px;
     flex: none;
     align-items: center;
     padding: 12px 14px;
@@ -210,13 +207,6 @@ export default {
         margin: 0;
         color: #384246;
         font-size: 15px;
-    }
-
-    span {
-        display: block;
-        margin-top: 3px;
-        color: #9ca39f;
-        font-size: 10px;
     }
 }
 

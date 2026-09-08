@@ -77,9 +77,6 @@ export default {
                 <template #prefix><Search /></template>
             </el-input>
         </div>
-        <div class="m-candidates-status">
-            <span>{{ $t('achievementRecommendation.visibleCount', { count: items.length }) }}</span>
-        </div>
         <div v-if="loadingMessage" class="m-candidates-loading" :aria-label="$t('achievementRecommendation.loadingAchievements')" :class="{ 'is-empty': waitingForIndex || !items.length }" role="status">
             <el-icon class="is-loading" aria-hidden="true"><Loading /></el-icon>
 
@@ -98,7 +95,7 @@ export default {
                 <el-button text :disabled="disabled" @click="$emit('retry-tags')">{{ $t('achievementRecommendation.retry') }}</el-button>
             </div>
             <AchievementRecommendationItems v-if="items.length" :items="items" :dimensions="dimensions" :selected-ids="emptySelection"
-                :editable="false" candidate-mode :disabled="disabled" :unavailable-ids="unavailableIds" @add="add" @remove="remove" />
+                :editable="false" candidate-mode table-layout :disabled="disabled" :unavailable-ids="unavailableIds" @add="add" @remove="remove" />
             <div v-if="!detailState.loading && detailState.error" class="m-candidates-error" role="alert">
                 <span>{{ $t('achievementRecommendation.detailsFailed') }}</span>
                 <el-button :disabled="disabled" @click="$emit('retry-details')">{{ $t('achievementRecommendation.retry') }}</el-button>
