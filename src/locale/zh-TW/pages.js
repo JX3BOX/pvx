@@ -1030,7 +1030,7 @@ export default {
                     schoolEligibilityApplied: "已依{school}門派排除不可完成項目",
                     targetGap: "還需衝刺",
                     resetConditions: "重設條件",
-                    defaultPlanName: "我的渡劫方案",
+                    defaultPlanName: "{role}_{server}_{target}的渡劫方案",
                     planOverview: "方案概覽",
                     targetReached: "目標可達成",
                     targetShortfall: "仍有缺口",

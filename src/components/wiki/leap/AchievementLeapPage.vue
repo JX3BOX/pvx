@@ -177,6 +177,13 @@ export default {
         recommendationForm() {
             return this.recommendationFormDraft || this.plannerForm;
         },
+        defaultPlanTitle() {
+            return this.$t("pages.wiki.leap.ui.workbench.defaultPlanName", {
+                role: this.currentRole?.name || "",
+                server: this.currentRole?.server || "",
+                target: this.recommendationForm.targetPoints,
+            });
+        },
         workspaceReady() {
             return this.isLogin && !this.pageLoading && !this.pageError && this.roles.length > 0;
         },
@@ -186,6 +193,11 @@ export default {
         },
     },
     watch: {
+        defaultPlanTitle(title, previousTitle) {
+            if (!this.editingPlan && (!this.recommendationForm.title || this.recommendationForm.title === previousTitle)) {
+                this.recommendationForm.title = title;
+            }
+        },
         currentClient(nextClient, previousClient) {
             if (!previousClient || nextClient === previousClient) return;
             this.resetClientState();
@@ -309,10 +321,16 @@ export default {
             });
         },
         createDefaultForm(roleId = "", currentPoints = 0) {
+            const role = this.roles?.find((item) => item.id === roleId);
+            const targetPoints = Math.ceil((Number(currentPoints || 0) + 10000) / 1000) * 1000;
             return {
-                title: this.$t ? this.$t("pages.wiki.leap.ui.workbench.defaultPlanName") : "",
+                title: this.$t ? this.$t("pages.wiki.leap.ui.workbench.defaultPlanName", {
+                    role: role?.name || "",
+                    server: role?.server || "",
+                    target: targetPoints,
+                }) : "",
                 roleId,
-                targetPoints: Math.ceil((Number(currentPoints || 0) + 10000) / 1000) * 1000,
+                targetPoints,
                 categoryIds: [],
                 mapId: "",
                 maxDifficulty: 3,

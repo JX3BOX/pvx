@@ -1041,7 +1041,7 @@ export default {
                     schoolEligibilityApplied: "Đã lọc mục không thể hoàn thành cho {school}",
                     targetGap: "Điểm còn thiếu",
                     resetConditions: "Đặt lại",
-                    defaultPlanName: "Kế hoạch đột phá của tôi",
+                    defaultPlanName: "Kế hoạch đột phá {role}_{server}_{target}",
                     planOverview: "TỔNG QUAN KẾ HOẠCH",
                     targetReached: "Có thể đạt mục tiêu",
                     targetShortfall: "Vẫn còn thiếu",

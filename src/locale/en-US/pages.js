@@ -1046,7 +1046,7 @@ export default {
                     schoolEligibilityApplied: "Unavailable items filtered for {school}",
                     targetGap: "Points needed",
                     resetConditions: "Reset",
-                    defaultPlanName: "My breakthrough plan",
+                    defaultPlanName: "{role}_{server}_{target} breakthrough plan",
                     planOverview: "PLAN OVERVIEW",
                     targetReached: "Target reachable",
                     targetShortfall: "Target shortfall",
