@@ -113,6 +113,30 @@ assert.deepStrictEqual(
     ]
 );
 
+const otherCategoryTree = compare.buildAchievementCompareCategoryTree({
+    martial: {
+        sub: "martial",
+        name: "武学",
+        children: [
+            { detail: "0", name: "招式", achievements: [1] },
+            { detail: "", name: "其它", achievements: [2] },
+        ],
+    },
+});
+const otherCategory = otherCategoryTree[0].children[1];
+assert.notStrictEqual(otherCategory.id, "", "其它分类不能与未选择二级分类的空 ID 冲突");
+assert.strictEqual(otherCategoryTree[0].children[0].id, "0", "有效的零分类 ID 应保留");
+assert.deepStrictEqual(otherCategory.achievementIds, ["2"]);
+assert.strictEqual(
+    compare.buildAchievementCompareCategoryTree({
+        martial: { sub: "martial", children: [
+            { detail: "0", achievements: [1] }, { detail: "", name: "其它", achievements: [2] },
+        ] },
+    }, [2])[0].children[1].id,
+    otherCategory.id,
+    "筛选后其它分类 ID 应保持稳定"
+);
+
 const exportDimensions = [
     {
         key: "money",

@@ -9,6 +9,7 @@ export default {
         CollectionTag,
     },
     props: {
+        tierLabel: { type: String, default: "" },
         categories: {
             type: Array,
             default: () => [],
@@ -48,13 +49,18 @@ export default {
                 else this.expandActiveCategory();
             },
         },
-        categories() { this.expandActiveCategory(); },
+        categories() {
+            this.expandActiveCategory();
+        },
     },
     emits: ["select-category", "update:sort"],
     methods: {
         expandActiveCategory() {
-            const root = this.categories.find((category) => category.id === this.activeCategoryId ||
-                (category.children || []).some((child) => child.id === this.activeCategoryId));
+            const root = this.categories.find(
+                (category) =>
+                    category.id === this.activeCategoryId ||
+                    (category.children || []).some((child) => child.id === this.activeCategoryId)
+            );
             if (root) this.expandedCategoryId = root.children?.length ? root.id : null;
         },
         formatNumber(value) {
@@ -95,7 +101,10 @@ export default {
     >
         <div class="m-progress-categories__header">
             <div>
-                <h2>{{ $t("pages.wiki.overview.ui.statistics.categoryProgress") }}</h2>
+                <h2>
+                    {{ $t("pages.wiki.overview.ui.statistics.categoryProgress") }}
+                    <span v-if="tierLabel">- {{ tierLabel }}</span>
+                </h2>
             </div>
             <el-select
                 :model-value="sort"
@@ -130,10 +139,11 @@ export default {
                         >
                             <span class="u-progress-category-icon" aria-hidden="true">
                                 <img
-                                    v-if="getCategoryImage(category.name)"
-                                    :src="getCategoryImage(category.name)"
+                                    v-if="category.id === 'all'"
+                                    src="@/assets/img/wiki/figma/tier-normal.svg"
                                     alt=""
                                 />
+                                <img v-else-if="getCategoryImage(category.name)" :src="getCategoryImage(category.name)" alt="" />
                                 <CollectionTag v-else />
                             </span>
                             <span class="m-progress-category-card__body">
@@ -160,11 +170,7 @@ export default {
                             </span>
                         </button>
 
-                        <span
-                            v-if="category.children?.length"
-                            class="u-progress-category-direction"
-                            aria-hidden="true"
-                        >
+                        <span v-if="category.children?.length" class="u-progress-category-direction" aria-hidden="true">
                             <ArrowRight />
                         </span>
                     </div>
@@ -203,7 +209,9 @@ export default {
                         :aria-pressed="activeCategoryId === child.id"
                         @click="selectChildCategory(child)"
                     >
-                        <span class="u-progress-subcategory-icon" aria-hidden="true"><CollectionTag /></span>
+                        <span class="u-progress-subcategory-icon" aria-hidden="true">
+                            <img src="@/assets/img/wiki/figma/subcategory.png" alt="" />
+                        </span>
                         <span class="m-progress-subcategory-card__body">
                             <span class="m-progress-subcategory-card__line">
                                 <strong>{{ child.name }}</strong>
@@ -225,645 +233,286 @@ export default {
 
 <style lang="less" scoped>
 .m-progress-categories {
-    display: flex;
     min-width: 0;
-    flex-direction: column;
-    border: 1px solid rgba(70, 74, 66, 0.14);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.86);
-    container-type: inline-size;
+    padding: 12px;
+    border-radius: 16px;
+    background: #f8f7f3;
 }
-
 .m-progress-categories__header {
     display: flex;
-    min-height: 72px;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.1);
-
+    min-height: 28px;
+    margin-bottom: 12px;
     h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin: 0;
-        color: #384246;
         font-size: 16px;
+        font-weight: 500;
+        color: #333;
+    }
+    h2::before {
+        content: "";
+        width: 6px;
+        height: 18px;
+        flex: none;
+        border-radius: 99px;
+        background: #5a7e84;
+    }
+    h2 span {
+        color: #6e572c;
     }
 }
-
 .u-progress-category-sort {
-    width: 210px;
+    width: 280px;
+    max-width: 100%;
+    flex: none;
 }
-
 .m-progress-category-browser {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-
+    min-width: 0;
     &.has-subcategories {
-        grid-template-columns: minmax(200px, 0.76fr) minmax(0, 1.24fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
     }
 }
-
-.m-progress-category-list {
+.m-progress-category-list,
+.m-progress-subcategory-list {
     display: grid;
     min-width: 0;
     align-content: start;
-    gap: 6px;
-    padding: 10px;
+    gap: 2px;
 }
-
-.m-progress-category-node {
+.m-progress-category-node,
+.m-progress-category-card__body,
+.m-progress-subcategory-card__body {
     min-width: 0;
 }
-
 .m-progress-category-node__root {
-    display: grid;
-    width: 100%;
-    min-width: 0;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: stretch;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    color: #465054;
-    background: transparent;
-    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
-
-    &:hover {
-        border-color: rgba(71, 119, 125, 0.12);
-        background: rgba(71, 119, 125, 0.045);
-    }
+    position: relative;
+    color: #333;
+    background: #fdfcf9;
 }
-
-.m-progress-category-node.is-active .m-progress-category-node__root,
-.m-progress-category-node.is-expanded .m-progress-category-node__root {
-    border-color: #47777d;
-    color: #f8f4e9;
-    background: #356873;
-    box-shadow: 0 8px 18px rgba(53, 104, 115, 0.13);
-
-    .u-progress-category-icon,
-    .m-progress-category-card__line span,
-    .m-progress-category-card__meta,
-    .u-progress-category-direction {
-        color: rgba(248, 244, 233, 0.82);
-    }
-
-    .u-progress-category-icon {
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    .m-progress-category-track {
-        background: rgba(255, 255, 255, 0.16);
-
-        i {
-            background: #d2ad61;
-        }
-    }
-}
-
-.m-progress-category-node.has-active-child:not(.is-expanded) .m-progress-category-node__root {
-    border-color: rgba(71, 119, 125, 0.2);
-    background: rgba(71, 119, 125, 0.06);
-}
-
 .m-progress-category-card {
     display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
     width: 100%;
     min-width: 0;
-    grid-template-columns: 36px minmax(0, 1fr);
-    gap: 10px;
-    padding: 11px 8px 11px 12px;
+    min-height: 62px;
+    padding: 10px 12px;
     border: 0;
-    color: inherit;
     background: transparent;
+    color: inherit;
     font: inherit;
     text-align: left;
     cursor: pointer;
-
-    &:focus-visible {
-        outline: 2px solid rgba(71, 119, 125, 0.7);
-        outline-offset: -2px;
-    }
 }
-
-.u-progress-category-direction {
-    display: inline-flex;
-    width: 30px;
-    min-height: 36px;
-    align-self: center;
-    align-items: center;
-    justify-content: center;
-    color: #778482;
-
-    svg {
-        width: 14px;
-        height: 14px;
-    }
-}
-
 .u-progress-category-icon {
+    color: #967944;
     display: inline-flex;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border-radius: 7px;
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.08);
-
-    img {
+    img,
+    svg {
         width: 100%;
         height: 100%;
-        object-fit: cover;
-    }
-
-    svg {
-        width: 16px;
-        height: 16px;
+        object-fit: contain;
     }
 }
-
-.m-progress-category-card__body {
-    min-width: 0;
-}
-
 .m-progress-category-card__line {
-    display: grid;
-    min-width: 0;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: baseline;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 8px;
-
     strong {
-        font-size: 14px;
-        white-space: normal;
+        font-size: 16px;
+        font-weight: 400;
         overflow-wrap: anywhere;
     }
-
-    span {
-        color: #9aa29f;
-        font-size: 13px;
+    > span {
+        display: none;
     }
-
     b {
-        color: #b58c3d;
-        font-size: 13px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #6e572c;
     }
 }
-
+.m-progress-category-card__meta,
+.u-progress-category-direction {
+    display: none;
+}
 .m-progress-category-track {
     display: block;
-    height: 4px;
+    height: 8px;
     margin-top: 8px;
     overflow: hidden;
-    border-radius: 999px;
-    background: rgba(71, 119, 125, 0.1);
-
+    border-radius: 99px;
+    background: #eae5e1;
     i {
         display: block;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, #47777d, #b6924d);
+        background: #5a7e84;
     }
 }
-
-.m-progress-category-card__meta {
-    display: block;
-    margin-top: 5px;
-    color: #9aa29f;
-    font-size: 13px;
-}
-
-.m-progress-categories.is-compact-overview {
-    .m-progress-categories__header {
-        min-height: 62px;
-        padding: 10px 12px;
+.m-progress-category-node.is-active .m-progress-category-node__root,
+.m-progress-category-node.is-expanded .m-progress-category-node__root {
+    color: #fff;
+    background: linear-gradient(90deg, #2c3e46, #5a7e84);
+    .u-progress-category-icon img {
+        filter: brightness(0) invert(1);
     }
-
-    .u-progress-category-sort {
-        width: 190px;
+    .m-progress-category-card__line b {
+        color: #fff;
     }
-
-    .m-progress-category-browser:not(.has-subcategories) .m-progress-category-list {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 5px;
-        padding: 8px;
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .m-progress-category-node__root {
-        min-height: 44px;
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .m-progress-category-card {
-        grid-template-columns: 30px minmax(0, 1fr);
-        align-items: center;
-        gap: 8px;
-        padding: 6px 4px 6px 8px;
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .u-progress-category-icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .m-progress-category-card__line {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 6px;
-
-        > span {
-            display: none;
-        }
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .m-progress-category-track {
-        height: 3px;
-        margin-top: 5px;
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .m-progress-category-card__meta {
-        display: none;
-    }
-
-    .m-progress-category-browser:not(.has-subcategories) .u-progress-category-direction {
-        width: 26px;
-        min-height: 30px;
-    }
-}
-
-.m-progress-category-browser.has-subcategories {
-    .m-progress-category-list {
-        gap: 4px;
-        padding: 8px;
-    }
-
-    .m-progress-category-node__root {
-        min-height: 52px;
-    }
-
-    .m-progress-category-card {
-        grid-template-columns: 30px minmax(0, 1fr);
-        align-items: center;
-        gap: 7px;
-        padding: 7px 5px 7px 8px;
-    }
-
-    .u-progress-category-icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .m-progress-category-card__line {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 5px;
-
-        > span {
-            display: none;
-        }
-
-        b {
-            grid-column: 2;
-            grid-row: 1;
-        }
-    }
-
     .m-progress-category-track {
-        height: 3px;
-        margin-top: 6px;
-    }
-
-    .m-progress-category-card__meta {
-        display: none;
-    }
-
-    .u-progress-category-direction {
-        width: 26px;
-        min-height: 30px;
+        background: #ffffff33;
+        i {
+            background: #fff;
+        }
     }
 }
-
+.m-progress-category-node__root:hover {
+    box-shadow: inset 0 0 0 1px #5a7e84;
+}
 .m-progress-subcategory-panel {
-    display: flex;
     min-width: 0;
-    flex-direction: column;
-    border-left: 1px solid rgba(70, 74, 66, 0.1);
-    background: rgba(247, 244, 236, 0.36);
 }
-
 .m-progress-subcategory-panel__header {
-    display: flex;
-    min-height: 62px;
-    flex: none;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.09);
-    color: #465054;
-
-    > span:last-child {
-        display: flex;
-        min-width: 0;
-        flex-direction: column;
-        gap: 3px;
-    }
-
-    strong {
-        font-size: 14px;
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    small {
-        color: #99a19f;
-        font-size: 13px;
-    }
+    display: none;
 }
-
-.u-progress-subcategory-panel-icon {
-    display: inline-flex;
-    width: 34px;
-    height: 34px;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 8px;
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.08);
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    svg {
-        width: 15px;
-        height: 15px;
-    }
-}
-
-.m-progress-subcategory-list {
-    display: grid;
-    align-content: start;
-    gap: 4px;
-    padding: 10px;
-}
-
 .m-progress-subcategory-card {
     display: grid;
     width: 100%;
     min-width: 0;
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: 24px minmax(0, 1fr);
     align-items: center;
-    gap: 8px;
-    padding: 8px 9px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    color: #596365;
-    background: transparent;
+    gap: 12px;
+    min-height: 56px;
+    padding: 12px;
+    border: 0;
+    color: #333;
+    background: #fdfcf9;
     font: inherit;
     text-align: left;
     cursor: pointer;
-
     &:hover {
-        border-color: rgba(71, 119, 125, 0.12);
-        background: rgba(71, 119, 125, 0.045);
+        box-shadow: inset 0 0 0 1px #5a7e84;
     }
-
-    &:focus-visible {
-        outline: 2px solid rgba(71, 119, 125, 0.7);
-        outline-offset: -2px;
-    }
-
     &.is-active {
-        border-color: rgba(71, 119, 125, 0.42);
-        color: #f8f4e9;
-        background: #47777d;
-
-        .m-progress-subcategory-card__line span,
-        .u-progress-subcategory-icon {
-            color: rgba(248, 244, 233, 0.8);
+        color: #fff;
+        background: #5a7e84;
+        .m-progress-subcategory-card__line span {
+            color: #fff;
         }
-
         .m-progress-category-track {
-            background: rgba(255, 255, 255, 0.16);
-
+            background: #ffffff33;
             i {
-                background: #d2ad61;
+                background: #fff;
             }
         }
     }
-}
-
-.u-progress-subcategory-icon {
-    display: inline-flex;
-    width: 22px;
-    height: 22px;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;
-    color: #6e8586;
-    background: rgba(71, 119, 125, 0.07);
-
-    svg {
-        width: 12px;
-        height: 12px;
+    .m-progress-category-track {
+        height: 4px;
+        margin-top: 4px;
     }
 }
-
-.m-progress-subcategory-card__body {
-    min-width: 0;
+.u-progress-subcategory-icon {
+    display: flex;
+    width: 24px;
+    height: 24px;
+    color: #967944;
+    img {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
 }
-
 .m-progress-subcategory-card__line {
-    display: grid;
-    min-width: 0;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: baseline;
-    gap: 7px;
-
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     strong {
         font-size: 14px;
-        white-space: normal;
+        font-weight: 400;
         overflow-wrap: anywhere;
     }
-
     span {
-        color: #9aa29f;
-        font-size: 13px;
+        font-size: 14px;
+        color: #999;
+        white-space: nowrap;
     }
-
     b {
-        color: #b58c3d;
-        font-size: 13px;
+        display: none;
     }
 }
-
-.m-progress-subcategory-card .m-progress-category-track {
-    height: 3px;
-    margin-top: 6px;
-}
-
-@container (max-width: 520px) {
-    .m-progress-category-browser.has-subcategories {
-        grid-template-columns: minmax(0, 1fr);
+@media (max-width: 1400px) {
+    .m-progress-category-card {
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px 8px;
     }
-
-    .m-progress-category-browser.has-subcategories .m-progress-category-list {
-        border-bottom: 1px solid rgba(70, 74, 66, 0.1);
+    .u-progress-category-icon {
+        width: 32px;
+        height: 32px;
     }
-
-    .m-progress-subcategory-panel {
-        border-left: 0;
+    .m-progress-category-card__line strong {
+        font-size: 14px;
     }
-}
-
-@media (max-width: @phone) {
     .m-progress-categories__header {
-        min-height: 0;
+        flex-wrap: wrap;
+    }
+}
+@media (max-width: @phone) {
+    .m-progress-categories {
+        padding: 10px;
+    }
+    .m-progress-categories__header {
         align-items: stretch;
         flex-direction: column;
-        gap: 10px;
-        padding: 12px;
-
-        > div {
-            min-width: 0;
-            overflow-wrap: anywhere;
-        }
     }
-
-    .u-progress-category-sort,
-    .m-progress-categories.is-compact-overview .u-progress-category-sort {
+    .u-progress-category-sort {
         width: 100%;
-        min-width: 0;
     }
-
-    .u-progress-category-sort :deep(.el-select__wrapper) {
-        min-height: 44px;
-        box-sizing: border-box;
-    }
-
     .m-progress-category-browser.has-subcategories {
-        grid-template-columns: minmax(0, 1fr);
-
-        .m-progress-category-list {
-            border-bottom: 1px solid rgba(70, 74, 66, 0.1);
-        }
-
-        .m-progress-category-card__line strong {
-            font-size: 14px;
-        }
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
-    .m-progress-category-list,
-    .m-progress-subcategory-list {
-        padding: 8px;
-    }
-
     .m-progress-category-card {
-        align-items: center;
-        gap: 8px;
-        padding: 9px 4px 9px 8px;
+        grid-template-columns: 24px minmax(0, 1fr);
+        min-height: 70px;
+        gap: 6px;
+        padding: 8px 6px;
     }
-
-    .m-progress-category-card__body {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: baseline;
-        gap: 4px 8px;
-
-        .m-progress-category-card__line {
-            display: contents;
-
-            strong {
-                grid-column: 1;
-                grid-row: 1;
-            }
-
-            > span {
-                grid-column: 1;
-                grid-row: 3;
-            }
-        }
-
-        .m-progress-category-track {
-            grid-column: 1 / -1;
-            grid-row: 2;
-            margin-top: 0;
-        }
-
-        .m-progress-category-card__meta {
-            grid-column: 2;
-            grid-row: 3;
-            margin-top: 0;
-            text-align: right;
-        }
+    .u-progress-category-icon {
+        width: 24px;
+        height: 24px;
     }
-
-    .m-progress-category-card__line,
-    .m-progress-subcategory-card__line {
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 4px 8px;
-
-        strong {
-            overflow: visible;
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-
-        > span {
-            grid-column: 1 / -1;
-            grid-row: 2;
-            overflow-wrap: anywhere;
-        }
-
-        b {
-            grid-column: 2;
-            grid-row: 1;
-            white-space: nowrap;
-        }
-    }
-
-    .m-progress-category-card__meta {
-        overflow-wrap: anywhere;
-    }
-
-    .m-progress-category-node.is-expanded .u-progress-category-direction svg {
-        transform: rotate(90deg);
-    }
-
-    .m-progress-subcategory-panel {
-        border-left: 0;
-    }
-
-    .m-progress-subcategory-panel__header {
-        min-height: 0;
-        padding: 12px;
-
-        strong {
-            overflow: visible;
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-
-        small {
-            overflow-wrap: anywhere;
-        }
-    }
-
     .m-progress-subcategory-card {
-        min-height: 52px;
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 70px;
+        padding: 8px;
+        gap: 4px;
     }
-
+    .u-progress-subcategory-icon {
+        display: none;
+    }
     .m-progress-subcategory-card__line {
-        strong {
-            font-size: 14px;
-        }
-
-        span,
-        b {
-            font-size: 13px;
-        }
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+    .m-progress-category-card__line {
+        flex-wrap: wrap;
+        gap: 2px;
     }
 }
 </style>

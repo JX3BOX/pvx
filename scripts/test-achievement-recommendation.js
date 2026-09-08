@@ -1443,9 +1443,9 @@ async function main() {
     assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: false, roleAvailable: false, loading: false }), false);
     assert.strictEqual(workspace.computed.controlsDisabled.call({ disabled: false, roleLoading: false, client: "std", roleAvailable: false }), false,
         "role selection remains available when there is no current role");
-    const switchedWorkspace = { hasRequested: true, selection: {} };
+    const switchedWorkspace = { hasRequested: true, settingsExpanded: false, selection: {} };
     workspace.watch.roleId.call(switchedWorkspace);
-    assert.deepStrictEqual(switchedWorkspace, { hasRequested: false, selection: null });
+    assert.deepStrictEqual(switchedWorkspace, { hasRequested: false, settingsExpanded: true, selection: null }, "switching roles reopens the form before the next recommendation");
     const workspaceTemplate = parse(fs.readFileSync(path.join(root, "src/components/wiki/leap/AchievementLeapRecommendationWorkspace.vue"), "utf8")).descriptor.template.content;
     assert.ok(workspaceTemplate.includes('v-for="role in roles"'));
     assert.ok(workspaceTemplate.includes("$emit('role-change', $event)"));

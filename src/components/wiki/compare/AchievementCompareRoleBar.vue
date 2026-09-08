@@ -1,5 +1,5 @@
 <script>
-import { ArrowUp, Close, Lock, Plus } from "@element-plus/icons-vue";
+import { ArrowUp, Close, Lock, Location, Plus } from "@element-plus/icons-vue";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 
 export default {
@@ -8,6 +8,7 @@ export default {
         ArrowUp,
         Close,
         Lock,
+        Location,
         Plus,
     },
     props: {
@@ -77,6 +78,7 @@ export default {
                 <button
                     type="button"
                     class="u-compare-role-toggle"
+                    :title="collapsed ? $t('pages.wiki.compare.ui.workbench.summaryExpand') : $t('pages.wiki.compare.ui.workbench.summaryCollapse')"
                     :aria-expanded="!collapsed"
                     aria-controls="achievement-compare-role-details"
                     @click="$emit('update:collapsed', !collapsed)"
@@ -100,31 +102,27 @@ export default {
                 class="m-compare-role-card"
                 :class="{ 'is-primary': role.isCurrent }"
             >
-                <div class="u-compare-role-avatar">
+                <div class="m-compare-role-card__name">
+                    <strong :title="role.name">{{ role.name || "—" }}</strong>
                     <img
                         v-if="role.school"
                         :src="showSchoolIcon(role.school)"
                         :alt="$t('pages.wiki.overview.ui.schoolIcon')"
                     />
-                    <span v-else>{{ (role.name || "—").slice(0, 1) }}</span>
                 </div>
-
-                <div class="m-compare-role-card__main">
-                    <div class="m-compare-role-card__name">
-                        <strong :title="role.name">{{ role.name || "—" }}</strong>
-                        <span v-if="role.isCurrent" class="is-current-role">
-                            {{ $t("pages.wiki.compare.ui.role.currentRole") }}
-                        </span>
-                        <span v-else-if="role.isSelf">{{ $t("pages.wiki.compare.ui.workbench.selfBadge") }}</span>
-                    </div>
-                    <p>{{ role.server || "—" }}</p>
-                    <div class="m-compare-role-card__stats">
-                        <span>{{ formatNumber(role.completedPoints) }} / {{ formatNumber(role.totalPoints) }}</span>
-                        <b>{{ formatPercent(role.pointProgress) }}</b>
-                    </div>
-                    <div class="m-compare-role-card__track" aria-hidden="true">
-                        <span :style="{ width: `${role.pointProgress || 0}%` }"></span>
-                    </div>
+                <p class="m-compare-role-card__server"><Location aria-hidden="true" />{{ role.server || "—" }}</p>
+                <div
+                    class="m-compare-role-card__stats"
+                    :title="
+                        formatNumber(role.completedPoints) +
+                        ' / ' +
+                        formatNumber(role.totalPoints) +
+                        ' · ' +
+                        formatPercent(role.pointProgress)
+                    "
+                >
+                    <img src="@/assets/img/wiki/figma/points.png" alt="" />
+                    {{ formatNumber(role.completedPoints) }}
                 </div>
 
                 <span
@@ -148,6 +146,15 @@ export default {
                     <Close aria-hidden="true" />
                 </button>
             </article>
+            <button
+                v-if="remainingSlots"
+                class="m-compare-role-placeholder"
+                type="button"
+                :disabled="loading"
+                @click="$emit('add-role')"
+            >
+                {{ $t("pages.wiki.compare.ui.actions.addRole") }}
+            </button>
         </div>
     </section>
 </template>
@@ -155,362 +162,260 @@ export default {
 <style lang="less" scoped>
 .m-compare-role-overview {
     min-width: 0;
-    overflow: hidden;
-    border: 1px solid rgba(70, 74, 66, 0.14);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.86);
-
-    :deep(.el-loading-mask) {
-        background: rgba(255, 254, 250, 0.52);
-    }
+    padding: 12px;
+    border-radius: 16px;
+    background: #fff;
 }
-
 .m-compare-role-overview__header {
-    display: flex;
-    min-height: 56px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 10px 14px;
-    background: rgba(247, 244, 236, 0.72);
+    display: none;
 }
-
+.m-compare-role-overview.is-collapsed .m-compare-role-overview__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 .m-compare-role-overview__title {
     display: flex;
-    min-width: 0;
-    align-items: baseline;
-    gap: 10px;
-
-    strong {
-        flex: none;
-        color: #384246;
-        font-size: 15px;
-    }
-
-    span {
-        overflow: hidden;
-        color: #98a09d;
-        font-size: 13px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-.m-compare-role-overview__actions {
-    display: flex;
-    flex: none;
     align-items: center;
     gap: 8px;
+    span {
+        color: #999;
+        font-size: 13px;
+    }
 }
-
+.m-compare-role-overview__actions {
+    display: flex;
+    gap: 8px;
+}
 .u-compare-role-add,
 .u-compare-role-toggle {
-    display: inline-flex;
-    height: 34px;
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 0 11px;
-    border: 1px solid rgba(71, 119, 125, 0.24);
-    border-radius: 7px;
-    color: #47777d;
-    background: rgba(255, 255, 252, 0.72);
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 20px;
+    background: #fff;
+    color: #967944;
     font: inherit;
-    font-size: 14px;
     cursor: pointer;
-
     svg {
         width: 14px;
         height: 14px;
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-}
-
-.u-compare-role-toggle svg {
-    transition: transform 160ms ease;
-
-    &.is-collapsed {
-        transform: rotate(180deg);
+        flex: none;
+        &.is-collapsed {
+            transform: rotate(180deg);
+        }
     }
 }
 
 .m-compare-role-bar {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
-    padding: 10px;
-    border-top: 1px solid rgba(70, 74, 66, 0.09);
+    gap: 12px;
 }
-
 .m-compare-role-card {
     position: relative;
-    display: grid;
     min-width: 0;
-    min-height: 82px;
-    grid-template-columns: 40px minmax(0, 1fr);
+    min-height: 92px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #5a7e84;
+    border-left: 4px solid #5a7e84;
+    border-radius: 8px;
+    background: #fff;
+}
+.m-compare-role-card__name {
+    display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 34px 10px 11px;
-    border: 1px solid rgba(70, 74, 66, 0.13);
-    border-radius: 10px;
-    background: rgba(249, 247, 241, 0.66);
-
-    &.is-primary {
-        border-color: rgba(71, 119, 125, 0.42);
-        box-shadow: inset 3px 0 0 rgba(71, 119, 125, 0.66);
+    gap: 6px;
+    padding-right: 28px;
+    grid-column: 1/-1;
+    min-width: 0;
+    strong {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 18px;
+        color: #333;
+    }
+    img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        flex: none;
     }
 }
-
-.u-compare-role-avatar {
+.m-compare-role-card__server {
     display: flex;
-    width: 40px;
-    height: 40px;
     align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 50%;
-    color: #fff;
-    background: linear-gradient(140deg, #47777d, #294b52);
-    box-shadow: 0 3px 10px rgba(42, 67, 71, 0.18);
-    font-size: 15px;
-    font-weight: 700;
-
+    gap: 4px;
+    min-width: 0;
+    margin: 0;
+    color: #999;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+    svg {
+        width: 20px;
+        height: 20px;
+        flex: none;
+    }
+}
+.m-compare-role-card__stats {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    align-self: end;
+    color: #967944;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
     img {
-        width: 27px;
-        height: 27px;
+        width: 22px;
+        height: 24px;
         object-fit: contain;
     }
 }
-
-.m-compare-role-card__main {
-    min-width: 0;
-
-    > p {
-        overflow: hidden;
-        margin: 1px 0 4px;
-        color: #9a9f9c;
-        font-size: 13px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-}
-
-.m-compare-role-card__name {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 5px;
-
-    strong {
-        overflow: hidden;
-        color: #354044;
-        font-size: 14px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    span {
-        flex: none;
-        padding: 1px 5px;
-        border-radius: 999px;
-        color: #47777d;
-        background: rgba(71, 119, 125, 0.11);
-        font-size: 13px;
-
-        &.is-current-role {
-            color: #fff;
-            background: #47777d;
-        }
-    }
-}
-
-.m-compare-role-card__stats {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 5px;
-    color: #7f8885;
-    font-size: 13px;
-    font-variant-numeric: tabular-nums;
-
-    b {
-        margin-left: auto;
-        color: #ad8b42;
-        font-size: 13px;
-    }
-}
-
-.m-compare-role-card__track {
-    height: 3px;
-    overflow: hidden;
-    margin-top: 4px;
-    border-radius: 999px;
-    background: rgba(71, 119, 125, 0.1);
-
-    span {
-        display: block;
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #47777d, #ad8b42);
-    }
-}
-
 .u-compare-remove-role,
 .u-compare-current-role-lock {
     position: absolute;
-    top: 7px;
-    right: 7px;
-    display: inline-flex;
+    top: 12px;
+    right: 12px;
     width: 24px;
     height: 24px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    border: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    border: 1px solid #eee;
     border-radius: 50%;
-}
-
-.u-compare-current-role-lock {
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.1);
-
+    color: #aaa;
+    background: #fff;
     svg {
-        width: 12px;
-        height: 12px;
+        width: 14px;
+        height: 14px;
     }
 }
-
 .u-compare-remove-role {
-    color: #a3a8a5;
-    background: transparent;
     cursor: pointer;
-
-    svg {
-        width: 13px;
-    }
-
-    &:hover:not(:disabled) {
-        color: #fff;
-        background: #ad5149;
+    &:hover {
+        color: #ad5149;
+        border-color: currentColor;
     }
 }
-
+.m-compare-role-placeholder {
+    min-width: 0;
+    min-height: 92px;
+    border: 1px dashed #967944;
+    border-radius: 8px;
+    color: #6e572c;
+    background: #fff;
+    font: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    &:hover {
+        background: #f8f7f3;
+    }
+}
+@media (min-width: 721px) {
+    .m-compare-role-overview:not(.is-collapsed) {
+        position: relative;
+        padding-right: 44px;
+        .m-compare-role-overview__header { display:flex; position:absolute; right:8px; top:12px; bottom:12px; width:24px; }
+        .m-compare-role-overview__title,.u-compare-role-add { display:none; }
+        .m-compare-role-overview__actions { width:100%; }
+        .u-compare-role-toggle { width:100%; min-height:44px; padding:4px; border:0; border-radius:6px; background:#f8f7f3; span { display:none; } }
+    }
+}
+@media (max-width: 1200px) {
+    .m-compare-role-card__name strong {
+        font-size: 16px;
+    }
+    .m-compare-role-card__server {
+        font-size: 14px;
+    }
+    .m-compare-role-card__stats {
+        font-size: 16px;
+    }
+}
 @media (max-width: @ipad) {
     .m-compare-role-bar {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
-
 @media (max-width: @phone) {
     .m-compare-role-overview__header {
-        align-items: flex-start;
+        display: flex;
         flex-direction: column;
-        gap: 10px;
-        padding: 12px;
+        gap: 8px;
+        margin-bottom: 12px;
     }
-
     .m-compare-role-overview__title {
-        width: 100%;
+        display: flex;
         flex-wrap: wrap;
-        gap: 4px 10px;
-
+        gap: 8px;
         strong {
-            max-width: 100%;
-            overflow-wrap: anywhere;
+            font-size: 14px;
         }
-
         span {
-            overflow: visible;
-            white-space: normal;
-            overflow-wrap: anywhere;
+            font-size: 13px;
+            color: #999;
         }
     }
-
     .m-compare-role-overview__actions {
-        width: 100%;
-
-        button {
-            height: auto;
-            min-width: 0;
-            min-height: 44px;
-            flex: 1 1 0;
-            padding: 8px;
-            line-height: 1.4;
-
-            span {
-                min-width: 0;
-                overflow-wrap: anywhere;
-            }
-
-            svg {
-                flex: none;
+        display: flex;
+        gap: 8px;
+    }
+    .u-compare-role-add,
+    .u-compare-role-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        min-height: 44px;
+        gap: 6px;
+        border: 1px solid #ddd;
+        border-radius: 24px;
+        padding: 8px 12px;
+        color: #6e572c;
+        background: #fff;
+        font: inherit;
+        font-size: 14px;
+        svg {
+            width: 14px;
+            height: 14px;
+            flex: none;
+            &.is-collapsed {
+                transform: rotate(180deg);
             }
         }
     }
-
     .m-compare-role-bar {
         grid-template-columns: minmax(0, 1fr);
-        gap: 8px;
-        padding: 8px;
     }
-
     .m-compare-role-card {
-        grid-template-columns: 36px minmax(0, 1fr);
-        gap: 9px;
-        padding: 12px 45px 12px 10px;
+        min-height: 104px;
     }
-
-    .u-compare-role-avatar {
-        width: 36px;
-        height: 36px;
-    }
-
     .m-compare-role-card__name {
-        flex-wrap: wrap;
-
+        padding-right: 36px;
         strong {
-            max-width: 100%;
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-
-        span {
-            max-width: 100%;
             white-space: normal;
             overflow-wrap: anywhere;
         }
     }
-
-    .m-compare-role-card__main > p {
-        margin-top: 4px;
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    .m-compare-role-card__stats {
-        flex-wrap: wrap;
-        gap: 3px 8px;
-        line-height: 1.5;
-
-        span {
-            overflow-wrap: anywhere;
-        }
-    }
-
     .u-compare-remove-role {
-        top: 3px;
-        right: 3px;
         width: 40px;
         height: 40px;
-        border-radius: 8px;
-    }
-
-    .u-compare-current-role-lock {
-        top: 10px;
-        right: 10px;
+        top: 5px;
+        right: 5px;
     }
 }
 </style>

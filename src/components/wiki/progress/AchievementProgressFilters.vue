@@ -212,15 +212,11 @@ export default {
 .m-progress-filters {
     display: flex;
     min-width: 0;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid rgba(70, 74, 66, 0.13);
+    gap: 8px;
+    padding: 12px;
+    background: #f8f7f3;
     border-radius: 12px;
-    background: rgba(247, 244, 236, 0.82);
 }
-
 .m-progress-filter-row,
 .m-progress-search {
     display: flex;
@@ -228,161 +224,97 @@ export default {
     align-items: center;
     gap: 8px;
 }
-
 .m-progress-filter-row {
     flex-wrap: wrap;
 }
-
 .u-progress-filter {
-    width: 128px;
-
-    &.is-map {
-        width: 170px;
-    }
-
+    width: 188px;
+    min-width: 0;
     &.is-sort {
-        width: 190px;
+        width: 180px;
     }
 }
-
 .m-progress-search {
-    width: min(100%, 400px);
-    flex: 0 1 400px;
+    flex: 1;
 }
-
 .u-progress-search-button,
 .u-progress-clear-button {
     display: inline-flex;
-    width: 84px;
-    height: 32px;
-    min-height: 32px;
-    flex: none;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    flex: none;
+    gap: 4px;
+    min-width: 80px;
+    height: 30px;
     padding: 0 12px;
-    border: 1px solid #47777d;
-    border-radius: 7px;
+    border: 1px solid #967944;
+    border-radius: 99px;
     color: #fff;
-    background: #47777d;
+    background: #967944;
     font: inherit;
-    font-size: 14px;
     cursor: pointer;
-
     svg {
-        width: 14px;
-        height: 14px;
+        width: 16px;
+        height: 16px;
     }
-
     &:disabled {
         opacity: 0.55;
         cursor: not-allowed;
     }
-
-    &:focus-visible {
-        outline: 2px solid rgba(71, 119, 125, 0.65);
-        outline-offset: 2px;
-    }
 }
-
 .u-progress-clear-button {
-    border-color: rgba(77, 87, 87, 0.16);
-    color: #6d7777;
-    background: rgba(255, 255, 252, 0.72);
+    border-color: #e5e5e5;
+    color: #967944;
+    background: #fff;
 }
-
 .m-progress-filters.is-embedded {
-    align-items: stretch;
     flex-direction: column;
+    padding: 0;
     border: 0;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.1);
     border-radius: 0;
-
-    .m-progress-filter-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    background: transparent;
+    .u-progress-filter {
+        width: 21%;
+        min-width: 125px;
     }
-
-    .u-progress-filter,
-    .u-progress-filter.is-map,
-    .u-progress-filter.is-sort,
-    .m-progress-search {
-        width: 100%;
-    }
-
-    .m-progress-search {
-        flex-basis: auto;
+    .u-progress-filter.is-sort {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        width: 140px;
     }
 }
-
 @media (max-width: 1180px) {
     .m-progress-filters {
-        align-items: stretch;
         flex-direction: column;
     }
-
-    .m-progress-search {
-        width: 100%;
-        flex-basis: auto;
-    }
 }
-
 @media (max-width: @phone) {
-    .m-progress-filters,
-    .m-progress-filters.is-embedded {
-        gap: 10px;
-        padding: 12px;
-
-        .m-progress-filter-row {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
+    .m-progress-filter-row,
+    .m-progress-filters.is-embedded .m-progress-filter-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
     .u-progress-filter,
-    .u-progress-filter.is-map,
-    .u-progress-filter.is-sort {
+    .m-progress-filters.is-embedded .u-progress-filter {
         width: 100%;
         min-width: 0;
     }
-
-    .u-progress-filter.is-map,
-    .u-progress-filter.is-sort {
-        grid-column: 1 / -1;
+    .m-progress-filters.is-embedded .u-progress-filter.is-sort {
+        position: static;
+        width: 100%;
     }
-
-    :deep(.el-select__wrapper),
-    :deep(.el-input__wrapper) {
-        min-height: 44px;
-        box-sizing: border-box;
-    }
-
-    :deep(.el-select__selection),
-    :deep(.el-input) {
-        min-width: 0;
-    }
-
     .m-progress-search {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-
         > .el-input {
             grid-column: 1 / -1;
         }
     }
-
     .u-progress-search-button,
     .u-progress-clear-button {
-        width: 100%;
-        height: auto;
         min-height: 44px;
-        padding: 8px;
-        box-sizing: border-box;
-        overflow-wrap: anywhere;
-
-        svg {
-            flex: none;
-        }
+        width: 100%;
     }
 }
 </style>

@@ -1,7 +1,14 @@
 <script>
-import { ArrowUp, Document, Filter, Hide, TopRight, Trophy, WarningFilled } from "@element-plus/icons-vue";
+import { Refresh, ArrowUp } from "@element-plus/icons-vue";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import { __Root } from "@/utils/config";
+
+import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
+import pointsIcon from "@/assets/img/wiki/figma/points.png";
+import normalIcon from "@/assets/img/wiki/figma/tier-normal.svg";
+import wujiaIcon from "@/assets/img/wiki/figma/tier-wujia.svg";
+import hiddenIcon from "@/assets/img/wiki/figma/tier-hidden.svg";
+import retiredIcon from "@/assets/img/wiki/figma/tier-retired.svg";
 
 const TIER_DEFINITIONS = Object.freeze([
     {
@@ -37,13 +44,9 @@ const TIER_DEFINITIONS = Object.freeze([
 export default {
     name: "AchievementProgressSummary",
     components: {
+        Refresh,
+        RoleAvatar,
         ArrowUp,
-        Document,
-        Filter,
-        Hide,
-        TopRight,
-        Trophy,
-        WarningFilled,
     },
     props: {
         showToolbar: { type: Boolean, default: true },
@@ -89,11 +92,25 @@ export default {
         },
     },
     emits: ["select-tier", "select-role", "update:collapsed"],
+    data() {
+        return {
+            pointsIcon,
+            avatarFailed: false,
+            schoolIconFailed: false,
+            tierIcons: { normal: normalIcon, wujia: wujiaIcon, hidden: hiddenIcon, retired: retiredIcon },
+        };
+    },
+    watch: {
+        currentRole() {
+            this.avatarFailed = false;
+            this.schoolIconFailed = false;
+        },
+    },
     computed: {
         ringStyle() {
             const progress = Math.max(0, Math.min(100, Number(this.overall?.pointProgress) || 0));
             return {
-                background: `conic-gradient(#47777d 0 ${progress}%, rgba(71, 119, 125, 0.13) ${progress}% 100%)`,
+                background: `conic-gradient(from 0deg, #dcaf4f 0%, #6e572c ${progress}%, #e5e5e5 ${progress}% 100%)`,
             };
         },
         tierItems() {
@@ -114,7 +131,7 @@ export default {
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
         formatPercent(value) {
-            return value === null || value === undefined ? "—" : `${Number(value).toFixed(1)}%`;
+            return value === null || value === undefined ? "—" : `${Number(Number(value).toFixed(1))}%`;
         },
         getTierNote(item) {
             if (item.key === "retired") return this.$t("pages.wiki.overview.ui.statistics.retiredUnavailable");
@@ -133,775 +150,708 @@ export default {
         v-loading="loading"
         :aria-label="$t('pages.wiki.overview.ui.overview')"
     >
-        <div v-if="showToolbar" class="m-progress-rolebar">
-            <div class="m-progress-rolebar__control">
-                <span>{{ $t("pages.wiki.overview.ui.workbench.currentRole") }}</span>
-                <el-select
-                    :model-value="currentRoleId"
-                    class="u-progress-role-select"
-                    :aria-label="$t('pages.wiki.overview.ui.switchRole')"
-                    @change="selectRole"
-                >
-                    <el-option
-                        v-for="role in roles"
-                        :key="role.id"
-                        :value="role.id"
-                        :label="`${role.name || '—'} · ${role.server || '—'}`"
-                    />
-                </el-select>
-            </div>
-            <div class="m-progress-rolebar__status">
-                <div class="m-progress-sync" :class="{ 'is-synced': synced }">
-                    <div class="m-progress-sync__text">
-                        <span class="u-progress-sync-label">
-                            <span class="u-progress-sync-dot" aria-hidden="true"></span>
-                            {{
-                            synced
-                                ? $t("pages.wiki.overview.ui.workbench.synced")
-                                : $t("pages.wiki.overview.ui.workbench.notSynced")
-                        }}</span>
-                        <span v-if="synced && syncedAt && !loading" class="u-progress-sync-time">
-                            {{ $t("pages.wiki.overview.ui.workbench.lastSyncedAt", { time: syncedAt }) }}
-                        </span>
-                    </div>
-                </div>
+        <article class="m-progress-overall-card">
+            <el-dropdown v-if="showToolbar" trigger="click" class="m-progress-role-switch" @command="selectRole">
                 <button
+                    type="button"
+                    class="u-progress-role-switch"
+                    :aria-label="$t('pages.wiki.overview.ui.switchRole')"
+                >
+                    <Refresh aria-hidden="true" />{{ $t("achievementAppearance.changeRole") }}
+                </button>
+                <template #dropdown>
+                    <el-dropdown-menu>
+                        <el-dropdown-item
+                            v-for="role in roles"
+                            :key="role.id"
+                            :command="role.id"
+                            :disabled="role.id === currentRoleId"
+                            >{{ role.name || "—" }} · {{ role.server || "—" }}</el-dropdown-item
+                        >
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+            <div
+                v-show="!collapsed"
+                class="m-progress-ring"
+                :style="ringStyle"
+                role="img"
+                :aria-label="
+                    $t('pages.wiki.overview.ui.statistics.pointProgress') + ' ' + formatPercent(overall.pointProgress)
+                "
+            >
+                <div class="m-progress-ring__inner">
+                    <RoleAvatar
+                        v-if="currentRole?.school && currentRole?.bodyType && !avatarFailed"
+                        :mount="currentRole.school"
+                        @error="avatarFailed = true"
+                        :body_type="currentRole.bodyType"
+                        :alt="currentRole.name || ''"
+                    />
+                    <img
+                        v-else-if="currentRole?.school && !schoolIconFailed"
+                        class="is-school"
+                        :src="showSchoolIcon(currentRole.school)"
+                        @error="schoolIconFailed = true"
+                        alt=""
+                    />
+                    <span v-else class="u-progress-avatar-fallback">{{ (currentRole?.name || "—").slice(0, 1) }}</span>
+                    <b>{{ formatPercent(overall.pointProgress) }}</b>
+                </div>
+            </div>
+            <div
+                class="m-progress-overall-points"
+                :title="formatNumber(overall.completedPoints) + ' / ' + formatNumber(overall.totalPoints)"
+            >
+                <img :src="pointsIcon" alt="" /><strong>{{ formatNumber(overall.completedPoints) }}</strong>
+            </div>
+            <div class="m-progress-role-name">
+                <img
+                    v-if="currentRole?.school && !schoolIconFailed"
+                    :src="showSchoolIcon(currentRole.school)"
+                    @error="schoolIconFailed = true"
+                    :alt="$t('pages.wiki.overview.ui.schoolIcon')"
+                />
+                <strong>{{ currentRole?.name || "—" }}·{{ currentRole?.server || "—" }}</strong>
+            </div>
+            <span v-if="collapsed" class="m-progress-overall-percent">{{ formatPercent(overall.pointProgress) }}</span>
+        </article>
+
+        <section class="m-progress-tier-panel" :aria-label="$t('pages.wiki.overview.ui.workbench.tierTitle')">
+            <header class="m-progress-section-title">
+                <h2 v-show="!collapsed">{{ $t("pages.wiki.overview.ui.workbench.tierTitle") }}</h2>
+                <span
+                    v-show="!collapsed"
+                    class="m-progress-sync"
+                    :class="{ 'is-synced': synced }"
+                    :title="
+                        synced
+                            ? $t('pages.wiki.overview.ui.workbench.synced')
+                            : $t('pages.wiki.overview.ui.workbench.notSynced')
+                    "
+                >
+                    {{
+                        synced && syncedAt && !loading
+                            ? $t("achievementAppearance.syncTime", { time: syncedAt })
+                            : $t(
+                                  synced
+                                      ? "pages.wiki.overview.ui.workbench.synced"
+                                      : "pages.wiki.overview.ui.workbench.notSynced"
+                              )
+                    }}
+                </span>
+                <button
+                    v-if="showToolbar"
                     type="button"
                     class="u-progress-summary-toggle"
                     :aria-expanded="!collapsed"
                     aria-controls="achievement-progress-summary-details"
                     @click="$emit('update:collapsed', !collapsed)"
                 >
-                    <span>
-                        {{
+                    <span>{{
+                        $t(
                             collapsed
-                                ? $t("pages.wiki.overview.ui.workbench.summaryExpand")
-                                : $t("pages.wiki.overview.ui.workbench.summaryCollapse")
-                        }}
-                    </span>
+                                ? "pages.wiki.overview.ui.workbench.summaryExpand"
+                                : "pages.wiki.overview.ui.workbench.summaryCollapse"
+                        )
+                    }}</span>
                     <ArrowUp :class="{ 'is-collapsed': collapsed }" aria-hidden="true" />
                 </button>
-            </div>
-        </div>
-
-        <div id="achievement-progress-summary-details" v-show="!collapsed" class="m-progress-summary-grid">
-            <article class="m-progress-overall-card">
-                <h2>{{ $t("pages.wiki.overview.ui.workbench.overallTitle") }}</h2>
-                <div class="m-progress-overall-card__body">
-                    <div class="m-progress-ring" :style="ringStyle">
-                        <div class="m-progress-ring__inner">
-                            <strong>{{ formatNumber(overall.completedPoints) }}</strong>
-                            <span>
-                                {{ $t("pages.wiki.overview.ui.statistics.seniorityUnit") }} /
-                                {{ formatNumber(overall.totalPoints) }}
-                            </span>
-                            <b>{{ formatPercent(overall.pointProgress) }}</b>
-                        </div>
+            </header>
+            <div id="achievement-progress-summary-details" class="m-progress-tier-grid">
+                <article
+                    v-for="item in tierItems"
+                    :key="item.key"
+                    class="m-progress-tier-card"
+                    :class="[
+                        {
+                            'is-clickable': Boolean(item.actionKey),
+                            'is-selected': !item.href && item.key === activeTier,
+                        },
+                        'is-' + item.key,
+                    ]"
+                >
+                    <div class="m-progress-tier-card__header">
+                        <h3>
+                            <img :src="tierIcons[item.key]" alt="" />{{ $t("pages.wiki.overview.ui." + item.labelKey) }}
+                        </h3>
+                        <span class="m-progress-tier-hint">{{
+                            $t(
+                                "achievementAppearance." +
+                                    (item.key === "retired"
+                                        ? "unavailable"
+                                        : item.href
+                                        ? "hiddenGuide"
+                                        : item.key === activeTier
+                                        ? "selected"
+                                        : "filter")
+                            )
+                        }}</span>
+                        <strong class="m-progress-tier-percent">{{ formatPercent(item.pointProgress) }}</strong>
                     </div>
-
-                    <dl class="m-progress-role-meta">
-                        <div>
-                            <dt>{{ $t("pages.wiki.overview.ui.workbench.role") }}</dt>
-                            <dd>
-                                <img
-                                    v-if="currentRole?.school"
-                                    :src="showSchoolIcon(currentRole.school)"
-                                    :alt="$t('pages.wiki.overview.ui.schoolIcon')"
-                                />
-                                <span>{{ currentRole?.name || "—" }}</span>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>{{ $t("pages.wiki.overview.ui.workbench.server") }}</dt>
-                            <dd>{{ currentRole?.server || "—" }}</dd>
-                        </div>
-                        <div>
-                            <dt>{{ $t("pages.wiki.overview.ui.workbench.completedAchievements") }}</dt>
-                            <dd>{{ formatNumber(overall.completedCount) }} / {{ formatNumber(overall.totalCount) }}</dd>
-                        </div>
-                    </dl>
-                </div>
-            </article>
-
-            <section class="m-progress-tier-panel" :aria-label="$t('pages.wiki.overview.ui.workbench.tierTitle')">
-                <div class="m-progress-section-title">
-                    <h2>{{ $t("pages.wiki.overview.ui.workbench.tierTitle") }}</h2>
-                </div>
-
-                <div class="m-progress-tier-grid">
-                    <article
-                        v-for="item in tierItems"
-                        :key="item.key"
-                        class="m-progress-tier-card"
-                        :class="[
-                            `is-${item.key}`,
-                            {
-                                'is-clickable': Boolean(item.actionKey),
-                                'is-selected': !item.href && item.key === activeTier,
-                            },
-                        ]"
-                    >
-                        <div class="m-progress-tier-card__header">
-                            <h3>
-                                <component :is="item.icon" aria-hidden="true" />
-                                {{ $t(`pages.wiki.overview.ui.${item.labelKey}`) }}
-                            </h3>
-                            <span :class="`is-${item.key}`">
-                                {{ $t(`pages.wiki.overview.ui.${item.badgeKey}`) }}
-                            </span>
-                        </div>
-                        <p class="m-progress-tier-points">
-                            <strong>{{ formatNumber(item.completedPoints) }}</strong>
-                            / {{ formatNumber(item.totalPoints) }}
-                            <small>{{ $t("pages.wiki.overview.ui.statistics.seniorityUnit") }}</small>
-                        </p>
+                    <div class="m-progress-tier-statistics">
                         <p class="m-progress-tier-count">
+                            <b>[{{ $t("achievementAppearance.count") }}]</b> {{ formatNumber(item.completedCount) }}
+                            <span>/ {{ formatNumber(item.totalCount) }}</span>
+                        </p>
+                        <p class="m-progress-tier-points">
+                            <b>[{{ $t("achievementAppearance.points") }}]</b> {{ formatNumber(item.completedPoints) }}
+                            <span>/ {{ formatNumber(item.totalPoints) }}</span>
+                        </p>
+                        <p class="m-progress-tier-remaining-count" v-if="item.key !== 'retired'">
                             {{
-                                $t("pages.wiki.overview.ui.achievementCount", {
-                                    own: formatNumber(item.completedCount),
-                                    all: formatNumber(item.totalCount),
-                                })
+                                $t("achievementAppearance.remainingCount", { count: formatNumber(item.remainingCount) })
                             }}
                         </p>
-                        <div class="m-progress-tier-track" aria-hidden="true">
-                            <span :style="{ width: `${item.pointProgress || 0}%` }"></span>
-                        </div>
-                        <div class="m-progress-tier-card__footer">
-                            <p class="m-progress-tier-note">{{ getTierNote(item) }}</p>
-                            <span v-if="item.actionKey" class="u-progress-tier-link-hint" aria-hidden="true">
-                                {{ $t(`pages.wiki.overview.ui.${item.actionKey}`) }}
-                                <TopRight v-if="item.href" />
-                                <Filter v-else />
-                            </span>
-                        </div>
-                        <a
-                            v-if="item.href"
-                            class="u-progress-tier-card-link"
-                            :href="item.href"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            :aria-label="$t(`pages.wiki.overview.ui.${item.actionKey}`)"
-                        ></a>
-                        <button
-                            v-else-if="item.actionKey"
-                            type="button"
-                            class="u-progress-tier-card-link"
-                            :aria-label="$t(`pages.wiki.overview.ui.${item.actionKey}`)"
-                            :aria-pressed="item.key === activeTier"
-                            @click="$emit('select-tier', item.key)"
-                        ></button>
-                    </article>
-                </div>
-            </section>
-        </div>
+                        <p class="m-progress-tier-note">{{ getTierNote(item) }}</p>
+                    </div>
+                    <div class="m-progress-tier-track" aria-hidden="true">
+                        <span :style="{ width: Math.max(0, Math.min(100, item.pointProgress || 0)) + '%' }"></span>
+                    </div>
+                    <a
+                        v-if="item.href"
+                        class="u-progress-tier-card-link"
+                        :href="item.href"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :aria-label="$t('pages.wiki.overview.ui.' + item.actionKey)"
+                    ></a>
+                    <button
+                        v-else-if="item.actionKey"
+                        type="button"
+                        class="u-progress-tier-card-link"
+                        :aria-label="$t('pages.wiki.overview.ui.' + item.actionKey)"
+                        :aria-pressed="item.key === activeTier"
+                        @click="$emit('select-tier', item.key)"
+                    ></button>
+                </article>
+            </div>
+        </section>
     </section>
 </template>
 
 <style lang="less" scoped>
 .m-progress-summary {
-    overflow: hidden;
-    border: 1px solid rgba(70, 74, 66, 0.14);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.86);
-}
-
-.m-progress-rolebar {
-    display: flex;
-    min-height: 56px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 9px 14px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.1);
-    background: rgba(245, 241, 232, 0.72);
-}
-
-.m-progress-summary.is-collapsed .m-progress-rolebar {
-    border-bottom-color: transparent;
-}
-
-.m-progress-rolebar__control {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 12px;
-    color: #8b938f;
-    font-size: 14px;
-}
-
-.u-progress-role-select {
-    width: 230px;
-}
-
-.m-progress-rolebar__status {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.m-progress-sync {
-    display: inline-flex;
-    min-width: 0;
-    align-items: flex-start;
-    gap: 8px;
-    color: #9c7960;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 18px;
-}
-
-.m-progress-sync__text {
     display: grid;
+    grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    background: #fff;
     min-width: 0;
-    gap: 1px;
-    text-align: right;
 }
-
-.u-progress-sync-label {
+.m-progress-overall-card {
+    position: relative;
     display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-    gap: 8px;
-}
-
-.u-progress-sync-time {
-    color: #858c88;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.5;
-    font-variant-numeric: tabular-nums;
-}
-
-.u-progress-sync-dot {
-    flex: none;
-    width: 6px;
-    height: 6px;
-    margin-top: 6px;
-    border-radius: 50%;
-    background: #b98a6a;
-    box-shadow: 0 0 0 3px rgba(185, 138, 106, 0.1);
-}
-
-.m-progress-sync.is-synced {
-    color: #47775f;
-
-    .u-progress-sync-dot {
-        background: #4e876d;
-        box-shadow: 0 0 0 3px rgba(78, 135, 109, 0.1);
-    }
-}
-
-.u-progress-summary-toggle {
-    display: inline-flex;
-    min-height: 32px;
+    min-width: 0;
+    min-height: 376px;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border: 1px solid rgba(71, 119, 125, 0.18);
-    border-radius: 7px;
-    color: #607174;
-    background: rgba(255, 255, 252, 0.72);
+    flex-direction: column;
+    gap: 16px;
+    padding: 36px 12px 24px;
+    border-radius: 8px;
+    background: linear-gradient(134deg, #f7f1e7, #fff 49%, #f7f1e7);
+    color: #6e572c;
+}
+.m-progress-role-switch {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 3;
+}
+.u-progress-role-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border: 1px solid #eae5e1;
+    border-radius: 99px;
+    background: #fff;
+    color: #967944;
     font: inherit;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-
     svg {
         width: 14px;
         height: 14px;
-        transition: transform 160ms ease;
-
+    }
+}
+.m-progress-ring {
+    width: 184px;
+    height: 184px;
+    padding: 11px;
+    border-radius: 50%;
+}
+.m-progress-ring__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: #fff;
+    > img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    > img.is-school {
+        padding: 28px;
+        object-fit: contain;
+    }
+    b {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 14px 0 2px;
+        background: linear-gradient(transparent, #6e572c99);
+        color: #fff;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 400;
+    }
+}
+.u-progress-avatar-fallback {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    font-size: 56px;
+    color: #967944;
+}
+.m-progress-overall-points {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 99px;
+    background: #fdfcf9;
+    img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+    strong {
+        font-size: 40px;
+        line-height: 1.2;
+    }
+}
+.m-progress-role-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    text-align: center;
+    font-size: 20px;
+    img {
+        flex: none;
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+    strong {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+.m-progress-tier-panel {
+    min-width: 0;
+    padding: 12px;
+    border-radius: 16px;
+    background: #f8f7f3;
+}
+.m-progress-section-title {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 24px;
+    margin-bottom: 12px;
+    min-height: 24px;
+    h2 {
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    h2::before {
+        content: "";
+        width: 6px;
+        height: 18px;
+        border-radius: 99px;
+        background: #5a7e84;
+    }
+}
+.m-progress-sync {
+    color: #999;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+.u-progress-summary-toggle {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 0;
+    min-height: 24px;
+    border: 0;
+    color: #967944;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    svg {
+        width: 14px;
+        height: 14px;
         &.is-collapsed {
             transform: rotate(180deg);
         }
     }
-
-    &:hover {
-        border-color: rgba(71, 119, 125, 0.38);
-        color: #47777d;
-        background: rgba(255, 255, 252, 0.94);
-    }
-
-    &:focus-visible {
-        outline: 2px solid rgba(71, 119, 125, 0.5);
-        outline-offset: 2px;
-    }
 }
-
-.m-progress-summary-grid {
-    display: grid;
-    grid-template-columns: minmax(250px, 330px) minmax(0, 1fr);
-    gap: 12px;
-    padding: 12px;
-}
-
-.m-progress-overall-card,
-.m-progress-tier-panel {
-    border: 1px solid rgba(70, 74, 66, 0.13);
-    border-radius: 12px;
-    background: rgba(255, 255, 252, 0.72);
-}
-
-.m-progress-overall-card {
-    padding: 12px;
-
-    h2 {
-        margin: 0 0 10px;
-        color: #384246;
-        font-size: 16px;
-    }
-}
-
-.m-progress-overall-card__body {
-    display: grid;
-    justify-items: center;
-    gap: 12px;
-}
-
-.m-progress-ring {
-    display: grid;
-    width: 144px;
-    height: 144px;
-    place-items: center;
-    border-radius: 50%;
-    transform: rotate(-90deg);
-}
-
-.m-progress-ring__inner {
-    display: flex;
-    width: 116px;
-    height: 116px;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    border-radius: 50%;
-    color: #344044;
-    background: #fffef9;
-    box-shadow: inset 0 0 0 1px rgba(71, 119, 125, 0.08);
-    transform: rotate(90deg);
-
-    strong {
-        font-size: 24px;
-        font-variant-numeric: tabular-nums;
-        line-height: 1.2;
-    }
-
-    span {
-        margin-top: 4px;
-        color: #9aa29f;
-        font-size: 13px;
-    }
-
-    b {
-        margin-top: 4px;
-        color: #47777d;
-        font-size: 14px;
-    }
-}
-
-.m-progress-role-meta {
-    display: grid;
-    width: 100%;
-    gap: 7px;
-    margin: 0;
-
-    > div {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-    }
-
-    dt {
-        color: #9aa29f;
-        font-size: 14px;
-    }
-
-    dd {
-        display: inline-flex;
-        min-width: 0;
-        align-items: center;
-        gap: 6px;
-        margin: 0;
-        color: #3f484b;
-        font-size: 14px;
-        font-weight: 600;
-        text-align: right;
-    }
-
-    img {
-        width: 18px;
-        height: 18px;
-    }
-}
-
-.m-progress-tier-panel {
-    padding: 12px;
-}
-
-.m-progress-section-title {
-    margin-bottom: 8px;
-
-    h2 {
-        margin: 0;
-        color: #384246;
-        font-size: 16px;
-    }
-
-}
-
 .m-progress-tier-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 12px;
 }
-
 .m-progress-tier-card {
-    --tier-accent: #47777d;
-    --tier-accent-rgb: 71, 119, 125;
-
     position: relative;
-    display: flex;
     min-width: 0;
-    min-height: 128px;
-    padding: 12px;
-    flex-direction: column;
-    border: 1px solid rgba(70, 74, 66, 0.12);
-    border-radius: 10px;
-    background: rgba(251, 249, 243, 0.7);
-    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, background-color 160ms ease;
-
-    &.is-wujia {
-        --tier-accent: #8c744c;
-        --tier-accent-rgb: 140, 116, 76;
-    }
-
-    &.is-hidden {
-        --tier-accent: #765f92;
-        --tier-accent-rgb: 118, 95, 146;
-    }
-
-    &.is-retired {
-        --tier-accent: #b05f57;
-        --tier-accent-rgb: 176, 95, 87;
-        background: rgba(248, 245, 239, 0.58);
-    }
-
-    &.is-clickable {
-        overflow: hidden;
-        background: linear-gradient(145deg, rgba(var(--tier-accent-rgb), 0.055), rgba(255, 254, 249, 0.82) 48%);
-        box-shadow: inset 3px 0 0 rgba(var(--tier-accent-rgb), 0.46);
-        cursor: pointer;
-
-        &:hover,
-        &:focus-within {
-            border-color: rgba(var(--tier-accent-rgb), 0.38);
-            background: linear-gradient(145deg, rgba(var(--tier-accent-rgb), 0.09), rgba(255, 254, 249, 0.92) 50%);
-            box-shadow: inset 3px 0 0 var(--tier-accent), 0 10px 24px rgba(70, 62, 79, 0.09);
-            transform: translateY(-2px);
-        }
-    }
-
+    min-height: 154px;
+    padding: 16px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #fcfcfa;
     &.is-selected {
-        border-color: rgba(var(--tier-accent-rgb), 0.46);
-        background: linear-gradient(145deg, rgba(var(--tier-accent-rgb), 0.12), rgba(255, 254, 249, 0.94) 52%);
-        box-shadow: inset 4px 0 0 var(--tier-accent), 0 8px 20px rgba(var(--tier-accent-rgb), 0.1);
+        border-color: #5a7e84;
+        background: #fff;
+        box-shadow: 0 0 4px #5a7e8480;
+    }
+    &.is-clickable:hover {
+        border-color: #5a7e84;
+        background: #fff;
     }
 }
-
-.u-progress-tier-link-hint {
-    display: inline-flex;
-    flex: none;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 8px;
-    border-radius: 999px;
-    color: var(--tier-accent);
-    background: rgba(var(--tier-accent-rgb), 0.09);
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1;
-
-    svg {
-        width: 12px;
-        height: 12px;
-    }
-}
-
-.u-progress-tier-card-link {
-    position: absolute;
-    z-index: 2;
-    inset: 0;
-    border: 0;
-    border-radius: inherit;
-    background: transparent;
-    cursor: pointer;
-
-    &:focus-visible {
-        outline: 2px solid rgba(var(--tier-accent-rgb), 0.68);
-        outline-offset: 2px;
-    }
-}
-
 .m-progress-tier-card__header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
-
+    margin-bottom: 12px;
+    min-width: 0;
     h3 {
         display: flex;
-        min-width: 0;
-        align-items: center;
-        gap: 7px;
-        margin: 0;
-        color: #3c4649;
-        font-size: 14px;
-
-        svg {
-            width: 16px;
-            height: 16px;
-            color: var(--tier-accent);
-        }
-    }
-
-    > span {
         flex: none;
-        padding: 3px 8px;
-        border-radius: 999px;
-        color: var(--tier-accent);
-        background: rgba(var(--tier-accent-rgb), 0.1);
-        font-size: 13px;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        font-size: 20px;
+        color: #333;
+        font-weight: 500;
+    }
+    img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
     }
 }
-
-.m-progress-tier-points {
-    margin: 7px 0 1px;
-    color: #566063;
+.m-progress-tier-hint {
+    color: #999;
     font-size: 14px;
-
-    strong {
-        color: #384246;
-        font-size: 19px;
-        font-variant-numeric: tabular-nums;
+}
+.m-progress-tier-percent {
+    margin-left: auto;
+    color: #5a7e84;
+    font-size: 20px;
+    white-space: nowrap;
+}
+.m-progress-tier-statistics {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 8px;
+    font-size: 16px;
+    color: #6e572c;
+    p {
+        margin: 0;
     }
-
-    small {
-        color: #9ba19f;
+    b {
+        font-weight: 600;
+    }
+    span {
+        color: #999;
     }
 }
-
-.m-progress-tier-count,
+.m-progress-tier-count {
+    grid-area: 1 / 1;
+}
+.m-progress-tier-points {
+    grid-area: 2 / 1;
+}
+.m-progress-tier-remaining-count {
+    grid-area: 1 / 2;
+    text-align: right;
+}
 .m-progress-tier-note {
-    margin: 0;
-    color: #9aa29f;
-    font-size: 13px;
+    grid-area: 2 / 2;
+    text-align: right;
 }
-
-.m-progress-tier-card__footer {
-    display: flex;
-    min-width: 0;
-    min-height: 24px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: auto;
-    padding-top: 6px;
-    border-top: 1px solid rgba(var(--tier-accent-rgb), 0.11);
-}
-
-.m-progress-tier-note {
-    min-width: 0;
-}
-
 .m-progress-tier-track {
-    height: 5px;
-    margin: 6px 0 5px;
+    height: 10px;
+    margin-top: 12px;
     overflow: hidden;
-    border-radius: 999px;
-    background: rgba(71, 119, 125, 0.1);
-
+    border-radius: 99px;
+    background: #eae5e1;
     span {
         display: block;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, var(--tier-accent), #b6924d);
+        background: #5a7e84;
     }
 }
-
-@media (max-width: 980px) {
-    .m-progress-summary-grid {
-        grid-template-columns: minmax(0, 1fr);
+.u-progress-tier-card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border: 0;
+    border-radius: inherit;
+    background: transparent;
+    cursor: pointer;
+}
+.m-progress-summary.is-collapsed {
+    .m-progress-overall-card {
+        min-height: 92px;
+        gap: 0;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 12px;
+        background: #f8f7f3;
     }
-
-    .m-progress-overall-card__body {
-        grid-template-columns: auto minmax(220px, 1fr);
+    .m-progress-role-name {
+        order: -1;
+        padding-right: 55px;
+        text-align: left;
+        font-size: 16px;
+        img {
+            width: 20px;
+            height: 20px;
+        }
+    }
+    .m-progress-overall-points {
+        padding: 0;
+        background: transparent;
+        strong {
+            font-size: 30px;
+        }
+        img {
+            width: 28px;
+            height: 28px;
+        }
+    }
+    .m-progress-overall-percent {
+        position: absolute;
+        right: 12px;
+        bottom: 8px;
+        color: #999;
+        font-size: 20px;
+    }
+    .m-progress-tier-panel {
+        display: flex;
         align-items: center;
-    }
-}
-
-@media (max-width: @phone) {
-    .m-progress-rolebar {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 8px;
+        gap: 12px;
         padding: 12px;
     }
-
-    .m-progress-rolebar__control {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .u-progress-role-select {
-        width: 100%;
-        min-width: 0;
-
-        :deep(.el-select__wrapper) {
-            min-height: 44px;
-            box-sizing: border-box;
-        }
-    }
-
-    .m-progress-rolebar__status {
-        min-width: 0;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 8px;
-    }
-
-    .m-progress-sync {
-        min-width: 0;
-        overflow-wrap: anywhere;
-    }
-
-    .u-progress-sync-dot,
-    .u-progress-summary-toggle svg {
+    .m-progress-section-title {
+        order: 2;
         flex: none;
+        margin: 0;
     }
-
     .u-progress-summary-toggle {
-        min-height: 44px;
-        max-width: 100%;
-        box-sizing: border-box;
-        overflow-wrap: anywhere;
+        flex-direction: column;
+        font-size: 13px;
     }
-
-    .m-progress-summary-grid {
-        gap: 10px;
-        padding: 10px;
-    }
-
-    .m-progress-overall-card,
-    .m-progress-tier-panel {
-        min-width: 0;
-        padding: 10px;
-    }
-
-    .m-progress-overall-card__body {
-        grid-template-columns: 128px minmax(0, 1fr);
-        gap: 10px;
-    }
-
-    .m-progress-ring {
-        width: 128px;
-        height: 128px;
-    }
-
-    .m-progress-ring__inner {
-        width: 108px;
-        height: 108px;
-
-        strong {
-            font-size: 20px;
-        }
-
-        span {
-            max-width: 100px;
-            font-size: 13px;
-            text-align: center;
-            overflow-wrap: anywhere;
-        }
-    }
-
-    .m-progress-role-meta {
-        min-width: 0;
-        gap: 8px;
-
-        > div {
-            min-width: 0;
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        dt,
-        dd,
-        dd > span {
-            min-width: 0;
-            max-width: 100%;
-            overflow-wrap: anywhere;
-        }
-
-        dd {
-            text-align: left;
-            line-height: 1.5;
-        }
-
-        img {
-            flex: none;
-        }
-    }
-
     .m-progress-tier-grid {
-        grid-template-columns: minmax(0, 1fr);
+        flex: 1;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
     }
-
     .m-progress-tier-card {
-        min-height: 0;
-        padding: 10px;
-        overflow-wrap: anywhere;
+        min-height: 68px;
+        padding: 8px 12px;
     }
-
+    .m-progress-tier-card__header {
+        gap: 6px;
+        margin-bottom: 0;
+        flex-wrap: wrap;
+        h3 {
+            font-size: 18px;
+        }
+        img {
+            display: none;
+        }
+    }
+    .m-progress-tier-hint {
+        font-size: 13px;
+    }
+    .m-progress-tier-percent {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        font-size: 18px;
+    }
+    .m-progress-tier-card__header {
+        padding-right: 40px;
+    }
+    .m-progress-tier-statistics {
+        display: block;
+        font-size: 16px;
+    }
+    .m-progress-tier-count,
+    .m-progress-tier-remaining-count,
+    .m-progress-tier-note,
+    .m-progress-tier-track,
+    .m-progress-tier-points b {
+        display: none;
+    }
+}
+@media (max-width: 1500px) {
+    .m-progress-summary {
+        grid-template-columns: 280px minmax(0, 1fr);
+    }
     .m-progress-tier-card__header {
         flex-wrap: wrap;
-
+        gap: 4px 8px;
         h3 {
-            flex: 1 1 auto;
-
-            svg {
-                flex: none;
-            }
-        }
-
-        > span {
-            max-width: 100%;
-            box-sizing: border-box;
+            font-size: 18px;
         }
     }
-
-    .m-progress-tier-card__footer {
-        flex-wrap: wrap;
-        gap: 6px;
+    .m-progress-tier-hint {
+        font-size: 13px;
     }
-
-    .u-progress-tier-link-hint {
-        max-width: 100%;
-        box-sizing: border-box;
-        line-height: 1.4;
-
-        svg {
-            flex: none;
+    .m-progress-tier-statistics {
+        font-size: 14px;
+    }
+    .m-progress-summary.is-collapsed {
+        .m-progress-tier-hint {
+            display: none;
+        }
+        .m-progress-tier-card__header h3 {
+            font-size: 16px;
+        }
+        .m-progress-tier-percent {
+            font-size: 16px;
         }
     }
 }
-
-@media (prefers-reduced-motion: reduce) {
-    .m-progress-tier-card,
-    .u-progress-summary-toggle svg {
-        transition: none;
+@media (max-width: 1100px) {
+    .m-progress-summary {
+        grid-template-columns: 220px minmax(0, 1fr);
+    }
+    .m-progress-overall-points strong {
+        font-size: 32px;
+    }
+    .m-progress-role-name {
+        font-size: 16px;
+    }
+    .m-progress-tier-statistics {
+        grid-template-columns: 1fr;
+    }
+    .m-progress-tier-remaining-count {
+        grid-area: 3 / 1;
+        text-align: left;
+    }
+    .m-progress-tier-note {
+        grid-area: 4 / 1;
+        text-align: left;
+    }
+    .m-progress-summary.is-collapsed {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: @phone) {
+    .m-progress-summary {
+        grid-template-columns: 1fr;
+        padding: 8px;
+        gap: 8px;
+    }
+    .m-progress-overall-card {
+        min-height: 220px;
+        gap: 10px;
+        padding: 16px 12px;
+    }
+    .m-progress-ring {
+        width: 144px;
+        height: 144px;
+        padding: 8px;
+    }
+    .m-progress-overall-points strong {
+        font-size: 30px;
+    }
+    .m-progress-role-switch {
+        top: 8px;
+        right: 8px;
+    }
+    .u-progress-role-switch {
+        min-height: 44px;
+    }
+    .m-progress-tier-panel {
+        padding: 10px;
+    }
+    .m-progress-section-title {
+        flex-wrap: wrap;
+        gap: 6px 10px;
+    }
+    .m-progress-sync {
+        order: 3;
+        flex-basis: 100%;
+        font-size: 13px;
+    }
+    .u-progress-summary-toggle {
+        min-height: 44px;
+    }
+    .m-progress-tier-card {
+        min-height: 128px;
+        padding: 10px;
+    }
+    .m-progress-tier-card__header h3 {
+        font-size: 16px;
+        gap: 4px;
+        img {
+            width: 24px;
+            height: 24px;
+        }
+    }
+    .m-progress-tier-hint {
+        display: none;
+    }
+    .m-progress-tier-percent {
+        font-size: 16px;
+    }
+    .m-progress-tier-grid {
+        gap: 8px;
+    }
+    .m-progress-summary.is-collapsed {
+        .m-progress-tier-panel {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .m-progress-tier-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .m-progress-section-title {
+            order: 0;
+        }
+        .u-progress-summary-toggle {
+            flex-direction: row;
+        }
+        .m-progress-overall-card {
+            padding-top: 16px;
+            min-height: 100px;
+        }
     }
 }
 </style>

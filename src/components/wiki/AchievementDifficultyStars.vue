@@ -4,6 +4,7 @@ import { getAchievementWorkbenchRatingFill, getAchievementWorkbenchScoreLabel } 
 export default {
     name: "AchievementDifficultyStars",
     props: {
+        appearance: { type: String, default: "default" },
         dimensionKey: { type: String, default: "" },
         scoreLabels: { type: Array, default: () => [] },
         value: {
@@ -53,10 +54,18 @@ export default {
 
 <template>
     <span v-if="scoreLabel" class="c-achievement-score-label" :title="accessibleLabel">{{ scoreLabel }}</span>
-    <span v-else-if="hasValue" class="c-achievement-rating" role="img" :aria-label="accessibleLabel">
+    <span
+        v-else-if="hasValue"
+        class="c-achievement-rating"
+        :class="{ 'is-diamond': appearance === 'diamond', 'is-overall': dimensionKey === 'overall' }"
+        role="img"
+        :aria-label="accessibleLabel"
+    >
         <span class="c-achievement-stars" aria-hidden="true">
-            <span class="c-achievement-stars__empty">☆☆☆☆☆</span>
-            <span class="c-achievement-stars__filled" :style="fillStyle">★★★★★</span>
+            <span class="c-achievement-stars__empty">{{ appearance === "diamond" ? "◇◇◇◇◇" : "☆☆☆☆☆" }}</span>
+            <span class="c-achievement-stars__filled" :style="fillStyle">{{
+                appearance === "diamond" ? "◆◆◆◆◆" : "★★★★★"
+            }}</span>
         </span>
         <span class="c-achievement-stars__value" aria-hidden="true">{{ displayValue }}</span>
     </span>
@@ -64,7 +73,10 @@ export default {
 </template>
 
 <style lang="less" scoped>
-.c-achievement-score-label { color: #365f64; overflow-wrap: anywhere; }
+.c-achievement-score-label {
+    color: #365f64;
+    overflow-wrap: anywhere;
+}
 .c-achievement-rating {
     display: inline-flex;
     align-items: center;
@@ -104,5 +116,30 @@ export default {
 
 .c-achievement-stars__empty-value {
     color: #9aa2a1;
+}
+.c-achievement-rating.is-diamond {
+    .c-achievement-stars {
+        font-size: 13px;
+        letter-spacing: 0;
+        color: #e5e5e5;
+    }
+    .c-achievement-stars__filled {
+        color: #5a7e84;
+    }
+    .c-achievement-stars__value {
+        display: none;
+    }
+    &.is-overall {
+        .c-achievement-stars {
+            font-size: 16px;
+        }
+        .c-achievement-stars__filled {
+            color: #bf974f;
+        }
+        .c-achievement-stars__value {
+            display: inline;
+            font-size: 13px;
+        }
+    }
 }
 </style>

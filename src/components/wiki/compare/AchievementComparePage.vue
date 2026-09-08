@@ -954,7 +954,10 @@ export default {
 .m-compare-browser-grid {
     display: grid;
     min-width: 0;
-    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+    grid-template-columns: 200px minmax(0, 1fr);
+    padding: 12px;
+    border-radius: 16px;
+    background: #fff;
     align-items: start;
     gap: 12px;
 }
@@ -978,8 +981,7 @@ export default {
         padding: 42px 24px;
         border: 0;
         border-radius: 14px;
-        background:
-            radial-gradient(circle at 50% 35%, rgba(71, 119, 125, 0.08), transparent 34%),
+        background: radial-gradient(circle at 50% 35%, rgba(71, 119, 125, 0.08), transparent 34%),
             rgba(250, 249, 245, 0.72);
     }
 

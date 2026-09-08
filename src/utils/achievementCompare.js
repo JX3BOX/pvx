@@ -387,7 +387,8 @@ export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds
                 .map((child, index) => {
                     const allAchievementIds = [...collectMenuAchievementIds([child])];
                     return {
-                        id: String(child?.detail ?? child?.sub ?? index),
+                        // 空 detail 的“其它”需要独立 ID，避免与页面未选择二级分类的空值冲突。
+                        id: normalizeId(child?.detail ?? child?.sub ?? index) || `${menu?.sub ?? fallbackId}:child:${index}`,
                         name: child?.name || String(child?.detail ?? index),
                         sourceCount: allAchievementIds.length,
                         achievementIds: filterIds(allAchievementIds),

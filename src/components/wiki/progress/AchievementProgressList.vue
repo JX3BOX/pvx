@@ -1,20 +1,19 @@
 <script>
-import { Loading, Location, Medal, Present } from "@element-plus/icons-vue";
+import { CircleCheckFilled, CircleCloseFilled, Loading, Location, Medal, Present } from "@element-plus/icons-vue";
 import Item from "@jx3box/jx3box-editor/src/Item";
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
 import responsivePagination from "@/mixins/responsive-pagination";
 import { fetchAchievementWorkbenchRewardItems } from "@/service/achievementWorkbench";
-import {
-    formatAchievementWorkbenchValue,
-    getAchievementWorkbenchDimensionValue,
-} from "@/utils/achievementWorkbench";
+import { formatAchievementWorkbenchValue, getAchievementWorkbenchDimensionValue } from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementProgressList",
     mixins: [responsivePagination],
     components: {
         AchievementDifficultyStars,
+        CircleCheckFilled,
+        CircleCloseFilled,
         Loading,
         Location,
         Medal,
@@ -277,7 +276,9 @@ export default {
         </div>
 
         <div class="m-progress-list__header">
-            <h2>{{ resolvedTitle }}</h2>
+            <h2>
+                <span>{{ $t("achievementAppearance.details") }} - </span>{{ resolvedTitle }}
+            </h2>
             <span>{{ $t("pages.wiki.overview.ui.workbench.resultSummary", { count: formatNumber(total) }) }}</span>
         </div>
 
@@ -313,13 +314,11 @@ export default {
                                 <a :href="getLink('achievement', record.id)" target="_blank" rel="noopener noreferrer">
                                     {{ formatValue(record.name) }}
                                 </a>
-                                <span class="u-progress-points">+{{ formatNumber(record.points) }}</span>
                                 <span
                                     v-if="record.tier === 'wujia'"
                                     :class="['u-progress-tier', `is-${record.tier}`]"
-                                >{{
-                                    getTierLabel(record)
-                                }}</span>
+                                    >{{ getTierLabel(record) }}</span
+                                >
                             </div>
                             <slot name="actions" :record="record">
                                 <span
@@ -329,14 +328,25 @@ export default {
                                         'is-incomplete': record.completed === false,
                                     }"
                                 >
+                                    <CircleCheckFilled
+                                        v-if="record.completed === true"
+                                        aria-hidden="true"
+                                    /><CircleCloseFilled v-else-if="record.completed === false" aria-hidden="true" />
                                     {{ getStatusLabel(record) }}
                                 </span>
                             </slot>
                         </div>
 
-                        <p v-if="record.shortDescription" class="u-progress-description">{{ record.shortDescription }}</p>
+                        <p v-if="record.shortDescription" class="u-progress-description">
+                            {{ record.shortDescription }}
+                        </p>
 
                         <div class="m-progress-achievement-card__meta">
+                            <span class="u-progress-points"
+                                ><img src="@/assets/img/wiki/figma/points.png" alt="" />{{
+                                    formatNumber(record.points)
+                                }}</span
+                            >
                             <slot name="metadata" :record="record" />
                             <span
                                 v-for="tag in getDisplayTags(record)"
@@ -349,13 +359,10 @@ export default {
                                 <Location aria-hidden="true" />{{ record.map.name }}
                             </span>
                             <div v-if="dimensions.length" class="m-progress-achievement-dimensions">
-                                <span
-                                    v-for="dimension in dimensions"
-                                    :key="dimension.key"
-                                    class="u-progress-dimension"
-                                >
+                                <span v-for="dimension in dimensions" :key="dimension.key" class="u-progress-dimension">
                                     <span class="u-progress-dimension-label">{{ getDimensionLabel(dimension) }}</span>
                                     <AchievementDifficultyStars
+                                        appearance="diamond"
                                         class="u-progress-rating"
                                         :value="getDimensionValue(record, dimension)"
                                         :dimension-key="dimension.key"
@@ -429,101 +436,107 @@ export default {
 
 <style lang="less" scoped>
 .m-progress-list {
+    position: relative;
     display: flex;
     min-width: 0;
     flex-direction: column;
-    border: 1px solid rgba(70, 74, 66, 0.14);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.86);
+    padding: 12px;
+    border-radius: 16px;
+    background: #f8f7f3;
 }
-
-.m-progress-list__filters {
-    flex: none;
-}
-
 .m-progress-list__header {
+    order: -1;
     display: flex;
-    min-height: 72px;
     align-items: center;
-    justify-content: space-between;
+    min-height: 28px;
     gap: 12px;
-    padding: 14px 18px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.1);
-
+    padding-right: 152px;
+    margin-bottom: 12px;
     h2 {
+        display: block;
+        position: relative;
         margin: 0;
-        color: #384246;
+        padding-left: 14px;
+        color: #6e572c;
         font-size: 16px;
+        font-weight: 400;
+        overflow-wrap: anywhere;
     }
-
-    span {
-        color: #a0a7a4;
-        font-size: 13px;
+    h2::before {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        content: "";
+        width: 6px;
+        height: 18px;
+        border-radius: 99px;
+        background: #5a7e84;
+    }
+    h2 span {
+        color: #333;
+    }
+    > span {
+        display: none;
     }
 }
-
+.m-progress-list__filters {
+    margin-bottom: 12px;
+}
 .m-progress-list__body {
     position: relative;
-    padding: 10px;
+    min-width: 0;
 }
-
 .m-progress-achievement-list {
     display: grid;
-    gap: 8px;
+    gap: 6px;
 }
-
 .m-progress-achievement-card {
     display: grid;
     min-width: 0;
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: 12px;
-    padding: 12px 14px;
-    border: 1px solid rgba(70, 74, 66, 0.11);
-    border-radius: 10px;
-    background: rgba(249, 247, 241, 0.68);
-    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
-
+    min-height: 80px;
+    grid-template-columns: 36px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    line-height: 1.4;
+    align-items: start;
+    gap: 2px 8px;
+    padding: 8px;
+    border-radius: 4px;
+    background: #fff;
     &:hover {
-        border-color: rgba(71, 119, 125, 0.25);
-        background: #fffef9;
-        transform: translateY(-1px);
+        box-shadow: 0 0 0 1px #5a7e8444 inset;
     }
 }
-
 .u-progress-achievement-icon {
+    grid-row: 1 / 3;
     display: flex;
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border: 1px solid rgba(71, 119, 125, 0.16);
-    border-radius: 10px;
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.08);
-
+    border-radius: 3px;
+    color: #967944;
+    background: #f8f7f3;
     img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-
     svg {
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
     }
 }
-
 .m-progress-achievement-card__content {
-    min-width: 0;
+    display: contents;
 }
-
 .m-progress-achievement-card__title {
+    grid-column: 2;
     display: flex;
+    min-width: 0;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 10px;
-
+    gap: 8px;
     > div {
         display: flex;
         min-width: 0;
@@ -531,137 +544,99 @@ export default {
         flex-wrap: wrap;
         gap: 6px;
     }
-
     a {
-        min-width: 0;
-        color: #344044;
+        color: #333;
         font-size: 14px;
-        font-weight: 650;
+        font-weight: 500;
         text-decoration: none;
-
+        overflow-wrap: anywhere;
         &:hover {
-            color: #356873;
+            color: #5a7e84;
         }
     }
 }
-
-.u-progress-points {
-    color: #b65a50;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.u-progress-tier,
-.u-progress-status {
-    display: inline-flex;
-    min-height: 22px;
-    align-items: center;
-    justify-content: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 13px;
-}
-
-.u-progress-tier {
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.09);
-
-    &.is-wujia {
-        color: #a07828;
-        background: rgba(179, 140, 61, 0.11);
-    }
-
-    &.is-hidden {
-        color: #765f92;
-        background: rgba(118, 95, 146, 0.11);
-    }
-
-    &.is-retired {
-        color: #b05f57;
-        background: rgba(176, 95, 87, 0.1);
-    }
-}
-
-.u-progress-status {
-    flex: none;
-    color: #a65a52;
-    background: rgba(176, 95, 87, 0.09);
-
-    &.is-completed {
-        color: #47775f;
-        background: rgba(71, 119, 95, 0.1);
-    }
-}
-
 .u-progress-description {
-    margin: 6px 0;
-    overflow: hidden;
-    color: #7f8887;
-    font-size: 14px;
+    grid-column: 2;
+    margin: 0;
+    color: #967944;
+    font-size: 13px;
     white-space: pre-line;
     overflow-wrap: anywhere;
 }
-
-.m-progress-achievement-card__meta {
-    display: flex;
-    min-width: 0;
+.u-progress-tier,
+.u-progress-status {
+    display: inline-flex;
+    flex: none;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-    color: #9aa29f;
+    justify-content: center;
+    gap: 4px;
+    min-height: 20px;
+    padding: 0 6px;
+    border-radius: 99px;
     font-size: 13px;
-
-    span {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
+    color: #967944;
+    background: #f8f7f3;
+}
+.u-progress-status {
+    &.is-incomplete {
+        color: #ad5149;
+        background: #f6ece8;
     }
-
+    &.is-completed {
+        color: #4e816c;
+        background: #e9eee9;
+    }
     svg {
         width: 12px;
         height: 12px;
     }
 }
-
-.u-progress-dimension {
-    color: #8b9391;
-
-    strong {
-        color: #626a68;
-        font-weight: 500;
-        font-variant-numeric: tabular-nums;
+.m-progress-achievement-card__meta {
+    grid-column: 1 / -1;
+    display: flex;
+    min-width: 0;
+    align-self: end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 4px;
+    color: #999;
+    font-size: 13px;
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+    svg {
+        width: 12px;
+        height: 12px;
     }
 }
-
+.u-progress-points {
+    color: #967944;
+    background: #f8f7f3;
+    padding: 0 3px;
+    img {
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
+    }
+}
 .m-progress-achievement-dimensions {
     display: contents;
 }
-
-.u-progress-rating {
-    color: #a8773c !important;
-    letter-spacing: 0.04em;
-}
-
 .u-progress-achievement-tag {
     min-height: 20px;
-    padding: 1px 7px;
-    border: 1px solid rgba(64, 158, 255, 0.52);
-    border-radius: 4px;
-    color: #409eff;
-    background: #ecf5ff;
-    line-height: 1.4;
+    padding: 0 5px;
+    border: 1px solid #df69a6;
+    border-radius: 3px;
+    color: #df69a6;
+    background: #fff;
 }
-
 .m-progress-achievement-reward {
-    min-height: 24px;
-    padding-left: 10px;
-    border-left: 1px solid rgba(70, 74, 66, 0.12);
+    margin-left: auto;
+    color: #5a7e84;
 }
-
-.u-progress-reward-label {
-    color: #8a9290;
-}
-
 .u-progress-reward-trigger {
     display: inline-flex;
     width: 24px;
@@ -669,245 +644,90 @@ export default {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border: 1px solid rgba(140, 116, 76, 0.2);
-    border-radius: 6px;
-    color: #8c744c;
-    background: rgba(140, 116, 76, 0.08);
-
+    border-radius: 3px;
+    color: #5a7e84;
+    background: #f8f7f3;
     img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-
     svg {
-        width: 13px;
-        height: 13px;
+        width: 14px;
+        height: 14px;
     }
-
     &.is-loading svg {
         animation: progress-reward-spin 900ms linear infinite;
     }
 }
-
-.u-progress-reward-empty {
-    color: #a4aaa7;
-}
-
 @keyframes progress-reward-spin {
     to {
         transform: rotate(360deg);
     }
 }
-
 .m-progress-list-state {
     display: flex;
     min-height: 380px;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    color: #8c9693;
+    gap: 12px;
+    padding: 24px;
+    color: #999;
     text-align: center;
-
     > svg {
         width: 38px;
         height: 38px;
-        margin-bottom: 12px;
-        color: #82989a;
+        color: #5a7e84;
     }
-
     strong {
-        color: #4f595b;
-        font-size: 15px;
+        font-size: 16px;
+        color: #333;
     }
-
     p {
-        max-width: 420px;
-        margin: 7px 0 0;
+        margin: 0;
         font-size: 14px;
-        line-height: 1.6;
     }
-
     button {
-        margin-top: 14px;
-        padding: 7px 14px;
+        padding: 8px 24px;
         border: 0;
-        border-radius: 7px;
+        border-radius: 99px;
+        background: #5a7e84;
         color: #fff;
-        background: #47777d;
         cursor: pointer;
+        font: inherit;
     }
 }
-
 .m-progress-pagination {
     display: flex;
-    flex: none;
     justify-content: center;
-    padding: 14px;
-    border-top: 1px solid rgba(70, 74, 66, 0.1);
+    padding-top: 16px;
 }
-
 @media (max-width: @phone) {
-    .m-progress-list__header {
-        min-height: 0;
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 5px;
-        padding: 12px;
-        overflow-wrap: anywhere;
-    }
-
-    .m-progress-list__body {
-        min-width: 0;
-        padding: 8px;
-    }
-
-    .m-progress-achievement-card {
-        grid-template-columns: 44px minmax(0, 1fr);
-        align-items: start;
-        gap: 10px;
+    .m-progress-list {
         padding: 10px;
     }
-
-    .u-progress-achievement-icon {
-        width: 44px;
-        height: 44px;
-        box-sizing: border-box;
+    .m-progress-list__header {
+        padding-right: 0;
     }
-
-    .m-progress-achievement-card__content {
-        display: contents;
+    .m-progress-achievement-card {
+        min-height: 92px;
     }
-
-    .m-progress-achievement-card__title {
-        grid-column: 2;
-        align-items: stretch;
-        flex-direction: column;
-        gap: 6px;
-
-        a {
-            line-height: 1.5;
-            overflow-wrap: anywhere;
-        }
-    }
-
-    .u-progress-status {
-        width: fit-content;
-        max-width: 100%;
-        box-sizing: border-box;
-        overflow-wrap: anywhere;
-    }
-
-    .u-progress-description {
-        grid-column: 1 / -1;
-        margin: 0;
-        line-height: 1.7;
-    }
-
     .m-progress-achievement-card__meta {
-        grid-column: 1 / -1;
-        gap: 8px;
-        font-size: 13px;
-
-        > span {
-            min-width: 0;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow-wrap: anywhere;
-        }
-
-        svg {
-            flex: none;
-        }
+        gap: 6px 8px;
     }
-
-    .u-progress-map {
-        flex-basis: 100%;
-    }
-
-    .m-progress-achievement-dimensions {
-        display: grid;
-        width: 100%;
-        min-width: 0;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        padding: 10px 0;
-        border-top: 1px solid rgba(70, 74, 66, 0.09);
-
-        .u-progress-dimension {
-            min-width: 0;
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .u-progress-dimension-label,
-        .u-progress-rating {
-            max-width: 100%;
-            overflow-wrap: anywhere;
-        }
-    }
-
     .m-progress-achievement-reward {
-        width: 100%;
-        padding-left: 0;
-        border-left: 0;
+        margin-left: 0;
     }
-
-    .u-progress-reward-trigger {
-        width: 36px;
-        height: 36px;
-        box-sizing: border-box;
+    .u-progress-status {
+        max-width: 90px;
+        white-space: normal;
     }
-
     .m-progress-list-state {
         min-height: 240px;
-        padding: 16px 8px;
-        overflow-wrap: anywhere;
-
-        button {
-            min-height: 44px;
-        }
-    }
-
-    .m-progress-pagination {
-        min-width: 0;
-        padding: 12px 0;
-
-        :deep(.el-pagination) {
-            --el-pagination-button-width: 36px;
-            --el-pagination-button-height: 36px;
-            max-width: 100%;
-            flex-wrap: nowrap;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .u-achievement-pagination-status {
-            min-width: 72px;
-            color: #687274;
-            font-size: 14px;
-            font-variant-numeric: tabular-nums;
-            text-align: center;
-        }
-
-        :deep(.el-pagination.is-background .btn-prev),
-        :deep(.el-pagination.is-background .btn-next) {
-            box-sizing: border-box;
-            min-width: 36px;
-            height: 36px;
-            flex: none;
-            margin: 0;
-            padding: 0;
-        }
     }
 }
-
 @media (prefers-reduced-motion: reduce) {
-    .m-progress-achievement-card {
-        transition: none;
-    }
-
     .u-progress-reward-trigger.is-loading svg {
         animation: none;
     }

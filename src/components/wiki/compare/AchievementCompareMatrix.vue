@@ -3,10 +3,7 @@ import { CircleCheckFilled, CircleCloseFilled, Medal, RefreshRight } from "@elem
 import { getLink, iconLink } from "@jx3box/jx3box-common/js/utils";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
 import responsivePagination from "@/mixins/responsive-pagination";
-import {
-    formatAchievementWorkbenchValue,
-    getAchievementWorkbenchDimensionValue,
-} from "@/utils/achievementWorkbench";
+import { formatAchievementWorkbenchValue, getAchievementWorkbenchDimensionValue } from "@/utils/achievementWorkbench";
 
 export default {
     name: "AchievementCompareMatrix",
@@ -64,7 +61,7 @@ export default {
     computed: {
         tableStyle() {
             return {
-                "--compare-desktop-width": `${Math.max(940, 560 + this.roles.length * 145)}px`,
+                "--compare-desktop-width": `${Math.max(720, 244 + this.roles.length * 145)}px`,
                 "--compare-mobile-width": `${244 + this.roles.length * 128}px`,
             };
         },
@@ -119,7 +116,9 @@ export default {
             <h2>{{ title || $t("pages.wiki.compare.ui.categories.all") }}</h2>
             <div class="m-compare-matrix__summary">
                 <span>{{ $t("pages.wiki.compare.ui.matrix.achievementCount", { count: formatNumber(total) }) }}</span>
-                <span>{{ $t("pages.wiki.compare.ui.workbench.availablePoints", { points: formatNumber(resultPoints) }) }}</span>
+                <span>{{
+                    $t("pages.wiki.compare.ui.workbench.availablePoints", { points: formatNumber(resultPoints) })
+                }}</span>
             </div>
         </div>
 
@@ -153,7 +152,7 @@ export default {
                                 <span>{{ $t("pages.wiki.compare.ui.matrix.achievement") }}</span>
                             </th>
                             <th v-for="role in roles" :key="role.id || role.jx3id" scope="col">
-                                <strong>{{ roleName(role) }}</strong>
+                                <strong :title="roleName(role)">{{ roleName(role) }}</strong>
                                 <small>{{ formatNumber(role.completedPoints) }}</small>
                             </th>
                         </tr>
@@ -174,11 +173,7 @@ export default {
                                     <span class="m-compare-achievement__body">
                                         <span class="m-compare-achievement__title">
                                             <strong>{{ formatValue(record.name) }}</strong>
-                                            <b>+{{ formatNumber(record.points) }}</b>
-                                            <span
-                                                v-if="record.tier === 'wujia'"
-                                                class="u-compare-achievement-tier"
-                                            >
+                                            <span v-if="record.tier === 'wujia'" class="u-compare-achievement-tier">
                                                 {{ $t("pages.wiki.overview.ui.statistics.wujia") }}
                                             </span>
                                         </span>
@@ -191,14 +186,24 @@ export default {
                                                 {{ tag.label }}
                                             </span>
                                         </span>
-                                        <span v-if="record.shortDescription" class="m-compare-achievement__description">{{ record.shortDescription }}</span>
+                                        <span
+                                            v-if="record.shortDescription"
+                                            class="m-compare-achievement__description"
+                                            >{{ record.shortDescription }}</span
+                                        >
                                         <span v-if="record.map?.name" class="m-compare-achievement__meta">
                                             {{ record.map.name }}
                                         </span>
                                         <span class="m-compare-achievement__dimensions">
+                                            <span class="u-compare-points"
+                                                ><img src="@/assets/img/wiki/figma/points.png" alt="" />{{
+                                                    formatNumber(record.points)
+                                                }}</span
+                                            >
                                             <span v-for="definition in definitions" :key="definition.key">
                                                 {{ dimensionLabel(definition) }}
                                                 <AchievementDifficultyStars
+                                                    appearance="diamond"
                                                     :value="dimensionValue(record, definition)"
                                                     :dimension-key="definition.key"
                                                     :score-labels="definition.scoreLabels"
@@ -251,488 +256,321 @@ export default {
 .m-compare-matrix {
     display: flex;
     min-width: 0;
-    overflow: hidden;
     flex-direction: column;
-    border: 1px solid rgba(70, 74, 66, 0.14);
+    overflow: hidden;
+    padding: 12px;
     border-radius: 12px;
-    background: rgba(255, 254, 250, 0.88);
+    background: #f8f7f3;
 }
-
-.m-compare-matrix__filters,
-.m-compare-matrix__header,
-.m-compare-pagination {
-    min-width: 0;
-    flex: none;
-}
-
 .m-compare-matrix__header {
     display: flex;
-    min-height: 48px;
-    flex-wrap: wrap;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: space-between;
-    gap: 12px;
-    padding: 11px 14px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.1);
-
+    gap: 8px;
+    order: 2;
+    padding: 12px 0 0;
     h2 {
-        overflow: hidden;
         margin: 0;
-        color: #384246;
-        font-size: 15px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        color: #6e572c;
+        font-size: 14px;
+        font-weight: 400;
     }
 }
-
 .m-compare-matrix__summary {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 14px;
-    min-width: 0;
-    color: #687270;
+    gap: 6px 16px;
+    color: #999;
     font-size: 13px;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.5;
 }
-
 .m-compare-matrix__body {
     position: relative;
     min-width: 0;
 }
-
 .m-compare-matrix-scroll {
     width: 100%;
     max-width: 100%;
-    min-height: 0;
     overflow-x: auto;
-    overflow-y: hidden;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
-    scrollbar-color: #9caaa7 #f3f1e9;
-
-    &::-webkit-scrollbar {
-        height: 7px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        border-radius: 999px;
-        background: #9caaa7;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: #f3f1e9;
-    }
-
     &:focus-visible {
-        outline: 2px solid #47777d;
+        outline: 2px solid #5a7e84;
         outline-offset: -2px;
     }
 }
-
 .m-compare-matrix-table {
     width: 100%;
     min-width: var(--compare-desktop-width);
     border-collapse: collapse;
     table-layout: fixed;
-
     th,
     td {
-        padding: 11px 12px;
-        border-right: 1px solid rgba(70, 74, 66, 0.08);
-        border-bottom: 1px solid rgba(70, 74, 66, 0.09);
-        text-align: center;
+        box-sizing: border-box;
+        padding: 8px;
+        border-right: 1px solid #faf9f6;
+        border-bottom: 1px solid #faf9f6;
         vertical-align: middle;
+        text-align: center;
     }
-
     th {
-        z-index: 2;
-        height: 62px;
-        color: #53605f;
+        height: 64px;
+        color: #6e572c;
         background: #f5f2ea;
         font-size: 14px;
-
-        strong,
-        small {
+        strong {
             display: block;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-
         small {
-            margin-top: 3px;
-            color: #9da39f;
-            font-size: 13px;
-            font-weight: 400;
+            display: none;
         }
     }
-
+    td {
+        height: 76px;
+        background: #fff;
+    }
     .is-achievement {
         position: sticky;
         left: 0;
         z-index: 1;
-        width: 560px;
+        width: 244px;
         text-align: left;
-        background: #fffefa;
+        background: #fff;
     }
-
     th.is-achievement {
-        z-index: 3;
+        z-index: 2;
+        color: #333;
         background: #f5f2ea;
-
-        span,
-        small {
-            display: block;
-        }
+        font-size: 16px;
     }
-
     tbody tr:hover td {
-        background: #fbf9f3;
+        background: #fcfcfa;
     }
 }
-
 .m-compare-achievement {
     display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 2px 8px;
+    line-height: 1.4;
     min-width: 0;
-    grid-template-columns: 44px minmax(0, 1fr);
     align-items: start;
-    gap: 10px;
-    color: inherit;
     text-decoration: none;
+    color: inherit;
 }
-
 .u-compare-achievement-icon {
     display: flex;
-    width: 44px;
-    height: 44px;
     align-items: center;
     justify-content: center;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 36px;
+    height: 36px;
     overflow: hidden;
-    border-radius: 9px;
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.1);
-
+    border-radius: 4px;
+    color: #967944;
+    background: #f8f7f3;
     img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-
     svg {
-        width: 20px;
+        width: 24px;
+        height: 24px;
     }
 }
-
-.m-compare-achievement__body,
+.m-compare-achievement__body {
+    display: contents;
+}
 .m-compare-achievement__title {
     display: flex;
+    align-items: center;
+    gap: 4px;
+    grid-column: 2;
     min-width: 0;
-}
-
-.m-compare-achievement__body {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.m-compare-achievement__description {
-    color: #7f8887;
-    font-size: 14px;
-    line-height: 1.5;
-    white-space: pre-line;
-    overflow-wrap: anywhere;
-}
-
-.m-compare-achievement__title {
-    width: 100%;
-    align-items: baseline;
-    gap: 6px;
-
     strong {
         overflow: hidden;
-        color: #354044;
-        font-size: 14px;
         text-overflow: ellipsis;
         white-space: nowrap;
-    }
-
-    b {
-        flex: none;
-        color: #ad5149;
+        color: #333;
         font-size: 14px;
+        font-weight: 500;
     }
 }
-
-.u-compare-achievement-tier {
-    display: inline-flex;
-    min-height: 19px;
-    align-items: center;
-    padding: 1px 6px;
-    border-radius: 999px;
-    color: #a07828;
-    background: rgba(179, 140, 61, 0.11);
+.m-compare-achievement__description {
+    grid-column: 2;
+    color: #967944;
     font-size: 13px;
-    line-height: 1;
-    white-space: nowrap;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
 }
-
 .m-compare-achievement__meta {
-    max-width: 100%;
-    color: #9ba09d;
+    grid-column: 2;
+    color: #999;
     font-size: 13px;
 }
-
 .m-compare-achievement__tags {
     display: flex;
-    max-width: 100%;
     flex-wrap: wrap;
     gap: 4px;
+    grid-column: 2;
+    min-width: 0;
 }
-
 .u-compare-achievement-tag {
     padding: 0 5px;
-    border: 1px solid rgba(64, 158, 255, 0.48);
-    border-radius: 4px;
-    color: #409eff;
-    background: #ecf5ff;
-    line-height: 17px;
+    border: 1px solid #df71a0;
+    border-radius: 3px;
+    color: #df71a0;
+    background: #fff;
+    font-size: 13px;
+    line-height: 18px;
+    overflow-wrap: anywhere;
 }
-
+.u-compare-achievement-tier {
+    padding: 0 4px;
+    border-radius: 3px;
+    color: #967944;
+    background: #f5efe0;
+    font-size: 13px;
+}
 .m-compare-achievement__dimensions {
     display: flex;
-    max-width: 100%;
     flex-wrap: wrap;
-    gap: 3px 10px;
-    color: #8b9391;
+    grid-column: 1/-1;
+    gap: 3px 8px;
+    margin-top: 2px;
+    color: #999;
     font-size: 13px;
-
     > span {
         display: inline-flex;
         align-items: center;
         gap: 3px;
-        white-space: nowrap;
     }
-
-    strong {
-        color: #a8773c;
-        font-weight: 500;
-        letter-spacing: 0.03em;
+    .u-compare-points {
+        color: #967944;
+        img {
+            width: 14px;
+            height: 14px;
+            object-fit: contain;
+        }
+    }
+    :deep(.u-difficulty-star) {
+        width: 8px;
+        height: 8px;
     }
 }
-
 .u-compare-completion {
     display: inline-flex;
     max-width: 100%;
     box-sizing: border-box;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 4px 9px;
-    border-radius: 999px;
+    gap: 4px;
+    padding: 3px 6px;
+    border-radius: 20px;
     font-size: 13px;
-    font-weight: 600;
-    white-space: normal;
+    line-height: 1.3;
     overflow-wrap: anywhere;
-
     svg {
-        width: 12px;
+        width: 11px;
+        height: 11px;
         flex: none;
     }
-
     &.is-completed {
         color: #4f816c;
-        background: rgba(79, 129, 108, 0.12);
+        background: #edf2ed;
     }
-
     &.is-incomplete {
         color: #ad5149;
-        background: rgba(173, 81, 73, 0.1);
+        background: #f6edeb;
     }
 }
-
 .m-compare-matrix-state {
     display: flex;
-    width: 100%;
     min-height: 380px;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    flex: 1;
-    padding: 40px;
-    color: #8c9491;
+    gap: 10px;
+    padding: 32px;
+    color: #999;
     text-align: center;
-
+    box-sizing: border-box;
     > svg {
         width: 30px;
-        margin-bottom: 10px;
-        color: #47777d;
+        height: 30px;
+        color: #967944;
     }
-
     strong {
-        color: #4c5857;
-        font-size: 15px;
+        font-size: 16px;
+        color: #333;
     }
-
     p {
-        max-width: 420px;
-        margin: 7px 0 14px;
+        margin: 0;
         font-size: 14px;
     }
-
     button {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 6px;
-        padding: 7px 13px;
+        padding: 8px 16px;
         border: 0;
-        border-radius: 7px;
+        border-radius: 24px;
+        background: #5a7e84;
         color: #fff;
-        background: #47777d;
         cursor: pointer;
-
         svg {
-            width: 14px;
+            width: 16px;
+            height: 16px;
         }
     }
 }
-
 .m-compare-pagination {
     display: flex;
     justify-content: center;
-    padding: 14px;
-    border-top: 1px solid rgba(70, 74, 66, 0.08);
+    order: 3;
+    padding: 16px 0 4px;
 }
-
 @media (max-width: @phone) {
-    .m-compare-matrix__header {
-        min-height: 52px;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 5px 10px;
-        padding: 12px;
-
-        h2 {
-            min-width: 0;
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-
-        .m-compare-matrix__summary {
-            max-width: 100%;
-            padding-top: 3px;
-            overflow-wrap: anywhere;
-        }
-    }
-
     .m-compare-matrix-table {
         min-width: var(--compare-mobile-width);
-
-        th,
-        td {
-            box-sizing: border-box;
-            padding: 12px 10px;
-            vertical-align: top;
-        }
-
-        th strong {
-            white-space: normal;
-            overflow-wrap: anywhere;
-        }
-
         .is-achievement {
             position: static;
             width: 244px;
         }
-    }
-
-    .m-compare-achievement {
-        grid-template-columns: 32px minmax(0, 1fr);
-        gap: 8px;
-    }
-
-    .u-compare-achievement-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 7px;
-    }
-
-    .m-compare-achievement__title {
-        flex-wrap: wrap;
-        gap: 4px 6px;
-
-        strong {
+        th strong {
             white-space: normal;
             overflow-wrap: anywhere;
         }
     }
-
-    .m-compare-achievement__dimensions > span {
-        max-width: 100%;
-        flex-wrap: wrap;
+    .m-compare-matrix__header {
+        overflow-wrap: anywhere;
+    }
+    .m-compare-achievement__title strong {
         white-space: normal;
         overflow-wrap: anywhere;
     }
-
-    .m-compare-achievement__meta,
-    .u-compare-achievement-tag {
-        overflow-wrap: anywhere;
-    }
-
-    .u-compare-completion {
-        max-width: 100%;
-        padding: 5px 7px;
-        line-height: 1.4;
-        white-space: normal;
-        overflow-wrap: anywhere;
-
-        svg {
-            flex: none;
-        }
-    }
-
     .m-compare-matrix-state {
-        box-sizing: border-box;
         min-height: 240px;
-        padding: 28px 16px;
-        overflow-wrap: anywhere;
-
+        padding: 24px 12px;
         button {
             min-height: 44px;
         }
     }
-
-    .m-compare-pagination {
-        min-width: 0;
-        padding: 12px 0;
-
-        :deep(.el-pagination) {
-            --el-pagination-button-width: 36px;
-            --el-pagination-button-height: 36px;
-            max-width: 100%;
-            flex-wrap: nowrap;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .u-achievement-pagination-status {
-            min-width: 72px;
-            color: #687274;
-            font-size: 14px;
-            font-variant-numeric: tabular-nums;
-            text-align: center;
-        }
-
-        :deep(.el-pagination.is-background .btn-prev),
-        :deep(.el-pagination.is-background .btn-next) {
-            box-sizing: border-box;
-            min-width: 36px;
-            height: 36px;
-            flex: none;
-            margin: 0;
-            padding: 0;
-        }
+    .m-compare-pagination :deep(.el-pagination) {
+        --el-pagination-button-width: 36px;
+        --el-pagination-button-height: 36px;
+        max-width: 100%;
+        gap: 12px;
+    }
+    .u-achievement-pagination-status {
+        min-width: 72px;
+        font-size: 14px;
+        text-align: center;
     }
 }
 </style>

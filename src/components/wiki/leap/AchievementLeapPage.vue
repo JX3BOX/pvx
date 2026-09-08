@@ -954,6 +954,7 @@ export default {
             :dimensions="recommendationDimensions"
             :categories="categoryOptions"
             :category-counts-ready="roleState.synced && !roleLoading"
+            :current-points="roleState.synced && !roleLoading ? currentPoints : null"
             :recommendation="recommendation"
             :loading="recommendationLoading"
             :saving="saving"
@@ -976,13 +977,13 @@ export default {
             <template #actions>
                 <el-button :disabled="saving" @click="planListVisible = true">
                     <template #icon><FolderOpened /></template>
-                    {{ $t('achievementRecommendation.planListCount', { count: plansTotal }) }}
+                    {{ $t('achievementAppearance.presets') }}
                 </el-button>
             </template>
         </AchievementLeapRecommendationWorkspace>
 
         <el-drawer v-model="planListVisible" :title="$t('achievementRecommendation.planList')"
-            size="min(880px, 100vw)" class="m-leap-plan-list-drawer" append-to-body>
+            size="min(938px, 100vw)" class="m-leap-plan-list-drawer" append-to-body>
             <AchievementLeapPlanList
                 :plans="plans"
                 :metadata="metadata"
@@ -1147,18 +1148,43 @@ export default {
 
 <style lang="less">
 .m-leap-plan-list-drawer {
-    --el-color-primary: #47777d;
-    color: #314043;
-    .el-drawer__header { margin: 0; padding: 20px; border-bottom: 1px solid #e2e8e6; }
-    .el-drawer__title { font-size: 18px; font-weight: 600; }
-    .el-drawer__body { padding: 16px; background: #faf8f2; }
-    .m-leap-plan-list { padding: 0; border: 0; background: transparent; box-shadow: none; }
-    .m-leap-plan-list__header h2 { display: none; }
-    .m-leap-plan-list__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    --el-color-primary: #5a7e84;
+    color: #333;
+    .el-drawer__header {
+        margin: 0;
+        padding: 24px 24px 0;
+        color: #333;
+    }
+    .el-drawer__title {
+        font-size: 24px;
+        font-weight: 600;
+    }
+    .el-drawer__body {
+        padding: 24px;
+        background: #fff;
+    }
+    .m-leap-plan-list {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+    .m-leap-plan-list__header h2 {
+        display: none;
+    }
+    .m-leap-plan-list__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     @media (max-width: @phone) {
-        .el-drawer__header { padding: 16px; }
-        .el-drawer__body { padding: 12px; }
-        .m-leap-plan-list__grid { grid-template-columns: minmax(0, 1fr); }
+        .el-drawer__header {
+            padding: 16px;
+        }
+        .el-drawer__body {
+            padding: 12px;
+        }
+        .m-leap-plan-list__grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
     }
 }
 </style>

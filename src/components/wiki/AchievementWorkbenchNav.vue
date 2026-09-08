@@ -2,22 +2,29 @@
 import { DataAnalysis, MagicStick, QuestionFilled, User, ChatDotRound } from "@element-plus/icons-vue";
 import Account from "@jx3box/jx3box-common/js/user";
 import { getConsultationAccess } from "@/service/achievementConsultation";
+import brandIcon from "@/assets/img/wiki/figma/brand.svg";
+import progressIcon from "@/assets/img/wiki/figma/nav-progress.svg";
+import compareIcon from "@/assets/img/wiki/figma/nav-compare.svg";
+import leapIcon from "@/assets/img/wiki/figma/nav-leap.svg";
 
 const NAV_ITEMS = Object.freeze([
     {
         routeName: "overview",
         labelKey: "pages.wiki.sidebar.progress",
         icon: "DataAnalysis",
+        image: progressIcon,
     },
     {
         routeName: "compare",
         labelKey: "pages.wiki.sidebar.compare",
         icon: "User",
+        image: compareIcon,
     },
     {
         routeName: "leap",
         labelKey: "pages.wiki.sidebar.plan",
         icon: "MagicStick",
+        image: leapIcon,
     },
 ]);
 
@@ -33,14 +40,23 @@ export default {
     async created() {
         if (!Account.isLogin()) return;
         try {
-            if ((await getConsultationAccess()).is_expert) this.navItems = [...NAV_ITEMS, {
-                routeName: "consultation", labelKey: "achievementConsultation.title", icon: "ChatDotRound",
-            }];
-        } catch { /* Expert navigation stays hidden until the server confirms access. */ }
+            if ((await getConsultationAccess()).is_expert)
+                this.navItems = [
+                    ...NAV_ITEMS,
+                    {
+                        routeName: "consultation",
+                        labelKey: "achievementConsultation.title",
+                        icon: "ChatDotRound",
+                    },
+                ];
+        } catch {
+            /* Expert navigation stays hidden until the server confirms access. */
+        }
     },
     data() {
         return {
             navItems: NAV_ITEMS,
+            brandIcon,
         };
     },
     methods: {
@@ -53,6 +69,10 @@ export default {
 
 <template>
     <nav class="m-achievement-workbench-nav" :aria-label="$t('pages.wiki.overview.title')">
+        <router-link class="m-achievement-workbench-brand" :to="{ name: 'overview' }">
+            <img :src="brandIcon" alt="" />
+            <span>{{ $t("pages.wiki.overview.title") }}</span>
+        </router-link>
         <div class="m-achievement-workbench-nav__tabs" role="tablist">
             <router-link
                 v-for="item in navItems"
@@ -65,13 +85,19 @@ export default {
                 :aria-current="isActive(item) ? 'page' : undefined"
             >
                 <span class="u-achievement-workbench-tab__icon" aria-hidden="true">
-                    <component :is="item.icon" />
+                    <img v-if="item.image" :src="item.image" alt="" />
+                    <component v-else :is="item.icon" />
                 </span>
                 <span class="u-achievement-workbench-tab__label">{{ $t(item.labelKey) }}</span>
             </router-link>
         </div>
 
-        <a class="u-achievement-workbench-guide" :href="$router.resolve({ name: 'achievement-guide' }).href" target="_blank" rel="noopener noreferrer">
+        <a
+            class="u-achievement-workbench-guide"
+            :href="$router.resolve({ name: 'achievement-guide' }).href"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
             <QuestionFilled aria-hidden="true" />
             <span>{{ $t("pages.wiki.sidebar.guide") }}</span>
         </a>
@@ -85,178 +111,168 @@ export default {
     z-index: 20;
     display: flex;
     min-width: 0;
-    min-height: var(--achievement-nav-height, 58px);
-    align-items: stretch;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 0 18px;
-    border-bottom: 1px solid rgba(55, 74, 76, 0.13);
-    border-radius: 14px 14px 0 0;
-    background: rgba(252, 250, 245, 0.96);
-    box-shadow: 0 8px 24px rgba(69, 61, 46, 0.05);
-    backdrop-filter: blur(14px);
+    min-height: 60px;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0 0 12px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(244, 240, 232, 0.96));
 }
-
+.m-achievement-workbench-brand {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 0 16px;
+    color: #6e572c;
+    font-size: 28px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    img {
+        width: 28px;
+        height: 32px;
+        object-fit: contain;
+    }
+}
 .m-achievement-workbench-nav__tabs {
     display: flex;
+    flex: 1;
     min-width: 0;
-    align-items: stretch;
+    align-items: center;
+    gap: 4px;
     overflow-x: auto;
-    overscroll-behavior-inline: contain;
     scrollbar-width: none;
-
     &::-webkit-scrollbar {
         display: none;
     }
 }
-
 .u-achievement-workbench-tab {
-    position: relative;
     display: inline-flex;
-    min-width: max-content;
+    flex: 0 0 auto;
+    min-width: 180px;
+    height: 48px;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 0 20px;
-    color: #718083;
-    font-size: 15px;
-    line-height: 1;
+    padding: 0 24px;
+    border: 1px solid transparent;
+    border-radius: 57px;
+    color: #6e572c;
+    font-size: 20px;
     text-decoration: none;
-    transition: color 160ms ease, background-color 160ms ease;
-
-    &::after {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        height: 2px;
-        content: "";
-        background: transparent;
-        transform: scaleX(0.45);
-        transition: background-color 160ms ease, transform 160ms ease;
-    }
-
+    white-space: nowrap;
     &:hover {
-        color: #315e66;
-        background: rgba(47, 101, 109, 0.045);
+        background: #f1e7d8;
     }
-
-    &:focus-visible {
-        outline: 2px solid rgba(47, 101, 109, 0.72);
-        outline-offset: -3px;
-    }
-
     &.is-active {
-        color: #2f626b;
-        font-weight: 650;
-
-        &::after {
-            background: #47777d;
-            transform: scaleX(1);
-        }
+        border-color: #c3b08b;
+        background: linear-gradient(90deg, #fcfbf7, #f1e7d8);
+        font-weight: 700;
     }
 }
-
 .u-achievement-workbench-tab__icon {
     display: inline-flex;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    img,
+    svg {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+}
+.u-achievement-workbench-guide {
+    display: inline-flex;
+    flex: none;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;
-    color: currentColor;
-    background: rgba(47, 98, 107, 0.08);
-
+    gap: 8px;
+    margin: 6px 0;
+    padding: 0 24px;
+    min-height: 36px;
+    border-radius: 52px;
+    color: #f8f7f3;
+    background: linear-gradient(90deg, #a3864c, #343434);
+    font-size: 16px;
+    text-decoration: none;
+    white-space: nowrap;
     svg {
         width: 13px;
         height: 13px;
     }
-}
-
-.u-achievement-workbench-guide {
-    display: inline-flex;
-    min-width: max-content;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    align-self: center;
-    padding: 8px 11px;
-    border: 1px solid rgba(107, 88, 53, 0.17);
-    border-radius: 8px;
-    color: #776443;
-    background: rgba(255, 253, 248, 0.72);
-    font-size: 14px;
-    text-decoration: none;
-    transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
-
-    svg {
-        width: 15px;
-        height: 15px;
-    }
-
     &:hover {
-        border-color: rgba(107, 88, 53, 0.34);
-        color: #594725;
-        background: #fffdf8;
-    }
-
-    &:focus-visible {
-        outline: 2px solid rgba(47, 101, 109, 0.72);
-        outline-offset: 2px;
+        color: #fff;
+        filter: brightness(1.1);
     }
 }
-
+@media (max-width: 1400px) {
+    .m-achievement-workbench-brand {
+        font-size: 24px;
+        gap: 8px;
+        padding: 0 8px;
+    }
+    .u-achievement-workbench-tab {
+        min-width: 136px;
+        font-size: 18px;
+        padding: 0 16px;
+    }
+    .u-achievement-workbench-guide {
+        padding: 0 16px;
+        font-size: 14px;
+    }
+}
+@media (max-width: 1000px) {
+    .m-achievement-workbench-nav {
+        flex-wrap: wrap;
+    }
+    .m-achievement-workbench-nav__tabs {
+        order: 3;
+        flex-basis: 100%;
+    }
+    .m-achievement-workbench-brand {
+        margin-right: auto;
+    }
+    .u-achievement-workbench-tab {
+        flex: 1 0 auto;
+    }
+}
 @media (max-width: @phone) {
     .m-achievement-workbench-nav {
         position: static;
-        min-height: 52px;
-        gap: 8px;
-        padding: 0 8px 0 4px;
-        border-radius: 10px 10px 0 0;
+        gap: 4px;
+        padding-bottom: 8px;
     }
-
-    .m-achievement-workbench-nav__tabs {
-        flex: 1;
-        -webkit-overflow-scrolling: touch;
+    .m-achievement-workbench-brand {
+        font-size: 20px;
+        min-height: 40px;
     }
-
+    .m-achievement-workbench-brand img {
+        width: 24px;
+        height: 28px;
+    }
     .u-achievement-workbench-tab {
-        flex: 1 0 auto;
-        min-height: 52px;
-        padding: 0 10px;
-        font-size: 14px;
-    }
-
-    .u-achievement-workbench-tab__icon {
-        display: none;
-    }
-
-    .u-achievement-workbench-guide {
-        flex: 0 0 44px;
-        width: 44px;
+        min-width: 110px;
         height: 44px;
-        min-width: 44px;
-        padding: 0;
-
-        span {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
+        padding: 0 12px;
+        font-size: 14px;
+        gap: 6px;
     }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .u-achievement-workbench-tab,
-    .u-achievement-workbench-tab::after,
+    .u-achievement-workbench-tab__icon,
+    .u-achievement-workbench-tab__icon img,
+    .u-achievement-workbench-tab__icon svg {
+        width: 18px;
+        height: 18px;
+    }
     .u-achievement-workbench-guide {
-        transition: none;
+        margin: 0;
+        min-height: 44px;
+        max-width: 52%;
+        white-space: normal;
+        text-align: center;
+        padding: 0 12px;
+        font-size: 13px;
     }
 }
 </style>

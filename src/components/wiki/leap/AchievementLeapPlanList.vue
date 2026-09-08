@@ -102,7 +102,9 @@ export default {
                                 {{ card.plan.title || $t("pages.wiki.leap.ui.unnamedPlan") }}
                             </h3>
                         </div>
-                        <p class="u-leap-plan-description" :title="card.description">{{ card.description }}</p>
+                        <p v-if="card.description !== '—'" class="u-leap-plan-description" :title="card.description">
+                            {{ card.description }}
+                        </p>
                     </div>
                 </header>
 
@@ -166,307 +168,181 @@ export default {
 <style lang="less" scoped>
 .m-leap-plan-list {
     min-width: 0;
-    color: #344143;
+    color: #333;
 }
-
 .m-leap-plan-list__header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     flex-wrap: wrap;
     gap: 8px 12px;
-    margin-bottom: 12px;
+    margin-bottom: 24px;
+    h2 {
+        margin: 0;
+        font-size: 24px;
+    }
+    > span {
+        color: #999;
+        font-size: 14px;
+    }
 }
-
-.m-leap-plan-list__header h2 {
-    margin: 0;
-    color: #384246;
-    font-size: 16px;
-}
-
-.m-leap-plan-list__header > span {
-    color: #a0a7a4;
-    font-size: 13px;
-    white-space: nowrap;
-}
-
 .m-leap-plan-list__grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
 }
-
 .m-leap-plan-card {
+    box-sizing: border-box;
     position: relative;
     display: flex;
-    min-height: 194px;
     min-width: 0;
+    min-height: 184px;
     flex-direction: column;
-    padding: 18px 18px 16px 20px;
-    border: 1px solid rgba(67, 88, 86, 0.13);
-    border-radius: 14px;
-    background: linear-gradient(145deg, #fffdf9 0%, #f9f6ef 100%);
-    box-shadow: 0 4px 14px rgba(54, 70, 70, 0.04);
+    padding: 24px;
+    border: 1px solid #e5d5b3;
+    background: #fcfcfa;
     cursor: pointer;
-    overflow: hidden;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    &:hover,
+    &:focus-visible {
+        border-color: #5a7e84;
+        box-shadow: inset 3px 0 #5a7e84;
+        outline: none;
+    }
 }
-
-.m-leap-plan-card::before {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: 4px;
-    background: #47777d;
-    content: "";
-}
-
-.m-leap-plan-card.is-official::before {
-    background: #b18b42;
-}
-
-.m-leap-plan-card__header {
-    min-width: 0;
-}
-
-.m-leap-plan-card__heading {
-    display: grid;
-    min-width: 0;
-    gap: 3px;
-}
-
 .m-leap-plan-card__title-row {
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 7px;
+    flex-wrap: wrap;
+    gap: 6px;
+    h3 {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
+        color: #6e572c;
+        font-size: 18px;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
-
-.m-leap-plan-card__title-row h3 {
-    min-width: 0;
-    margin: 0;
-    overflow: hidden;
-    color: #2f4143;
-    font-size: 17px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .u-leap-plan-source {
-    display: inline-flex;
-    width: fit-content;
     flex: none;
-    padding: 3px 7px;
-    border-radius: 999px;
-    color: #55777a;
-    background: #eaf1ef;
+    padding: 2px 6px;
+    border: 1px solid #5a7e84;
+    border-radius: 4px;
+    color: #5a7e84;
+    background: #fff;
     font-size: 13px;
-    line-height: 1.2;
+    line-height: 1.3;
 }
-
 .m-leap-plan-card.is-official .u-leap-plan-source {
-    color: #8a682f;
-    background: #f3ead9;
+    border-color: #967944;
+    color: #967944;
 }
-
 .u-leap-plan-description {
-    min-width: 0;
-    margin: 0;
-    color: #7c8585;
-    font-size: 14px;
-    line-height: 1.45;
+    margin: 8px 0 0;
+    color: #999;
+    font-size: 13px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .m-leap-plan-card__stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: 14px;
-    border: 1px solid rgba(69, 89, 87, 0.09);
-    border-radius: 10px;
-    background: rgba(242, 239, 231, 0.72);
-    overflow: hidden;
+    gap: 12px;
+    margin-top: 20px;
+    div {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        &:nth-child(2) {
+            order: 1;
+        }
+    }
+    span {
+        color: #999;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+    strong {
+        color: #967944;
+        font-size: 18px;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        &.is-gain {
+            color: #5a7e84;
+        }
+    }
 }
-
-.m-leap-plan-card__stats div {
-    display: grid;
-    min-width: 0;
-    gap: 5px;
-    padding: 10px 11px;
-    border-right: 1px solid rgba(69, 89, 87, 0.08);
-}
-
-.m-leap-plan-card__stats div:last-child {
-    border-right: 0;
-}
-
-.m-leap-plan-card__stats span {
-    color: #929999;
-    font-size: 13px;
-}
-
-.m-leap-plan-card__stats strong {
-    color: #3d5f63;
-    font-size: 16px;
-    font-variant-numeric: tabular-nums;
-}
-
-.m-leap-plan-card__stats strong.is-gain {
-    color: #a05b42;
-}
-
 .m-leap-plan-card__progress-meta {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 12px 2px 6px;
-    color: #879191;
+    margin: 16px 0 6px;
+    color: #999;
     font-size: 13px;
-}
-
-.m-leap-plan-card__progress-meta strong {
-    color: #9c762f;
-    font-size: 14px;
-    font-variant-numeric: tabular-nums;
-}
-
-.m-leap-plan-card__progress {
-    height: 6px;
-    border-radius: 999px;
-    background: #e2ded5;
-    overflow: hidden;
-}
-
-.m-leap-plan-card__progress span {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: linear-gradient(90deg, #47777d, #b18b42);
-}
-
-.m-leap-plan-card:focus-visible {
-    border-color: #47777d;
-    box-shadow: 0 0 0 3px rgba(71, 119, 125, 0.16), 0 9px 24px rgba(54, 70, 70, 0.1);
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .m-leap-plan-card:hover {
-        border-color: rgba(71, 119, 125, 0.3);
-        box-shadow: 0 9px 24px rgba(54, 70, 70, 0.1);
-        transform: translateY(-2px);
+    strong {
+        color: #967944;
+        font-weight: 400;
     }
 }
-
+.m-leap-plan-card__progress {
+    height: 4px;
+    margin-top: auto;
+    overflow: hidden;
+    border-radius: 3px;
+    background: #eae5e1;
+    span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: #5a7e84;
+    }
+}
 .m-leap-plan-list__pagination {
     display: flex;
     justify-content: center;
-    margin-top: 18px;
+    margin-top: 24px;
 }
-
-@media (max-width: @smallpc) {
+@media (max-width: 1400px) {
     .m-leap-plan-list__grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
-
 @media (max-width: @ipad) {
     .m-leap-plan-list__grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
-
 @media (max-width: @phone) {
-    .m-leap-plan-list {
-        padding: 14px;
-        border-radius: 14px;
-    }
-
     .m-leap-plan-list__grid {
         grid-template-columns: minmax(0, 1fr);
-        gap: 12px;
     }
-
     .m-leap-plan-card {
-        min-height: 0;
-        padding: 14px 12px 14px 16px;
+        padding: 16px;
     }
-
-    .m-leap-plan-card__title-row {
-        flex-wrap: wrap;
-        gap: 6px;
-    }
-
     .m-leap-plan-card__title-row h3,
     .u-leap-plan-description {
         white-space: normal;
         overflow-wrap: anywhere;
     }
-
-    .m-leap-plan-card__title-row h3 {
-        flex: 1 1 140px;
+    .m-leap-plan-card__stats strong {
         font-size: 16px;
     }
-
-    .u-leap-plan-source {
+    .m-leap-plan-list__pagination :deep(.el-pagination) {
+        --el-pagination-button-width: 36px;
+        --el-pagination-button-height: 36px;
         max-width: 100%;
-        box-sizing: border-box;
-        overflow-wrap: anywhere;
+        gap: 12px;
     }
-
-    .m-leap-plan-card__stats div {
-        padding: 9px 7px;
-        overflow-wrap: anywhere;
-    }
-
-    .m-leap-plan-card__stats strong {
-        font-size: 15px;
-    }
-
-    .m-leap-plan-list__header > span {
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    .m-leap-plan-list__pagination {
-        min-width: 0;
-        padding: 12px 0;
-
-        :deep(.el-pagination) {
-            --el-pagination-button-width: 36px;
-            --el-pagination-button-height: 36px;
-            max-width: 100%;
-            flex-wrap: nowrap;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .u-achievement-pagination-status {
-            min-width: 72px;
-            color: #687274;
-            font-size: 14px;
-            font-variant-numeric: tabular-nums;
-            text-align: center;
-        }
-
-        :deep(.el-pagination.is-background .btn-prev),
-        :deep(.el-pagination.is-background .btn-next) {
-            box-sizing: border-box;
-            min-width: 36px;
-            height: 36px;
-            flex: none;
-            margin: 0;
-            padding: 0;
-        }
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .m-leap-plan-card {
-        transition: none;
+    .u-achievement-pagination-status {
+        min-width: 72px;
+        font-size: 14px;
+        text-align: center;
     }
 }
 </style>

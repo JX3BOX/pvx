@@ -105,8 +105,7 @@ export default {
         <header class="m-compare-categories__header">
             <h2>{{ $t("pages.wiki.compare.ui.categories.title") }}</h2>
         </header>
-
-        <div :class="['m-compare-category-browser', { 'has-subcategories': expandedCategory }]">
+        <div class="m-compare-category-browser">
             <div class="m-compare-category-list">
                 <button
                     type="button"
@@ -115,412 +114,240 @@ export default {
                     :aria-pressed="activeCategoryId === 'all'"
                     @click="selectAll"
                 >
-                    <span class="u-compare-category-icon" aria-hidden="true"><CollectionTag /></span>
-                    <span class="m-compare-category-card__body">
-                        <strong>{{ $t("pages.wiki.compare.ui.categories.all") }}</strong>
-                        <small>{{ formatNumber(total) }}</small>
-                    </span>
-                </button>
-
-                <button
-                    v-for="category in categories"
-                    :key="category.id"
-                    type="button"
-                    class="m-compare-category-card"
-                    :class="{
-                        'is-active': isCategoryActive(category),
-                        'is-context': isCategoryContext(category),
-                    }"
-                    :aria-pressed="isCategoryActive(category)"
-                    @click="selectCategory(category)"
-                >
-                    <span class="u-compare-category-icon" aria-hidden="true">
-                        <img v-if="getCategoryImage(category.name)" :src="getCategoryImage(category.name)" alt="" />
-                        <CollectionTag v-else />
-                    </span>
-                    <span class="m-compare-category-card__body">
-                        <strong>{{ category.name }}</strong>
-                        <small>{{ formatNumber(category.count) }}</small>
-                    </span>
-                    <ArrowRight v-if="category.children?.length" class="u-compare-category-direction" aria-hidden="true" />
-                </button>
-            </div>
-
-            <aside v-if="expandedCategory" class="m-compare-subcategory-panel">
-                <header class="m-compare-subcategory-panel__header">
-                    <span class="u-compare-subcategory-panel-icon" aria-hidden="true">
-                        <img
-                            v-if="getCategoryImage(expandedCategory.name)"
-                            :src="getCategoryImage(expandedCategory.name)"
-                            alt=""
-                        />
-                        <CollectionTag v-else />
-                    </span>
-                    <span>
-                        <strong>{{ expandedCategory.name }}</strong>
-                        <small>{{ formatNumber(expandedCategory.children.length) }}</small>
-                    </span>
-                </header>
-
-                <div class="m-compare-subcategory-list">
-                    <button
-                        v-for="child in expandedCategory.children"
-                        :key="child.id"
-                        type="button"
-                        :class="{
-                            'is-active':
-                                activeCategoryId === expandedCategory.id && activeDetailId === child.id,
-                        }"
-                        :aria-pressed="activeCategoryId === expandedCategory.id && activeDetailId === child.id"
-                        @click="selectDetail(expandedCategory, child)"
+                    <span class="u-compare-category-icon" aria-hidden="true"
+                        ><img src="@/assets/img/wiki/figma/tier-normal.svg" alt=""
+                    /></span>
+                    <span class="m-compare-category-card__body"
+                        ><strong>{{ $t("pages.wiki.compare.ui.categories.all") }}</strong
+                        ><small>{{ formatNumber(total) }}</small></span
                     >
-                        <CollectionTag aria-hidden="true" />
-                        <span>{{ child.name }}</span>
-                        <b>{{ formatNumber(child.count) }}</b>
+                </button>
+                <template v-for="category in categories" :key="category.id">
+                    <button
+                        type="button"
+                        class="m-compare-category-card"
+                        :class="{ 'is-active': isCategoryActive(category), 'is-context': isCategoryContext(category) }"
+                        :aria-pressed="isCategoryActive(category)"
+                        :aria-expanded="
+                            category.children?.length ? expandedCategoryId === String(category.id) : undefined
+                        "
+                        @click="selectCategory(category)"
+                    >
+                        <span class="u-compare-category-icon" aria-hidden="true">
+                            <img
+                                v-if="getCategoryImage(category.name)"
+                                :src="getCategoryImage(category.name)"
+                                alt=""
+                            /><CollectionTag v-else />
+                        </span>
+                        <span class="m-compare-category-card__body"
+                            ><strong>{{ category.name }}</strong></span
+                        >
+                        <ArrowRight
+                            v-if="category.children?.length"
+                            class="u-compare-category-direction"
+                            :class="{ 'is-open': expandedCategoryId === String(category.id) }"
+                            aria-hidden="true"
+                        />
                     </button>
-                </div>
-            </aside>
+                    <div
+                        v-if="expandedCategory && expandedCategoryId === String(category.id)"
+                        class="m-compare-subcategory-list"
+                    >
+                        <button
+                            v-for="child in category.children"
+                            :key="child.id"
+                            type="button"
+                            :class="{
+                                'is-active':
+                                    String(activeCategoryId) === String(category.id) &&
+                                    String(activeDetailId) === String(child.id),
+                            }"
+                            :aria-pressed="
+                                String(activeCategoryId) === String(category.id) &&
+                                String(activeDetailId) === String(child.id)
+                            "
+                            @click="selectDetail(category, child)"
+                        >
+                            <span class="u-compare-subcategory-icon" aria-hidden="true">
+                                <img src="@/assets/img/wiki/figma/subcategory.png" alt="" />
+                            </span>
+                            <span>{{ child.name }}</span><b>{{ formatNumber(child.count) }}</b>
+                        </button>
+                    </div>
+                </template>
+            </div>
         </div>
     </section>
 </template>
 
 <style lang="less" scoped>
 .m-compare-categories {
-    display: flex;
     min-width: 0;
     overflow: hidden;
-    flex-direction: column;
-    border: 1px solid rgba(70, 74, 66, 0.14);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.86);
-    container-type: inline-size;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f8f7f3;
 }
-
 .m-compare-categories__header {
     display: flex;
-    min-height: 48px;
-    flex: none;
     align-items: center;
-    padding: 12px 14px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.1);
-
+    min-height: 28px;
+    margin-bottom: 12px;
     h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin: 0;
-        color: #384246;
-        font-size: 15px;
-    }
-}
-
-.m-compare-category-browser {
-    display: grid;
-    min-height: 0;
-    flex: 1;
-    grid-template-columns: minmax(0, 1fr);
-
-    &.has-subcategories {
-        grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
-
-        .m-compare-category-card.is-all small {
-            display: none;
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+        &::before {
+            content: "";
+            width: 6px;
+            height: 18px;
+            flex: none;
+            border-radius: 3px;
+            background: #5a7e84;
         }
     }
 }
-
-.m-compare-category-list,
-.m-compare-subcategory-list {
-    min-height: 0;
-}
-
 .m-compare-category-list {
-    display: grid;
-    align-content: start;
-    gap: 7px;
-    padding: 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
-
 .m-compare-category-card {
     display: grid;
-    width: 100%;
-    min-width: 0;
-    min-height: 48px;
-    grid-template-columns: 34px minmax(0, 1fr) 12px;
+    grid-template-columns: 28px minmax(0, 1fr) 12px;
+    gap: 6px;
     align-items: center;
-    gap: 8px;
-    padding: 7px 8px;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    color: #505c5b;
-    background: transparent;
+    width: 100%;
+    min-height: 40px;
+    padding: 6px 8px;
+    border: 0;
+    color: #333;
+    background: #fcfcfa;
     font: inherit;
     text-align: left;
     cursor: pointer;
-    transition: border-color 150ms ease, background-color 150ms ease;
-
-    &.is-all {
-        grid-template-columns: 34px minmax(0, 1fr);
-    }
-
-    &:hover,
+    &.is-active,
     &.is-context {
-        border-color: rgba(71, 119, 125, 0.16);
-        background: rgba(71, 119, 125, 0.06);
-    }
-
-    &.is-active {
-        border-color: #47777d;
         color: #fff;
-        background: #47777d;
-        box-shadow: 0 7px 18px rgba(48, 84, 89, 0.12);
-
-        .u-compare-category-icon {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.14);
-
-            img {
-                opacity: 0.85;
-            }
+        background: linear-gradient(90deg, #2e414a, #5a7e84);
+        .u-compare-category-icon img {
+            filter: brightness(0) invert(1);
         }
-
-        small,
-        .u-compare-category-direction {
-            color: rgba(255, 255, 255, 0.76);
+        small {
+            color: inherit;
         }
+    }
+    &:hover:not(.is-active):not(.is-context) {
+        background: #f0ede5;
+    }
+    &.is-all {
+        grid-template-columns: 28px minmax(0, 1fr);
     }
 }
-
-.u-compare-category-icon,
-.u-compare-subcategory-panel-icon {
+.u-compare-category-icon {
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    color: #47777d;
-    background: rgba(71, 119, 125, 0.08);
-
-    img {
-        width: 80%;
-        height: 80%;
-        object-fit: contain;
-        opacity: 0.55;
-    }
-
+    color: #967944;
+    img,
     svg {
-        width: 16px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
     }
 }
-
-.u-compare-category-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-}
-
 .m-compare-category-card__body {
     display: flex;
     min-width: 0;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
-    gap: 6px;
-
+    gap: 4px;
     strong {
-        font-size: 14px;
-        white-space: normal;
+        font-size: 15px;
+        font-weight: 500;
         overflow-wrap: anywhere;
     }
-
     small {
-        flex: none;
-        color: #9da39f;
+        color: #999;
         font-size: 13px;
     }
 }
-
 .u-compare-category-direction {
     width: 12px;
     height: 12px;
-    color: #8e9794;
-}
-
-.m-compare-subcategory-panel {
-    display: flex;
-    min-width: 0;
-    min-height: 0;
-    overflow: hidden;
-    flex-direction: column;
-    border-left: 1px solid rgba(70, 74, 66, 0.1);
-    background: rgba(249, 247, 241, 0.44);
-}
-
-.m-compare-subcategory-panel__header {
-    display: flex;
-    min-height: 58px;
-    flex: none;
-    align-items: center;
-    gap: 9px;
-    padding: 10px 11px;
-    border-bottom: 1px solid rgba(70, 74, 66, 0.08);
-
-    > span:last-child {
-        display: flex;
-        min-width: 0;
-        flex-direction: column;
-    }
-
-    strong {
-        color: #44504f;
-        font-size: 14px;
-        white-space: normal;
-        overflow-wrap: anywhere;
-    }
-
-    small {
-        margin-top: 2px;
-        color: #9da39f;
-        font-size: 13px;
+    transform: rotate(90deg);
+    &.is-open {
+        transform: rotate(-90deg);
     }
 }
-
-.u-compare-subcategory-panel-icon {
-    width: 36px;
-    height: 36px;
-    flex: none;
-    border-radius: 9px;
-}
-
 .m-compare-subcategory-list {
-    display: grid;
-    align-content: start;
-    gap: 5px;
-    padding: 8px;
-
+    display: flex;
+    flex-direction: column;
     button {
         display: grid;
-        min-width: 0;
-        min-height: 38px;
-        grid-template-columns: 18px minmax(0, 1fr) auto;
+        grid-template-columns: 22px minmax(0, 1fr) auto;
+        gap: 4px;
         align-items: center;
-        gap: 7px;
-        padding: 6px 8px;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        color: #5b6664;
-        background: transparent;
+        width: 100%;
+        min-height: 34px;
+        padding: 4px 6px 4px 12px;
+        border: 0;
+        color: #6e572c;
+        background: #fcfcfa;
         font: inherit;
         text-align: left;
         cursor: pointer;
-
         svg {
-            width: 14px;
-            color: #789096;
+            width: 20px;
+            height: 20px;
+            color: #967944;
         }
-
         span {
             font-size: 14px;
-            white-space: normal;
             overflow-wrap: anywhere;
         }
-
         b {
-            color: #a0a6a3;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 400;
+            color: #999;
         }
-
         &:hover {
-            background: rgba(71, 119, 125, 0.07);
+            background: #f0ede5;
         }
-
         &.is-active {
-            border-color: rgba(71, 119, 125, 0.34);
+            background: #5a7e84;
             color: #fff;
-            background: #47777d;
-
             svg,
             b {
-                color: rgba(255, 255, 255, 0.76);
+                color: #fff;
             }
         }
     }
 }
-
-@container (max-width: 520px) {
-    .m-compare-category-browser.has-subcategories {
-        grid-template-columns: minmax(0, 1fr);
-
-        .m-compare-category-card.is-all small {
-            display: block;
-        }
-    }
-
-    .m-compare-subcategory-panel {
-        border-top: 1px solid rgba(70, 74, 66, 0.1);
-        border-left: 0;
+.u-compare-subcategory-icon {
+    display: flex;
+    width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    img {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 }
-
 @media (max-width: @phone) {
-    .m-compare-categories {
-        height: auto;
-    }
-
-    .m-compare-category-browser.has-subcategories {
-        grid-template-columns: minmax(0, 1fr);
-
-        .m-compare-category-card.is-all small {
-            display: block;
-        }
-    }
-
-    .m-compare-categories__header {
-        min-height: 56px;
-        padding: 12px;
-
-        > div {
-            min-width: 0;
-        }
-
-        h2,
-        span {
-            overflow-wrap: anywhere;
-        }
-    }
-
-    .m-compare-category-list {
-        gap: 4px;
-        padding: 8px;
-    }
-
-    .m-compare-category-card {
-        min-height: 44px;
-        grid-template-columns: 28px minmax(0, 1fr) 12px;
-        padding: 6px 8px;
-
-        &.is-all {
-            grid-template-columns: 28px minmax(0, 1fr);
-        }
-    }
-
-    .u-compare-category-icon {
-        width: 28px;
-        height: 28px;
-    }
-
-    .m-compare-category-card__body strong,
-    .m-compare-subcategory-panel__header strong,
-    .m-compare-subcategory-list button span {
-        white-space: normal;
-        overflow-wrap: anywhere;
-        line-height: 1.5;
-    }
-
+    .m-compare-category-card,
     .m-compare-subcategory-list button {
         min-height: 44px;
-    }
-
-    .m-compare-subcategory-panel {
-        border-top: 1px solid rgba(70, 74, 66, 0.1);
-        border-left: 0;
     }
 }
 </style>

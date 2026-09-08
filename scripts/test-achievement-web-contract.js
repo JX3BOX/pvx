@@ -22,7 +22,7 @@ function collectLeafPaths(value, prefix = "") {
 }
 
 function read(relativePath) {
-    return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
+    return fs.readFileSync(path.join(ROOT, relativePath), "utf8").replace(/\r\n/g, "\n");
 }
 
 function sliceBetween(source, startToken, endToken) {
@@ -193,8 +193,8 @@ assert.ok(progressSummary.includes('target="_blank"'));
 assert.doesNotMatch(progressFilters, /<el-option value="hidden"/);
 assert.ok(progressSummary.includes(':aria-pressed="item.key === activeTier"'));
 assert.ok(progressSummary.includes("$emit('select-tier', item.key)"));
-assert.ok(progressSummary.includes("<Filter v-else />"));
-assert.ok(progressSummary.includes('<TopRight v-if="item.href" />'));
+assert.ok(progressSummary.includes('class="u-progress-tier-card-link"'));
+assert.ok(progressSummary.includes(':src="tierIcons[item.key]"'));
 assert.ok(progressSummary.includes("@click=\"$emit('update:collapsed', !collapsed)\""));
 assert.ok(progressSummary.includes('v-show="!collapsed"'));
 assert.ok(progressSummary.includes(':aria-expanded="!collapsed"'));
@@ -271,7 +271,7 @@ assert.ok(categoryBoard.includes("m-progress-subcategory-list"));
 assert.ok(categoryBoard.includes("u-progress-category-direction"));
 assert.ok(categoryBoard.includes("compactOverview"));
 assert.ok(categoryBoard.includes("is-compact-overview"));
-assert.doesNotMatch(categoryBoard, /grid-template-columns:\s*repeat\(2/);
+assert.doesNotMatch(categoryBoard, /\.m-progress-category-list\s*\{[^}]*grid-template-columns:\s*repeat\(2/);
 assert.doesNotMatch(categoryBoard, /u-progress-category-toggle/);
 assert.ok(fs.readdirSync(path.join(ROOT, "src/assets/img/wiki/overview/item")).length >= 18);
 assert.doesNotMatch(progressSummary, /open(Normal|Wujia|Hidden|Retired)Achievements/);
@@ -307,7 +307,7 @@ assert.ok(compareFilters.includes("<RefreshLeft"));
 assert.doesNotMatch(compareFilters, /clear-search/);
 assert.ok(compareCategories.includes('require.context("@/assets/img/wiki/overview/item"'));
 assert.ok(compareCategories.includes("m-compare-category-browser"));
-assert.ok(compareCategories.includes("m-compare-subcategory-panel"));
+assert.ok(compareCategories.includes("m-compare-subcategory-list"));
 assert.ok(compareMatrix.includes('<slot name="filters" />'));
 assert.ok(comparePage.includes("fetchAchievementWorkbenchDifficultyMetrics"));
 assert.ok(comparePage.includes("fetchAchievementWorkbenchTags"));
@@ -340,7 +340,7 @@ assert.match(compareExportSource, /dimensions:\s*snapshot\.definitions/);
 assert.match(compareExportSource, /hasOwnProperty\.call\(role, "completedAchievements"\)/);
 assert.match(compareExportSource, /buildAchievementCompareExportData\(/);
 assert.doesNotMatch(compareExportSource, /completedRoleCount|totalRoleCount/);
-assert.ok(compareCategories.includes(".m-compare-category-card.is-all small"));
+assert.ok(compareCategories.includes('@click="selectDetail(category, child)"'));
 assert.match(
     comparePage,
     /async addRole[\s\S]*?const pageRequestId = this\.pageRequestId;[\s\S]*?await fetchAchievementWorkbenchRoleState[\s\S]*?pageRequestId !== this\.pageRequestId[\s\S]*?this\.hasCompareRole\(roleId\)/
@@ -414,9 +414,9 @@ assert.doesNotMatch(leapPage, /:title="detailPlan\?\.title"/);
 assert.doesNotMatch(leapPage, /guidanceSimulation|guidanceRequestId/);
 assert.ok(leapDetailHeader.includes("request-guidance"));
 assert.doesNotMatch(leapDetailHeader, /pages\.wiki\.leap\.ui\.planDetail/);
-assert.ok(leapDetailHeader.includes('v-if="guidanceAllowed"'));
+assert.ok(leapDetailHeader.includes('v-if="guidanceAllowed && !plan.official"'));
 assert.ok(leapDetailHeader.includes("achievementConsultation.title"));
-assert.ok(leapDetailHeader.includes('<el-dropdown trigger="click"'));
+assert.match(leapDetailHeader, /<el-dropdown\b[^>]*\btrigger="click"/);
 assert.ok(leapDetailHeader.includes("moreActions"));
 assert.ok(leapDetailHeader.includes('class="u-leap-detail-menu-button" type="primary"'));
 assert.ok(leapDetailHeader.includes('class="u-leap-detail-menu-button" type="danger"'));
@@ -439,7 +439,7 @@ assert.match(
     leapPlanList,
     /m-leap-plan-card__title-row[\s\S]*?u-leap-plan-source[\s\S]*?<h3[\s\S]*?u-leap-plan-description/
 );
-assert.ok(leapPlanList.includes('{{ card.description }}</p>'));
+assert.match(leapPlanList, /{{ card.description }}\s*<\/p>/);
 assert.ok(leapPlanList.includes('emits: ["view", "page-change"]'));
 assert.ok(leapPlanList.includes('role="link"'));
 assert.ok(leapPlanList.includes("@keydown.enter.prevent=\"$emit('view', card.plan)\""));

@@ -29,6 +29,7 @@ function load(file) {
     });
     const module = { exports: {} };
     new Function("module", "exports", "require", code)(module, module.exports, (name) => {
+        if (/\.(png|svg)$/.test(name)) return name;
         if (name.endsWith(".vue") || name === "@element-plus/icons-vue" || name === "xlsx") return {};
         if (name.startsWith("@/service/")) return services;
         if (name === "@/utils/config") return { __Root: "/" };

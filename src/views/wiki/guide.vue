@@ -1,4 +1,5 @@
 <script>
+import { Compass, ArrowLeft } from "@element-plus/icons-vue";
 import myRolesImage from "@/assets/img/wiki/guide/my-roles.png";
 import bindRoleImage from "@/assets/img/wiki/guide/bind-role.png";
 import syncAchievementsImage from "@/assets/img/wiki/guide/sync-achievements.png";
@@ -6,9 +7,20 @@ import PvxSurface from "@/components/design/PvxSurface.vue";
 
 export default {
     name: "AchievementGuidePage",
-    components: { PvxSurface },
+    components: { PvxSurface, Compass, ArrowLeft },
     data() {
-        return { screenshots: [[{ src: myRolesImage, caption: 0, width: 808, height: 960 }, { src: bindRoleImage, caption: 1, width: 678, height: 476 }], [{ src: syncAchievementsImage, caption: 2, width: 987, height: 644 }], []], sections: ["sync", "usage", "faq"], featureRoutes: ["overview", "compare", "leap"] };
+        return {
+            screenshots: [
+                [
+                    { src: myRolesImage, caption: 0, width: 808, height: 960 },
+                    { src: bindRoleImage, caption: 1, width: 678, height: 476 },
+                ],
+                [{ src: syncAchievementsImage, caption: 2, width: 987, height: 644 }],
+                [],
+            ],
+            sections: ["sync", "usage", "faq"],
+            featureRoutes: ["overview", "compare", "leap"],
+        };
     },
     mounted() {
         this.scrollToSection();
@@ -30,136 +42,347 @@ export default {
 
 <template>
     <article class="p-achievement-guide">
-        <header class="m-guide-header">
-            <router-link :to="{ name: 'overview' }" class="u-guide-back">← {{ $t('achievementGuide.back') }}</router-link>
-            <h1>{{ $t('achievementGuide.title') }}</h1>
-            <p>{{ $t('achievementGuide.intro') }}</p>
-            <nav class="m-guide-contents" :aria-label="$t('achievementGuide.title')">
-                <router-link v-for="(section, index) in sections" :key="section" :to="{ hash: `#${section}` }">
-                    <span>0{{ index + 1 }}</span>{{ $t(`achievementGuide.${section}`) }}
-                </router-link>
-            </nav>
-        </header>
+        <router-link :to="{ name: 'overview' }" class="u-guide-back"
+            ><ArrowLeft aria-hidden="true" />{{ $t("achievementGuide.back") }}</router-link
+        >
+        <div class="m-guide-document">
+            <header class="m-guide-header">
+                <h1><Compass aria-hidden="true" />{{ $t("achievementGuide.title") }}</h1>
+                <p>{{ $t("achievementGuide.intro") }}</p>
+            </header>
 
-        <PvxSurface id="sync" ref="sync" class="m-guide-section" radius="medium">
-            <h2><span>01</span>{{ $t('achievementGuide.sync') }}</h2>
-            <ol class="m-guide-steps">
-                <li v-for="index in 3" :key="index">
-                    <h3>{{ $t(`achievementGuide.steps.${index - 1}.title`) }}</h3>
-                    <p>{{ $t(`achievementGuide.steps.${index - 1}.text`) }}</p>
-                    <a v-if="index === 1" href="https://www.jx3box.com/dashboard/role" target="_blank" rel="noopener noreferrer">
-                        {{ $t('achievementGuide.bind') }} ↗
-                    </a>
-                    <p v-if="index === 2" class="m-guide-note m-guide-sync-required">
-                        <strong>{{ $t('achievementGuide.syncRequired') }}</strong>
-                    </p>
-                    <div v-if="screenshots[index - 1].length" class="m-guide-screenshots" :class="{ 'is-pair': index === 1 }">
-                        <figure v-for="shot in screenshots[index - 1]" :key="shot.caption">
-                            <a :href="shot.src" target="_blank" rel="noopener noreferrer">
-                                <img :src="shot.src" :alt="$t(`achievementGuide.screenshots.${shot.caption}`)"
-                                    :width="shot.width" :height="shot.height" loading="lazy" />
-                            </a>
-                            <figcaption>{{ $t(`achievementGuide.screenshots.${shot.caption}`) }}</figcaption>
-                        </figure>
-                    </div>
-                </li>
-            </ol>
-            <p class="m-guide-note">{{ $t('achievementGuide.syncNote') }}</p>
-        </PvxSurface>
+            <PvxSurface id="sync" ref="sync" class="m-guide-section" radius="medium">
+                <h2><span>1.</span>{{ $t("achievementGuide.sync") }}</h2>
+                <ol class="m-guide-steps">
+                    <li v-for="index in 3" :key="index">
+                        <h3>{{ $t(`achievementGuide.steps.${index - 1}.title`) }}</h3>
+                        <p>{{ $t(`achievementGuide.steps.${index - 1}.text`) }}</p>
+                        <a
+                            v-if="index === 1"
+                            href="https://www.jx3box.com/dashboard/role"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {{ $t("achievementGuide.bind") }} ↗
+                        </a>
+                        <p v-if="index === 2" class="m-guide-note m-guide-sync-required">
+                            <strong>{{ $t("achievementGuide.syncRequired") }}</strong>
+                        </p>
+                        <details v-if="screenshots[index - 1].length" class="m-guide-screenshot-disclosure">
+                            <summary>{{ $t("achievementAppearance.screenshots") }}</summary>
+                            <div class="m-guide-screenshots" :class="{ 'is-pair': index === 1 }">
+                                <figure v-for="shot in screenshots[index - 1]" :key="shot.caption">
+                                    <a :href="shot.src" target="_blank" rel="noopener noreferrer">
+                                        <img
+                                            :src="shot.src"
+                                            :alt="$t(`achievementGuide.screenshots.${shot.caption}`)"
+                                            :width="shot.width"
+                                            :height="shot.height"
+                                            loading="lazy"
+                                        />
+                                    </a>
+                                    <figcaption>{{ $t(`achievementGuide.screenshots.${shot.caption}`) }}</figcaption>
+                                </figure>
+                            </div>
+                        </details>
+                    </li>
+                </ol>
+                <p class="m-guide-note">{{ $t("achievementGuide.syncNote") }}</p>
+            </PvxSurface>
 
-        <PvxSurface id="usage" ref="usage" class="m-guide-section" radius="medium">
-            <h2><span>02</span>{{ $t('achievementGuide.usage') }}</h2>
-            <div class="m-guide-features">
-                <section v-for="(route, index) in featureRoutes" :key="route">
-                    <h3>{{ $t(`achievementGuide.features.${index}.title`) }}</h3>
-                    <p>{{ $t(`achievementGuide.features.${index}.text`) }}</p>
-                    <router-link :to="{ name: route }">{{ $t(`achievementGuide.features.${index}.action`) }} →</router-link>
-                </section>
-            </div>
-        </PvxSurface>
+            <PvxSurface id="usage" ref="usage" class="m-guide-section" radius="medium">
+                <h2><span>2.</span>{{ $t("achievementGuide.usage") }}</h2>
+                <div class="m-guide-features">
+                    <section v-for="(route, index) in featureRoutes" :key="route">
+                        <h3>{{ $t(`achievementGuide.features.${index}.title`) }}</h3>
+                        <p>{{ $t(`achievementGuide.features.${index}.text`) }}</p>
+                        <router-link :to="{ name: route }"
+                            >{{ $t(`achievementGuide.features.${index}.action`) }} →</router-link
+                        >
+                    </section>
+                </div>
+            </PvxSurface>
 
-        <PvxSurface id="faq" ref="faq" class="m-guide-section" radius="medium">
-            <h2><span>03</span>{{ $t('achievementGuide.faq') }}</h2>
-            <div v-for="index in 3" :key="index" class="m-guide-question">
-                <h3>{{ $t(`achievementGuide.questions.${index - 1}.title`) }}</h3>
-                <p>{{ $t(`achievementGuide.questions.${index - 1}.text`) }}</p>
-            </div>
-        </PvxSurface>
+            <PvxSurface id="faq" ref="faq" class="m-guide-section" radius="medium">
+                <h2><span>3.</span>{{ $t("achievementGuide.faq") }}</h2>
+                <div v-for="index in 3" :key="index" class="m-guide-question">
+                    <h3>{{ $t(`achievementGuide.questions.${index - 1}.title`) }}</h3>
+                    <p>{{ $t(`achievementGuide.questions.${index - 1}.text`) }}</p>
+                </div>
+            </PvxSurface>
+        </div>
     </article>
 </template>
 
 <style lang="less" scoped>
 .p-achievement-guide {
-    max-width: 1040px;
-    margin: 0 auto;
-    color: #3c4849;
-    line-height: 1.8;
+    width: 100%;
+    color: #333;
+    line-height: 1.6;
     overflow-wrap: anywhere;
-
-    a {
-        color: #47777d;
-        text-underline-offset: 4px;
-        &:hover { color: #2f626b; text-decoration: underline; }
-        &:focus-visible { outline: 2px solid #47777d; outline-offset: 4px; }
+    h1,
+    h2,
+    h3,
+    p {
+        margin: 0;
     }
-    h1, h2, h3, p { margin: 0; }
-    h1 { margin-top: 20px; font-size: 28px; line-height: 1.4; }
-    h2 { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; font-size: 20px; }
-    h2 > span { color: #a18a60; font-size: 14px; font-variant-numeric: tabular-nums; }
-    h3 { margin-bottom: 6px; font-size: 16px; }
-    p { color: #687573; font-size: 14px; }
+    a {
+        text-decoration: none;
+        &:focus-visible {
+            outline: 2px solid #5a7e84;
+            outline-offset: 4px;
+        }
+    }
+    h1 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #6e572c;
+        font-size: 32px;
+        line-height: 1.4;
+        svg {
+            width: 32px;
+            height: 32px;
+            color: #333;
+            flex: none;
+        }
+    }
+    h2 {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 24px;
+        font-size: 24px;
+        font-weight: 400;
+    }
+    h3 {
+        margin-bottom: 16px;
+        color: #6e572c;
+        font-size: 18px;
+        font-weight: 600;
+    }
+    p {
+        color: #333;
+        font-size: 14px;
+    }
+    .u-guide-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 36px;
+        padding: 6px 18px;
+        border-radius: 24px;
+        background: linear-gradient(90deg, #a3864c, #343434);
+        color: #fff;
+        font-size: 14px;
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
 }
-.m-guide-header { padding: 12px 0 24px; }
-.m-guide-header > p { margin-top: 10px; }
-.u-guide-back { font-size: 14px; }
-.m-guide-contents {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 24px;
-    a { display: inline-flex; gap: 8px; align-items: center; padding: 8px 14px; border: 1px solid rgba(71,119,125,.18); border-radius: 8px; background: #fffdf8; font-size: 14px; }
-    span { color: #a18a60; font-size: 13px; }
+.m-guide-document {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    max-width: 1440px;
+    margin: 12px auto 72px;
+}
+.m-guide-header {
+    padding: 24px;
+    border-radius: 16px;
+    background: #fff;
+    > p {
+        margin-top: 12px;
+        color: #999;
+        font-size: 16px;
+    }
 }
 .m-guide-section {
-    margin-bottom: 20px;
-    scroll-margin-top: 88px;
-    background: #fffef9;
-    border-color: rgba(70,74,66,.13);
+    padding: 24px;
+    border: 0;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: none;
+    scroll-margin-top: 84px;
 }
 .m-guide-steps {
+    display: grid;
+    gap: 24px;
     margin: 0;
-    padding-left: 24px;
-    list-style: decimal;
-    li { padding-left: 10px; margin-bottom: 24px; }
-    li::marker { color: #47777d; font-weight: 600; }
-    a { display: inline-block; margin-top: 8px; font-size: 14px; }
+    padding: 0;
+    list-style: none;
+    li {
+        min-width: 0;
+        padding: 36px;
+        border-radius: 16px;
+        background: #f8f7f3;
+    }
+    a:not(.m-guide-screenshots a) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 8px 24px;
+        margin-top: 12px;
+        border-radius: 24px;
+        background: #5a7e84;
+        color: #fff;
+        font-size: 14px;
+    }
 }
-.p-achievement-guide .m-guide-note { padding: 14px 18px; border-left: 3px solid #a18a60; border-radius: 0 8px 8px 0; background: #f5f1e8; color: #796647; }
-.m-guide-sync-required { margin-top: 16px !important; }
+.p-achievement-guide .m-guide-note {
+    padding: 12px 24px;
+    margin-top: 16px;
+    border-left: 2px solid #5a7e84;
+    background: #eeebe2;
+    color: #6e572c;
+}
+.m-guide-sync-required strong {
+    font-weight: 400;
+}
+.m-guide-screenshot-disclosure {
+    margin-top: 16px;
+    summary {
+        width: fit-content;
+        color: #5a7e84;
+        font-size: 14px;
+        cursor: pointer;
+    }
+}
 .m-guide-screenshots {
     display: grid;
-    gap: 20px;
+    gap: 24px;
     margin-top: 16px;
-    &.is-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    figure { min-width: 0; margin: 0; }
-    a { display: block; margin-top: 0; }
-    img { display: block; width: 100%; height: auto; border: 1px solid rgba(70, 74, 66, .13); border-radius: 8px; }
-    figcaption { margin-top: 8px; color: #687573; font-size: 13px; }
+    &.is-pair {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    figure {
+        min-width: 0;
+        margin: 0;
+    }
+    a {
+        display: block;
+    }
+    img {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        max-height: 560px;
+        height: auto;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+    }
+    figcaption {
+        margin-top: 8px;
+        color: #999;
+        font-size: 13px;
+    }
 }
 .m-guide-features {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
-    section { display: flex; flex-direction: column; align-items: flex-start; }
-    p { flex: 1; margin-bottom: 16px; }
-    a { font-size: 14px; }
+    section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-width: 0;
+        min-height: 235px;
+        padding: 36px;
+        border-radius: 16px;
+        background: #f8f7f3;
+    }
+    p {
+        flex: 1;
+        margin-bottom: 24px;
+    }
+    a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 8px 24px;
+        border-radius: 24px;
+        background: #5a7e84;
+        color: #fff;
+        font-size: 14px;
+    }
 }
-.m-guide-question + .m-guide-question { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(70,74,66,.1); }
-@media (max-width: 768px) {
-    .p-achievement-guide h1 { font-size: 24px; }
-    .m-guide-screenshots.is-pair { grid-template-columns: minmax(0, 1fr); }
-    .m-guide-features { grid-template-columns: minmax(0, 1fr); }
-    .m-guide-contents { gap: 8px; }
-    .m-guide-contents a { padding: 8px 10px; }
+.m-guide-question {
+    padding: 36px;
+    border-radius: 16px;
+    background: #f8f7f3;
+    & + & {
+        margin-top: 24px;
+    }
+    h3 {
+        margin-bottom: 12px;
+    }
+}
+@media (max-width: 1000px) {
+    .m-guide-steps li,
+    .m-guide-features section,
+    .m-guide-question {
+        padding: 24px;
+    }
+    .m-guide-features {
+        gap: 16px;
+    }
+}
+@media (max-width: @phone) {
+    .m-guide-document {
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+    .m-guide-header,
+    .m-guide-section {
+        padding: 16px;
+    }
+    .p-achievement-guide {
+        h1 {
+            font-size: 24px;
+            svg {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        h2 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+        h3 {
+            font-size: 16px;
+        }
+        .u-guide-back {
+            min-height: 44px;
+        }
+    }
+    .m-guide-steps li,
+    .m-guide-features section,
+    .m-guide-question {
+        padding: 20px 16px;
+    }
+    .m-guide-steps {
+        gap: 16px;
+    }
+    .m-guide-features,
+    .m-guide-screenshots.is-pair {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .m-guide-features section {
+        min-height: 0;
+    }
+    .m-guide-screenshot-disclosure summary,
+    .m-guide-steps a:not(.m-guide-screenshots a),
+    .m-guide-features a {
+        min-height: 44px;
+    }
+    .m-guide-screenshot-disclosure summary {
+        padding: 10px 0;
+    }
+    .p-achievement-guide .m-guide-note {
+        padding: 12px;
+    }
 }
 </style>

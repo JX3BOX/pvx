@@ -800,6 +800,7 @@ export default {
 
             <div class="m-progress-browser-grid">
                 <AchievementCategoryBoard
+                    :tier-label="$t(filters.tier === 'wujia' ? 'pages.wiki.overview.ui.statistics.wujia' : 'pages.wiki.overview.ui.statistics.regular')"
                     :categories="categories"
                     :compact-overview="summaryCollapsed"
                     :active-category-id="filters.categoryId"
@@ -862,9 +863,12 @@ export default {
 .m-progress-browser-grid {
     display: grid;
     min-width: 0;
-    grid-template-columns: minmax(300px, 0.72fr) minmax(520px, 1.28fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
     gap: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    background: #fff;
 }
 
 .m-progress-page-state {
