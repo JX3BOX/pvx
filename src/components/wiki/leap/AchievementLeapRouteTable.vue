@@ -6,7 +6,6 @@ import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import responsivePagination from "@/mixins/responsive-pagination";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
-import { achievementRecommendationGroupLabel } from "@/utils/achievementRecommendation";
 import {
     formatAchievementWorkbenchValue,
     getAchievementWorkbenchDimensionSort,
@@ -54,6 +53,16 @@ export default {
         };
     },
     computed: {
+        tableStyle() {
+            const optionalCount = [this.showTagsColumn, this.showSchoolRestrictionColumn, this.showGuideNoteColumn].filter(Boolean).length;
+            return {
+                '--leap-route-columns': ['30px', 'minmax(240px, 3fr)', '90px', '68px',
+                    ...this.dimensions.map(() => 'minmax(110px, 1fr)'),
+                    ...Array.from({ length: optionalCount }, () => 'minmax(140px, 1fr)'),
+                    this.removable ? '40px' : null].filter(Boolean).join(' '),
+                '--leap-route-min-width': `${488 + this.dimensions.length * 122 + optionalCount * 152 + (this.removable ? 52 : 0)}px`,
+            };
+        },
         categories() {
             const categoryMap = new Map();
             this.items.forEach((item) => {
@@ -72,9 +81,6 @@ export default {
         },
         showGuideNoteColumn() {
             return this.items.some((item) => this.hasDisplayValue(item.guideNote));
-        },
-        showRecommendationColumn() {
-            return this.items.some((item) => item.recommendationGroup);
         },
         filteredItems() {
             const keyword = this.keyword.trim().toLowerCase();
@@ -142,8 +148,8 @@ export default {
         },
     },
     methods: {
-        recommendationGroupLabel(group) {
-            return group ? achievementRecommendationGroupLabel(group, this.maps, this.$t) : "—";
+        syncHeaderScroll(event) {
+            if (this.$refs.tableHeader) this.$refs.tableHeader.scrollLeft = event.target.scrollLeft;
         },
         iconLink,
         getLink,
@@ -231,32 +237,44 @@ export default {
             </el-select>
         </div>
 
-        <div v-if="filteredItems.length" class="m-leap-route__scroll" tabindex="0" role="region"
+        <div v-if="filteredItems.length" class="m-leap-route-table" role="table" :style="tableStyle"
             :aria-label="$t('pages.wiki.leap.ui.workbench.routeList')">
-            <table>
-                <thead>
-                    <tr>
-                        <th>{{ $t("pages.wiki.leap.ui.status") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.achievementName") }}</th>
-                        <th v-if="showRecommendationColumn">{{ $t("achievementRecommendation.groupColumn") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.workbench.category") }}</th>
-                        <th>{{ $t("pages.wiki.leap.ui.points") }}</th>
-                        <th v-for="dimension in dimensions" :key="dimension.key">
+            <div ref="tableHeader" class="m-leap-route-table-header" role="rowgroup">
+                    <div role="row" class="m-leap-route-row">
+                        <div role="columnheader">#</div>
+                        <div role="columnheader">{{ $t("pages.wiki.leap.ui.achievementName") }}</div>
+                        <div role="columnheader">{{ $t("pages.wiki.leap.ui.status") }}</div>
+                        <div role="columnheader">{{ $t("pages.wiki.leap.ui.points") }}</div>
+                        <div role="columnheader" v-for="dimension in dimensions" :key="dimension.key">
                             {{ dimensionLabel(dimension) }}
-                        </th>
-                        <th v-if="showTagsColumn">{{ $t("pages.wiki.leap.ui.workbench.tags") }}</th>
-                        <th v-if="showSchoolRestrictionColumn">
+                        </div>
+                        <div role="columnheader" v-if="showTagsColumn">{{ $t("pages.wiki.leap.ui.workbench.tags") }}</div>
+                        <div role="columnheader" v-if="showSchoolRestrictionColumn">
                             {{ $t("pages.wiki.leap.ui.workbench.schoolRestriction") }}
-                        </th>
-                        <th v-if="showGuideNoteColumn">{{ $t("pages.wiki.leap.ui.workbench.routeNote") }}</th>
-                        <th v-if="removable" class="u-leap-route-action">
+                        </div>
+                        <div role="columnheader" v-if="showGuideNoteColumn">{{ $t("pages.wiki.leap.ui.workbench.routeNote") }}</div>
+                        <div role="columnheader" v-if="removable" class="u-leap-route-action">
                             {{ $t("pages.wiki.leap.ui.workbench.action") }}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in visibleItems" :key="item.id" :class="{ 'is-completed': item.completed }">
-                        <td>
+                        </div>
+                    </div>
+
+            </div>
+            <div class="m-leap-route__scroll" tabindex="0" @scroll.passive="syncHeaderScroll">
+                <div role="rowgroup" class="m-leap-route-table-body">
+                    <div role="row" class="m-leap-route-row" v-for="(item, index) in visibleItems" :key="item.id" :class="{ 'is-completed': item.completed }">
+                        <div role="cell" class="u-leap-order">{{ (page - 1) * pageSize + index + 1 }}</div>
+                        <div role="cell" class="u-leap-achievement-cell">
+                            <a :href="getLink('achievement', item.id)" target="_blank" rel="noopener noreferrer">
+                                <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" />
+                                <strong>{{ item.name || item.id }}</strong>
+                            </a>
+                            <p v-if="item.shortDescription" class="u-leap-achievement-description">{{ item.shortDescription }}</p>
+                            <small class="u-leap-achievement-place">
+                                {{ [item.category?.name, item.category?.subName].filter(Boolean).join(' · ') }}<span v-if="item.map?.name">{{ item.category?.name ? ' · ' : '' }}{{ item.map.name }}</span>
+                            </small>
+                            <small v-if="item.campRestricted" class="u-camp-restricted">{{ $t("achievementRecommendation.campRestricted") }}</small>
+                        </div>
+                        <div role="cell">
                             <span class="u-leap-status" :class="{ 'is-completed': item.completed }">
                                 {{
                                     item.completed
@@ -264,40 +282,27 @@ export default {
                                         : $t("pages.wiki.leap.ui.incomplete")
                                 }}
                             </span>
-                        </td>
-                        <td class="u-leap-achievement-cell">
-                            <a :href="getLink('achievement', item.id)" target="_blank" rel="noopener noreferrer">
-                                <img v-if="item.iconId" :src="iconLink(item.iconId)" alt="" />
-                                <span>
-                                    <strong>{{ item.name || item.id }}</strong>
-                                    <small v-if="item.shortDescription" class="u-leap-achievement-description">{{ item.shortDescription }}</small>
-                                    <small v-if="item.map?.name">{{ item.map.name }}</small>
-                                    <small v-if="item.campRestricted" class="u-camp-restricted">{{ $t("achievementRecommendation.campRestricted") }}</small>
-                                </span>
-                            </a>
-                        </td>
-                        <td v-if="showRecommendationColumn">{{ recommendationGroupLabel(item.recommendationGroup) }}</td>
-                        <td>{{ categoryLabel(item) }}</td>
-                        <td class="u-leap-number">{{ formatValue(item.points) }}</td>
-                        <td v-for="dimension in dimensions" :key="dimension.key" class="u-leap-rating">
+                        </div>
+                        <div role="cell" class="u-leap-number">{{ formatValue(item.points) }}</div>
+                        <div role="cell" v-for="dimension in dimensions" :key="dimension.key" class="u-leap-rating">
                             <AchievementDifficultyStars
                                 :value="getDimensionValue(item, dimension.key)"
                                 :dimension-key="dimension.key"
                                 :score-labels="dimension.scoreLabels"
                                 :label="dimensionLabel(dimension)"
                             />
-                        </td>
-                        <td v-if="showTagsColumn" class="u-leap-tags">
+                        </div>
+                        <div role="cell" v-if="showTagsColumn" class="u-leap-tags">
                             <div class="u-leap-tag-list">
                                 <span v-for="tag in getDisplayTags(item)" :key="tag.id || tag.label" class="u-leap-tag">
                                     {{ tag.label }}
                                 </span>
                                 <span v-if="!item.tags?.length">—</span>
                             </div>
-                        </td>
-                        <td v-if="showSchoolRestrictionColumn">{{ formatValue(item.restriction?.school) }}</td>
-                        <td v-if="showGuideNoteColumn" class="u-leap-note">{{ formatValue(item.guideNote) }}</td>
-                        <td v-if="removable" class="u-leap-route-action">
+                        </div>
+                        <div role="cell" v-if="showSchoolRestrictionColumn">{{ formatValue(item.restriction?.school) }}</div>
+                        <div role="cell" v-if="showGuideNoteColumn" class="u-leap-note">{{ formatValue(item.guideNote) }}</div>
+                        <div role="cell" v-if="removable" class="u-leap-route-action">
                             <button
                                 type="button"
                                 class="u-leap-remove-button"
@@ -305,12 +310,13 @@ export default {
                                 @click="removeItem(item)"
                             >
                                 <Delete aria-hidden="true" />
-                                {{ $t("pages.wiki.leap.ui.workbench.removeRouteItem") }}
+
                             </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
         <PvxEmptyState
@@ -341,7 +347,7 @@ export default {
 </template>
 
 <style lang="less" scoped>
-.u-camp-restricted {
+.u-leap-achievement-cell .u-camp-restricted {
     color: #ae3b40;
 }
 .m-leap-route {
@@ -383,68 +389,54 @@ export default {
     margin-bottom: 12px;
 }
 
+.m-leap-route-table {
+    min-width: 0;
+    border: 1px solid rgba(68, 86, 84, 0.13);
+    border-radius: 10px;
+    background: #fffdf8;
+}
+.m-leap-route-table-header {
+    position: sticky;
+    top: var(--achievement-sticky-top, 60px);
+    z-index: 4;
+    overflow: hidden;
+    border-radius: 9px 9px 0 0;
+    background: #f0ece3;
+    box-shadow: 0 1px 0 rgba(68, 86, 84, 0.1);
+    color: #405659;
+    font-size: 12px;
+    font-weight: 700;
+}
 .m-leap-route__scroll {
     min-width: 0;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    border: 1px solid rgba(68, 86, 84, 0.13);
-    border-radius: 11px;
     overflow-x: auto;
+    border-radius: 0 0 9px 9px;
     overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #99afae #f0ece3;
 }
-
-.m-leap-route__scroll::-webkit-scrollbar {
-    height: 8px;
-}
-
-.m-leap-route__scroll::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background: #99afae;
-}
-
-.m-leap-route__scroll:focus-visible {
-    outline: 2px solid #47777d;
-    outline-offset: 2px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fffdf8;
-}
-
-th,
-td {
+.m-leap-route__scroll:focus-visible { outline: 2px solid #47777d; outline-offset: 2px; }
+.m-leap-route-row {
+    display: grid;
+    grid-template-columns: var(--leap-route-columns);
+    min-width: var(--leap-route-min-width);
+    box-sizing: border-box;
+    align-items: center;
+    gap: 12px;
     padding: 11px 12px;
+}
+.m-leap-route-row > [role="cell"],
+.m-leap-route-row > [role="columnheader"] { min-width: 0; overflow-wrap: anywhere; }
+.m-leap-route-table-body .m-leap-route-row {
+    min-height: 76px;
     border-bottom: 1px solid rgba(68, 86, 84, 0.1);
     color: #687274;
     font-size: 12px;
-    text-align: left;
-    white-space: nowrap;
-    vertical-align: top;
+    &:last-child { border-bottom: 0; }
+    &:hover { background: #f3f8f6; }
+    &.is-completed { color: #7a8586; }
 }
-
-th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    color: #405659;
-    background: #f0ece3;
-    font-weight: 700;
-}
-
-tbody tr:last-child td {
-    border-bottom: 0;
-}
-
-tbody tr.is-completed {
-    opacity: 0.62;
-}
-
+.u-leap-order { color: #87918a; font-size: 11px; font-variant-numeric: tabular-nums; }
 .u-leap-status {
     display: inline-flex;
     padding: 4px 8px;
@@ -452,124 +444,51 @@ tbody tr.is-completed {
     color: #a3543f;
     background: #f8e8e3;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 500;
+    &.is-completed { color: #356b5c; background: #e5f0ea; }
 }
-
-.u-leap-status.is-completed {
-    color: #356b5c;
-    background: #e5f0ea;
-}
-
 .u-leap-achievement-cell a {
     display: flex;
-    min-width: 220px;
-    max-width: 320px;
-    align-items: flex-start;
-    gap: 9px;
-    color: #34484a;
-    text-decoration: none;
-}
-
-.u-leap-achievement-cell img {
-    width: 34px;
-    height: 34px;
-    flex: none;
-    border-radius: 7px;
-    object-fit: cover;
-}
-
-.u-leap-achievement-cell span {
-    display: grid;
+    min-height: 24px;
     min-width: 0;
-    gap: 2px;
+    align-items: center;
+    gap: 7px;
+    color: #365f64;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.5;
 }
-
-.u-leap-achievement-cell strong,
-.u-leap-achievement-cell small {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.u-leap-achievement-cell small {
-    color: #9aa2a2;
-}
-
+.u-leap-achievement-cell img { width: 24px; height: 24px; flex: none; border-radius: 4px; object-fit: cover; }
+.u-leap-achievement-cell strong { font-weight: 400; overflow-wrap: anywhere; }
+.u-leap-achievement-cell small { display: block; color: #7a8586; font-size: 11px; line-height: 1.5; }
 .u-leap-achievement-cell .u-leap-achievement-description {
+    margin: 0;
+    color: #7a8586;
+    font-size: 12px;
     white-space: pre-line;
     overflow-wrap: anywhere;
     line-height: 1.5;
 }
-
-.u-leap-number,
-.u-leap-rating {
-    color: #8e6d32;
-    font-variant-numeric: tabular-nums;
-}
-
-.u-leap-rating {
-    letter-spacing: 0.04em;
-}
-
-.u-leap-tags {
-    max-width: 280px;
-    white-space: normal;
-}
-
-.u-leap-tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-
-.u-leap-tag {
-    padding: 3px 6px;
-    border-radius: 999px;
-    color: #47777d;
-    background: #e7f0ef;
-}
-
-.u-leap-note {
-    max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.u-leap-route-action {
-    position: sticky;
-    right: 0;
-    width: 82px;
-    background: #fffdf8;
-    box-shadow: -8px 0 12px rgba(52, 65, 67, 0.05);
-    text-align: center;
-}
-
-th.u-leap-route-action {
-    z-index: 2;
-    background: #f0ece3;
-}
-
+.u-leap-number { color: #a77836; font-variant-numeric: tabular-nums; }
+.u-leap-tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
+.u-leap-tag { padding: 1px 7px; border: 1px solid rgba(64,158,255,0.52); border-radius: 4px; color: #409eff; background: #ecf5ff; font-size: 11px; }
+.u-leap-note { white-space: pre-line; }
+.u-leap-route-action { text-align: center; }
 .u-leap-remove-button {
     display: inline-flex;
-    min-height: 30px;
+    width: 28px;
+    min-height: 32px;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 5px 9px;
-    border: 1px solid rgba(163, 84, 63, 0.2);
-    border-radius: 7px;
-    color: #a3543f;
-    background: #fff7f4;
+    padding: 6px;
+    border: 0;
+    border-radius: 4px;
+    color: #697374;
+    background: transparent;
     cursor: pointer;
-}
-
-.u-leap-remove-button:hover,
-.u-leap-remove-button:focus-visible {
-    border-color: #a3543f;
-    background: #f8e8e3;
-}
-
-.u-leap-remove-button svg {
-    width: 14px;
+    &:hover { color: #a3543f; background: #f8e8e3; }
+    &:focus-visible { outline: 2px solid #47777d; outline-offset: 2px; }
+    svg { width: 14px; height: 14px; }
 }
 
 .m-leap-route__pagination {
@@ -615,14 +534,12 @@ th.u-leap-route-action {
         box-sizing: border-box;
     }
 
-    th,
-    td {
+    .m-leap-route-row {
         padding: 10px;
     }
 
     .u-leap-achievement-cell a {
-        min-width: 190px;
-        max-width: 260px;
+        min-width: 0;
     }
 
     .u-leap-achievement-cell strong,
@@ -632,6 +549,7 @@ th.u-leap-route-action {
     }
 
     .u-leap-remove-button {
+        width: 40px;
         min-height: 40px;
     }
 
