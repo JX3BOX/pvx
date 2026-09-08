@@ -191,3 +191,22 @@ export function isAchievementEligibleForSchool({ id, record = null, metadataItem
     if (!restriction?.schools?.length || restriction.schools.includes(SHARED_SCHOOL)) return true;
     return restriction.schools.includes(roleSchool);
 }
+
+// Only manual addition consumes tag rules; progress and server recommendations keep their own scope.
+export function isAchievementEligibleForSchoolAddition(options = {}) {
+    const rules = (options.record?.tags || []).filter((tag) => tag.ruleType === "mount");
+    if (!rules.length) return isAchievementEligibleForSchool(options);
+    const school = options.context?.school;
+    if (!school) return false;
+    return rules.every(({ ruleValue }) => {
+        if (!ruleValue || !["include", "exclude"].includes(ruleValue.operator) ||
+            !Array.isArray(ruleValue.values) || !ruleValue.values.length) return false;
+        // These are school IDs (including 0 = 江湖), not labels or learnable-school keys.
+        const schools = ruleValue.values.map((id) =>
+            Number.isInteger(id) && id >= 0 ? normalizeAchievementRoleSchool(schoolIdMap[id]) : null
+        );
+        if (schools.some((value) => !value)) return false;
+        const matches = schools.includes(school);
+        return ruleValue.operator === "exclude" ? !matches : matches;
+    });
+}

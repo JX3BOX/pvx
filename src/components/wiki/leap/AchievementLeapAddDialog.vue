@@ -8,6 +8,7 @@ import {
 import { buildAchievementLeapCandidates } from "@/utils/achievementLeap";
 import { enrichAchievementRecommendationRecords } from "@/utils/achievementRecommendation";
 import { applyAchievementWorkbenchEnrichment } from "@/utils/achievementWorkbench";
+import { isAchievementEligibleForSchoolAddition } from "@/utils/achievementSchoolEligibility";
 
 export default {
     name: "AchievementLeapAddDialog",
@@ -33,6 +34,7 @@ export default {
             indexLoading: false,
             indexError: false,
             recordCache: {},
+            tagCache: {},
             detailLoading: false,
             detailError: false,
             enrichmentFailedIds: [],
@@ -95,6 +97,7 @@ export default {
             this.indexLoading = false;
             this.indexError = false;
             this.recordCache = {};
+            this.tagCache = {};
             this.detailLoading = false;
             this.detailError = false;
             this.enrichmentFailedIds = [];
@@ -112,19 +115,24 @@ export default {
                     metadata: this.visibleMetadata,
                     menus: this.menus,
                     completedIds: this.completedIds,
-                    schoolEligibility: this.schoolEligibility,
                 });
-                const records = await fetchAchievementWorkbenchRecordsBatched(
-                    {
-                        ids: candidates.map((item) => item.id),
-                        client: this.client,
-                        metadata: this.metadata,
-                        completedIds: this.completedIds,
-                        attributes: "ID,Name,ShortDesc,Sub,Detail,SceneID,dwMapID",
-                    },
-                    1000
-                );
+                const results = await Promise.allSettled([
+                    fetchAchievementWorkbenchRecordsBatched(
+                        {
+                            ids: candidates.map((item) => item.id),
+                            client: this.client,
+                            metadata: this.metadata,
+                            completedIds: this.completedIds,
+                            attributes: "ID,Name,ShortDesc,Sub,Detail,SceneID,dwMapID",
+                        },
+                        1000
+                    ),
+                    fetchAchievementWorkbenchTags(candidates.map((item) => item.id), { client: this.client }),
+                ]);
                 if (context !== this.contextId) return;
+                const failure = results.find((result) => result.status === "rejected");
+                if (failure) throw failure.reason;
+                const records = applyAchievementWorkbenchEnrichment(results[0].value, { tagsById: results[1].value });
                 const returnedIds = new Set(records.map((record) => record.id));
                 if (candidates.some((item) => !returnedIds.has(item.id)))
                     throw new Error("Incomplete achievement catalog");
@@ -132,10 +140,10 @@ export default {
                     metadata: this.visibleMetadata,
                     menus: this.menus,
                     completedIds: this.completedIds,
-                    schoolEligibility: this.schoolEligibility,
                     records,
-                    allowedIds: records.map((record) => record.id),
+                    allowedIds: records.filter((record) => this.canAddForSchool(record)).map((record) => record.id),
                 });
+                this.tagCache = results[1].value;
                 this.index = enrichAchievementRecommendationRecords(allowed, this.menus, this.maps);
                 this.indexReady = true;
             } catch (error) {
@@ -165,10 +173,9 @@ export default {
                     completedIds: this.completedIds,
                 }),
                 fetchAchievementWorkbenchDifficultyMetrics(missing, { client }),
-                fetchAchievementWorkbenchTags(missing, { client }),
             ]);
             if (!current()) return;
-            const [details, difficulty, tags] = results;
+            const [details, difficulty] = results;
             if (details.status === "fulfilled") {
                 const allowedIds = new Set(this.index.map((item) => item.id));
                 const records = enrichAchievementRecommendationRecords(
@@ -178,7 +185,7 @@ export default {
                 );
                 const enriched = applyAchievementWorkbenchEnrichment(records, {
                     difficultyById: difficulty.status === "fulfilled" ? difficulty.value : {},
-                    tagsById: tags.status === "fulfilled" ? tags.value : {},
+                    tagsById: this.tagCache,
                 });
                 enriched.forEach((record) => {
                     this.recordCache[record.id] = record;
@@ -188,7 +195,7 @@ export default {
                 this.detailError = true;
                 console.error("Failed to load achievement details:", details.reason);
             }
-            const failed = difficulty.status === "rejected" || tags.status === "rejected";
+            const failed = difficulty.status === "rejected";
             this.enrichmentFailedIds = [
                 ...new Set([
                     ...this.enrichmentFailedIds.filter((id) => !missing.includes(id)),
@@ -201,24 +208,34 @@ export default {
             if (this.indexError) this.loadIndex();
             else this.loadPage(this.pageIds, true);
         },
+        canAddForSchool(record) {
+            return isAchievementEligibleForSchoolAddition({
+                id: record.id,
+                record,
+                metadataItem: this.metadata[String(record.id)],
+                context: this.schoolEligibility,
+            });
+        },
         add(item) {
             const id = String(item.id);
             if (
                 this.disabled ||
+                !this.indexReady || this.indexLoading || this.indexError ||
                 this.selectedIds.map(String).includes(id) ||
                 !this.index.some((record) => record.id === id)
             )
                 return;
+            const [enriched] = applyAchievementWorkbenchEnrichment([item], { tagsById: this.tagCache });
+            if (!this.canAddForSchool(enriched)) return;
             const [candidate] = buildAchievementLeapCandidates({
                 metadata: this.visibleMetadata,
                 menus: this.menus,
                 completedIds: this.completedIds,
-                schoolEligibility: this.schoolEligibility,
-                records: [item],
+                records: [enriched],
                 allowedIds: [id],
             });
             // The editor's route summaries also require normalized cost and duration fields.
-            if (candidate) this.$emit("add", { ...item, ...candidate });
+            if (candidate) this.$emit("add", { ...enriched, ...candidate });
         },
     },
 };

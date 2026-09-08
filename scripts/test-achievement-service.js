@@ -463,6 +463,8 @@ const service = loadModule(
         type: "school",
         category: "门派",
         value: "苍云",
+        ruleType: "normal",
+        ruleValue: null,
     });
     assert.ok(!Object.prototype.hasOwnProperty.call(tagDetail, "tag_remark"), "公开标签不能暴露管理备注");
 

@@ -50,6 +50,8 @@
 | `costEffectiveness`  | `number \| null`                    | CMS `dimensions.cost_effectiveness / 10`            | 当前   |
 | `completionStatistics` | `{ completedRoleCount, totalRoleCount, rate }` | CMS 已同步角色样本完成统计                | 当前   |
 | `tags`               | `AchievementTag[]`                   | CMS 成就标签                                        | 当前   |
+| `tags[].ruleType`     | `string \| null` | 公共标签 `tag_type`；与按文案推导的展示 `type` 分开 | 当前 |
+| `tags[].ruleValue`    | `object \| null` | 公共标签 `tag_value`，门派规则为 `{ operator, values }` | 当前 |
 | `tagGroups`          | `{ schools, festivals, activities, camps, unknown }` | 由标签前缀分组                         | 推导   |
 | `restriction.school` | `string \| null`                    | `schoolLimit / school / cls`                        | 待接口 |
 | `guideNote`          | `string \| null`                    | `guideNote / routeNote / note`                      | 待接口 |
@@ -138,6 +140,8 @@
 -   旧自选纯函数可再叠加所选一级分类、地图与难度上限；现行页面不提供独立的旧自选生成入口。
 
 “增加成就”、方案详情和咨询方案统一排除隐藏 ID，分页详情不启用隐藏详情补取；选入时再次使用可见目录校验。
+
+推荐页与方案编辑的“增加成就”共用 `AchievementLeapAddDialog`，完整候选索引必须先取得公共标签。门派资格使用 `ruleType=mount` 的 `ruleValue.operator/values`：`include` 允许列表中的门派，`exclude` 排除列表中的门派，多个规则同时满足；值为门派 ID，`0` 是江湖。接口规则优先于旧目录限制，无 mount 规则才使用原本地回退。`type=school`、`tagGroups.schools` 仅作展示，不可从标签文案猜规则；`learnable_school` 不作为门派排除。角色未知或 mount 规则无效时不放行该成就。标签读取失败阻止生成可选索引并提供重试；角色/客户端切换使旧请求与缓存失效。分页复用索引标签，难度读取失败仍可继续添加，选入时再次校验缓存规则。此规则仅用于手动新增，不改变完成进度折算或二次过滤服务端推荐。
 
 分类按显示名称合并、按成就 ID 去重，避免同名目录重复展示；分类数量使用上述口径下的未完成数量，数量为 `0` 的分类不返回。现有方案的原始 `schema` 仍由接口保留，方案列表、详情、进度计算及咨询方案均只读取常规可见项；读取历史方案保留零资历常规项，进入本地编辑与搜索添加时再应用本地候选条件。推荐工作区的直接创建使用后端结果与入选清单，不调用这些旧候选过滤器。
 

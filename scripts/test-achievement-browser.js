@@ -26,6 +26,8 @@ function load(file, dependencies = {}) {
 }
 const browse = load("src/utils/achievementBrowse.js");
 const leap = load("src/utils/achievementLeap.js");
+const { normalizeAchievementWorkbenchTags } = load("src/utils/achievementWorkbench.js");
+const { buildAchievementSchoolEligibilityContext } = load("src/utils/achievementSchoolEligibility.js");
 const metadata = Object.fromEntries(
     Array.from({ length: 80 }, (_, index) => [String(index + 1), { point: 10, general: 1, visible: true }])
 );
@@ -167,13 +169,81 @@ async function main() {
         picker.records.map((record) => record.id),
         ["1", "5"]
     );
-    tags = async () => {
-        throw new Error("tags offline");
+    difficulty = async () => {
+        throw new Error("difficulty offline");
     };
     await picker.loadPage(["6"]);
     assert.strictEqual(picker.detailError, false);
     assert.strictEqual(picker.enrichmentError, true, "optional enrichment failure does not block loaded records");
     assert.strictEqual(picker.records[0].id, "6");
+    difficulty = async () => ({});
+    const schoolTags = {
+        5: normalizeAchievementWorkbenchTags([{ tag_label: "名称不用于判定", tag_type: "mount", tag_value: { operator: "include", values: [2] } }]),
+        6: normalizeAchievementWorkbenchTags([{ tag_label: "多门派", tag_type: "mount", tag_value: { operator: "include", values: [1, 2] } }]),
+        7: normalizeAchievementWorkbenchTags([{ tag_label: "排除天策", tag_type: "mount", tag_value: { operator: "exclude", values: [1] } }]),
+        8: normalizeAchievementWorkbenchTags([{ tag_label: "排除万花", tag_type: "mount", tag_value: { operator: "exclude", values: [2] } }]),
+        9: normalizeAchievementWorkbenchTags([{ tag_label: "门派：万花", tag_type: "normal", tag_value: null }]),
+        10: normalizeAchievementWorkbenchTags([{ tag_label: "无相楼", tag_type: "learnable_school", tag_value: { key: "wuxianglou" } }]),
+        11: normalizeAchievementWorkbenchTags([{ tag_label: "无效门派规则", tag_type: "mount", tag_value: null }]),
+        12: normalizeAchievementWorkbenchTags([{ tag_label: "江湖角色", tag_type: "mount", tag_value: { operator: "include", values: [0] } }]),
+        15: normalizeAchievementWorkbenchTags([{ tag_label: "接口允许天策", tag_type: "mount", tag_value: { operator: "include", values: [1] } }]),
+    };
+    tags = async () => schoolTags;
+    const schoolPicker = vm(dialog, {
+        modelValue: false, metadata, menus, completedIds: ["2"], maps: [], client: "std",
+        selectedIds: [], disabled: false,
+        schoolEligibility: buildAchievementSchoolEligibilityContext({ roleSchool: "天策" }),
+    });
+    schoolPicker.schoolEligibility.restrictionById.set("14", { schools: ["万花"], source: "legacy" });
+    schoolPicker.schoolEligibility.restrictionById.set("15", { schools: ["万花"], source: "legacy" });
+    await schoolPicker.loadIndex();
+    assert.ok(!schoolPicker.index.some((item) => ["5", "7", "11", "12"].includes(item.id)),
+        "API mount include/exclude values filter the whole catalog before pagination");
+    assert.ok(["6", "8", "9", "10"].every((id) => schoolPicker.index.some((item) => item.id === id)),
+        "own-school, multi-school, unrestricted and learnable-school records remain available");
+    assert.ok(!schoolPicker.index.some((item) => item.id === "14"), "missing mount rules retain existing explicit restrictions");
+    assert.ok(schoolPicker.index.some((item) => item.id === "15"), "API rules take precedence over legacy directory restrictions");
+    schoolPicker.add(records[4]);
+    assert.strictEqual(schoolPicker.emitted.length, 0, "restricted IDs cannot bypass addition validation");
+    schoolPicker.add(records[5]);
+    assert.strictEqual(schoolPicker.emitted.at(-1)[1].id, "6");
+    assert.strictEqual(schoolPicker.emitted.at(-1)[1].tags[0].ruleType, "mount");
+    schoolPicker.tagCache = { ...schoolPicker.tagCache, 6: schoolTags[5] };
+    schoolPicker.add(records[5]);
+    assert.strictEqual(schoolPicker.emitted.length, 1, "addition rechecks rules even if an ID remains in the index");
+    tags = async () => { throw new Error("school rules offline"); };
+    schoolPicker.resetContext();
+    await schoolPicker.loadIndex();
+    assert.strictEqual(schoolPicker.indexError, true, "missing school rules must not become unrestricted candidates");
+    assert.deepStrictEqual(schoolPicker.index, []);
+    tags = async () => schoolTags;
+    schoolPicker.schoolEligibility = buildAchievementSchoolEligibilityContext({ roleSchool: "万花" });
+    schoolPicker.resetContext();
+    await schoolPicker.loadIndex();
+    assert.ok(schoolPicker.index.some((item) => item.id === "5"), "changing role reloads school eligibility");
+    assert.ok(!schoolPicker.index.some((item) => item.id === "8"));
+    schoolPicker.schoolEligibility = buildAchievementSchoolEligibilityContext({ roleSchool: 0 });
+    schoolPicker.resetContext();
+    await schoolPicker.loadIndex();
+    assert.ok(schoolPicker.index.some((item) => item.id === "12"), "school ID 0 is a real role school, not missing data");
+    schoolPicker.schoolEligibility = null;
+    schoolPicker.resetContext();
+    await schoolPicker.loadIndex();
+    assert.ok(!schoolPicker.index.some((item) => item.id === "6"), "unknown role school cannot pass a mount rule");
+    assert.ok(schoolPicker.index.some((item) => item.id === "9"), "unknown role still sees unrestricted records");
+    let resolveOldTags;
+    tags = () => new Promise((resolve) => { resolveOldTags = resolve; });
+    schoolPicker.resetContext();
+    const oldSchoolIndex = schoolPicker.loadIndex();
+    schoolPicker.schoolEligibility = buildAchievementSchoolEligibilityContext({ roleSchool: "天策" });
+    schoolPicker.resetContext();
+    tags = async () => schoolTags;
+    await schoolPicker.loadIndex();
+    const currentSchoolIds = schoolPicker.index.map((item) => item.id);
+    resolveOldTags({});
+    await oldSchoolIndex;
+    assert.deepStrictEqual(schoolPicker.index.map((item) => item.id), currentSchoolIds,
+        "old school tag requests cannot overwrite a new role's filtered catalog");
     tags = async () => ({});
     let resolveOld;
     fetchRecords = () =>

@@ -363,6 +363,8 @@ export function normalizeAchievementWorkbenchTags(rawTags = []) {
                 type,
                 category,
                 value,
+                ruleType: normalizeString(tag.ruleType ?? tag.tag_type),
+                ruleValue: tag.ruleValue ?? tag.tag_value ?? null,
             };
         })
         .filter(Boolean);

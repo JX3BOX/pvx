@@ -319,6 +319,8 @@ assert.deepStrictEqual(tagBundle.tags[0], {
     type: "school",
     category: "门派",
     value: "衍天",
+    ruleType: null,
+    ruleValue: null,
 });
 assert.strictEqual(tagBundle.tags[1].type, "festival");
 assert.strictEqual(tagBundle.tags[1].description, "清明活动");
