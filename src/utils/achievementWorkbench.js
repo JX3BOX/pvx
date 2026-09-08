@@ -406,6 +406,8 @@ export function normalizeAchievementWorkbenchRecord(raw = {}, context = {}) {
         },
         map: {
             id: normalizeString(pickFirst(raw, ["mapId", "MapID", "SceneID"]) || raw.dwMapID),
+            sceneId: normalizeString(raw.SceneID),
+            worldMapId: normalizeString(raw.dwMapID),
             name: normalizeString(pickFirst(raw, ["mapName", "MapName", "map"])),
         },
         points: normalizeNumber(

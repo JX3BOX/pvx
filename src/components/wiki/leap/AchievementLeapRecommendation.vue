@@ -8,7 +8,7 @@ import AchievementRecommendationCandidatesDialog from "./AchievementRecommendati
 import AchievementRecommendationActionDialog from "./AchievementRecommendationActionDialog.vue";
 import AchievementLeapAddDialog from "./AchievementLeapAddDialog.vue";
 import {
-    flattenAchievementRecommendation, hydrateAchievementRecommendation, arrangeAchievementRecommendationGroups,
+    flattenAchievementRecommendation, hydrateAchievementRecommendation, arrangeAchievementRecommendationItems,
     resolveAchievementRecommendationSelection,
     filterAchievementRecommendationItems, enrichAchievementRecommendationRecords, achievementRecommendationFilterOptions,
     moveAchievementRecommendationItem, achievementRecommendationPlace,
@@ -41,7 +41,7 @@ export default {
     },
     emits: ["selection-change", "refresh"],
     data() {
-        return { tab: "recommended", candidatesVisible: false, addVisible: false, selectedDraftIds: null, autoFillExcludedIds: [], pendingAction: null, groups: [], recordCache: {}, filters: emptyFilters(),
+        return { tab: "recommended", candidatesVisible: false, addVisible: false, selectedDraftIds: null, presentationOrderIds: null, autoFillExcludedIds: [], pendingAction: null, groups: [], recordCache: {}, filters: emptyFilters(),
             detailStates: {}, difficultyCache: {}, difficultyStates: {}, contextId: 0, requestId: 0,
             tagCache: {}, tagStates: {}, eventTagCache: {}, eventTagsLoading: false, eventTagsError: false,
             filterIndex: {}, filterIndexReady: false, filterIndexLoading: false, filterIndexError: false };
@@ -124,9 +124,20 @@ export default {
         filterOptions() {
             return achievementRecommendationFilterOptions(this.indexedItems, this.maps);
         },
-        visibleRows() { return this.rows; },
+        visibleRows() {
+            if (this.tab === "upcoming") return this.rows;
+            const visible = new Map(this.rows.map((item) => [item.id, item]));
+            // Filter after arranging the full selection, so hiding a dungeon's first row cannot move its siblings.
+            return this.selectedItems.filter((item) => visible.has(item.id)).map((item) => visible.get(item.id));
+        },
         selectedItems() {
-            return this.selectionResult.items;
+            const arranged = arrangeAchievementRecommendationItems(this.selectionResult.items,
+                { ...this.filterIndex, ...this.recordCache }, this.menus, this.originalGroupById);
+            if (this.presentationOrderIds === null) return arranged;
+            const byId = new Map(arranged.map((item) => [item.id, item]));
+            const ordered = new Set(this.presentationOrderIds);
+            return [...this.presentationOrderIds.filter((id) => byId.has(id)).map((id) => byId.get(id)),
+                ...arranged.filter((item) => !ordered.has(item.id))];
         },
         selectedIds() { return new Set(this.selectedItems.map((item) => item.id)); },
         selectedPoints() { return this.selectedItems.reduce((sum, item) => sum + item.points, 0); },
@@ -148,7 +159,9 @@ export default {
             return this.hasFilters ? "achievementRecommendation.noFilterResults" : "achievementRecommendation.empty";
         },
         selection() {
-            return { recommendation: this.recommendation, items: this.selectedItems, includedIds: [...(this.selectedDraftIds || [])], ready: !this.pointsMissing && this.tab === "recommended" };
+            // The selected membership is authoritative; display grouping must not cause saving to truncate it again.
+            return { recommendation: this.recommendation, items: this.selectedItems, includedIds: this.selectedItems.map((item) => item.id),
+                prepareForSave: this.prepareSelectionForSave, ready: !this.pointsMissing && this.tab === "recommended" };
         },
     },
     watch: {
@@ -208,8 +221,9 @@ export default {
             return `${name} · ${date ? this.$t("achievementRecommendation.opensAt", { date }) : this.$t("achievementRecommendation.eventTimeUnknown")}`;
         },
         resetDraft() {
-            this.groups = arrangeAchievementRecommendationGroups(this.recommendation?.recommendations || []);
+            this.groups = (this.recommendation?.recommendations || []).map((group) => ({ ...group, ids: [...group.ids] }));
             this.selectedDraftIds = null;
+            this.presentationOrderIds = null;
             this.autoFillExcludedIds = [];
             this.pendingAction = null;
             this.filters = emptyFilters();
@@ -247,6 +261,27 @@ export default {
         },
         rowsForScope(scope) { return scope === "candidates" ? this.matchingCandidates : this.matchingRows; },
         scopeActive(scope) { return scope === "candidates" ? this.candidatesVisible : scope === this.tab; },
+        async prepareSelectionForSave() {
+            const contextId = this.contextId;
+            const groups = this.groups;
+            const selectedDraftIds = this.selectedDraftIds;
+            const targetPoints = this.targetPoints;
+            const isCurrent = () => contextId === this.contextId && groups === this.groups &&
+                selectedDraftIds === this.selectedDraftIds && targetPoints === this.targetPoints && this.tab === "recommended";
+            // An immediate save still needs the full map/category order. Fetch only missing selected metadata,
+            // independent of slow or failed detail/difficulty requests and without loading the candidate pool.
+            const missing = this.selectionResult.items.filter((item) => !this.recordCache[item.id] && !this.filterIndex[item.id]);
+            for (let start = 0; start < missing.length; start += 1000) {
+                const batch = missing.slice(start, start + 1000);
+                const records = await fetchAchievementWorkbenchRecordsBatched({ ids: batch.map((item) => item.id), client: "std", includeHidden: true,
+                    attributes: "ID,Sub,Detail,SceneID,dwMapID" }, 1000);
+                if (!isCurrent()) return null;
+                hydrateAchievementRecommendation(batch, records);
+                this.filterIndex = { ...Object.fromEntries(enrichAchievementRecommendationRecords(records, this.menus, this.maps)
+                    .map((record) => [record.id, record])), ...this.filterIndex };
+            }
+            return isCurrent() ? this.selection : null;
+        },
         requestManualAdd(item) {
             const id = String(item.id);
             if (this.disabled || this.pointsMissing || !this.addVisible || this.tab !== "recommended" ||
@@ -345,8 +380,15 @@ export default {
         },
         moveItem({ id, group, beforeId }) {
             if (this.disabled || this.tab !== "recommended") return;
-            this.selectedDraftIds = this.selectedItems.map((item) => item.id);
+            const selected = this.selectedItems.map((item) => item.id);
+            if (!selected.includes(id)) return;
+            const ordered = selected.filter((value) => value !== id);
+            const index = beforeId === null ? ordered.length : ordered.indexOf(beforeId);
+            if (index < 0) return;
+            ordered.splice(index, 0, id);
+            this.selectedDraftIds = selected;
             this.groups = moveAchievementRecommendationItem(this.groups, id, group, beforeId);
+            this.presentationOrderIds = ordered;
         },
         removeItem(item) {
             if (this.disabled || this.tab !== "recommended") return;

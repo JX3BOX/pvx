@@ -242,12 +242,131 @@ for (const key of ["candidateHint", "refreshHint", "restoreDraftHint"]) {
     assert.ok(recommendationTemplate.includes(`achievementRecommendation.${key}`), `show clear ${key}`);
 }
 function panelVm(props = {}) {
-    const vm = { ...panel.data(), recommendation: result, metadata, menus, maps, completedIds: [], targetPoints: 50030,
+    const vm = { ...panel.data(), recommendation: result, metadata, menus: { 11: { ...menus[11], name: "任务" } }, maps, completedIds: [], targetPoints: 50030,
         disabled: false, messages: [], $message: { success(message) { vm.messages.push(message); } }, $refs: {}, $nextTick: (callback) => callback(), $i18n: { locale: "zh-CN" }, $t: (key) => key, ...props };
     Object.entries(panel.methods).forEach(([name, method]) => { vm[name] = method.bind(vm); });
     Object.entries(panel.computed).forEach(([name, getter]) => Object.defineProperty(vm, name, { get: () => getter.call(vm) }));
     vm.resetDraft();
     return vm;
+}
+function testDungeonRecommendationPresentation() {
+    const recommendation = { ...result, recommendations: [
+        { group: "bucket:0:scene:100", ids: [1] },
+        { group: "bucket:0:map:200", ids: [2] },
+        { group: "bucket:1:scene:100", ids: [3] },
+        { group: "bucket:1:scene:300", ids: [4] },
+        { group: "bucket:2:map:200", ids: [5] },
+        { group: "bucket:2:scene:100", ids: [6] },
+    ] };
+    const vm = panelVm({ recommendation, targetPoints: 50020,
+        metadata: Object.fromEntries([1, 2, 3, 4, 5, 6].map((id) => [id, { point: id === 3 ? 60 : 10 }])),
+        menus: { 17: { sub: 17, name: "秘境" }, 11: { sub: 11, name: "任务" } } });
+    const ids = () => vm.selectedItems.map((item) => item.id);
+    assert.deepStrictEqual(ids(), ["1", "2"], "map grouping must not replace an earlier recommendation with a later dungeon achievement");
+    vm.targetPoints = 50050;
+    vm.recordCache = Object.fromEntries([1, 2, 3, 4, 5, 6].map((id) => [id, {
+        id: String(id), name: `Achievement ${id}`, category: { id: [1, 3, 4].includes(id) ? "17" : "11" },
+        map: { id: [1, 3, 6].includes(id) ? "100" : id === 4 ? "300" : "200", name: id === 4 ? "另一副本" : "地图" },
+    }]));
+    assert.deepStrictEqual(ids(), ["1", "3", "2"], "same-map selected dungeons gather at the first dungeon's original position");
+    assert.deepStrictEqual(vm.visibleRows.map((item) => item.id), ["1", "3", "2"]);
+    assert.strictEqual(vm.selectedPoints, 80);
+    const saved = utils.selectAchievementRecommendationItems(vm.selection.items, 50000, 50050, vm.selection.includedIds);
+    assert.deepStrictEqual(saved.map((item) => item.id), ["1", "3", "2"], "saving a regrouped selection cannot truncate the last non-dungeon achievement");
+    vm.targetPoints = 50110;
+    assert.deepStrictEqual(ids(), ["1", "3", "2", "4", "5", "6"], "different dungeon maps stay at their encounter positions among non-dungeon achievements");
+    vm.filterIndex = Object.fromEntries(Object.values(vm.recordCache).map((record) => [record.id,
+        { ...record, name: ["2", "3"].includes(record.id) ? "matched" : "hidden", mapIds: [] }]));
+    vm.filterIndexReady = true;
+    vm.filters = { ...noFilters, keyword: "matched" };
+    assert.deepStrictEqual(vm.visibleRows.map((item) => item.id), ["3", "2"],
+        "filtering out the first dungeon achievement does not move its grouped sibling behind an intervening quest");
+    assert.deepStrictEqual(ids(), ["1", "3", "2", "4", "5", "6"], "search changes neither the selection nor its saved order");
+    vm.filters = { ...noFilters };
+    vm.moveItem({ id: "3", group: "bucket:0:scene:100", beforeId: "1" });
+    assert.deepStrictEqual(ids(), ["3", "1", "2", "4", "5", "6"], "dragging changes the displayed and saved order without changing membership");
+    vm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "1" });
+    assert.deepStrictEqual(ids(), ["3", "5", "1", "2", "4", "6"], "an explicit drag can cross dungeon boundaries without automatic grouping undoing it");
+    vm.restoreDraft();
+    vm.targetPoints = 50080;
+    vm.removeSelectedItems(["1"]);
+    assert.deepStrictEqual(ids(), ["2", "3", "4"], "removal refills in server order and does not move a later dungeon ahead of earlier non-dungeons");
+    vm.restoreDraft();
+    vm.targetPoints = 50050;
+    assert.deepStrictEqual(ids(), ["1", "3", "2"], "undo restores server selection with dungeon presentation");
+
+    const mapOrderVm = panelVm({ menus: vm.menus, recommendation: { ...result, recommendations: [
+        { group: "bucket:0:scene:100", ids: [1] }, { group: "bucket:0:scene:300", ids: [4] },
+        { group: "bucket:1:scene:100", ids: [3] },
+    ] }, metadata: { 1: { point: 10 }, 3: { point: 10 }, 4: { point: 10 } } });
+    mapOrderVm.recordCache = vm.recordCache;
+    mapOrderVm.moveItem({ id: "1", group: "bucket:0:scene:300", beforeId: "4" });
+    assert.deepStrictEqual(mapOrderVm.visibleRows.map((item) => item.id), ["3", "1", "4"],
+        "moving the earliest dungeon row cannot move its entire map behind a different map");
+
+    const rawRecords = [
+        { ID: 21, Sub: 17, Detail: 171, SceneID: 100, MapName: "普通副本" },
+        { ID: 22, Sub: 17, Detail: 172, SceneID: 100, MapName: "英雄副本" },
+        { ID: 23, Sub: 17, Detail: 171, SceneID: 0, dwMapID: 100, MapName: "地图" },
+        { ID: 24, Sub: 17, Detail: 171, SceneID: 100, MapName: "普通副本" },
+        { ID: 25, Sub: 11, SceneID: 100, MapName: "普通副本" },
+    ];
+    const normalized = utils.enrichAchievementRecommendationRecords(workbench.normalizeAchievementWorkbenchRecords(rawRecords), vm.menus, []);
+    const grouped = utils.arrangeAchievementRecommendationItems(normalized, {}, vm.menus,
+        { 21: "bucket:0:scene:100", 22: "bucket:1:scene:100", 23: "manual:23", 24: "manual:24" });
+    assert.deepStrictEqual(grouped.map((item) => item.id), ["21", "22", "24", "23", "25"],
+        "same-map dungeons gather across child categories, while scene/world map namespaces and non-dungeons stay separate");
+    const withLeadingQuest = [normalized[4], normalized[0], normalized[2], normalized[3], normalized[1]];
+    assert.deepStrictEqual(utils.arrangeAchievementRecommendationItems(withLeadingQuest, {}, vm.menus, {}).map((item) => item.id),
+        ["25", "21", "24", "22", "23"], "a leading quest is never pushed behind all dungeon achievements");
+    const manualVm = panelVm({ menus: vm.menus, recommendation: { ...result, recommendations: [] },
+        metadata: { 21: { general: 1, point: 10 }, 23: { general: 1, point: 10 }, 24: { general: 1, point: 10 } } });
+    manualVm.addVisible = true;
+    ["21", "23", "24"].forEach((id) => {
+        manualVm.requestManualAdd(normalized.find((item) => item.id === id));
+        manualVm.confirmAction();
+    });
+    assert.deepStrictEqual(manualVm.visibleRows.map((item) => item.id), ["21", "24", "23"]);
+    manualVm.moveItem({ id: "21", group: "manual:23", beforeId: "23" });
+    assert.deepStrictEqual(manualVm.visibleRows.map((item) => item.id), ["24", "21", "23"],
+        "manual dungeon map order survives dragging its first added achievement to the end");
+    manualVm.restoreDraft();
+    assert.strictEqual(manualVm.presentationOrderIds, null, "undo clears explicit display ordering together with manual achievements");
+}
+testDungeonRecommendationPresentation();
+async function testPrepareDungeonSelection() {
+    const vm = panelVm({ menus, targetPoints: 50010 });
+    const requests = [];
+    const previousLoader = detailLoader;
+    detailLoader = async (request) => { requests.push(request); return records.filter((record) => request.ids.includes(record.id)); };
+    assert.strictEqual(typeof vm.selection.prepareForSave, "function", "saving can finish classification without waiting for full details");
+    const prepared = await vm.selection.prepareForSave();
+    assert.deepStrictEqual(prepared.items.map((item) => item.id), ["9", "2"], "an immediate save keeps a leading non-dungeon ahead of the first dungeon");
+    assert.deepStrictEqual(requests[0].ids, ["9", "2"], "save preparation never loads unselected candidates");
+    assert.strictEqual(requests[0].attributes, "ID,Sub,Detail,SceneID,dwMapID");
+    assert.deepStrictEqual(vm.recordCache, {}, "the save preparation does not load or replace full details");
+    assert.deepStrictEqual(vm.selectedIds, new Set(["9", "2"]));
+    await vm.selection.prepareForSave();
+    assert.strictEqual(requests.length, 1, "known classification is reused on later saves");
+
+    const pending = deferred();
+    const staleVm = panelVm({ menus });
+    detailLoader = () => pending.promise;
+    const preparation = staleVm.selection.prepareForSave();
+    panel.watch.recommendation.handler.call(staleVm);
+    pending.resolve(records);
+    assert.strictEqual(await preparation, null, "old save preparation cannot return a selection for a new context");
+    assert.deepStrictEqual(staleVm.filterIndex, {}, "old classification cannot write into the new recommendation");
+
+    const racing = deferred();
+    const racingVm = panelVm({ menus });
+    detailLoader = () => racing.promise;
+    const racingPreparation = racingVm.selection.prepareForSave();
+    racingVm.filterIndex = Object.fromEntries(enriched.map((record) => [record.id, record]));
+    racing.resolve(records.map((record) => ({ ...record, name: "", shortDescription: "" })));
+    await racingPreparation;
+    assert.strictEqual(racingVm.filterIndex["2"].name, "扬州秘境", "late save metadata cannot erase names from a completed search index");
+    detailLoader = previousLoader;
 }
 assert.deepStrictEqual(workspace.computed.visibleDimensions.call({ dimensions: definitions }).map((d) => d.key), ["time"]);
 assert.strictEqual(workspace.methods.dimensionWeight.call({ options: utils.defaultAchievementRecommendationOptions() }, { apiKey: "constructor", recommendationWeight: 8 }), 1);
@@ -379,7 +498,7 @@ async function testWorkspaceDraftLifecycle() {
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids.map(String)), [["5", "2", "9"]],
             "unselecting preserves candidate data and manual ordering");
         assert.strictEqual(activePanel.filters.keyword, "backup query", "returning preserves shared filters");
-        assert.deepStrictEqual(activePanel.selection.items.map((item) => item.id), ["5", "2"], "saved selection uses the retained draft");
+        assert.deepStrictEqual(activePanel.selection.items.map((item) => item.id), ["5", "2"], "saved selection retains its mixed list order after returning");
         activePanel.restoreDraft();
         await vue.nextTick();
         assert.deepStrictEqual(activePanel.groups.map((group) => group.ids), [[9, 2], [5]], "explicit restore still resets the draft");
@@ -1004,6 +1123,7 @@ async function main() {
     }
     assert.ok(recommendationTemplate.includes('<el-tooltip v-if="recommendation" :content="$t(\'achievementRecommendation.restoreDraftHint\')">'),
         "undo is only shown when a recommendation exists");
+    await testPrepareDungeonSelection();
     await testRecommendationPresentation();
     await testRecommendationSummaryRendering();
     testRecommendationViewScope();
@@ -1140,6 +1260,15 @@ async function main() {
     vm.plannerForm = { title: "Plan", targetPoints: 50010 };
     await page.methods.createRecommendedPlan.call(vm, manualShortfall);
     assert.deepStrictEqual(savedPlans[2].payload.schema, ["9"], "saving an edited shortfall must not pull in candidates");
+    const preparation = deferred();
+    const readySelection = { ...selection, items: [selection.items[1], selection.items[0], selection.items[2]], includedIds: ["2", "9", "5"] };
+    vm.plannerForm = { title: "Plan", targetPoints: 50010 };
+    const preparingSave = page.methods.createRecommendedPlan.call(vm, { ...selection, prepareForSave: () => preparation.promise });
+    assert.strictEqual(vm.saving, true, "the saving state covers metadata preparation and prevents duplicate submissions");
+    assert.strictEqual(savedPlans.length, 3, "no plan is submitted until its complete presentation order is known");
+    preparation.resolve(readySelection);
+    await preparingSave;
+    assert.deepStrictEqual(savedPlans[3].payload.schema, ["2", "9", "5"], "saving uses the prepared order and retains the complete membership");
     openedPlans.splice(1);
     const pendingSave = deferred();
     let saveCalls = 0;
@@ -1279,12 +1408,12 @@ async function main() {
     const placesResult = { ...result, recommendations: [result.recommendations[0],
         { group: "bucket:3:map:100", ids: [6] }, { group: "bucket:2:scene:100", ids: [5] }] };
     const placesVm = panelVm({ recommendation: placesResult, metadata: { ...metadata, 6: { point: 10 } } });
-    assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "5", "6"],
-        "same scene stays adjacent across cost bands, while map and scene ID namespaces stay separate");
+    assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "6", "5"],
+        "the selection draft keeps server order across scene/map groups and cost bands");
     assert.deepStrictEqual(placesResult.recommendations.map((group) => group.ids), [[9, 2], [6], [5]], "arranging the draft must not mutate the response");
     detailLoader = async ({ ids }) => allRecords.filter((record) => ids.includes(record.id));
     await placesVm.loadDetails();
-    assert.deepStrictEqual(placesVm.visibleRows.map((row) => row.id), ["9", "2", "5"], "main list omits the remaining candidate");
+    assert.deepStrictEqual(placesVm.visibleRows.map((row) => row.id), ["9", "2", "6", "5"], "selection reaches the target in server order before arranging presentation");
     placesVm.moveItem({ id: "5", group: "bucket:0:scene:100", beforeId: "2" });
     assert.deepStrictEqual(placesVm.groups[0].ids.map(String), ["9", "5", "2"]);
     assert.strictEqual(placesVm.groups.length, 2, "moving the last item removes its empty source group");
@@ -1292,7 +1421,7 @@ async function main() {
     placesVm.moveItem({ id: "2", group: "bucket:0:scene:100", beforeId: "9" });
     const movedPlan = utils.buildAchievementRecommendationPlan({ items: placesVm.selection.items, recommendation: placesResult,
         title: "Moved plan", targetPoints: 50030, roleId: "42", preferences: {} });
-    assert.deepStrictEqual(movedPlan.schema, ["2", "9", "5"]);
+    assert.deepStrictEqual(movedPlan.schema, ["2", "9", "5", "6"]);
     assert.deepStrictEqual(movedPlan.meta.recommendationGroups[0].ids, ["2", "9", "5"]);
     assert.deepStrictEqual(movedPlan.meta.campRestrictedIds, ["2"]);
     const dropEvents = [];
@@ -1308,7 +1437,7 @@ async function main() {
     const filteredMove = utils.moveAchievementRecommendationItem([{ group: "target", ids: [1, 2, 3, 4] }], "4", "target", "2");
     assert.deepStrictEqual(filteredMove[0].ids, [1, 4, 2, 3], "hidden filtered rows remain in the draft around the insertion anchor");
     placesVm.restoreDraft();
-    assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "5", "6"], "restore returns to the original map-adjacent order");
+    assert.deepStrictEqual(placesVm.draftRows.map((row) => row.id), ["9", "2", "6", "5"], "restore returns to server order");
     assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: true, roleAvailable: true }), false);
     assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: false, roleAvailable: true, loading: false }), true);
     assert.strictEqual(workspace.computed.canRequest.call({ controlsDisabled: false, roleAvailable: false, loading: false }), false);

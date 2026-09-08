@@ -531,15 +531,17 @@ export default {
             const recommendationRequestId = this.recommendationRequestId;
             const isCurrent = () => this.isCurrentSaveRequest(requestId, roleRequestId, roleId, client) &&
                 recommendationRequestId === this.recommendationRequestId && recommendation === this.recommendation;
-            const items = selectAchievementRecommendationItems(selection.items, currentPoints, targetPoints, selection.includedIds);
-            if (!items.length) return;
-            const payload = buildAchievementRecommendationPlan({ items, recommendation,
-                title: this.plannerForm.title, targetPoints, roleId,
-                preferences: achievementRecommendationPreferences(this.recommendationOptions, this.categoryOptions),
-            });
             this.saving = true;
             let saved;
             try {
+                const prepared = selection.prepareForSave ? await selection.prepareForSave() : selection;
+                if (!isCurrent() || !prepared?.ready || prepared.recommendation !== recommendation) return;
+                const items = selectAchievementRecommendationItems(prepared.items, currentPoints, targetPoints, prepared.includedIds);
+                if (!items.length) return;
+                const payload = buildAchievementRecommendationPlan({ items, recommendation,
+                    title: this.plannerForm.title, targetPoints, roleId,
+                    preferences: achievementRecommendationPreferences(this.recommendationOptions, this.categoryOptions),
+                });
                 saved = await saveAchievementWorkbenchLeapPlan(payload);
             } catch (error) {
                 console.error("Failed to create recommended plan:", error);

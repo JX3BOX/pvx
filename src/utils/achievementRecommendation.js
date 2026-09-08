@@ -121,15 +121,38 @@ export function achievementRecommendationPlace(group) {
     return /^bucket:\d+:((?:scene|map):.+)$/.exec(group)?.[1] || null;
 }
 
-export function arrangeAchievementRecommendationGroups(groups) {
-    const places = new Map();
-    groups.forEach((group) => {
-        // Keep scene IDs separate from world-map IDs and preserve first-appearance order.
-        const key = achievementRecommendationPlace(group.group) || group.group;
-        if (!places.has(key)) places.set(key, []);
-        places.get(key).push({ ...group, ids: [...group.ids] });
+export function arrangeAchievementRecommendationItems(items, recordsById, menus, originalGroupById) {
+    const dungeonCategories = new Set(Object.values(menus || {})
+        .filter((menu) => ACHIEVEMENT_RECOMMENDATION_DIRECTION_CATEGORIES.dungeon.includes(menu.name))
+        .map((menu) => String(menu.sub ?? menu.id)));
+    const dungeons = new Map();
+    const blocks = [];
+    const mapIds = (value) => [...new Set(String(value || "").split("|")
+        .filter((id) => /^\d+$/.test(id) && Number(id) > 0))].sort((a, b) => Number(a) - Number(b)).join("|");
+    items.forEach((item) => {
+        const record = recordsById[item.id] || item;
+        if (!dungeonCategories.has(String(record.category?.id))) {
+            blocks.push([item]);
+            return;
+        }
+        // Classification comes from the catalog, never from the presence of a scene group.
+        // Keep the original location after dragging, including separate scene/map namespaces.
+        const sceneId = mapIds(record.map?.sceneId);
+        const worldMapId = mapIds(record.map?.worldMapId);
+        const locationId = mapIds(record.map?.id);
+        const place = achievementRecommendationPlace(originalGroupById[item.id] || item.recommendationGroup)
+            || (sceneId ? `scene:${sceneId}` : worldMapId ? `map:${worldMapId}` : "")
+            || (locationId ? `location:${locationId}` : `unknown:${item.id}`);
+        // A dungeon creates a block at its first encounter, never at the front of the whole list.
+        // Later achievements from that dungeon join it without grouping other achievements by map.
+        if (!dungeons.has(place)) {
+            const block = [];
+            dungeons.set(place, block);
+            blocks.push(block);
+        }
+        dungeons.get(place).push(item);
     });
-    return [...places.values()].flat();
+    return blocks.flat();
 }
 
 export function moveAchievementRecommendationItem(groups, id, targetGroup, beforeId = null) {
