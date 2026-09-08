@@ -2,6 +2,43 @@
 @achievement-line: rgba(68, 74, 70, 0.14);
 @achievement-shadow: rgba(70, 59, 42, 0.1);
 
+// Teleported dialogs and drawers share the workbench's readable text sizes.
+.m-achievement-workbench-shell,
+.m-achievement-compare-role-dialog,
+.c-leap-save-dialog,
+.m-recommendation-candidates-dialog,
+.m-recommendation-action-dialog,
+.m-plan-consultation-dialog,
+.m-plan-consultation-detail-dialog,
+.m-leap-plan-list-drawer {
+    --el-font-size-base: 14px;
+    --el-font-size-small: 13px;
+    --el-font-size-extra-small: 13px;
+    font-size: 14px;
+    line-height: 1.6;
+
+    small {
+        font-size: 13px;
+    }
+
+    .el-tag {
+        --el-tag-font-size: 13px;
+        height: auto;
+        min-height: 24px;
+        line-height: 1.5;
+    }
+
+    .el-input__count,
+    .el-form-item__error {
+        font-size: 13px;
+    }
+
+    .el-pagination {
+        --el-pagination-font-size: 14px;
+        --el-pagination-font-size-small: 14px;
+    }
+}
+
 .p-achievement-workbench {
     min-width: 0;
     color: #283236;

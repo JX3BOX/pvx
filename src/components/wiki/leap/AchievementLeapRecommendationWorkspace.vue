@@ -245,7 +245,7 @@ export default {
     h3 { margin: 0; font-size: 15px; line-height: 1.5; }
     .el-input-number, .el-select { width: 100%; }
     .el-form-item { min-width: 0; margin: 0; }
-    .el-form-item__label { font-size: 12px; color: #697374; }
+    .el-form-item__label { font-size: 14px; color: #697374; }
 }
 .m-recommendation-page-heading {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
@@ -259,7 +259,7 @@ export default {
 .m-recommendation-preview { background: #fff; }
 .m-recommendation-settings__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .m-recommendation-base-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 16px 0; }
-.m-recommendation-preference-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 24px; }
+.m-recommendation-preference-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0 24px; }
 .m-recommendation-settings-toggle { display: none; }
 .m-recommendation-actions {
     position: sticky; bottom: 0; z-index: 6;
@@ -274,7 +274,7 @@ export default {
         flex-direction: column;
         gap: 8px;
         padding: 12px 0;
-        font-size: 12px;
+        font-size: 14px;
         > span { color: #314043; overflow-wrap: anywhere; }
     }
     .m-recommendation-dimension-options {
@@ -298,7 +298,7 @@ export default {
             border-radius: 6px;
             box-shadow: none;
             outline: none;
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.5;
             white-space: normal;
             overflow-wrap: anywhere;

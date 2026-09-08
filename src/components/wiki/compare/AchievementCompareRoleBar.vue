@@ -190,7 +190,7 @@ export default {
     span {
         overflow: hidden;
         color: #98a09d;
-        font-size: 11px;
+        font-size: 13px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -216,7 +216,7 @@ export default {
     color: #47777d;
     background: rgba(255, 255, 252, 0.72);
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
 
     svg {
@@ -293,7 +293,7 @@ export default {
         overflow: hidden;
         margin: 1px 0 4px;
         color: #9a9f9c;
-        font-size: 10px;
+        font-size: 13px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -308,7 +308,7 @@ export default {
     strong {
         overflow: hidden;
         color: #354044;
-        font-size: 13px;
+        font-size: 14px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -319,7 +319,7 @@ export default {
         border-radius: 999px;
         color: #47777d;
         background: rgba(71, 119, 125, 0.11);
-        font-size: 9px;
+        font-size: 13px;
 
         &.is-current-role {
             color: #fff;
@@ -331,15 +331,16 @@ export default {
 .m-compare-role-card__stats {
     display: flex;
     align-items: baseline;
+    flex-wrap: wrap;
     gap: 5px;
     color: #7f8885;
-    font-size: 10px;
+    font-size: 13px;
     font-variant-numeric: tabular-nums;
 
     b {
         margin-left: auto;
         color: #ad8b42;
-        font-size: 10px;
+        font-size: 13px;
     }
 }
 

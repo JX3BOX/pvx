@@ -96,7 +96,6 @@ export default {
         <div class="m-progress-categories__header">
             <div>
                 <h2>{{ $t("pages.wiki.overview.ui.statistics.categoryProgress") }}</h2>
-                <span>{{ $t("pages.wiki.overview.ui.workbench.categoryProgressHint") }}</span>
             </div>
             <el-select
                 :model-value="sort"
@@ -249,13 +248,6 @@ export default {
         color: #384246;
         font-size: 16px;
     }
-
-    span {
-        display: block;
-        margin-top: 4px;
-        color: #a0a7a4;
-        font-size: 11px;
-    }
 }
 
 .u-progress-category-sort {
@@ -267,7 +259,7 @@ export default {
     grid-template-columns: minmax(0, 1fr);
 
     &.has-subcategories {
-        grid-template-columns: minmax(150px, 0.76fr) minmax(0, 1.24fr);
+        grid-template-columns: minmax(200px, 0.76fr) minmax(0, 1.24fr);
     }
 }
 
@@ -403,20 +395,19 @@ export default {
     gap: 8px;
 
     strong {
-        overflow: hidden;
-        font-size: 13px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 14px;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     span {
         color: #9aa29f;
-        font-size: 10px;
+        font-size: 13px;
     }
 
     b {
         color: #b58c3d;
-        font-size: 11px;
+        font-size: 13px;
     }
 }
 
@@ -440,7 +431,7 @@ export default {
     display: block;
     margin-top: 5px;
     color: #9aa29f;
-    font-size: 10px;
+    font-size: 13px;
 }
 
 .m-progress-categories.is-compact-overview {
@@ -529,14 +520,9 @@ export default {
             display: none;
         }
 
-        strong {
-            font-size: 11px;
-        }
-
         b {
             grid-column: 2;
             grid-row: 1;
-            font-size: 10px;
         }
     }
 
@@ -581,15 +567,14 @@ export default {
     }
 
     strong {
-        overflow: hidden;
-        font-size: 13px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 14px;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     small {
         color: #99a19f;
-        font-size: 10px;
+        font-size: 13px;
     }
 }
 
@@ -698,20 +683,19 @@ export default {
     gap: 7px;
 
     strong {
-        overflow: hidden;
-        font-size: 11px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 14px;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     span {
         color: #9aa29f;
-        font-size: 9px;
+        font-size: 13px;
     }
 
     b {
         color: #b58c3d;
-        font-size: 10px;
+        font-size: 13px;
     }
 }
 
@@ -720,7 +704,7 @@ export default {
     margin-top: 6px;
 }
 
-@container (max-width: 380px) {
+@container (max-width: 520px) {
     .m-progress-category-browser.has-subcategories {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -767,7 +751,7 @@ export default {
         }
 
         .m-progress-category-card__line strong {
-            font-size: 13px;
+            font-size: 14px;
         }
     }
 
@@ -873,12 +857,12 @@ export default {
 
     .m-progress-subcategory-card__line {
         strong {
-            font-size: 13px;
+            font-size: 14px;
         }
 
         span,
         b {
-            font-size: 11px;
+            font-size: 13px;
         }
     }
 }

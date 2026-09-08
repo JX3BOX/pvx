@@ -458,7 +458,7 @@ export default {
 
     span {
         color: #a0a7a4;
-        font-size: 11px;
+        font-size: 13px;
     }
 }
 
@@ -547,7 +547,7 @@ export default {
 
 .u-progress-points {
     color: #b65a50;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -559,7 +559,7 @@ export default {
     justify-content: center;
     padding: 2px 8px;
     border-radius: 999px;
-    font-size: 10px;
+    font-size: 13px;
 }
 
 .u-progress-tier {
@@ -597,7 +597,7 @@ export default {
     margin: 6px 0;
     overflow: hidden;
     color: #7f8887;
-    font-size: 12px;
+    font-size: 14px;
     white-space: pre-line;
     overflow-wrap: anywhere;
 }
@@ -609,7 +609,7 @@ export default {
     flex-wrap: wrap;
     gap: 8px 14px;
     color: #9aa29f;
-    font-size: 10px;
+    font-size: 13px;
 
     span {
         display: inline-flex;
@@ -724,7 +724,7 @@ export default {
     p {
         max-width: 420px;
         margin: 7px 0 0;
-        font-size: 12px;
+        font-size: 14px;
         line-height: 1.6;
     }
 
@@ -807,7 +807,7 @@ export default {
     .m-progress-achievement-card__meta {
         grid-column: 1 / -1;
         gap: 8px;
-        font-size: 12px;
+        font-size: 13px;
 
         > span {
             min-width: 0;
@@ -886,7 +886,7 @@ export default {
         .u-achievement-pagination-status {
             min-width: 72px;
             color: #687274;
-            font-size: 13px;
+            font-size: 14px;
             font-variant-numeric: tabular-nums;
             text-align: center;
         }

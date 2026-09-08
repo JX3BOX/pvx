@@ -245,7 +245,7 @@ export default {
     color: #47777d;
     background: rgba(255, 255, 252, 0.78);
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
     cursor: pointer;
 

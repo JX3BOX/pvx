@@ -154,18 +154,18 @@ export default {
 .m-recommendation-item-footer,
 .m-recommendation-item-actions { display: contents; }
 .m-server-recommendation__item { min-height: 76px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 6px 10px;
-    border-bottom: 1px solid #edf0ee; font-size: 13px;
+    border-bottom: 1px solid #edf0ee; font-size: 14px;
     &.is-selected { background: #f3f8f6; }
     :deep(.el-button) { padding: 6px; width: 28px; margin: 0; flex: none; }
 }
-.m-server-recommendation__item :deep(.m-recommendation-add-candidate) { width: auto; min-width: 56px; height: 28px; min-height: 28px; padding: 4px 12px; font-size: 12px; font-weight: 400; border-radius: 6px;
+.m-server-recommendation__item :deep(.m-recommendation-add-candidate) { width: auto; min-width: 56px; height: auto; min-height: 32px; padding: 4px 12px; font-size: 14px; font-weight: 400; border-radius: 6px;
     > span { white-space: normal; line-height: 1.4; }
 }
 .m-recommendation-item-handle { display: flex; flex: none; padding: 4px; color: #87918a; cursor: grab; touch-action: none;
     svg { width: 16px; height: 16px; }
 }
 .m-recommendation-item-dimensions { width: 280px; max-width: 38%; flex: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px;
-    .m-recommendation-dimension-badge { display: inline-flex; align-items: stretch; max-width: 100%; min-width: 0; font-size: 11px; line-height: 18px; border-radius: 3px; overflow: hidden;
+    .m-recommendation-dimension-badge { display: inline-flex; align-items: stretch; max-width: 100%; min-width: 0; font-size: 13px; line-height: 18px; border-radius: 3px; overflow: hidden;
         > small { flex: none; padding: 1px 5px; background: #e8eceb; color: #697374; font-size: inherit; }
         > :last-child { min-width: 0; padding: 1px 5px; background: #eaf3f1; color: #47777d; }
     }
@@ -174,21 +174,22 @@ export default {
     a { display: flex; align-items: center; gap: 7px; color: #365f64; text-decoration: none; height: 28px; }
     img { width: 24px; height: 24px; flex: none; border-radius: 4px; }
     a > span, > small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    small { color: #7a8586; font-size: 11px; }
+    small { color: #7a8586; font-size: 13px; }
 }
 .m-recommendation-item-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.m-recommendation-item-description { margin: 4px 0; color: #7a8586; font-size: 12px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.m-recommendation-item-description { margin: 4px 0; color: #7a8586; font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
 .u-recommendation-achievement-tag { box-sizing: border-box; max-width: 100%; min-height: 20px; padding: 1px 7px;
     border: 1px solid rgba(64, 158, 255, 0.52); border-radius: 4px; color: #409eff; background: #ecf5ff;
-    font-size: 11px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; word-break: break-word;
+    font-size: 13px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; word-break: break-word;
 }
-.u-recommendation-order { width: 30px; flex: none; color: #87918a; font-size: 11px; }
+.u-recommendation-order { width: 30px; flex: none; color: #87918a; font-size: 13px; }
 .m-server-recommendation__item-status { flex: none; width: 40px; text-align: center; font-variant-numeric: tabular-nums;
-    strong { font-weight: 500; } small { display: block; font-size: 10px; color: #47777d; }
+    strong { font-weight: 500; } small { display: block; font-size: 13px; color: #47777d; }
 }
 .u-recommendation-warning { color: #ae3b40 !important; }
 .u-recommendation-completion {
-    display: inline-flex; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 500;
+    display: inline-flex; padding: 4px 8px; border-radius: 999px; font-size: 13px; font-weight: 500;
+    max-width: 100%; box-sizing: border-box; white-space: normal; overflow-wrap: anywhere;
     color: #a3543f; background: #f8e8e3;
     &.is-completed { color: #356b5c; background: #e5f0ea; }
 }
@@ -230,7 +231,7 @@ export default {
         .m-recommendation-items-header {
             background: #f0ece3;
             color: #405659;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 700;
         }
 
@@ -261,7 +262,7 @@ export default {
         .m-recommendation-dimension-badge {
             display: flex;
             overflow: visible;
-            font-size: 12px;
+            font-size: 14px;
 
             > small { display: none; }
             > :last-child { padding: 0; background: transparent; }

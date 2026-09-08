@@ -1,10 +1,10 @@
 <script>
-import { Search, Loading } from "@element-plus/icons-vue";
+import { Search } from "@element-plus/icons-vue";
 import AchievementRecommendationItems from "./AchievementRecommendationItems.vue";
 
 export default {
     name: "AchievementRecommendationCandidatesDialog",
-    components: { Search, Loading, AchievementRecommendationItems },
+    components: { Search, AchievementRecommendationItems },
     props: {
         modelValue: { type: Boolean, default: false },
         filters: { type: Object, required: true },
@@ -29,7 +29,7 @@ export default {
             if (this.filterIndexLoading) return this.$t("achievementRecommendation.loadingAchievements");
             if (this.waitingForIndex) return "";
             if (this.detailState.loading) return this.matchingCount
-                ? this.$t("achievementRecommendation.loadingDetails", { count: this.items.length, total: this.matchingCount })
+                ? this.$t("achievementRecommendation.loadingDetails", { count: this.detailState.count || 0, total: this.matchingCount })
                 : this.$t("achievementRecommendation.loadingAchievements");
             if (this.difficultyState.loading) return this.$t("achievementRecommendation.loadingDifficulty");
             if (this.tagState.loading) return this.$t("achievementRecommendation.loadingTags");
@@ -77,9 +77,8 @@ export default {
                 <template #prefix><Search /></template>
             </el-input>
         </div>
-        <div v-if="loadingMessage" class="m-candidates-loading" :aria-label="$t('achievementRecommendation.loadingAchievements')" :class="{ 'is-empty': waitingForIndex || !items.length }" role="status">
-            <el-icon class="is-loading" aria-hidden="true"><Loading /></el-icon>
-
+        <div v-if="loadingMessage" class="m-candidates-loading" :aria-label="loadingMessage" role="status">
+            <span>{{ loadingMessage }}</span>
         </div>
         <div v-if="!filterIndexLoading && filterIndexError" class="m-candidates-error" role="alert">
             <span>{{ $t('achievementRecommendation.filterIndexFailed') }}</span>

@@ -103,7 +103,7 @@ export default {
     display: grid;
     min-width: 0;
     gap: 7px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .c-leap-save-dialog .u-leap-dialog-cancel,

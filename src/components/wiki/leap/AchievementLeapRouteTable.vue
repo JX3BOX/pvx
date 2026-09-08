@@ -384,13 +384,13 @@ export default {
 .m-leap-route__header p {
     margin: 0;
     color: #7a8586;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
 }
 
 .m-leap-route__header > strong {
     color: #547277;
-    font-size: 13px;
+    font-size: 14px;
     white-space: nowrap;
 }
 
@@ -416,7 +416,7 @@ export default {
     background: #f0ece3;
     box-shadow: 0 1px 0 rgba(68, 86, 84, 0.1);
     color: #405659;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
 }
 .m-leap-route__scroll {
@@ -443,19 +443,23 @@ export default {
     min-height: 76px;
     border-bottom: 1px solid rgba(68, 86, 84, 0.1);
     color: #687274;
-    font-size: 12px;
+    font-size: 14px;
     &:last-child { border-bottom: 0; }
     &:hover { background: #f3f8f6; }
     &.is-completed { color: #7a8586; }
 }
-.u-leap-order { color: #87918a; font-size: 11px; font-variant-numeric: tabular-nums; }
+.u-leap-order { color: #87918a; font-size: 13px; font-variant-numeric: tabular-nums; }
 .u-leap-status {
     display: inline-flex;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+    overflow-wrap: anywhere;
     padding: 4px 8px;
     border-radius: 999px;
     color: #a3543f;
     background: #f8e8e3;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 500;
     &.is-completed { color: #356b5c; background: #e5f0ea; }
 }
@@ -467,23 +471,23 @@ export default {
     gap: 7px;
     color: #365f64;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.5;
 }
 .u-leap-achievement-cell img { width: 24px; height: 24px; flex: none; border-radius: 4px; object-fit: cover; }
 .u-leap-achievement-cell strong { font-weight: 400; overflow-wrap: anywhere; }
-.u-leap-achievement-cell small { display: block; color: #7a8586; font-size: 11px; line-height: 1.5; }
+.u-leap-achievement-cell small { display: block; color: #7a8586; font-size: 13px; line-height: 1.5; }
 .u-leap-achievement-cell .u-leap-achievement-description {
     margin: 0;
     color: #7a8586;
-    font-size: 12px;
+    font-size: 14px;
     white-space: pre-line;
     overflow-wrap: anywhere;
     line-height: 1.5;
 }
 .u-leap-number { color: #a77836; font-variant-numeric: tabular-nums; }
 .u-leap-tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
-.u-leap-tag { padding: 1px 7px; border: 1px solid rgba(64,158,255,0.52); border-radius: 4px; color: #409eff; background: #ecf5ff; font-size: 11px; }
+.u-leap-tag { padding: 1px 7px; border: 1px solid rgba(64,158,255,0.52); border-radius: 4px; color: #409eff; background: #ecf5ff; font-size: 13px; }
 .u-leap-note { white-space: pre-line; }
 .u-leap-route-action { text-align: center; }
 .u-leap-remove-button {
@@ -581,7 +585,7 @@ export default {
         .u-achievement-pagination-status {
             min-width: 72px;
             color: #687274;
-            font-size: 13px;
+            font-size: 14px;
             font-variant-numeric: tabular-nums;
             text-align: center;
         }

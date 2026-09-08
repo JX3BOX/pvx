@@ -107,7 +107,7 @@ export default {
 
 .m-leap-base-settings__header span {
     color: #879091;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .m-leap-base-settings__grid {
@@ -121,7 +121,7 @@ export default {
     min-width: 0;
     gap: 7px;
     color: #697374;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .m-leap-base-field :deep(.el-select),

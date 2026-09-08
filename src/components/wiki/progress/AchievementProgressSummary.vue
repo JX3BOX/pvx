@@ -326,7 +326,7 @@ export default {
     align-items: center;
     gap: 12px;
     color: #8b938f;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .u-progress-role-select {
@@ -345,7 +345,7 @@ export default {
     align-items: flex-start;
     gap: 8px;
     color: #9c7960;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 400;
     line-height: 18px;
 }
@@ -366,9 +366,9 @@ export default {
 
 .u-progress-sync-time {
     color: #858c88;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 400;
-    line-height: 16px;
+    line-height: 1.5;
     font-variant-numeric: tabular-nums;
 }
 
@@ -403,7 +403,7 @@ export default {
     color: #607174;
     background: rgba(255, 255, 252, 0.72);
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
 
     svg {
@@ -489,13 +489,13 @@ export default {
     span {
         margin-top: 4px;
         color: #9aa29f;
-        font-size: 11px;
+        font-size: 13px;
     }
 
     b {
         margin-top: 4px;
         color: #47777d;
-        font-size: 13px;
+        font-size: 14px;
     }
 }
 
@@ -514,7 +514,7 @@ export default {
 
     dt {
         color: #9aa29f;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     dd {
@@ -524,7 +524,7 @@ export default {
         gap: 6px;
         margin: 0;
         color: #3f484b;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
         text-align: right;
     }
@@ -618,7 +618,7 @@ export default {
     border-radius: 999px;
     color: var(--tier-accent);
     background: rgba(var(--tier-accent-rgb), 0.09);
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1;
 
@@ -671,14 +671,14 @@ export default {
         border-radius: 999px;
         color: var(--tier-accent);
         background: rgba(var(--tier-accent-rgb), 0.1);
-        font-size: 10px;
+        font-size: 13px;
     }
 }
 
 .m-progress-tier-points {
     margin: 7px 0 1px;
     color: #566063;
-    font-size: 13px;
+    font-size: 14px;
 
     strong {
         color: #384246;
@@ -695,7 +695,7 @@ export default {
 .m-progress-tier-note {
     margin: 0;
     color: #9aa29f;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .m-progress-tier-card__footer {
@@ -703,6 +703,7 @@ export default {
     min-width: 0;
     min-height: 24px;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 10px;
     margin-top: auto;
@@ -800,26 +801,26 @@ export default {
     }
 
     .m-progress-overall-card__body {
-        grid-template-columns: 108px minmax(0, 1fr);
+        grid-template-columns: 128px minmax(0, 1fr);
         gap: 10px;
     }
 
     .m-progress-ring {
-        width: 108px;
-        height: 108px;
+        width: 128px;
+        height: 128px;
     }
 
     .m-progress-ring__inner {
-        width: 90px;
-        height: 90px;
+        width: 108px;
+        height: 108px;
 
         strong {
             font-size: 20px;
         }
 
         span {
-            max-width: 82px;
-            font-size: 10px;
+            max-width: 100px;
+            font-size: 13px;
             text-align: center;
             overflow-wrap: anywhere;
         }

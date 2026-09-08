@@ -112,7 +112,7 @@ export default {
 
 .m-leap-summary__header > div > span {
     color: #a88139;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.12em;
 }
@@ -137,7 +137,7 @@ export default {
     border-radius: 999px;
     color: #a3543f;
     background: #f8e9e4;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
 }
 
@@ -169,7 +169,7 @@ export default {
 
 .m-leap-summary__grid span {
     color: #7a8586;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .m-leap-summary__grid strong {
@@ -186,7 +186,7 @@ export default {
 .u-leap-summary-note {
     margin: 12px 0 0;
     color: #9a6d39;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 @media (max-width: @ipad) {
@@ -236,7 +236,7 @@ export default {
     .m-leap-summary__grid strong :deep(.c-achievement-rating) {
         max-width: 100%;
         flex-wrap: wrap;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .m-leap-summary__grid > div > span {

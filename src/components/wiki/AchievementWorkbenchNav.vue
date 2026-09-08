@@ -185,7 +185,7 @@ export default {
     border-radius: 8px;
     color: #776443;
     background: rgba(255, 253, 248, 0.72);
-    font-size: 13px;
+    font-size: 14px;
     text-decoration: none;
     transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
 
@@ -224,7 +224,7 @@ export default {
         flex: 1 0 auto;
         min-height: 52px;
         padding: 0 10px;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .u-achievement-workbench-tab__icon {

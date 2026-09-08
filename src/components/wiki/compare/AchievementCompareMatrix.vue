@@ -291,7 +291,7 @@ export default {
     gap: 4px 14px;
     min-width: 0;
     color: #687270;
-    font-size: 12px;
+    font-size: 13px;
     font-variant-numeric: tabular-nums;
     line-height: 1.5;
 }
@@ -351,7 +351,7 @@ export default {
         height: 62px;
         color: #53605f;
         background: #f5f2ea;
-        font-size: 12px;
+        font-size: 14px;
 
         strong,
         small {
@@ -364,7 +364,7 @@ export default {
         small {
             margin-top: 3px;
             color: #9da39f;
-            font-size: 10px;
+            font-size: 13px;
             font-weight: 400;
         }
     }
@@ -439,7 +439,7 @@ export default {
 
 .m-compare-achievement__description {
     color: #7f8887;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.5;
     white-space: pre-line;
     overflow-wrap: anywhere;
@@ -453,7 +453,7 @@ export default {
     strong {
         overflow: hidden;
         color: #354044;
-        font-size: 13px;
+        font-size: 14px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
@@ -461,7 +461,7 @@ export default {
     b {
         flex: none;
         color: #ad5149;
-        font-size: 11px;
+        font-size: 14px;
     }
 }
 
@@ -473,7 +473,7 @@ export default {
     border-radius: 999px;
     color: #a07828;
     background: rgba(179, 140, 61, 0.11);
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1;
     white-space: nowrap;
 }
@@ -481,7 +481,7 @@ export default {
 .m-compare-achievement__meta {
     max-width: 100%;
     color: #9ba09d;
-    font-size: 10px;
+    font-size: 13px;
 }
 
 .m-compare-achievement__tags {
@@ -506,7 +506,7 @@ export default {
     flex-wrap: wrap;
     gap: 3px 10px;
     color: #8b9391;
-    font-size: 10px;
+    font-size: 13px;
 
     > span {
         display: inline-flex;
@@ -524,17 +524,21 @@ export default {
 
 .u-compare-completion {
     display: inline-flex;
+    max-width: 100%;
+    box-sizing: border-box;
     align-items: center;
     justify-content: center;
     gap: 5px;
     padding: 4px 9px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
 
     svg {
         width: 12px;
+        flex: none;
     }
 
     &.is-completed {
@@ -574,7 +578,7 @@ export default {
     p {
         max-width: 420px;
         margin: 7px 0 14px;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     button {
@@ -715,7 +719,7 @@ export default {
         .u-achievement-pagination-status {
             min-width: 72px;
             color: #687274;
-            font-size: 13px;
+            font-size: 14px;
             font-variant-numeric: tabular-nums;
             text-align: center;
         }

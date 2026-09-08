@@ -194,7 +194,7 @@ export default {
     h2 { font-size: 18px; margin: 0; overflow-wrap: anywhere; } h3 { font-size: 15px; }
     :deep(.el-tabs__content) { display: none; }
 }
-.m-consultation-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: #7a8586; font-size: 12px; margin: 12px 0; }
+.m-consultation-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: #7a8586; font-size: 13px; margin: 12px 0; }
 .m-consultation-detail-header { margin-bottom: 16px;
     h2 { flex: 1; min-width: 0; font-size: 20px; line-height: 1.4; }
     .el-tag { flex: none; }
@@ -215,9 +215,9 @@ export default {
 }
 .m-consultation-advice-heading { padding-bottom: 12px; border-bottom: 1px solid #e2e8e6;
     h3 { margin: 0; }
-    time { margin-left: auto; color: #86918e; font-size: 12px; }
+    time { margin-left: auto; color: #86918e; font-size: 13px; }
 }
-.m-consultation-expert { padding: 3px 8px; border-radius: 5px; background: #edf5f1; color: #47777d; font-size: 12px; }
+.m-consultation-expert { padding: 3px 8px; border-radius: 5px; background: #edf5f1; color: #47777d; font-size: 13px; }
 .m-consultation-richtext { min-height: 0; margin: 14px 0 0; overflow-wrap: anywhere; overflow-x: auto; font-size: 14px; line-height: 1.8;
     :deep(p:first-child) { margin-top: 0; } :deep(p:last-child) { margin-bottom: 0; }
     :deep(img) { max-width: 100%; height: auto; } :deep(table) { border-collapse: collapse; }

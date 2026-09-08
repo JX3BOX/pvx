@@ -109,17 +109,17 @@ export default {
     :deep(.el-tabs__nav-wrap::after) { height: 1px; background: #e2e8e4; }
     :deep(.el-table) { --el-table-header-bg-color: #f1f5f2; --el-table-tr-bg-color: #ffffff99; --el-table-border-color: #e4e9e5; --el-table-row-hover-bg-color: #f1f7f5; --el-table-header-text-color: #74827e; }
     :deep(.el-table__cell) { padding: 16px 0; }
-    :deep(th.el-table__cell) { padding: 10px 0; font-size: 12px; font-weight: 500; }
+    :deep(th.el-table__cell) { padding: 10px 0; font-size: 14px; font-weight: 500; }
     @media (max-width: 760px) { padding: 0; }
 }
 .m-consultation-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 18px; h1 { display: flex; align-items: center; gap: 10px; font-size: 20px; margin: 0; font-weight: 600; } h1 .el-icon { color: #a88139; } }
 .m-consultation-toolbar { display: flex; align-items: start; gap: 24px; .el-tabs { flex: 1; min-width: 0; } .el-select { width: 145px; flex: none; } }
 .m-consultation-queue-title { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
-.m-consultation-queue-question { color: #7b8683; margin: 5px 0 0; font-size: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
-.m-consultation-player { display: flex; align-items: center; gap: 8px; font-size: 13px; img { width: 28px; height: 28px; border-radius: 4px; flex: none; } span { overflow-wrap: anywhere; } }
-.m-consultation-queue-date { font-size: 12px; color: #82908b; }
-.m-consultation-status { display: inline-block; padding: 3px 7px; border-radius: 4px; font-size: 12px; color: #7b8683; background: #f0f2f0; &.pending { color: #a07c35; background: #faf3e4; } &.answered { color: #47777d; background: #edf5f1; } }
-.m-consultation-open, .m-consultation-back { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
+.m-consultation-queue-question { color: #7b8683; margin: 5px 0 0; font-size: 14px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.m-consultation-player { display: flex; align-items: center; gap: 8px; font-size: 14px; img { width: 28px; height: 28px; border-radius: 4px; flex: none; } span { overflow-wrap: anywhere; } }
+.m-consultation-queue-date { font-size: 13px; color: #82908b; }
+.m-consultation-status { display: inline-block; padding: 3px 7px; border-radius: 4px; font-size: 13px; color: #7b8683; background: #f0f2f0; &.pending { color: #a07c35; background: #faf3e4; } &.answered { color: #47777d; background: #edf5f1; } }
+.m-consultation-open, .m-consultation-back { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; }
 .m-consultation-back { flex: none; min-height: 36px; padding: 6px 11px; border: 1px solid rgba(71, 119, 125, 0.5); border-radius: 8px; background: rgba(255, 255, 255, 0.68); }
 .m-consultation-back:hover { border-color: #47777d; background: rgba(71, 119, 125, 0.08); }
 @media (max-width: 600px) { .m-consultation-toolbar { display: block; .el-select { width: 100%; margin-bottom: 12px; } } }

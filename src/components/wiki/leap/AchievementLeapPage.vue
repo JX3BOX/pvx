@@ -165,7 +165,7 @@ export default {
         },
         canConsultPlan() {
             const uid = User.getInfo()?.uid;
-            return Boolean(this.isLogin && uid && this.currentClient === "std" && this.detailPlan?.client === "std" &&
+            return Boolean(this.isLogin && uid && this.currentClient === "std" && this.detailPlan?.client === "std" && !this.detailPlan?.official &&
                 String(this.detailPlan.raw?.user_id) === String(uid));
         },
         canSaveRoute() {
@@ -1055,7 +1055,7 @@ export default {
 .m-leap-generated-actions p {
     margin: 0 auto 0 0;
     color: #7d8788;
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .u-leap-save-button,

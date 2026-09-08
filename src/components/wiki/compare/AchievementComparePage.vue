@@ -1021,7 +1021,7 @@ export default {
     background: #47777d;
     box-shadow: 0 5px 14px rgba(47, 105, 112, 0.16);
     font: inherit;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;

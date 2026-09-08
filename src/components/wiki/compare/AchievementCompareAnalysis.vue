@@ -172,45 +172,48 @@ export default {
                         <h3>{{ $t("pages.wiki.compare.ui.workbench.structureTitle") }}</h3>
                     </div>
                     <div v-if="radarCategories.length >= 3" class="m-compare-radar">
-                        <svg
-                            viewBox="0 0 340 300"
-                            role="img"
-                            :aria-label="$t('pages.wiki.compare.ui.workbench.structureTitle')"
-                        >
-                            <polygon
-                                v-for="(points, index) in radarGridPolygons"
-                                :key="`grid-${index}`"
-                                :points="points"
-                                fill="none"
-                                stroke="rgba(70, 74, 66, 0.13)"
-                            />
-                            <line
-                                v-for="axis in radarAxes"
-                                :key="`axis-${axis.id}`"
-                                x1="170"
-                                y1="145"
-                                :x2="axis.end.x"
-                                :y2="axis.end.y"
-                                stroke="rgba(70, 74, 66, 0.12)"
-                            />
-                            <polygon
-                                v-for="series in radarSeries"
-                                :key="series.roleId"
-                                :points="series.points"
-                                :fill="`${series.color}22`"
-                                :stroke="series.color"
-                                stroke-width="2"
-                            />
-                            <text
-                                v-for="axis in radarAxes"
-                                :key="`label-${axis.id}`"
-                                :x="axis.label.x"
-                                :y="axis.label.y"
-                                :text-anchor="axis.anchor"
+                        <div class="m-compare-radar-plot" tabindex="0" role="region"
+                            :aria-label="$t('pages.wiki.compare.ui.workbench.structureTitle')">
+                            <svg
+                                viewBox="-70 0 480 300"
+                                role="img"
+                                :aria-label="$t('pages.wiki.compare.ui.workbench.structureTitle')"
                             >
-                                {{ axis.name }}
-                            </text>
-                        </svg>
+                                <polygon
+                                    v-for="(points, index) in radarGridPolygons"
+                                    :key="`grid-${index}`"
+                                    :points="points"
+                                    fill="none"
+                                    stroke="rgba(70, 74, 66, 0.13)"
+                                />
+                                <line
+                                    v-for="axis in radarAxes"
+                                    :key="`axis-${axis.id}`"
+                                    x1="170"
+                                    y1="145"
+                                    :x2="axis.end.x"
+                                    :y2="axis.end.y"
+                                    stroke="rgba(70, 74, 66, 0.12)"
+                                />
+                                <polygon
+                                    v-for="series in radarSeries"
+                                    :key="series.roleId"
+                                    :points="series.points"
+                                    :fill="`${series.color}22`"
+                                    :stroke="series.color"
+                                    stroke-width="2"
+                                />
+                                <text
+                                    v-for="axis in radarAxes"
+                                    :key="`label-${axis.id}`"
+                                    :x="axis.label.x"
+                                    :y="axis.label.y"
+                                    :text-anchor="axis.anchor"
+                                >
+                                    {{ axis.name }}
+                                </text>
+                            </svg>
+                        </div>
                         <div class="m-compare-radar-legend">
                             <span v-for="series in radarSeries" :key="`legend-${series.roleId}`">
                                 <i :style="{ background: series.color }"></i>{{ series.name }}
@@ -284,16 +287,16 @@ export default {
             border-radius: 7px;
             color: #fff;
             background: #47777d;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         strong {
-            font-size: 13px;
+            font-size: 14px;
         }
 
         small {
             color: #9ca29f;
-            font-size: 10px;
+            font-size: 13px;
         }
     }
 }
@@ -327,12 +330,12 @@ export default {
     h3 {
         margin: 0;
         color: #3e4a49;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     span {
         color: #9ba19e;
-        font-size: 10px;
+        font-size: 13px;
     }
 }
 
@@ -345,7 +348,7 @@ export default {
         grid-template-columns: 92px minmax(0, 1fr) 70px;
         align-items: center;
         gap: 10px;
-        font-size: 11px;
+        font-size: 14px;
 
         > span {
             overflow: hidden;
@@ -369,7 +372,7 @@ export default {
 
         > b {
             color: #4e5a59;
-            font-size: 11px;
+            font-size: 14px;
             text-align: right;
         }
     }
@@ -402,13 +405,13 @@ export default {
         span {
             margin-top: 2px;
             color: #66716f;
-            font-size: 10px;
+            font-size: 14px;
         }
 
         small {
             margin-top: 5px;
             color: #a0a5a2;
-            font-size: 9px;
+            font-size: 13px;
         }
     }
 }
@@ -429,13 +432,27 @@ export default {
     flex-direction: column;
 
     svg {
-        width: min(100%, 420px);
-        height: auto;
+        display: block;
+        width: 480px;
+        max-width: none;
+        height: 300px;
+        margin: 0 auto;
     }
 
     text {
         fill: #7d8582;
-        font-size: 9px;
+        font-size: 13px;
+    }
+}
+
+.m-compare-radar-plot {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+
+    &:focus-visible {
+        outline: 2px solid #47777d;
+        outline-offset: -2px;
     }
 }
 
@@ -445,7 +462,7 @@ export default {
     flex-wrap: wrap;
     gap: 9px;
     color: #777f7c;
-    font-size: 10px;
+    font-size: 13px;
 
     span {
         display: inline-flex;
@@ -474,7 +491,7 @@ export default {
         align-items: center;
         gap: 8px;
         color: #65706e;
-        font-size: 10px;
+        font-size: 14px;
 
         > span {
             overflow: hidden;
@@ -510,7 +527,7 @@ export default {
 
 .m-compare-analysis-empty {
     color: #969d99;
-    font-size: 12px;
+    font-size: 14px;
     text-align: center;
 }
 

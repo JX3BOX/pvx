@@ -200,7 +200,7 @@ export default {
 .m-compare-dialog-hint {
     margin: 0;
     color: #939b97;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .u-compare-dialog-button {
@@ -217,7 +217,7 @@ export default {
     color: #687270;
     background: #fffefa;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
     cursor: pointer;
 

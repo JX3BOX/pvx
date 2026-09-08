@@ -643,7 +643,7 @@ export default {
 .m-server-recommendation { min-height: 0; min-width: 0; display: flex; flex-direction: column; color: #314043;
     padding-right: 4px;
     > * { flex-shrink: 0; min-width: 0; }
-    p { font-size: 13px; color: #7a8586; }
+    p { font-size: 14px; color: #7a8586; }
 }
 .m-recommendation-toolbar {
     position: sticky;
@@ -666,16 +666,16 @@ export default {
     display: flex; flex: none; align-items: center; gap: 6px;
     .el-button { margin: 0; min-height: 36px; height: auto; }
 }
-.m-recommendation-candidate-hint { flex: none; margin: 0 0 10px; font-size: 12px; line-height: 1.5; }
+.m-recommendation-candidate-hint { flex: none; margin: 0 0 10px; font-size: 13px; line-height: 1.5; }
 .m-server-recommendation__start { min-height: 180px; display: flex; align-items: center; justify-content: center; }
-.m-server-recommendation__summary { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: #697374; padding: 8px 0; flex: none; }
+.m-server-recommendation__summary { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: #697374; padding: 8px 0; flex: none; }
 .u-recommendation-warning { color: #ae3b40 !important; }
 .m-recommendation-snapshot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-bottom: 8px;
-    flex: none; font-size: 12px; line-height: 1.5; color: #697374;
+    flex: none; font-size: 13px; line-height: 1.5; color: #697374;
     a { color: #47777d; text-decoration: underline; text-underline-offset: 2px; }
 }
 .m-recommendation-snapshot__hint { width: 100%; color: #7a8586; }
-.m-recommendation-exclusions { flex: none; font-size: 12px; margin-bottom: 8px; border: 1px solid #e2e8e6; border-radius: 6px;
+.m-recommendation-exclusions { flex: none; font-size: 13px; margin-bottom: 8px; border: 1px solid #e2e8e6; border-radius: 6px;
     summary { padding: 7px 10px; cursor: pointer; color: #47777d; }
     dl { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 0;
         div { display: flex; gap: 8px; min-width: 0; } dt { overflow-wrap: anywhere; } dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -685,25 +685,25 @@ export default {
 .m-recommendation-exclusions__content { padding: 0 10px 10px; max-height: 120px; overflow-y: auto; }
 .m-recommendation-selection__summary {
     display: flex; flex: 1; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; min-width: 220px;
-    font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums;
+    font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums;
     strong { color: #47777d; font-weight: 600; }
 }
 .m-recommendation-candidates-button { flex: none; }
 .m-recommendation-selection__target { display: flex; flex-wrap: wrap; gap: 4px 10px; }
 .m-recommendation-view-scope {
     display: flex; align-items: center; flex-wrap: wrap; gap: 4px 14px; max-width: 100%;
-    > strong { color: #314043; font-size: 13px; }
-    :deep(.el-button) { min-height: 32px; height: auto; padding: 4px 0; margin: 0; font-size: 12px; }
+    > strong { color: #314043; font-size: 14px; }
+    :deep(.el-button) { min-height: 32px; height: auto; padding: 4px 0; margin: 0; font-size: 14px; }
     :deep(.el-button > span) { white-space: normal; line-height: 1.5; }
 }
 .m-server-recommendation__filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: none; margin-bottom: 10px;
     .el-cascader, .el-select, .el-input { width: 100%; min-width: 0; } svg { width: 16px; height: 16px; }
 }
-.m-server-recommendation__counts { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; font-size: 12px; color: #697374; flex: none;
+.m-server-recommendation__counts { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 12px 0; font-size: 13px; color: #697374; flex: none;
     strong { font-weight: 500; color: #47777d; }
 }
 .m-server-recommendation__results { min-height: 100px; flex: none; }
-.m-recommendation-difficulty-error { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 4px 10px; font-size: 13px; color: #ae3b40; }
+.m-recommendation-difficulty-error { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 4px 10px; font-size: 14px; color: #ae3b40; }
 @media (max-width: @phone) {
     .m-server-recommendation {
         > * {
@@ -735,7 +735,7 @@ export default {
     .m-recommendation-selection__target { gap: 2px 8px; }
     .m-recommendation-selection__actions {
         flex: 1; min-width: 0;
-        .el-button { flex: 1; padding: 8px 6px; font-size: 12px; }
+        .el-button { flex: 1; padding: 8px 6px; font-size: 14px; }
     }
 
     .m-server-recommendation__filters {

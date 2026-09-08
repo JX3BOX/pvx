@@ -193,6 +193,7 @@ export default {
     border: 1px solid rgba(70, 74, 66, 0.14);
     border-radius: 14px;
     background: rgba(255, 254, 250, 0.86);
+    container-type: inline-size;
 }
 
 .m-compare-categories__header {
@@ -217,7 +218,7 @@ export default {
     grid-template-columns: minmax(0, 1fr);
 
     &.has-subcategories {
-        grid-template-columns: minmax(142px, 0.84fr) minmax(168px, 1.16fr);
+        grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
 
         .m-compare-category-card.is-all small {
             display: none;
@@ -323,16 +324,15 @@ export default {
     gap: 6px;
 
     strong {
-        overflow: hidden;
-        font-size: 12px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 14px;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     small {
         flex: none;
         color: #9da39f;
-        font-size: 9px;
+        font-size: 13px;
     }
 }
 
@@ -368,17 +368,16 @@ export default {
     }
 
     strong {
-        overflow: hidden;
         color: #44504f;
-        font-size: 12px;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 14px;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     small {
         margin-top: 2px;
         color: #9da39f;
-        font-size: 9px;
+        font-size: 13px;
     }
 }
 
@@ -417,15 +416,14 @@ export default {
         }
 
         span {
-            overflow: hidden;
-            font-size: 11px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-size: 14px;
+            white-space: normal;
+            overflow-wrap: anywhere;
         }
 
         b {
             color: #a0a6a3;
-            font-size: 9px;
+            font-size: 13px;
             font-weight: 500;
         }
 
@@ -443,6 +441,21 @@ export default {
                 color: rgba(255, 255, 255, 0.76);
             }
         }
+    }
+}
+
+@container (max-width: 520px) {
+    .m-compare-category-browser.has-subcategories {
+        grid-template-columns: minmax(0, 1fr);
+
+        .m-compare-category-card.is-all small {
+            display: block;
+        }
+    }
+
+    .m-compare-subcategory-panel {
+        border-top: 1px solid rgba(70, 74, 66, 0.1);
+        border-left: 0;
     }
 }
 

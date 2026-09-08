@@ -266,7 +266,7 @@ export default {
     color: #fff;
     background: #47777d;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
 
     svg {

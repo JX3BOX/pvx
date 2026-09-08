@@ -93,7 +93,7 @@ export default {
         background: #fffdf9;
         cursor: pointer;
         line-height: 1.5;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     input:focus-visible { outline: 2px solid #47777d; outline-offset: 3px; }
@@ -104,7 +104,7 @@ export default {
     }
     label.is-disabled { opacity: 0.6; cursor: not-allowed; }
 }
-.m-recommendation-categories__hint { margin: 0; font-size: 12px; line-height: 1.6; color: #7f8c91; }
+.m-recommendation-categories__hint { margin: 0; font-size: 13px; line-height: 1.6; color: #7f8c91; }
 .m-recommendation-categories__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -115,7 +115,7 @@ export default {
     &__name { flex: 1; min-width: 0; color: #365f64; font-weight: 600; overflow-wrap: anywhere; }
     &__icon { display: inline-flex; flex: none; width: 16px; height: 16px; }
     &__icon img, &__icon svg { width: 100%; height: 100%; object-fit: contain; }
-    &__count { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: #8b999f; }
+    &__count { flex: none; font-size: 13px; font-variant-numeric: tabular-nums; color: #8b999f; }
 }
 @media (max-width: @phone) {
     .m-recommendation-categories {
@@ -123,6 +123,6 @@ export default {
         label { padding: 8px; }
     }
     .m-recommendation-categories__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .m-recommendation-category-card__count { font-size: 12px; }
+    .m-recommendation-category-card__count { font-size: 13px; }
 }
 </style>

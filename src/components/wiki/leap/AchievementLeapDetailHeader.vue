@@ -50,7 +50,7 @@ export default {
 
         <div v-if="plan" class="m-leap-detail-header__actions">
             <button
-                v-if="guidanceAllowed"
+                v-if="guidanceAllowed && !plan.official"
                 type="button"
                 class="u-leap-detail-button is-primary"
                 :disabled="actionsDisabled"
@@ -60,20 +60,18 @@ export default {
                 {{ $t('achievementConsultation.title') }}
             </button>
 
-            <el-dropdown trigger="click" :disabled="actionsDisabled">
+            <button v-if="plan.official" type="button" class="u-leap-detail-button is-primary"
+                :disabled="actionsDisabled" @click="emitPlanAction('copy')">
+                <CopyDocument />
+                {{ $t("pages.wiki.leap.ui.workbench.copyAsMine") }}
+            </button>
+            <el-dropdown v-else trigger="click" :disabled="actionsDisabled">
                 <button type="button" class="u-leap-detail-button" :disabled="actionsDisabled">
                     {{ $t("pages.wiki.leap.ui.workbench.moreActions") }}
                     <ArrowDown />
                 </button>
                 <template #dropdown>
                     <el-dropdown-menu class="m-leap-detail-more-menu">
-                        <el-dropdown-item v-if="plan.official">
-                            <el-button class="u-leap-detail-menu-button" type="primary" @click="emitPlanAction('copy')">
-                                <CopyDocument />
-                                {{ $t("pages.wiki.leap.ui.workbench.copyAsMine") }}
-                            </el-button>
-                        </el-dropdown-item>
-                        <template v-else>
                             <el-dropdown-item>
                                 <el-button class="u-leap-detail-menu-button" type="primary" @click="emitPlanAction('edit')">
                                     <Edit />
@@ -86,7 +84,6 @@ export default {
                                     {{ $t("pages.wiki.leap.ui.workbench.deletePlanShort") }}
                                 </el-button>
                             </el-dropdown-item>
-                        </template>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -150,7 +147,7 @@ export default {
     border-radius: 8px;
     color: #47777d;
     background: rgba(255, 255, 255, 0.68);
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1;
     cursor: pointer;
 }

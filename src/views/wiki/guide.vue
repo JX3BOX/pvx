@@ -111,14 +111,14 @@ export default {
 }
 .m-guide-header { padding: 12px 0 24px; }
 .m-guide-header > p { margin-top: 10px; }
-.u-guide-back { font-size: 13px; }
+.u-guide-back { font-size: 14px; }
 .m-guide-contents {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     margin-top: 24px;
     a { display: inline-flex; gap: 8px; align-items: center; padding: 8px 14px; border: 1px solid rgba(71,119,125,.18); border-radius: 8px; background: #fffdf8; font-size: 14px; }
-    span { color: #a18a60; font-size: 12px; }
+    span { color: #a18a60; font-size: 13px; }
 }
 .m-guide-section {
     margin-bottom: 20px;
@@ -144,7 +144,7 @@ export default {
     figure { min-width: 0; margin: 0; }
     a { display: block; margin-top: 0; }
     img { display: block; width: 100%; height: auto; border: 1px solid rgba(70, 74, 66, .13); border-radius: 8px; }
-    figcaption { margin-top: 8px; color: #687573; font-size: 12px; }
+    figcaption { margin-top: 8px; color: #687573; font-size: 13px; }
 }
 .m-guide-features {
     display: grid;

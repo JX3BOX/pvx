@@ -186,7 +186,7 @@ export default {
 
 .m-leap-plan-list__header > span {
     color: #a0a7a4;
-    font-size: 11px;
+    font-size: 13px;
     white-space: nowrap;
 }
 
@@ -262,7 +262,7 @@ export default {
     border-radius: 999px;
     color: #55777a;
     background: #eaf1ef;
-    font-size: 11px;
+    font-size: 13px;
     line-height: 1.2;
 }
 
@@ -275,7 +275,7 @@ export default {
     min-width: 0;
     margin: 0;
     color: #7c8585;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.45;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -306,7 +306,7 @@ export default {
 
 .m-leap-plan-card__stats span {
     color: #929999;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .m-leap-plan-card__stats strong {
@@ -325,12 +325,12 @@ export default {
     justify-content: space-between;
     margin: 12px 2px 6px;
     color: #879191;
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .m-leap-plan-card__progress-meta strong {
     color: #9c762f;
-    font-size: 13px;
+    font-size: 14px;
     font-variant-numeric: tabular-nums;
 }
 
@@ -447,7 +447,7 @@ export default {
         .u-achievement-pagination-status {
             min-width: 72px;
             color: #687274;
-            font-size: 13px;
+            font-size: 14px;
             font-variant-numeric: tabular-nums;
             text-align: center;
         }
