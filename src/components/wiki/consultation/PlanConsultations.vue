@@ -1,4 +1,5 @@
 <script>
+import User from "@jx3box/jx3box-common/js/user";
 import { createConsultation, getConsultations, getConsultationExperts } from "@/service/achievementConsultation";
 import ConsultationDetail from "./ConsultationDetail.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
@@ -38,12 +39,13 @@ export default {
         async loadExperts() {
             const request = ++this.expertRequestId;
             this.expertsLoading = true; this.expertsError = false;
-            try { const result = await getConsultationExperts(); if (request === this.expertRequestId) this.experts = result; }
+            try { const result = await getConsultationExperts(); if (request === this.expertRequestId) this.experts = result.filter((expert) => String(expert.user_id) !== String(User.getInfo()?.uid)); }
             catch { if (request === this.expertRequestId) this.expertsError = true; }
             finally { if (request === this.expertRequestId) this.expertsLoading = false; }
         },
         async submit() {
             if (this.saving || !this.consultationRoleId || !this.form.question.trim()) return;
+            if (this.form.target_expert_id != null && String(this.form.target_expert_id) === String(User.getInfo()?.uid)) return;
             const planId = this.plan.id;
             this.saving = true;
             try {

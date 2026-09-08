@@ -37,6 +37,7 @@ async function run() {
         cancelConsultation: async () => { record.status = "cancelled"; },
     };
     const player = load("src/components/wiki/consultation/PlanConsultations.vue", {
+        "@jx3box/jx3box-common/js/user": { getInfo: () => ({ uid: "7" }) },
         "@/service/achievementConsultation": api, "./ConsultationDetail.vue": {}, "@element-plus/icons-vue": {},
         "@/components/design/PvxSurface.vue": {},
     });
@@ -44,8 +45,12 @@ async function run() {
     await vm.openCreate();
     await vm.loadExperts();
     assert.strictEqual(vm.form.role_id, 77, "submit database role ID, not jx3id");
-    assert.deepStrictEqual(vm.experts.map((row) => row.user_id), [7, 42], "expert options follow the API response");
+    assert.deepStrictEqual(vm.experts.map((row) => row.user_id), [42], "expert options exclude the current user, including string IDs");
     vm.form.question = "Please help";
+    vm.form.target_expert_id = 7;
+    await vm.submit();
+    assert.strictEqual(writes.length, 0, "cannot submit a consultation to yourself");
+    vm.form.target_expert_id = null;
     await vm.submit();
     assert.deepStrictEqual(writes[0], { plan_id: 10, role_id: 77, target_expert_id: null, question: "Please help" });
     assert.strictEqual(vm.dialog, false);
