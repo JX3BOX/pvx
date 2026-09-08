@@ -47,7 +47,7 @@ export default {
 </script>
 
 <template>
-    <div class="m-consultation-workspace" v-loading="checking">
+    <div class="m-consultation-workspace" :class="{ 'is-detail': detailId }" v-loading="checking">
         <el-alert v-if="error" :title="error" type="error" :closable="false" />
         <el-button v-if="error" @click="initialize">{{ $t('achievementRecommendation.retry') }}</el-button>
         <el-empty v-if="!checking && !authorized" :description="$t('achievementConsultation.expertOnly')" />
@@ -98,6 +98,7 @@ export default {
 <style lang="less" scoped>
 .m-consultation-workspace {
     min-width: 0; padding: 8px; color: #324346;
+    &.is-detail { padding: 0; }
     --el-color-primary: #47777d;
     --el-color-primary-light-9: #f0f6f5;
     --el-border-color: #dce4e1;

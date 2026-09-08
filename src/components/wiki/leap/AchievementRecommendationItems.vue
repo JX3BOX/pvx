@@ -19,6 +19,7 @@ export default {
         disabled: { type: Boolean, default: false },
         editable: { type: Boolean, default: true },
         tableLayout: { type: Boolean, default: false },
+        showCompletion: { type: Boolean, default: false },
     },
     emits: ["move", "remove", "add"],
     computed: {
@@ -28,12 +29,14 @@ export default {
                     this.editable ? "24px" : null,
                     "30px",
                     "minmax(240px, 3fr)",
+                    this.showCompletion ? "90px" : null,
                     "68px",
                     ...this.dimensions.map(() => "minmax(110px, 1fr)"),
                     this.candidateMode ? "132px" : this.editable ? "36px" : null,
                 ].filter(Boolean).join(" "),
-                "--recommendation-min-width": `${386 + (this.editable ? 36 : 0) + (this.candidateMode ? 144 : this.editable ? 48 : 0) + this.dimensions.length * 122}px`,
-                "--recommendation-points-column": this.editable ? 4 : 3,
+                "--recommendation-min-width": `${386 + (this.showCompletion ? 102 : 0) + (this.editable ? 36 : 0) + (this.candidateMode ? 144 : this.editable ? 48 : 0) + this.dimensions.length * 122}px`,
+                "--recommendation-points-column": (this.editable ? 4 : 3) + (this.showCompletion ? 1 : 0),
+                "--recommendation-completion-column": this.editable ? 4 : 3,
             };
         },
         displayTagsById() {
@@ -71,6 +74,7 @@ export default {
                 <span v-if="editable"></span>
                 <span>#</span>
                 <span>{{ $t('pages.wiki.leap.ui.achievementName') }}</span>
+                <span v-if="showCompletion" class="u-recommendation-completion-heading">{{ $t('pages.wiki.leap.ui.status') }}</span>
                 <span class="u-recommendation-points-heading">{{ $t('achievementRecommendation.achievementPoints') }}</span>
                 <span v-for="dimension in dimensions" :key="dimension.key">{{ dimension.label }}</span>
                 <span v-if="editable || candidateMode" class="u-recommendation-action-heading">{{ $t('pages.wiki.leap.ui.workbench.action') }}</span>
@@ -97,6 +101,10 @@ export default {
                                 <span v-for="tag in displayTagsById[item.id]" :key="tag.id || tag.label"
                                     class="u-recommendation-achievement-tag" :title="tag.description || tag.label">{{ tag.label }}</span>
                             </div>
+                            <p v-if="showCompletion && item.restriction?.school" class="m-recommendation-item-description">
+                                {{ $t('pages.wiki.leap.ui.workbench.schoolRestriction') }}：{{ item.restriction.school }}
+                            </p>
+                            <p v-if="showCompletion && item.guideNote" class="m-recommendation-item-description">{{ item.guideNote }}</p>
                         </div>
                         <div v-if="dimensions.length" class="m-recommendation-item-dimensions">
                             <span v-for="dimension in dimensions" :key="dimension.key" class="m-recommendation-dimension-badge">
@@ -106,6 +114,11 @@ export default {
                             </span>
                         </div>
                         <div class="m-recommendation-item-footer">
+                            <div v-if="showCompletion" class="m-recommendation-item-completion">
+                                <span class="u-recommendation-completion" :class="{ 'is-completed': item.completed }">
+                                    {{ $t(item.completed ? 'pages.wiki.leap.ui.completed' : 'pages.wiki.leap.ui.incomplete') }}
+                                </span>
+                            </div>
                             <div class="m-server-recommendation__item-status">
                                 <strong>{{ item.points }}</strong>
                                 <small>{{ $t('achievementRecommendation.achievementPoints') }}</small>
@@ -174,6 +187,11 @@ export default {
     strong { font-weight: 500; } small { display: block; font-size: 10px; color: #47777d; }
 }
 .u-recommendation-warning { color: #ae3b40 !important; }
+.u-recommendation-completion {
+    display: inline-flex; padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 500;
+    color: #a3543f; background: #f8e8e3;
+    &.is-completed { color: #356b5c; background: #e5f0ea; }
+}
 @media (min-width: (@phone + 1px)) {
     .m-recommendation-items-container.is-table {
         border: 1px solid rgba(68, 86, 84, 0.13);
@@ -257,6 +275,13 @@ export default {
             > small:not(.u-recommendation-warning) { display: none; }
         }
 
+        .m-recommendation-item-completion {
+            grid-column: var(--recommendation-completion-column);
+            grid-row: 1;
+            text-align: center;
+        }
+
+        .u-recommendation-completion-heading,
         .u-recommendation-points-heading,
         .u-recommendation-action-heading { text-align: center; }
     }

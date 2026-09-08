@@ -6,6 +6,7 @@ import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import responsivePagination from "@/mixins/responsive-pagination";
 import AchievementDifficultyStars from "@/components/wiki/AchievementDifficultyStars.vue";
+import AchievementRecommendationItems from "./AchievementRecommendationItems.vue";
 import {
     formatAchievementWorkbenchValue,
     getAchievementWorkbenchDimensionSort,
@@ -17,11 +18,13 @@ export default {
     mixins: [responsivePagination],
     components: {
         AchievementDifficultyStars,
+        AchievementRecommendationItems,
         Delete,
         PvxEmptyState,
         PvxSurface,
     },
     props: {
+        recommendationLayout: { type: Boolean, default: false },
         maps: { type: Array, default: () => [] },
         items: {
             type: Array,
@@ -237,7 +240,13 @@ export default {
             </el-select>
         </div>
 
-        <div v-if="filteredItems.length" class="m-leap-route-table" role="table" :style="tableStyle"
+        <AchievementRecommendationItems v-if="recommendationLayout && filteredItems.length"
+            class="m-leap-route-recommendation"
+            :items="visibleItems" :dimensions="dimensions" :selected-ids="new Set()"
+            :editable="false" :removable="false" :order-offset="(page - 1) * pageSize"
+            table-layout show-completion />
+
+        <div v-else-if="filteredItems.length" class="m-leap-route-table" role="table" :style="tableStyle"
             :aria-label="$t('pages.wiki.leap.ui.workbench.routeList')">
             <div ref="tableHeader" class="m-leap-route-table-header" role="rowgroup">
                     <div role="row" class="m-leap-route-row">
@@ -353,6 +362,9 @@ export default {
 .m-leap-route {
     min-width: 0;
     color: #344143;
+}
+.m-leap-route-recommendation {
+    --recommendation-table-sticky-top: var(--achievement-sticky-top, 60px);
 }
 
 .m-leap-route__header {

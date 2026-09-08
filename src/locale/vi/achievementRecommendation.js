@@ -102,7 +102,7 @@ export default {
     filterIndexFailed: "Không thể tải chỉ mục bộ lọc. Vui lòng thử lại.",
     viewCandidatesCount: "Xem ứng viên ({count})",
     candidatesTitle: "Thành tựu ứng viên ({count})",
-    candidatesHint: "Chỉ hiển thị thành tựu chưa chọn, dùng chung bộ lọc với danh sách đã chọn. Chọn thêm sẽ giữ nguyên các mục cũ và có thể vượt điểm mục tiêu.",
+    candidatesHint: "Chỉ hiển thị thành tựu chưa chọn, dùng chung bộ lọc với danh sách đã chọn.",
     filterCandidates: "Tìm thành tựu ứng viên",
     addCandidate: "Chọn",
     removeCandidate: "Xóa khỏi ứng viên",

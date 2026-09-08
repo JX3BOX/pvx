@@ -102,7 +102,7 @@ export default {
     filterIndexFailed: "筛选索引加载失败，请重试。",
     viewCandidatesCount: "查看候选 ({count})",
     candidatesTitle: "候选成就 ({count})",
-    candidatesHint: "这里只展示未入选的成就，筛选条件与已入选清单同步。选入会额外保留原有项目，允许超出目标资历。",
+    candidatesHint: "这里只展示未入选的成就，筛选条件与已入选清单同步。",
     filterCandidates: "搜索候选成就",
     addCandidate: "选入",
     removeCandidate: "从候选中删除",

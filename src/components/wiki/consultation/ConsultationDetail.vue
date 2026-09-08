@@ -17,6 +17,16 @@ export default {
         requestId: 0, tab: "plan", advice: "", rating: 0, review: "", editorReady: false, editorError: false,
         editorInit: { height: 320, menubar: false, branding: false, plugins: "lists link table", toolbar: "undo redo | bold italic underline | bullist numlist | link table | removeformat", convert_urls: false } }),
     computed: {
+        requesterLabel() {
+            const userName = this.record?.user?.display_name?.trim();
+            const role = this.record?.role;
+            const roleName = role?.name?.trim();
+            return [
+                userName !== roleName ? userName : null,
+                role ? roleName : this.$t("achievementConsultation.roleUnavailable"),
+                role?.server,
+            ].filter(Boolean).join(" · ");
+        },
         completedIds() {
             return (this.record?.completion?.ids || []).filter((id) => /^\d+$/.test(String(id)) && Number(id) > 0);
         },
@@ -89,7 +99,7 @@ export default {
                 <el-tag v-if="record" effect="plain">{{ $t(`achievementConsultation.${record.status}`) }}</el-tag>
             </header>
             <div v-if="record" class="m-consultation-meta">
-                <span>{{ record.user?.display_name }} · {{ record.role ? [record.role.name, record.role.server].filter(Boolean).join(' · ') : $t('achievementConsultation.roleUnavailable') }}</span>
+                <span>{{ requesterLabel }}</span>
                 <span>{{ $t('achievementConsultation.createdAt') }} {{ date(record.created_at) }}</span>
                 <span>{{ $t('achievementConsultation.syncAt') }} {{ date(record.completion?.updated_at) }}</span>
             </div>
@@ -100,16 +110,6 @@ export default {
             <p class="m-consultation-question">{{ record.question }}</p>
             <el-alert v-if="!record.role || !record.plan || !record.completion" type="warning" :closable="false"
                 :title="$t(!record.role ? 'achievementConsultation.roleUnavailable' : !record.plan ? 'achievementConsultation.planUnavailable' : 'achievementConsultation.noSync')" />
-            <el-tabs v-model="tab">
-                <el-tab-pane name="plan" :label="$t('achievementConsultation.currentPlan')" />
-                <el-tab-pane name="progress" :label="$t('pages.wiki.sidebar.progress')" />
-            </el-tabs>
-            <KeepAlive :max="2">
-            <ConsultationPlan v-if="tab === 'plan' && record.plan" :key="`${record.id}:plan:${record.updated_at}`" :plan="record.plan" :completed-ids="completedIds"
-                :metadata="catalog.metadata" :menus="catalog.menus" :maps="maps" :dimensions="dimensions"
-            />
-            <AchievementProgressPage v-else-if="tab === 'progress'" :key="`${record.id}:progress:${record.updated_at}`" :snapshot="progressSnapshot" />
-            </KeepAlive>
             <PvxSurface v-if="record.advice_html" class="m-consultation-advice" padding="medium" radius="medium">
                 <header class="m-consultation-advice-heading">
                     <h3>{{ $t('achievementConsultation.advice') }}</h3>
@@ -131,6 +131,16 @@ export default {
                 <el-alert v-if="editorError" :title="$t('achievementConsultation.editorFailed')" type="error" :closable="false" />
                 <el-button type="primary" :disabled="!editorReady || !advice.trim() || advice.length > 50000" :loading="saving" @click="submit('reply')">{{ $t('achievementConsultation.submitAdvice') }}</el-button>
             </PvxSurface>
+            <el-tabs v-model="tab" class="m-consultation-tabs">
+                <el-tab-pane name="plan" :label="$t('achievementConsultation.currentPlan')" />
+                <el-tab-pane name="progress" :label="$t('pages.wiki.sidebar.progress')" />
+            </el-tabs>
+            <KeepAlive :max="2">
+            <ConsultationPlan v-if="tab === 'plan' && record.plan" :key="`${record.id}:plan:${record.updated_at}`" :plan="record.plan" :completed-ids="completedIds"
+                :metadata="catalog.metadata" :menus="catalog.menus" :maps="maps" :dimensions="dimensions"
+            />
+            <AchievementProgressPage v-else-if="tab === 'progress'" :key="`${record.id}:progress:${record.updated_at}`" :snapshot="progressSnapshot" />
+            </KeepAlive>
             <el-button v-if="record.is_owner && record.status === 'pending'" :loading="saving" @click="submit('cancel')">{{ $t('achievementConsultation.cancel') }}</el-button>
         </template>
     </div>
@@ -140,7 +150,46 @@ export default {
 .m-consultation-detail { min-width: 0; min-height: 120px; color: #314043;
     --el-color-primary: #47777d;
     --el-border-color: #dce4e1;
-    padding: 8px;
+    --consultation-card-padding: 20px;
+    --consultation-card-radius: 12px;
+    padding: 0;
+    .m-consultation-detail-header,
+    .m-consultation-advice,
+    :deep(.m-consultation-plan > .m-leap-summary),
+    :deep(.m-consultation-plan > .m-leap-route) {
+        padding: var(--consultation-card-padding);
+        border-radius: var(--consultation-card-radius);
+        border-color: #e2e8e6;
+        box-shadow: 0 1px 3px rgba(49, 64, 67, 0.05);
+    }
+    > .el-button { margin-top: 16px; }
+    .m-consultation-tabs {
+        margin: 16px 0;
+        :deep(.el-tabs__header) { margin: 0; }
+        :deep(.el-tabs__nav-wrap::after),
+        :deep(.el-tabs__active-bar) { display: none; }
+        :deep(.el-tabs__nav) {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid #dce4e1;
+            border-radius: 10px;
+            background: #f3f5f2;
+        }
+        :deep(.el-tabs__item) {
+            height: 36px;
+            padding: 0 20px;
+            border-radius: 7px;
+            color: #7a8586;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.15s, background-color 0.15s;
+            &:hover { color: #47777d; background: #e8efeb; }
+            &.is-active { color: #fff; background: #47777d; }
+            &:focus-visible { outline: 2px solid #b69a60; outline-offset: -2px; }
+        }
+    }
+
     header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     h2 { font-size: 18px; margin: 0; overflow-wrap: anywhere; } h3 { font-size: 15px; }
     :deep(.el-tabs__content) { display: none; }
@@ -153,10 +202,12 @@ export default {
 }
 .m-consultation-header-divider { width: 1px; height: 22px; flex: none; background: rgba(62, 82, 82, 0.15); }
 @media (max-width: 600px) {
+    .m-consultation-detail { --consultation-card-padding: 14px; --consultation-card-radius: 10px; padding: 0; }
+    .m-consultation-advice-heading time { width: 100%; margin-left: 0; }
     .m-consultation-detail-header h2 { flex-basis: 100%; font-size: 18px; }
     .m-consultation-header-divider { display: none; }
 }
-.m-consultation-question { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; padding: 12px 16px; border-left: 3px solid #b69a60; background: #f7f8f4; margin: 18px 0; }
+.m-consultation-question { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; padding: 14px var(--consultation-card-padding); border: 1px solid #e2e8e6; border-left: 3px solid #b69a60; border-radius: var(--consultation-card-radius); background: #f7f8f4; margin: 16px 0; }
 .m-consultation-advice { min-width: 0; margin-top: 16px;
     h3 { margin: 0 0 12px; color: #324346; }
     .el-form { padding-top: 16px; border-top: 1px solid #e2e8e6; }

@@ -102,7 +102,7 @@ export default {
     filterIndexFailed: "Could not load the filter index. Please retry.",
     viewCandidatesCount: "View candidates ({count})",
     candidatesTitle: "Candidate achievements ({count})",
-    candidatesHint: "Only unselected achievements appear here, with the same filters as the selected list. Selecting a candidate keeps existing items and may exceed the point target.",
+    candidatesHint: "Only unselected achievements appear here, with the same filters as the selected list.",
     filterCandidates: "Search candidates",
     addCandidate: "Select",
     removeCandidate: "Delete from candidates",

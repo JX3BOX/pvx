@@ -78,7 +78,7 @@ export default {
         </div>
         <template v-else-if="!loading">
             <AchievementLeapSummary :route="route" />
-            <AchievementLeapRouteTable :items="route.items" :dimensions="dimensions" :maps="maps" />
+            <AchievementLeapRouteTable :items="route.items" :dimensions="dimensions" :maps="maps" recommendation-layout />
         </template>
     </div>
 </template>
