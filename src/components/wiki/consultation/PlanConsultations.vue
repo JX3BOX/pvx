@@ -16,10 +16,25 @@ export default {
         planRoleId() { return String(this.plan.meta?.roleId || ""); },
         planRole() { return this.roles.find((role) => String(role.id) === this.planRoleId) || null; },
         consultationRoleId() { return this.planRoleId ? this.planRole?.roleId || null : this.form.role_id; },
+        notificationId() {
+            const value = this.$route.query.consultation_id;
+            return typeof value === "string" && /^[1-9]\d*$/.test(value) ? value : null;
+        },
     },
-    watch: { 'plan.id': { immediate: true, handler() { this.dialog = false; this.detailId = null; this.page = 1; this.load(); } } },
+    watch: {
+        'plan.id': { immediate: true, handler() { this.dialog = false; this.detailId = this.notificationId; this.page = 1; this.load(); } },
+        notificationId(value) { this.detailId = value; },
+    },
     beforeUnmount() { this.requestId += 1; this.expertRequestId += 1; },
     methods: {
+        closeDetail() {
+            this.detailId = null;
+            if (this.notificationId) {
+                const query = { ...this.$route.query };
+                delete query.consultation_id;
+                this.$router.replace({ query });
+            }
+        },
         async load() {
             const request = ++this.requestId;
             this.loading = true; this.error = "";
@@ -90,7 +105,7 @@ export default {
             <template #footer><el-button type="primary" :loading="saving" :disabled="!form.role_id || !form.question.trim()" @click="submit">{{ $t('achievementConsultation.submit') }}</el-button></template>
         </el-dialog>
         <el-dialog draggable :model-value="Boolean(detailId)" class="m-plan-consultation-detail-dialog" :title="$t('achievementConsultation.detail')" width="min(1180px, calc(100vw - 24px))" append-to-body destroy-on-close
-            @update:model-value="!$event && (detailId = null)"><ConsultationDetail v-if="detailId" :id="detailId" @changed="load" /></el-dialog>
+            @update:model-value="!$event && closeDetail()"><ConsultationDetail v-if="detailId" :id="detailId" @changed="load" /></el-dialog>
     </PvxSurface>
 </template>
 

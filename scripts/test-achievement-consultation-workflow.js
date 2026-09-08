@@ -41,7 +41,17 @@ async function run() {
         "@/service/achievementConsultation": api, "./ConsultationDetail.vue": {}, "@element-plus/icons-vue": {},
         "@/components/design/PvxSurface.vue": {},
     });
-    const vm = instance(player, { plan: { id: "10", raw: { user_id: 7 } }, roles: [{ id: "991", roleId: 77 }], defaultRoleId: "991" });
+    let replacedQuery;
+    const vm = instance(player, { plan: { id: "10", raw: { user_id: 7 } }, roles: [{ id: "991", roleId: 77 }], defaultRoleId: "991",
+        $route: { query: { consultation_id: "9", client: "std" } }, $router: { replace: (route) => { replacedQuery = route.query; } } });
+    player.watch['plan.id'].handler.call(vm);
+    assert.strictEqual(vm.detailId, "9", "notification opens the owner's consultation dialog without expert authorization");
+    vm.closeDetail();
+    assert.strictEqual(vm.detailId, null);
+    assert.deepStrictEqual(replacedQuery, { client: "std" }, "closing preserves unrelated query parameters");
+    vm.$route.query = { consultation_id: ["9", "10"] };
+    assert.strictEqual(vm.notificationId, null);
+    vm.$route.query = {};
     await vm.openCreate();
     await vm.loadExperts();
     assert.strictEqual(vm.form.role_id, 77, "submit database role ID, not jx3id");
