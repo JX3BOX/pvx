@@ -131,7 +131,7 @@ export default {
                     </el-radio-group>
                     <el-button v-if="scope === 'player'" type="primary" class="m-consultation-create"
                         :disabled="!levelAllowed" :loading="creating" @click="openCreate">
-                        <el-icon><Plus /></el-icon>{{ $t('achievementConsultation.submit', '提交咨询') }}
+                        <el-icon><Plus /></el-icon>{{ $t('achievementConsultation.directRequest', '咨询成就高手') }}
                     </el-button>
                 </div>
                 <el-table :data="rows" v-loading="loading" row-key="id" class="m-consultation-queue">
