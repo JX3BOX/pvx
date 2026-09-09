@@ -36,6 +36,11 @@ export default {
             "title": "Achievement plans",
             "text": "On the standard client, choose a character and target points. Adjust recommendation categories, difficulty dimensions and preferences, review candidates and ordering, then save your plan.",
             "action": "Create a plan"
+        },
+        {
+            "title": "Achievement consultations",
+            "text": "Open My consultations and choose Consult an achievement expert. Describe your goal and needs, then open the consultation details to read replies and planning advice.",
+            "action": "View consultations"
         }
     ],
     "questions": [
@@ -57,5 +62,11 @@ export default {
         "Open My characters from the avatar menu",
         "Click Bind character and copy the website token",
         "Bind your character and sync achievements in the 茗伊 team platform"
+    ],
+    "featureScreenshots": [
+        "① Switch characters; ② filter completion status; ③ check category progress. Click the image for full size.",
+        "① Add a character; ② filter by character completion status. Click the image for full size.",
+        "① Set target points; ② adjust difficulty and category preferences; ③ generate recommendations or ask an expert; ④ view saved plans. Click the image for full size.",
+        "① Open My consultations; ② consult an expert; ③ view consultation details. Click the image for full size."
     ]
 };

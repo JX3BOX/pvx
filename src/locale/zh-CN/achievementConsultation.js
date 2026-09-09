@@ -1,7 +1,5 @@
 export default {
     directEntry: "不知怎么选？请高手帮我规划",
-    levelRequired: "账号达到 Lv.2 后即可发起咨询",
-    levelCheckFailed: "账号等级获取失败，请稍后重试",
 
     expertPublicQueue: "公开咨询",
     loginRequired: "登录后查看你的咨询记录",

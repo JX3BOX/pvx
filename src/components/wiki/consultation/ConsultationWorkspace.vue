@@ -14,7 +14,7 @@ export default {
     name: "AchievementConsultationWorkspace",
     components: { Plus, PlanConsultations, PvxEmptyState, PvxSurface, ConsultationDetail, ArrowLeft, ArrowRight },
     data: () => ({ isLogin: User.isLogin(), isExpert: false, checking: true, loading: false, error: "", accessError: "", scope: "player", status: "", page: 1,
-        roles: [], levelAllowed: false, creating: false, createRequestId: 0, rows: [], total: 0, requestId: 0, accessRequestId: 0 }),
+        roles: [], creating: false, createRequestId: 0, rows: [], total: 0, requestId: 0, accessRequestId: 0 }),
     computed: {
         detailId() { return this.$route.params.id || null; },
         loginUrl() { return __Links.account.login + "?redirect=" + encodeURIComponent(location.href); },
@@ -34,20 +34,12 @@ export default {
         },
     },
     watch: { detailId(value) { if (!value && this.isLogin) this.load(); } },
-    created() { this.initialize(); this.loadCreationAccess(); },
+    created() { this.initialize(); },
     beforeUnmount() { this.createRequestId += 1; this.requestId += 1; this.accessRequestId += 1; },
     methods: {
         showAvatar,
-        async loadCreationAccess() {
-            this.levelAllowed = false;
-            if (!this.isLogin) return;
-            try {
-                const asset = await User.getAsset();
-                this.levelAllowed = Number(User.getLevel(asset?.experience)) >= 2;
-            } catch { /* Keep creation disabled when account level is unavailable. */ }
-        },
         async openCreate() {
-            if (!this.isLogin || !this.levelAllowed || this.creating || this.scope !== "player" || this.detailId) return;
+            if (!this.isLogin || this.creating || this.scope !== "player" || this.detailId) return;
             const request = ++this.createRequestId;
             this.creating = true;
             try {
@@ -130,7 +122,7 @@ export default {
                         <el-radio-button v-for="value in ['pending', 'answered']" :key="value" :value="value">{{ $t(`achievementConsultation.${value}`) }}</el-radio-button>
                     </el-radio-group>
                     <el-button v-if="scope === 'player'" type="primary" class="m-consultation-create"
-                        :disabled="!levelAllowed" :loading="creating" @click="openCreate">
+                        :loading="creating" @click="openCreate">
                         <el-icon><Plus /></el-icon>{{ $t('achievementConsultation.directRequest', '咨询成就高手') }}
                     </el-button>
                 </div>

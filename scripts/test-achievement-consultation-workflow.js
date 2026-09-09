@@ -154,35 +154,34 @@ async function run() {
     accountLevel = 1;
     direct.dialog = false;
     await direct.openCreate();
-    assert.strictEqual(direct.dialog, false, "Lv.1 cannot start a consultation");
+    assert.strictEqual(direct.dialog, true, "Lv.1 can start a consultation");
     const writeCount = writes.length;
     await direct.submit();
-    assert.strictEqual(writes.length, writeCount, "submission also checks the level");
-    accountLevel = 2;
+    assert.strictEqual(writes.length, writeCount + 1, "Lv.1 can submit a direct consultation");
+    record = null;
     failLevel = true;
     await direct.openCreate();
-    assert.strictEqual(direct.dialog, false, "failed level lookup does not grant access");
+    assert.strictEqual(direct.dialog, true, "consultation does not depend on the account level service");
+    await direct.submit();
+    assert.strictEqual(writes.length, writeCount + 2, "unavailable level service does not block submission");
+    record = null;
+    await vm.openCreate();
+    assert.strictEqual(vm.dialog, true, "saved-plan consultations also have no level gate");
+    vm.form.question = "Low-level plan consultation";
+    await vm.submit();
+    assert.strictEqual(writes.length, writeCount + 3);
     failLevel = false;
-    await direct.openCreate();
-    assert.strictEqual(direct.dialog, true, "Lv.2 can start a consultation");
     const page = load("src/components/wiki/leap/AchievementLeapPage.vue", new Proxy({}, {
         has: () => true,
-        get: (_, key) => key === "@jx3box/jx3box-common/js/user" ? {
-            getAsset: async () => { if (failLevel) throw new Error("offline"); return { experience: accountLevel }; },
-            getLevel: (experience) => experience,
-        } : {},
+        get: () => ({}),
     }));
-    const entry = { isLogin: true, consultationLevelAllowed: false };
-    accountLevel = 1;
-    await page.methods.loadConsultationLevel.call(entry);
-    assert.strictEqual(entry.consultationLevelAllowed, false);
-    accountLevel = 2;
-    await page.methods.loadConsultationLevel.call(entry);
-    assert.strictEqual(entry.consultationLevelAllowed, true);
-    failLevel = true;
-    await page.methods.loadConsultationLevel.call(entry);
-    assert.strictEqual(entry.consultationLevelAllowed, false, "lookup failure disables both entry buttons");
-    failLevel = false;
+    let opened = 0;
+    const entry = { canConsultPlan: true, $refs: { consultations: { openCreate: () => opened++ } } };
+    page.methods.requestPlanGuidance.call(entry);
+    assert.strictEqual(opened, 1, "eligible saved-plan entry opens without a level check");
+    entry.canConsultPlan = false;
+    page.methods.requestPlanGuidance.call(entry);
+    assert.strictEqual(opened, 1, "existing plan eligibility checks remain");
     const header = load("src/components/wiki/leap/AchievementLeapDetailHeader.vue", {
         "@element-plus/icons-vue": {}, "@/components/design/PvxSurface.vue": {},
     });
@@ -190,7 +189,7 @@ async function run() {
     const headerVm = { actionsDisabled: false, guidanceDisabled: true, plan: { id: 10 }, $emit: (action) => actions.push(action) };
     header.methods.emitPlanAction.call(headerVm, "request-guidance");
     header.methods.emitPlanAction.call(headerVm, "edit");
-    assert.deepStrictEqual(actions, ["edit"], "level restriction only disables consultation, not plan editing");
+    assert.deepStrictEqual(actions, ["edit"], "explicit guidance disable only affects consultation, not plan editing");
     headerVm.guidanceDisabled = false;
     header.methods.emitPlanAction.call(headerVm, "request-guidance");
     assert.deepStrictEqual(actions, ["edit", "request-guidance"]);

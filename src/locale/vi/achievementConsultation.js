@@ -1,7 +1,5 @@
 export default {
     directEntry: "Chưa biết chọn gì? Nhờ chuyên gia lên kế hoạch",
-    levelRequired: "Tài khoản cần đạt Lv.2 để gửi tư vấn",
-    levelCheckFailed: "Không kiểm tra được cấp tài khoản. Vui lòng thử lại.",
 
     expertPublicQueue: "Tư vấn công khai",
     loginRequired: "Đăng nhập để xem tư vấn của bạn",

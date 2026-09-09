@@ -52,6 +52,8 @@
     z-index: 30;
 }
 .m-achievement-main.c-achievement-workbench {
+    position: relative;
+    isolation: isolate;
     display: block;
     width: 100%;
     min-width: 0;
@@ -60,9 +62,24 @@
     margin-top: 60px;
     padding: 24px;
     overflow: visible;
-    background: url("../../img/wiki/figma/bamboo.png") left top / 283px 156px no-repeat,
-        url("../../img/wiki/figma/background.png") right bottom / cover no-repeat,
-        linear-gradient(120deg, #fff, #f1ede4);
+    background: #f8f7f3;
+    // 只裁剪装饰背景，保留内容区域的吸顶导航和浮层行为。
+    > .m-achievement-page-background {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        clip-path: inset(0);
+        &::before {
+            content: "";
+            position: fixed;
+            inset: 60px 0 0;
+            background: url("../../img/wiki/figma/bamboo.png") left top / 283px 156px no-repeat,
+                linear-gradient(90deg, #f8f7f3 40%, rgba(248, 247, 243, 0) 75%),
+                linear-gradient(180deg, #f8f7f3 20%, rgba(248, 247, 243, 0) 60%),
+                url("../../img/wiki/figma/background.png") right bottom / cover no-repeat;
+        }
+    }
     box-sizing: border-box;
     * {
         box-sizing: border-box;
@@ -139,7 +156,9 @@
         min-height: calc(100vh - @header-height);
         min-height: calc(100dvh - @header-height);
         padding: 8px;
-        background-size: 190px auto, auto 100%, auto;
+        > .m-achievement-page-background::before {
+            background-size: 190px auto, auto, auto, cover;
+        }
     }
     .m-achievement-workbench-shell {
         --achievement-sticky-top: 60px;

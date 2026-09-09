@@ -1,7 +1,5 @@
 export default {
     directEntry: "Unsure? Let an expert help me plan",
-    levelRequired: "Reach account level 2 to start a consultation",
-    levelCheckFailed: "Could not check your account level. Please try again.",
 
     expertPublicQueue: "Public consultations",
     loginRequired: "Sign in to view your consultations",

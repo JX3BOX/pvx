@@ -1,7 +1,5 @@
 export default {
     directEntry: "不知怎麼選？請高手幫我規劃",
-    levelRequired: "帳號達到 Lv.2 後即可發起諮詢",
-    levelCheckFailed: "帳號等級取得失敗，請稍後重試",
 
     expertPublicQueue: "公開諮詢",
     loginRequired: "登入後查看你的諮詢記錄",

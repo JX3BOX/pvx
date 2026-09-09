@@ -1,25 +1,32 @@
 <script>
 import { Compass, ArrowLeft } from "@element-plus/icons-vue";
+import { ElImageViewer } from "element-plus";
 import myRolesImage from "@/assets/img/wiki/guide/my-roles.png";
 import bindRoleImage from "@/assets/img/wiki/guide/bind-role.png";
 import syncAchievementsImage from "@/assets/img/wiki/guide/sync-achievements.png";
+import progressImage from "@/assets/img/wiki/guide/progress.png";
+import compareImage from "@/assets/img/wiki/guide/compare.png";
+import leapImage from "@/assets/img/wiki/guide/leap.png";
+import consultationImage from "@/assets/img/wiki/guide/consultation.png";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 
 export default {
     name: "AchievementGuidePage",
-    components: { PvxSurface, Compass, ArrowLeft },
+    components: { PvxSurface, Compass, ArrowLeft, ElImageViewer },
     data() {
         return {
+            previewImage: null,
             screenshots: [
                 [
                     { src: myRolesImage, caption: 0, width: 808, height: 960 },
                     { src: bindRoleImage, caption: 1, width: 678, height: 476 },
                 ],
-                [{ src: syncAchievementsImage, caption: 2, width: 987, height: 644 }],
+                [{ src: syncAchievementsImage, caption: 2, width: 948, height: 485 }],
                 [],
             ],
             sections: ["sync", "usage", "faq"],
-            featureRoutes: ["overview", "compare", "leap"],
+            featureRoutes: ["overview", "compare", "leap", "consultation"],
+            featureScreenshots: [progressImage, compareImage, leapImage, consultationImage],
         };
     },
     mounted() {
@@ -72,7 +79,7 @@ export default {
                             <summary>{{ $t("achievementAppearance.screenshots") }}</summary>
                             <div class="m-guide-screenshots" :class="{ 'is-pair': index === 1 }">
                                 <figure v-for="shot in screenshots[index - 1]" :key="shot.caption">
-                                    <a :href="shot.src" target="_blank" rel="noopener noreferrer">
+                                    <button type="button" class="u-guide-image-preview" @click="previewImage = shot.src">
                                         <img
                                             :src="shot.src"
                                             :alt="$t(`achievementGuide.screenshots.${shot.caption}`)"
@@ -80,7 +87,7 @@ export default {
                                             :height="shot.height"
                                             loading="lazy"
                                         />
-                                    </a>
+                                    </button>
                                     <figcaption>{{ $t(`achievementGuide.screenshots.${shot.caption}`) }}</figcaption>
                                 </figure>
                             </div>
@@ -96,9 +103,20 @@ export default {
                     <section v-for="(route, index) in featureRoutes" :key="route">
                         <h3>{{ $t(`achievementGuide.features.${index}.title`) }}</h3>
                         <p>{{ $t(`achievementGuide.features.${index}.text`) }}</p>
-                        <router-link :to="{ name: route }"
+                        <router-link :to="{ name: route }" class="u-guide-feature-action"
                             >{{ $t(`achievementGuide.features.${index}.action`) }} →</router-link
                         >
+                        <details class="m-guide-screenshot-disclosure">
+                            <summary>{{ $t("achievementAppearance.screenshots") }}</summary>
+                            <div class="m-guide-screenshots">
+                                <figure>
+                                    <button type="button" class="u-guide-image-preview" @click="previewImage = featureScreenshots[index]">
+                                        <img :src="featureScreenshots[index]" :alt="$t(`achievementGuide.featureScreenshots.${index}`)" loading="lazy" />
+                                    </button>
+                                    <figcaption>{{ $t(`achievementGuide.featureScreenshots.${index}`) }}</figcaption>
+                                </figure>
+                            </div>
+                        </details>
                     </section>
                 </div>
             </PvxSurface>
@@ -111,6 +129,13 @@ export default {
                 </div>
             </PvxSurface>
         </div>
+        <ElImageViewer
+            v-if="previewImage"
+            :url-list="[previewImage]"
+            teleported
+            hide-on-click-modal
+            @close="previewImage = null"
+        />
     </article>
 </template>
 
@@ -261,8 +286,17 @@ export default {
         min-width: 0;
         margin: 0;
     }
-    a {
+    .u-guide-image-preview {
         display: block;
+        max-width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: zoom-in;
+        &:focus-visible {
+            outline: 2px solid #5a7e84;
+            outline-offset: 4px;
+        }
     }
     img {
         display: block;
@@ -281,7 +315,8 @@ export default {
 }
 .m-guide-features {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
     gap: 24px;
     section {
         display: flex;
@@ -294,10 +329,9 @@ export default {
         background: #f8f7f3;
     }
     p {
-        flex: 1;
         margin-bottom: 24px;
     }
-    a {
+    .u-guide-feature-action {
         display: inline-flex;
         align-items: center;
         justify-content: center;

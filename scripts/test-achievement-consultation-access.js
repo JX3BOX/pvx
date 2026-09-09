@@ -57,7 +57,7 @@ async function run() {
         "@/components/design/PvxEmptyState.vue": {},
         "@element-plus/icons-vue": {},
         "@jx3box/jx3box-common/js/utils": { showAvatar: (value) => value },
-        "@jx3box/jx3box-common/js/user": { isLogin: () => loggedIn, getAsset: async () => ({ experience: 2 }), getLevel: (exp) => exp },
+        "@jx3box/jx3box-common/js/user": { isLogin: () => loggedIn, getAsset: async () => { throw new Error("level service must not be queried"); }, getLevel: () => 1 },
         "@/utils/config": { __Links: { account: { login: "/login" } } },
     });
     const player = instance(workspace);
@@ -78,10 +78,7 @@ async function run() {
     player.$nextTick = async () => {};
     player.$refs = { creator: { openCreate: async () => { opened++; } } };
     await player.openCreate();
-    assert.strictEqual(opened, 0, "creation is disabled before level qualification");
-    await player.loadCreationAccess();
-    await player.openCreate();
-    assert.strictEqual(opened, 1, "qualified players can open the shared consultation form");
+    assert.strictEqual(opened, 1, "logged-in players can open the form without level qualification");
     assert.strictEqual(player.roles[0].roleId, 42);
     player.scope = "public";
     await player.openCreate();

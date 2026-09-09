@@ -36,6 +36,11 @@ export default {
             "title": "Kế hoạch thành tựu",
             "text": "Ở bản tiêu chuẩn, chọn nhân vật và điểm mục tiêu. Điều chỉnh danh mục, độ khó và ưu tiên, xem lại danh sách, thay đổi thứ tự rồi lưu kế hoạch.",
             "action": "Lập kế hoạch"
+        },
+        {
+            "title": "Tư vấn thành tựu",
+            "text": "Mở mục tư vấn của tôi và chọn hỏi chuyên gia thành tựu. Mô tả mục tiêu và nhu cầu, sau đó mở chi tiết tư vấn để xem phản hồi và hướng dẫn lập kế hoạch.",
+            "action": "Xem tư vấn"
         }
     ],
     "questions": [
@@ -57,5 +62,11 @@ export default {
         "Mở Nhân vật của tôi từ menu ảnh đại diện",
         "Nhấn Liên kết nhân vật và sao chép token trên website",
         "Liên kết nhân vật và đồng bộ thành tựu trong nền tảng đội của 茗伊"
+    ],
+    "featureScreenshots": [
+        "① Đổi nhân vật; ② lọc trạng thái hoàn thành; ③ xem tiến độ danh mục. Nhấn ảnh để xem kích thước đầy đủ.",
+        "① Thêm nhân vật; ② lọc theo trạng thái hoàn thành của nhân vật. Nhấn ảnh để xem kích thước đầy đủ.",
+        "① Nhập điểm mục tiêu; ② điều chỉnh tùy chọn; ③ tạo đề xuất hoặc hỏi chuyên gia; ④ xem kế hoạch đã lưu. Nhấn ảnh để xem kích thước đầy đủ.",
+        "① Mở tư vấn của tôi; ② hỏi chuyên gia; ③ xem chi tiết tư vấn. Nhấn ảnh để xem kích thước đầy đủ."
     ]
 };

@@ -28,16 +28,6 @@ export default {
     },
     beforeUnmount() { this.requestId += 1; this.expertRequestId += 1; },
     methods: {
-        async ensureConsultationLevel() {
-            try {
-                const asset = await User.getAsset();
-                if (Number(User.getLevel(asset?.experience)) >= 2) return true;
-                this.$message.error(this.$t('achievementConsultation.levelRequired'));
-            } catch {
-                this.$message.error(this.$t('achievementConsultation.levelCheckFailed'));
-            }
-            return false;
-        },
         openDetail(id) {
             if (this.plan) this.detailId = id;
             else this.$router.push({ name: 'consultation-detail', params: { id } });
@@ -65,7 +55,6 @@ export default {
             try {
                 if (!await this.load()) { if (this.error) this.$message.error(this.error); return; }
                 if (this.pendingId) { this.openDetail(this.pendingId); return; }
-                if (!await this.ensureConsultationLevel()) return;
                 this.form = { role_id: (this.planRoleId ? this.planRole : this.roles.find((role) => role.id === this.defaultRoleId))?.roleId || null,
                     target_expert_id: null, question: this.defaultQuestion || "" };
                 this.dialog = true; this.loadExperts();
@@ -84,7 +73,6 @@ export default {
             const planId = this.plan?.id;
             this.saving = true;
             try {
-                if (!await this.ensureConsultationLevel()) return;
                 const result = await createConsultation({ ...(planId ? { plan_id: Number(planId) } : {}), ...this.form, role_id: this.consultationRoleId, question: this.form.question.trim() });
                 if (planId !== this.plan?.id) return;
                 this.$message.success(this.$t('achievementConsultation.submitted'));
