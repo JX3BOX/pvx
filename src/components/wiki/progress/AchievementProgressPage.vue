@@ -717,14 +717,27 @@ export default {
             this.page = 1;
             await this.loadVisibleRecords();
         },
+        async selectListCategory(categoryId) {
+            await this.setListFilter('categoryId', categoryId);
+            await this.scrollToBrowserTop();
+        },
+        async scrollToBrowserTop() {
+            await this.$nextTick();
+            this.$refs.achievementBrowser?.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                block: "start",
+                inline: "nearest",
+            });
+        },
         async changePage(page) {
             this.page = Number(page) || 1;
             if (!this.searchMode) {
                 await this.loadVisibleRecords();
-                return;
+            } else {
+                await this.$nextTick();
+                this.loadVisibleEnrichment(this.visibleRecords.map((record) => record.id));
             }
-            await this.$nextTick();
-            this.loadVisibleEnrichment(this.visibleRecords.map((record) => record.id));
+            await this.scrollToBrowserTop();
         },
         retryRecords() {
             return this.searchMode ? this.runSearch() : this.loadVisibleRecords();
@@ -800,14 +813,14 @@ export default {
                 @update:collapsed="summaryCollapsed = $event"
             />
 
-            <div v-shorter-column-sticky class="m-progress-browser-grid">
+            <div ref="achievementBrowser" v-shorter-column-sticky class="m-progress-browser-grid">
                 <AchievementCategoryBoard
                     :tier-label="$t(filters.tier === 'wujia' ? 'pages.wiki.overview.ui.statistics.wujia' : 'pages.wiki.overview.ui.statistics.regular')"
                     :categories="categories"
                     :compact-overview="summaryCollapsed"
                     :active-category-id="filters.categoryId"
                     :sort="categorySort"
-                    @select-category="setListFilter('categoryId', $event)"
+                    @select-category="selectListCategory"
                     @update:sort="categorySort = $event"
                 />
                 <AchievementProgressList
@@ -863,6 +876,7 @@ export default {
 }
 
 .m-progress-browser-grid {
+    scroll-margin-top: calc(var(--achievement-sticky-top, 120px) + 12px);
     display: grid;
     min-width: 0;
     grid-template-columns: repeat(2, minmax(0, 1fr));

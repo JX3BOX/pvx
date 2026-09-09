@@ -469,12 +469,22 @@ export default {
             this.activeDetailId = "";
             this.page = 1;
             await this.loadVisibleRecords();
+            await this.scrollToAchievementList();
         },
         async selectDetail({ categoryId, detailId }) {
             this.activeCategoryId = String(categoryId);
             this.activeDetailId = String(detailId);
             this.page = 1;
             await this.loadVisibleRecords();
+            await this.scrollToAchievementList();
+        },
+        async scrollToAchievementList() {
+            await this.$nextTick();
+            this.$refs.achievementList?.$el?.scrollIntoView({
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+                block: "start",
+                inline: "nearest",
+            });
         },
         updateSearchField(key, value) {
             this[key] = String(value || "");
@@ -677,6 +687,8 @@ export default {
         async changePage(page) {
             this.page = Number(page) || 1;
             await this.loadVisibleRecords();
+            await this.$nextTick();
+            this.$refs.achievementList?.scrollToFirstRecord();
         },
         retryRecords() {
             return this.searchMode ? this.runSearch() : this.loadVisibleRecords();
@@ -883,6 +895,7 @@ export default {
                         @select-detail="selectDetail"
                     />
                     <AchievementCompareMatrix
+                        ref="achievementList"
                         :title="comparisonScopeTitle"
                         :records="visibleRecords"
                         :roles="roleProgress"
@@ -955,7 +968,7 @@ export default {
 .m-compare-browser-grid {
     display: grid;
     min-width: 0;
-    grid-template-columns: 200px minmax(0, 1fr);
+    grid-template-columns: 250px minmax(0, 1fr);
     padding: 12px;
     border-radius: 16px;
     background: #fff;

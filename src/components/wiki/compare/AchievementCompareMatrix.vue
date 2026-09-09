@@ -58,6 +58,19 @@ export default {
         },
     },
     emits: ["page-change", "retry"],
+    data() {
+        return { stickyList: false };
+    },
+    mounted() {
+        this.listResizeObserver = new ResizeObserver(this.updateStickyList);
+        this.listResizeObserver.observe(this.$el);
+        window.addEventListener("resize", this.updateStickyList);
+        this.updateStickyList();
+    },
+    beforeUnmount() {
+        this.listResizeObserver?.disconnect();
+        window.removeEventListener("resize", this.updateStickyList);
+    },
     computed: {
         tableStyle() {
             return {
@@ -80,6 +93,25 @@ export default {
         if (header) header.scrollLeft = body?.scrollLeft || 0;
     },
     methods: {
+        scrollToFirstRecord() {
+            this.updateStickyList();
+            const header = this.$el.querySelector(".m-compare-matrix__sticky-top");
+            const body = this.$el.querySelector(".m-compare-matrix__body");
+            const top = header ? parseFloat(window.getComputedStyle(header).top) || 0 : 0;
+            const wholeListSticky = this.stickyList && window.matchMedia("(min-width: 1061px)").matches;
+            const target = wholeListSticky ? this.$el : body;
+            if (!target) return;
+            const offset = top + (wholeListSticky ? 0 : header?.getBoundingClientRect().height || 0);
+            window.scrollTo({
+                top: Math.max(0, window.scrollY + target.getBoundingClientRect().top - offset),
+                behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+            });
+        },
+        updateStickyList() {
+            const header = this.$el.querySelector(".m-compare-matrix__sticky-top");
+            const top = header ? parseFloat(window.getComputedStyle(header).top) || 0 : 0;
+            this.stickyList = this.$el.getBoundingClientRect().height <= window.innerHeight - top - 12;
+        },
         syncHorizontalScroll(event, targetRef) {
             const target = this.$refs[targetRef];
             if (target && target.scrollLeft !== event.target.scrollLeft) target.scrollLeft = event.target.scrollLeft;
@@ -116,7 +148,7 @@ export default {
 </script>
 
 <template>
-    <section class="m-compare-matrix" :aria-label="$t('pages.wiki.compare.ui.matrix.completion')">
+    <section class="m-compare-matrix" :class="{ 'is-sticky-list': stickyList }" :aria-label="$t('pages.wiki.compare.ui.matrix.completion')">
         <div v-if="$slots.filters" class="m-compare-matrix__filters">
             <slot name="filters" />
         </div>
@@ -290,6 +322,7 @@ export default {
 
 <style lang="less" scoped>
 .m-compare-matrix {
+    scroll-margin-top: calc(var(--achievement-sticky-top, 120px) + 12px);
     --compare-achievement-column-width: 360px;
     display: flex;
     min-width: 0;
@@ -304,6 +337,12 @@ export default {
     top: calc(var(--achievement-sticky-top, 120px) + 12px);
     z-index: 5;
     background: #f8f7f3;
+}
+@media (min-width: 1061px) {
+    .m-compare-matrix.is-sticky-list {
+        position: sticky;
+        top: calc(var(--achievement-sticky-top, 120px) + 12px);
+    }
 }
 .m-compare-matrix__sticky-top::before {
     content: "";

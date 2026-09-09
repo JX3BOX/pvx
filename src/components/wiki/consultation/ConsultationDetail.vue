@@ -134,7 +134,7 @@ export default {
                 <el-alert v-if="editorError" :title="$t('achievementConsultation.editorFailed')" type="error" :closable="false" />
                 <el-button type="primary" :disabled="!editorReady || !advice.trim() || advice.length > 50000" :loading="saving" @click="submit('reply')">{{ $t('achievementConsultation.submitAdvice') }}</el-button>
             </PvxSurface>
-            <el-tabs v-model="tab" class="m-consultation-tabs">
+            <el-tabs v-if="record.plan" v-model="tab" class="m-consultation-tabs">
                 <el-tab-pane v-if="record.plan" name="plan" :label="$t('achievementConsultation.currentPlan')" />
                 <el-tab-pane name="progress" :label="$t('pages.wiki.sidebar.progress')" />
             </el-tabs>
