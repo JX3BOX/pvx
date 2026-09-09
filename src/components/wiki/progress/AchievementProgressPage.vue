@@ -82,7 +82,7 @@ export default {
             records: [],
             searchRecords: null,
             page: 1,
-            pageSize: 15,
+            pageSize: 20,
             categorySort: "progress-asc",
             summaryCollapsed: false,
             filters: createDefaultFilters(),
@@ -719,10 +719,21 @@ export default {
         },
         async selectListCategory(categoryId) {
             await this.setListFilter('categoryId', categoryId);
-            await this.scrollToBrowserTop();
+            await this.scrollToBrowserTop({ keepVisibleList: true });
         },
-        async scrollToBrowserTop() {
+        async scrollToBrowserTop({ keepVisibleList = false } = {}) {
             await this.$nextTick();
+            if (keepVisibleList) {
+                // Wait for the shorter-column observer and its sticky layout to settle.
+                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+                const list = this.$refs.achievementList?.$el;
+                const browser = this.$refs.achievementBrowser;
+                if (list && browser) {
+                    const rect = list.getBoundingClientRect();
+                    const top = parseFloat(window.getComputedStyle(browser).scrollMarginTop) || 0;
+                    if (rect.top >= top - 1 && rect.bottom <= window.innerHeight) return;
+                }
+            }
             this.$refs.achievementBrowser?.scrollIntoView({
                 behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
                 block: "start",
@@ -824,6 +835,7 @@ export default {
                     @update:sort="categorySort = $event"
                 />
                 <AchievementProgressList
+                    ref="achievementList"
                     :title="achievementListTitle"
                     :records="visibleRecords"
                     :dimensions="dimensions"

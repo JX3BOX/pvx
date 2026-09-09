@@ -3,9 +3,11 @@ import { ArrowRight, CollectionTag } from "@element-plus/icons-vue";
 import { achievementCategoryImages } from "@/utils/achievementCategoryImages";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import { fetchAchievementWorkbenchRecords } from "@/service/achievementWorkbench";
+import shorterColumnSticky from "@/directives/shorter-column-sticky";
 
 export default {
     name: "AchievementCategoryBoard",
+    directives: { shorterColumnSticky },
     components: {
         ArrowRight,
         CollectionTag,
@@ -153,7 +155,7 @@ export default {
             </el-select>
         </div>
 
-        <div :class="['m-progress-category-browser', { 'has-subcategories': expandedCategory }]">
+        <div :key="Boolean(expandedCategory)" v-shorter-column-sticky :class="['m-progress-category-browser', { 'has-subcategories': expandedCategory }]">
             <div class="m-progress-category-list">
                 <div
                     v-for="category in categories"
@@ -310,10 +312,22 @@ export default {
 .m-progress-category-browser {
     display: grid;
     min-width: 0;
+    align-items: start;
     &.has-subcategories {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 4px;
     }
+}
+.m-progress-category-browser.has-subcategories > .is-shorter-sticky-column {
+    position: sticky;
+    top: min(
+        calc(var(--achievement-sticky-top, 120px) + 12px),
+        calc(100vh - var(--sticky-column-height) - 12px)
+    );
+    top: min(
+        calc(var(--achievement-sticky-top, 120px) + 12px),
+        calc(100dvh - var(--sticky-column-height) - 12px)
+    );
 }
 .m-progress-category-list,
 .m-progress-subcategory-list {

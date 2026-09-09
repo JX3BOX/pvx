@@ -90,7 +90,7 @@ export default {
             mapId: "",
             keyword: "",
             page: 1,
-            pageSize: 15,
+            pageSize: 20,
             roleSummaryCollapsed: false,
             roleDialogVisible: false,
             difficultyById: {},
@@ -480,7 +480,14 @@ export default {
         },
         async scrollToAchievementList() {
             await this.$nextTick();
-            this.$refs.achievementList?.$el?.scrollIntoView({
+            // Wait for the resized list's sticky position to settle before checking visibility.
+            await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+            const list = this.$refs.achievementList?.$el;
+            if (!list) return;
+            const rect = list.getBoundingClientRect();
+            const top = parseFloat(window.getComputedStyle(list).scrollMarginTop) || 0;
+            if (rect.top >= top - 1 && rect.bottom <= window.innerHeight) return;
+            list.scrollIntoView({
                 behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
                 block: "start",
                 inline: "nearest",
