@@ -51,11 +51,13 @@ async function run() {
     const workspace = load("src/components/wiki/consultation/ConsultationWorkspace.vue", {
         "@/service/achievementConsultation": service,
         "./ConsultationDetail.vue": {},
+        "./PlanConsultations.vue": {},
+        "@/service/achievementWorkbench": { fetchAchievementWorkbenchRoles: async () => [{ id: "role", roleId: 42 }] },
         "@/components/design/PvxSurface.vue": {},
         "@/components/design/PvxEmptyState.vue": {},
         "@element-plus/icons-vue": {},
         "@jx3box/jx3box-common/js/utils": { showAvatar: (value) => value },
-        "@jx3box/jx3box-common/js/user": { isLogin: () => loggedIn },
+        "@jx3box/jx3box-common/js/user": { isLogin: () => loggedIn, getAsset: async () => ({ experience: 2 }), getLevel: (exp) => exp },
         "@/utils/config": { __Links: { account: { login: "/login" } } },
     });
     const player = instance(workspace);
@@ -72,6 +74,19 @@ async function run() {
     player.scope = "directed";
     await player.load();
     assert.strictEqual(calls.at(-1).scope, "player", "ordinary users cannot request expert queues through local state");
+    let opened = 0;
+    player.$nextTick = async () => {};
+    player.$refs = { creator: { openCreate: async () => { opened++; } } };
+    await player.openCreate();
+    assert.strictEqual(opened, 0, "creation is disabled before level qualification");
+    await player.loadCreationAccess();
+    await player.openCreate();
+    assert.strictEqual(opened, 1, "qualified players can open the shared consultation form");
+    assert.strictEqual(player.roles[0].roleId, 42);
+    player.scope = "public";
+    await player.openCreate();
+    assert.strictEqual(opened, 1, "creation is only available on the personal tab");
+    player.scope = "player";
     const beforeDetail = calls.length;
     const detail = instance(workspace, { $route: { params: { id: "1" } } });
     await detail.initialize();

@@ -8,6 +8,7 @@ import { ChatDotRound } from "@element-plus/icons-vue";
 export default {
     name: "PlanConsultations",
     components: { ConsultationDetail, ChatDotRound, PvxSurface },
+    emits: ["submitted"],
     props: { plan: { type: Object, default: null }, defaultQuestion: { type: String, default: "" }, roles: { type: Array, required: true }, defaultRoleId: { type: String, default: "" } },
     data: () => ({ rows: [], total: 0, pendingId: null, page: 1, loading: false, error: "", saving: false, opening: false, dialog: false, detailId: null,
         experts: [], expertsLoading: false, expertsError: false, requestId: 0, expertRequestId: 0,
@@ -88,6 +89,7 @@ export default {
                 if (planId !== this.plan?.id) return;
                 this.$message.success(this.$t('achievementConsultation.submitted'));
                 this.dialog = false; this.page = 1;
+                this.$emit("submitted");
                 if (!planId) {
                     if (result?.id) this.openDetail(result.id);
                     else this.$router.push({ name: 'consultation' });

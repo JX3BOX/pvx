@@ -1,18 +1,20 @@
 <script>
-import { ArrowLeft, ArrowRight } from "@element-plus/icons-vue";
+import { ArrowLeft, ArrowRight, Plus } from "@element-plus/icons-vue";
 import { showAvatar } from "@jx3box/jx3box-common/js/utils";
 import { getConsultationAccess, getConsultations } from "@/service/achievementConsultation";
 import User from "@jx3box/jx3box-common/js/user";
 import { __Links } from "@/utils/config";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
+import { fetchAchievementWorkbenchRoles } from "@/service/achievementWorkbench";
+import PlanConsultations from "./PlanConsultations.vue";
 import ConsultationDetail from "./ConsultationDetail.vue";
 
 export default {
     name: "AchievementConsultationWorkspace",
-    components: { PvxEmptyState, PvxSurface, ConsultationDetail, ArrowLeft, ArrowRight },
+    components: { Plus, PlanConsultations, PvxEmptyState, PvxSurface, ConsultationDetail, ArrowLeft, ArrowRight },
     data: () => ({ isLogin: User.isLogin(), isExpert: false, checking: true, loading: false, error: "", accessError: "", scope: "player", status: "", page: 1,
-        rows: [], total: 0, requestId: 0, accessRequestId: 0 }),
+        roles: [], levelAllowed: false, creating: false, createRequestId: 0, rows: [], total: 0, requestId: 0, accessRequestId: 0 }),
     computed: {
         detailId() { return this.$route.params.id || null; },
         loginUrl() { return __Links.account.login + "?redirect=" + encodeURIComponent(location.href); },
@@ -32,10 +34,33 @@ export default {
         },
     },
     watch: { detailId(value) { if (!value && this.isLogin) this.load(); } },
-    created() { this.initialize(); },
-    beforeUnmount() { this.requestId += 1; this.accessRequestId += 1; },
+    created() { this.initialize(); this.loadCreationAccess(); },
+    beforeUnmount() { this.createRequestId += 1; this.requestId += 1; this.accessRequestId += 1; },
     methods: {
         showAvatar,
+        async loadCreationAccess() {
+            this.levelAllowed = false;
+            if (!this.isLogin) return;
+            try {
+                const asset = await User.getAsset();
+                this.levelAllowed = Number(User.getLevel(asset?.experience)) >= 2;
+            } catch { /* Keep creation disabled when account level is unavailable. */ }
+        },
+        async openCreate() {
+            if (!this.isLogin || !this.levelAllowed || this.creating || this.scope !== "player" || this.detailId) return;
+            const request = ++this.createRequestId;
+            this.creating = true;
+            try {
+                const roles = await fetchAchievementWorkbenchRoles();
+                if (request !== this.createRequestId || this.scope !== "player" || this.detailId) return;
+                this.roles = roles.filter((role) => role.roleId);
+                if (!this.roles.length) { this.$message.error(this.$t('pages.wiki.leap.ui.bindRole')); return; }
+                await this.$nextTick();
+                await this.$refs.creator?.openCreate();
+            } catch (error) { this.$message.error(error?.response?.data?.msg || error.message); }
+            finally { if (request === this.createRequestId) this.creating = false; }
+        },
+        consultationSubmitted() { this.scope = "player"; this.status = ""; this.page = 1; this.load(); },
         date(value) { return value ? new Date(value).toLocaleString(this.$i18n.locale) : "-"; },
         changeScope() { this.page = 1; this.status = this.scope === "player" ? "" : this.scope === "answered" ? "answered" : "pending"; this.load(); },
         changeStatus() { this.page = 1; this.load(); },
@@ -104,6 +129,10 @@ export default {
                         <el-radio-button :value="''">{{ $t('achievementConsultation.all') }}</el-radio-button>
                         <el-radio-button v-for="value in ['pending', 'answered']" :key="value" :value="value">{{ $t(`achievementConsultation.${value}`) }}</el-radio-button>
                     </el-radio-group>
+                    <el-button v-if="scope === 'player'" type="primary" class="m-consultation-create"
+                        :disabled="!levelAllowed" :loading="creating" @click="openCreate">
+                        <el-icon><Plus /></el-icon>{{ $t('achievementConsultation.submit', '提交咨询') }}
+                    </el-button>
                 </div>
                 <el-table :data="rows" v-loading="loading" row-key="id" class="m-consultation-queue">
                     <el-table-column :label="$t('achievementConsultation.question')" min-width="260">
@@ -122,6 +151,8 @@ export default {
                 </el-table>
                 <el-pagination v-if="total > 20" v-model:current-page="page" :total="total" :page-size="20" layout="prev, pager, next" @current-change="load" />
             </PvxSurface>
+            <PlanConsultations v-if="!detailId && scope === 'player'" ref="creator" :roles="roles"
+                :default-role-id="roles[0]?.id || ''" @submitted="consultationSubmitted" />
         </template>
     </div>
 </template>
@@ -158,6 +189,12 @@ export default {
         &.is-active { background: #f1e7d8; border-color: #c3b08b; font-weight: 600; }
         &:focus-visible { outline: 2px solid #5a7e84; outline-offset: -2px; }
     }
+}
+.m-consultation-toolbar .m-consultation-create {
+    flex: none; height: 30px; min-height: 30px; margin: 0; padding: 4px 12px;
+    border-radius: 6px; font-size: 14px; line-height: 20px;
+    :deep(> span) { display: inline-flex; align-items: center; gap: 4px; }
+    .el-icon { margin: 0; font-size: 14px; }
 }
 .m-consultation-status-filter {
     display: flex; flex-wrap: wrap; gap: 4px; padding: 0; max-width: 100%;
@@ -218,6 +255,7 @@ export default {
     .m-consultation-surface { padding: 12px; }
     .m-consultation-toolbar { padding: 8px; gap: 12px; }
     .m-consultation-toolbar .el-tabs { flex-basis: 100%; }
+    .m-consultation-toolbar .m-consultation-create { height: 36px; min-height: 36px; }
     .m-consultation-status-filter { width: 100%; .el-radio-button { flex: 1 1 auto; } :deep(.el-radio-button__inner) { min-height: 36px; } }
     .m-consultation-queue :deep(.cell) { padding: 0 12px; }
 }
