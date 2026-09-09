@@ -22,6 +22,7 @@ export default {
             type: Boolean,
             default: false,
         },
+        guidanceDisabled: { type: Boolean, default: false },
         actionsDisabled: {
             type: Boolean,
             default: false,
@@ -30,7 +31,7 @@ export default {
     emits: ["back", "request-guidance", "edit", "copy", "delete"],
     methods: {
         emitPlanAction(action) {
-            if (this.actionsDisabled || !this.plan) return;
+            if (this.actionsDisabled || !this.plan || (action === "request-guidance" && this.guidanceDisabled)) return;
             this.$emit(action, this.plan);
         },
     },
@@ -53,7 +54,7 @@ export default {
                 v-if="guidanceAllowed && !plan.official"
                 type="button"
                 class="u-leap-detail-button is-primary"
-                :disabled="actionsDisabled"
+                :disabled="actionsDisabled || guidanceDisabled"
                 @click="emitPlanAction('request-guidance')"
             >
                 <ChatDotRound />

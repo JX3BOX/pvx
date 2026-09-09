@@ -1,7 +1,5 @@
 <script>
 import { DataAnalysis, MagicStick, QuestionFilled, User, ChatDotRound } from "@element-plus/icons-vue";
-import Account from "@jx3box/jx3box-common/js/user";
-import { getConsultationAccess } from "@/service/achievementConsultation";
 import brandIcon from "@/assets/img/wiki/figma/brand.svg";
 import progressIcon from "@/assets/img/wiki/figma/nav-progress.svg";
 import compareIcon from "@/assets/img/wiki/figma/nav-compare.svg";
@@ -26,6 +24,11 @@ const NAV_ITEMS = Object.freeze([
         icon: "MagicStick",
         image: leapIcon,
     },
+    {
+        routeName: "consultation",
+        labelKey: "achievementConsultation.title",
+        icon: "ChatDotRound",
+    },
 ]);
 
 export default {
@@ -36,22 +39,6 @@ export default {
         QuestionFilled,
         User,
         ChatDotRound,
-    },
-    async created() {
-        if (!Account.isLogin()) return;
-        try {
-            if ((await getConsultationAccess()).is_expert)
-                this.navItems = [
-                    ...NAV_ITEMS,
-                    {
-                        routeName: "consultation",
-                        labelKey: "achievementConsultation.title",
-                        icon: "ChatDotRound",
-                    },
-                ];
-        } catch {
-            /* Expert navigation stays hidden until the server confirms access. */
-        }
     },
     data() {
         return {

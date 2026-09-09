@@ -7,7 +7,7 @@ export default {
     enrichmentFailed: "Chưa tải được một số độ khó hoặc nhãn. Hãy thử lại hoặc tiếp tục chọn thành tựu.",
     manualGroup: "Thêm thủ công",
 
-    start: "Bắt đầu đề xuất",
+    start: "Tạo phương án đề xuất",
     preview: "Kết quả đề xuất",
     preferences: "Thiết lập ưu tiên",
     reset: "Đặt lại tùy chọn",

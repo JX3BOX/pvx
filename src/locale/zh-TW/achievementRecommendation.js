@@ -7,7 +7,7 @@ export default {
     enrichmentFailed: "部分難度或標籤暫未載入，可重試；不影響選入成就。",
     manualGroup: "手動增加",
 
-    start: "開始推薦",
+    start: "產生推薦方案",
     preview: "推薦結果",
     preferences: "偏好設定",
     reset: "重設偏好",

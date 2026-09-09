@@ -7,7 +7,7 @@ export default {
     enrichmentFailed: "部分难度或标签暂未加载，可重试；不影响选入成就。",
     manualGroup: "手动增加",
 
-    start: "开始推荐",
+    start: "生成推荐方案",
     planList: "方案列表",
     planListCount: "方案列表（{count}）",
     title: "系统推荐渡劫方案",

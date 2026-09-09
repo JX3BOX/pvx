@@ -117,7 +117,11 @@
 
 方案详情已接入真实咨询服务 `src/service/achievementConsultation.js`，基础路径为 `/api/cms/pvx/achievement_consultation`。页面仅为已登录用户的本人正式服方案显示入口；实际访问与回复权限仍由服务端返回。
 
+-   发起咨询等级门槛：前端在打开新咨询表单及实际提交前调用 `User.getAsset()`，依据 `User.getLevel(asset.experience)` 要求账号等级不低于 2；查询失败不放行。本人历史咨询查看不受此限制。该检查不能代替服务端创建接口的权限校验，服务端落实情况仍需后端确认。
 -   创建请求：`POST` 基础路径，传入 `plan_id`、数值 `role_id`、可空的 `target_expert_id` 与 `question`；前端不提交角色完成快照或调整后的方案；
+-   渡劫方案首页新增直接咨询：前端省略 `plan_id`，仍提交数值 `role_id`、`target_expert_id` 与 `question`，不自动生成空方案。玩家通过不带 `plan_id` 的 `scope: "player"` 列表查看自己的全部咨询，待回复分流仅使用服务端 `pending_id`。**该无方案创建路径已完成前端适配，后端是否接受省略 `plan_id` 尚待联调确认**；接口拒绝时保留表单并展示原始错误。详情通过 `plan_id` 为空且无 `plan` 区分无方案咨询，默认展示完成进度。
+-   咨询队列过滤：当前分页结果中，`plan_id` 非空但 `plan_title` 为空的关联方案不可用记录不显示；不影响无方案直接咨询。分页仍沿用服务端总数与页码，不把当前页过滤数量误作全局总数。
+-   统一咨询入口：顶部“渡劫咨询”常驻；“我的咨询”固定使用 `scope: "player"`，不带 `plan_id` 且默认不带状态过滤，与原“我的咨询”数据范围一致。仅专家额外请求 `public`、`directed`、`answered` 队列；专家身份查询失败不能阻断自己的咨询列表。直接咨询成功后统一跳转此咨询模块，不再使用首页历史弹窗。
 -   方案咨询列表：`GET` 基础路径，传入 `scope: "player"`、`plan_id`、`page`、`per`，读取 `list`、`total` 与 `pending_id`；有待处理咨询时打开现有详情；
 -   详情：`GET /:id`，展示接口返回的 `plan`、`role`、`completion.ids / updated_at`、问题和 `advice_html`；完成数据缺失时提示未同步，不伪造完成状态；
 -   专家能力与名单：`GET /access`、`GET /experts`；回复：`POST /:id/reply`，请求为 `{ advice_html }`；

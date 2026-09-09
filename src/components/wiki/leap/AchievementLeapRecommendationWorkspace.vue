@@ -349,10 +349,13 @@ export default {
             </section>
         </div>
         <div v-if="!hasRequested" class="m-recommendation-start-actions">
+            <div class="m-recommendation-primary-actions">
             <el-button type="primary" :disabled="!canRequest" :loading="loading" @click="requestRecommendation">
                 {{ $t("achievementRecommendation.start") }}
             </el-button>
-            <slot name="actions" />
+            <slot name="consultation" />
+            </div>
+            <div class="m-recommendation-saved-actions"><slot name="actions" /></div>
         </div>
         <div v-if="recommendation" class="m-recommendation-actions">
             <el-button type="primary" :disabled="!canApply" :loading="saving" @click="$emit('apply', selection)">
@@ -625,9 +628,9 @@ export default {
         display: none;
     }
     .m-recommendation-start-actions {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: start;
         gap: 12px;
         padding: 32px 12px 20px;
         .el-button {
@@ -652,6 +655,16 @@ export default {
             background: #5a7e84;
             border-color: #5a7e84;
         }
+    }
+    .m-recommendation-primary-actions {
+        grid-column: 2; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+        max-width: 660px; min-width: 0;
+    }
+    .m-recommendation-saved-actions { grid-column: 3; justify-self: end; min-width: 0; }
+    @media (max-width: 1100px) {
+        .m-recommendation-start-actions { grid-template-columns: minmax(0, 1fr) auto; }
+        .m-recommendation-primary-actions { grid-column: 1; justify-self: center; }
+        .m-recommendation-saved-actions { grid-column: 2; }
     }
     .m-recommendation-actions {
         position: sticky;
@@ -698,7 +711,10 @@ export default {
                 font-size: 16px;
             }
         }
+        .m-recommendation-primary-actions { grid-column: 1; width: 100%; max-width: none; }
+        .m-recommendation-saved-actions { grid-column: 1; width: 100%; }
         .m-recommendation-start-actions {
+            grid-template-columns: minmax(0, 1fr);
             padding: 20px 0 8px;
             .el-button {
                 width: 100%;

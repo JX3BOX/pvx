@@ -1,7 +1,7 @@
 <script>
 import { buildAchievementLeapDetailRoute } from "@/utils/achievementLeapDetail";
 import User from "@jx3box/jx3box-common/js/user";
-import { FolderOpened, Plus, UserFilled, WarningFilled } from "@element-plus/icons-vue";
+import { FolderOpened, ChatDotRound, Plus, UserFilled, WarningFilled } from "@element-plus/icons-vue";
 import AchievementLeapAddDialog from "@/components/wiki/leap/AchievementLeapAddDialog.vue";
 import AchievementLeapBaseSettings from "@/components/wiki/leap/AchievementLeapBaseSettings.vue";
 import AchievementLeapDetailHeader from "@/components/wiki/leap/AchievementLeapDetailHeader.vue";
@@ -70,6 +70,7 @@ export default {
         AchievementLeapSaveDialog,
         AchievementLeapSummary,
         FolderOpened,
+        ChatDotRound,
         Plus,
         PvxActionButton,
         PvxEmptyState,
@@ -80,6 +81,7 @@ export default {
     data() {
         return {
             isLogin: User.isLogin(),
+            consultationLevelAllowed: false,
             pageLoading: User.isLogin(),
             pageError: false,
             roleLoading: false,
@@ -216,6 +218,7 @@ export default {
         },
     },
     mounted() {
+        this.loadConsultationLevel();
         this.initializePage();
     },
     beforeUnmount() {
@@ -228,6 +231,14 @@ export default {
         this.saveRequestId += 1;
     },
     methods: {
+        async loadConsultationLevel() {
+            this.consultationLevelAllowed = false;
+            if (!this.isLogin) return;
+            try {
+                const asset = await User.getAsset();
+                this.consultationLevelAllowed = Number(User.getLevel(asset?.experience)) >= 2;
+            } catch { /* Keep consultation actions disabled when the level is unavailable. */ }
+        },
         normalizePlanClient(client) {
             const normalized = String(client || "")
                 .trim()
@@ -809,7 +820,7 @@ export default {
             }
         },
         requestPlanGuidance() {
-            if (this.canConsultPlan) return this.$refs.consultations?.openCreate();
+            if (this.canConsultPlan && this.consultationLevelAllowed) return this.$refs.consultations?.openCreate();
         },
     },
 };
@@ -861,6 +872,7 @@ export default {
             <AchievementLeapDetailHeader
                 :plan="detailPlan"
                 :guidance-allowed="canConsultPlan"
+                :guidance-disabled="!consultationLevelAllowed"
                 :actions-disabled="Boolean(detailClientMismatch)"
                 @back="closePlanDetail"
                 @request-guidance="requestPlanGuidance"
@@ -980,7 +992,16 @@ export default {
                     {{ $t('achievementAppearance.presets') }}
                 </el-button>
             </template>
+            <template #consultation>
+                <el-button :disabled="!consultationLevelAllowed || currentClient !== 'std' || !currentRole?.roleId || saving" @click="$refs.directConsultations?.openCreate()">
+                    <template #icon><ChatDotRound /></template>
+                    {{ $t('achievementConsultation.directEntry') }}
+                </el-button>
+            </template>
         </AchievementLeapRecommendationWorkspace>
+        <PlanConsultations v-if="workspaceReady && !detailMode && currentClient === 'std'" ref="directConsultations"
+            :roles="roles" :default-role-id="currentRoleId"
+            :default-question="$t('achievementConsultation.goalQuestion', { target: recommendationForm.targetPoints })" />
 
         <el-drawer v-model="planListVisible" :title="$t('achievementRecommendation.planList')"
             size="min(938px, 100vw)" class="m-leap-plan-list-drawer" append-to-body>

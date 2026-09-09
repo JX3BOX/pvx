@@ -25,6 +25,8 @@ function instance(component, props = {}) {
 }
 async function run() {
     const writes = [];
+    let accountLevel = 2;
+    let failLevel = false;
     let record = null;
     let failReply = false;
     const api = {
@@ -37,7 +39,8 @@ async function run() {
         cancelConsultation: async () => { record.status = "cancelled"; },
     };
     const player = load("src/components/wiki/consultation/PlanConsultations.vue", {
-        "@jx3box/jx3box-common/js/user": { getInfo: () => ({ uid: "7" }) },
+        "@jx3box/jx3box-common/js/user": { getInfo: () => ({ uid: "7" }), getLevel: (experience) => experience,
+            getAsset: async () => { if (failLevel) throw new Error("offline"); return { experience: accountLevel }; } },
         "@/service/achievementConsultation": api, "./ConsultationDetail.vue": {}, "@element-plus/icons-vue": {},
         "@/components/design/PvxSurface.vue": {},
     });
@@ -116,6 +119,81 @@ async function run() {
     owner.$confirm = async () => {};
     await owner.submit("cancel");
     assert.strictEqual(record.status, "cancelled");
+    // Direct consultations reuse the player workflow without inventing a saved plan.
+    record = null;
+    let directRoute;
+    const direct = instance(player, { plan: null, roles: [{ id: "991", roleId: 77 }], defaultRoleId: "991",
+        defaultQuestion: "Help me reach 113000 points", $route: { query: {} }, $router: { push: (route) => { directRoute = route; } } });
+    await direct.openCreate();
+    assert.strictEqual(direct.dialog, true);
+    assert.strictEqual(direct.form.role_id, 77);
+    assert.strictEqual(direct.form.question, "Help me reach 113000 points");
+    const create = api.createConsultation;
+    api.createConsultation = async () => { throw new Error("plan_id is required"); };
+    await direct.submit();
+    assert.strictEqual(direct.dialog, true, "backend rejection keeps the form open");
+    assert.strictEqual(direct.form.question, "Help me reach 113000 points", "failure retains the question");
+    assert.strictEqual(direct.saving, false);
+    api.createConsultation = create;
+    await direct.submit();
+    assert.deepStrictEqual(writes[2], { role_id: 77, target_expert_id: null, question: "Help me reach 113000 points" });
+    assert.deepStrictEqual(directRoute, { name: "consultation" }, "direct requests use the shared player queue");
+    await direct.openCreate();
+    assert.deepStrictEqual(directRoute, { name: "consultation-detail", params: { id: 1 } }, "server pending ID opens the existing consultation");
+    const getDetail = api.getConsultation;
+    api.getConsultation = async () => ({ ...record, plan_id: null, plan: null, role: { name: "Player" }, completion: { ids: [1] } });
+    await owner.load();
+    assert.strictEqual(owner.withoutPlan, true);
+    assert.strictEqual(owner.tab, "progress", "direct consultations open completion progress");
+    api.getConsultation = async () => ({ ...record, plan_id: 10, plan: null });
+    await owner.load();
+    assert.strictEqual(owner.withoutPlan, false, "a deleted saved plan is still distinguished from a direct consultation");
+    assert.strictEqual(owner.tab, "progress", "missing plan data also defaults to progress when a plan ID remains");
+    api.getConsultation = getDetail;
+    record = null;
+    accountLevel = 1;
+    direct.dialog = false;
+    await direct.openCreate();
+    assert.strictEqual(direct.dialog, false, "Lv.1 cannot start a consultation");
+    const writeCount = writes.length;
+    await direct.submit();
+    assert.strictEqual(writes.length, writeCount, "submission also checks the level");
+    accountLevel = 2;
+    failLevel = true;
+    await direct.openCreate();
+    assert.strictEqual(direct.dialog, false, "failed level lookup does not grant access");
+    failLevel = false;
+    await direct.openCreate();
+    assert.strictEqual(direct.dialog, true, "Lv.2 can start a consultation");
+    const page = load("src/components/wiki/leap/AchievementLeapPage.vue", new Proxy({}, {
+        has: () => true,
+        get: (_, key) => key === "@jx3box/jx3box-common/js/user" ? {
+            getAsset: async () => { if (failLevel) throw new Error("offline"); return { experience: accountLevel }; },
+            getLevel: (experience) => experience,
+        } : {},
+    }));
+    const entry = { isLogin: true, consultationLevelAllowed: false };
+    accountLevel = 1;
+    await page.methods.loadConsultationLevel.call(entry);
+    assert.strictEqual(entry.consultationLevelAllowed, false);
+    accountLevel = 2;
+    await page.methods.loadConsultationLevel.call(entry);
+    assert.strictEqual(entry.consultationLevelAllowed, true);
+    failLevel = true;
+    await page.methods.loadConsultationLevel.call(entry);
+    assert.strictEqual(entry.consultationLevelAllowed, false, "lookup failure disables both entry buttons");
+    failLevel = false;
+    const header = load("src/components/wiki/leap/AchievementLeapDetailHeader.vue", {
+        "@element-plus/icons-vue": {}, "@/components/design/PvxSurface.vue": {},
+    });
+    const actions = [];
+    const headerVm = { actionsDisabled: false, guidanceDisabled: true, plan: { id: 10 }, $emit: (action) => actions.push(action) };
+    header.methods.emitPlanAction.call(headerVm, "request-guidance");
+    header.methods.emitPlanAction.call(headerVm, "edit");
+    assert.deepStrictEqual(actions, ["edit"], "level restriction only disables consultation, not plan editing");
+    headerVm.guidanceDisabled = false;
+    header.methods.emitPlanAction.call(headerVm, "request-guidance");
+    assert.deepStrictEqual(actions, ["edit", "request-guidance"]);
     const workspace = fs.readFileSync(path.join(root, "src/components/wiki/consultation/ConsultationWorkspace.vue"), "utf8");
     assert(!workspace.includes("statistics"));
     assert(!fs.readFileSync(path.join(root, "src/service/achievementConsultation.js"), "utf8").includes("statistics/me"));

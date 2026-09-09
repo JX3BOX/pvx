@@ -17,6 +17,7 @@ export default {
         requestId: 0, tab: "plan", advice: "", rating: 0, review: "", editorReady: false, editorError: false,
         editorInit: { height: 320, menubar: false, branding: false, plugins: "lists link table", toolbar: "undo redo | bold italic underline | bullist numlist | link table | removeformat", convert_urls: false } }),
     computed: {
+        withoutPlan() { return Boolean(this.record && this.record.plan_id === null && !this.record.plan); },
         requesterLabel() {
             const userName = this.record?.user?.display_name?.trim();
             const role = this.record?.role;
@@ -58,7 +59,9 @@ export default {
                     fetchAchievementWorkbenchCatalog("std"), fetchAchievementWorkbenchMaps("std"), fetchAchievementWorkbenchDifficultyDimensions(),
                 ]);
                 if (request !== this.requestId) return;
-                this.record = record; this.catalog = catalog; this.maps = maps;
+                this.record = record;
+                if (!record.plan) this.tab = "progress";
+                this.catalog = catalog; this.maps = maps;
                 this.dimensions = resolveAchievementWorkbenchDimensions(dimensions);
                 this.editorReady = false; this.editorError = false;
             } catch (error) { if (request === this.requestId) this.error = error?.response?.data?.msg || error.message; }
@@ -95,7 +98,7 @@ export default {
             <header>
                 <slot name="back" />
                 <i v-if="$slots.back && record" class="m-consultation-header-divider" aria-hidden="true"></i>
-                <h2 v-if="record">{{ record.plan?.title || $t('achievementConsultation.planUnavailable') }}</h2>
+                <h2 v-if="record">{{ record.plan?.title || $t(withoutPlan ? 'achievementConsultation.directTitle' : 'achievementConsultation.planUnavailable') }}</h2>
                 <el-tag v-if="record" effect="plain">{{ $t(`achievementConsultation.${record.status}`) }}</el-tag>
             </header>
             <div v-if="record" class="m-consultation-meta">
@@ -108,8 +111,8 @@ export default {
         <el-button v-if="error" @click="load">{{ $t('achievementRecommendation.retry') }}</el-button>
         <template v-if="record">
             <p class="m-consultation-question">{{ record.question }}</p>
-            <el-alert v-if="!record.role || !record.plan || !record.completion" type="warning" :closable="false"
-                :title="$t(!record.role ? 'achievementConsultation.roleUnavailable' : !record.plan ? 'achievementConsultation.planUnavailable' : 'achievementConsultation.noSync')" />
+            <el-alert v-if="!record.role || (!record.plan && !withoutPlan) || !record.completion" type="warning" :closable="false"
+                :title="$t(!record.role ? 'achievementConsultation.roleUnavailable' : (!record.plan && !withoutPlan) ? 'achievementConsultation.planUnavailable' : 'achievementConsultation.noSync')" />
             <PvxSurface v-if="record.advice_html" class="m-consultation-advice" padding="medium" radius="medium">
                 <header class="m-consultation-advice-heading">
                     <h3>{{ $t('achievementConsultation.advice') }}</h3>
@@ -132,7 +135,7 @@ export default {
                 <el-button type="primary" :disabled="!editorReady || !advice.trim() || advice.length > 50000" :loading="saving" @click="submit('reply')">{{ $t('achievementConsultation.submitAdvice') }}</el-button>
             </PvxSurface>
             <el-tabs v-model="tab" class="m-consultation-tabs">
-                <el-tab-pane name="plan" :label="$t('achievementConsultation.currentPlan')" />
+                <el-tab-pane v-if="record.plan" name="plan" :label="$t('achievementConsultation.currentPlan')" />
                 <el-tab-pane name="progress" :label="$t('pages.wiki.sidebar.progress')" />
             </el-tabs>
             <KeepAlive :max="2">
@@ -151,7 +154,7 @@ export default {
     --el-color-primary: #47777d;
     --el-border-color: #dce4e1;
     --consultation-card-padding: 20px;
-    --consultation-card-radius: 12px;
+    --consultation-card-radius: 16px;
     padding: 0;
     .m-consultation-detail-header,
     .m-consultation-advice,
@@ -159,7 +162,8 @@ export default {
     :deep(.m-consultation-plan > .m-leap-route) {
         padding: var(--consultation-card-padding);
         border-radius: var(--consultation-card-radius);
-        border-color: #e2e8e6;
+        border-color: #e8e3d8;
+        background: #fffefa;
         box-shadow: 0 1px 3px rgba(49, 64, 67, 0.05);
     }
     > .el-button { margin-top: 16px; }
@@ -174,7 +178,7 @@ export default {
             padding: 4px;
             border: 1px solid #dce4e1;
             border-radius: 10px;
-            background: #f3f5f2;
+            background: #f8f7f3;
         }
         :deep(.el-tabs__item) {
             height: 36px;
@@ -207,7 +211,7 @@ export default {
     .m-consultation-detail-header h2 { flex-basis: 100%; font-size: 18px; }
     .m-consultation-header-divider { display: none; }
 }
-.m-consultation-question { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; padding: 14px var(--consultation-card-padding); border: 1px solid #e2e8e6; border-left: 3px solid #b69a60; border-radius: var(--consultation-card-radius); background: #f7f8f4; margin: 16px 0; }
+.m-consultation-question { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; padding: 14px var(--consultation-card-padding); border: 1px solid #e2e8e6; border-left: 3px solid #b69a60; border-radius: var(--consultation-card-radius); background: #f8f7f3; margin: 16px 0; }
 .m-consultation-advice { min-width: 0; margin-top: 16px;
     h3 { margin: 0 0 12px; color: #324346; }
     .el-form { padding-top: 16px; border-top: 1px solid #e2e8e6; }

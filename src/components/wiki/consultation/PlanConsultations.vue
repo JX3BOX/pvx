@@ -8,12 +8,12 @@ import { ChatDotRound } from "@element-plus/icons-vue";
 export default {
     name: "PlanConsultations",
     components: { ConsultationDetail, ChatDotRound, PvxSurface },
-    props: { plan: { type: Object, required: true }, roles: { type: Array, required: true }, defaultRoleId: { type: String, default: "" } },
-    data: () => ({ rows: [], total: 0, pendingId: null, page: 1, loading: false, error: "", saving: false, dialog: false, detailId: null,
+    props: { plan: { type: Object, default: null }, defaultQuestion: { type: String, default: "" }, roles: { type: Array, required: true }, defaultRoleId: { type: String, default: "" } },
+    data: () => ({ rows: [], total: 0, pendingId: null, page: 1, loading: false, error: "", saving: false, opening: false, dialog: false, detailId: null,
         experts: [], expertsLoading: false, expertsError: false, requestId: 0, expertRequestId: 0,
         form: { role_id: null, target_expert_id: null, question: "" } }),
     computed: {
-        planRoleId() { return String(this.plan.meta?.roleId || ""); },
+        planRoleId() { return String(this.plan?.meta?.roleId || ""); },
         planRole() { return this.roles.find((role) => String(role.id) === this.planRoleId) || null; },
         consultationRoleId() { return this.planRoleId ? this.planRole?.roleId || null : this.form.role_id; },
         notificationId() {
@@ -22,11 +22,25 @@ export default {
         },
     },
     watch: {
-        'plan.id': { immediate: true, handler() { this.dialog = false; this.detailId = this.notificationId; this.page = 1; this.load(); } },
+        'plan.id': { immediate: true, handler() { this.dialog = false; this.detailId = this.notificationId; this.page = 1; if (this.plan) this.load(); } },
         notificationId(value) { this.detailId = value; },
     },
     beforeUnmount() { this.requestId += 1; this.expertRequestId += 1; },
     methods: {
+        async ensureConsultationLevel() {
+            try {
+                const asset = await User.getAsset();
+                if (Number(User.getLevel(asset?.experience)) >= 2) return true;
+                this.$message.error(this.$t('achievementConsultation.levelRequired'));
+            } catch {
+                this.$message.error(this.$t('achievementConsultation.levelCheckFailed'));
+            }
+            return false;
+        },
+        openDetail(id) {
+            if (this.plan) this.detailId = id;
+            else this.$router.push({ name: 'consultation-detail', params: { id } });
+        },
         closeDetail() {
             this.detailId = null;
             if (this.notificationId) {
@@ -39,17 +53,22 @@ export default {
             const request = ++this.requestId;
             this.loading = true; this.error = "";
             try {
-                const result = await getConsultations({ scope: "player", plan_id: this.plan.id, page: this.page, per: 10 });
+                const result = await getConsultations({ scope: "player", ...(this.plan ? { plan_id: this.plan.id } : {}), page: this.page, per: 10 });
                 if (request === this.requestId) { this.rows = result.list; this.total = result.total; this.pendingId = result.pending_id; return true; }
             } catch (error) { if (request === this.requestId) this.error = error?.response?.data?.msg || error.message; }
             finally { if (request === this.requestId) this.loading = false; }
         },
         async openCreate() {
-            if (this.saving) return;
-            if (!await this.load()) return;
-            if (this.pendingId) { this.detailId = this.pendingId; return; }
-            this.form = { role_id: (this.planRoleId ? this.planRole : this.roles.find((role) => role.id === this.defaultRoleId))?.roleId || null, target_expert_id: null, question: "" };
-            this.dialog = true; this.loadExperts();
+            if (this.saving || this.opening) return;
+            this.opening = true;
+            try {
+                if (!await this.load()) { if (this.error) this.$message.error(this.error); return; }
+                if (this.pendingId) { this.openDetail(this.pendingId); return; }
+                if (!await this.ensureConsultationLevel()) return;
+                this.form = { role_id: (this.planRoleId ? this.planRole : this.roles.find((role) => role.id === this.defaultRoleId))?.roleId || null,
+                    target_expert_id: null, question: this.defaultQuestion || "" };
+                this.dialog = true; this.loadExperts();
+            } finally { this.opening = false; }
         },
         async loadExperts() {
             const request = ++this.expertRequestId;
@@ -61,13 +80,18 @@ export default {
         async submit() {
             if (this.saving || !this.consultationRoleId || !this.form.question.trim()) return;
             if (this.form.target_expert_id != null && String(this.form.target_expert_id) === String(User.getInfo()?.uid)) return;
-            const planId = this.plan.id;
+            const planId = this.plan?.id;
             this.saving = true;
             try {
-                await createConsultation({ plan_id: Number(planId), ...this.form, role_id: this.consultationRoleId });
-                if (planId !== this.plan.id) return;
+                if (!await this.ensureConsultationLevel()) return;
+                const result = await createConsultation({ ...(planId ? { plan_id: Number(planId) } : {}), ...this.form, role_id: this.consultationRoleId, question: this.form.question.trim() });
+                if (planId !== this.plan?.id) return;
                 this.$message.success(this.$t('achievementConsultation.submitted'));
-                this.dialog = false; this.page = 1; await this.load();
+                this.dialog = false; this.page = 1;
+                if (!planId) {
+                    if (result?.id) this.openDetail(result.id);
+                    else this.$router.push({ name: 'consultation' });
+                } else await this.load();
             } catch (error) { this.$message.error(error?.response?.data?.msg || error.message); }
             finally { this.saving = false; }
         },
@@ -76,17 +100,18 @@ export default {
 </script>
 
 <template>
-    <PvxSurface class="m-plan-consultations" padding="small" radius="medium" v-loading="loading">
+    <PvxSurface v-if="plan" class="m-plan-consultations" padding="small" radius="medium" v-loading="loading">
         <header><h2><el-icon><ChatDotRound /></el-icon>{{ $t('achievementConsultation.records') }}</h2></header>
         <el-alert v-if="error" :title="error" type="error" :closable="false" />
         <el-button v-if="error" @click="load">{{ $t('achievementRecommendation.retry') }}</el-button>
-        <p v-else-if="!loading && !rows.length" class="m-plan-consultations__empty" role="status">{{ $t('achievementConsultation.noRequests') }}</p>
+        <p v-else-if="!loading && !rows.length" class="m-plan-consultations__empty" role="status">{{ $t(plan ? 'achievementConsultation.noRequests' : 'achievementConsultation.noDirectRequests') }}</p>
         <div v-for="row in rows" :key="row.id" class="m-plan-consultation-row">
             <div><strong>{{ row.question }}</strong><small>{{ row.expert?.display_name || row.target_expert?.display_name || $t('achievementConsultation.public') }} · {{ $t(`achievementConsultation.${row.status}`) }}</small></div>
             <el-button text @click="detailId = row.id">{{ $t(row.status === 'answered' ? 'achievementConsultation.viewAdvice' : 'achievementConsultation.detail') }}</el-button>
         </div>
         <el-pagination v-if="total > 10" v-model:current-page="page" :total="total" :page-size="10" layout="prev, pager, next" @current-change="load" />
-        <el-dialog draggable v-model="dialog" class="m-plan-consultation-dialog" :title="$t('achievementConsultation.request')" width="min(540px, calc(100vw - 24px))" append-to-body
+    </PvxSurface>
+        <el-dialog draggable v-model="dialog" class="m-plan-consultation-dialog" :title="$t(plan ? 'achievementConsultation.request' : 'achievementConsultation.directRequest')" width="min(540px, calc(100vw - 24px))" append-to-body
             :close-on-click-modal="!saving" :close-on-press-escape="!saving" :show-close="!saving">
             <el-form label-position="top" :disabled="saving">
                 <el-form-item v-if="planRoleId" :label="$t('achievementRecommendation.chooseRole')">
@@ -100,13 +125,12 @@ export default {
                     <el-option v-for="expert in experts" :key="expert.user_id" :value="Number(expert.user_id)" :label="`${expert.user?.display_name || expert.user_id} (#${expert.user_id})`" />
                 </el-select></el-form-item>
                 <el-button v-if="expertsError" @click="loadExperts">{{ $t('achievementConsultation.retryExperts') }}</el-button>
-                <el-form-item :label="$t('achievementConsultation.question')" required><el-input v-model="form.question" type="textarea" :rows="5" maxlength="2000" show-word-limit /></el-form-item>
+                <el-form-item :label="$t('achievementConsultation.question')" required><el-input v-model="form.question" type="textarea" :rows="5" :placeholder="$t('achievementConsultation.questionPlaceholder')" maxlength="2000" show-word-limit /></el-form-item>
             </el-form>
-            <template #footer><el-button type="primary" :loading="saving" :disabled="!form.role_id || !form.question.trim()" @click="submit">{{ $t('achievementConsultation.submit') }}</el-button></template>
+            <template #footer><el-button type="primary" :loading="saving" :disabled="!consultationRoleId || !form.question.trim()" @click="submit">{{ $t('achievementConsultation.submit') }}</el-button></template>
         </el-dialog>
         <el-dialog draggable :model-value="Boolean(detailId)" class="m-plan-consultation-detail-dialog" :title="$t('achievementConsultation.detail')" width="min(1180px, calc(100vw - 24px))" append-to-body destroy-on-close
             @update:model-value="!$event && closeDetail()"><ConsultationDetail v-if="detailId" :id="detailId" @changed="load" /></el-dialog>
-    </PvxSurface>
 </template>
 
 <style lang="less" scoped>

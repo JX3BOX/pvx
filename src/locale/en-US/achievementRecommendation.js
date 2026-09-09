@@ -7,7 +7,7 @@ export default {
     enrichmentFailed: "Some difficulty scores or tags could not be loaded. Retry or continue selecting achievements.",
     manualGroup: "Manually added",
 
-    start: "Start recommendation",
+    start: "Generate recommended plan",
     preview: "Recommendations",
     preferences: "Preference settings",
     reset: "Reset preferences",
