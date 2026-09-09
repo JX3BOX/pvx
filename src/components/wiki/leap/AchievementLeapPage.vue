@@ -995,7 +995,7 @@ export default {
             <template #consultation>
                 <el-button :disabled="!consultationLevelAllowed || currentClient !== 'std' || !currentRole?.roleId || saving" @click="$refs.directConsultations?.openCreate()">
                     <template #icon><ChatDotRound /></template>
-                    {{ $t('achievementConsultation.directEntry') }}
+                    {{ $t('achievementConsultation.directEntry', '不知怎么选？请高手帮我规划') }}
                 </el-button>
             </template>
         </AchievementLeapRecommendationWorkspace>

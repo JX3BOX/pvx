@@ -1,5 +1,7 @@
 <script>
 import { ArrowRight, CollectionTag } from "@element-plus/icons-vue";
+import { iconLink } from "@jx3box/jx3box-common/js/utils";
+import { fetchAchievementWorkbenchRecords } from "@/service/achievementWorkbench";
 
 function createImageAssetMap(context) {
     return context.keys().reduce((assets, path) => {
@@ -39,9 +41,21 @@ export default {
     data() {
         return {
             expandedCategoryId: null,
+            achievementIcons: {},
+            iconRequestId: 0,
         };
     },
     computed: {
+        currentClient() {
+            return this.$store?.state?.client || "std";
+        },
+        subcategoryIconRequest() {
+            return {
+                client: this.currentClient,
+                ids: (this.expandedCategory?.children || []).map((child) => child.achievementIds?.[0]).filter(Boolean),
+            };
+        },
+
         expandedCategory() {
             return (
                 this.categories.find(
@@ -52,6 +66,10 @@ export default {
         },
     },
     watch: {
+        subcategoryIconRequest: {
+            immediate: true,
+            handler: "loadSubcategoryIcons",
+        },
         activeCategoryId: {
             immediate: true,
             handler(value) {
@@ -69,6 +87,25 @@ export default {
         },
     },
     methods: {
+        iconLink,
+        async loadSubcategoryIcons({ client, ids }) {
+            const requestId = ++this.iconRequestId;
+            const missingIds = [...new Set(ids)].filter((id) => !this.achievementIcons[`${client}:${id}`]);
+            if (!missingIds.length) return;
+            try {
+                const records = await fetchAchievementWorkbenchRecords({ ids: missingIds, client, includeHidden: true });
+                if (requestId !== this.iconRequestId) return;
+                records.forEach((record) => {
+                    if (record.iconId) this.achievementIcons[`${client}:${record.id}`] = record.iconId;
+                });
+            } catch {
+                // 保留通用占位图标，重新展开目录时重试。
+            }
+        },
+        getSubcategoryIcon(child) {
+            return this.achievementIcons[`${this.currentClient}:${child.achievementIds?.[0]}`];
+        },
+
         selectAll() {
             this.expandedCategoryId = null;
             this.$emit("select-category", "all");
@@ -170,7 +207,8 @@ export default {
                             @click="selectDetail(category, child)"
                         >
                             <span class="u-compare-subcategory-icon" aria-hidden="true">
-                                <img src="@/assets/img/wiki/figma/subcategory.png" alt="" />
+                                <img v-if="getSubcategoryIcon(child)" :src="iconLink(getSubcategoryIcon(child))" alt="" />
+                                <CollectionTag v-else />
                             </span>
                             <span>{{ child.name }}</span><b>{{ formatNumber(child.count) }}</b>
                         </button>
@@ -337,10 +375,11 @@ export default {
     height: 22px;
     align-items: center;
     justify-content: center;
-    img {
+    img,
+    svg {
         width: 20px;
         height: 20px;
-        border-radius: 50%;
+        border-radius: 2px;
         object-fit: cover;
     }
 }

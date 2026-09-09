@@ -87,5 +87,9 @@ for (const locale of locales) {
 }
 assert.deepStrictEqual(missing, []);
 assert.strictEqual(i18n.global.t(prefix + "title", {}, { locale: "zh-CN" }), "渡劫咨询");
+// An older deployed language bundle must not expose the new entry's translation key.
+const staleI18n = createI18n({ legacy: false, locale: "zh-CN", fallbackLocale: false, messages: { "zh-CN": {} }, missingWarn: false, fallbackWarn: false });
+assert.strictEqual(staleI18n.global.t("achievementConsultation.directEntry", "不知怎么选？请高手帮我规划"), "不知怎么选？请高手帮我规划");
+staleI18n.dispose();
 i18n.dispose();
 console.log(`Consultation i18n passed: ${usedKeys.size} keys across ${locales.length} locales, discovery and runtime interpolation.`);
