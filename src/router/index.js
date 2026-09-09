@@ -258,6 +258,12 @@ const routes = [
 const router = createRouter({
     history: createWebHistory('/pvx/'),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        const workbenchTabs = ["overview", "compare", "leap", "consultation"];
+        if (to.name !== from.name && workbenchTabs.includes(to.name)) {
+            return savedPosition || { left: 0, top: 0 };
+        }
+    },
 });
 
 export default router;
