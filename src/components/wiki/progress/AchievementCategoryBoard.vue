@@ -1,6 +1,8 @@
 <script>
 import { ArrowRight, CollectionTag } from "@element-plus/icons-vue";
 import { achievementCategoryImages } from "@/utils/achievementCategoryImages";
+import { iconLink } from "@jx3box/jx3box-common/js/utils";
+import { fetchAchievementWorkbenchRecords } from "@/service/achievementWorkbench";
 
 export default {
     name: "AchievementCategoryBoard",
@@ -30,9 +32,20 @@ export default {
     data() {
         return {
             expandedCategoryId: null,
+            achievementIcons: {},
+            iconRequestId: 0,
         };
     },
     computed: {
+        currentClient() {
+            return this.$store?.state?.client || "std";
+        },
+        subcategoryIconRequest() {
+            return {
+                client: this.currentClient,
+                ids: (this.expandedCategory?.children || []).map((child) => child.achievementIds?.[0]).filter(Boolean),
+            };
+        },
         expandedCategory() {
             return (
                 this.categories.find(
@@ -42,6 +55,10 @@ export default {
         },
     },
     watch: {
+        subcategoryIconRequest: {
+            immediate: true,
+            handler: "loadSubcategoryIcons",
+        },
         activeCategoryId: {
             immediate: true,
             handler(value) {
@@ -55,6 +72,24 @@ export default {
     },
     emits: ["select-category", "update:sort"],
     methods: {
+        iconLink,
+        async loadSubcategoryIcons({ client, ids }) {
+            const requestId = ++this.iconRequestId;
+            const missingIds = [...new Set(ids)].filter((id) => !this.achievementIcons[`${client}:${id}`]);
+            if (!missingIds.length) return;
+            try {
+                const records = await fetchAchievementWorkbenchRecords({ ids: missingIds, client, includeHidden: true });
+                if (requestId !== this.iconRequestId) return;
+                records.forEach((record) => {
+                    if (record.iconId) this.achievementIcons[`${client}:${record.id}`] = record.iconId;
+                });
+            } catch {
+                // 保留通用占位图标，重新展开目录时重试。
+            }
+        },
+        getSubcategoryIcon(child) {
+            return this.achievementIcons[`${this.currentClient}:${child.achievementIds?.[0]}`];
+        },
         expandActiveCategory() {
             const root = this.categories.find(
                 (category) =>
@@ -210,7 +245,8 @@ export default {
                         @click="selectChildCategory(child)"
                     >
                         <span class="u-progress-subcategory-icon" aria-hidden="true">
-                            <img src="@/assets/img/wiki/figma/subcategory.png" alt="" />
+                            <img v-if="getSubcategoryIcon(child)" :src="iconLink(getSubcategoryIcon(child))" alt="" />
+                            <CollectionTag v-else />
                         </span>
                         <span class="m-progress-subcategory-card__body">
                             <span class="m-progress-subcategory-card__line">
@@ -430,10 +466,11 @@ export default {
     width: 24px;
     height: 24px;
     color: #967944;
-    img {
+    img,
+    svg {
         width: 24px;
         height: 24px;
-        border-radius: 50%;
+        border-radius: 2px;
         object-fit: cover;
     }
 }

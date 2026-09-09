@@ -61,7 +61,7 @@ export default {
     computed: {
         tableStyle() {
             return {
-                "--compare-desktop-width": `${Math.max(720, 244 + this.roles.length * 145)}px`,
+                "--compare-desktop-width": `${Math.max(720, 360 + this.roles.length * 145)}px`,
                 "--compare-mobile-width": `${244 + this.roles.length * 128}px`,
             };
         },
@@ -74,7 +74,16 @@ export default {
             );
         },
     },
+    updated() {
+        const body = this.$refs.bodyScroll;
+        const header = this.$refs.headerScroll;
+        if (header) header.scrollLeft = body?.scrollLeft || 0;
+    },
     methods: {
+        syncHorizontalScroll(event, targetRef) {
+            const target = this.$refs[targetRef];
+            if (target && target.scrollLeft !== event.target.scrollLeft) target.scrollLeft = event.target.scrollLeft;
+        },
         getLink,
         iconLink,
         formatValue(value) {
@@ -111,6 +120,27 @@ export default {
         <div v-if="$slots.filters" class="m-compare-matrix__filters">
             <slot name="filters" />
         </div>
+        <div class="m-compare-matrix__sticky-top">
+            <div ref="headerScroll" class="m-compare-matrix-scroll" aria-hidden="true" @scroll="syncHorizontalScroll($event, 'bodyScroll')">
+                <table class="m-compare-matrix-table" :style="tableStyle">
+                    <colgroup>
+                        <col class="u-compare-achievement-column" />
+                        <col v-for="role in roles" :key="role.id || role.jx3id" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th class="is-achievement" scope="col">
+                                <span>{{ $t("pages.wiki.compare.ui.matrix.achievement") }}</span>
+                            </th>
+                            <th v-for="role in roles" :key="role.id || role.jx3id" scope="col">
+                                <strong :title="roleName(role)">{{ roleName(role) }}</strong>
+                                <small>{{ formatNumber(role.completedPoints) }}</small>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
 
         <div class="m-compare-matrix__header">
             <h2>{{ title || $t("pages.wiki.compare.ui.categories.all") }}</h2>
@@ -140,13 +170,19 @@ export default {
 
             <div
                 v-else
+                ref="bodyScroll"
+                @scroll="syncHorizontalScroll($event, 'headerScroll')"
                 class="m-compare-matrix-scroll"
                 tabindex="0"
                 role="region"
                 :aria-label="$t('pages.wiki.compare.ui.matrix.completion')"
             >
                 <table class="m-compare-matrix-table" :style="tableStyle">
-                    <thead>
+                    <colgroup>
+                        <col class="u-compare-achievement-column" />
+                        <col v-for="role in roles" :key="role.id || role.jx3id" />
+                    </colgroup>
+                    <thead class="u-compare-semantic-header">
                         <tr>
                             <th class="is-achievement" scope="col">
                                 <span>{{ $t("pages.wiki.compare.ui.matrix.achievement") }}</span>
@@ -254,13 +290,41 @@ export default {
 
 <style lang="less" scoped>
 .m-compare-matrix {
+    --compare-achievement-column-width: 360px;
     display: flex;
     min-width: 0;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     padding: 12px;
     border-radius: 12px;
     background: #f8f7f3;
+}
+.m-compare-matrix__sticky-top {
+    position: sticky;
+    top: calc(var(--achievement-sticky-top, 120px) + 12px);
+    z-index: 5;
+    background: #f8f7f3;
+}
+.m-compare-matrix__sticky-top::before {
+    content: "";
+    position: absolute;
+    inset: -12px -12px 0;
+    z-index: -1;
+    background: #f8f7f3;
+    pointer-events: none;
+}
+.m-compare-matrix__sticky-top > .m-compare-matrix-scroll {
+    border-radius: 16px 16px 0 0;
+}
+.u-compare-achievement-column {
+    width: var(--compare-achievement-column-width);
+}
+.u-compare-semantic-header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    overflow: hidden;
 }
 .m-compare-matrix__header {
     display: flex;
@@ -337,7 +401,7 @@ export default {
         position: sticky;
         left: 0;
         z-index: 1;
-        width: 244px;
+        width: var(--compare-achievement-column-width);
         text-align: left;
         background: #fff;
     }
@@ -536,11 +600,20 @@ export default {
     padding: 16px 0 4px;
 }
 @media (max-width: @phone) {
+    .m-compare-matrix {
+        --compare-achievement-column-width: 244px;
+    }
+    .m-compare-matrix__sticky-top {
+        position: static;
+        &::before {
+            display: none;
+        }
+    }
     .m-compare-matrix-table {
         min-width: var(--compare-mobile-width);
         .is-achievement {
             position: static;
-            width: 244px;
+            width: var(--compare-achievement-column-width);
         }
         th strong {
             white-space: normal;

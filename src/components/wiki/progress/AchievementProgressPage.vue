@@ -1,5 +1,6 @@
 <script>
 import User from "@jx3box/jx3box-common/js/user";
+import shorterColumnSticky from "@/directives/shorter-column-sticky";
 import { Loading, UserFilled, WarningFilled } from "@element-plus/icons-vue";
 import AchievementCategoryBoard from "@/components/wiki/progress/AchievementCategoryBoard.vue";
 import AchievementProgressFilters from "@/components/wiki/progress/AchievementProgressFilters.vue";
@@ -46,6 +47,7 @@ const createDefaultFilters = () => ({
 
 export default {
     name: "AchievementProgressPage",
+    directives: { shorterColumnSticky },
     props: {
         snapshot: { type: Object, default: null },
     },
@@ -798,7 +800,7 @@ export default {
                 @update:collapsed="summaryCollapsed = $event"
             />
 
-            <div class="m-progress-browser-grid">
+            <div v-shorter-column-sticky class="m-progress-browser-grid">
                 <AchievementCategoryBoard
                     :tier-label="$t(filters.tier === 'wujia' ? 'pages.wiki.overview.ui.statistics.wujia' : 'pages.wiki.overview.ui.statistics.regular')"
                     :categories="categories"
@@ -879,6 +881,20 @@ export default {
 
     &.is-loading :deep(.el-loading-mask) {
         background: rgba(255, 254, 250, 0.45);
+    }
+}
+
+@media (min-width: 1061px) {
+    .m-progress-browser-grid > :deep(.is-shorter-sticky-column) {
+        position: sticky;
+        top: min(
+            calc(var(--achievement-sticky-top, 120px) + 12px),
+            calc(100vh - var(--sticky-column-height) - 12px)
+        );
+        top: min(
+            calc(var(--achievement-sticky-top, 120px) + 12px),
+            calc(100dvh - var(--sticky-column-height) - 12px)
+        );
     }
 }
 

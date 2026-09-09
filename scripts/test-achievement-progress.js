@@ -75,9 +75,15 @@ const progress = loadModule(
         "achievement-school-eligibility-test-module": schoolEligibilityModule,
     }
 );
+const stickyColumns = loadModule(path.resolve(__dirname, "../src/directives/shorter-column-sticky.js"));
+assert.strictEqual(stickyColumns.getShorterColumnIndex([300, 1200]), 0);
+assert.strictEqual(stickyColumns.getShorterColumnIndex([1500, 900]), 1);
+assert.strictEqual(stickyColumns.getShorterColumnIndex([900, 900]), -1);
+assert.strictEqual(stickyColumns.getShorterColumnIndex([0, 900]), -1);
 const progressPage = loadVueOptionsComponent(
     path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressPage.vue"),
     {
+        "@/directives/shorter-column-sticky": "sticky-columns-test-module",
         "@jx3box/jx3box-common/js/user": "achievement-user-test-module",
         "@element-plus/icons-vue": "achievement-icons-test-module",
         "@/components/wiki/progress/AchievementCategoryBoard.vue": "achievement-component-test-module",
@@ -94,6 +100,7 @@ const progressPage = loadVueOptionsComponent(
         "@/utils/config": "achievement-config-test-module",
     },
     {
+        "sticky-columns-test-module": stickyColumns,
         "achievement-user-test-module": { isLogin: () => true },
         "achievement-icons-test-module": {},
         "achievement-component-test-module": {},

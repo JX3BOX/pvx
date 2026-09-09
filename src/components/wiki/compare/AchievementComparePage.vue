@@ -874,6 +874,7 @@ export default {
             <template v-else>
                 <div class="m-compare-browser-grid">
                     <AchievementCompareCategoryTree
+                        class="m-compare-sticky-categories"
                         :categories="categoryTree"
                         :total="baseResultIds.length"
                         :active-category-id="activeCategoryId"
@@ -960,6 +961,13 @@ export default {
     background: #fff;
     align-items: start;
     gap: 12px;
+}
+
+@media (min-width: 1061px) {
+    .m-compare-sticky-categories {
+        position: sticky;
+        top: calc(var(--achievement-sticky-top, 120px) + 12px);
+    }
 }
 
 .m-compare-page-state {

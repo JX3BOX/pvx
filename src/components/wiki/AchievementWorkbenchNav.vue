@@ -57,9 +57,32 @@ export default {
         return {
             navItems: NAV_ITEMS,
             brandIcon,
+            isStuck: false,
         };
     },
+    mounted() {
+        this.syncNavHeight();
+        window.addEventListener("scroll", this.syncStickyState, { passive: true });
+        if (typeof ResizeObserver !== "undefined") {
+            this.navResizeObserver = new ResizeObserver(this.syncNavHeight);
+            this.navResizeObserver.observe(this.$el);
+        }
+    },
+    beforeUnmount() {
+        window.removeEventListener("scroll", this.syncStickyState);
+        this.navResizeObserver?.disconnect();
+        this.$el.closest(".m-achievement-workbench-shell")?.style.removeProperty("--achievement-nav-height");
+    },
     methods: {
+        syncStickyState() {
+            const style = window.getComputedStyle(this.$el);
+            this.isStuck = style.position === "sticky" && this.$el.getBoundingClientRect().top <= parseFloat(style.top);
+        },
+        syncNavHeight() {
+            this.syncStickyState();
+            const shell = this.$el.closest(".m-achievement-workbench-shell");
+            shell?.style.setProperty("--achievement-nav-height", `${this.$el.getBoundingClientRect().height}px`);
+        },
         isActive(item) {
             return item.routeName === this.$route.name;
         },
@@ -68,7 +91,7 @@ export default {
 </script>
 
 <template>
-    <nav class="m-achievement-workbench-nav" :aria-label="$t('pages.wiki.overview.title')">
+    <nav class="m-achievement-workbench-nav" :class="{ 'is-stuck': isStuck }" :aria-label="$t('pages.wiki.overview.title')">
         <router-link class="m-achievement-workbench-brand" :to="{ name: 'overview' }">
             <img :src="brandIcon" alt="" />
             <span>{{ $t("pages.wiki.overview.title") }}</span>
@@ -112,10 +135,13 @@ export default {
     display: flex;
     min-width: 0;
     min-height: 60px;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
-    padding: 0 0 12px;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(244, 240, 232, 0.96));
+    padding: 6px 0;
+    background: transparent;
+    &.is-stuck {
+        background: linear-gradient(90deg, #fff, #f4f0e8);
+    }
 }
 .m-achievement-workbench-brand {
     display: inline-flex;
