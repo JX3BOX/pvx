@@ -57,7 +57,7 @@ export default {
 
             <label class="m-leap-base-field">
                 <span>{{ $t("pages.wiki.leap.ui.workbench.planRole") }}</span>
-                <el-select
+                <el-select popper-class="m-achievement-theme-popper"
                     :model-value="modelValue.roleId"
                     :placeholder="$t('pages.wiki.leap.ui.selectPlaceholder')"
                     @update:model-value="updateField('roleId', $event)"

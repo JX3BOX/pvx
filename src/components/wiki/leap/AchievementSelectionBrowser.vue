@@ -93,12 +93,12 @@ export default {
 
 <template>
     <div class="m-achievement-selection-browser">
-        <div class="m-candidates-filters">
+        <div class="m-candidates-filters m-achievement-filter-toolbar">
             <el-cascader :model-value="filters.categories" :options="filterOptions.categories"
-                :props="{ multiple: true, checkStrictly: true }" popper-class="m-leap-recommendation-category-popper"
+                :props="{ multiple: true, checkStrictly: true }" popper-class="m-achievement-theme-popper m-leap-recommendation-category-popper"
                 clearable filterable collapse-tags :placeholder="$t('achievementRecommendation.filterCategories')"
                 @update:model-value="updateFilter('categories', $event)" />
-            <el-select :model-value="filters.mapIds" multiple clearable filterable collapse-tags
+            <el-select popper-class="m-achievement-theme-popper" :model-value="filters.mapIds" multiple clearable filterable collapse-tags
                 :placeholder="$t('achievementRecommendation.filterMaps')"
                 @update:model-value="updateFilter('mapIds', $event)">
                 <el-option v-for="map in filterOptions.maps" :key="map.id" :value="map.id" :label="map.name" />

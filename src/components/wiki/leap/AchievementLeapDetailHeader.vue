@@ -66,7 +66,7 @@ export default {
                 <CopyDocument />
                 {{ $t("pages.wiki.leap.ui.workbench.copyAsMine") }}
             </button>
-            <el-dropdown v-else trigger="click" :disabled="actionsDisabled">
+            <el-dropdown popper-class="m-achievement-theme-popper" v-else trigger="click" :disabled="actionsDisabled">
                 <button type="button" class="u-leap-detail-button" :disabled="actionsDisabled">
                     {{ $t("pages.wiki.leap.ui.workbench.moreActions") }}
                     <ArrowDown />

@@ -67,7 +67,7 @@ export default {
 
 <template>
     <section
-        :class="['m-compare-filters', { 'is-embedded': embedded }]"
+        :class="['m-compare-filters m-achievement-filter-toolbar', { 'is-embedded': embedded }]"
         :aria-label="$t('pages.wiki.compare.ui.filters.title')"
     >
         <div class="m-compare-filter-row">
@@ -78,7 +78,7 @@ export default {
                 collapse-tags
                 collapse-tags-tooltip
                 :max-collapse-tags="1"
-                popper-class="m-achievement-compare-status-popper"
+                popper-class="m-achievement-theme-popper m-achievement-compare-status-popper"
                 :placeholder="$t('pages.wiki.compare.ui.filters.placeholder')"
                 :aria-label="$t('pages.wiki.compare.ui.filters.title')"
                 @change="$emit('update:selected-filters', $event)"
@@ -96,7 +96,7 @@ export default {
             <el-select
                 :model-value="mapSelectValue"
                 class="u-compare-map-filter"
-                popper-class="m-achievement-compare-map-popper"
+                popper-class="m-achievement-theme-popper m-achievement-compare-map-popper"
                 filterable
                 :aria-label="$t('pages.wiki.compare.ui.map.label')"
                 @change="changeMap"
@@ -153,7 +153,7 @@ export default {
 .m-compare-filters {
     display: grid;
     min-width: 0;
-    gap: 6px;
+    gap: 10px;
     padding: 12px;
     border-radius: 12px;
     background: #f8f7f3;
@@ -169,20 +169,22 @@ export default {
     align-items: center;
     gap: 8px;
 }
+.m-compare-filter-row {
+    flex-wrap: wrap;
+}
+.m-compare-filter-actions {
+    flex: none;
+    margin-left: auto;
+}
 .u-compare-status-filter,
 .u-compare-map-filter {
     min-width: 0;
-    width: 0;
-    flex: 1;
+    width: 188px;
+    max-width: 100%;
+    flex: none;
     :deep(.el-select__wrapper) {
         min-height: 30px;
         border-radius: 20px;
-        box-shadow: 0 0 0 1px #e8e8e8 inset;
-        background: #fff;
-    }
-    :deep(.el-select__placeholder) {
-        color: #967944;
-        font-size: 14px;
     }
     :deep(.el-select__selection) {
         flex-wrap: nowrap;
@@ -235,12 +237,49 @@ export default {
     background: #967944;
     border-color: #967944;
 }
+.u-compare-toolbar-button.is-export {
+    min-width: 128px;
+    height: 30px;
+    gap: 8px;
+    padding: 0 18px;
+    border-color: #806535;
+    border-radius: 20px;
+    color: #fff;
+    background: #806535;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(128, 101, 53, 0.18);
+    transition: background-color 0.2s, border-color 0.2s;
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+    &:hover:not(:disabled) {
+        border-color: #69512a;
+        background: #69512a;
+    }
+    &:disabled {
+        box-shadow: none;
+    }
+}
+.u-compare-search-button,
+.u-compare-reset-button,
+.u-compare-toolbar-button {
+    &:focus-visible {
+        outline: 2px solid #5a7e84;
+        outline-offset: 3px;
+    }
+}
 @media (max-width: @phone) {
     .m-compare-filter-row {
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .u-compare-status-filter {
-        flex-basis: 100%;
+    .u-compare-status-filter,
+    .u-compare-map-filter {
+        width: 100%;
+    }
+    .m-compare-filter-actions {
+        grid-column: 1 / -1;
     }
     .m-compare-search-row {
         display: grid;

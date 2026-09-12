@@ -600,11 +600,11 @@ export default {
                     <el-button text :disabled="disabled" @click="loadEventTags">{{ $t('achievementRecommendation.retry') }}</el-button>
                 </div>
             </template>
-            <div class="m-server-recommendation__filters">
+            <div class="m-server-recommendation__filters m-achievement-filter-toolbar">
                 <el-cascader v-model="filters.categories" :options="filterOptions.categories" :props="{ multiple: true, checkStrictly: true }"
-                    popper-class="m-leap-recommendation-category-popper"
+                    popper-class="m-achievement-theme-popper m-leap-recommendation-category-popper"
                     clearable filterable collapse-tags @visible-change="($event) => $event && loadFilterIndex()" :placeholder="$t('achievementRecommendation.filterCategories')" />
-                <el-select v-model="filters.mapIds" multiple clearable filterable collapse-tags :loading="filterIndexLoading"
+                <el-select popper-class="m-achievement-theme-popper" v-model="filters.mapIds" multiple clearable filterable collapse-tags :loading="filterIndexLoading"
                     @visible-change="($event) => $event && loadFilterIndex()" :placeholder="$t('achievementRecommendation.filterMaps')">
                     <el-option v-for="map in filterOptions.maps" :key="map.id" :value="map.id" :label="map.name" />
                 </el-select>

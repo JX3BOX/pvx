@@ -204,23 +204,23 @@ export default {
             <strong>{{ $t("pages.wiki.leap.ui.achievementCount", { count: filteredItems.length }) }}</strong>
         </header>
 
-        <div class="m-leap-route__filters">
+        <div class="m-leap-route__filters m-achievement-filter-toolbar">
             <el-input
                 v-model="keyword"
                 clearable
                 :prefix-icon="searchIcon"
                 :placeholder="$t('pages.wiki.leap.ui.workbench.searchRoute')"
             />
-            <el-select v-model="categoryId">
+            <el-select popper-class="m-achievement-theme-popper" v-model="categoryId">
                 <el-option :label="$t('pages.wiki.leap.ui.workbench.allCategories')" value="all" />
                 <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id" />
             </el-select>
-            <el-select v-model="completion">
+            <el-select popper-class="m-achievement-theme-popper" v-model="completion">
                 <el-option :label="$t('pages.wiki.leap.ui.all')" value="all" />
                 <el-option :label="$t('pages.wiki.leap.ui.incomplete')" value="incomplete" />
                 <el-option :label="$t('pages.wiki.leap.ui.completed')" value="completed" />
             </el-select>
-            <el-select v-model="sort">
+            <el-select popper-class="m-achievement-theme-popper" v-model="sort">
                 <el-option :label="$t('pages.wiki.leap.ui.workbench.routeOrder')" value="route" />
                 <el-option :label="$t('pages.wiki.leap.ui.workbench.pointsDescending')" value="points-desc" />
                 <el-option

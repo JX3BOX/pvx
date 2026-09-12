@@ -636,6 +636,7 @@ export default {
                     visibleAchievement: "Hiển thị",
                     completedAchievements: "Đã hoàn thành",
                     earnedSeniority: "Điểm đã nhận",
+                    categoryRemaining: "Còn {points} điểm có thể đạt",
                     remainingPoints: "Còn có thể nhận {points} điểm thâm niên",
                     unearnedPoints: "Chưa nhận {points} điểm thâm niên",
                     retiredUnavailable: "Đã tuyệt bản, không thể nhận thêm",

@@ -629,6 +629,7 @@ export default {
                     visibleAchievement: "可見",
                     completedAchievements: "完成數量",
                     earnedSeniority: "已獲資歷",
+                    categoryRemaining: "餘 {points} 點可做",
                     remainingPoints: "尚可獲得 {points} 資歷",
                     unearnedPoints: "未獲得 {points} 資歷",
                     retiredUnavailable: "已絕版，無法繼續獲取",

@@ -431,6 +431,7 @@ export default {
                     visibleAchievement: "可见",
                     completedAchievements: "完成数量",
                     earnedSeniority: "已获资历",
+                    categoryRemaining: "余 {points} 点可做",
                     remainingPoints: "尚可获得 {points} 资历",
                     unearnedPoints: "未获得 {points} 资历",
                     retiredUnavailable: "已绝版，无法继续获取",
@@ -572,7 +573,7 @@ export default {
                     bindRole: "绑定角色",
                     export: "导出对比",
                     exporting: "正在导出",
-                    reset: "重置条件",
+                    reset: "重置",
                 },
                 states: {
                     loading: "正在加载对比数据",

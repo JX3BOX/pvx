@@ -261,6 +261,17 @@ schoolPage.snapshot = { role: { school: "天策府" } };
 assert.strictEqual(schoolPage.overallProgress.pointProgress, 53.33, "咨询页面使用咨询角色门派，而非当前登录角色");
 assert.strictEqual(schoolPage.categoryProgress[0].children[1].pointProgress, 0);
 
+assert.strictEqual(adjustedOverall.remainingAvailablePoints, 70, "可做资历排除其他门派未完成成就");
+assert.deepStrictEqual(adjustedCategories.map((item) => item.remainingAvailablePoints), [70, 0]);
+assert.deepStrictEqual(adjustedCategories[0].children.map((item) => item.remainingAvailablePoints), [0, 0, 70], "二级同样排除非本派，保留公共成就");
+assert.strictEqual(progress.buildAchievementOverallProgress(schoolMetadata, [1, 2], tianCeEligibility).remainingAvailablePoints, 70);
+assert.strictEqual(progress.buildAchievementOverallProgress(schoolMetadata, [1, 2, 3, 4, 5], tianCeEligibility).remainingAvailablePoints, 0);
+assert.strictEqual(progress.buildAchievementOverallProgress({}, [], tianCeEligibility).remainingAvailablePoints, 0);
+assert.strictEqual(progress.buildAchievementOverallProgress(schoolMetadata, [1]).remainingAvailablePoints, 140);
+assert.strictEqual(schoolPage.categories[0].remainingAvailablePoints, 70, "咨询按详情角色门派计算可做资历");
+schoolPage.snapshot = null;
+assert.strictEqual(schoolPage.categories[0].remainingAvailablePoints, 140, "退出咨询恢复所选角色的可做资历");
+
 assert.deepStrictEqual(progress.filterAchievementIds({ metadata, completedIds: [1, 4, 5], completion: "incomplete" }), [
     "2",
     "3",

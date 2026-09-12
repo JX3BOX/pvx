@@ -62,12 +62,12 @@ export default {
         :title="$t('achievementRecommendation.candidatesTitle', { count: total.toLocaleString($i18n.locale) })"
         @update:model-value="$emit('update:modelValue', $event)">
         <p class="m-candidates-hint">{{ $t('achievementRecommendation.candidatesHint') }}</p>
-        <div class="m-candidates-filters">
+        <div class="m-candidates-filters m-achievement-filter-toolbar">
             <el-cascader :model-value="filters.categories" :options="filterOptions.categories" :props="{ multiple: true, checkStrictly: true }"
-                popper-class="m-leap-recommendation-category-popper" clearable filterable collapse-tags
+                popper-class="m-achievement-theme-popper m-leap-recommendation-category-popper" clearable filterable collapse-tags
                 :placeholder="$t('achievementRecommendation.filterCategories')"
                 @update:model-value="updateFilter('categories', $event)" @visible-change="$event && $emit('load-index')" />
-            <el-select :model-value="filters.mapIds" multiple clearable filterable collapse-tags :loading="filterIndexLoading"
+            <el-select popper-class="m-achievement-theme-popper" :model-value="filters.mapIds" multiple clearable filterable collapse-tags :loading="filterIndexLoading"
                 :placeholder="$t('achievementRecommendation.filterMaps')"
                 @update:model-value="updateFilter('mapIds', $event)" @visible-change="$event && $emit('load-index')">
                 <el-option v-for="map in filterOptions.maps" :key="map.id" :value="map.id" :label="map.name" />

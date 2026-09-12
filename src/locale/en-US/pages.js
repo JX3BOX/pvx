@@ -639,6 +639,7 @@ export default {
                     visibleAchievement: "Visible",
                     completedAchievements: "Completed",
                     earnedSeniority: "Earned seniority",
+                    categoryRemaining: "{points} points available",
                     remainingPoints: "{points} seniority still obtainable",
                     unearnedPoints: "{points} seniority not yet earned",
                     retiredUnavailable: "Retired and no longer obtainable",

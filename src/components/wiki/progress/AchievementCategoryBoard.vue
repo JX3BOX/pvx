@@ -104,9 +104,6 @@ export default {
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
-        formatPercent(value) {
-            return value === null || value === undefined ? "—" : `${Number(value).toFixed(0)}%`;
-        },
         selectCategory(categoryId) {
             this.$emit("select-category", String(categoryId));
         },
@@ -143,7 +140,7 @@ export default {
                     <span v-if="tierLabel">- {{ tierLabel }}</span>
                 </h2>
             </div>
-            <el-select
+            <el-select popper-class="m-achievement-theme-popper"
                 :model-value="sort"
                 class="u-progress-category-sort"
                 :aria-label="$t('pages.wiki.overview.ui.workbench.categorySort')"
@@ -186,15 +183,12 @@ export default {
                             <span class="m-progress-category-card__body">
                                 <span class="m-progress-category-card__line">
                                     <strong>{{ category.name }}</strong>
-                                    <span>
-                                        {{
-                                            $t("pages.wiki.overview.ui.achievementCount", {
-                                                own: formatNumber(category.completedCount),
-                                                all: formatNumber(category.totalCount),
-                                            })
-                                        }}
+                                    <span class="m-progress-category-stats">
+                                        <span class="u-category-count">{{ formatNumber(category.completedCount) }}<span class="u-category-total"> / {{ formatNumber(category.totalCount) }}</span></span>
+                                        <i18n-t keypath="pages.wiki.overview.ui.statistics.categoryRemaining" tag="span" class="u-category-remaining">
+                                            <template #points><strong class="u-category-points">{{ formatNumber(category.remainingAvailablePoints) }}</strong></template>
+                                        </i18n-t>
                                     </span>
-                                    <b>{{ formatPercent(category.pointProgress) }}</b>
                                 </span>
                                 <span class="m-progress-category-track" aria-hidden="true">
                                     <i :style="{ width: `${category.pointProgress || 0}%` }"></i>
@@ -253,10 +247,12 @@ export default {
                         <span class="m-progress-subcategory-card__body">
                             <span class="m-progress-subcategory-card__line">
                                 <strong>{{ child.name }}</strong>
-                                <span>
-                                    {{ formatNumber(child.completedCount) }}/{{ formatNumber(child.totalCount) }}
-                                </span>
-                                <b>{{ formatPercent(child.pointProgress) }}</b>
+                                <span class="m-progress-category-stats">
+                                        <span class="u-category-count">{{ formatNumber(child.completedCount) }}<span class="u-category-total"> / {{ formatNumber(child.totalCount) }}</span></span>
+                                        <i18n-t keypath="pages.wiki.overview.ui.statistics.categoryRemaining" tag="span" class="u-category-remaining">
+                                            <template #points><strong class="u-category-points">{{ formatNumber(child.remainingAvailablePoints) }}</strong></template>
+                                        </i18n-t>
+                                    </span>
                             </span>
                             <span class="m-progress-category-track" aria-hidden="true">
                                 <i :style="{ width: `${child.pointProgress || 0}%` }"></i>
@@ -378,21 +374,16 @@ export default {
 }
 .m-progress-category-card__line {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    strong {
+    > strong {
+        flex: 0 0 auto;
+        max-width: 100%;
         font-size: 16px;
         font-weight: 400;
-        overflow-wrap: anywhere;
-    }
-    > span {
-        display: none;
-    }
-    b {
-        font-size: 14px;
-        font-weight: 400;
-        color: #6e572c;
+        overflow-wrap: break-word;
     }
 }
 .m-progress-category-card__meta,
@@ -419,9 +410,6 @@ export default {
     background: linear-gradient(90deg, #2c3e46, #5a7e84);
     .u-progress-category-icon img {
         filter: brightness(0) invert(1);
-    }
-    .m-progress-category-card__line b {
-        color: #fff;
     }
     .m-progress-category-track {
         background: #ffffff33;
@@ -460,9 +448,6 @@ export default {
     &.is-active {
         color: #fff;
         background: #5a7e84;
-        .m-progress-subcategory-card__line span {
-            color: #fff;
-        }
         .m-progress-category-track {
             background: #ffffff33;
             i {
@@ -490,21 +475,65 @@ export default {
 }
 .m-progress-subcategory-card__line {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    strong {
+    > strong {
+        flex: 0 0 auto;
+        max-width: 100%;
         font-size: 14px;
         font-weight: 400;
-        overflow-wrap: anywhere;
+        overflow-wrap: break-word;
     }
-    span {
-        font-size: 14px;
-        color: #999;
+}
+.m-progress-category-stats {
+    display: flex;
+    flex: 0 1 auto;
+    width: max-content;
+    max-width: 100%;
+    align-items: baseline;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+    .u-category-count {
+        color: #7b807e;
+        font-size: 13px;
+        font-weight: 400;
         white-space: nowrap;
     }
-    b {
-        display: none;
+    .u-category-total {
+        font-weight: 400;
+    }
+    .u-category-remaining {
+        padding-left: 10px;
+        border-left: 1px solid #d8d3c9;
+        color: #786b54;
+        font-size: 13px;
+        font-weight: 400;
+        white-space: nowrap;
+    }
+    .u-category-points {
+        color: #6e572c;
+        font-size: 15px;
+        font-weight: 700;
+    }
+}
+.m-progress-category-node.is-active,
+.m-progress-category-node.is-expanded,
+.m-progress-subcategory-card.is-active {
+    .u-category-count {
+        color: #ffffffb8;
+    }
+    .u-category-remaining {
+        color: #ffffffcc;
+        border-left-color: #ffffff55;
+    }
+    .u-category-points {
+        color: #fff;
     }
 }
 @media (max-width: 1400px) {
@@ -517,7 +546,7 @@ export default {
         width: 32px;
         height: 32px;
     }
-    .m-progress-category-card__line strong {
+    .m-progress-category-card__line > strong {
         font-size: 14px;
     }
     .m-progress-categories__header {

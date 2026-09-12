@@ -151,7 +151,7 @@ export default {
         :aria-label="$t('pages.wiki.overview.ui.overview')"
     >
         <article class="m-progress-overall-card">
-            <el-dropdown v-if="showToolbar" trigger="click" class="m-progress-role-switch" @command="selectRole">
+            <el-dropdown popper-class="m-achievement-theme-popper" v-if="showToolbar" trigger="click" class="m-progress-role-switch" @command="selectRole">
                 <button
                     type="button"
                     class="u-progress-role-switch"

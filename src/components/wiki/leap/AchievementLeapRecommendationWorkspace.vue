@@ -184,7 +184,7 @@ export default {
                     </div>
                     <div class="m-recommendation-base-fields">
                         <el-form-item :label="$t('achievementRecommendation.chooseRole')">
-                            <el-select
+                            <el-select popper-class="m-achievement-theme-popper"
                                 :model-value="roleId"
                                 filterable
                                 :loading="roleLoading"
@@ -599,7 +599,8 @@ export default {
             border-color: #5a7e84;
             color: #333;
             background: #fff;
-            box-shadow: inset 0 -3px #5a7e84;
+            // Element Plus 对首项设置了 box-shadow: none !important，需统一覆盖。
+            box-shadow: inset 0 -3px #5a7e84 !important;
             font-weight: 600;
         }
         .el-radio-button.is-disabled .el-radio-button__inner {

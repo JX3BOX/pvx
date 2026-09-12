@@ -137,7 +137,7 @@ export default {
             if (this.categorySort === "progress-desc") {
                 categories.sort((left, right) => progressValue(right) - progressValue(left));
             } else if (this.categorySort === "remaining-desc") {
-                categories.sort((left, right) => right.remainingPoints - left.remainingPoints);
+                categories.sort((left, right) => right.remainingAvailablePoints - left.remainingAvailablePoints);
             } else {
                 categories.sort((left, right) => progressValue(left) - progressValue(right));
             }

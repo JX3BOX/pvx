@@ -65,7 +65,7 @@
 
 `completionStatistics` 是已同步角色样本的完成统计，并非剑网 3 全服角色数据。当前所有成就展示入口及亲友对比导出均隐藏“同步完成率”和角色计数，字段仅保留在标准模型中，不影响角色自身进度或方案完成率。所有成就条目显示已有 `shortDescription`，长描述允许换行，无描述不创建空占位；描述使用纯文本插值，不作为 HTML 渲染。
 
-完成进度页及咨询详情中的完成进度，按对应角色的门派调整总览、全部和一级分类的百分比及进度条。`buildAchievementOverallProgress` 和 `buildAchievementCategoryProgress` 仅在传入 `schoolEligibility` 时调整汇总的 `pointProgress/countProgress`；二级分类及其余真实统计字段不受影响。完整公式、适用范围和示例以[统计业务规则 5.4](../project/achievement-statistics.md#54-完成进度的门派折算) 为准，不改写完成 ID、资历或推荐结果。
+完成进度页及咨询详情中的完成进度，按对应角色的门派调整总览、全部和一级分类的百分比及进度条。`buildAchievementOverallProgress` 和 `buildAchievementCategoryProgress` 仅在传入 `schoolEligibility` 时调整汇总的 `pointProgress/countProgress`；二级分类百分比及其余真实统计字段不受影响。分类面板（全部、一级、二级）统一显示“已完成数量/总数量 余 X 点可做”；`remainingAvailablePoints` 为未完成且符合对应角色门派资格的资历之和，二级同样传入门派上下文。剩余资历排序使用该字段，原始 `remainingPoints` 仍保留全部未完成资历。咨询面板的完成 ID 与门派均取详情快照角色。完整公式、适用范围和示例以[统计业务规则 5.4](../project/achievement-statistics.md#54-完成进度的门派折算) 为准，不改写完成 ID、资历或推荐结果。
 
 `cost.tier` 当前没有公共数据来源，第一阶段不展示对应筛选，也不根据其他成本维度在前端推导成本档位。
 

@@ -27,7 +27,7 @@ function isEligibleMetadata(item) {
     return Boolean(item && VALID_GENERALS.has(Number(item.general)) && Number.isFinite(Number(item.point)));
 }
 
-function summarizeIds(ids, metadata, completedIds, schoolEligibility = null) {
+function summarizeIds(ids, metadata, completedIds, schoolEligibility = null, adjustSchoolProgress = true) {
     const completed = normalizeCompletedIds(completedIds);
     const uniqueIds = [...new Set((ids || []).map(String))].filter((id) => isEligibleMetadata(metadata?.[id]));
     const completedAchievementIds = uniqueIds.filter((id) => completed.has(id));
@@ -39,18 +39,20 @@ function summarizeIds(ids, metadata, completedIds, schoolEligibility = null) {
             id, metadataItem: metadata[id], context: schoolEligibility,
         }))
         : [];
-    const progressPoints = completedPoints + exemptIds.reduce((total, id) => total + getPoint(metadata, id), 0);
+    const exemptPoints = exemptIds.reduce((total, id) => total + getPoint(metadata, id), 0);
+    const progressPoints = completedPoints + (adjustSchoolProgress ? exemptPoints : 0);
 
     return {
         achievementIds: uniqueIds,
         completedCount: completedAchievementIds.length,
         completedPoints,
         countProgress: uniqueIds.length
-            ? Number((((completedAchievementIds.length + exemptIds.length) / uniqueIds.length) * 100).toFixed(2))
+            ? Number((((completedAchievementIds.length + (adjustSchoolProgress ? exemptIds.length : 0)) / uniqueIds.length) * 100).toFixed(2))
             : null,
         pointProgress: totalPoints ? Number(((progressPoints / totalPoints) * 100).toFixed(2)) : null,
         remainingCount: Math.max(0, uniqueIds.length - completedAchievementIds.length),
         remainingPoints: Math.max(0, totalPoints - completedPoints),
+        remainingAvailablePoints: Math.max(0, totalPoints - completedPoints - exemptPoints),
         totalCount: uniqueIds.length,
         totalPoints,
     };
@@ -68,6 +70,7 @@ function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadat
                 parentId: id,
                 metadata,
                 completedIds,
+                schoolEligibility,
             })
         )
         .filter((category) => category.totalCount > 0);
@@ -79,7 +82,7 @@ function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadat
         detailId: parentId === null ? null : detailId,
         name: menu?.name || fallbackId,
         children,
-        ...summarizeIds([...collectMenuAchievementIds([menu])], metadata, completedIds, parentId === null ? schoolEligibility : null),
+        ...summarizeIds([...collectMenuAchievementIds([menu])], metadata, completedIds, schoolEligibility, parentId === null),
     };
 }
 

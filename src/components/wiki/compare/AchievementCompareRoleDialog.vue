@@ -131,7 +131,7 @@ export default {
                 <el-select
                     v-model="form.friendId"
                     filterable
-                    popper-class="m-achievement-compare-role-popper"
+                    popper-class="m-achievement-theme-popper m-achievement-compare-role-popper"
                     :placeholder="$t('pages.wiki.compare.ui.role.selectFriend')"
                     @change="selectFriend"
                 >
@@ -149,7 +149,7 @@ export default {
                     v-model="form.roleIds"
                     multiple
                     filterable
-                    popper-class="m-achievement-compare-role-popper"
+                    popper-class="m-achievement-theme-popper m-achievement-compare-role-popper"
                     :multiple-limit="remainingSlots"
                     :loading="loadingFriendRoles"
                     :disabled="form.roleType === 'friend' && !form.friendId"

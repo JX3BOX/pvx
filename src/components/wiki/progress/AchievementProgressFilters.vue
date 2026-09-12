@@ -102,11 +102,11 @@ export default {
 
 <template>
     <section
-        :class="['m-progress-filters', { 'is-embedded': embedded }]"
+        :class="['m-progress-filters m-achievement-filter-toolbar', { 'is-embedded': embedded }]"
         :aria-label="$t('pages.wiki.overview.ui.workbench.filters')"
     >
         <div class="m-progress-filter-row">
-            <el-select
+            <el-select popper-class="m-achievement-theme-popper"
                 v-if="showCategory"
                 :model-value="categoryId"
                 class="u-progress-filter"
@@ -121,7 +121,7 @@ export default {
                 />
             </el-select>
 
-            <el-select
+            <el-select popper-class="m-achievement-theme-popper"
                 v-if="showTier"
                 :model-value="tier"
                 class="u-progress-filter"
@@ -132,7 +132,7 @@ export default {
                 <el-option value="wujia" :label="$t('pages.wiki.overview.ui.statistics.wujia')" />
             </el-select>
 
-            <el-select
+            <el-select popper-class="m-achievement-theme-popper"
                 :model-value="completion"
                 class="u-progress-filter"
                 :aria-label="$t('pages.wiki.overview.ui.status')"
@@ -143,7 +143,7 @@ export default {
                 <el-option value="completed" :label="$t('pages.wiki.overview.ui.completed')" />
             </el-select>
 
-            <el-select
+            <el-select popper-class="m-achievement-theme-popper"
                 :model-value="mapSelectValue"
                 class="u-progress-filter is-map"
                 filterable
@@ -154,7 +154,7 @@ export default {
                 <el-option v-for="map in mapOptions" :key="map.id" :value="map.id" :label="map.label" />
             </el-select>
 
-            <el-select
+            <el-select popper-class="m-achievement-theme-popper"
                 :model-value="sort"
                 class="u-progress-filter is-sort"
                 :disabled="sortLoading"
@@ -211,6 +211,7 @@ export default {
 <style lang="less" scoped>
 .m-progress-filters {
     display: flex;
+    flex-direction: column;
     min-width: 0;
     gap: 8px;
     padding: 12px;
@@ -229,13 +230,15 @@ export default {
 }
 .u-progress-filter {
     width: 188px;
+    max-width: 100%;
     min-width: 0;
-    &.is-sort {
-        width: 180px;
-    }
+    flex: none;
 }
 .m-progress-search {
-    flex: 1;
+    > .el-input {
+        min-width: 0;
+        flex: 1;
+    }
 }
 .u-progress-search-button,
 .u-progress-clear-button {
@@ -274,8 +277,8 @@ export default {
     border-radius: 0;
     background: transparent;
     .u-progress-filter {
-        width: 21%;
-        min-width: 125px;
+        width: 188px;
+        min-width: 0;
     }
     .u-progress-filter.is-sort {
         position: absolute;
