@@ -1,0 +1,102 @@
+// 下拉浮层挂载在 body，使用独立类名限定角色菜单样式。
+.m-progress-role-popper.el-popper {
+    max-width: calc(100vw - 24px);
+    border: 1px solid #e8e2d7;
+    border-radius: 12px;
+    background: #fffefa;
+    box-shadow: 0 8px 28px #6e572c1a, 0 2px 8px #6e572c0a;
+
+    .el-popper__arrow::before {
+        border-color: #e8e2d7;
+        background: #fffefa;
+    }
+    .el-dropdown-menu {
+        width: 280px;
+        max-width: calc(100vw - 26px);
+        box-sizing: border-box;
+        padding: 6px;
+        background: transparent;
+    }
+    .el-select-dropdown__list {
+        padding: 6px;
+    }
+    .el-select-dropdown__wrap {
+        max-height: 360px;
+    }
+    .el-select-dropdown.is-multiple .m-progress-role-option.is-selected::after {
+        display: none;
+    }
+    .m-progress-role-option {
+        height: auto;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 56px;
+        padding: 8px 10px;
+        box-sizing: border-box;
+        border-radius: 8px;
+        color: #504b42;
+        white-space: normal;
+
+        &:not(.is-disabled):hover,
+        &:not(.is-disabled):focus,
+        &.is-hovering:not(.is-disabled) {
+            color: #48656a;
+            background: #eef2f0;
+        }
+        &.is-selected,
+        &.is-current.is-disabled {
+            color: #6e572c;
+            background: #f3eee3;
+            cursor: default;
+        }
+    }
+    .m-progress-role-option__icon {
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #f8f5ed;
+        color: #a7997b;
+        img,
+        svg {
+            width: 26px;
+            height: 26px;
+            margin: 0;
+            object-fit: contain;
+        }
+        &.is-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            object-fit: cover;
+        }
+    }
+    .m-progress-role-option__info {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        flex-direction: column;
+        gap: 2px;
+        line-height: 1.4;
+        strong {
+            font-size: 14px;
+            font-weight: 500;
+            overflow-wrap: anywhere;
+        }
+        > span {
+            color: #918a7c;
+            font-size: 12px;
+        }
+    }
+    .m-progress-role-option__check {
+        flex: none;
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        color: #967944;
+    }
+}

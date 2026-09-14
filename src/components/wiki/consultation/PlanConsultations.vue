@@ -1,17 +1,19 @@
 <script>
 import User from "@jx3box/jx3box-common/js/user";
+import { showAvatar } from "@jx3box/jx3box-common/js/utils";
 import { createConsultation, getConsultations, getConsultationExperts } from "@/service/achievementConsultation";
 import ConsultationDetail from "./ConsultationDetail.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { ChatDotRound } from "@element-plus/icons-vue";
+import { ChatDotRound, Check, UserFilled } from "@element-plus/icons-vue";
 
 export default {
     name: "PlanConsultations",
-    components: { ConsultationDetail, ChatDotRound, PvxSurface },
+    components: { ConsultationDetail, ChatDotRound, Check, UserFilled, PvxSurface },
     emits: ["submitted"],
     props: { plan: { type: Object, default: null }, defaultQuestion: { type: String, default: "" }, roles: { type: Array, required: true }, defaultRoleId: { type: String, default: "" } },
     data: () => ({ rows: [], total: 0, pendingId: null, page: 1, loading: false, error: "", saving: false, opening: false, dialog: false, detailId: null,
         experts: [], expertsLoading: false, expertsError: false, requestId: 0, expertRequestId: 0,
+        expertAvatarErrors: {},
         form: { role_id: null, target_expert_id: null, question: "" } }),
     computed: {
         planRoleId() { return String(this.plan?.meta?.roleId || ""); },
@@ -28,6 +30,7 @@ export default {
     },
     beforeUnmount() { this.requestId += 1; this.expertRequestId += 1; },
     methods: {
+        showAvatar,
         openDetail(id) {
             if (this.plan) this.detailId = id;
             else this.$router.push({ name: 'consultation-detail', params: { id } });
@@ -110,9 +113,23 @@ export default {
                 <el-form-item v-else :label="$t('achievementRecommendation.chooseRole')" required><el-select v-model="form.role_id" filterable>
                     <el-option v-for="role in roles" :key="role.id" :value="role.roleId" :label="[role.name, role.server].filter(Boolean).join(' · ')" :disabled="!role.roleId" />
                 </el-select></el-form-item>
-                <el-form-item :label="$t('achievementConsultation.expert')"><el-select v-model="form.target_expert_id" :placeholder="$t('achievementConsultation.public')" filterable :loading="expertsLoading">
-                    <el-option :value="null" :label="$t('achievementConsultation.public')" />
-                    <el-option v-for="expert in experts" :key="expert.user_id" :value="Number(expert.user_id)" :label="`${expert.user?.display_name || expert.user_id} (#${expert.user_id})`" />
+                <el-form-item :label="$t('achievementConsultation.expert')"><el-select v-model="form.target_expert_id" popper-class="m-achievement-theme-popper m-progress-role-popper" :placeholder="$t('achievementConsultation.public')" filterable :loading="expertsLoading">
+                    <el-option :value="null" :label="$t('achievementConsultation.public')" class="m-progress-role-option">
+                        <span class="m-progress-role-option__icon" aria-hidden="true"><ChatDotRound /></span>
+                        <span class="m-progress-role-option__info"><strong>{{ $t('achievementConsultation.public') }}</strong></span>
+                        <Check v-if="form.target_expert_id === null" class="m-progress-role-option__check" aria-hidden="true" />
+                    </el-option>
+                    <el-option v-for="expert in experts" :key="expert.user_id" :value="Number(expert.user_id)" :label="`${expert.user?.display_name || expert.user_id} (#${expert.user_id})`" class="m-progress-role-option">
+                        <span class="m-progress-role-option__icon is-avatar" aria-hidden="true">
+                            <img v-if="!expertAvatarErrors[expert.user_id]" :src="showAvatar(expert.user?.user_avatar, 'm')" alt="" @error="expertAvatarErrors[expert.user_id] = true" />
+                            <UserFilled v-else />
+                        </span>
+                        <span class="m-progress-role-option__info">
+                            <strong>{{ expert.user?.display_name || expert.user_id }}</strong>
+                            <span>#{{ expert.user_id }}</span>
+                        </span>
+                        <Check v-if="form.target_expert_id === Number(expert.user_id)" class="m-progress-role-option__check" aria-hidden="true" />
+                    </el-option>
                 </el-select></el-form-item>
                 <el-button v-if="expertsError" @click="loadExperts">{{ $t('achievementConsultation.retryExperts') }}</el-button>
                 <el-form-item :label="$t('achievementConsultation.question')" required><el-input v-model="form.question" type="textarea" :rows="5" :placeholder="$t('achievementConsultation.questionPlaceholder')" maxlength="2000" show-word-limit /></el-form-item>
@@ -122,6 +139,8 @@ export default {
         <el-dialog draggable :model-value="Boolean(detailId)" class="m-plan-consultation-detail-dialog" :title="$t('achievementConsultation.detail')" width="min(1180px, calc(100vw - 24px))" append-to-body destroy-on-close
             @update:model-value="!$event && closeDetail()"><ConsultationDetail v-if="detailId" :id="detailId" @changed="load" /></el-dialog>
 </template>
+
+<style lang="less" src="@/assets/css/modules/achievement-role-options.less"></style>
 
 <style lang="less" scoped>
 .m-plan-consultations { min-width: 0;

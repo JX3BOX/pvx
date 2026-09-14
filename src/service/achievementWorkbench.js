@@ -193,6 +193,7 @@ export async function fetchAchievementWorkbenchRecommendation({ roleId, camp, pr
 export async function fetchAchievementWorkbenchFriends() {
     const response = await getMyKith();
     return (response.data?.data || [])
+        .filter((friend) => friend?.status === 1 || friend?.status === "1")
         .map((friend) => ({
             id: String(friend?.kith_id ?? friend?.uid ?? friend?.id ?? ""),
             name: friend?.kith_info?.display_name || friend?.display_name || friend?.name || null,
@@ -451,8 +452,14 @@ export async function fetchAchievementWorkbenchLeapPlan(id) {
 }
 
 export async function saveAchievementWorkbenchLeapPlan(payload, id = null) {
+    // 更新接口不接受创建时的 client、fork_from 等字段。
+    const updatePayload = Object.fromEntries(
+        ["title", "meta", "desc", "tag", "schema"]
+            .filter((key) => Object.prototype.hasOwnProperty.call(payload, key))
+            .map((key) => [key, payload[key]])
+    );
     const response = id
-        ? await updateWikiAchievementLeapSchema(id, payload)
+        ? await updateWikiAchievementLeapSchema(id, updatePayload)
         : await createdWikiAchievementLeapSchema(payload);
     return normalizeAchievementLeapPlan({ ...payload, id, ...(response.data?.data || {}) });
 }

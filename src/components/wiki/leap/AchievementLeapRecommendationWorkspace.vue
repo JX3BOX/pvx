@@ -1,5 +1,6 @@
 <script>
-import { RefreshLeft, ArrowDown, ArrowUp } from "@element-plus/icons-vue";
+import { RefreshLeft, ArrowDown, ArrowUp, Check, UserFilled } from "@element-plus/icons-vue";
+import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import AchievementLeapRecommendation from "./AchievementLeapRecommendation.vue";
 import AchievementRecommendationCategories from "./AchievementRecommendationCategories.vue";
 import {
@@ -10,7 +11,7 @@ import {
 
 export default {
     name: "AchievementLeapRecommendationWorkspace",
-    components: { RefreshLeft, ArrowDown, ArrowUp, AchievementLeapRecommendation, AchievementRecommendationCategories },
+    components: { Check, UserFilled, RefreshLeft, ArrowDown, ArrowUp, AchievementLeapRecommendation, AchievementRecommendationCategories },
     props: {
         options: { type: Object, required: true },
         dimensions: { type: Array, default: () => [] },
@@ -37,7 +38,7 @@ export default {
     },
     emits: ["update:options", "role-change", "update:targetPoints", "update:planTitle", "refresh", "apply"],
     data() {
-        return { selection: null, settingsExpanded: true, expandedPreferences: ["categories"], hasRequested: false };
+        return { roleSchoolIconErrors: {}, selection: null, settingsExpanded: true, expandedPreferences: ["categories"], hasRequested: false };
     },
     computed: {
         visibleDimensions() {
@@ -86,6 +87,7 @@ export default {
         },
     },
     methods: {
+        showSchoolIcon,
         requestRecommendation() {
             if (!this.canRequest) return;
             this.hasRequested = true;
@@ -184,7 +186,7 @@ export default {
                     </div>
                     <div class="m-recommendation-base-fields">
                         <el-form-item :label="$t('achievementRecommendation.chooseRole')">
-                            <el-select popper-class="m-achievement-theme-popper"
+                            <el-select popper-class="m-achievement-theme-popper m-progress-role-popper"
                                 :model-value="roleId"
                                 filterable
                                 :loading="roleLoading"
@@ -196,7 +198,27 @@ export default {
                                     :key="role.id"
                                     :value="role.id"
                                     :label="[role.name, role.server].filter(Boolean).join(' · ')"
-                                />
+                                    class="m-progress-role-option"
+                                >
+                                    <span class="m-progress-role-option__icon" aria-hidden="true">
+                                        <img
+                                            v-if="role.school && !roleSchoolIconErrors[role.id]"
+                                            :src="showSchoolIcon(role.school)"
+                                            alt=""
+                                            @error="roleSchoolIconErrors[role.id] = true"
+                                        />
+                                        <UserFilled v-else />
+                                    </span>
+                                    <span class="m-progress-role-option__info">
+                                        <strong>{{ role.name || "—" }}</strong>
+                                        <span>{{ role.server || "—" }}</span>
+                                    </span>
+                                    <Check
+                                        v-if="roleId === role.id"
+                                        class="m-progress-role-option__check"
+                                        aria-hidden="true"
+                                    />
+                                </el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item :label="$t('achievementRecommendation.planTitle')">
@@ -364,6 +386,8 @@ export default {
         </div>
     </div>
 </template>
+
+<style lang="less" src="@/assets/css/modules/achievement-role-options.less"></style>
 
 <style lang="less">
 .m-leap-recommendation-workspace {

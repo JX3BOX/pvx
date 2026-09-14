@@ -1,9 +1,13 @@
 <script>
+import { Check, UserFilled } from "@element-plus/icons-vue";
+import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 
 export default {
     name: "AchievementLeapBaseSettings",
     components: {
+        Check,
+        UserFilled,
         PvxSurface,
     },
     props: {
@@ -21,7 +25,11 @@ export default {
         },
     },
     emits: ["update:modelValue", "role-change"],
+    data() {
+        return { roleSchoolIconErrors: {} };
+    },
     methods: {
+        showSchoolIcon,
         updateField(field, value) {
             if (field === "roleId") {
                 this.$emit("role-change", value);
@@ -57,7 +65,7 @@ export default {
 
             <label class="m-leap-base-field">
                 <span>{{ $t("pages.wiki.leap.ui.workbench.planRole") }}</span>
-                <el-select popper-class="m-achievement-theme-popper"
+                <el-select popper-class="m-achievement-theme-popper m-progress-role-popper"
                     :model-value="modelValue.roleId"
                     :placeholder="$t('pages.wiki.leap.ui.selectPlaceholder')"
                     @update:model-value="updateField('roleId', $event)"
@@ -67,7 +75,27 @@ export default {
                         :key="role.id"
                         :label="roleLabel(role)"
                         :value="role.id"
-                    />
+                        class="m-progress-role-option"
+                    >
+                        <span class="m-progress-role-option__icon" aria-hidden="true">
+                            <img
+                                v-if="role.school && !roleSchoolIconErrors[role.id]"
+                                :src="showSchoolIcon(role.school)"
+                                alt=""
+                                @error="roleSchoolIconErrors[role.id] = true"
+                            />
+                            <UserFilled v-else />
+                        </span>
+                        <span class="m-progress-role-option__info">
+                            <strong>{{ role.name || "—" }}</strong>
+                            <span>{{ role.server || "—" }}</span>
+                        </span>
+                        <Check
+                            v-if="modelValue.roleId === role.id"
+                            class="m-progress-role-option__check"
+                            aria-hidden="true"
+                        />
+                    </el-option>
                 </el-select>
             </label>
 
@@ -84,6 +112,8 @@ export default {
         </div>
     </PvxSurface>
 </template>
+
+<style lang="less" src="@/assets/css/modules/achievement-role-options.less"></style>
 
 <style lang="less" scoped>
 .m-leap-base-settings {

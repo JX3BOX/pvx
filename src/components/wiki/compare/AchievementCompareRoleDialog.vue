@@ -1,6 +1,10 @@
 <script>
+import { Check, UserFilled } from "@element-plus/icons-vue";
+import { showSchoolIcon, showAvatar } from "@jx3box/jx3box-common/js/utils";
+
 export default {
     name: "AchievementCompareRoleDialog",
+    components: { Check, UserFilled },
     props: {
         modelValue: {
             type: Boolean,
@@ -34,6 +38,8 @@ export default {
     emits: ["update:modelValue", "request-friend-roles", "confirm"],
     data() {
         return {
+            roleSchoolIconErrors: {},
+            friendAvatarErrors: {},
             form: {
                 roleType: "self",
                 friendId: "",
@@ -68,6 +74,8 @@ export default {
         },
     },
     methods: {
+        showSchoolIcon,
+        showAvatar,
         close() {
             this.$emit("update:modelValue", false);
         },
@@ -131,7 +139,7 @@ export default {
                 <el-select
                     v-model="form.friendId"
                     filterable
-                    popper-class="m-achievement-theme-popper m-achievement-compare-role-popper"
+                    popper-class="m-achievement-theme-popper m-progress-role-popper"
                     :placeholder="$t('pages.wiki.compare.ui.role.selectFriend')"
                     @change="selectFriend"
                 >
@@ -140,7 +148,26 @@ export default {
                         :key="friend.id"
                         :value="friend.id"
                         :label="friend.name || $t('pages.wiki.compare.ui.common.unknown')"
-                    />
+                        class="m-progress-role-option"
+                    >
+                        <span class="m-progress-role-option__icon is-avatar" aria-hidden="true">
+                            <img
+                                v-if="!friendAvatarErrors[friend.id]"
+                                :src="showAvatar(friend.avatar, 'm')"
+                                alt=""
+                                @error="friendAvatarErrors[friend.id] = true"
+                            />
+                            <UserFilled v-else />
+                        </span>
+                        <span class="m-progress-role-option__info">
+                            <strong>{{ friend.name || $t('pages.wiki.compare.ui.common.unknown') }}</strong>
+                        </span>
+                        <Check
+                            v-if="form.friendId === friend.id"
+                            class="m-progress-role-option__check"
+                            aria-hidden="true"
+                        />
+                    </el-option>
                 </el-select>
             </el-form-item>
 
@@ -149,7 +176,7 @@ export default {
                     v-model="form.roleIds"
                     multiple
                     filterable
-                    popper-class="m-achievement-theme-popper m-achievement-compare-role-popper"
+                    popper-class="m-achievement-theme-popper m-progress-role-popper"
                     :multiple-limit="remainingSlots"
                     :loading="loadingFriendRoles"
                     :disabled="form.roleType === 'friend' && !form.friendId"
@@ -160,7 +187,27 @@ export default {
                         :key="role.id || role.jx3id"
                         :value="String(role.id || role.jx3id)"
                         :label="`${role.name || '—'} · ${role.server || '—'}`"
-                    />
+                        class="m-progress-role-option"
+                    >
+                        <span class="m-progress-role-option__icon" aria-hidden="true">
+                            <img
+                                v-if="role.school && !roleSchoolIconErrors[role.id || role.jx3id]"
+                                :src="showSchoolIcon(role.school)"
+                                alt=""
+                                @error="roleSchoolIconErrors[role.id || role.jx3id] = true"
+                            />
+                            <UserFilled v-else />
+                        </span>
+                        <span class="m-progress-role-option__info">
+                            <strong>{{ role.name || "—" }}</strong>
+                            <span>{{ role.server || "—" }}</span>
+                        </span>
+                        <Check
+                            v-if="form.roleIds.includes(String(role.id || role.jx3id))"
+                            class="m-progress-role-option__check"
+                            aria-hidden="true"
+                        />
+                    </el-option>
                 </el-select>
             </el-form-item>
 
@@ -179,6 +226,8 @@ export default {
         </template>
     </el-dialog>
 </template>
+
+<style lang="less" src="@/assets/css/modules/achievement-role-options.less"></style>
 
 <style lang="less">
 .m-achievement-compare-role-dialog {

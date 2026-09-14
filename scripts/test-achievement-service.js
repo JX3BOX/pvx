@@ -189,7 +189,14 @@ const wikiService = {
         calls.delete.push(id);
         return { data: { code: 0 } };
     },
-    getMyKith: async () => ({ data: { data: [] } }),
+    getMyKith: async () => ({ data: { data: [
+        { kith_id: 11, status: 1, kith_info: { display_name: "已通过亲友" } },
+        { kith_id: 12, status: 0 },
+        { kith_id: 13, status: "1", display_name: "已通过亲友二" },
+        { kith_id: 14, status: "0" },
+        { kith_id: 15, status: 2 },
+        { kith_id: 16 },
+    ] } }),
     getMyKithRoles: async () => ({ data: { data: [] } }),
     getWikiAchievementLeapSchema: async (id) => {
         calls.detail.push(id);
@@ -332,6 +339,11 @@ const service = loadModule(
 );
 
 (async () => {
+    const friends = await service.fetchAchievementWorkbenchFriends();
+    assert.deepStrictEqual(friends.map((friend) => [friend.id, friend.name]), [
+        ["11", "已通过亲友"],
+        ["13", "已通过亲友二"],
+    ]);
     const originalGetRoleAchievements = achievementService.getRoleGameAchievements;
     achievementService.getRoleGameAchievements = async () => ({
         data: { data: { jx3id: "432345564228640185", achievements: "1,2", updated_at: "2025-05-26 20:51:50" } },
@@ -554,6 +566,9 @@ const service = loadModule(
 
     const payload = {
         title: "冲刺测试",
+        client: "std",
+        fork_from: 8,
+        tag: ["测试"],
         desc: "保留现有接口字段",
         schema: ["101", "102"],
         meta: {
@@ -568,7 +583,15 @@ const service = loadModule(
     assert.deepStrictEqual(created.meta, payload.meta);
 
     const updated = await service.saveAchievementWorkbenchLeapPlan(payload, "21");
-    assert.deepStrictEqual(calls.update, [["21", payload]]);
+    assert.deepStrictEqual(calls.update, [["21", {
+        title: payload.title,
+        meta: payload.meta,
+        desc: payload.desc,
+        tag: payload.tag,
+        schema: payload.schema,
+    }]]);
+    assert.strictEqual(payload.client, "std");
+    assert.strictEqual(payload.fork_from, 8);
     assert.strictEqual(updated.id, "21");
     assert.strictEqual(updated.title, "冲刺测试-已更新");
     assert.deepStrictEqual(updated.meta, payload.meta);

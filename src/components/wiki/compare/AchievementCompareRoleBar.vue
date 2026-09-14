@@ -153,7 +153,8 @@ export default {
                 :disabled="loading"
                 @click="$emit('add-role')"
             >
-                {{ $t("pages.wiki.compare.ui.actions.addRole") }}
+                <Plus aria-hidden="true" />
+                <span>{{ $t("pages.wiki.compare.ui.actions.addRole") }}</span>
             </button>
         </div>
     </section>
@@ -311,6 +312,10 @@ export default {
     }
 }
 .m-compare-role-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     min-width: 0;
     min-height: 92px;
     border: 1px dashed #967944;
@@ -321,6 +326,11 @@ export default {
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
+    svg {
+        flex: none;
+        width: 20px;
+        height: 20px;
+    }
     &:hover {
         background: #f8f7f3;
     }

@@ -84,6 +84,12 @@ export default {
 .c-leap-save-dialog {
     max-width: calc(100vw - 32px);
     box-sizing: border-box;
+
+    .el-dialog__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
 }
 
 .c-leap-save-dialog .m-leap-save-dialog {

@@ -1,5 +1,5 @@
 <script>
-import { Refresh, ArrowUp } from "@element-plus/icons-vue";
+import { Refresh, ArrowUp, Check, UserFilled } from "@element-plus/icons-vue";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 import { __Root } from "@/utils/config";
 
@@ -31,7 +31,7 @@ const TIER_DEFINITIONS = Object.freeze([
         labelKey: "workbench.hiddenTier",
         badgeKey: "statistics.hiddenAchievement",
         actionKey: "workbench.viewHiddenAchievements",
-        href: `${__Root}bbs/8104`,
+        href: `${__Root}community/496`,
     },
     {
         key: "retired",
@@ -47,6 +47,8 @@ export default {
         Refresh,
         RoleAvatar,
         ArrowUp,
+        Check,
+        UserFilled,
     },
     props: {
         showToolbar: { type: Boolean, default: true },
@@ -97,6 +99,7 @@ export default {
             pointsIcon,
             avatarFailed: false,
             schoolIconFailed: false,
+            roleSchoolIconErrors: {},
             tierIcons: { normal: normalIcon, wujia: wujiaIcon, hidden: hiddenIcon, retired: retiredIcon },
         };
     },
@@ -151,7 +154,7 @@ export default {
         :aria-label="$t('pages.wiki.overview.ui.overview')"
     >
         <article class="m-progress-overall-card">
-            <el-dropdown popper-class="m-achievement-theme-popper" v-if="showToolbar" trigger="click" class="m-progress-role-switch" @command="selectRole">
+            <el-dropdown popper-class="m-achievement-theme-popper m-progress-role-popper" v-if="showToolbar" trigger="click" placement="bottom-end" :max-height="360" class="m-progress-role-switch" @command="selectRole">
                 <button
                     type="button"
                     class="u-progress-role-switch"
@@ -165,9 +168,25 @@ export default {
                             v-for="role in roles"
                             :key="role.id"
                             :command="role.id"
+                            class="m-progress-role-option"
+                            :class="{ 'is-current': role.id === currentRoleId }"
                             :disabled="role.id === currentRoleId"
-                            >{{ role.name || "—" }} · {{ role.server || "—" }}</el-dropdown-item
                         >
+                            <span class="m-progress-role-option__icon" aria-hidden="true">
+                                <img
+                                    v-if="role.school && !roleSchoolIconErrors[role.id]"
+                                    :src="showSchoolIcon(role.school)"
+                                    alt=""
+                                    @error="roleSchoolIconErrors[role.id] = true"
+                                />
+                                <UserFilled v-else />
+                            </span>
+                            <span class="m-progress-role-option__info">
+                                <strong>{{ role.name || "—" }}</strong>
+                                <span>{{ role.server || "—" }}</span>
+                            </span>
+                            <Check v-if="role.id === currentRoleId" class="m-progress-role-option__check" aria-hidden="true" />
+                        </el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -265,7 +284,7 @@ export default {
                     class="m-progress-tier-card"
                     :class="[
                         {
-                            'is-clickable': Boolean(item.actionKey),
+                            'is-clickable': Boolean(item.actionKey) && !item.href,
                             'is-selected': !item.href && item.key === activeTier,
                         },
                         'is-' + item.key,
@@ -275,13 +294,18 @@ export default {
                         <h3>
                             <img :src="tierIcons[item.key]" alt="" />{{ $t("pages.wiki.overview.ui." + item.labelKey) }}
                         </h3>
-                        <span class="m-progress-tier-hint">{{
+                        <a
+                            v-if="item.href"
+                            class="m-progress-tier-hint m-progress-tier-guide"
+                            :href="item.href"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >{{ $t("achievementAppearance.hiddenGuide") }}</a>
+                        <span v-else class="m-progress-tier-hint">{{
                             $t(
                                 "achievementAppearance." +
                                     (item.key === "retired"
                                         ? "unavailable"
-                                        : item.href
-                                        ? "hiddenGuide"
                                         : item.key === activeTier
                                         ? "selected"
                                         : "filter")
@@ -308,16 +332,8 @@ export default {
                     <div class="m-progress-tier-track" aria-hidden="true">
                         <span :style="{ width: Math.max(0, Math.min(100, item.pointProgress || 0)) + '%' }"></span>
                     </div>
-                    <a
-                        v-if="item.href"
-                        class="u-progress-tier-card-link"
-                        :href="item.href"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        :aria-label="$t('pages.wiki.overview.ui.' + item.actionKey)"
-                    ></a>
                     <button
-                        v-else-if="item.actionKey"
+                        v-if="item.actionKey && !item.href"
                         type="button"
                         class="u-progress-tier-card-link"
                         :aria-label="$t('pages.wiki.overview.ui.' + item.actionKey)"
@@ -329,6 +345,8 @@ export default {
         </section>
     </section>
 </template>
+
+<style lang="less" src="@/assets/css/modules/achievement-role-options.less"></style>
 
 <style lang="less" scoped>
 .m-progress-summary {
@@ -562,6 +580,14 @@ export default {
 .m-progress-tier-hint {
     color: #999;
     font-size: 14px;
+}
+.m-progress-tier-guide {
+    text-decoration: none;
+    &:hover,
+    &:focus-visible {
+        color: #967944;
+        text-decoration: underline;
+    }
 }
 .m-progress-tier-percent {
     margin-left: auto;
