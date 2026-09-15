@@ -2,6 +2,12 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
     {
+        name: "adventure-research",
+        path: "/adventure-research",
+        component: () => import("@/views/adventure/research/Index.vue"),
+        meta: { title: "奇遇前置反推" },
+    },
+    {
         name: "pvxroot",
         path: "/",
         component: () => import("@/App.vue"),
