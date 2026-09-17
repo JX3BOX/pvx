@@ -28,6 +28,7 @@ export default {
     },
     props: {
         compact: { type: Boolean, default: false },
+        showTotal: { type: Boolean, default: false },
         title: {
             type: String,
             default: "",
@@ -423,8 +424,12 @@ export default {
             </div>
         </div>
 
-        <div v-if="total > pageSize" class="m-progress-pagination">
+        <div v-if="showTotal || total > pageSize" class="m-progress-pagination">
+            <span v-if="showTotal" class="u-progress-pagination-total" aria-live="polite">
+                {{ $t("pages.wiki.overview.ui.workbench.resultSummary", { count: formatNumber(total) }) }}
+            </span>
             <el-pagination
+                v-if="total > pageSize"
                 background
                 :layout="isPaginationPhoneViewport ? 'prev, slot, next' : 'prev, pager, next'"
                 :current-page="page"
@@ -721,8 +726,16 @@ export default {
 }
 .m-progress-pagination {
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 12px;
     padding-top: 16px;
+}
+.u-progress-pagination-total {
+    color: #6e572c;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
 }
 @media (max-width: @phone) {
     .m-progress-list {

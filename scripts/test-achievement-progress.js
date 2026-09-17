@@ -131,11 +131,6 @@ assert.deepStrictEqual(progress.filterAchievementRecords({
     metadata: hiddenScope, tier: "hidden",
 }).map((record) => record.id), ["1", "8"], "搜索结果使用相同普通隐藏资历范围");
 assert.strictEqual(progressPage.data.call({ hidden: true }).filters.tier, "hidden");
-assert.deepStrictEqual(progress.buildAchievementHiddenSummary(hiddenScope, [
-    { id: "1", relatedIds: ["11", "12"] }, { id: "8", relatedIds: [] }, { id: "4", relatedIds: ["41"] }, { id: "5", relatedIds: ["51"] },
-]), { count: 2, relatedCount: 1 }, "关联数按有关系的主成就计数，排除范围外成就");
-assert.deepStrictEqual(progress.buildAchievementHiddenSummary(hiddenScope, [{ id: "1", relatedIds: [] }]),
-    { count: 2, relatedCount: null }, "关联索引不完整时不能显示错误的零或固定数量");
 
 const pagedSearch = Array.from({ length: 47 }, (_, index) => ({ id: String(index + 1) }));
 assert.deepStrictEqual(progressPage.computed.visibleAchievementIds.call({ hidden: true, searchMode: true,

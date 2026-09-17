@@ -1,24 +1,13 @@
 <script>
-import { ArrowLeft, Hide, Reading } from "@element-plus/icons-vue";
+import { ArrowLeft, Reading } from "@element-plus/icons-vue";
 import AchievementProgressPage from "@/components/wiki/progress/AchievementProgressPage.vue";
+import AchievementHiddenNotice from "@/components/wiki/progress/AchievementHiddenNotice.vue";
 import { __Root } from "@/utils/config";
 
 export default {
     name: "WikiAchievementHidden",
-    components: { AchievementProgressPage, ArrowLeft, Hide, Reading },
-    data() {
-        return { summary: null };
-    },
+    components: { AchievementProgressPage, AchievementHiddenNotice, ArrowLeft, Reading },
     computed: {
-        description() {
-            if (!this.summary) return this.$t("achievementAppearance.hiddenDescriptionPending");
-            const key = this.summary.relatedCount === null ? "hiddenDescriptionCountOnly" : "hiddenDescription";
-            const format = new Intl.NumberFormat(this.$i18n.locale);
-            return this.$t(`achievementAppearance.${key}`, {
-                count: format.format(this.summary.count),
-                relatedCount: format.format(this.summary.relatedCount || 0),
-            });
-        },
         guideUrl() {
             return `${__Root}community/496`;
         },
@@ -28,26 +17,28 @@ export default {
 
 <template>
     <article class="p-achievement-hidden">
-        <router-link :to="{ name: 'overview' }" class="u-hidden-back">
-            <ArrowLeft aria-hidden="true" />{{ $t('achievementAppearance.backToProgress') }}
-        </router-link>
+        <header class="m-hidden-toolbar">
+            <router-link :to="{ name: 'overview' }" class="u-hidden-back"
+                :title="$t('achievementAppearance.backToProgress')"
+                :aria-label="$t('achievementAppearance.backToProgress')">
+                <ArrowLeft aria-hidden="true" />
+            </router-link>
+            <h1>{{ $t('pages.wiki.overview.ui.workbench.hiddenTier') }}</h1>
+            <a class="u-hidden-guide" :href="guideUrl" target="_blank" rel="noopener noreferrer">
+                <Reading aria-hidden="true" />{{ $t('achievementAppearance.viewGuide') }}
+            </a>
+        </header>
         <div class="m-hidden-document">
-            <header class="m-hidden-hero">
-                <div class="m-hidden-hero__content">
-                    <h1><Hide aria-hidden="true" />{{ $t('pages.wiki.overview.ui.workbench.hiddenTier') }}</h1>
-                    <p>{{ description }}</p>
-                </div>
-                <a class="u-hidden-guide" :href="guideUrl" target="_blank" rel="noopener noreferrer">
-                    <Reading aria-hidden="true" />{{ $t('achievementAppearance.viewGuide') }}
-                </a>
-            </header>
-            <AchievementProgressPage hidden @hidden-summary="summary = $event" />
+            <AchievementHiddenNotice />
+            <AchievementProgressPage hidden />
         </div>
     </article>
 </template>
 
 <style lang="less" scoped>
 .p-achievement-hidden {
+    display: grid;
+    gap: 12px;
     width: 100%;
     color: #333;
     line-height: 1.6;
@@ -60,59 +51,59 @@ export default {
 .u-hidden-back {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 36px;
-    padding: 6px 18px;
-    border-radius: 24px;
-    background: linear-gradient(90deg, #a3864c, #343434);
-    color: #fff;
-    font-size: 14px;
-    svg { width: 16px; height: 16px; }
+    justify-content: center;
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e5e0d6;
+    border-radius: 12px;
+    background: #fff;
+    color: #6e572c;
+    svg { width: 18px; height: 18px; }
+    &:hover { border-color: #b7a582; background: #f5f2eb; }
 }
 .m-hidden-document {
     display: grid;
-    gap: 24px;
+    gap: 12px;
     width: 100%;
     min-width: 0;
-    margin: 12px auto 72px;
+    margin: 0 auto 72px;
 }
-.m-hidden-hero {
-    display: flex;
+.m-hidden-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 24px;
-    border-radius: 16px;
-    background: #fff;
+    gap: 12px;
+    min-height: 44px;
     h1 {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        min-width: 0;
         margin: 0;
         color: #6e572c;
-        font-size: 32px;
+        font-size: 24px;
+        font-weight: 600;
         line-height: 1.4;
-        svg { width: 32px; height: 32px; color: #333; flex: none; }
     }
-    p { margin: 12px 0 0; color: #999; font-size: 16px; }
 }
 .u-hidden-guide {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    box-sizing: border-box;
     min-height: 40px;
-    padding: 8px 24px;
+    padding: 8px 18px;
     border-radius: 24px;
     background: #5a7e84;
     color: #fff;
     font-size: 14px;
+    white-space: nowrap;
     svg { width: 18px; height: 18px; }
     &:hover { background: #47777d; }
 }
 @media (max-width: @phone) {
-    .m-hidden-document { gap: 16px; margin-bottom: 32px; }
-    .m-hidden-hero { padding: 20px; h1 { font-size: 26px; } }
+    .m-hidden-document { margin-bottom: 32px; }
+    .m-hidden-toolbar { gap: 10px; h1 { font-size: 20px; } }
+    .u-hidden-back { width: 44px; height: 44px; }
+    .u-hidden-guide { min-height: 44px; padding: 8px 12px; }
 }
 </style>

@@ -25,6 +25,7 @@ export default {
     <AchievementProgressList
         class="m-hidden-list"
         compact
+        show-total
         :title="title"
         :records="records"
         :total="total"

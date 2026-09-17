@@ -32,7 +32,6 @@ import {
 import {
     buildAchievementCategoryProgress,
     buildAchievementHiddenCategoryProgress,
-    buildAchievementHiddenSummary,
     searchHiddenAchievementRecords,
     buildAchievementOverallProgress,
     buildAchievementTierProgress,
@@ -55,7 +54,6 @@ const createDefaultFilters = () => ({
 export default {
     name: "AchievementProgressPage",
     directives: { shorterColumnSticky },
-    emits: ["hidden-summary"],
     props: {
         hidden: { type: Boolean, default: false },
         snapshot: { type: Object, default: null },
@@ -111,10 +109,6 @@ export default {
         };
     },
     computed: {
-        hiddenSummary() {
-            if (!this.hidden || this.pageLoading || this.pageError || !this.hiddenIndex.length) return null;
-            return buildAchievementHiddenSummary(this.listMetadata, this.hiddenIndex);
-        },
         listMetadata() {
             if (!this.hidden) return this.metadata;
             return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) => item.visible === false && Number(item.general) === 1 && Number(item.point) > 0));
@@ -288,12 +282,6 @@ export default {
         },
     },
     watch: {
-        hiddenSummary: {
-            immediate: true,
-            handler(summary) {
-                if (this.hidden) this.$emit("hidden-summary", summary);
-            },
-        },
         snapshot() {
             this.resetProgressView();
             this.initializePage();

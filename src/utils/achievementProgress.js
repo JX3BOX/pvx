@@ -173,17 +173,6 @@ export function buildAchievementHiddenCategoryProgress({ menus, records = [], me
         }));
 }
 
-// 总表说明按完整候选范围统计，不随角色、搜索、分类或分页变化。
-export function buildAchievementHiddenSummary(metadata, index = []) {
-    const ids = Object.keys(metadata || {});
-    const byId = new Map(index.map((record) => [String(record.id), record]));
-    const hasCompleteRelations = ids.every((id) => Array.isArray(byId.get(id)?.relatedIds));
-    return {
-        count: ids.length,
-        relatedCount: hasCompleteRelations ? ids.filter((id) => byId.get(id).relatedIds.length > 0).length : null,
-    };
-}
-
 export function searchHiddenAchievementRecords(records, { keyword = "", mapId = "" } = {}) {
     const query = String(keyword).trim().toLocaleLowerCase();
     return records.filter((record) => {
