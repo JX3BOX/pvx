@@ -86,6 +86,8 @@ const progressPage = loadVueOptionsComponent(
         "@/directives/shorter-column-sticky": "sticky-columns-test-module",
         "@jx3box/jx3box-common/js/user": "achievement-user-test-module",
         "@element-plus/icons-vue": "achievement-icons-test-module",
+        "@/components/wiki/compare/AchievementCompareCategoryTree.vue": "achievement-component-test-module",
+        "@/components/wiki/progress/AchievementHiddenList.vue": "achievement-component-test-module",
         "@/components/wiki/progress/AchievementCategoryBoard.vue": "achievement-component-test-module",
         "@/components/wiki/progress/AchievementProgressFilters.vue": "achievement-component-test-module",
         "@/components/wiki/progress/AchievementProgressList.vue": "achievement-component-test-module",
@@ -111,6 +113,69 @@ const progressPage = loadVueOptionsComponent(
         "achievement-config-test-module": { __Links: { account: { login: "" } } },
     }
 );
+
+const hiddenMetadata = {
+    1: { point: 10, general: 1, visible: false },
+    2: { point: 0, general: 1, visible: false },
+    3: { point: 25, general: 1, visible: true },
+    4: { point: 50, general: 2, visible: false },
+    5: { point: 10, general: 0, visible: false },
+    6: { point: 10, general: 3, visible: false },
+    8: { point: 20, general: 1, visible: false },
+};
+const hiddenScope = progressPage.computed.listMetadata.call({ hidden: true, metadata: hiddenMetadata });
+assert.deepStrictEqual(Object.keys(hiddenScope), ["1", "8"], "隐藏页仅保留有资历点的普通隐藏成就，排除五甲、零资历、绝版及特殊档位");
+assert.strictEqual(progressPage.computed.listMetadata.call({ hidden: false, metadata: hiddenMetadata }), hiddenMetadata);
+assert.deepStrictEqual(progress.filterAchievementRecords({
+    records: Object.keys(hiddenMetadata).map((id) => ({ id, completed: false })),
+    metadata: hiddenScope, tier: "hidden",
+}).map((record) => record.id), ["1", "8"], "搜索结果使用相同普通隐藏资历范围");
+assert.strictEqual(progressPage.data.call({ hidden: true }).filters.tier, "hidden");
+assert.deepStrictEqual(progress.buildAchievementHiddenSummary(hiddenScope, [
+    { id: "1", relatedIds: ["11", "12"] }, { id: "8", relatedIds: [] }, { id: "4", relatedIds: ["41"] }, { id: "5", relatedIds: ["51"] },
+]), { count: 2, relatedCount: 1 }, "关联数按有关系的主成就计数，排除范围外成就");
+assert.deepStrictEqual(progress.buildAchievementHiddenSummary(hiddenScope, [{ id: "1", relatedIds: [] }]),
+    { count: 2, relatedCount: null }, "关联索引不完整时不能显示错误的零或固定数量");
+
+const pagedSearch = Array.from({ length: 47 }, (_, index) => ({ id: String(index + 1) }));
+assert.deepStrictEqual(progressPage.computed.visibleAchievementIds.call({ hidden: true, searchMode: true,
+    filteredSearchRecords: pagedSearch, page: 2, pageSize: 20 }), pagedSearch.slice(20, 40).map((record) => record.id),
+    "隐藏搜索只请求当前页的20个详情ID");
+const hydratedRecords = [{ id: "21", iconId: "real-icon" }];
+assert.strictEqual(progressPage.computed.visibleRecords.call({ hidden: true, searchMode: true,
+    records: hydratedRecords, filteredSearchRecords: pagedSearch, enrichRecords: (records) => records }), hydratedRecords,
+    "隐藏搜索渲染当前页详情，不把轻量索引当详情展示");
+progressPage.methods.loadVisibleEnrichment.call({ hidden: true,
+    loadDifficultyMetrics() { throw new Error("隐藏页不应请求难度"); },
+    loadTags() { throw new Error("隐藏页不应请求标签"); },
+}, ["21"]);
+
+// 菜单没有隐藏 ID 时，仍按详情的 Sub / Detail 建立分类，并排除无法映射的目录。
+const hiddenDetails = [
+    { id: "1", name: "朋友", iconId: "21", shortDescription: "好友好感度", category: { id: "1", subId: "5" }, map: { id: "0", worldMapId: "6" } },
+    { id: "8", name: "武学", shortDescription: "技能修习", category: { id: "2", subId: "16" }, map: { id: "11,12" } },
+];
+const hiddenMenus = [{ sub: 1, name: "杂闻", achievements: ["3"], children: [{ sub: 1, detail: 5, name: "朋友", achievements: [] }] },
+    { sub: 2, name: "武学", achievements: [], children: [{ sub: 2, detail: 16, name: "天策", achievements: [] }] }];
+const hiddenCategories = progress.buildAchievementHiddenCategoryProgress({ menus: hiddenMenus, records: hiddenDetails,
+    metadata: hiddenScope, completedIds: ["1"], uncategorizedName: "其他" });
+assert.deepStrictEqual(hiddenCategories.map((item) => [item.name, item.totalCount]), [["杂闻", 1], ["武学", 1]]);
+assert.strictEqual(hiddenCategories[0].children[0].name, "朋友");
+const otherCategories = progress.buildAchievementHiddenCategoryProgress({ menus: [], records: hiddenDetails,
+    metadata: hiddenScope, completedIds: [], uncategorizedName: "其他" });
+assert.strictEqual(otherCategories.length, 0, "不展示无法映射的分类");
+assert.deepStrictEqual(progress.buildAchievementHiddenCategoryProgress({ menus: [...hiddenMenus].reverse(),
+    records: hiddenDetails, metadata: hiddenScope, completedIds: [] }).map((item) => item.name), ["武学", "杂闻"], "分类按菜单默认顺序排列");
+assert.deepStrictEqual(hiddenCategories[0].children[0].achievementIds, ["1"]);
+const countedCategories = progress.buildAchievementHiddenCategoryProgress({ menus: hiddenMenus,
+    records: [{ ...hiddenDetails[0], id: "0", iconId: "20" }, { ...hiddenDetails[0], id: "4", iconId: "24" }, ...hiddenDetails, { ...hiddenDetails[0], id: "7", iconId: "27" }],
+    metadata: { ...hiddenMetadata, 0: { point: 0, general: 1, visible: false }, 7: { point: 25, general: 1, visible: false } },
+    completedIds: ["7"] });
+assert.strictEqual(countedCategories[0].totalCount, 2, "一级分类数量统计整个分类的有资历隐藏成就，不按完成状态或当前页统计");
+assert.strictEqual(countedCategories[0].children[0].iconId, "21", "二级图标取默认顺序的第一个有效成就，跳过零资历和五甲且不被后续项覆盖");
+assert.deepStrictEqual(progress.searchHiddenAchievementRecords(hiddenDetails, { keyword: "好感", mapId: "6" }).map((item) => item.id), ["1"]);
+assert.deepStrictEqual(progress.searchHiddenAchievementRecords(hiddenDetails, { mapId: "12" }).map((item) => item.id), ["8"]);
+assert.deepStrictEqual(progress.searchHiddenAchievementRecords(hiddenDetails, { keyword: "好感", mapId: "12" }), []);
 
 const metadata = {
     1: { point: 20, general: 1, visible: true },
@@ -250,7 +315,7 @@ assert.ok(progress.filterAchievementIds({ metadata: schoolMetadata, completedIds
 const schoolPage = { ...progressPage.data(), snapshot: null, metadata: schoolMetadata, menus: schoolMenus,
     completedIds: schoolCompletedIds, roles: [{ id: "tc", school: "傲血战意" }, { id: "wh", school: "万花" }],
     currentRoleId: "tc", $t: (key) => key };
-for (const key of ["currentRole", "schoolEligibility", "overallProgress", "categoryProgress", "sortedCategoryProgress", "categories"]) {
+for (const key of ["listMetadata", "currentRole", "schoolEligibility", "overallProgress", "categoryProgress", "sortedCategoryProgress", "categories"]) {
     Object.defineProperty(schoolPage, key, { get: progressPage.computed[key].bind(schoolPage) });
 }
 assert.strictEqual(schoolPage.overallProgress.pointProgress, 53.33);

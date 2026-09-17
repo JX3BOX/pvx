@@ -1,5 +1,5 @@
 <script>
-import { ArrowRight, CollectionTag } from "@element-plus/icons-vue";
+import { ArrowRight, Grid } from "@element-plus/icons-vue";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import { fetchAchievementWorkbenchRecords } from "@/service/achievementWorkbench";
 
@@ -17,9 +17,11 @@ export default {
     name: "AchievementCompareCategoryTree",
     components: {
         ArrowRight,
-        CollectionTag,
+        Grid,
     },
     props: {
+        loadIcons: { type: Boolean, default: true },
+        showCategoryCounts: { type: Boolean, default: false },
         categories: {
             type: Array,
             default: () => [],
@@ -52,7 +54,7 @@ export default {
         subcategoryIconRequest() {
             return {
                 client: this.currentClient,
-                ids: (this.expandedCategory?.children || []).map((child) => child.achievementIds?.[0]).filter(Boolean),
+                ids: (this.loadIcons ? this.expandedCategory?.children || [] : []).map((child) => child.achievementIds?.[0]).filter(Boolean),
             };
         },
 
@@ -103,7 +105,7 @@ export default {
             }
         },
         getSubcategoryIcon(child) {
-            return this.achievementIcons[`${this.currentClient}:${child.achievementIds?.[0]}`];
+            return child.iconId || this.achievementIcons[`${this.currentClient}:${child.achievementIds?.[0]}`];
         },
 
         selectAll() {
@@ -175,10 +177,11 @@ export default {
                                 v-if="getCategoryImage(category.name)"
                                 :src="getCategoryImage(category.name)"
                                 alt=""
-                            /><CollectionTag v-else />
+                            /><Grid v-else />
                         </span>
                         <span class="m-compare-category-card__body"
-                            ><strong>{{ category.name }}</strong></span
+                            ><strong>{{ category.name }}</strong
+                            ><small v-if="showCategoryCounts">{{ formatNumber(category.count) }}</small></span
                         >
                         <ArrowRight
                             v-if="category.children?.length"
@@ -208,7 +211,7 @@ export default {
                         >
                             <span class="u-compare-subcategory-icon" aria-hidden="true">
                                 <img v-if="getSubcategoryIcon(child)" :src="iconLink(getSubcategoryIcon(child))" alt="" />
-                                <CollectionTag v-else />
+                                <Grid v-else />
                             </span>
                             <span>{{ child.name }}</span><b>{{ formatNumber(child.count) }}</b>
                         </button>

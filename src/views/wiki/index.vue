@@ -27,7 +27,7 @@ export default {
 
         <main class="m-achievement-main c-achievement-workbench">
             <div class="m-achievement-page-background" aria-hidden="true"></div>
-            <div class="m-achievement-workbench-shell" :class="{ 'is-subpage': !showWorkbenchNav, 'is-full-width': showWorkbenchNav || ['leap-detail', 'consultation-detail'].includes($route.name) }">
+            <div class="m-achievement-workbench-shell" :class="{ 'is-subpage': !showWorkbenchNav, 'is-full-width': showWorkbenchNav || ['leap-detail', 'consultation-detail', 'achievement-hidden'].includes($route.name) }">
                 <AchievementWorkbenchNav v-if="showWorkbenchNav" />
                 <section class="m-achievement-content m-achievement-workbench-content">
                     <router-view />
