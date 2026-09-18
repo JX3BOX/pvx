@@ -95,6 +95,7 @@ export default {
                 this.$router
                     .push({
                         query: {
+                            ...this.$route.query,
                             map_id,
                         },
                     })
