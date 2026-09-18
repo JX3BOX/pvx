@@ -135,7 +135,7 @@ export default {
         },
         getPlan(id) {
             return new Promise((resolve, reject) => {
-                getMyGoodsDetail(id)
+                getMyGoodsDetail(id, this.client)
                     .then((res) => {
                         resolve(res.data.data);
                     })

@@ -13,7 +13,7 @@
                 >
                     <img class="u-icon" :src="iconLink(item.IconID)" alt="" />
                     <div class="m-mygoods-list-item-info">
-                        <div class="m-mygoods-list-item-label">{{ item.Name || "" }}</div>
+                        <div class="m-mygoods-list-item-label">{{ item.Name || item.id }}</div>
                         <div class="m-mygoods-list-item-money">
                             <GamePrice v-if="priceMap[item.id]" :price="priceMap[item.id] || 0" />
                             <div v-else class="is-null">{{ $t("pages.pvg.price.ui.noPrice") }}</div>
