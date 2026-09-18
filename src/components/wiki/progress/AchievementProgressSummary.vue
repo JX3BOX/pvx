@@ -1,7 +1,6 @@
 <script>
 import { Refresh, ArrowUp, Check, UserFilled } from "@element-plus/icons-vue";
 import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
-import { __Root } from "@/utils/config";
 
 import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
 import pointsIcon from "@/assets/img/wiki/figma/points.png";
@@ -31,7 +30,7 @@ const TIER_DEFINITIONS = Object.freeze([
         labelKey: "workbench.hiddenTier",
         badgeKey: "statistics.hiddenAchievement",
         actionKey: "workbench.viewHiddenAchievements",
-        href: `${__Root}community/496`,
+        href: true,
     },
     {
         key: "retired",
@@ -294,13 +293,11 @@ export default {
                         <h3>
                             <img :src="tierIcons[item.key]" alt="" />{{ $t("pages.wiki.overview.ui." + item.labelKey) }}
                         </h3>
-                        <a
+                        <router-link
                             v-if="item.href"
                             class="m-progress-tier-hint m-progress-tier-guide"
-                            :href="item.href"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >{{ $t("achievementAppearance.hiddenGuide") }}</a>
+                            :to="{ name: 'achievement-hidden' }"
+                        >{{ $t("achievementAppearance.hiddenBrowse") }}</router-link>
                         <span v-else class="m-progress-tier-hint">{{
                             $t(
                                 "achievementAppearance." +

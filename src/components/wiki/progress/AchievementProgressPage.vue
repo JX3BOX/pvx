@@ -1,4 +1,6 @@
 <script>
+import AchievementHiddenList from "@/components/wiki/progress/AchievementHiddenList.vue";
+import AchievementCompareCategoryTree from "@/components/wiki/compare/AchievementCompareCategoryTree.vue";
 import User from "@jx3box/jx3box-common/js/user";
 import shorterColumnSticky from "@/directives/shorter-column-sticky";
 import { Loading, UserFilled, WarningFilled } from "@element-plus/icons-vue";
@@ -11,6 +13,8 @@ import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import {
     fetchAchievementWorkbenchCatalog,
+    fetchAchievementWorkbenchHiddenRecords,
+    fetchAchievementWorkbenchHiddenIndex,
     fetchAchievementWorkbenchDifficultyDimensions,
     fetchAchievementWorkbenchDifficultyMetrics,
     fetchAchievementWorkbenchMaps,
@@ -27,6 +31,8 @@ import {
 } from "@/utils/achievementWorkbench";
 import {
     buildAchievementCategoryProgress,
+    buildAchievementHiddenCategoryProgress,
+    searchHiddenAchievementRecords,
     buildAchievementOverallProgress,
     buildAchievementTierProgress,
     filterAchievementIds,
@@ -49,9 +55,12 @@ export default {
     name: "AchievementProgressPage",
     directives: { shorterColumnSticky },
     props: {
+        hidden: { type: Boolean, default: false },
         snapshot: { type: Object, default: null },
     },
     components: {
+        AchievementHiddenList,
+        AchievementCompareCategoryTree,
         AchievementCategoryBoard,
         AchievementProgressFilters,
         AchievementProgressList,
@@ -79,13 +88,14 @@ export default {
             completedIds: [],
             synced: false,
             syncedAt: null,
+            hiddenIndex: [],
             records: [],
             searchRecords: null,
             page: 1,
             pageSize: 20,
             categorySort: "progress-asc",
             summaryCollapsed: false,
-            filters: createDefaultFilters(),
+            filters: { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" },
             dimensions: resolveAchievementWorkbenchDimensions([]),
             difficultyById: {},
             tagsById: {},
@@ -99,6 +109,10 @@ export default {
         };
     },
     computed: {
+        listMetadata() {
+            if (!this.hidden) return this.metadata;
+            return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) => item.visible === false && Number(item.general) === 1 && Number(item.point) > 0));
+        },
         currentClient() {
             if (this.snapshot) return "std";
             return this.$store.state.client === "origin" ? "origin" : "std";
@@ -123,9 +137,14 @@ export default {
             return buildAchievementTierProgress(this.metadata, this.completedIds);
         },
         categoryProgress() {
+            if (this.hidden) return buildAchievementHiddenCategoryProgress({
+                menus: this.menus, records: this.hiddenIndex, metadata: this.listMetadata,
+                completedIds: this.completedIds, uncategorizedName: this.$t("achievementAppearance.uncategorized"),
+            });
             return buildAchievementCategoryProgress({
                 menus: this.menus,
-                metadata: this.metadata,
+                metadata: this.listMetadata,
+                allMenus: this.hidden,
                 completedIds: this.completedIds,
                 schoolEligibility: this.schoolEligibility,
             });
@@ -150,7 +169,7 @@ export default {
                     id: "all",
                     name: this.$t("pages.wiki.overview.ui.workbench.allCategories"),
                     children: [],
-                    ...this.overallProgress,
+                    ... (this.hidden ? buildAchievementOverallProgress(this.listMetadata, this.completedIds) : this.overallProgress),
                 },
                 ...this.sortedCategoryProgress,
             ];
@@ -179,7 +198,7 @@ export default {
         },
         baseFilteredAchievementIds() {
             return filterAchievementIds({
-                metadata: this.metadata,
+                metadata: this.listMetadata,
                 completedIds: this.completedIds,
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,
@@ -189,7 +208,7 @@ export default {
         },
         filteredAchievementIds() {
             return filterAchievementIds({
-                metadata: this.metadata,
+                metadata: this.listMetadata,
                 completedIds: this.completedIds,
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,
@@ -199,7 +218,10 @@ export default {
             });
         },
         visibleAchievementIds() {
-            return paginateAchievementItems(this.filteredAchievementIds, this.page, this.pageSize);
+            const ids = this.hidden && this.searchMode
+                ? this.filteredSearchRecords.map((record) => record.id)
+                : this.filteredAchievementIds;
+            return paginateAchievementItems(ids, this.page, this.pageSize);
         },
         searchMode() {
             return this.searchRecords !== null;
@@ -207,8 +229,8 @@ export default {
         baseFilteredSearchRecords() {
             if (!this.searchMode) return [];
             return filterAchievementRecords({
-                records: this.searchRecords,
-                metadata: this.metadata,
+                records: this.hidden ? this.enrichRecords(this.searchRecords) : this.searchRecords,
+                metadata: this.listMetadata,
                 categoryId: this.filters.categoryId,
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,
@@ -225,7 +247,7 @@ export default {
             if (!this.searchMode) return [];
             return filterAchievementRecords({
                 records: this.enrichRecords(this.searchRecords, { tagsById: {} }),
-                metadata: this.metadata,
+                metadata: this.listMetadata,
                 categoryId: this.filters.categoryId,
                 categoryAchievementIds: this.selectedCategory?.achievementIds || null,
                 tier: this.filters.tier,
@@ -235,10 +257,17 @@ export default {
             });
         },
         visibleRecords() {
-            const records = this.searchMode
+            const records = this.searchMode && !this.hidden
                 ? paginateAchievementItems(this.filteredSearchRecords, this.page, this.pageSize)
                 : this.records;
             return this.enrichRecords(records);
+        },
+        hiddenCategories() {
+            return this.categoryProgress.map((category) => ({
+                ...category,
+                count: category.totalCount,
+                children: category.children.map((child) => ({ ...child, count: child.totalCount })),
+            }));
         },
         resultTotal() {
             return this.searchMode ? this.filteredSearchRecords.length : this.filteredAchievementIds.length;
@@ -286,9 +315,10 @@ export default {
             this.recordLoading = false;
             this.recordError = false;
             this.records = [];
+            this.hiddenIndex = [];
             this.searchRecords = null;
             this.page = 1;
-            this.filters = createDefaultFilters();
+            this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
         },
         selectTier(tier) {
             if (tier === this.filters.tier) return undefined;
@@ -330,7 +360,7 @@ export default {
                     fetchAchievementWorkbenchCatalog(client),
                     fetchAchievementWorkbenchRoles(),
                     fetchAchievementWorkbenchMaps(client).catch(() => []),
-                    fetchAchievementWorkbenchDifficultyDimensions().catch((error) => {
+                    (this.hidden ? Promise.resolve([]) : fetchAchievementWorkbenchDifficultyDimensions()).catch((error) => {
                         console.warn("Failed to load achievement difficulty dimensions:", error);
                         return [];
                     }),
@@ -341,6 +371,12 @@ export default {
                 this.roles = roles;
                 this.maps = maps;
                 this.dimensions = resolveAchievementWorkbenchDimensions(rawDimensions);
+
+                if (this.hidden) {
+                    const records = await fetchAchievementWorkbenchHiddenIndex(client);
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
+                    this.hiddenIndex = records;
+                }
 
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
                 this.currentRoleId = roles.some((role) => role.id === lastRoleId) ? lastRoleId : roles[0]?.id || "";
@@ -506,6 +542,7 @@ export default {
             }
         },
         loadVisibleEnrichment(ids) {
+            if (this.hidden) return;
             const client = this.currentClient;
             const epoch = this.enrichmentEpoch;
             this.loadDifficultyMetrics(ids, { client, epoch });
@@ -519,8 +556,10 @@ export default {
                 tagsById: context.tagsById ?? this.tagsById,
             });
 
+            const completed = new Set(this.completedIds.map(String));
             return enrichedRecords.map((record) => ({
                 ...record,
+                ...(this.hidden ? { completed: completed.has(String(record.id)) } : {}),
                 category: {
                     ...record.category,
                     name: record.category.name || categoryNames.get(String(record.category.id)) || null,
@@ -532,7 +571,7 @@ export default {
             }));
         },
         async loadVisibleRecords() {
-            if (this.searchMode) return;
+            if (this.searchMode && !this.hidden) return;
             const requestId = ++this.recordRequestId;
             const ids = this.visibleAchievementIds;
             const client = this.currentClient;
@@ -541,12 +580,14 @@ export default {
             this.recordError = false;
 
             try {
-                const records = await fetchAchievementWorkbenchRecords({
+                const records = this.hidden
+                    ? await fetchAchievementWorkbenchHiddenRecords({ ids, metadata: this.metadata, completedIds: this.completedIds, client })
+                    : await fetchAchievementWorkbenchRecords({
                     ids,
                     metadata: this.metadata,
                     completedIds: this.completedIds,
                     client,
-                    includeHidden: false,
+                    includeHidden: this.hidden,
                 });
                 if (
                     requestId !== this.recordRequestId ||
@@ -582,7 +623,7 @@ export default {
                 await this.setListSort(this.filters.sort);
                 return;
             }
-            if (!this.searchMode) {
+            if (!this.searchMode || this.hidden) {
                 await this.loadVisibleRecords();
                 return;
             }
@@ -629,7 +670,7 @@ export default {
                     sort: normalizedSort,
                 };
                 this.page = 1;
-                if (!this.searchMode) {
+                if (!this.searchMode || this.hidden) {
                     await this.loadVisibleRecords();
                     return;
                 }
@@ -675,7 +716,9 @@ export default {
             this.recordError = false;
 
             try {
-                const records = await searchAchievementWorkbenchRecords({
+                const records = this.hidden
+                    ? searchHiddenAchievementRecords(this.hiddenIndex, { keyword, mapId })
+                    : await searchAchievementWorkbenchRecords({
                     keyword,
                     mapId,
                     client,
@@ -690,6 +733,10 @@ export default {
                 }
                 this.searchRecords = this.enrichRecords(records);
                 this.records = [];
+                if (this.hidden) {
+                    await this.loadVisibleRecords();
+                    return;
+                }
                 if (getAchievementWorkbenchDimensionSort(this.filters.sort)) {
                     await this.setListSort(this.filters.sort);
                     return;
@@ -712,7 +759,7 @@ export default {
         },
         async resetListFilters() {
             this.cancelDimensionSortRequest();
-            this.filters = createDefaultFilters();
+            this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
             this.searchRecords = null;
             this.page = 1;
             await this.loadVisibleRecords();
@@ -742,7 +789,7 @@ export default {
         },
         async changePage(page) {
             this.page = Number(page) || 1;
-            if (!this.searchMode) {
+            if (!this.searchMode || this.hidden) {
                 await this.loadVisibleRecords();
             } else {
                 await this.$nextTick();
@@ -758,7 +805,7 @@ export default {
 </script>
 
 <template>
-    <div class="p-achievement-progress">
+    <div class="p-achievement-progress" :class="{ 'is-hidden-page': hidden }">
         <PvxSurface v-if="!isLogin" class="m-progress-page-state" padding="none">
             <PvxEmptyState
                 :title="$t('pages.wiki.overview.ui.loginRequired')"
@@ -808,6 +855,7 @@ export default {
 
         <div v-else class="m-progress-page-content">
             <AchievementProgressSummary
+                v-if="!hidden"
                 :show-toolbar="!snapshot"
                 :collapsed="summaryCollapsed"
                 :current-role="currentRole"
@@ -825,8 +873,20 @@ export default {
             />
 
             <div ref="achievementBrowser" v-shorter-column-sticky class="m-progress-browser-grid">
+                <AchievementCompareCategoryTree
+                    v-if="hidden"
+                    :categories="hiddenCategories"
+                    :load-icons="false"
+                    show-category-counts
+                    :total="Object.keys(listMetadata).length"
+                    :active-category-id="selectedCategory?.parentId || filters.categoryId"
+                    :active-detail-id="selectedCategory?.parentId ? selectedCategory.id : ''"
+                    @select-category="selectListCategory"
+                    @select-detail="selectListCategory($event.detailId)"
+                />
                 <AchievementCategoryBoard
-                    :tier-label="$t(filters.tier === 'wujia' ? 'pages.wiki.overview.ui.statistics.wujia' : 'pages.wiki.overview.ui.statistics.regular')"
+                    v-else
+                    :tier-label="hidden ? $t('pages.wiki.overview.ui.workbench.hiddenTier') : $t(filters.tier === 'wujia' ? 'pages.wiki.overview.ui.statistics.wujia' : 'pages.wiki.overview.ui.statistics.regular')"
                     :categories="categories"
                     :compact-overview="summaryCollapsed"
                     :active-category-id="filters.categoryId"
@@ -834,9 +894,12 @@ export default {
                     @select-category="selectListCategory"
                     @update:sort="categorySort = $event"
                 />
-                <AchievementProgressList
+                <component
+                    :is="hidden ? 'AchievementHiddenList' : 'AchievementProgressList'"
                     ref="achievementList"
                     :title="achievementListTitle"
+                    v-bind="hidden ? { currentRole, roles, roleLoading } : {}"
+                    @select-role="selectRole"
                     :records="visibleRecords"
                     :dimensions="dimensions"
                     :total="resultTotal"
@@ -850,6 +913,8 @@ export default {
                     <template #filters>
                         <AchievementProgressFilters
                             embedded
+                            :show-tier="!hidden"
+                            :show-sort="!hidden"
                             :map-options="mapOptions"
                             :tier="filters.tier"
                             :completion="filters.completion"
@@ -869,13 +934,22 @@ export default {
                             @reset-filters="resetListFilters"
                         />
                     </template>
-                </AchievementProgressList>
+                </component>
             </div>
         </div>
     </div>
 </template>
 
 <style lang="less" scoped>
+.is-hidden-page .m-progress-browser-grid {
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 12px;
+    background: #fff;
+    border-radius: 16px;
+}
+@media (max-width: 1060px) {
+    .is-hidden-page .m-progress-browser-grid { grid-template-columns: minmax(0, 1fr); }
+}
 .p-achievement-progress {
     width: 100%;
     min-width: 0;

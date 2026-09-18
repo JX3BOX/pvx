@@ -260,6 +260,49 @@ export async function fetchAchievementWorkbenchRecords({
     });
 }
 
+const hiddenRecordRequests = new Map();
+
+export async function fetchAchievementWorkbenchHiddenIndex(client = "std") {
+    const module = client === "origin"
+        ? await import("@/assets/data/achievements/hidden-origin.json")
+        : await import("@/assets/data/achievements/hidden-std.json");
+    return module.default.rows.map(([id, sub, detail, name, description, sceneId, worldMapId, relatedIds, iconId]) => ({
+        id: String(id), name, shortDescription: description,
+        iconId: String(iconId || ""),
+        relatedIds: Array.isArray(relatedIds) ? relatedIds.map(String) : null,
+        category: { id: String(sub), subId: String(detail) },
+        map: { id: String(sceneId || ""), sceneId: String(sceneId || ""), worldMapId: String(worldMapId || "") },
+    }));
+}
+
+// 仅取调用方传入的当前页 ID。缓存不包含角色进度，也不预取下一页。
+export async function fetchAchievementWorkbenchHiddenRecords({ ids = [], metadata = {}, completedIds = [], client = "std" } = {}) {
+    const pageIds = normalizeCompletedAchievementIds(ids).filter((id) => {
+        const item = metadata[id];
+        return item?.visible === false && Number(item.general) === 1 && Number(item.point) > 0;
+    });
+    const records = [];
+    for (let offset = 0; offset < pageIds.length; offset += 6) {
+        const batch = await Promise.all(pageIds.slice(offset, offset + 6).map((id) => {
+            const key = `${client}:${id}`;
+            if (!hiddenRecordRequests.has(key)) {
+                const request = get_achievement(id, { params: { client } }).then((response) => {
+                    const record = getAchievementDetailRecord(response);
+                    if (String(record?.ID ?? record?.id ?? "") !== id) throw new Error("隐藏成就详情不完整");
+                    return record;
+                }).catch((error) => {
+                    hiddenRecordRequests.delete(key);
+                    throw error;
+                });
+                hiddenRecordRequests.set(key, request);
+            }
+            return hiddenRecordRequests.get(key);
+        }));
+        records.push(...batch);
+    }
+    return normalizeAchievementWorkbenchRecords(records, { metadata, completedIds });
+}
+
 export async function fetchAchievementWorkbenchRecordsBatched(options = {}, batchSize = 240) {
     const ids = normalizeCompletedAchievementIds(options.ids);
     if (!ids.length) return [];

@@ -117,6 +117,12 @@ const routes = [
         component: () => import("@/views/wiki/index.vue"),
         children: [
             {
+                name: "achievement-hidden",
+                path: "hidden",
+                component: () => import("@/views/wiki/hidden.vue"),
+                meta: { i18n: { title: "pages.wiki.overview.ui.workbench.hiddenTier" } },
+            },
+            {
                 name: "achievement-guide",
                 path: "guide",
                 component: () => import("@/views/wiki/guide.vue"),

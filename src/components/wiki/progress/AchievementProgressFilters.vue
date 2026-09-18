@@ -8,6 +8,7 @@ export default {
         Search,
     },
     props: {
+        showSort: { type: Boolean, default: true },
         categoryOptions: {
             type: Array,
             default: () => [],
@@ -155,6 +156,7 @@ export default {
             </el-select>
 
             <el-select popper-class="m-achievement-theme-popper"
+                v-if="showSort"
                 :model-value="sort"
                 class="u-progress-filter is-sort"
                 :disabled="sortLoading"

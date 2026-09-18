@@ -27,6 +27,8 @@ export default {
         };
     },
     props: {
+        compact: { type: Boolean, default: false },
+        showTotal: { type: Boolean, default: false },
         title: {
             type: String,
             default: "",
@@ -68,7 +70,7 @@ export default {
     watch: {
         records: {
             handler(records) {
-                this.loadRewardItems(records);
+                if (!this.compact) this.loadRewardItems(records);
             },
             immediate: true,
         },
@@ -270,7 +272,7 @@ export default {
 </script>
 
 <template>
-    <section class="m-progress-list" :aria-label="resolvedTitle">
+    <section class="m-progress-list" :class="{ 'is-compact': compact }" :aria-label="resolvedTitle">
         <div v-if="$slots.filters" class="m-progress-list__filters">
             <slot name="filters" />
         </div>
@@ -280,6 +282,9 @@ export default {
                 <span>{{ $t("achievementAppearance.details") }} - </span>{{ resolvedTitle }}
             </h2>
             <span>{{ $t("pages.wiki.overview.ui.workbench.resultSummary", { count: formatNumber(total) }) }}</span>
+            <div v-if="$slots['header-actions']" class="m-progress-list__header-actions">
+                <slot name="header-actions" />
+            </div>
         </div>
 
         <div class="m-progress-list__body" v-loading="loading">
@@ -314,6 +319,9 @@ export default {
                                 <a :href="getLink('achievement', record.id)" target="_blank" rel="noopener noreferrer">
                                     {{ formatValue(record.name) }}
                                 </a>
+                                <span v-if="compact" class="u-progress-title-points">
+                                    <img src="@/assets/img/wiki/figma/points.png" alt="" />{{ formatNumber(record.points) }}
+                                </span>
                                 <span
                                     v-if="record.tier === 'wujia'"
                                     :class="['u-progress-tier', `is-${record.tier}`]"
@@ -341,7 +349,7 @@ export default {
                             {{ record.shortDescription }}
                         </p>
 
-                        <div class="m-progress-achievement-card__meta">
+                        <div v-if="!compact" class="m-progress-achievement-card__meta">
                             <span class="u-progress-points"
                                 ><img src="@/assets/img/wiki/figma/points.png" alt="" />{{
                                     formatNumber(record.points)
@@ -416,8 +424,12 @@ export default {
             </div>
         </div>
 
-        <div v-if="total > pageSize" class="m-progress-pagination">
+        <div v-if="showTotal || total > pageSize" class="m-progress-pagination">
+            <span v-if="showTotal" class="u-progress-pagination-total" aria-live="polite">
+                {{ $t("pages.wiki.overview.ui.workbench.resultSummary", { count: formatNumber(total) }) }}
+            </span>
             <el-pagination
+                v-if="total > pageSize"
                 background
                 :layout="isPaginationPhoneViewport ? 'prev, slot, next' : 'prev, pager, next'"
                 :current-page="page"
@@ -435,6 +447,15 @@ export default {
 </template>
 
 <style lang="less" scoped>
+.m-progress-list.is-compact {
+    .m-progress-list__header { flex-wrap: wrap; padding-right: 0; }
+    .m-progress-achievement-card { min-height: 64px; grid-template-rows: auto 1fr; }
+}
+.u-progress-title-points {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 8px;
+    color: #967944; font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap;
+    img { width: 16px; height: 16px; object-fit: contain; }
+}
 .m-progress-list {
     position: relative;
     display: flex;
@@ -478,6 +499,11 @@ export default {
     > span {
         display: none;
     }
+}
+.m-progress-list__header-actions {
+    flex: none;
+    max-width: 100%;
+    margin-left: auto;
 }
 .m-progress-list__filters {
     margin-bottom: 12px;
@@ -700,8 +726,16 @@ export default {
 }
 .m-progress-pagination {
     display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
+    gap: 12px;
     padding-top: 16px;
+}
+.u-progress-pagination-total {
+    color: #6e572c;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
 }
 @media (max-width: @phone) {
     .m-progress-list {
@@ -709,6 +743,9 @@ export default {
     }
     .m-progress-list__header {
         padding-right: 0;
+    }
+    .m-progress-list__header-actions {
+        width: 100%;
     }
     .m-progress-achievement-card {
         min-height: 92px;
