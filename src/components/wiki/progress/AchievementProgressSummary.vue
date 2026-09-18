@@ -283,7 +283,7 @@ export default {
                     class="m-progress-tier-card"
                     :class="[
                         {
-                            'is-clickable': Boolean(item.actionKey) && !item.href,
+                            'is-clickable': Boolean(item.actionKey),
                             'is-selected': !item.href && item.key === activeTier,
                         },
                         'is-' + item.key,
@@ -580,6 +580,17 @@ export default {
 }
 .m-progress-tier-guide {
     text-decoration: none;
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: 8px;
+    }
+    &:focus-visible::after {
+        outline: 2px solid #5a7e84;
+        outline-offset: 2px;
+    }
     &:hover,
     &:focus-visible {
         color: #967944;
