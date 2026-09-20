@@ -5,6 +5,7 @@ export default {
     name: "AchievementHiddenList",
     components: { AchievementProgressList },
     props: {
+        guest: { type: Boolean, default: false },
         title: { type: String, default: "" },
         records: { type: Array, default: () => [] },
         dimensions: { type: Array, default: () => [] },
@@ -17,7 +18,7 @@ export default {
         loading: Boolean,
         error: Boolean,
     },
-    emits: ["page-change", "retry", "select-role"],
+    emits: ["require-login", "page-change", "retry", "select-role"],
 };
 </script>
 
@@ -37,7 +38,9 @@ export default {
         @retry="$emit('retry')"
     >
         <template #header-actions>
+            <el-button v-if="guest" @click="$emit('require-login')">{{ $t("pages.wiki.overview.ui.switchRole") }}</el-button>
             <el-select
+                v-else
                 class="u-hidden-role-select"
                 popper-class="m-achievement-theme-popper"
                 :model-value="currentRole?.id"

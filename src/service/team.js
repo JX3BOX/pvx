@@ -5,4 +5,6 @@ const getUserRoles = () => {
     return $team().get(`api/team/my-game-roles?nopage&custom=0`);
 };
 
-export { getUserRoles };
+const getRoleBindToken = () => $team().get("/api/team/role-bind-token");
+
+export { getUserRoles, getRoleBindToken };

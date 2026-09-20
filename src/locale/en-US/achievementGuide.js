@@ -6,6 +6,24 @@ export default {
     "usage": "Use the achievement workbench",
     "faq": "Common questions",
     "bind": "Manage characters",
+    "bindNew": "Bind a new character",
+    "bindFlow": {
+        "title": "How to bind a new character",
+        "steps": [
+            "Log in to the game, open 茗伊插件集 → 团队 → 团队平台, and click 绑定 (Bind).",
+            "Click the token below to copy your character verification token.",
+            "Paste the token into the in-game dialog and click 确定 (Confirm)."
+        ],
+        "note": "Tokens are valid for 10 minutes. Click Refresh token if it expires. One JX3BOX account can bind multiple characters.",
+        "login": "Sign in to get a token",
+        "loading": "Loading token…",
+        "loadFailed": "Could not load the token. Please retry.",
+        "copy": "Copy token",
+        "refresh": "Refresh token",
+        "copied": "Token copied",
+        "copyFailed": "Copy failed. Select and copy the token manually.",
+        "expired": "Token expired. Reloading; please copy again."
+    },
     "syncNote": "Sync again in game after earning new achievements. Refreshing the page or regenerating recommendations only reads previously synced data.",
     "steps": [
         {
@@ -60,7 +78,7 @@ export default {
     "syncRequired": "After binding, make sure to click Sync achievements and enable automatic achievement sync on logout.",
     "screenshots": [
         "Open My characters from the avatar menu",
-        "Click Bind character and copy the website token",
+        "Open the character binding dialog in the 茗伊 team platform",
         "Bind your character and sync achievements in the 茗伊 team platform"
     ],
     "featureScreenshots": [

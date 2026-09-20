@@ -101,6 +101,7 @@ export default {
             if (root) this.expandedCategoryId = root.children?.length ? root.id : null;
         },
         formatNumber(value) {
+            if (value === null || value === undefined) return "—";
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },

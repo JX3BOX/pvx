@@ -42,6 +42,18 @@ import {
 import { __Links } from "@/utils/config";
 import { buildAchievementSchoolEligibilityContext } from "@/utils/achievementSchoolEligibility";
 
+// Public totals remain available without presenting unknown role progress as zero.
+const withoutRoleProgress = (item) => ({
+    ...item,
+    completedCount: null,
+    completedPoints: null,
+    pointProgress: null,
+    remainingCount: null,
+    remainingPoints: null,
+    remainingAvailablePoints: null,
+    ...(item.children ? { children: item.children.map(withoutRoleProgress) } : {}),
+});
+
 const createDefaultFilters = () => ({
     categoryId: "all",
     tier: "normal",
@@ -75,7 +87,7 @@ export default {
     data() {
         return {
             isLogin: User.isLogin(),
-            pageLoading: User.isLogin(),
+            pageLoading: true,
             pageError: false,
             roleLoading: false,
             recordLoading: false,
@@ -109,6 +121,9 @@ export default {
         };
     },
     computed: {
+        isGuest() {
+            return !this.isLogin && !this.snapshot;
+        },
         listMetadata() {
             if (!this.hidden) return this.metadata;
             return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) => item.visible === false && Number(item.general) === 1 && Number(item.point) > 0));
@@ -131,10 +146,12 @@ export default {
             });
         },
         overallProgress() {
-            return buildAchievementOverallProgress(this.metadata, this.completedIds, this.schoolEligibility);
+            const progress = buildAchievementOverallProgress(this.metadata, this.completedIds, this.schoolEligibility);
+            return this.isGuest ? withoutRoleProgress(progress) : progress;
         },
         tierProgress() {
-            return buildAchievementTierProgress(this.metadata, this.completedIds);
+            const progress = buildAchievementTierProgress(this.metadata, this.completedIds);
+            return this.isGuest ? progress.map(withoutRoleProgress) : progress;
         },
         categoryProgress() {
             if (this.hidden) return buildAchievementHiddenCategoryProgress({
@@ -150,7 +167,9 @@ export default {
             });
         },
         sortedCategoryProgress() {
-            const categories = [...this.categoryProgress];
+            const categories = this.isGuest
+                ? this.categoryProgress.map(withoutRoleProgress)
+                : [...this.categoryProgress];
             const progressValue = (item) => item.pointProgress ?? Number.POSITIVE_INFINITY;
 
             if (this.categorySort === "progress-desc") {
@@ -343,11 +362,6 @@ export default {
                 await this.loadVisibleRecords();
                 return;
             }
-            if (!this.isLogin) {
-                this.pageLoading = false;
-                return;
-            }
-
             const requestId = ++this.pageRequestId;
             this.pageLoading = true;
             this.pageError = false;
@@ -358,7 +372,7 @@ export default {
             try {
                 const [catalog, roles, maps, rawDimensions] = await Promise.all([
                     fetchAchievementWorkbenchCatalog(client),
-                    fetchAchievementWorkbenchRoles(),
+                    this.isLogin ? fetchAchievementWorkbenchRoles() : Promise.resolve([]),
                     fetchAchievementWorkbenchMaps(client).catch(() => []),
                     (this.hidden ? Promise.resolve([]) : fetchAchievementWorkbenchDifficultyDimensions()).catch((error) => {
                         console.warn("Failed to load achievement difficulty dimensions:", error);
@@ -382,6 +396,12 @@ export default {
                 this.currentRoleId = roles.some((role) => role.id === lastRoleId) ? lastRoleId : roles[0]?.id || "";
 
                 if (this.currentRoleId) await this.loadCurrentRole();
+                else if (this.isGuest) {
+                    this.completedIds = [];
+                    this.synced = false;
+                    this.syncedAt = null;
+                    await this.loadVisibleRecords();
+                }
             } catch (error) {
                 if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 console.error("Failed to initialize achievement progress:", error);
@@ -390,7 +410,11 @@ export default {
                 if (requestId === this.pageRequestId) this.pageLoading = false;
             }
         },
+        requireLogin() {
+            this.$message.warning(this.$t("pages.wiki.overview.ui.loginRequired"));
+        },
         async selectRole(roleId) {
+            if (this.isGuest) return this.requireLogin();
             if (this.snapshot) return;
             if (!roleId || roleId === this.currentRoleId || this.roleLoading) return;
             this.currentRoleId = roleId;
@@ -399,7 +423,7 @@ export default {
             await this.loadCurrentRole();
         },
         async loadCurrentRole() {
-            if (this.snapshot) return;
+            if (this.snapshot || this.isGuest || !this.currentRoleId) return;
             this.cancelDimensionSortRequest();
             const requestId = ++this.roleRequestId;
             const roleId = this.currentRoleId;
@@ -559,7 +583,7 @@ export default {
             const completed = new Set(this.completedIds.map(String));
             return enrichedRecords.map((record) => ({
                 ...record,
-                ...(this.hidden ? { completed: completed.has(String(record.id)) } : {}),
+                ...(this.isGuest ? { completed: null } : this.hidden ? { completed: completed.has(String(record.id)) } : {}),
                 category: {
                     ...record.category,
                     name: record.category.name || categoryNames.get(String(record.category.id)) || null,
@@ -612,7 +636,12 @@ export default {
                 if (requestId === this.recordRequestId) this.recordLoading = false;
             }
         },
+        setCategorySort(sort) {
+            if (this.isGuest) return this.requireLogin();
+            this.categorySort = sort;
+        },
         async setListFilter(key, value) {
+            if (this.isGuest && key === "completion" && value !== "all") return this.requireLogin();
             this.cancelDimensionSortRequest();
             this.filters = {
                 ...this.filters,
@@ -806,19 +835,7 @@ export default {
 
 <template>
     <div class="p-achievement-progress" :class="{ 'is-hidden-page': hidden }">
-        <PvxSurface v-if="!isLogin" class="m-progress-page-state" padding="none">
-            <PvxEmptyState
-                :title="$t('pages.wiki.overview.ui.loginRequired')"
-                :description="$t('pages.wiki.overview.ui.loginDescription')"
-            >
-                <template #icon><UserFilled /></template>
-                <template #action>
-                    <PvxActionButton :href="loginUrl">{{ $t("pages.wiki.overview.ui.goLogin") }}</PvxActionButton>
-                </template>
-            </PvxEmptyState>
-        </PvxSurface>
-
-        <PvxSurface v-else-if="pageError" class="m-progress-page-state" padding="none">
+        <PvxSurface v-if="pageError" class="m-progress-page-state" padding="none">
             <PvxEmptyState
                 :title="$t('pages.wiki.overview.ui.loadFailed')"
                 :description="$t('pages.wiki.overview.ui.loadFailedDescription')"
@@ -839,7 +856,7 @@ export default {
             </PvxEmptyState>
         </PvxSurface>
 
-        <PvxSurface v-else-if="!currentRole" class="m-progress-page-state" padding="none">
+        <PvxSurface v-else-if="!currentRole && !isGuest" class="m-progress-page-state" padding="none">
             <PvxEmptyState
                 :title="$t('pages.wiki.overview.ui.noRole')"
                 :description="$t('pages.wiki.overview.ui.noRoleDescription')"
@@ -854,9 +871,15 @@ export default {
         </PvxSurface>
 
         <div v-else class="m-progress-page-content">
+            <div v-if="isGuest" class="m-progress-guest-notice">
+                <span>{{ $t("pages.wiki.overview.ui.loginRequired") }}</span>
+                <PvxActionButton :href="loginUrl">{{ $t("pages.wiki.overview.ui.goLogin") }}</PvxActionButton>
+            </div>
             <AchievementProgressSummary
                 v-if="!hidden"
                 :show-toolbar="!snapshot"
+                :guest="isGuest"
+                @require-login="requireLogin"
                 :collapsed="summaryCollapsed"
                 :current-role="currentRole"
                 :current-role-id="currentRoleId"
@@ -892,13 +915,14 @@ export default {
                     :active-category-id="filters.categoryId"
                     :sort="categorySort"
                     @select-category="selectListCategory"
-                    @update:sort="categorySort = $event"
+                    @update:sort="setCategorySort"
                 />
                 <component
                     :is="hidden ? 'AchievementHiddenList' : 'AchievementProgressList'"
                     ref="achievementList"
                     :title="achievementListTitle"
-                    v-bind="hidden ? { currentRole, roles, roleLoading } : {}"
+                    v-bind="hidden ? { currentRole, roles, roleLoading, guest: isGuest } : {}"
+                    @require-login="requireLogin"
                     @select-role="selectRole"
                     :records="visibleRecords"
                     :dimensions="dimensions"
@@ -953,6 +977,17 @@ export default {
 .p-achievement-progress {
     width: 100%;
     min-width: 0;
+}
+
+.m-progress-guest-notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: #fff;
+    color: #6e572c;
 }
 
 .m-progress-page-content {

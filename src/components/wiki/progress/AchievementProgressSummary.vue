@@ -1,6 +1,6 @@
 <script>
 import { Refresh, ArrowUp, Check, UserFilled } from "@element-plus/icons-vue";
-import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
+import { showAvatar, showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 
 import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
 import pointsIcon from "@/assets/img/wiki/figma/points.png";
@@ -50,6 +50,7 @@ export default {
         UserFilled,
     },
     props: {
+        guest: { type: Boolean, default: false },
         showToolbar: { type: Boolean, default: true },
         collapsed: {
             type: Boolean,
@@ -92,7 +93,7 @@ export default {
             default: false,
         },
     },
-    emits: ["select-tier", "select-role", "update:collapsed"],
+    emits: ["require-login", "select-tier", "select-role", "update:collapsed"],
     data() {
         return {
             pointsIcon,
@@ -124,11 +125,13 @@ export default {
         },
     },
     methods: {
+        showAvatar,
         showSchoolIcon,
         selectRole(roleId) {
             this.$emit("select-role", String(roleId));
         },
         formatNumber(value) {
+            if (value === null || value === undefined) return "—";
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
@@ -153,7 +156,10 @@ export default {
         :aria-label="$t('pages.wiki.overview.ui.overview')"
     >
         <article class="m-progress-overall-card">
-            <el-dropdown popper-class="m-achievement-theme-popper m-progress-role-popper" v-if="showToolbar" trigger="click" placement="bottom-end" :max-height="360" class="m-progress-role-switch" @command="selectRole">
+            <button v-if="showToolbar && guest" type="button" class="u-progress-role-switch m-progress-role-switch" @click="$emit('require-login')">
+                <Refresh aria-hidden="true" />{{ $t("achievementAppearance.changeRole") }}
+            </button>
+            <el-dropdown popper-class="m-achievement-theme-popper m-progress-role-popper" v-if="showToolbar && !guest" trigger="click" placement="bottom-end" :max-height="360" class="m-progress-role-switch" @command="selectRole">
                 <button
                     type="button"
                     class="u-progress-role-switch"
@@ -213,7 +219,7 @@ export default {
                         @error="schoolIconFailed = true"
                         alt=""
                     />
-                    <span v-else class="u-progress-avatar-fallback">{{ (currentRole?.name || "—").slice(0, 1) }}</span>
+                    <img v-else :src="showAvatar(null, 'l')" alt="" />
                     <b>{{ formatPercent(overall.pointProgress) }}</b>
                 </div>
             </div>
@@ -230,7 +236,8 @@ export default {
                     @error="schoolIconFailed = true"
                     :alt="$t('pages.wiki.overview.ui.schoolIcon')"
                 />
-                <strong>{{ currentRole?.name || "—" }}·{{ currentRole?.server || "—" }}</strong>
+                <strong v-if="guest">{{ $t("pages.wiki.overview.ui.loginRequired") }}</strong>
+                <strong v-else>{{ currentRole?.name || "—" }}·{{ currentRole?.server || "—" }}</strong>
             </div>
             <span v-if="collapsed" class="m-progress-overall-percent">{{ formatPercent(overall.pointProgress) }}</span>
         </article>
@@ -239,7 +246,7 @@ export default {
             <header class="m-progress-section-title">
                 <h2 v-show="!collapsed">{{ $t("pages.wiki.overview.ui.workbench.tierTitle") }}</h2>
                 <span
-                    v-show="!collapsed"
+                    v-show="!collapsed && !guest"
                     class="m-progress-sync"
                     :class="{ 'is-synced': synced }"
                     :title="
@@ -428,13 +435,6 @@ export default {
         font-size: 18px;
         font-weight: 400;
     }
-}
-.u-progress-avatar-fallback {
-    display: grid;
-    height: 100%;
-    place-items: center;
-    font-size: 56px;
-    color: #967944;
 }
 .m-progress-overall-points {
     display: flex;

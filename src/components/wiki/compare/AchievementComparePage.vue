@@ -991,10 +991,20 @@ export default {
 }
 
 .m-compare-page-state {
+    display: grid;
+    align-items: center;
+    margin-top: 24px;
     min-height: 520px;
-    border: 1px solid rgba(70, 74, 66, 0.13);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.88);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+
+    :deep(.c-pvx-empty-state) {
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
 }
 
 .m-compare-empty-roles {

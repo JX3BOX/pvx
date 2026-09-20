@@ -1,27 +1,30 @@
 <script>
-import { Compass, ArrowLeft } from "@element-plus/icons-vue";
+import { Compass, ArrowLeft, CopyDocument, Refresh } from "@element-plus/icons-vue";
 import { ElImageViewer } from "element-plus";
-import myRolesImage from "@/assets/img/wiki/guide/my-roles.png";
-import bindRoleImage from "@/assets/img/wiki/guide/bind-role.png";
-import syncAchievementsImage from "@/assets/img/wiki/guide/sync-achievements.png";
 import progressImage from "@/assets/img/wiki/guide/progress.png";
 import compareImage from "@/assets/img/wiki/guide/compare.png";
 import leapImage from "@/assets/img/wiki/guide/leap.png";
 import consultationImage from "@/assets/img/wiki/guide/consultation.png";
 import PvxSurface from "@/components/design/PvxSurface.vue";
+import User from "@jx3box/jx3box-common/js/user";
+import { getRoleBindToken } from "@/service/team";
 
 export default {
     name: "AchievementGuidePage",
-    components: { PvxSurface, Compass, ArrowLeft, ElImageViewer },
+    components: { PvxSurface, Compass, ArrowLeft, CopyDocument, Refresh, ElImageViewer },
     data() {
         return {
             previewImage: null,
+            bindToken: "",
+            tokenLoading: false,
+            tokenError: false,
+            tokenExpiresAt: 0,
+            isLogin: User.isLogin(),
             screenshots: [
                 [
-                    { src: myRolesImage, caption: 0, width: 808, height: 960 },
-                    { src: bindRoleImage, caption: 1, width: 678, height: 476 },
+                    { src: "https://cdn.jx3box.com/design/user/img/bind-step1.jpg", caption: 1 },
                 ],
-                [{ src: syncAchievementsImage, caption: 2, width: 948, height: 485 }],
+                [{ src: "https://cdn.jx3box.com/config/sync_ac.png", caption: 2 }],
                 [],
             ],
             sections: ["sync", "usage", "faq"],
@@ -38,6 +41,45 @@ export default {
         },
     },
     methods: {
+        onBindFlowToggle(event, index) {
+            if (index === 1 && event.target.open && (!this.bindToken || Date.now() >= this.tokenExpiresAt)) {
+                this.loadBindToken();
+            }
+        },
+        async loadBindToken() {
+            this.isLogin = User.isLogin();
+            if (!this.isLogin || this.tokenLoading) return;
+            this.tokenLoading = true;
+            this.tokenError = false;
+            this.bindToken = "";
+            try {
+                const res = await getRoleBindToken();
+                this.bindToken = res.data.data.token || "";
+                this.tokenError = !this.bindToken;
+                this.tokenExpiresAt = Date.now() + 10 * 60 * 1000;
+            } catch {
+                this.tokenError = true;
+            } finally {
+                this.tokenLoading = false;
+            }
+        },
+        async copyBindToken() {
+            if (!this.bindToken || this.tokenLoading) return;
+            if (Date.now() >= this.tokenExpiresAt) {
+                this.$message.warning(this.$t("achievementGuide.bindFlow.expired"));
+                await this.loadBindToken();
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(this.bindToken);
+                this.$message.success(this.$t("achievementGuide.bindFlow.copied"));
+            } catch {
+                this.$message.error(this.$t("achievementGuide.bindFlow.copyFailed"));
+            }
+        },
+        loginForBinding() {
+            User.toLogin();
+        },
         scrollToSection() {
             const section = this.$route.hash.slice(1);
             if (!this.sections.includes(section)) return;
@@ -64,20 +106,42 @@ export default {
                     <li v-for="index in 3" :key="index">
                         <h3>{{ $t(`achievementGuide.steps.${index - 1}.title`) }}</h3>
                         <p>{{ $t(`achievementGuide.steps.${index - 1}.text`) }}</p>
-                        <a
-                            v-if="index === 1"
-                            href="https://www.jx3box.com/dashboard/role"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {{ $t("achievementGuide.bind") }} ↗
-                        </a>
-                        <p v-if="index === 2" class="m-guide-note m-guide-sync-required">
-                            <strong>{{ $t("achievementGuide.syncRequired") }}</strong>
-                        </p>
-                        <details v-if="screenshots[index - 1].length" class="m-guide-screenshot-disclosure">
-                            <summary>{{ $t("achievementAppearance.screenshots") }}</summary>
-                            <div class="m-guide-screenshots" :class="{ 'is-pair': index === 1 }">
+                        <div v-if="index === 1" class="m-guide-role-actions">
+                            <a href="/dashboard/role" target="_blank" rel="noopener noreferrer">
+                                {{ $t("achievementGuide.bind") }} ↗
+                            </a>
+                            <a href="/dashboard/role/bind" class="u-guide-bind-new" target="_blank" rel="noopener noreferrer">
+                                {{ $t("achievementGuide.bindNew") }} ↗
+                            </a>
+                        </div>
+                        <details v-if="screenshots[index - 1].length" class="m-guide-screenshot-disclosure" @toggle="onBindFlowToggle($event, index)">
+                            <summary>{{ $t(index === 1 ? "achievementGuide.bindFlow.title" : "achievementAppearance.screenshots") }}</summary>
+                            <div v-if="index === 1" class="m-guide-bind-flow">
+                                <ol>
+                                    <li v-for="step in 3" :key="step">
+                                        {{ $t(`achievementGuide.bindFlow.steps.${step - 1}`) }}
+                                        <div v-if="step === 2" class="m-guide-token" aria-live="polite">
+                                            <button v-if="!isLogin" type="button" @click="loginForBinding">
+                                                {{ $t("achievementGuide.bindFlow.login") }}
+                                            </button>
+                                            <template v-else>
+                                                <span v-if="tokenLoading">{{ $t("achievementGuide.bindFlow.loading") }}</span>
+                                                <span v-else-if="tokenError">{{ $t("achievementGuide.bindFlow.loadFailed") }}</span>
+                                                <button v-else-if="bindToken" type="button" class="u-guide-token" :aria-label="$t('achievementGuide.bindFlow.copy')" @click="copyBindToken">
+                                                    <code>{{ bindToken }}</code>
+                                                    <span class="u-guide-copy-label"><CopyDocument aria-hidden="true" />{{ $t("achievementGuide.bindFlow.copy") }}</span>
+                                                </button>
+                                                <button type="button" :disabled="tokenLoading" @click="loadBindToken">
+                                                    <Refresh aria-hidden="true" />
+                                                    {{ $t("achievementGuide.bindFlow.refresh") }}
+                                                </button>
+                                            </template>
+                                        </div>
+                                        <p v-if="step === 2">（{{ $t("achievementGuide.bindFlow.note") }}）</p>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="m-guide-screenshots">
                                 <figure v-for="shot in screenshots[index - 1]" :key="shot.caption">
                                     <button type="button" class="u-guide-image-preview" @click="previewImage = shot.src">
                                         <img
@@ -94,7 +158,6 @@ export default {
                         </details>
                     </li>
                 </ol>
-                <p class="m-guide-note">{{ $t("achievementGuide.syncNote") }}</p>
             </PvxSurface>
 
             <PvxSurface id="usage" ref="usage" class="m-guide-section" radius="medium">
@@ -237,7 +300,7 @@ export default {
     margin: 0;
     padding: 0;
     list-style: none;
-    li {
+    > li {
         min-width: 0;
         padding: 36px;
         border-radius: 16px;
@@ -254,6 +317,73 @@ export default {
         background: #5a7e84;
         color: #fff;
         font-size: 14px;
+        &.u-guide-bind-new {
+            background: #e7eef0;
+            color: #47666c;
+        }
+    }
+}
+.m-guide-role-actions {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 12px;
+}
+.m-guide-bind-flow {
+    margin-top: 16px;
+    font-size: 14px;
+    ol {
+        margin: 0;
+        padding-left: 22px;
+    }
+    li + li {
+        margin-top: 8px;
+    }
+    p {
+        margin-top: 12px;
+        color: #777;
+    }
+}
+.m-guide-token {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 12px;
+    button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 48px;
+        box-sizing: border-box;
+        padding: 8px 14px;
+        border: 0;
+        border-radius: 8px;
+        background: #e7eef0;
+        color: #47666c;
+        font: inherit;
+        cursor: pointer;
+        &:disabled { opacity: .6; cursor: wait; }
+        &:focus-visible { outline: 2px solid #5a7e84; outline-offset: 3px; }
+    }
+    svg {
+        width: 16px;
+        height: 16px;
+        flex: none;
+    }
+    .u-guide-copy-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .u-guide-token {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        max-width: 100%;
+        code { font-size: 20px; user-select: text; overflow-wrap: anywhere; }
     }
 }
 .p-achievement-guide .m-guide-note {
@@ -262,9 +392,6 @@ export default {
     border-left: 2px solid #5a7e84;
     background: #eeebe2;
     color: #6e572c;
-}
-.m-guide-sync-required strong {
-    font-weight: 400;
 }
 .m-guide-screenshot-disclosure {
     margin-top: 16px;
@@ -355,7 +482,7 @@ export default {
     }
 }
 @media (max-width: 1000px) {
-    .m-guide-steps li,
+    .m-guide-steps > li,
     .m-guide-features section,
     .m-guide-question {
         padding: 24px;
@@ -392,7 +519,7 @@ export default {
             min-height: 44px;
         }
     }
-    .m-guide-steps li,
+    .m-guide-steps > li,
     .m-guide-features section,
     .m-guide-question {
         padding: 20px 16px;
