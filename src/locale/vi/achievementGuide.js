@@ -73,6 +73,10 @@ export default {
         {
             "title": "Không có thời gian đồng bộ nghĩa là chưa có thành tựu?",
             "text": "Không. Chỉ là chưa rõ thời gian đồng bộ. Kiểm tra liên kết nhân vật, đồng bộ trong game rồi tải lại."
+        },
+        {
+            "title": "Vì sao điểm tư lịch trong game khác với Cẩm nang thành tựu?",
+            "text": "Một số thành tựu cũ đã bị xóa khỏi game và không còn tra cứu được, nhưng điểm bạn từng nhận từ chúng có thể vẫn được giữ trong tổng điểm trong game. Game lưu tổng điểm và cộng dồn điểm mới, thay vì tính lại từ các thành tựu hiện tại mỗi lần. Vì vậy, tổng này có thể khác với số điểm Cẩm nang thống kê từ dữ liệu thành tựu hiện tại. Chênh lệch này chỉ nằm ở tổng điểm, không ảnh hưởng đến việc xem thành tựu, tạo kế hoạch và hoàn thành thành tựu theo kế hoạch trong Cẩm nang."
         }
     ],
     "syncRequired": "Sau khi liên kết, hãy nhớ nhấn Đồng bộ thành tựu và bật tự động đồng bộ thành tựu khi đăng xuất.",

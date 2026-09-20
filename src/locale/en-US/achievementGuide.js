@@ -73,6 +73,10 @@ export default {
         {
             "title": "Does a missing sync time mean no achievements?",
             "text": "No. It only means the sync time is unknown. Check character binding, sync in game and refresh."
+        },
+        {
+            "title": "Why do my in-game points differ from the Achievement Handbook?",
+            "text": "Some historical achievements have been removed from the game and can no longer be found, but points you earned from them may still be included in your in-game total. The game stores a running total and adds newly earned points instead of recalculating it from the current achievements each time. This can differ from the Handbook’s total based on current achievement data. This discrepancy only affects the total: you can still use the Handbook to check achievements, generate plans and complete the achievements in those plans."
         }
     ],
     "syncRequired": "After binding, make sure to click Sync achievements and enable automatic achievement sync on logout.",

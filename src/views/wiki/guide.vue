@@ -27,7 +27,7 @@ export default {
                 [{ src: "https://cdn.jx3box.com/config/sync_ac.png", caption: 2 }],
                 [],
             ],
-            sections: ["sync", "usage", "faq"],
+            sections: ["sync", "usage", "faq", "points-difference"],
             featureRoutes: ["overview", "compare", "leap", "consultation"],
             featureScreenshots: [progressImage, compareImage, leapImage, consultationImage],
         };
@@ -83,7 +83,7 @@ export default {
         scrollToSection() {
             const section = this.$route.hash.slice(1);
             if (!this.sections.includes(section)) return;
-            this.$nextTick(() => this.$refs[section]?.$el?.scrollIntoView({ block: "start" }));
+            this.$nextTick(() => this.$el.querySelector(`#${section}`)?.scrollIntoView({ block: "start" }));
         },
     },
 };
@@ -186,9 +186,14 @@ export default {
 
             <PvxSurface id="faq" ref="faq" class="m-guide-section" radius="medium">
                 <h2><span>3.</span>{{ $t("achievementGuide.faq") }}</h2>
-                <div v-for="index in 3" :key="index" class="m-guide-question">
-                    <h3>{{ $t(`achievementGuide.questions.${index - 1}.title`) }}</h3>
-                    <p>{{ $t(`achievementGuide.questions.${index - 1}.text`) }}</p>
+                <div
+                    v-for="(_, index) in $tm('achievementGuide.questions')"
+                    :id="index === 3 ? 'points-difference' : undefined"
+                    :key="index"
+                    class="m-guide-question"
+                >
+                    <h3>{{ $t(`achievementGuide.questions.${index}.title`) }}</h3>
+                    <p>{{ $t(`achievementGuide.questions.${index}.text`) }}</p>
                 </div>
             </PvxSurface>
         </div>
@@ -471,6 +476,7 @@ export default {
     }
 }
 .m-guide-question {
+    scroll-margin-top: 84px;
     padding: 36px;
     border-radius: 16px;
     background: #f8f7f3;
