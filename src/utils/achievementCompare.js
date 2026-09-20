@@ -374,7 +374,7 @@ export function buildAchievementCategoryComparison({ menus, metadata, roles }) {
         );
 }
 
-export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds = null) {
+export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds = null, countSeries = null) {
     const visible = visibleAchievementIds ? new Set((visibleAchievementIds || []).map(String)) : null;
     const menuEntries = Array.isArray(menus)
         ? menus.map((menu, index) => [String(menu?.sub ?? index), menu])
@@ -390,11 +390,12 @@ export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds
                         // 空 detail 的“其它”需要独立 ID，避免与页面未选择二级分类的空值冲突。
                         id: normalizeId(child?.detail ?? child?.sub ?? index) || `${menu?.sub ?? fallbackId}:child:${index}`,
                         name: child?.name || String(child?.detail ?? index),
+                        count: countSeries ? countSeries(child) : filterIds(allAchievementIds).length,
                         sourceCount: allAchievementIds.length,
                         achievementIds: filterIds(allAchievementIds),
                     };
                 })
-                .map((child) => ({ ...child, count: child.achievementIds.length }));
+                .filter((child) => !countSeries || child.count > 0);
             const allAchievementIds = [...collectMenuAchievementIds([menu])];
             const achievementIds = filterIds(allAchievementIds);
             return {
@@ -402,11 +403,11 @@ export function buildAchievementCompareCategoryTree(menus, visibleAchievementIds
                 name: menu?.name || fallbackId,
                 achievementIds,
                 sourceCount: allAchievementIds.length,
-                count: achievementIds.length,
+                count: countSeries ? countSeries(menu) : achievementIds.length,
                 children,
             };
         })
-        .filter((category) => category.sourceCount > 0);
+        .filter((category) => countSeries ? category.count > 0 : category.sourceCount > 0);
 }
 
 function orderAchievementTags(tags) {

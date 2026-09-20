@@ -58,6 +58,29 @@ function summarizeIds(ids, metadata, completedIds, schoolEligibility = null, adj
     };
 }
 
+// 菜单顶层数组项代表一个系列；系列内的各阶段仍独立累计资历。
+export function buildAchievementSeriesCounts(menus, metadata, completedIds) {
+    const completed = normalizeCompletedIds(completedIds);
+    const groups = new Map();
+    const visit = (menu) => {
+        (menu?.achievements || []).forEach((entry) => {
+            const ids = [...new Set((Array.isArray(entry) ? entry.flat(Infinity) : [entry])
+                .map(String))].filter((id) => isEligibleMetadata(metadata?.[id]));
+            if (ids.length) groups.set([...ids].sort().join(","), ids);
+        });
+        normalizeMenuEntries(menu?.children).forEach(([, child]) => visit(child));
+    };
+    normalizeMenuEntries(menus).forEach(([, menu]) => visit(menu));
+    const totalCount = groups.size;
+    const completedCount = [...groups.values()].filter((ids) => ids.every((id) => completed.has(id))).length;
+    return {
+        totalCount,
+        completedCount,
+        remainingCount: totalCount - completedCount,
+        countProgress: totalCount ? Number((completedCount / totalCount * 100).toFixed(2)) : null,
+    };
+}
+
 function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadata, completedIds, schoolEligibility = null }) {
     const subId = String(menu?.sub ?? parentId ?? fallbackId);
     const detailId = menu?.detail === null || menu?.detail === undefined ? String(fallbackId) : String(menu.detail);
@@ -83,6 +106,7 @@ function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadat
         name: menu?.name || fallbackId,
         children,
         ...summarizeIds([...collectMenuAchievementIds([menu])], metadata, completedIds, schoolEligibility, parentId === null),
+        ...buildAchievementSeriesCounts([menu], metadata, completedIds),
     };
 }
 

@@ -34,7 +34,7 @@ function load(file) {
         if (name.startsWith("@/service/")) return services;
         if (name === "@/utils/config") return { __Root: "/" };
         if (name === "@jx3box/jx3box-common/js/user") return { isLogin: () => true };
-        if (name === "@jx3box/jx3box-common/js/utils") return { showSchoolIcon: () => "" };
+        if (name === "@jx3box/jx3box-common/js/utils") return { showSchoolIcon: () => "", showAvatar: () => "" };
         return name.startsWith("@/") ? load(`src/${name.slice(2)}.js`) : require(name);
     });
     cache.set(file, module.exports);
@@ -104,7 +104,12 @@ async function run() {
         [progress.overallProgress.totalCount, progress.overallProgress.totalPoints, progress.overallProgress.completedPoints],
         [7, 950, 920], "咨询中的角色总览仍统计全档位"
     );
-    assert.strictEqual(progress.categories[0].totalCount, 7);
+    assert.strictEqual(progress.categories[0].totalCount, 3, "分类全部仅统计常规可见成就");
+    progress.filters.categoryId = "old-category";
+    await progress.setListFilter("tier", "wujia");
+    assert.strictEqual(progress.filters.categoryId, "all", "切换档位重置分类");
+    assert.strictEqual(progress.categories[0].totalCount, 1, "分类全部切换到五甲可见成就");
+    await progress.setListFilter("tier", "normal");
     const normalTier = progress.tierProgress.find((tier) => tier.key === "normal");
     assert.deepStrictEqual([normalTier.totalCount, normalTier.totalPoints, normalTier.completedPoints], [3, 50, 20]);
     assert.strictEqual(normalTier.pointProgress, 40);
@@ -156,6 +161,27 @@ async function run() {
     assert.strictEqual(mainProgress.overallProgress.completedPoints, 920, "切换常规/五甲只改变列表范围");
     progress.searchRecords.push({ id: "999", tier: "normal", points: 999, completed: false });
     assert.deepStrictEqual(progress.filteredSearchRecords.map((item) => item.id), ["3"], "咨询中的搜索排除不在统计目录中的 ID");
+    const searchCalls = [];
+    services.searchAchievementWorkbenchRecords = async (options) => {
+        searchCalls.push(options);
+        const id = options.tier === "wujia" ? "5" : "1";
+        return load("src/utils/achievementWorkbench.js").normalizeAchievementWorkbenchRecords(
+            [{ ID: id, Name: "成就" }], { metadata }
+        );
+    };
+    const searchPage = instance(progressComponent, { metadata, menus, enrichmentClient: "std" });
+    searchPage.$nextTick = async () => {};
+    searchPage.loadVisibleEnrichment = () => {};
+    searchPage.filters.keyword = "成就";
+    await searchPage.runSearch();
+    assert.strictEqual(searchCalls.at(-1).tier, "normal");
+    await searchPage.setListFilter("tier", "wujia");
+    assert.strictEqual(searchCalls.length, 2, "搜索后切换五甲必须重新请求");
+    assert.strictEqual(searchCalls.at(-1).tier, "wujia");
+    assert.deepStrictEqual(searchPage.visibleRecords.map((item) => item.id), ["5"]);
+    await searchPage.setListFilter("tier", "normal");
+    assert.strictEqual(searchCalls.at(-1).tier, "normal");
+    assert.deepStrictEqual(searchPage.visibleRecords.map((item) => item.id), ["1"]);
     console.log("Plans use regular visible achievements; current points and role overviews retain all tiers.");
 }
 run().catch((error) => { console.error(error); process.exitCode = 1; });

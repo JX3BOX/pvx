@@ -642,8 +642,13 @@ const service = loadModule(
     assert.strictEqual(calls.achievementRecords.at(-1).client, "origin");
     await service.searchAchievementWorkbenchRecords({ keyword: "测试", client: "origin" });
     assert.deepStrictEqual(calls.search, [
-        { keyword: "测试", scene: "", client: "origin", _no_page: 1, limit: 99999 },
+        { keyword: "测试", scene: "", general: 1, client: "origin", _no_page: 1, limit: 99999 },
     ]);
+
+    await service.searchAchievementWorkbenchRecords({ keyword: " 五甲 ", mapId: "10", tier: "wujia" });
+    assert.deepStrictEqual(calls.search.at(-1), {
+        keyword: "五甲", scene: "10", general: 2, client: "std", _no_page: 1, limit: 99999,
+    }, "五甲搜索必须传 general=2，并保留地图条件");
 
     const hiddenMetadata = Object.fromEntries(Array.from({ length: 65 }, (_, index) =>
         [String(2000 + index), { point: 20, general: 1, visible: false }]));

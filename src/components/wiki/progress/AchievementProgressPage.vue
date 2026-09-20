@@ -31,6 +31,7 @@ import {
 } from "@/utils/achievementWorkbench";
 import {
     buildAchievementCategoryProgress,
+    buildAchievementSeriesCounts,
     buildAchievementHiddenCategoryProgress,
     searchHiddenAchievementRecords,
     buildAchievementOverallProgress,
@@ -153,6 +154,13 @@ export default {
             const progress = buildAchievementTierProgress(this.metadata, this.completedIds);
             return this.isGuest ? progress.map(withoutRoleProgress) : progress;
         },
+        categoryMetadata() {
+            if (this.hidden) return this.listMetadata;
+            const general = this.filters.tier === "wujia" ? 2 : 1;
+            return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) =>
+                Number(item.general) === general && item.visible === true
+            ));
+        },
         categoryProgress() {
             if (this.hidden) return buildAchievementHiddenCategoryProgress({
                 menus: this.menus, records: this.hiddenIndex, metadata: this.listMetadata,
@@ -160,8 +168,8 @@ export default {
             });
             return buildAchievementCategoryProgress({
                 menus: this.menus,
-                metadata: this.listMetadata,
-                allMenus: this.hidden,
+                metadata: this.categoryMetadata,
+                allMenus: true,
                 completedIds: this.completedIds,
                 schoolEligibility: this.schoolEligibility,
             });
@@ -176,19 +184,23 @@ export default {
                 categories.sort((left, right) => progressValue(right) - progressValue(left));
             } else if (this.categorySort === "remaining-desc") {
                 categories.sort((left, right) => right.remainingAvailablePoints - left.remainingAvailablePoints);
-            } else {
+            } else if (this.categorySort === "progress-asc") {
                 categories.sort((left, right) => progressValue(left) - progressValue(right));
             }
 
             return categories;
         },
         categories() {
+            const progress = buildAchievementOverallProgress(
+                this.categoryMetadata, this.completedIds, this.hidden ? null : this.schoolEligibility
+            );
+            if (!this.hidden) Object.assign(progress, buildAchievementSeriesCounts(this.menus, this.categoryMetadata, this.completedIds));
             return [
                 {
                     id: "all",
                     name: this.$t("pages.wiki.overview.ui.workbench.allCategories"),
                     children: [],
-                    ... (this.hidden ? buildAchievementOverallProgress(this.listMetadata, this.completedIds) : this.overallProgress),
+                    ...(this.isGuest ? withoutRoleProgress(progress) : progress),
                 },
                 ...this.sortedCategoryProgress,
             ];
@@ -646,8 +658,13 @@ export default {
             this.filters = {
                 ...this.filters,
                 [key]: value,
+                ...(key === "tier" ? { categoryId: "all" } : {}),
             };
             this.page = 1;
+            if (key === "tier" && (this.searchMode || this.recordLoading) && !this.hidden) {
+                await this.runSearch();
+                return;
+            }
             if (getAchievementWorkbenchDimensionSort(this.filters.sort)) {
                 await this.setListSort(this.filters.sort);
                 return;
@@ -748,6 +765,7 @@ export default {
                 const records = this.hidden
                     ? searchHiddenAchievementRecords(this.hiddenIndex, { keyword, mapId })
                     : await searchAchievementWorkbenchRecords({
+                    tier: this.filters.tier,
                     keyword,
                     mapId,
                     client,
@@ -909,7 +927,8 @@ export default {
                 />
                 <AchievementCategoryBoard
                     v-else
-                    :tier-label="hidden ? $t('pages.wiki.overview.ui.workbench.hiddenTier') : $t(filters.tier === 'wujia' ? 'pages.wiki.overview.ui.statistics.wujia' : 'pages.wiki.overview.ui.statistics.regular')"
+                    :tier="filters.tier"
+                    @update:tier="setListFilter('tier', $event)"
                     :categories="categories"
                     :compact-overview="summaryCollapsed"
                     :active-category-id="filters.categoryId"
@@ -937,7 +956,7 @@ export default {
                     <template #filters>
                         <AchievementProgressFilters
                             embedded
-                            :show-tier="!hidden"
+                            :show-tier="false"
                             :show-sort="!hidden"
                             :map-options="mapOptions"
                             :tier="filters.tier"

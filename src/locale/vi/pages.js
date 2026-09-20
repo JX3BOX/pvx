@@ -629,6 +629,7 @@ export default {
                     pointProgress: "Tiến độ thâm niên tổng thể (theo điểm)",
                     overallProgressLabel: "Tiến độ thâm niên tổng thể ({scope})",
                     categoryProgress: "Tiến độ theo loại",
+                    categoryCountHint: "Số lượng theo loại được tính như trong trò chơi: các giai đoạn của cùng một chuỗi thành tựu được gộp thành một mục thống kê.",
                     showHidden: "Tính cả thành tựu ẩn",
                     includedInRegular: "Chuyên mục · Đã tính vào thường",
                     hiddenAchievement: "Ẩn",

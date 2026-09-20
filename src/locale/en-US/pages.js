@@ -632,6 +632,7 @@ export default {
                     pointProgress: "Overall seniority progress (by points)",
                     overallProgressLabel: "Overall seniority progress ({scope})",
                     categoryProgress: "Category progress",
+                    categoryCountHint: "Category counts follow the in-game method: all stages of an achievement series are combined into one counted item.",
                     showHidden: "Include hidden achievements",
                     includedInRegular: "Special · Included in Standard",
                     hiddenAchievement: "Hidden",

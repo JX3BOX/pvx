@@ -424,6 +424,7 @@ export default {
                     pointProgress: "总资历进度（按资历点计算）",
                     overallProgressLabel: "{scope}的总资历进度",
                     categoryProgress: "分类进度",
+                    categoryCountHint: "分类数量采用游戏内统计口径，同一系列的多个阶段合并为一个统计项。",
                     showHidden: "计入隐藏成就",
                     includedInRegular: "专项 · 已计入常规",
                     hiddenAchievement: "隐藏",

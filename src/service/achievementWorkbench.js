@@ -323,6 +323,7 @@ export async function fetchAchievementWorkbenchRecordsBatched(options = {}, batc
 }
 
 export async function searchAchievementWorkbenchRecords({
+    tier = "normal",
     keyword = "",
     mapId = "",
     client = "std",
@@ -332,6 +333,7 @@ export async function searchAchievementWorkbenchRecords({
     const response = await searchAchievements({
         keyword: String(keyword || "").trim(),
         scene: mapId || "",
+        general: tier === "wujia" ? 2 : 1,
         client,
         _no_page: 1,
         limit: 99999,

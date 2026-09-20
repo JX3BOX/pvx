@@ -280,8 +280,8 @@ export default {
         <div class="m-progress-list__header">
             <h2>
                 <span>{{ $t("achievementAppearance.details") }} - </span>{{ resolvedTitle }}
+                <small class="u-progress-list-count" aria-live="polite">（{{ formatNumber(total) }}）</small>
             </h2>
-            <span>{{ $t("pages.wiki.overview.ui.workbench.resultSummary", { count: formatNumber(total) }) }}</span>
             <div v-if="$slots['header-actions']" class="m-progress-list__header-actions">
                 <slot name="header-actions" />
             </div>
@@ -499,6 +499,14 @@ export default {
     > span {
         display: none;
     }
+}
+.u-progress-list-count {
+    margin-left: 6px;
+    color: #7b807e;
+    font-size: 13px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 .m-progress-list__header-actions {
     flex: none;

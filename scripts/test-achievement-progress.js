@@ -310,9 +310,27 @@ assert.ok(progress.filterAchievementIds({ metadata: schoolMetadata, completedIds
 const schoolPage = { ...progressPage.data(), snapshot: null, metadata: schoolMetadata, menus: schoolMenus,
     completedIds: schoolCompletedIds, roles: [{ id: "tc", school: "傲血战意" }, { id: "wh", school: "万花" }],
     currentRoleId: "tc", $t: (key) => key };
-for (const key of ["listMetadata", "currentRole", "schoolEligibility", "overallProgress", "categoryProgress", "sortedCategoryProgress", "categories"]) {
+for (const key of ["listMetadata", "currentRole", "schoolEligibility", "overallProgress", "categoryMetadata", "categoryProgress", "sortedCategoryProgress", "categories"]) {
     Object.defineProperty(schoolPage, key, { get: progressPage.computed[key].bind(schoolPage) });
 }
+// 分类统计随档位切换，排除隐藏、绝版、特殊项，五甲专属分类也应出现。
+const tierPage = { ...progressPage.data(), metadata, menus, completedIds: [1, 3, 4, 5],
+    hidden: false, isGuest: false, schoolEligibility: null, $t: (key) => key };
+for (const key of ["categoryMetadata", "categoryProgress", "sortedCategoryProgress", "categories"]) {
+    Object.defineProperty(tierPage, key, { get: progressPage.computed[key].bind(tierPage) });
+}
+assert.strictEqual(tierPage.categories[0].totalCount, 1);
+assert.strictEqual(tierPage.categories[0].completedCount, 1);
+assert.deepStrictEqual(tierPage.categoryProgress.map((item) => item.name), ["足迹"]);
+assert.strictEqual(tierPage.categoryProgress[0].children.length, 1);
+tierPage.filters.tier = "wujia";
+assert.deepStrictEqual(tierPage.categoryProgress.map((item) => item.name), ["秘境"]);
+assert.strictEqual(tierPage.categories[0].totalCount, 1);
+assert.strictEqual(tierPage.categories[0].completedCount, 1);
+assert.strictEqual(tierPage.categories[0].totalPoints, 40);
+tierPage.isGuest = true;
+assert.strictEqual(tierPage.categories[0].completedCount, null);
+
 assert.strictEqual(schoolPage.overallProgress.pointProgress, 53.33);
 assert.strictEqual(schoolPage.categories[0].pointProgress, 53.33, "全部与总览口径一致");
 schoolPage.currentRoleId = "wh";
@@ -737,3 +755,16 @@ runPageBehaviorTests()
         console.error(error);
         process.exitCode = 1;
     });
+
+// 系列按项计数，所有有效阶段完成才算完成，资历与列表 ID 保留逐阶段口径。
+const seriesMenus = [{ sub: 1, name: "系列", achievements: [[1, [2, 3]], 4, 5], children: [
+    { sub: 1, detail: 1, achievements: [[1, [2, 3]]] },
+] }];
+const seriesMetadata = Object.fromEntries([1, 2, 3, 4].map((id) => [id, { general: 1, visible: true, point: 10 }]));
+const seriesResult = progress.buildAchievementCategoryProgress({ menus: seriesMenus, metadata: seriesMetadata, completedIds: [1, 2, 4] })[0];
+assert.deepStrictEqual([seriesResult.totalCount, seriesResult.completedCount, seriesResult.remainingCount], [2, 1, 1]);
+assert.deepStrictEqual([seriesResult.totalPoints, seriesResult.completedPoints], [40, 30]);
+assert.strictEqual(seriesResult.children[0].completedCount, 0);
+assert.strictEqual(seriesResult.achievementIds.length, 4);
+assert.strictEqual(progress.buildAchievementSeriesCounts(seriesMenus, seriesMetadata, [1, 2, 3, 4]).completedCount, 2);
+assert.strictEqual(progress.buildAchievementSeriesCounts(seriesMenus, {}, []).totalCount, 0);
