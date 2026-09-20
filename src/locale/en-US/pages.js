@@ -689,6 +689,7 @@ export default {
                     tier: "Achievement Tier",
                     allStatuses: "All Statuses",
                     allMaps: "All Maps",
+                    completableHiddenOnly: "Completable only",
                     map: "Map",
                     sort: "Sort",
                     sortDefault: "Default order",

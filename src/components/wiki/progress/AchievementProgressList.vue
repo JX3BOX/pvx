@@ -329,18 +329,32 @@ export default {
                                 >
                             </div>
                             <slot name="actions" :record="record">
-                                <span
-                                    class="u-progress-status"
-                                    :class="{
-                                        'is-completed': record.completed === true,
-                                        'is-incomplete': record.completed === false,
-                                    }"
-                                >
-                                    <CircleCheckFilled
-                                        v-if="record.completed === true"
-                                        aria-hidden="true"
-                                    /><CircleCloseFilled v-else-if="record.completed === false" aria-hidden="true" />
-                                    {{ getStatusLabel(record) }}
+                                <span class="m-progress-achievement-card__actions">
+                                    <span
+                                        v-if="compact && getDisplayTags(record).length"
+                                        class="m-progress-achievement-card__compact-tags"
+                                    >
+                                        <span
+                                            v-for="tag in getDisplayTags(record)"
+                                            :key="tag.id || tag.label"
+                                            class="u-progress-achievement-tag"
+                                        >
+                                            {{ tag.label }}
+                                        </span>
+                                    </span>
+                                    <span
+                                        class="u-progress-status"
+                                        :class="{
+                                            'is-completed': record.completed === true,
+                                            'is-incomplete': record.completed === false,
+                                        }"
+                                    >
+                                        <CircleCheckFilled
+                                            v-if="record.completed === true"
+                                            aria-hidden="true"
+                                        /><CircleCloseFilled v-else-if="record.completed === false" aria-hidden="true" />
+                                        {{ getStatusLabel(record) }}
+                                    </span>
                                 </span>
                             </slot>
                         </div>
@@ -660,12 +674,29 @@ export default {
     display: contents;
 }
 .u-progress-achievement-tag {
+    display: inline-flex;
+    align-items: center;
     min-height: 20px;
     padding: 0 5px;
     border: 1px solid #df69a6;
     border-radius: 3px;
     color: #df69a6;
     background: #fff;
+}
+.m-progress-achievement-card__compact-tags {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.m-progress-achievement-card__actions {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 .m-progress-achievement-reward {
     margin-left: auto;

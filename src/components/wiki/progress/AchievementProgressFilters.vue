@@ -41,6 +41,18 @@ export default {
             type: String,
             default: "all",
         },
+        showCompletableOnly: {
+            type: Boolean,
+            default: false,
+        },
+        completableOnly: {
+            type: Boolean,
+            default: false,
+        },
+        completableDisabled: {
+            type: Boolean,
+            default: false,
+        },
         mapId: {
             type: String,
             default: "",
@@ -75,6 +87,7 @@ export default {
         "update:category-id",
         "update:tier",
         "update:completion",
+        "update:completable-only",
         "update:map-id",
         "update:sort",
         "update:keyword",
@@ -89,6 +102,9 @@ export default {
             const value = mapId === "all" ? "" : String(mapId || "");
             this.$emit("update:map-id", value);
             this.$emit("submit-search", { mapId: value });
+        },
+        changeCompletableOnly(value) {
+            this.$emit("update:completable-only", Boolean(value));
         },
         getDimensionLabel(dimension) {
             if (dimension?.i18nKey) return this.$t(dimension.i18nKey);
@@ -154,6 +170,14 @@ export default {
                 <el-option value="all" :label="$t('pages.wiki.overview.ui.workbench.allMaps')" />
                 <el-option v-for="map in mapOptions" :key="map.id" :value="map.id" :label="map.label" />
             </el-select>
+
+            <el-checkbox
+                v-if="showCompletableOnly"
+                class="u-progress-completable"
+                :model-value="completableOnly"
+                :disabled="completableDisabled"
+                @change="changeCompletableOnly"
+            >{{ $t("pages.wiki.overview.ui.workbench.completableHiddenOnly") }}</el-checkbox>
 
             <el-select popper-class="m-achievement-theme-popper"
                 v-if="showSort"
@@ -235,6 +259,10 @@ export default {
     max-width: 100%;
     min-width: 0;
     flex: none;
+}
+.u-progress-completable {
+    margin-right: 0;
+    color: #6e572c;
 }
 .m-progress-search {
     > .el-input {

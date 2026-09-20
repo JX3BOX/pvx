@@ -2,6 +2,8 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const babel = require("@babel/core");
+const { baseParse, NodeTypes } = require("@vue/compiler-dom");
+const { parse: parseSfc } = require("@vue/compiler-sfc");
 
 function loadModule(file, aliases = {}, injectedModules = {}) {
     const result = babel.transformFileSync(file, {
@@ -113,6 +115,43 @@ const progressPage = loadVueOptionsComponent(
         "achievement-config-test-module": { __Links: { account: { login: "" } } },
     }
 );
+const progressFilters = loadVueOptionsComponent(
+    path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressFilters.vue"),
+    { "@element-plus/icons-vue": "achievement-icons-test-module" },
+    { "achievement-icons-test-module": {} }
+);
+const progressListSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressList.vue"),
+    "utf8"
+);
+const progressListTemplate = parseSfc(progressListSource).descriptor.template?.content;
+const progressListAst = baseParse(progressListTemplate);
+const findElementByClass = (node, className, parents = []) => {
+    if (node.type === NodeTypes.ELEMENT) {
+        const classAttribute = node.props.find((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "class");
+        if (classAttribute?.value?.content.split(/\s+/).includes(className)) return { node, parents };
+    }
+    for (const child of node.children || []) {
+        const result = findElementByClass(child, className, [...parents, node]);
+        if (result) return result;
+    }
+    return null;
+};
+const compactTags = findElementByClass(progressListAst, "m-progress-achievement-card__compact-tags");
+const rightActions = compactTags?.parents.find((node) => node.type === NodeTypes.ELEMENT &&
+    node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "class" &&
+        prop.value?.content.split(/\s+/).includes("m-progress-achievement-card__actions")));
+assert.ok(rightActions, "紧凑隐藏成就标签必须放在右侧状态容器");
+const statusIndex = rightActions.children.findIndex((node) => node.type === NodeTypes.ELEMENT &&
+    node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "class" &&
+        prop.value?.content.split(/\s+/).includes("u-progress-status")));
+assert.ok(rightActions.children.indexOf(compactTags.node) < statusIndex, "标签必须显示在完成状态左侧");
+const completableFilterEvents = [];
+progressFilters.methods.changeCompletableOnly.call({
+    $emit: (...args) => completableFilterEvents.push(args),
+}, 1);
+assert.deepStrictEqual(completableFilterEvents, [["update:completable-only", true]],
+    "可完成 checkbox 始终向页面提交布尔值");
 
 const hiddenMetadata = {
     1: { point: 10, general: 1, visible: false },
@@ -130,7 +169,30 @@ assert.deepStrictEqual(progress.filterAchievementRecords({
     records: Object.keys(hiddenMetadata).map((id) => ({ id, completed: false })),
     metadata: hiddenScope, tier: "hidden",
 }).map((record) => record.id), ["1", "8"], "搜索结果使用相同普通隐藏资历范围");
+assert.deepStrictEqual(progress.filterAchievementIds({
+    metadata: hiddenScope,
+    completedIds: [],
+    tier: "hidden",
+    includedAchievementIds: ["8"],
+}), ["8"], "勾选可完成隐藏成就后，仅保留标签命中的完整 ID 集合");
+assert.deepStrictEqual(progress.filterAchievementRecords({
+    records: Object.keys(hiddenMetadata).map((id) => ({ id, completed: false })),
+    metadata: hiddenScope,
+    tier: "hidden",
+    includedAchievementIds: ["8"],
+}).map((record) => record.id), ["8"], "隐藏搜索结果应用同一可完成标签集合");
 assert.strictEqual(progressPage.data.call({ hidden: true }).filters.tier, "hidden");
+assert.strictEqual(progressPage.data.call({ hidden: true }).filters.completableOnly, false);
+assert.strictEqual(progressPage.computed.includedAchievementIds.call({
+    hidden: true,
+    filters: { completableOnly: false },
+    completableHiddenIds: ["8"],
+}), null, "未勾选时不限制可完成标签集合");
+assert.deepStrictEqual(progressPage.computed.includedAchievementIds.call({
+    hidden: true,
+    filters: { completableOnly: true },
+    completableHiddenIds: ["8"],
+}), ["8"], "勾选时使用可完成标签命中集合");
 
 const pagedSearch = Array.from({ length: 47 }, (_, index) => ({ id: String(index + 1) }));
 assert.deepStrictEqual(progressPage.computed.visibleAchievementIds.call({ hidden: true, searchMode: true,

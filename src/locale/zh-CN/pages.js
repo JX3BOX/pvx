@@ -481,6 +481,7 @@ export default {
                     tier: "成就档位",
                     allStatuses: "全部状态",
                     allMaps: "全部地图",
+                    completableHiddenOnly: "只看可完成",
                     map: "地图",
                     sort: "排序",
                     sortDefault: "默认排序",

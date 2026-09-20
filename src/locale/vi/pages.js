@@ -686,6 +686,7 @@ export default {
                     tier: "Bậc thành tựu",
                     allStatuses: "Tất cả trạng thái",
                     allMaps: "Tất cả bản đồ",
+                    completableHiddenOnly: "Chỉ có thể hoàn thành",
                     map: "Bản đồ",
                     sort: "Sắp xếp",
                     sortDefault: "Thứ tự mặc định",

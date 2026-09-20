@@ -299,11 +299,16 @@ export function filterAchievementIds({
     completion = "all",
     sort = "default",
     difficultyById = {},
+    includedAchievementIds = null,
 }) {
     const completed = normalizeCompletedIds(completedIds);
+    const included = includedAchievementIds === null
+        ? null
+        : new Set([...includedAchievementIds].map(String));
     const sourceIds = categoryAchievementIds || Object.keys(metadata || {});
     const filteredIds = [...new Set(sourceIds.map(String))]
         .filter((id) => isEligibleMetadata(metadata?.[id]))
+        .filter((id) => !included || included.has(id))
         .filter((id) => tier === "all" || getAchievementTier(metadata[id]) === tier)
         .filter((id) => completion === "all" || (completion === "completed" ? completed.has(id) : !completed.has(id)));
     const metric = getAchievementSortDimensionKey(sort);
@@ -342,11 +347,16 @@ export function filterAchievementRecords({
     completion = "all",
     sort = "default",
     difficultyById = null,
+    includedAchievementIds = null,
 }) {
     const categoryIds = categoryAchievementIds ? new Set(categoryAchievementIds.map(String)) : null;
+    const included = includedAchievementIds === null
+        ? null
+        : new Set([...includedAchievementIds].map(String));
 
     const filteredRecords = (Array.isArray(records) ? records : [])
         .filter((record) => !metadata || isEligibleMetadata(metadata[String(record?.id)]))
+        .filter((record) => !included || included.has(String(record?.id)))
         .filter(
             (record) =>
                 categoryId === "all" ||

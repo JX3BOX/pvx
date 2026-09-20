@@ -679,6 +679,7 @@ export default {
                     tier: "成就檔位",
                     allStatuses: "全部狀態",
                     allMaps: "全部地圖",
+                    completableHiddenOnly: "只看可完成",
                     map: "地圖",
                     sort: "排序",
                     sortDefault: "預設排序",

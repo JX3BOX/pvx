@@ -17,6 +17,7 @@ import {
     fetchAchievementWorkbenchHiddenIndex,
     fetchAchievementWorkbenchDifficultyDimensions,
     fetchAchievementWorkbenchDifficultyMetrics,
+    fetchAchievementWorkbenchHiddenTagIds,
     fetchAchievementWorkbenchMaps,
     fetchAchievementWorkbenchRecords,
     fetchAchievementWorkbenchRoles,
@@ -59,10 +60,13 @@ const createDefaultFilters = () => ({
     categoryId: "all",
     tier: "normal",
     completion: "all",
+    completableOnly: false,
     mapId: "",
     sort: "default",
     keyword: "",
 });
+
+const HIDDEN_COMPLETABLE_TAG_ID = 44;
 
 export default {
     name: "AchievementProgressPage",
@@ -102,6 +106,9 @@ export default {
             synced: false,
             syncedAt: null,
             hiddenIndex: [],
+            completableHiddenIds: [],
+            completableFilterLoading: false,
+            completableFilterAvailable: true,
             records: [],
             searchRecords: null,
             page: 1,
@@ -235,7 +242,12 @@ export default {
                 tier: this.filters.tier,
                 completion: this.filters.completion,
                 sort: "default",
+                includedAchievementIds: this.includedAchievementIds,
             });
+        },
+        includedAchievementIds() {
+            if (!this.hidden || !this.filters.completableOnly) return null;
+            return this.completableHiddenIds;
         },
         filteredAchievementIds() {
             return filterAchievementIds({
@@ -246,6 +258,7 @@ export default {
                 completion: this.filters.completion,
                 sort: this.filters.sort,
                 difficultyById: this.difficultyById,
+                includedAchievementIds: this.includedAchievementIds,
             });
         },
         visibleAchievementIds() {
@@ -267,6 +280,7 @@ export default {
                 tier: this.filters.tier,
                 completion: this.filters.completion,
                 sort: "default",
+                includedAchievementIds: this.includedAchievementIds,
             });
         },
         metricCandidateIds() {
@@ -285,6 +299,7 @@ export default {
                 completion: this.filters.completion,
                 sort: this.filters.sort,
                 difficultyById: this.difficultyById,
+                includedAchievementIds: this.includedAchievementIds,
             });
         },
         visibleRecords() {
@@ -347,6 +362,9 @@ export default {
             this.recordError = false;
             this.records = [];
             this.hiddenIndex = [];
+            this.completableHiddenIds = [];
+            this.completableFilterLoading = false;
+            this.completableFilterAvailable = true;
             this.searchRecords = null;
             this.page = 1;
             this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
@@ -402,6 +420,7 @@ export default {
                     const records = await fetchAchievementWorkbenchHiddenIndex(client);
                     if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                     this.hiddenIndex = records;
+                    this.loadHiddenCompletableIds(records, requestId, client);
                 }
 
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
@@ -424,6 +443,29 @@ export default {
         },
         requireLogin() {
             this.$message.warning(this.$t("pages.wiki.overview.ui.loginRequired"));
+        },
+        async loadHiddenCompletableIds(records, pageRequestId, client) {
+            this.completableFilterLoading = true;
+            this.completableFilterAvailable = true;
+            try {
+                const ids = await fetchAchievementWorkbenchHiddenTagIds({
+                    ids: records.map((record) => record.id),
+                    tagId: HIDDEN_COMPLETABLE_TAG_ID,
+                    client,
+                });
+                if (pageRequestId !== this.pageRequestId || client !== this.currentClient) return;
+                this.completableHiddenIds = ids;
+            } catch (error) {
+                if (pageRequestId !== this.pageRequestId || client !== this.currentClient) return;
+                console.warn("Failed to load completable hidden achievements:", error);
+                this.completableHiddenIds = [];
+                this.completableFilterAvailable = false;
+                this.filters = { ...this.filters, completableOnly: false };
+            } finally {
+                if (pageRequestId === this.pageRequestId && client === this.currentClient) {
+                    this.completableFilterLoading = false;
+                }
+            }
         },
         async selectRole(roleId) {
             if (this.isGuest) return this.requireLogin();
@@ -961,6 +1003,9 @@ export default {
                             :map-options="mapOptions"
                             :tier="filters.tier"
                             :completion="filters.completion"
+                            :show-completable-only="hidden"
+                            :completable-only="filters.completableOnly"
+                            :completable-disabled="completableFilterLoading || !completableFilterAvailable"
                             :map-id="filters.mapId"
                             :sort="filters.sort"
                             :keyword="filters.keyword"
@@ -970,6 +1015,7 @@ export default {
                             :show-category="false"
                             @update:tier="setListFilter('tier', $event)"
                             @update:completion="setListFilter('completion', $event)"
+                            @update:completable-only="setListFilter('completableOnly', $event)"
                             @update:map-id="updateSearchField('mapId', $event)"
                             @update:sort="setListSort"
                             @update:keyword="updateSearchField('keyword', $event)"
