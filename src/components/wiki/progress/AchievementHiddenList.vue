@@ -26,6 +26,7 @@ export default {
     <AchievementProgressList
         class="m-hidden-list"
         compact
+        clickable-cards
         show-total
         :title="title"
         :records="records"
@@ -60,6 +61,7 @@ export default {
 
 <style lang="less" scoped>
 .u-hidden-role-select { width: 220px; max-width: 100%; }
+.m-hidden-list :deep(.u-progress-achievement-icon) { align-self: center; }
 @media (max-width: @phone) {
     .u-hidden-role-select { width: 100%; }
 }

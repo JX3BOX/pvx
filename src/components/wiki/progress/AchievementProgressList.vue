@@ -28,6 +28,7 @@ export default {
     },
     props: {
         compact: { type: Boolean, default: false },
+        clickableCards: { type: Boolean, default: false },
         showTotal: { type: Boolean, default: false },
         title: {
             type: String,
@@ -103,6 +104,18 @@ export default {
                 retired: "statistics.retired",
             };
             return this.$t(`pages.wiki.overview.ui.${keys[record.tier] || keys.normal}`);
+        },
+        activateAchievementCard(record, event) {
+            if (!this.clickableCards || !record?.id) return;
+            const interactiveTarget = event?.target?.closest?.(
+                "a, button, input, select, textarea, [role='button'], [role='link']"
+            );
+            if (interactiveTarget && interactiveTarget !== event.currentTarget) return;
+            if (event?.type === "keydown") {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+            }
+            window.open(this.getLink("achievement", record.id), "_blank", "noopener,noreferrer");
         },
         getDisplayTags(record) {
             const tags = Array.isArray(record?.tags) ? record.tags : [];
@@ -301,7 +314,16 @@ export default {
             </div>
 
             <div v-else class="m-progress-achievement-list">
-                <article v-for="record in records" :key="record.id" class="m-progress-achievement-card">
+                <article
+                    v-for="record in records"
+                    :key="record.id"
+                    class="m-progress-achievement-card"
+                    :class="{ 'is-clickable': clickableCards }"
+                    :role="clickableCards ? 'link' : null"
+                    :tabindex="clickableCards ? 0 : null"
+                    @click="activateAchievementCard(record, $event)"
+                    @keydown="activateAchievementCard(record, $event)"
+                >
                     <a
                         class="u-progress-achievement-icon"
                         :href="getLink('achievement', record.id)"
@@ -463,7 +485,12 @@ export default {
 <style lang="less" scoped>
 .m-progress-list.is-compact {
     .m-progress-list__header { flex-wrap: wrap; padding-right: 0; }
-    .m-progress-achievement-card { min-height: 64px; grid-template-rows: auto 1fr; }
+    .m-progress-achievement-card {
+        min-height: 0;
+        grid-template-rows: auto auto;
+        align-content: center;
+        padding: 6px 8px;
+    }
 }
 .u-progress-title-points {
     display: inline-flex; align-items: center; gap: 4px; margin-left: 8px;
@@ -552,6 +579,13 @@ export default {
     background: #fff;
     &:hover {
         box-shadow: 0 0 0 1px #5a7e8444 inset;
+    }
+    &.is-clickable {
+        cursor: pointer;
+        &:focus-visible {
+            outline: 2px solid #5a7e84;
+            outline-offset: 2px;
+        }
     }
 }
 .u-progress-achievement-icon {

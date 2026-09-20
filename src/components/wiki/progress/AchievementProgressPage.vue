@@ -56,11 +56,11 @@ const withoutRoleProgress = (item) => ({
     ...(item.children ? { children: item.children.map(withoutRoleProgress) } : {}),
 });
 
-const createDefaultFilters = () => ({
+const createDefaultFilters = (hidden = false) => ({
     categoryId: "all",
     tier: "normal",
     completion: "all",
-    completableOnly: false,
+    completableOnly: hidden,
     mapId: "",
     sort: "default",
     keyword: "",
@@ -115,7 +115,7 @@ export default {
             pageSize: 20,
             categorySort: "progress-asc",
             summaryCollapsed: false,
-            filters: { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" },
+            filters: { ...createDefaultFilters(this.hidden), tier: this.hidden ? "hidden" : "normal" },
             dimensions: resolveAchievementWorkbenchDimensions([]),
             difficultyById: {},
             tagsById: {},
@@ -367,7 +367,7 @@ export default {
             this.completableFilterAvailable = true;
             this.searchRecords = null;
             this.page = 1;
-            this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
+            this.filters = { ...createDefaultFilters(this.hidden), tier: this.hidden ? "hidden" : "normal" };
         },
         selectTier(tier) {
             if (tier === this.filters.tier) return undefined;
@@ -420,7 +420,8 @@ export default {
                     const records = await fetchAchievementWorkbenchHiddenIndex(client);
                     if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                     this.hiddenIndex = records;
-                    this.loadHiddenCompletableIds(records, requestId, client);
+                    await this.loadHiddenCompletableIds(records, requestId, client);
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 }
 
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
@@ -848,7 +849,11 @@ export default {
         },
         async resetListFilters() {
             this.cancelDimensionSortRequest();
-            this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
+            this.filters = {
+                ...createDefaultFilters(this.hidden),
+                tier: this.hidden ? "hidden" : "normal",
+                completableOnly: this.hidden && this.completableFilterAvailable,
+            };
             this.searchRecords = null;
             this.page = 1;
             await this.loadVisibleRecords();
@@ -1003,10 +1008,12 @@ export default {
                             :map-options="mapOptions"
                             :tier="filters.tier"
                             :completion="filters.completion"
+                            :show-completion="!hidden"
                             :show-completable-only="hidden"
                             :completable-only="filters.completableOnly"
                             :completable-disabled="completableFilterLoading || !completableFilterAvailable"
                             :map-id="filters.mapId"
+                            :show-map="!hidden"
                             :sort="filters.sort"
                             :keyword="filters.keyword"
                             :dimensions="dimensions"

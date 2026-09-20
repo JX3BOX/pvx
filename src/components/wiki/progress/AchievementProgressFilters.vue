@@ -41,6 +41,10 @@ export default {
             type: String,
             default: "all",
         },
+        showCompletion: {
+            type: Boolean,
+            default: true,
+        },
         showCompletableOnly: {
             type: Boolean,
             default: false,
@@ -56,6 +60,10 @@ export default {
         mapId: {
             type: String,
             default: "",
+        },
+        showMap: {
+            type: Boolean,
+            default: true,
         },
         sort: {
             type: String,
@@ -150,6 +158,7 @@ export default {
             </el-select>
 
             <el-select popper-class="m-achievement-theme-popper"
+                v-if="showCompletion"
                 :model-value="completion"
                 class="u-progress-filter"
                 :aria-label="$t('pages.wiki.overview.ui.status')"
@@ -161,6 +170,7 @@ export default {
             </el-select>
 
             <el-select popper-class="m-achievement-theme-popper"
+                v-if="showMap"
                 :model-value="mapSelectValue"
                 class="u-progress-filter is-map"
                 filterable
@@ -174,6 +184,8 @@ export default {
             <el-checkbox
                 v-if="showCompletableOnly"
                 class="u-progress-completable"
+                border
+                size="large"
                 :model-value="completableOnly"
                 :disabled="completableDisabled"
                 @change="changeCompletableOnly"
@@ -261,8 +273,12 @@ export default {
     flex: none;
 }
 .u-progress-completable {
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 6px;
     margin-right: 0;
     color: #6e572c;
+    font-size: 14px;
 }
 .m-progress-search {
     > .el-input {
