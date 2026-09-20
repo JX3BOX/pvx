@@ -39,7 +39,7 @@ import {
     filterAchievements,
     normalizeCompletedAchievementIds,
 } from "@/utils/achievementCompare";
-import { paginateAchievementItems } from "@/utils/achievementProgress";
+import { buildAchievementSeriesCounts, paginateAchievementItems } from "@/utils/achievementProgress";
 import { selectMenuRootsByGeneral, selectRegularAchievementMetadata } from "@/utils/achievementStatistics";
 import { __Links } from "@/utils/config";
 
@@ -143,7 +143,12 @@ export default {
             return selectMenuRootsByGeneral(this.menus, this.regularMetadata, 1);
         },
         categoryTree() {
-            return buildAchievementCompareCategoryTree(this.regularMenus, this.baseResultIds);
+            return buildAchievementCompareCategoryTree(this.regularMenus, Object.keys(this.regularMetadata),
+                (menu) => buildAchievementSeriesCounts([menu], this.regularMetadata, []).totalCount
+            );
+        },
+        categoryTotal() {
+            return buildAchievementSeriesCounts(this.regularMenus, this.regularMetadata, []).totalCount;
         },
         selectedCategory() {
             if (this.activeCategoryId === "all") return null;
@@ -159,8 +164,11 @@ export default {
             return this.$t("pages.wiki.compare.ui.categories.all");
         },
         resultIds() {
-            if (this.selectedDetail) return this.selectedDetail.achievementIds;
-            if (this.selectedCategory) return this.selectedCategory.achievementIds;
+            const category = this.selectedDetail || this.selectedCategory;
+            if (category) {
+                const ids = new Set(category.achievementIds);
+                return this.baseResultIds.filter((id) => ids.has(id));
+            }
             return this.baseResultIds;
         },
         visibleIds() {
@@ -893,9 +901,10 @@ export default {
             <template v-else>
                 <div class="m-compare-browser-grid">
                     <AchievementCompareCategoryTree
+                        show-category-counts
                         class="m-compare-sticky-categories"
                         :categories="categoryTree"
-                        :total="baseResultIds.length"
+                        :total="categoryTotal"
                         :active-category-id="activeCategoryId"
                         :active-detail-id="activeDetailId"
                         @select-category="selectCategory"
@@ -991,10 +1000,20 @@ export default {
 }
 
 .m-compare-page-state {
+    display: grid;
+    align-items: center;
+    margin-top: 24px;
     min-height: 520px;
-    border: 1px solid rgba(70, 74, 66, 0.13);
-    border-radius: 14px;
-    background: rgba(255, 254, 250, 0.88);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+
+    :deep(.c-pvx-empty-state) {
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
 }
 
 .m-compare-empty-roles {

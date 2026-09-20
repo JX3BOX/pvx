@@ -1,5 +1,5 @@
 <script>
-import { ArrowRight, CollectionTag } from "@element-plus/icons-vue";
+import { ArrowRight, CollectionTag, InfoFilled } from "@element-plus/icons-vue";
 import { achievementCategoryImages } from "@/utils/achievementCategoryImages";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import { fetchAchievementWorkbenchRecords } from "@/service/achievementWorkbench";
@@ -11,9 +11,10 @@ export default {
     components: {
         ArrowRight,
         CollectionTag,
+        InfoFilled,
     },
     props: {
-        tierLabel: { type: String, default: "" },
+        tier: { type: String, default: "normal" },
         categories: {
             type: Array,
             default: () => [],
@@ -72,7 +73,7 @@ export default {
             this.expandActiveCategory();
         },
     },
-    emits: ["select-category", "update:sort"],
+    emits: ["select-category", "update:sort", "update:tier"],
     methods: {
         iconLink,
         async loadSubcategoryIcons({ client, ids }) {
@@ -101,6 +102,7 @@ export default {
             if (root) this.expandedCategoryId = root.children?.length ? root.id : null;
         },
         formatNumber(value) {
+            if (value === null || value === undefined) return "—";
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
@@ -134,11 +136,30 @@ export default {
         :aria-label="$t('pages.wiki.overview.ui.statistics.categoryProgress')"
     >
         <div class="m-progress-categories__header">
-            <div>
+            <div class="m-progress-categories__title">
                 <h2>
                     {{ $t("pages.wiki.overview.ui.statistics.categoryProgress") }}
-                    <span v-if="tierLabel">- {{ tierLabel }}</span>
+                    <el-tooltip
+                        :content="$t('pages.wiki.overview.ui.statistics.categoryCountHint')"
+                        placement="top"
+                    >
+                        <button
+                            type="button"
+                            class="u-progress-category-hint"
+                            :aria-label="$t('pages.wiki.overview.ui.statistics.categoryCountHint')"
+                        ><InfoFilled aria-hidden="true" /></button>
+                    </el-tooltip>
                 </h2>
+                <el-select
+                    :model-value="tier"
+                    class="u-progress-category-tier"
+                    popper-class="m-achievement-theme-popper"
+                    :aria-label="$t('pages.wiki.overview.ui.workbench.tier')"
+                    @change="$emit('update:tier', $event)"
+                >
+                    <el-option value="normal" :label="$t('pages.wiki.overview.ui.statistics.regular')" />
+                    <el-option value="wujia" :label="$t('pages.wiki.overview.ui.statistics.wujia')" />
+                </el-select>
             </div>
             <el-select popper-class="m-achievement-theme-popper"
                 :model-value="sort"
@@ -146,6 +167,7 @@ export default {
                 :aria-label="$t('pages.wiki.overview.ui.workbench.categorySort')"
                 @change="$emit('update:sort', $event)"
             >
+                <el-option value="default" :label="$t('pages.wiki.overview.ui.workbench.sortDefault')" />
                 <el-option value="progress-asc" :label="$t('pages.wiki.overview.ui.workbench.sortProgressAsc')" />
                 <el-option value="progress-desc" :label="$t('pages.wiki.overview.ui.workbench.sortProgressDesc')" />
                 <el-option value="remaining-desc" :label="$t('pages.wiki.overview.ui.workbench.sortRemainingDesc')" />
@@ -276,6 +298,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 12px;
     min-height: 28px;
     margin-bottom: 12px;
@@ -296,12 +319,45 @@ export default {
         border-radius: 99px;
         background: #5a7e84;
     }
-    h2 span {
-        color: #6e572c;
+}
+.m-progress-categories__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.u-progress-category-hint {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #8a918e;
+    cursor: help;
+    svg {
+        width: 15px;
+        height: 15px;
+    }
+    &:hover,
+    &:focus-visible {
+        color: #5a7e84;
+    }
+    &:focus-visible {
+        outline: 2px solid #5a7e84;
+        outline-offset: 3px;
+        border-radius: 50%;
     }
 }
+.u-progress-category-tier {
+    width: 120px;
+    max-width: 100%;
+    flex: none;
+}
 .u-progress-category-sort {
-    width: 280px;
+    width: 244px;
     max-width: 100%;
     flex: none;
 }

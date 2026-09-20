@@ -59,6 +59,11 @@ export function getWikiAchievementDifficultyList(ids, params = {}) {
     return $cms().post(`/api/cms/pvx/wiki_achievement_difficulty/list`, ids, { params });
 }
 
+// 分页查询公开成就及其难度、标签；achievement_ids 用于将范围限制在指定成就内。
+export function getWikiAchievementDifficultyAchievements(payload = {}, params = {}) {
+    return $cms().post(`/api/cms/pvx/wiki_achievement_difficulty/achievements`, payload, { params });
+}
+
 // 批量获取成就标签
 export function getWikiAchievementTagsByAchievements(ids, params = {}) {
     return $cms().post(`/api/cms/pvx/wiki_achievement_tag/by-achievements`, ids, { params });

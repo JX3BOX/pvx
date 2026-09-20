@@ -6,6 +6,24 @@ export default {
     "usage": "Sử dụng công cụ thành tựu",
     "faq": "Câu hỏi thường gặp",
     "bind": "Quản lý nhân vật",
+    "bindNew": "Liên kết nhân vật mới",
+    "bindFlow": {
+        "title": "Các bước liên kết nhân vật mới",
+        "steps": [
+            "Đăng nhập game, mở 茗伊插件集 → 团队 → 团队平台 và nhấn 绑定 (Liên kết).",
+            "Nhấn mã bên dưới để sao chép mã xác thực nhân vật.",
+            "Dán mã vào hộp thoại trong game và nhấn 确定 (Xác nhận)."
+        ],
+        "note": "Mã có hiệu lực trong 10 phút. Nhấn Làm mới mã khi hết hạn. Một tài khoản JX3BOX có thể liên kết nhiều nhân vật.",
+        "login": "Đăng nhập để lấy mã",
+        "loading": "Đang tải mã…",
+        "loadFailed": "Không tải được mã. Hãy thử lại.",
+        "copy": "Sao chép mã",
+        "refresh": "Làm mới mã",
+        "copied": "Đã sao chép mã",
+        "copyFailed": "Không sao chép được. Hãy chọn và sao chép mã thủ công.",
+        "expired": "Mã đã hết hạn. Đang tải lại; hãy sao chép lại."
+    },
     "syncNote": "Sau khi đạt thành tựu mới, hãy đồng bộ lại trong game. Tải lại trang hoặc tạo lại đề xuất chỉ đọc dữ liệu đã đồng bộ.",
     "steps": [
         {
@@ -55,12 +73,16 @@ export default {
         {
             "title": "Không có thời gian đồng bộ nghĩa là chưa có thành tựu?",
             "text": "Không. Chỉ là chưa rõ thời gian đồng bộ. Kiểm tra liên kết nhân vật, đồng bộ trong game rồi tải lại."
+        },
+        {
+            "title": "Vì sao điểm tư lịch trong game khác với Cẩm nang thành tựu?",
+            "text": "Một số thành tựu cũ đã bị xóa khỏi game và không còn tra cứu được, nhưng điểm bạn từng nhận từ chúng có thể vẫn được giữ trong tổng điểm trong game. Game lưu tổng điểm và cộng dồn điểm mới, thay vì tính lại từ các thành tựu hiện tại mỗi lần. Vì vậy, tổng này có thể khác với số điểm Cẩm nang thống kê từ dữ liệu thành tựu hiện tại. Chênh lệch này chỉ nằm ở tổng điểm, không ảnh hưởng đến việc xem thành tựu, tạo kế hoạch và hoàn thành thành tựu theo kế hoạch trong Cẩm nang."
         }
     ],
     "syncRequired": "Sau khi liên kết, hãy nhớ nhấn Đồng bộ thành tựu và bật tự động đồng bộ thành tựu khi đăng xuất.",
     "screenshots": [
         "Mở Nhân vật của tôi từ menu ảnh đại diện",
-        "Nhấn Liên kết nhân vật và sao chép token trên website",
+        "Mở hộp thoại liên kết nhân vật trong nền tảng đội của 茗伊",
         "Liên kết nhân vật và đồng bộ thành tựu trong nền tảng đội của 茗伊"
     ],
     "featureScreenshots": [

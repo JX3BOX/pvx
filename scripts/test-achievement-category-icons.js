@@ -9,7 +9,8 @@ const {descriptor}=parse(fs.readFileSync(filename,'utf8'));
 const script=compileScript(descriptor,{id:'test'});
 const result=babel.transformSync(descriptor.script.content,{configFile:false,babelrc:false,plugins:[require.resolve(root+'/node_modules/@babel/plugin-transform-modules-commonjs')]});
 const m={exports:{}};
-const req=(name)=>name.includes('icons-vue')?{ArrowRight:{render:()=>null},CollectionTag:{render:()=>null}}:name.includes('utils')?{iconLink:id=>'icon/'+id}:{fetchAchievementWorkbenchRecords:async()=>[]};
+let detailRequests=0;
+const req=(name)=>name.includes('icons-vue')?{ArrowRight:{render:()=>null},Grid:{render:()=>null}}:name.includes('utils')?{iconLink:id=>'icon/'+id}:{fetchAchievementWorkbenchRecords:async()=>{detailRequests++;return [];}};
 req.context=()=>Object.assign(()=>'',{keys:()=>[]});
 new Function('require','module','exports',result.code)(req,m,m.exports);
 const component=m.exports.default;
@@ -22,4 +23,17 @@ const app=vue.createSSRApp(component,{categories:[{id:'1',name:'节日',children
 app.config.globalProperties.$t=x=>x;
 app.config.globalProperties.$i18n={locale:'zh-CN'};
 app.config.globalProperties.$store={state:{client:'std'}};
-renderToString(app).then(html=>{require('assert').ok(html.includes('icon/99'));console.log('Compiled category component rendered first achievement icon successfully.');}).catch(e=>{console.error(e);process.exitCode=1});
+(async()=>{
+    const assert=require('assert');
+    const html=await renderToString(app);
+    assert.ok(html.includes('icon/99'), '普通分类继续使用已缓存的首个成就图标');
+    assert.ok(!html.includes('<small>3</small>'), '其他页面默认不新增一级计数');
+    const hiddenApp=vue.createSSRApp(component,{loadIcons:false,showCategoryCounts:true,
+        categories:[{id:'1',name:'杂闻',count:3,children:[{id:'2',name:'经历',iconId:'2120',achievementIds:['10'],count:3}]}],activeCategoryId:'1'});
+    Object.assign(hiddenApp.config.globalProperties,app.config.globalProperties);
+    const hiddenHtml=await renderToString(hiddenApp);
+    assert.ok(hiddenHtml.includes('icon/2120'), '隐藏分类直接显示索引中首个成就的图标');
+    assert.ok(hiddenHtml.includes('<small>3</small>'), '一级分类名称右侧显示总数');
+    assert.strictEqual(detailRequests,0, '显示分类计数和图标不额外读取成就详情');
+    console.log('Category counts and first achievement icon rendering tests passed.');
+})().catch(e=>{console.error(e);process.exitCode=1});

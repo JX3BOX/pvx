@@ -21,7 +21,9 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
         presets: [[require.resolve("@babel/preset-env"), { targets: { node: "current" } }]],
     });
     const loadedModule = { exports: {} };
-    const localRequire = (request) => injectedModules[request] || require(request);
+    const localRequire = (request) => injectedModules[request] || require(
+        request.startsWith("@/assets/data/achievements/") ? path.resolve(__dirname, "../src", request.slice(2)) : request
+    );
     new Function("module", "exports", "require", result.code)(loadedModule, loadedModule.exports, localRequire);
     return loadedModule.exports;
 }
@@ -98,6 +100,7 @@ const calls = {
     detail: [],
     difficultyDimensions: [],
     difficultyList: [],
+    hiddenAchievements: [],
     achievementDetail: [],
     achievementRecords: [],
     list: [],
@@ -109,6 +112,7 @@ const calls = {
     update: [],
 };
 let difficultyDimensionFailuresRemaining = 0;
+let hiddenAchievementResponseOverride = null;
 let tagDetailResponse = {
     data: {
         code: 0,
@@ -291,6 +295,52 @@ const wikiService = {
             },
         };
     },
+    getWikiAchievementDifficultyAchievements: async (payload, params) => {
+        calls.hiddenAchievements.push([payload, params]);
+        if (hiddenAchievementResponseOverride) return hiddenAchievementResponseOverride;
+        const ids = payload.achievement_ids || [];
+        const matchedIds = params.tag_id === 44
+            ? ids.filter((id) => id % 2 === 0)
+            : params.tag_id === 45
+            ? []
+            : ids;
+        const start = (params.page - 1) * params.per;
+        const list = matchedIds
+            .slice(start, start + params.per)
+            .filter((id) => id !== 999)
+            .map((id) => ({
+                ID: id,
+                Name: `隐藏成就${id}`,
+                Desc: `隐藏描述${id}`,
+                IconID: 2120,
+                Point: 20,
+                General: 1,
+                Visible: 0,
+                Sub: 1,
+                Detail: 5,
+                difficulty: {
+                    achievement_id: id,
+                    client: params.client,
+                    completed_role_count: 10,
+                    total_role_count: 100,
+                    dimensions: { money: 20, time: 40, luck: 50, cost_effectiveness: 10, overall: 30 },
+                },
+                tags: [{ tag_id: 24, tag_label: "门派：衍天" }],
+            }));
+        return {
+            data: {
+                code: 0,
+                msg: "Success",
+                data: {
+                    list,
+                    total: matchedIds.length,
+                    page: params.page,
+                    per: params.per,
+                    pages: Math.ceil(matchedIds.length / params.per),
+                },
+            },
+        };
+    },
     getWikiAchievementTagsByAchievements: async (ids, params) => {
         calls.tagsByAchievements.push([ids, params]);
         return {
@@ -365,6 +415,10 @@ const service = loadModule(
     await wikiApi.getWikiAchievementDifficultyDimensions();
     await wikiApi.getWikiAchievementLeapSchemaProgress([101, 102], { client: "origin" });
     await wikiApi.getWikiAchievementDifficultyList([7456, 7457], { client: "origin" });
+    await wikiApi.getWikiAchievementDifficultyAchievements(
+        { achievement_ids: [34, 39] },
+        { client: "std", page: 1, per: 20, __hidden: 1, with_tags: 1 }
+    );
     await wikiApi.getWikiAchievementTagsByAchievements([7456], { client: "std" });
     await wikiApi.getWikiAchievementTag(7, { client: "origin" });
     await wikiApi.getWikiAchievementTag(8);
@@ -381,6 +435,12 @@ const service = loadModule(
             "/api/cms/pvx/wiki_achievement_difficulty/list",
             [7456, 7457],
             { params: { client: "origin" } },
+        ],
+        [
+            "post",
+            "/api/cms/pvx/wiki_achievement_difficulty/achievements",
+            { achievement_ids: [34, 39] },
+            { params: { client: "std", page: 1, per: 20, __hidden: 1, with_tags: 1 } },
         ],
         [
             "post",
@@ -525,6 +585,60 @@ const service = loadModule(
         [5000, 1]
     );
 
+    const hiddenTagCallOffset = calls.hiddenAchievements.length;
+    const completableHiddenIds = await service.fetchAchievementWorkbenchHiddenTagIds({
+        ids: Array.from({ length: 205 }, (_, index) => index + 1),
+        tagId: 44,
+        client: "std",
+    });
+    assert.deepStrictEqual(completableHiddenIds, Array.from({ length: 102 }, (_, index) => String((index + 1) * 2)));
+    assert.deepStrictEqual(
+        calls.hiddenAchievements.slice(hiddenTagCallOffset).map(([, params]) => params),
+        [
+            { client: "std", page: 1, per: 100, __hidden: 1, tag_id: 44, with_tags: 0 },
+            { client: "std", page: 2, per: 100, __hidden: 1, tag_id: 44, with_tags: 0 },
+        ],
+        "可完成标签集合按接口上限分页查询"
+    );
+    assert.deepStrictEqual(await service.fetchAchievementWorkbenchHiddenTagIds({
+        ids: [1, 2],
+        tagId: 45,
+        client: "std",
+    }), [], "标签没有命中时返回空集合");
+
+    hiddenAchievementResponseOverride = {
+        data: { code: 0, msg: "Success", data: { list: [], page: 1, per: 100 } },
+    };
+    await assert.rejects(
+        () => service.fetchAchievementWorkbenchHiddenTagIds({ ids: [1], tagId: 44, client: "std" }),
+        /分页格式异常/
+    );
+    for (const malformedData of [
+        { list: [], page: 1, per: 100, total: null, pages: null },
+        { list: [], page: 1, per: 100, total: "", pages: "" },
+        { list: [], page: 1, per: 100, total: 1, pages: 1 },
+    ]) {
+        hiddenAchievementResponseOverride = {
+            data: { code: 0, msg: "Success", data: malformedData },
+        };
+        await assert.rejects(
+            () => service.fetchAchievementWorkbenchHiddenTagIds({ ids: [1], tagId: 44, client: "std" }),
+            /分页格式异常/
+        );
+    }
+    hiddenAchievementResponseOverride = {
+        data: {
+            code: 0,
+            msg: "Success",
+            data: { list: [{}], page: 1, per: 100, total: 1, pages: 1 },
+        },
+    };
+    await assert.rejects(
+        () => service.fetchAchievementWorkbenchHiddenTagIds({ ids: [1], tagId: 44, client: "std" }),
+        /记录格式异常/
+    );
+    hiddenAchievementResponseOverride = null;
+
     await assert.rejects(
         () => service.fetchAchievementWorkbenchDifficultyMetrics([500000]),
         /测试错误/
@@ -640,8 +754,84 @@ const service = loadModule(
     assert.strictEqual(calls.achievementRecords.at(-1).client, "origin");
     await service.searchAchievementWorkbenchRecords({ keyword: "测试", client: "origin" });
     assert.deepStrictEqual(calls.search, [
-        { keyword: "测试", scene: "", client: "origin", _no_page: 1, limit: 99999 },
+        { keyword: "测试", scene: "", general: 1, client: "origin", _no_page: 1, limit: 99999 },
     ]);
+
+    await service.searchAchievementWorkbenchRecords({ keyword: " 五甲 ", mapId: "10", tier: "wujia" });
+    assert.deepStrictEqual(calls.search.at(-1), {
+        keyword: "五甲", scene: "10", general: 2, client: "std", _no_page: 1, limit: 99999,
+    }, "五甲搜索必须传 general=2，并保留地图条件");
+
+    const hiddenMetadata = Object.fromEntries(Array.from({ length: 65 }, (_, index) =>
+        [String(2000 + index), { point: 20, general: 1, visible: false }]));
+    const beforeHiddenRequests = calls.achievementDetail.length;
+    const firstPage = Object.keys(hiddenMetadata).slice(0, 20);
+    const secondPage = Object.keys(hiddenMetadata).slice(20, 40);
+    const beforeBatchRequests = calls.achievementRecords.length;
+    const index = await service.fetchAchievementWorkbenchHiddenIndex("std");
+    assert.ok(index.length > 0 && index.every((record) => record.id && record.category));
+    assert.strictEqual(index.find((record) => record.id === "34").iconId, "2120", "分类首个成就的图标随轻量索引读取");
+    assert.ok(index.every((record) => Array.isArray(record.relatedIds)), "关联索引须覆盖完整目录，才能统计关联条数");
+    assert.deepStrictEqual(index.find((record) => record.id === "3372").relatedIds,
+        ["3373", "3374", "3375", "3376", "3377"], "关联成就从 SubAchievements 索引读取，无需额外请求详情");
+    const indexedRecord = await service.fetchAchievementWorkbenchHiddenRecords({
+        ids: ["34"],
+        metadata: { 34: { point: 35, general: 1, visible: false } },
+    });
+    assert.strictEqual(indexedRecord[0].map.worldMapId, "6", "批量接口缺失的地图字段由现有隐藏索引补齐");
+    const beforeHiddenBatchRequests = calls.hiddenAchievements.length;
+    await service.fetchAchievementWorkbenchHiddenRecords({ metadata: hiddenMetadata });
+    assert.strictEqual(calls.achievementDetail.length, beforeHiddenRequests, "索引和空页面不能触发详情请求");
+    assert.strictEqual(calls.hiddenAchievements.length, beforeHiddenBatchRequests, "空页面不能触发隐藏成就批量请求");
+    const [pageRecords] = await Promise.all([
+        service.fetchAchievementWorkbenchHiddenRecords({ ids: firstPage, metadata: hiddenMetadata }),
+        service.fetchAchievementWorkbenchHiddenRecords({ ids: firstPage, metadata: hiddenMetadata }),
+    ]);
+    assert.deepStrictEqual(pageRecords.map((record) => record.id), firstPage);
+    assert.strictEqual(calls.achievementDetail.length, beforeHiddenRequests, "隐藏页不再逐条请求详情");
+    assert.strictEqual(calls.hiddenAchievements.length, beforeHiddenBatchRequests + 1, "首屏20条合并为一次批量请求，并合并并发请求");
+    assert.deepStrictEqual(calls.hiddenAchievements[beforeHiddenBatchRequests], [
+        { achievement_ids: firstPage.map(Number) },
+        { client: "std", page: 1, per: 20, __hidden: 1, with_tags: 1 },
+    ]);
+    assert.strictEqual(pageRecords[0].shortDescription, `隐藏描述${firstPage[0]}`, "Desc 映射为页面描述");
+    assert.strictEqual(pageRecords[0].difficulty, 3, "嵌套难度完成归一化");
+    assert.deepStrictEqual(pageRecords[0].tagGroups.schools, ["衍天"], "接口标签完成归一化");
+    await service.fetchAchievementWorkbenchHiddenRecords({ ids: secondPage, metadata: hiddenMetadata });
+    assert.strictEqual(calls.hiddenAchievements.length, beforeHiddenBatchRequests + 2, "翻页只批量补取新页");
+    const completedPage = await service.fetchAchievementWorkbenchHiddenRecords({ ids: firstPage, metadata: hiddenMetadata, completedIds: [firstPage[0]] });
+    assert.strictEqual(calls.hiddenAchievements.length, beforeHiddenBatchRequests + 2, "返回已加载页与切换角色不重复请求详情");
+    assert.strictEqual(completedPage[0].completed, true);
+    assert.strictEqual(pageRecords[0].completed, false, "共享详情不能保存角色状态");
+    assert.strictEqual(calls.achievementRecords.length, beforeBatchRequests, "隐藏页不请求会过滤隐藏项的批量详情接口");
+    await service.fetchAchievementWorkbenchHiddenRecords({ ids: [firstPage[0]], metadata: hiddenMetadata, client: "origin" });
+    assert.strictEqual(calls.hiddenAchievements.at(-1)[1].client, "origin");
+    const hiddenRetired = await service.fetchAchievementWorkbenchHiddenRecords({ ids: ["3000"],
+        metadata: { 3000: { point: 20, general: 0, visible: false } } });
+    assert.deepStrictEqual(hiddenRetired, [], "隐藏列表不加载绝版档位详情");
+    const requestsBeforeWujia = calls.hiddenAchievements.length;
+    const hiddenWujia = await service.fetchAchievementWorkbenchHiddenRecords({ ids: ["3001"],
+        metadata: { 3001: { point: 40, general: 2, visible: false } } });
+    assert.deepStrictEqual(hiddenWujia, [], "隐藏列表排除五甲");
+    assert.strictEqual(calls.hiddenAchievements.length, requestsBeforeWujia, "隐藏五甲不能触发详情请求");
+    const overlappingMetadata = {
+        4000: { point: 10, general: 1, visible: false },
+        4001: { point: 10, general: 1, visible: false },
+    };
+    const overlappingRequestOffset = calls.hiddenAchievements.length;
+    const [overlappingPage, overlappingSubset] = await Promise.all([
+        service.fetchAchievementWorkbenchHiddenRecords({ ids: ["4000", "4001"], metadata: overlappingMetadata }),
+        service.fetchAchievementWorkbenchHiddenRecords({ ids: ["4001"], metadata: overlappingMetadata }),
+    ]);
+    assert.deepStrictEqual(overlappingPage.map((record) => record.id), ["4000", "4001"]);
+    assert.deepStrictEqual(overlappingSubset.map((record) => record.id), ["4001"]);
+    assert.strictEqual(calls.hiddenAchievements.length - overlappingRequestOffset, 1,
+        "部分重叠的并发页面按成就 ID 合并在途请求");
+    const missingRequestOffset = calls.hiddenAchievements.length;
+    for (let i = 0; i < 2; i++) {
+        await assert.rejects(service.fetchAchievementWorkbenchHiddenRecords({ ids: ["999"], metadata: { 999: { point: 10, general: 1, visible: false } } }), /详情不完整/);
+    }
+    assert.strictEqual(calls.hiddenAchievements.length - missingRequestOffset, 2, "失败应清理缓存并允许重试");
 
     console.log("Achievement service contract tests passed.");
 })().catch((error) => {

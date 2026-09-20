@@ -6,6 +6,24 @@ export default {
     "usage": "Use the achievement workbench",
     "faq": "Common questions",
     "bind": "Manage characters",
+    "bindNew": "Bind a new character",
+    "bindFlow": {
+        "title": "How to bind a new character",
+        "steps": [
+            "Log in to the game, open 茗伊插件集 → 团队 → 团队平台, and click 绑定 (Bind).",
+            "Click the token below to copy your character verification token.",
+            "Paste the token into the in-game dialog and click 确定 (Confirm)."
+        ],
+        "note": "Tokens are valid for 10 minutes. Click Refresh token if it expires. One JX3BOX account can bind multiple characters.",
+        "login": "Sign in to get a token",
+        "loading": "Loading token…",
+        "loadFailed": "Could not load the token. Please retry.",
+        "copy": "Copy token",
+        "refresh": "Refresh token",
+        "copied": "Token copied",
+        "copyFailed": "Copy failed. Select and copy the token manually.",
+        "expired": "Token expired. Reloading; please copy again."
+    },
     "syncNote": "Sync again in game after earning new achievements. Refreshing the page or regenerating recommendations only reads previously synced data.",
     "steps": [
         {
@@ -55,12 +73,16 @@ export default {
         {
             "title": "Does a missing sync time mean no achievements?",
             "text": "No. It only means the sync time is unknown. Check character binding, sync in game and refresh."
+        },
+        {
+            "title": "Why do my in-game points differ from the Achievement Handbook?",
+            "text": "Some historical achievements have been removed from the game and can no longer be found, but points you earned from them may still be included in your in-game total. The game stores a running total and adds newly earned points instead of recalculating it from the current achievements each time. This can differ from the Handbook’s total based on current achievement data. This discrepancy only affects the total: you can still use the Handbook to check achievements, generate plans and complete the achievements in those plans."
         }
     ],
     "syncRequired": "After binding, make sure to click Sync achievements and enable automatic achievement sync on logout.",
     "screenshots": [
         "Open My characters from the avatar menu",
-        "Click Bind character and copy the website token",
+        "Open the character binding dialog in the 茗伊 team platform",
         "Bind your character and sync achievements in the 茗伊 team platform"
     ],
     "featureScreenshots": [

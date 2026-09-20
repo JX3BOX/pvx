@@ -36,6 +36,14 @@ function loadModule(file, aliases = {}, injectedModules = {}) {
 
 const statisticsModule = loadModule(path.resolve(__dirname, "../src/utils/achievementStatistics.js"));
 const workbenchModule = loadModule(path.resolve(__dirname, "../src/utils/achievementWorkbench.js"));
+const schoolModule = loadModule(path.resolve(__dirname, "../src/utils/achievementSchoolEligibility.js"), {}, {
+    "@/utils/achievementStatistics": statisticsModule,
+});
+const progressModule = loadModule(path.resolve(__dirname, "../src/utils/achievementProgress.js"), {}, {
+    "@/utils/achievementStatistics": statisticsModule,
+    "@/utils/achievementWorkbench": workbenchModule,
+    "@/utils/achievementSchoolEligibility": schoolModule,
+});
 const compare = loadModule(
     path.resolve(__dirname, "../src/utils/achievementCompare.js"),
     {
@@ -259,7 +267,7 @@ const page = loadModule(
         "@/utils/achievementCompare": compare,
         "@/utils/achievementStatistics": statisticsModule,
         "@/utils/achievementWorkbench": workbenchModule,
-        "@/utils/achievementProgress": {},
+        "@/utils/achievementProgress": progressModule,
         "@/utils/config": {},
         "@/service/achievementWorkbench": {
             fetchAchievementWorkbenchRecords: async () => mixedRecords,
@@ -331,3 +339,14 @@ testRegularCompareScope()
         console.error(error);
         process.exitCode = 1;
     });
+
+const seriesMenus = [{ sub: 1, name: "系列", achievements: [], children: [
+    { detail: 1, name: "有效系列", achievements: [[1, 2], 3] },
+    { detail: 2, name: "无常规项", achievements: [99] },
+] }];
+const seriesTree = compare.buildAchievementCompareCategoryTree(seriesMenus, Object.keys(metadata),
+    (menu) => progressModule.buildAchievementSeriesCounts([menu], metadata, []).totalCount);
+assert.strictEqual(seriesTree[0].count, 2);
+assert.strictEqual(seriesTree[0].children[0].count, 2);
+assert.strictEqual(seriesTree[0].children.length, 1);
+assert.deepStrictEqual(seriesTree[0].achievementIds, ["1", "2", "3"]);

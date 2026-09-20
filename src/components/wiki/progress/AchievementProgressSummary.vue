@@ -1,7 +1,6 @@
 <script>
 import { Refresh, ArrowUp, Check, UserFilled } from "@element-plus/icons-vue";
-import { showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
-import { __Root } from "@/utils/config";
+import { showAvatar, showSchoolIcon } from "@jx3box/jx3box-common/js/utils";
 
 import RoleAvatar from "@/components/wiki/RoleAvatar.vue";
 import pointsIcon from "@/assets/img/wiki/figma/points.png";
@@ -31,7 +30,7 @@ const TIER_DEFINITIONS = Object.freeze([
         labelKey: "workbench.hiddenTier",
         badgeKey: "statistics.hiddenAchievement",
         actionKey: "workbench.viewHiddenAchievements",
-        href: `${__Root}community/496`,
+        href: true,
     },
     {
         key: "retired",
@@ -51,6 +50,7 @@ export default {
         UserFilled,
     },
     props: {
+        guest: { type: Boolean, default: false },
         showToolbar: { type: Boolean, default: true },
         collapsed: {
             type: Boolean,
@@ -93,7 +93,7 @@ export default {
             default: false,
         },
     },
-    emits: ["select-tier", "select-role", "update:collapsed"],
+    emits: ["require-login", "select-tier", "select-role", "update:collapsed"],
     data() {
         return {
             pointsIcon,
@@ -125,11 +125,13 @@ export default {
         },
     },
     methods: {
+        showAvatar,
         showSchoolIcon,
         selectRole(roleId) {
             this.$emit("select-role", String(roleId));
         },
         formatNumber(value) {
+            if (value === null || value === undefined) return "—";
             const locale = typeof this.$i18n?.locale === "string" ? this.$i18n.locale : undefined;
             return new Intl.NumberFormat(locale).format(Number(value) || 0);
         },
@@ -154,7 +156,10 @@ export default {
         :aria-label="$t('pages.wiki.overview.ui.overview')"
     >
         <article class="m-progress-overall-card">
-            <el-dropdown popper-class="m-achievement-theme-popper m-progress-role-popper" v-if="showToolbar" trigger="click" placement="bottom-end" :max-height="360" class="m-progress-role-switch" @command="selectRole">
+            <button v-if="showToolbar && guest" type="button" class="u-progress-role-switch m-progress-role-switch" @click="$emit('require-login')">
+                <Refresh aria-hidden="true" />{{ $t("achievementAppearance.changeRole") }}
+            </button>
+            <el-dropdown popper-class="m-achievement-theme-popper m-progress-role-popper" v-if="showToolbar && !guest" trigger="click" placement="bottom-end" :max-height="360" class="m-progress-role-switch" @command="selectRole">
                 <button
                     type="button"
                     class="u-progress-role-switch"
@@ -214,7 +219,7 @@ export default {
                         @error="schoolIconFailed = true"
                         alt=""
                     />
-                    <span v-else class="u-progress-avatar-fallback">{{ (currentRole?.name || "—").slice(0, 1) }}</span>
+                    <img v-else :src="showAvatar(null, 'l')" alt="" />
                     <b>{{ formatPercent(overall.pointProgress) }}</b>
                 </div>
             </div>
@@ -231,7 +236,8 @@ export default {
                     @error="schoolIconFailed = true"
                     :alt="$t('pages.wiki.overview.ui.schoolIcon')"
                 />
-                <strong>{{ currentRole?.name || "—" }}·{{ currentRole?.server || "—" }}</strong>
+                <strong v-if="guest">{{ $t("pages.wiki.overview.ui.loginRequired") }}</strong>
+                <strong v-else>{{ currentRole?.name || "—" }}·{{ currentRole?.server || "—" }}</strong>
             </div>
             <span v-if="collapsed" class="m-progress-overall-percent">{{ formatPercent(overall.pointProgress) }}</span>
         </article>
@@ -240,7 +246,7 @@ export default {
             <header class="m-progress-section-title">
                 <h2 v-show="!collapsed">{{ $t("pages.wiki.overview.ui.workbench.tierTitle") }}</h2>
                 <span
-                    v-show="!collapsed"
+                    v-show="!collapsed && !guest"
                     class="m-progress-sync"
                     :class="{ 'is-synced': synced }"
                     :title="
@@ -284,7 +290,7 @@ export default {
                     class="m-progress-tier-card"
                     :class="[
                         {
-                            'is-clickable': Boolean(item.actionKey) && !item.href,
+                            'is-clickable': Boolean(item.actionKey),
                             'is-selected': !item.href && item.key === activeTier,
                         },
                         'is-' + item.key,
@@ -294,13 +300,11 @@ export default {
                         <h3>
                             <img :src="tierIcons[item.key]" alt="" />{{ $t("pages.wiki.overview.ui." + item.labelKey) }}
                         </h3>
-                        <a
+                        <router-link
                             v-if="item.href"
                             class="m-progress-tier-hint m-progress-tier-guide"
-                            :href="item.href"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >{{ $t("achievementAppearance.hiddenGuide") }}</a>
+                            :to="{ name: 'achievement-hidden' }"
+                        >{{ $t("achievementAppearance.hiddenBrowse") }}</router-link>
                         <span v-else class="m-progress-tier-hint">{{
                             $t(
                                 "achievementAppearance." +
@@ -431,13 +435,6 @@ export default {
         font-size: 18px;
         font-weight: 400;
     }
-}
-.u-progress-avatar-fallback {
-    display: grid;
-    height: 100%;
-    place-items: center;
-    font-size: 56px;
-    color: #967944;
 }
 .m-progress-overall-points {
     display: flex;
@@ -583,6 +580,17 @@ export default {
 }
 .m-progress-tier-guide {
     text-decoration: none;
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: 8px;
+    }
+    &:focus-visible::after {
+        outline: 2px solid #5a7e84;
+        outline-offset: 2px;
+    }
     &:hover,
     &:focus-visible {
         color: #967944;

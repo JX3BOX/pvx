@@ -15,6 +15,7 @@ import {
     getMyKith,
     getMyKithRoles,
     getWikiAchievementDifficultyDimensions,
+    getWikiAchievementDifficultyAchievements,
     getWikiAchievementDifficultyList,
     getWikiAchievementLeapSchema,
     getWikiAchievementLeapSchemaList,
@@ -25,6 +26,7 @@ import {
     updateWikiAchievementLeapSchema,
 } from "@/service/wiki";
 import {
+    applyAchievementWorkbenchEnrichment,
     normalizeAchievementWorkbenchDifficulty,
     normalizeAchievementWorkbenchDifficultyDimensions,
     normalizeAchievementWorkbenchRecords,
@@ -260,6 +262,206 @@ export async function fetchAchievementWorkbenchRecords({
     });
 }
 
+const ACHIEVEMENT_WORKBENCH_HIDDEN_BATCH_SIZE = 100;
+const hiddenIndexCache = new Map();
+const hiddenRecordCache = new Map();
+const hiddenRecordRequests = new Map();
+
+export async function fetchAchievementWorkbenchHiddenIndex(client = "std") {
+    const normalizedClient = normalizeAchievementClient(client);
+    const module = normalizedClient === "origin"
+        ? await import("@/assets/data/achievements/hidden-origin.json")
+        : await import("@/assets/data/achievements/hidden-std.json");
+    const records = module.default.rows.map(([id, sub, detail, name, description, sceneId, worldMapId, relatedIds, iconId]) => ({
+        id: String(id), name, shortDescription: description,
+        iconId: String(iconId || ""),
+        relatedIds: Array.isArray(relatedIds) ? relatedIds.map(String) : null,
+        category: { id: String(sub), subId: String(detail) },
+        map: { id: String(sceneId || ""), sceneId: String(sceneId || ""), worldMapId: String(worldMapId || "") },
+    }));
+    hiddenIndexCache.set(normalizedClient, new Map(records.map((record) => [record.id, record])));
+    return records;
+}
+
+export async function fetchAchievementWorkbenchHiddenTagIds({ ids = [], tagId, client = "std" } = {}) {
+    const normalizedIds = normalizeAchievementApiIds(ids);
+    const normalizedTagId = Number(tagId);
+    if (
+        !normalizedIds.length ||
+        !Number.isSafeInteger(normalizedTagId) ||
+        normalizedTagId <= 0
+    ) {
+        return [];
+    }
+
+    const normalizedClient = normalizeAchievementClient(client);
+    const per = ACHIEVEMENT_WORKBENCH_HIDDEN_BATCH_SIZE;
+    const requestedIdSet = new Set(normalizedIds);
+    const seenIds = new Set();
+    const result = [];
+    let page = 1;
+    let pages = 1;
+
+    do {
+        const response = await getWikiAchievementDifficultyAchievements(
+            { achievement_ids: normalizedIds },
+            {
+                client: normalizedClient,
+                page,
+                per,
+                __hidden: 1,
+                tag_id: normalizedTagId,
+                with_tags: 0,
+            }
+        );
+        const data = getSuccessfulCmsPayload(response, "隐藏成就标签筛选");
+        if (!data || typeof data !== "object" || !Array.isArray(data.list)) {
+            throw new Error("隐藏成就标签筛选响应格式异常");
+        }
+        const total = data.total;
+        const responsePage = data.page;
+        const responsePer = data.per;
+        const responsePages = data.pages;
+        const expectedLength = Math.min(per, Math.max(0, total - (page - 1) * per));
+        if (
+            !Number.isSafeInteger(total) || total < 0 ||
+            !Number.isSafeInteger(responsePage) || responsePage !== page ||
+            !Number.isSafeInteger(responsePer) || responsePer !== per ||
+            !Number.isSafeInteger(responsePages) || responsePages < 0 ||
+            responsePages !== Math.ceil(total / per) ||
+            data.list.length !== expectedLength
+        ) {
+            throw new Error("隐藏成就标签筛选分页格式异常");
+        }
+        const pageIds = data.list.map((record) => {
+            const rawId = record?.ID ?? record?.id;
+            const id = typeof rawId === "string" && rawId.trim()
+                ? Number(rawId)
+                : rawId;
+            if (
+                !Number.isSafeInteger(id) || id <= 0 ||
+                !requestedIdSet.has(id) || seenIds.has(id)
+            ) {
+                throw new Error("隐藏成就标签筛选记录格式异常");
+            }
+            seenIds.add(id);
+            return String(id);
+        });
+        result.push(...pageIds);
+        pages = responsePages;
+        page += 1;
+    } while (page <= pages);
+
+    return [...new Set(result)];
+}
+
+function normalizeHiddenAchievementRecord(record, metadata, client) {
+    const id = String(record?.ID ?? record?.id ?? "");
+    const [normalized] = normalizeAchievementWorkbenchRecords(
+        [{ ...record, ShortDesc: record?.ShortDesc ?? record?.Desc }],
+        { metadata }
+    );
+    if (!normalized || !id) return null;
+    const indexed = hiddenIndexCache.get(client)?.get(id);
+
+    const [enriched] = applyAchievementWorkbenchEnrichment([normalized], {
+        difficultyById: record?.difficulty
+            ? { [id]: normalizeAchievementWorkbenchDifficulty(record.difficulty) }
+            : {},
+        tagsById: { [id]: normalizeAchievementWorkbenchTags(record?.tags) },
+    });
+    return {
+        ...enriched,
+        shortDescription: enriched.shortDescription || indexed?.shortDescription || null,
+        relatedIds: indexed?.relatedIds || null,
+        category: {
+            id: enriched.category.id || indexed?.category?.id || null,
+            name: enriched.category.name || indexed?.category?.name || null,
+            subId: enriched.category.subId || indexed?.category?.subId || null,
+            subName: enriched.category.subName || indexed?.category?.subName || null,
+        },
+        map: {
+            id: enriched.map.id || indexed?.map?.id || null,
+            sceneId: enriched.map.sceneId || indexed?.map?.sceneId || null,
+            worldMapId: enriched.map.worldMapId || indexed?.map?.worldMapId || null,
+            name: enriched.map.name || indexed?.map?.name || null,
+        },
+    };
+}
+
+async function fetchHiddenAchievementBatch(ids, metadata, client) {
+    const request = getWikiAchievementDifficultyAchievements(
+        { achievement_ids: ids.map(Number) },
+        {
+            client,
+            page: 1,
+            per: ids.length,
+            __hidden: 1,
+            with_tags: 1,
+        }
+    ).then((response) => {
+        const data = getSuccessfulCmsPayload(response, "隐藏成就详情");
+        if (!data || typeof data !== "object" || !Array.isArray(data.list)) {
+            throw new Error("隐藏成就详情响应格式异常");
+        }
+        const recordsById = new Map(
+            data.list.map((record) => [String(record?.ID ?? record?.id ?? ""), record])
+        );
+        const records = ids.map((id) => {
+            const record = recordsById.get(id);
+            if (!record) throw new Error("隐藏成就详情不完整");
+            const normalized = normalizeHiddenAchievementRecord(record, metadata, client);
+            if (!normalized) throw new Error("隐藏成就详情不完整");
+            return normalized;
+        });
+        ids.forEach((id, index) => hiddenRecordCache.set(`${client}:${id}`, records[index]));
+    });
+
+    const pendingRecords = ids.map((id) => {
+        const key = `${client}:${id}`;
+        let pending;
+        pending = request
+            .then(() => hiddenRecordCache.get(key))
+            .finally(() => {
+                if (hiddenRecordRequests.get(key) === pending) hiddenRecordRequests.delete(key);
+            });
+        hiddenRecordRequests.set(key, pending);
+        return pending;
+    });
+    return Promise.all(pendingRecords);
+}
+
+// 仅取调用方传入的当前页 ID。详情按客户端缓存，角色进度在返回时动态附加。
+export async function fetchAchievementWorkbenchHiddenRecords({ ids = [], metadata = {}, completedIds = [], client = "std" } = {}) {
+    const normalizedClient = normalizeAchievementClient(client);
+    const pageIds = normalizeCompletedAchievementIds(ids).filter((id) => {
+        const item = metadata[id];
+        return item?.visible === false && Number(item.general) === 1 && Number(item.point) > 0;
+    });
+    const missingIds = pageIds.filter((id) => {
+        const key = `${normalizedClient}:${id}`;
+        return !hiddenRecordCache.has(key) && !hiddenRecordRequests.has(key);
+    });
+    const requests = pageIds
+        .map((id) => hiddenRecordRequests.get(`${normalizedClient}:${id}`))
+        .filter(Boolean);
+
+    for (let offset = 0; offset < missingIds.length; offset += ACHIEVEMENT_WORKBENCH_HIDDEN_BATCH_SIZE) {
+        requests.push(fetchHiddenAchievementBatch(
+            missingIds.slice(offset, offset + ACHIEVEMENT_WORKBENCH_HIDDEN_BATCH_SIZE),
+            metadata,
+            normalizedClient
+        ));
+    }
+    await Promise.all(requests);
+
+    const completed = new Set(normalizeCompletedAchievementIds(completedIds));
+    return pageIds.map((id) => ({
+        ...hiddenRecordCache.get(`${normalizedClient}:${id}`),
+        completed: completed.has(id),
+    }));
+}
+
 export async function fetchAchievementWorkbenchRecordsBatched(options = {}, batchSize = 240) {
     const ids = normalizeCompletedAchievementIds(options.ids);
     if (!ids.length) return [];
@@ -280,6 +482,7 @@ export async function fetchAchievementWorkbenchRecordsBatched(options = {}, batc
 }
 
 export async function searchAchievementWorkbenchRecords({
+    tier = "normal",
     keyword = "",
     mapId = "",
     client = "std",
@@ -289,6 +492,7 @@ export async function searchAchievementWorkbenchRecords({
     const response = await searchAchievements({
         keyword: String(keyword || "").trim(),
         scene: mapId || "",
+        general: tier === "wujia" ? 2 : 1,
         client,
         _no_page: 1,
         limit: 99999,

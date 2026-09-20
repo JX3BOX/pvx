@@ -1,18 +1,19 @@
 <script>
-import { ArrowLeft, ArrowRight, Plus } from "@element-plus/icons-vue";
+import { ArrowLeft, ArrowRight, Plus, UserFilled } from "@element-plus/icons-vue";
 import { showAvatar } from "@jx3box/jx3box-common/js/utils";
 import { getConsultationAccess, getConsultations } from "@/service/achievementConsultation";
 import User from "@jx3box/jx3box-common/js/user";
 import { __Links } from "@/utils/config";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
+import PvxActionButton from "@/components/design/PvxActionButton.vue";
 import { fetchAchievementWorkbenchRoles } from "@/service/achievementWorkbench";
 import PlanConsultations from "./PlanConsultations.vue";
 import ConsultationDetail from "./ConsultationDetail.vue";
 
 export default {
     name: "AchievementConsultationWorkspace",
-    components: { Plus, PlanConsultations, PvxEmptyState, PvxSurface, ConsultationDetail, ArrowLeft, ArrowRight },
+    components: { Plus, PlanConsultations, PvxEmptyState, PvxSurface, PvxActionButton, ConsultationDetail, ArrowLeft, ArrowRight, UserFilled },
     data: () => ({ isLogin: User.isLogin(), isExpert: false, checking: true, loading: false, error: "", accessError: "", scope: "player", status: "", page: 1,
         roles: [], creating: false, createRequestId: 0, rows: [], total: 0, requestId: 0, accessRequestId: 0 }),
     computed: {
@@ -99,9 +100,17 @@ export default {
         <el-alert v-if="accessError" :title="$t('achievementConsultation.accessFailed')" type="warning" :closable="false">
             <el-button text @click="initialize">{{ $t('achievementRecommendation.retry') }}</el-button>
         </el-alert>
-        <el-empty v-if="!isLogin" :description="$t('achievementConsultation.loginRequired')">
-            <a :href="loginUrl">{{ $t('pages.wiki.leap.ui.goLogin') }}</a>
-        </el-empty>
+        <PvxSurface v-if="!isLogin" class="m-consultation-page-state" padding="none">
+            <PvxEmptyState
+                :title="$t('achievementConsultation.loginRequired')"
+                :description="$t('achievementConsultation.directHint')"
+            >
+                <template #icon><UserFilled /></template>
+                <template #action>
+                    <PvxActionButton :href="loginUrl">{{ $t('pages.wiki.leap.ui.goLogin') }}</PvxActionButton>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
         <template v-if="isLogin">
             <template v-if="detailId">
                 <ConsultationDetail :key="detailId" :id="detailId">
@@ -163,6 +172,25 @@ export default {
 .m-consultation-surface {
     min-width: 0; min-height: 400px; border: 1px solid rgba(110, 87, 44, 0.1);
     background: rgba(255, 254, 250, 0.94); box-shadow: none; border-radius: 16px;
+}
+.m-consultation-page-state {
+    display: grid;
+    align-items: center;
+    margin-top: 24px;
+    min-height: 520px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+
+    :deep(.c-pvx-empty-state) {
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+}
+@media (max-width: @phone) {
+    .m-consultation-page-state { min-height: 320px; }
 }
 .m-consultation-toolbar {
     display: flex; align-items: center; flex-wrap: wrap; gap: 16px 24px;

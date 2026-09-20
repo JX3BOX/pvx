@@ -1040,7 +1040,20 @@ export default {
 }
 
 .m-leap-page-state {
-    min-height: 440px;
+    display: grid;
+    align-items: center;
+    margin-top: 24px;
+    min-height: 520px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+
+    :deep(.c-pvx-empty-state) {
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
 }
 
 .m-leap-page-state.is-loading {
@@ -1128,7 +1141,7 @@ export default {
     }
 
     .m-leap-page-state {
-        min-height: 300px;
+        min-height: 320px;
     }
 
     .m-leap-generated-actions {

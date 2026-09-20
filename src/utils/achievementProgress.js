@@ -58,6 +58,29 @@ function summarizeIds(ids, metadata, completedIds, schoolEligibility = null, adj
     };
 }
 
+// 菜单顶层数组项代表一个系列；系列内的各阶段仍独立累计资历。
+export function buildAchievementSeriesCounts(menus, metadata, completedIds) {
+    const completed = normalizeCompletedIds(completedIds);
+    const groups = new Map();
+    const visit = (menu) => {
+        (menu?.achievements || []).forEach((entry) => {
+            const ids = [...new Set((Array.isArray(entry) ? entry.flat(Infinity) : [entry])
+                .map(String))].filter((id) => isEligibleMetadata(metadata?.[id]));
+            if (ids.length) groups.set([...ids].sort().join(","), ids);
+        });
+        normalizeMenuEntries(menu?.children).forEach(([, child]) => visit(child));
+    };
+    normalizeMenuEntries(menus).forEach(([, menu]) => visit(menu));
+    const totalCount = groups.size;
+    const completedCount = [...groups.values()].filter((ids) => ids.every((id) => completed.has(id))).length;
+    return {
+        totalCount,
+        completedCount,
+        remainingCount: totalCount - completedCount,
+        countProgress: totalCount ? Number((completedCount / totalCount * 100).toFixed(2)) : null,
+    };
+}
+
 function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadata, completedIds, schoolEligibility = null }) {
     const subId = String(menu?.sub ?? parentId ?? fallbackId);
     const detailId = menu?.detail === null || menu?.detail === undefined ? String(fallbackId) : String(menu.detail);
@@ -83,6 +106,7 @@ function buildCategoryProgressEntry({ menu, fallbackId, parentId = null, metadat
         name: menu?.name || fallbackId,
         children,
         ...summarizeIds([...collectMenuAchievementIds([menu])], metadata, completedIds, schoolEligibility, parentId === null),
+        ...buildAchievementSeriesCounts([menu], metadata, completedIds),
     };
 }
 
@@ -121,14 +145,66 @@ export function buildAchievementTierProgress(metadata, completedIds) {
     }));
 }
 
-export function buildAchievementCategoryProgress({ menus, metadata, completedIds, schoolEligibility = null }) {
-    const regularMenus = selectMenuRootsByGeneral(menus, metadata, 1);
+export function buildAchievementCategoryProgress({ menus, metadata, completedIds, schoolEligibility = null, allMenus = false }) {
+    const regularMenus = allMenus ? menus : selectMenuRootsByGeneral(menus, metadata, 1);
 
     return normalizeMenuEntries(regularMenus)
         .map(([fallbackId, menu]) =>
             buildCategoryProgressEntry({ menu, fallbackId, metadata, completedIds, schoolEligibility })
         )
         .filter((category) => category.totalCount > 0);
+}
+
+// 按菜单的默认顺序建立目录；不为缺失的一级/二级目录制造分类。
+export function buildAchievementHiddenCategoryProgress({ menus, records = [], metadata, completedIds }) {
+    const roots = normalizeMenuEntries(menus).map(([, menu]) => menu);
+    const groups = new Map();
+    records.forEach((record) => {
+        const item = metadata?.[record.id];
+        if (item?.visible !== false || Number(item.general) !== 1 || !(Number(item.point) > 0)) return;
+        const sub = String(record.category?.id || "");
+        const order = roots.findIndex((root) => String(root.sub) === sub);
+        const menu = roots[order];
+        if (!menu?.name) return;
+        const name = menu.name;
+        if (!groups.has(name)) groups.set(name, {
+            id: `hidden:${sub}`, parentId: null, name, order,
+            achievementIds: [], childGroups: new Map(),
+        });
+        const group = groups.get(name);
+        group.order = Math.min(group.order, order);
+        group.achievementIds.push(String(record.id));
+        const children = normalizeMenuEntries(menu.children).map(([, child]) => child);
+        const detail = String(record.category?.subId || "");
+        const childOrder = children.findIndex((child) => String(child.detail) === detail);
+        const childMenu = children[childOrder];
+        if (!childMenu?.name) return;
+        if (!group.childGroups.has(childMenu.name)) group.childGroups.set(childMenu.name, {
+            id: `${group.id}:${sub}:${detail}`, parentId: group.id, name: childMenu.name,
+            iconId: record.iconId || "",
+            order: order * 1000 + childOrder, achievementIds: [], children: [],
+        });
+        group.childGroups.get(childMenu.name).achievementIds.push(String(record.id));
+    });
+    return [...groups.values()].sort((left, right) => left.order - right.order)
+        .map(({ childGroups, order, ...group }) => ({
+            ...group,
+            ...summarizeIds(group.achievementIds, metadata, completedIds),
+            children: [...childGroups.values()].sort((left, right) => left.order - right.order)
+                .map(({ order, ...child }) => ({
+                    ...child, ...summarizeIds(child.achievementIds, metadata, completedIds),
+                })),
+        }));
+}
+
+export function searchHiddenAchievementRecords(records, { keyword = "", mapId = "" } = {}) {
+    const query = String(keyword).trim().toLocaleLowerCase();
+    return records.filter((record) => {
+        const text = `${record.name || ""} ${record.shortDescription || ""}`.toLocaleLowerCase();
+        const mapIds = [record.map?.id, record.map?.sceneId, record.map?.worldMapId]
+            .flatMap((value) => String(value || "").split(/[,;\s]+/));
+        return (!query || text.includes(query)) && (!mapId || mapIds.includes(String(mapId)));
+    });
 }
 
 function normalizeAchievementDimensionKey(metric) {
@@ -223,11 +299,16 @@ export function filterAchievementIds({
     completion = "all",
     sort = "default",
     difficultyById = {},
+    includedAchievementIds = null,
 }) {
     const completed = normalizeCompletedIds(completedIds);
+    const included = includedAchievementIds === null
+        ? null
+        : new Set([...includedAchievementIds].map(String));
     const sourceIds = categoryAchievementIds || Object.keys(metadata || {});
     const filteredIds = [...new Set(sourceIds.map(String))]
         .filter((id) => isEligibleMetadata(metadata?.[id]))
+        .filter((id) => !included || included.has(id))
         .filter((id) => tier === "all" || getAchievementTier(metadata[id]) === tier)
         .filter((id) => completion === "all" || (completion === "completed" ? completed.has(id) : !completed.has(id)));
     const metric = getAchievementSortDimensionKey(sort);
@@ -266,11 +347,16 @@ export function filterAchievementRecords({
     completion = "all",
     sort = "default",
     difficultyById = null,
+    includedAchievementIds = null,
 }) {
     const categoryIds = categoryAchievementIds ? new Set(categoryAchievementIds.map(String)) : null;
+    const included = includedAchievementIds === null
+        ? null
+        : new Set([...includedAchievementIds].map(String));
 
     const filteredRecords = (Array.isArray(records) ? records : [])
         .filter((record) => !metadata || isEligibleMetadata(metadata[String(record?.id)]))
+        .filter((record) => !included || included.has(String(record?.id)))
         .filter(
             (record) =>
                 categoryId === "all" ||
