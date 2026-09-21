@@ -88,6 +88,7 @@ const achievementServiceTestModule = {
     fetchAchievementWorkbenchCatalog: async () => ({ menus: [], metadata: {} }),
     fetchAchievementWorkbenchHiddenIndex: async () => [{ id: "8" }],
     fetchAchievementWorkbenchMaps: async () => [],
+    fetchAchievementWorkbenchDifficultyDimensions: async () => [],
 };
 const progressPage = loadVueOptionsComponent(
     path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressPage.vue"),
@@ -368,8 +369,29 @@ const tiers = Object.fromEntries(
 assert.strictEqual(tiers.normal.totalCount, 1);
 assert.strictEqual(tiers.normal.totalPoints, 20);
 assert.strictEqual(tiers.normal.completedCount, 1);
-assert.strictEqual(tiers.hidden.totalCount, 2);
-assert.strictEqual(tiers.hidden.completedPoints, 50);
+assert.strictEqual(tiers.hidden.totalCount, 0);
+assert.strictEqual(tiers.hidden.completedPoints, 0);
+assert.strictEqual(tiers.hidden.remainingCount, null, "未获取标签时不推测可完成数量");
+
+const hiddenSummaryMetadata = { ...hiddenMetadata, 9: { point: 30, general: 1, visible: false } };
+const hiddenSummary = progress.buildAchievementTierProgress(hiddenSummaryMetadata, ["1", "9", "4"], [1, "8", "8", "4", "999"])
+    .find((item) => item.key === "hidden");
+assert.strictEqual(hiddenSummary.totalCount, 3, "总数仅包含隐藏列表中的普通有资历成就");
+assert.strictEqual(hiddenSummary.totalPoints, 60);
+assert.strictEqual(hiddenSummary.completedCount, 2, "已完成统计包含列表内未带可完成标签的成就");
+assert.strictEqual(hiddenSummary.completedPoints, 40);
+assert.strictEqual(hiddenSummary.remainingCount, 1, "尚可完成仅统计带标签且未完成的成就，去重并排除范围外 ID");
+assert.strictEqual(hiddenSummary.remainingPoints, 20);
+assert.strictEqual(hiddenSummary.pointProgress, 66.67);
+const noCompletableHidden = progress.buildAchievementTierProgress(hiddenSummaryMetadata, [], [])
+    .find((item) => item.key === "hidden");
+assert.strictEqual(noCompletableHidden.totalCount, 3);
+assert.strictEqual(noCompletableHidden.remainingCount, 0);
+assert.strictEqual(noCompletableHidden.remainingPoints, 0);
+const unavailableHidden = progress.buildAchievementTierProgress(hiddenSummaryMetadata, [], null)
+    .find((item) => item.key === "hidden");
+assert.strictEqual(unavailableHidden.totalPoints, 60);
+assert.strictEqual(unavailableHidden.remainingPoints, null);
 assert.strictEqual(tiers.wujia.totalPoints, 40);
 assert.strictEqual(tiers.retired.completedCount, 1);
 
@@ -968,6 +990,21 @@ async function runPageBehaviorTests() {
     releaseCompletableIds();
     await initialization;
     assert.deepStrictEqual(initializationCalls, ["completable:start", "completable:ready", "records"]);
+
+    const overviewCalls = [];
+    const overviewContext = {
+        ...initializationContext,
+        hidden: false,
+        pageRequestId: 0,
+        async loadHiddenCompletableIds(records, requestId, client) {
+            overviewCalls.push({ ids: records.map((record) => record.id), requestId, client });
+        },
+        async loadVisibleRecords() {},
+    };
+    await progressPage.methods.initializePage.call(overviewContext);
+    assert.strictEqual(overviewCalls.length, 1, "完成进度首页也必须加载可完成标签");
+    assert.deepStrictEqual(overviewCalls[0].ids, Object.keys(progress.selectHiddenAchievementMetadata(overviewContext.metadata)));
+    assert.strictEqual(overviewCalls[0].client, "std");
 
     const staleCalls = [];
     let releaseStaleCompletableIds;

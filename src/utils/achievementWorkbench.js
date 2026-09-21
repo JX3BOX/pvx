@@ -372,6 +372,12 @@ export function normalizeAchievementWorkbenchTags(rawTags = []) {
     return { tags, tagGroups };
 }
 
+export function normalizeAchievementDescription(value) {
+    const text = normalizeString(value);
+    if (!text) return null;
+    return text.replace(/\\r\\n|\\n|\\r|\r\n?/g, "\n").trim() || null;
+}
+
 export function normalizeAchievementWorkbenchRecord(raw = {}, context = {}) {
     const metadata = context.metadata || {};
     const id = normalizeString(pickFirst(raw, ["id", "ID", "AchievementID"]));
@@ -395,8 +401,8 @@ export function normalizeAchievementWorkbenchRecord(raw = {}, context = {}) {
         id,
         name: normalizeString(pickFirst(raw, ["name", "Name", "AchievementName"])),
         iconId: normalizeString(pickFirst(raw, ["iconId", "IconID"])),
-        shortDescription: normalizeString(
-            pickFirst(raw, ["shortDescription", "ShortDesc", "description", "Description"])
+        shortDescription: normalizeAchievementDescription(
+            pickFirst(raw, ["shortDescription", "ShortDesc", "description", "Description", "Desc"])
         ),
         category: {
             id: normalizeString(pickFirst(raw, ["categoryId", "CategoryID", "Sub"])),

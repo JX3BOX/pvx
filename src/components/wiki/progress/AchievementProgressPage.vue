@@ -37,6 +37,7 @@ import {
     searchHiddenAchievementRecords,
     buildAchievementOverallProgress,
     buildAchievementTierProgress,
+    selectHiddenAchievementMetadata,
     filterAchievementIds,
     filterAchievementRecords,
     paginateAchievementItems,
@@ -134,7 +135,7 @@ export default {
         },
         listMetadata() {
             if (!this.hidden) return this.metadata;
-            return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) => item.visible === false && Number(item.general) === 1 && Number(item.point) > 0));
+            return selectHiddenAchievementMetadata(this.metadata);
         },
         currentClient() {
             if (this.snapshot) return "std";
@@ -158,7 +159,8 @@ export default {
             return this.isGuest ? withoutRoleProgress(progress) : progress;
         },
         tierProgress() {
-            const progress = buildAchievementTierProgress(this.metadata, this.completedIds);
+            const progress = buildAchievementTierProgress(this.metadata, this.completedIds,
+                this.completableFilterLoading || !this.completableFilterAvailable ? null : this.completableHiddenIds);
             return this.isGuest ? progress.map(withoutRoleProgress) : progress;
         },
         categoryMetadata() {
@@ -387,6 +389,12 @@ export default {
                 this.completedIds = this.snapshot.completedIds;
                 this.synced = this.snapshot.synced;
                 this.syncedAt = this.snapshot.syncedAt;
+                const requestId = this.pageRequestId;
+                const client = this.currentClient;
+                await this.loadHiddenCompletableIds(
+                    Object.keys(selectHiddenAchievementMetadata(this.metadata)).map((id) => ({ id })), requestId, client
+                );
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.pageLoading = false;
                 this.pageError = false;
                 await this.loadVisibleRecords();
@@ -421,6 +429,11 @@ export default {
                     if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                     this.hiddenIndex = records;
                     await this.loadHiddenCompletableIds(records, requestId, client);
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
+                } else {
+                    await this.loadHiddenCompletableIds(
+                        Object.keys(selectHiddenAchievementMetadata(this.metadata)).map((id) => ({ id })), requestId, client
+                    );
                     if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 }
 

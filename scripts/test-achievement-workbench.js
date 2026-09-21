@@ -32,6 +32,22 @@ const {
     resolveAchievementWorkbenchDimensions,
 } = workbench;
 
+for (const field of ["shortDescription", "ShortDesc", "description", "Description", "Desc"]) {
+    const record = normalizeAchievementWorkbenchRecord({
+        ID: 1,
+        [field]: "长歌英雄志，莫问怎相知\\n触发场景：太原\\r\\n下一行\r\n已有换行\\r末行",
+    });
+    assert.strictEqual(record.shortDescription, "长歌英雄志，莫问怎相知\n触发场景：太原\n下一行\n已有换行\n末行");
+    assert.strictEqual(normalizeAchievementWorkbenchRecord(record).shortDescription, record.shortDescription);
+}
+for (const value of [null, undefined, "", " ", "\\n"]) {
+    assert.strictEqual(normalizeAchievementWorkbenchRecord({ ShortDesc: value }).shortDescription, null);
+}
+assert.strictEqual(
+    normalizeAchievementWorkbenchRecord({ ShortDesc: "普通描述 <b>仍为纯文本</b>" }).shortDescription,
+    "普通描述 <b>仍为纯文本</b>"
+);
+
 const difficultyDimensions = normalizeAchievementWorkbenchDifficultyDimensions([
     {
         dimension_id: 5,
