@@ -300,6 +300,9 @@ export default {
         font-weight: inherit;
     }
 }
+.u-progress-completable.el-checkbox.is-bordered {
+    border-radius: 999px;
+}
 .m-progress-search {
     > .el-input {
         min-width: 0;
