@@ -273,12 +273,32 @@ export default {
     flex: none;
 }
 .u-progress-completable {
-    min-height: 40px;
+    box-sizing: border-box;
+    width: 188px;
+    height: 30px;
+    min-height: 30px;
     padding: 0 16px;
-    border-radius: 6px;
+    border-color: var(--el-border-color, #dcdfe6);
+    border-radius: 999px;
     margin-right: 0;
-    color: #6e572c;
+    background: #f0f5f4;
+    color: #365c62;
     font-size: 14px;
+    font-weight: 600;
+    &:hover {
+        border-color: var(--el-border-color-hover, #c0c4cc);
+    }
+    &.is-bordered.is-checked {
+        border-color: var(--el-border-color, #dcdfe6);
+    }
+    &:focus-within {
+        border-color: #5a7e84;
+    }
+    :deep(.el-checkbox__label) {
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+    }
 }
 .m-progress-search {
     > .el-input {
@@ -345,9 +365,14 @@ export default {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .u-progress-filter,
+    .u-progress-completable,
     .m-progress-filters.is-embedded .u-progress-filter {
         width: 100%;
         min-width: 0;
+    }
+    .u-progress-completable {
+        height: 44px;
+        min-height: 44px;
     }
     .m-progress-filters.is-embedded .u-progress-filter.is-sort {
         position: static;

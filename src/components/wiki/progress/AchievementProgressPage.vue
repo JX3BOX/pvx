@@ -1021,7 +1021,7 @@ export default {
                             :map-options="mapOptions"
                             :tier="filters.tier"
                             :completion="filters.completion"
-                            :show-completion="!hidden"
+                            :show-completion="true"
                             :show-completable-only="hidden"
                             :completable-only="filters.completableOnly"
                             :completable-disabled="completableFilterLoading || !completableFilterAvailable"
