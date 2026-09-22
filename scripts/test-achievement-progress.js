@@ -461,6 +461,41 @@ const schoolCompletedIds = [1];
 const tianCeEligibility = schoolEligibilityModule.buildAchievementSchoolEligibilityContext({
     menus: schoolMenus, roleSchool: "1",
 });
+const allCategoryEligibility = schoolEligibilityModule.buildAchievementSchoolEligibilityContext({
+    menus: schoolMenus,
+    roleSchool: "1",
+    tagsById: {
+        6: { tags: [{ ruleType: "mount", ruleValue: { operator: "include", values: [2] } }] },
+        7: { tags: [{ ruleType: "mount", ruleValue: { operator: "exclude", values: [1] } }] },
+        8: { tags: [{ type: "school", value: "万花" }] },
+    },
+});
+assert.strictEqual(
+    schoolEligibilityModule.isAchievementEligibleForSchool({ id: 6, context: allCategoryEligibility }),
+    false,
+    "任意分类中的 mount include 规则都应排除非本门派成就"
+);
+assert.strictEqual(
+    schoolEligibilityModule.isAchievementEligibleForSchool({ id: 7, context: allCategoryEligibility }),
+    false,
+    "任意分类中的 mount exclude 规则都应排除当前门派成就"
+);
+assert.strictEqual(
+    schoolEligibilityModule.isAchievementEligibleForSchool({ id: 8, context: allCategoryEligibility }),
+    true,
+    "普通门派展示标签不能被当作资格规则"
+);
+const taggedCategoryProgress = progress.buildAchievementCategoryProgress({
+    menus: { martial: { sub: "martial", name: "武学", children: [
+        { detail: "other", name: "其它", achievements: [6] },
+    ] } },
+    metadata: { 6: { point: 35, general: 1, visible: true } },
+    completedIds: [],
+    schoolEligibility: allCategoryEligibility,
+    allMenus: true,
+});
+assert.strictEqual(taggedCategoryProgress[0].remainingAvailablePoints, 0, "一级分类余可做应扣除非本门派标签规则");
+assert.strictEqual(taggedCategoryProgress[0].children[0].remainingAvailablePoints, 0, "二级分类余可做应扣除非本门派标签规则");
 const adjustedOverall = progress.buildAchievementOverallProgress(schoolMetadata, schoolCompletedIds, tianCeEligibility);
 assert.strictEqual(adjustedOverall.pointProgress, 53.33, "其他门派限定计入百分比分子，不从分母删除");
 assert.strictEqual(adjustedOverall.completedPoints, 10, "资历点仍是实际获得的点数");
@@ -967,11 +1002,13 @@ async function runPageBehaviorTests() {
         maps: [],
         menus: [],
         metadata: {},
+        schoolEligibilityAchievementIds: [],
         dimensions: [],
         completedIds: [],
         synced: false,
         syncedAt: null,
         resetEnrichment() {},
+        async loadTags() {},
         async loadHiddenCompletableIds() {
             initializationCalls.push("completable:start");
             await completableIdsReady;
@@ -992,16 +1029,23 @@ async function runPageBehaviorTests() {
     assert.deepStrictEqual(initializationCalls, ["completable:start", "completable:ready", "records"]);
 
     const overviewCalls = [];
+    const overviewTagCalls = [];
     const overviewContext = {
         ...initializationContext,
         hidden: false,
         pageRequestId: 0,
+        schoolEligibilityAchievementIds: ["1", "2"],
+        async loadTags(ids, options) {
+            overviewTagCalls.push({ ids, options });
+        },
         async loadHiddenCompletableIds(records, requestId, client) {
             overviewCalls.push({ ids: records.map((record) => record.id), requestId, client });
         },
         async loadVisibleRecords() {},
     };
     await progressPage.methods.initializePage.call(overviewContext);
+    assert.deepStrictEqual(overviewTagCalls, [{ ids: ["1", "2"], options: { client: "std", epoch: undefined } }],
+        "完成进度首页必须预加载全分类门派规则标签");
     assert.strictEqual(overviewCalls.length, 1, "完成进度首页也必须加载可完成标签");
     assert.deepStrictEqual(overviewCalls[0].ids, Object.keys(progress.selectHiddenAchievementMetadata(overviewContext.metadata)));
     assert.strictEqual(overviewCalls[0].client, "std");

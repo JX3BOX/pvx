@@ -152,6 +152,7 @@ export default {
             return buildAchievementSchoolEligibilityContext({
                 menus: this.menus,
                 roleSchool: this.currentRole?.school,
+                tagsById: this.tagsById,
             });
         },
         overallProgress() {
@@ -169,6 +170,11 @@ export default {
             return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) =>
                 Number(item.general) === general && item.visible === true
             ));
+        },
+        schoolEligibilityAchievementIds() {
+            return Object.entries(this.metadata)
+                .filter(([, item]) => [1, 2].includes(Number(item.general)) && item.visible === true)
+                .map(([id]) => id);
         },
         categoryProgress() {
             if (this.hidden) return buildAchievementHiddenCategoryProgress({
@@ -391,6 +397,12 @@ export default {
                 this.syncedAt = this.snapshot.syncedAt;
                 const requestId = this.pageRequestId;
                 const client = this.currentClient;
+                if (!this.hidden) {
+                    await this.loadTags(this.schoolEligibilityAchievementIds, {
+                        client,
+                        epoch: this.enrichmentEpoch,
+                    });
+                }
                 await this.loadHiddenCompletableIds(
                     Object.keys(selectHiddenAchievementMetadata(this.metadata)).map((id) => ({ id })), requestId, client
                 );
@@ -423,6 +435,14 @@ export default {
                 this.roles = roles;
                 this.maps = maps;
                 this.dimensions = resolveAchievementWorkbenchDimensions(rawDimensions);
+
+                if (!this.hidden) {
+                    await this.loadTags(this.schoolEligibilityAchievementIds, {
+                        client,
+                        epoch: this.enrichmentEpoch,
+                    });
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
+                }
 
                 if (this.hidden) {
                     const records = await fetchAchievementWorkbenchHiddenIndex(client);
