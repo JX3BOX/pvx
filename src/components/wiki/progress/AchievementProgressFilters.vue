@@ -41,6 +41,10 @@ export default {
             type: String,
             default: "all",
         },
+        showCompletion: {
+            type: Boolean,
+            default: true,
+        },
         showCompletableOnly: {
             type: Boolean,
             default: false,
@@ -56,6 +60,10 @@ export default {
         mapId: {
             type: String,
             default: "",
+        },
+        showMap: {
+            type: Boolean,
+            default: true,
         },
         sort: {
             type: String,
@@ -150,6 +158,7 @@ export default {
             </el-select>
 
             <el-select popper-class="m-achievement-theme-popper"
+                v-if="showCompletion"
                 :model-value="completion"
                 class="u-progress-filter"
                 :aria-label="$t('pages.wiki.overview.ui.status')"
@@ -161,6 +170,7 @@ export default {
             </el-select>
 
             <el-select popper-class="m-achievement-theme-popper"
+                v-if="showMap"
                 :model-value="mapSelectValue"
                 class="u-progress-filter is-map"
                 filterable
@@ -174,6 +184,8 @@ export default {
             <el-checkbox
                 v-if="showCompletableOnly"
                 class="u-progress-completable"
+                border
+                size="large"
                 :model-value="completableOnly"
                 :disabled="completableDisabled"
                 @change="changeCompletableOnly"
@@ -261,8 +273,35 @@ export default {
     flex: none;
 }
 .u-progress-completable {
+    box-sizing: border-box;
+    width: 188px;
+    height: 30px;
+    min-height: 30px;
+    padding: 0 16px;
+    border-color: var(--el-border-color, #dcdfe6);
+    border-radius: 999px;
     margin-right: 0;
-    color: #6e572c;
+    background: #f0f5f4;
+    color: #365c62;
+    font-size: 14px;
+    font-weight: 600;
+    &:hover {
+        border-color: var(--el-border-color-hover, #c0c4cc);
+    }
+    &.is-bordered.is-checked {
+        border-color: var(--el-border-color, #dcdfe6);
+    }
+    &:focus-within {
+        border-color: #5a7e84;
+    }
+    :deep(.el-checkbox__label) {
+        color: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+    }
+}
+.u-progress-completable.el-checkbox.is-bordered {
+    border-radius: 999px;
 }
 .m-progress-search {
     > .el-input {
@@ -329,9 +368,14 @@ export default {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .u-progress-filter,
+    .u-progress-completable,
     .m-progress-filters.is-embedded .u-progress-filter {
         width: 100%;
         min-width: 0;
+    }
+    .u-progress-completable {
+        height: 44px;
+        min-height: 44px;
     }
     .m-progress-filters.is-embedded .u-progress-filter.is-sort {
         position: static;

@@ -1,18 +1,26 @@
 <script>
 import { ArrowDown } from "@element-plus/icons-vue";
+import { getBreadcrumb } from "@jx3box/jx3box-common/js/system";
 import noticeIcon from "@/assets/img/pvg/notice.svg";
 
 export default {
     name: "AchievementHiddenNotice",
     components: { ArrowDown },
     data() {
-        return { noticeIcon };
+        return { noticeIcon, html: "" };
+    },
+    async mounted() {
+        try {
+            this.html = await getBreadcrumb("achievements_hidden_ac");
+        } catch (error) {
+            this.html = "";
+        }
     },
 };
 </script>
 
 <template>
-    <details class="m-hidden-notice" open>
+    <details v-if="html" class="m-hidden-notice" open>
         <summary>
             <img :src="noticeIcon" alt="" aria-hidden="true" />
             <strong>{{ $t('achievementAppearance.hiddenNoticeTitle') }}</strong>
@@ -22,11 +30,7 @@ export default {
                 <ArrowDown aria-hidden="true" />
             </span>
         </summary>
-        <ol>
-            <li>{{ $t('achievementAppearance.hiddenNoticeScope') }}</li>
-            <li>{{ $t('achievementAppearance.hiddenNoticeFeedback', { group: '614370825' }) }}</li>
-            <li>{{ $t('achievementAppearance.hiddenNoticeDisclaimer') }}</li>
-        </ol>
+        <div class="m-hidden-notice-content" v-html="html"></div>
     </details>
 </template>
 
@@ -51,12 +55,11 @@ export default {
         > img { width: 17px; height: 16px; flex: none; }
         strong { font-weight: 500; }
     }
-    ol {
-        margin: 0;
-        padding: 0 20px 16px 49px;
-        list-style: decimal;
-        line-height: 1.8;
-        li + li { margin-top: 4px; }
+    .m-hidden-notice-content {
+        padding: 0 20px 16px;
+        overflow-wrap: anywhere;
+        :deep(ol) { list-style: decimal; }
+        :deep(ul) { list-style: disc; }
     }
     .is-collapse { display: none; }
     &[open] {

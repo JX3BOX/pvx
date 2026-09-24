@@ -124,7 +124,13 @@ export function buildAchievementOverallProgress(metadata, completedIds, schoolEl
     return summarizeIds(Object.keys(metadata || {}), metadata, completedIds, schoolEligibility);
 }
 
-export function buildAchievementTierProgress(metadata, completedIds) {
+export function selectHiddenAchievementMetadata(metadata = {}) {
+    return Object.fromEntries(Object.entries(metadata).filter(([, item]) =>
+        item.visible === false && Number(item.general) === 1 && Number(item.point) > 0
+    ));
+}
+
+export function buildAchievementTierProgress(metadata, completedIds, completableHiddenIds = null) {
     const idsByTier = {
         normal: [],
         wujia: [],
@@ -139,9 +145,20 @@ export function buildAchievementTierProgress(metadata, completedIds) {
         idsByTier[tier].push(id);
     });
 
+    idsByTier.hidden = Object.keys(selectHiddenAchievementMetadata(metadata));
+    const completable = completableHiddenIds === null ? null : new Set(completableHiddenIds.map(String));
+    const remainingHidden = completable === null ? null : summarizeIds(
+        idsByTier.hidden.filter((id) => completable.has(id)), metadata, completedIds
+    );
+
     return Object.entries(idsByTier).map(([key, ids]) => ({
         key,
         ...summarizeIds(ids, metadata, completedIds),
+        ...(key === "hidden" ? {
+            remainingCount: remainingHidden?.remainingCount ?? null,
+            remainingPoints: remainingHidden?.remainingPoints ?? null,
+            remainingAvailablePoints: remainingHidden?.remainingPoints ?? null,
+        } : {}),
     }));
 }
 

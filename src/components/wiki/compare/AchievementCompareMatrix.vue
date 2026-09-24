@@ -505,6 +505,7 @@ export default {
     }
 }
 .m-compare-achievement__description {
+    white-space: pre-line;
     grid-column: 2;
     color: #967944;
     font-size: 13px;

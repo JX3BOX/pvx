@@ -37,6 +37,7 @@ import {
     searchHiddenAchievementRecords,
     buildAchievementOverallProgress,
     buildAchievementTierProgress,
+    selectHiddenAchievementMetadata,
     filterAchievementIds,
     filterAchievementRecords,
     paginateAchievementItems,
@@ -56,11 +57,11 @@ const withoutRoleProgress = (item) => ({
     ...(item.children ? { children: item.children.map(withoutRoleProgress) } : {}),
 });
 
-const createDefaultFilters = () => ({
+const createDefaultFilters = (hidden = false) => ({
     categoryId: "all",
     tier: "normal",
     completion: "all",
-    completableOnly: false,
+    completableOnly: hidden,
     mapId: "",
     sort: "default",
     keyword: "",
@@ -115,7 +116,7 @@ export default {
             pageSize: 20,
             categorySort: "progress-asc",
             summaryCollapsed: false,
-            filters: { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" },
+            filters: { ...createDefaultFilters(this.hidden), tier: this.hidden ? "hidden" : "normal" },
             dimensions: resolveAchievementWorkbenchDimensions([]),
             difficultyById: {},
             tagsById: {},
@@ -134,7 +135,7 @@ export default {
         },
         listMetadata() {
             if (!this.hidden) return this.metadata;
-            return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) => item.visible === false && Number(item.general) === 1 && Number(item.point) > 0));
+            return selectHiddenAchievementMetadata(this.metadata);
         },
         currentClient() {
             if (this.snapshot) return "std";
@@ -151,6 +152,7 @@ export default {
             return buildAchievementSchoolEligibilityContext({
                 menus: this.menus,
                 roleSchool: this.currentRole?.school,
+                tagsById: this.tagsById,
             });
         },
         overallProgress() {
@@ -158,7 +160,8 @@ export default {
             return this.isGuest ? withoutRoleProgress(progress) : progress;
         },
         tierProgress() {
-            const progress = buildAchievementTierProgress(this.metadata, this.completedIds);
+            const progress = buildAchievementTierProgress(this.metadata, this.completedIds,
+                this.completableFilterLoading || !this.completableFilterAvailable ? null : this.completableHiddenIds);
             return this.isGuest ? progress.map(withoutRoleProgress) : progress;
         },
         categoryMetadata() {
@@ -167,6 +170,11 @@ export default {
             return Object.fromEntries(Object.entries(this.metadata).filter(([, item]) =>
                 Number(item.general) === general && item.visible === true
             ));
+        },
+        schoolEligibilityAchievementIds() {
+            return Object.entries(this.metadata)
+                .filter(([, item]) => [1, 2].includes(Number(item.general)) && item.visible === true)
+                .map(([id]) => id);
         },
         categoryProgress() {
             if (this.hidden) return buildAchievementHiddenCategoryProgress({
@@ -367,7 +375,7 @@ export default {
             this.completableFilterAvailable = true;
             this.searchRecords = null;
             this.page = 1;
-            this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
+            this.filters = { ...createDefaultFilters(this.hidden), tier: this.hidden ? "hidden" : "normal" };
         },
         selectTier(tier) {
             if (tier === this.filters.tier) return undefined;
@@ -387,6 +395,18 @@ export default {
                 this.completedIds = this.snapshot.completedIds;
                 this.synced = this.snapshot.synced;
                 this.syncedAt = this.snapshot.syncedAt;
+                const requestId = this.pageRequestId;
+                const client = this.currentClient;
+                if (!this.hidden) {
+                    await this.loadTags(this.schoolEligibilityAchievementIds, {
+                        client,
+                        epoch: this.enrichmentEpoch,
+                    });
+                }
+                await this.loadHiddenCompletableIds(
+                    Object.keys(selectHiddenAchievementMetadata(this.metadata)).map((id) => ({ id })), requestId, client
+                );
+                if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 this.pageLoading = false;
                 this.pageError = false;
                 await this.loadVisibleRecords();
@@ -416,11 +436,25 @@ export default {
                 this.maps = maps;
                 this.dimensions = resolveAchievementWorkbenchDimensions(rawDimensions);
 
+                if (!this.hidden) {
+                    await this.loadTags(this.schoolEligibilityAchievementIds, {
+                        client,
+                        epoch: this.enrichmentEpoch,
+                    });
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
+                }
+
                 if (this.hidden) {
                     const records = await fetchAchievementWorkbenchHiddenIndex(client);
                     if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                     this.hiddenIndex = records;
-                    this.loadHiddenCompletableIds(records, requestId, client);
+                    await this.loadHiddenCompletableIds(records, requestId, client);
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
+                } else {
+                    await this.loadHiddenCompletableIds(
+                        Object.keys(selectHiddenAchievementMetadata(this.metadata)).map((id) => ({ id })), requestId, client
+                    );
+                    if (requestId !== this.pageRequestId || client !== this.currentClient) return;
                 }
 
                 const lastRoleId = String(localStorage.getItem("wiki_last_sync") || "");
@@ -848,7 +882,11 @@ export default {
         },
         async resetListFilters() {
             this.cancelDimensionSortRequest();
-            this.filters = { ...createDefaultFilters(), tier: this.hidden ? "hidden" : "normal" };
+            this.filters = {
+                ...createDefaultFilters(this.hidden),
+                tier: this.hidden ? "hidden" : "normal",
+                completableOnly: this.hidden && this.completableFilterAvailable,
+            };
             this.searchRecords = null;
             this.page = 1;
             await this.loadVisibleRecords();
@@ -1003,10 +1041,12 @@ export default {
                             :map-options="mapOptions"
                             :tier="filters.tier"
                             :completion="filters.completion"
+                            :show-completion="true"
                             :show-completable-only="hidden"
                             :completable-only="filters.completableOnly"
                             :completable-disabled="completableFilterLoading || !completableFilterAvailable"
                             :map-id="filters.mapId"
+                            :show-map="!hidden"
                             :sort="filters.sort"
                             :keyword="filters.keyword"
                             :dimensions="dimensions"

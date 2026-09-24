@@ -2,8 +2,10 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const babel = require("@babel/core");
+const less = require("less");
+const postcss = require("postcss");
 const { baseParse, NodeTypes } = require("@vue/compiler-dom");
-const { parse: parseSfc } = require("@vue/compiler-sfc");
+const { compileStyleAsync, parse: parseSfc } = require("@vue/compiler-sfc");
 
 function loadModule(file, aliases = {}, injectedModules = {}) {
     const result = babel.transformFileSync(file, {
@@ -82,6 +84,12 @@ assert.strictEqual(stickyColumns.getShorterColumnIndex([300, 1200]), 0);
 assert.strictEqual(stickyColumns.getShorterColumnIndex([1500, 900]), 1);
 assert.strictEqual(stickyColumns.getShorterColumnIndex([900, 900]), -1);
 assert.strictEqual(stickyColumns.getShorterColumnIndex([0, 900]), -1);
+const achievementServiceTestModule = {
+    fetchAchievementWorkbenchCatalog: async () => ({ menus: [], metadata: {} }),
+    fetchAchievementWorkbenchHiddenIndex: async () => [{ id: "8" }],
+    fetchAchievementWorkbenchMaps: async () => [],
+    fetchAchievementWorkbenchDifficultyDimensions: async () => [],
+};
 const progressPage = loadVueOptionsComponent(
     path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressPage.vue"),
     {
@@ -108,7 +116,7 @@ const progressPage = loadVueOptionsComponent(
         "achievement-user-test-module": { isLogin: () => true },
         "achievement-icons-test-module": {},
         "achievement-component-test-module": {},
-        "achievement-service-test-module": {},
+        "achievement-service-test-module": achievementServiceTestModule,
         "achievement-workbench-test-module": workbenchModule,
         "achievement-progress-test-module": progress,
         "achievement-school-eligibility-test-module": schoolEligibilityModule,
@@ -120,11 +128,87 @@ const progressFilters = loadVueOptionsComponent(
     { "@element-plus/icons-vue": "achievement-icons-test-module" },
     { "achievement-icons-test-module": {} }
 );
+const progressList = loadVueOptionsComponent(
+    path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressList.vue"),
+    {
+        "@element-plus/icons-vue": "achievement-icons-test-module",
+        "@jx3box/jx3box-editor/src/Item": "achievement-component-test-module",
+        "@jx3box/jx3box-common/js/utils": "achievement-link-test-module",
+        "@/components/wiki/AchievementDifficultyStars.vue": "achievement-component-test-module",
+        "@/mixins/responsive-pagination": "achievement-mixin-test-module",
+        "@/service/achievementWorkbench": "achievement-service-test-module",
+        "@/utils/achievementWorkbench": "achievement-workbench-test-module",
+    },
+    {
+        "achievement-icons-test-module": {},
+        "achievement-component-test-module": {},
+        "achievement-link-test-module": {
+            getLink: (type, id) => `/${type}/${id}`,
+            iconLink: (id) => `/icon/${id}`,
+        },
+        "achievement-mixin-test-module": {},
+        "achievement-service-test-module": achievementServiceTestModule,
+        "achievement-workbench-test-module": workbenchModule,
+    }
+);
+assert.strictEqual(progressList.props.clickableCards?.default, false,
+    "通用成就列表默认不得启用整行跳转");
+assert.strictEqual(typeof progressList.methods.activateAchievementCard, "function",
+    "成就卡片必须提供受开关控制的整行跳转行为");
+const cardOpenCalls = [];
+const originalWindow = global.window;
+global.window = { open: (...args) => cardOpenCalls.push(args) };
+const clickableCardContext = { clickableCards: true, getLink: (type, id) => `/${type}/${id}` };
+progressList.methods.activateAchievementCard.call(clickableCardContext, { id: "7456" }, {
+    type: "click",
+    target: { closest: () => null },
+    currentTarget: {},
+});
+assert.deepStrictEqual(cardOpenCalls, [["/achievement/7456", "_blank", "noopener,noreferrer"]],
+    "点击隐藏成就整行应在新标签打开百科详情");
+progressList.methods.activateAchievementCard.call(clickableCardContext, { id: "7456" }, {
+    type: "click",
+    target: { closest: () => ({ tagName: "A" }) },
+    currentTarget: {},
+});
+assert.strictEqual(cardOpenCalls.length, 1, "点击卡片内原有链接不得重复打开详情");
+progressList.methods.activateAchievementCard.call({ ...clickableCardContext, clickableCards: false }, { id: "7456" }, {
+    type: "click",
+    target: { closest: () => null },
+    currentTarget: {},
+});
+assert.strictEqual(cardOpenCalls.length, 1, "普通成就列表不得启用整行跳转");
+global.window = originalWindow;
+const progressFiltersSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressFilters.vue"),
+    "utf8"
+);
+const progressFiltersAst = baseParse(parseSfc(progressFiltersSource).descriptor.template?.content);
+const findElements = (node, predicate, result = []) => {
+    if (node.type === NodeTypes.ELEMENT && predicate(node)) result.push(node);
+    for (const child of node.children || []) findElements(child, predicate, result);
+    return result;
+};
+const hasDirective = (node, name, expression) => node.props.some((prop) =>
+    prop.type === NodeTypes.DIRECTIVE && prop.name === name && prop.exp?.content === expression);
+const completionSelect = findElements(progressFiltersAst, (node) =>
+    node.tag === "el-select" && hasDirective(node, "bind", "completion"))[0];
+const mapSelect = findElements(progressFiltersAst, (node) =>
+    node.tag === "el-select" && hasDirective(node, "bind", "mapSelectValue"))[0];
+const completableCheckbox = findElements(progressFiltersAst, (node) =>
+    node.tag === "el-checkbox" && hasDirective(node, "if", "showCompletableOnly"))[0];
+assert.ok(hasDirective(completionSelect, "if", "showCompletion"), "完成状态筛选必须支持在隐藏页关闭");
+assert.ok(hasDirective(mapSelect, "if", "showMap"), "地图筛选必须支持在隐藏页关闭");
+assert.ok(completableCheckbox.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "border"),
+    "只看可完成必须使用有边框 checkbox");
+assert.ok(completableCheckbox.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "size" &&
+    prop.value?.content === "large"), "只看可完成必须使用大号 checkbox");
 const progressListSource = fs.readFileSync(
     path.resolve(__dirname, "../src/components/wiki/progress/AchievementProgressList.vue"),
     "utf8"
 );
-const progressListTemplate = parseSfc(progressListSource).descriptor.template?.content;
+const progressListSfc = parseSfc(progressListSource);
+const progressListTemplate = progressListSfc.descriptor.template?.content;
 const progressListAst = baseParse(progressListTemplate);
 const findElementByClass = (node, className, parents = []) => {
     if (node.type === NodeTypes.ELEMENT) {
@@ -137,6 +221,18 @@ const findElementByClass = (node, className, parents = []) => {
     }
     return null;
 };
+const progressCard = findElementByClass(progressListAst, "m-progress-achievement-card")?.node;
+assert.ok(hasDirective(progressCard, "on", "activateAchievementCard(record, $event)"),
+    "成就卡片模板必须接入整行点击行为");
+const hiddenListSource = fs.readFileSync(
+    path.resolve(__dirname, "../src/components/wiki/progress/AchievementHiddenList.vue"),
+    "utf8"
+);
+const hiddenListSfc = parseSfc(hiddenListSource);
+const hiddenListAst = baseParse(hiddenListSfc.descriptor.template?.content);
+const hiddenProgressList = findElements(hiddenListAst, (node) => node.tag === "AchievementProgressList")[0];
+assert.ok(hiddenProgressList.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "clickable-cards"),
+    "只有隐藏成就列表显式开启整行跳转");
 const compactTags = findElementByClass(progressListAst, "m-progress-achievement-card__compact-tags");
 const rightActions = compactTags?.parents.find((node) => node.type === NodeTypes.ELEMENT &&
     node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === "class" &&
@@ -182,7 +278,10 @@ assert.deepStrictEqual(progress.filterAchievementRecords({
     includedAchievementIds: ["8"],
 }).map((record) => record.id), ["8"], "隐藏搜索结果应用同一可完成标签集合");
 assert.strictEqual(progressPage.data.call({ hidden: true }).filters.tier, "hidden");
-assert.strictEqual(progressPage.data.call({ hidden: true }).filters.completableOnly, false);
+assert.strictEqual(progressPage.data.call({ hidden: true }).filters.completableOnly, true,
+    "隐藏页首次进入默认只看可完成");
+assert.strictEqual(progressPage.data.call({ hidden: false }).filters.completableOnly, false,
+    "普通成就页不启用隐藏成就标签筛选");
 assert.strictEqual(progressPage.computed.includedAchievementIds.call({
     hidden: true,
     filters: { completableOnly: false },
@@ -270,8 +369,29 @@ const tiers = Object.fromEntries(
 assert.strictEqual(tiers.normal.totalCount, 1);
 assert.strictEqual(tiers.normal.totalPoints, 20);
 assert.strictEqual(tiers.normal.completedCount, 1);
-assert.strictEqual(tiers.hidden.totalCount, 2);
-assert.strictEqual(tiers.hidden.completedPoints, 50);
+assert.strictEqual(tiers.hidden.totalCount, 0);
+assert.strictEqual(tiers.hidden.completedPoints, 0);
+assert.strictEqual(tiers.hidden.remainingCount, null, "未获取标签时不推测可完成数量");
+
+const hiddenSummaryMetadata = { ...hiddenMetadata, 9: { point: 30, general: 1, visible: false } };
+const hiddenSummary = progress.buildAchievementTierProgress(hiddenSummaryMetadata, ["1", "9", "4"], [1, "8", "8", "4", "999"])
+    .find((item) => item.key === "hidden");
+assert.strictEqual(hiddenSummary.totalCount, 3, "总数仅包含隐藏列表中的普通有资历成就");
+assert.strictEqual(hiddenSummary.totalPoints, 60);
+assert.strictEqual(hiddenSummary.completedCount, 2, "已完成统计包含列表内未带可完成标签的成就");
+assert.strictEqual(hiddenSummary.completedPoints, 40);
+assert.strictEqual(hiddenSummary.remainingCount, 1, "尚可完成仅统计带标签且未完成的成就，去重并排除范围外 ID");
+assert.strictEqual(hiddenSummary.remainingPoints, 20);
+assert.strictEqual(hiddenSummary.pointProgress, 66.67);
+const noCompletableHidden = progress.buildAchievementTierProgress(hiddenSummaryMetadata, [], [])
+    .find((item) => item.key === "hidden");
+assert.strictEqual(noCompletableHidden.totalCount, 3);
+assert.strictEqual(noCompletableHidden.remainingCount, 0);
+assert.strictEqual(noCompletableHidden.remainingPoints, 0);
+const unavailableHidden = progress.buildAchievementTierProgress(hiddenSummaryMetadata, [], null)
+    .find((item) => item.key === "hidden");
+assert.strictEqual(unavailableHidden.totalPoints, 60);
+assert.strictEqual(unavailableHidden.remainingPoints, null);
 assert.strictEqual(tiers.wujia.totalPoints, 40);
 assert.strictEqual(tiers.retired.completedCount, 1);
 
@@ -341,6 +461,41 @@ const schoolCompletedIds = [1];
 const tianCeEligibility = schoolEligibilityModule.buildAchievementSchoolEligibilityContext({
     menus: schoolMenus, roleSchool: "1",
 });
+const allCategoryEligibility = schoolEligibilityModule.buildAchievementSchoolEligibilityContext({
+    menus: schoolMenus,
+    roleSchool: "1",
+    tagsById: {
+        6: { tags: [{ ruleType: "mount", ruleValue: { operator: "include", values: [2] } }] },
+        7: { tags: [{ ruleType: "mount", ruleValue: { operator: "exclude", values: [1] } }] },
+        8: { tags: [{ type: "school", value: "万花" }] },
+    },
+});
+assert.strictEqual(
+    schoolEligibilityModule.isAchievementEligibleForSchool({ id: 6, context: allCategoryEligibility }),
+    false,
+    "任意分类中的 mount include 规则都应排除非本门派成就"
+);
+assert.strictEqual(
+    schoolEligibilityModule.isAchievementEligibleForSchool({ id: 7, context: allCategoryEligibility }),
+    false,
+    "任意分类中的 mount exclude 规则都应排除当前门派成就"
+);
+assert.strictEqual(
+    schoolEligibilityModule.isAchievementEligibleForSchool({ id: 8, context: allCategoryEligibility }),
+    true,
+    "普通门派展示标签不能被当作资格规则"
+);
+const taggedCategoryProgress = progress.buildAchievementCategoryProgress({
+    menus: { martial: { sub: "martial", name: "武学", children: [
+        { detail: "other", name: "其它", achievements: [6] },
+    ] } },
+    metadata: { 6: { point: 35, general: 1, visible: true } },
+    completedIds: [],
+    schoolEligibility: allCategoryEligibility,
+    allMenus: true,
+});
+assert.strictEqual(taggedCategoryProgress[0].remainingAvailablePoints, 0, "一级分类余可做应扣除非本门派标签规则");
+assert.strictEqual(taggedCategoryProgress[0].children[0].remainingAvailablePoints, 0, "二级分类余可做应扣除非本门派标签规则");
 const adjustedOverall = progress.buildAchievementOverallProgress(schoolMetadata, schoolCompletedIds, tianCeEligibility);
 assert.strictEqual(adjustedOverall.pointProgress, 53.33, "其他门派限定计入百分比分子，不从分母删除");
 assert.strictEqual(adjustedOverall.completedPoints, 10, "资历点仍是实际获得的点数");
@@ -769,6 +924,159 @@ function createDimensionSortFailureContext(loadDifficultyMetrics) {
 }
 
 async function runPageBehaviorTests() {
+    const hiddenListStyle = await compileStyleAsync({
+        source: `@phone: 768px;\n${hiddenListSfc.descriptor.styles[0].content}`,
+        filename: "AchievementHiddenList.vue",
+        id: "data-v-hidden-list-test",
+        scoped: true,
+        preprocessLang: "less",
+    });
+    assert.deepStrictEqual(hiddenListStyle.errors, [], "隐藏成就列表样式必须能够正常编译");
+    let hiddenIconAlignment;
+    postcss.parse(hiddenListStyle.code).walkRules((rule) => {
+        if (!rule.selector.includes(".m-hidden-list") || !rule.selector.includes(".u-progress-achievement-icon")) return;
+        rule.walkDecls("align-self", (declaration) => {
+            hiddenIconAlignment = declaration.value;
+        });
+    });
+    assert.strictEqual(hiddenIconAlignment, "center", "隐藏成就页图标应在两行内容区域中垂直居中");
+
+    const compactListCss = (await less.render(
+        `@phone: 768px;\n${progressListSfc.descriptor.styles[0].content}`
+    )).css;
+    const compactListStyles = {};
+    postcss.parse(compactListCss).walkRules((rule) => {
+        if (rule.selector !== ".m-progress-list.is-compact .m-progress-achievement-card") return;
+        rule.walkDecls((declaration) => {
+            compactListStyles[declaration.prop] = declaration.value;
+        });
+    });
+    assert.deepStrictEqual(
+        {
+            minHeight: compactListStyles["min-height"],
+            rows: compactListStyles["grid-template-rows"],
+            padding: compactListStyles.padding,
+            alignment: compactListStyles["align-content"],
+        },
+        { minHeight: "0", rows: "auto auto", padding: "6px 8px", alignment: "center" },
+        "紧凑隐藏成就卡片应使用内容高度和对称上下内边距"
+    );
+
+    const resetContext = {
+        hidden: true,
+        completableFilterAvailable: true,
+        filters: { tier: "hidden", completableOnly: false, completion: "completed", mapId: "101" },
+        searchRecords: [{ id: "8" }],
+        page: 3,
+        cancelDimensionSortRequest() {},
+        async loadVisibleRecords() {},
+    };
+    await progressPage.methods.resetListFilters.call(resetContext);
+    assert.strictEqual(resetContext.filters.completableOnly, true, "隐藏页重置后仍默认只看可完成");
+    const unavailableResetContext = {
+        ...resetContext,
+        completableFilterAvailable: false,
+        filters: { ...resetContext.filters, completableOnly: false },
+    };
+    await progressPage.methods.resetListFilters.call(unavailableResetContext);
+    assert.strictEqual(unavailableResetContext.filters.completableOnly, false,
+        "标签接口失败后重置必须保持取消勾选，继续回退显示全部");
+
+    const initializationCalls = [];
+    let releaseCompletableIds;
+    const completableIdsReady = new Promise((resolve) => {
+        releaseCompletableIds = resolve;
+    });
+    const initializationContext = {
+        snapshot: null,
+        pageRequestId: 0,
+        pageLoading: false,
+        pageError: false,
+        recordError: false,
+        currentClient: "std",
+        hidden: true,
+        isLogin: false,
+        isGuest: true,
+        currentRoleId: "",
+        roles: [],
+        maps: [],
+        menus: [],
+        metadata: {},
+        schoolEligibilityAchievementIds: [],
+        dimensions: [],
+        completedIds: [],
+        synced: false,
+        syncedAt: null,
+        resetEnrichment() {},
+        async loadTags() {},
+        async loadHiddenCompletableIds() {
+            initializationCalls.push("completable:start");
+            await completableIdsReady;
+            initializationCalls.push("completable:ready");
+        },
+        async loadVisibleRecords() {
+            initializationCalls.push("records");
+        },
+    };
+    const originalLocalStorage = global.localStorage;
+    global.localStorage = { getItem: () => "" };
+    const initialization = progressPage.methods.initializePage.call(initializationContext);
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepStrictEqual(initializationCalls, ["completable:start"],
+        "默认勾选时必须等待可完成标签集合，不能提前加载错误列表");
+    releaseCompletableIds();
+    await initialization;
+    assert.deepStrictEqual(initializationCalls, ["completable:start", "completable:ready", "records"]);
+
+    const overviewCalls = [];
+    const overviewTagCalls = [];
+    const overviewContext = {
+        ...initializationContext,
+        hidden: false,
+        pageRequestId: 0,
+        schoolEligibilityAchievementIds: ["1", "2"],
+        async loadTags(ids, options) {
+            overviewTagCalls.push({ ids, options });
+        },
+        async loadHiddenCompletableIds(records, requestId, client) {
+            overviewCalls.push({ ids: records.map((record) => record.id), requestId, client });
+        },
+        async loadVisibleRecords() {},
+    };
+    await progressPage.methods.initializePage.call(overviewContext);
+    assert.deepStrictEqual(overviewTagCalls, [{ ids: ["1", "2"], options: { client: "std", epoch: undefined } }],
+        "完成进度首页必须预加载全分类门派规则标签");
+    assert.strictEqual(overviewCalls.length, 1, "完成进度首页也必须加载可完成标签");
+    assert.deepStrictEqual(overviewCalls[0].ids, Object.keys(progress.selectHiddenAchievementMetadata(overviewContext.metadata)));
+    assert.strictEqual(overviewCalls[0].client, "std");
+
+    const staleCalls = [];
+    let releaseStaleCompletableIds;
+    const staleCompletableIdsReady = new Promise((resolve) => {
+        releaseStaleCompletableIds = resolve;
+    });
+    const staleInitializationContext = {
+        ...initializationContext,
+        pageRequestId: 0,
+        pageLoading: false,
+        async loadHiddenCompletableIds() {
+            staleCalls.push("completable:start");
+            await staleCompletableIdsReady;
+            staleCalls.push("completable:ready");
+        },
+        async loadVisibleRecords() {
+            staleCalls.push("records");
+        },
+    };
+    const staleInitialization = progressPage.methods.initializePage.call(staleInitializationContext);
+    await new Promise((resolve) => setImmediate(resolve));
+    staleInitializationContext.pageRequestId += 1;
+    releaseStaleCompletableIds();
+    await staleInitialization;
+    global.localStorage = originalLocalStorage;
+    assert.deepStrictEqual(staleCalls, ["completable:start", "completable:ready"],
+        "等待可完成标签期间失效的初始化不得继续加载角色或首屏记录");
+
     await progressPage.methods.setListFilter.call(candidateChangeContext, "tier", "wujia");
     assert.deepStrictEqual(candidateChangeCalls, [
         ["cancel"],

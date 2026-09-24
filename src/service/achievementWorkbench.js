@@ -27,6 +27,7 @@ import {
 } from "@/service/wiki";
 import {
     applyAchievementWorkbenchEnrichment,
+    normalizeAchievementDescription,
     normalizeAchievementWorkbenchDifficulty,
     normalizeAchievementWorkbenchDifficultyDimensions,
     normalizeAchievementWorkbenchRecords,
@@ -273,7 +274,7 @@ export async function fetchAchievementWorkbenchHiddenIndex(client = "std") {
         ? await import("@/assets/data/achievements/hidden-origin.json")
         : await import("@/assets/data/achievements/hidden-std.json");
     const records = module.default.rows.map(([id, sub, detail, name, description, sceneId, worldMapId, relatedIds, iconId]) => ({
-        id: String(id), name, shortDescription: description,
+        id: String(id), name, shortDescription: normalizeAchievementDescription(description),
         iconId: String(iconId || ""),
         relatedIds: Array.isArray(relatedIds) ? relatedIds.map(String) : null,
         category: { id: String(sub), subId: String(detail) },

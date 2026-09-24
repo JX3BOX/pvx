@@ -145,12 +145,50 @@ function buildManualRestrictionIndex(menus) {
     return restrictionById;
 }
 
-export function buildAchievementSchoolEligibilityContext({ menus = {}, roleSchool = null } = {}) {
+function getSchoolRuleTags(value) {
+    const tags = Array.isArray(value) ? value : value?.tags;
+    return (Array.isArray(tags) ? tags : []).filter((tag) => tag?.ruleType === "mount");
+}
+
+function resolveSchoolRuleRestriction(tags) {
+    const rules = getSchoolRuleTags(tags);
+    if (!rules.length) return null;
+
+    const normalizedRules = rules.map(({ ruleValue }) => {
+        if (!ruleValue || !["include", "exclude"].includes(ruleValue.operator) ||
+            !Array.isArray(ruleValue.values) || !ruleValue.values.length) return null;
+        const schools = ruleValue.values.map((id) =>
+            Number.isInteger(id) && id >= 0 ? normalizeAchievementRoleSchool(schoolIdMap[id]) : null
+        );
+        if (schools.some((value) => !value)) return null;
+        return { operator: ruleValue.operator, schools };
+    });
+    if (normalizedRules.some((rule) => !rule)) return null;
+
+    return {
+        schools: [...CANONICAL_SCHOOLS].filter((school) => normalizedRules.every((rule) => {
+            const matches = rule.schools.includes(school);
+            return rule.operator === "exclude" ? !matches : matches;
+        })),
+        source: "tag-rule",
+    };
+}
+
+function applyTagRestrictionIndex(restrictionById, tagsById) {
+    Object.entries(tagsById || {}).forEach(([id, tags]) => {
+        const restriction = resolveSchoolRuleRestriction(tags);
+        if (restriction) restrictionById.set(String(id), restriction);
+    });
+    return restrictionById;
+}
+
+export function buildAchievementSchoolEligibilityContext({ menus = {}, roleSchool = null, tagsById = {} } = {}) {
     const school = normalizeAchievementRoleSchool(roleSchool);
     return {
         version: ACHIEVEMENT_SCHOOL_ELIGIBILITY_VERSION,
         school,
-        restrictionById: buildManualRestrictionIndex(menus),
+        // 公共标签中的 mount 规则覆盖全分类；目录规则仅作为旧数据兜底。
+        restrictionById: applyTagRestrictionIndex(buildManualRestrictionIndex(menus), tagsById),
     };
 }
 
@@ -192,9 +230,9 @@ export function isAchievementEligibleForSchool({ id, record = null, metadataItem
     return restriction.schools.includes(roleSchool);
 }
 
-// Only manual addition consumes tag rules; progress and server recommendations keep their own scope.
+// 手动增加继续直接校验记录上的规则；完成进度使用上下文中预构建的同一规则索引。
 export function isAchievementEligibleForSchoolAddition(options = {}) {
-    const rules = (options.record?.tags || []).filter((tag) => tag.ruleType === "mount");
+    const rules = getSchoolRuleTags(options.record?.tags);
     if (!rules.length) return isAchievementEligibleForSchool(options);
     const school = options.context?.school;
     if (!school) return false;
