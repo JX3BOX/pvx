@@ -1,4 +1,17 @@
 export default {
+    claimedQueue: "My claims",
+    claim: "Claim consultation",
+    cancelClaim: "Release claim",
+    claimHint: "Claim this consultation before writing advice. Submit within 4 hours, or it will return to the public queue.",
+    claimRemaining: "Time to reply: {hours}h {minutes}m {seconds}s. Your claim expires when time runs out.",
+    claimUntil: "Submit your advice before {time}. Your claim expires at that time.",
+    claimExpired: "Your claim has expired. Your draft is still on this page. Claim the consultation again to continue.",
+    claimRequired: "Claim this consultation and submit before your claim expires.",
+    cancelClaimConfirm: "Release this claim? The consultation will become available again and your draft on this page will be cleared.",
+    claimSaved: "Consultation claimed. Please reply within 4 hours.",
+    claimCancelled: "Claim released",
+    claimDeadline: "Reply deadline",
+
     directEntry: "Unsure? Let an expert help me plan",
 
     expertPublicQueue: "Public consultations",

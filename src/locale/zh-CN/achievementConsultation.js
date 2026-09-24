@@ -1,4 +1,17 @@
 export default {
+    claimedQueue: "我已认领",
+    claim: "认领咨询",
+    cancelClaim: "取消认领",
+    claimHint: "请先认领再填写建议。认领后需在 4 小时内提交，超时自动返回公开咨询。",
+    claimRemaining: "回答剩余 {hours} 小时 {minutes} 分 {seconds} 秒，超时后认领自动失效。",
+    claimUntil: "请在 {time} 前提交建议，超时后认领自动失效。",
+    claimExpired: "认领已到期，当前页面的草稿已保留。请重新认领后继续回答。",
+    claimRequired: "请先认领咨询，并在认领有效期内提交。",
+    cancelClaimConfirm: "确定取消认领吗？取消后将释放咨询，并清空当前页面的草稿。",
+    claimSaved: "认领成功，请在 4 小时内回答",
+    claimCancelled: "已取消认领",
+    claimDeadline: "回答截止时间",
+
     directEntry: "不知怎么选？请高手帮我规划",
 
     expertPublicQueue: "公开咨询",

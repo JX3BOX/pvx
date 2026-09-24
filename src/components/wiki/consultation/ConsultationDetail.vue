@@ -1,7 +1,7 @@
 <script>
 import Editor from "@tinymce/tinymce-vue";
 import Article from "@jx3box/jx3box-editor/src/Article.vue";
-import { getConsultation, replyConsultation, rateConsultation, cancelConsultation } from "@/service/achievementConsultation";
+import { getConsultation, replyConsultation, rateConsultation, cancelConsultation, claimConsultation, cancelConsultationClaim } from "@/service/achievementConsultation";
 import { fetchAchievementWorkbenchCatalog, fetchAchievementWorkbenchMaps, fetchAchievementWorkbenchDifficultyDimensions } from "@/service/achievementWorkbench";
 import { resolveAchievementWorkbenchDimensions } from "@/utils/achievementWorkbench";
 import ConsultationPlan from "./ConsultationPlan.vue";
@@ -15,8 +15,25 @@ export default {
     emits: ["changed"],
     data: () => ({ record: null, catalog: null, maps: [], dimensions: [], loading: false, error: "", saving: false,
         requestId: 0, tab: "plan", advice: "", rating: 0, review: "", editorReady: false, editorError: false,
+        now: Date.now(), serverOffset: 0, claimTimer: null,
         editorInit: { height: 320, menubar: false, branding: false, plugins: "lists link table", toolbar: "undo redo | bold italic underline | bullist numlist | link table | removeformat", convert_urls: false } }),
     computed: {
+        claimRemainingSeconds() {
+            if (!this.record?.claim_expires_at) return 0;
+            return Math.max(0, Math.ceil((new Date(this.record.claim_expires_at).getTime() - this.now - this.serverOffset) / 1000));
+        },
+        claimCountdown() {
+            const seconds = this.claimRemainingSeconds;
+            return this.$t('achievementConsultation.claimRemaining', {
+                hours: String(Math.floor(seconds / 3600)).padStart(2, "0"),
+                minutes: String(Math.floor(seconds % 3600 / 60)).padStart(2, "0"),
+                seconds: String(seconds % 60).padStart(2, "0"),
+            });
+        },
+        claimActive() { return this.claimRemainingSeconds > 0; },
+        claimExpired() { return Boolean(this.record?.can_cancel_claim && !this.claimActive); },
+        canReply() { return Boolean(this.record?.can_reply && (this.record.target_expert_id != null || this.claimActive)); },
+        canClaim() { return Boolean(this.record?.can_claim || this.claimExpired); },
         withoutPlan() { return Boolean(this.record && this.record.plan_id === null && !this.record.plan); },
         requesterLabel() {
             const userName = this.record?.user?.display_name?.trim();
@@ -42,8 +59,15 @@ export default {
         },
     },
     watch: { id: { immediate: true, handler() { this.advice = ""; this.rating = 0; this.review = ""; this.tab = "plan"; this.load(); } } },
-    mounted() { window.addEventListener("error", this.handleEditorLoadError, true); },
-    beforeUnmount() { this.requestId += 1; window.removeEventListener("error", this.handleEditorLoadError, true); },
+    mounted() {
+        window.addEventListener("error", this.handleEditorLoadError, true);
+        this.claimTimer = window.setInterval(() => { this.now = Date.now(); }, 1000);
+    },
+    beforeUnmount() {
+        this.requestId += 1;
+        window.clearInterval(this.claimTimer);
+        window.removeEventListener("error", this.handleEditorLoadError, true);
+    },
     methods: {
         handleEditorLoadError(event) {
             if (event.target?.tagName === "SCRIPT" && event.target.src === "https://cdn.jx3box.com/static/tinymce/tinymce.min.js") this.editorError = true;
@@ -55,11 +79,13 @@ export default {
             try {
                 const record = await getConsultation(this.id);
                 if (request !== this.requestId) return;
+                this.serverOffset = new Date(record.server_now).getTime() - Date.now();
                 const [catalog, maps, dimensions] = await Promise.all([
                     fetchAchievementWorkbenchCatalog("std"), fetchAchievementWorkbenchMaps("std"), fetchAchievementWorkbenchDifficultyDimensions(),
                 ]);
                 if (request !== this.requestId) return;
                 this.record = record;
+                this.now = Date.now();
                 if (!record.plan) this.tab = "progress";
                 this.catalog = catalog; this.maps = maps;
                 this.dimensions = resolveAchievementWorkbenchDimensions(dimensions);
@@ -71,8 +97,13 @@ export default {
             if (this.saving) return;
             const id = this.id;
             const request = this.requestId;
-            if (action === "cancel") {
-                try { await this.$confirm(this.$t('achievementConsultation.cancelConfirm'), this.$t('achievementConsultation.cancel'), { type: 'warning', draggable: true }); }
+            this.now = Date.now();
+            if (action === "reply" && !this.canReply) {
+                this.$message.error(this.$t('achievementConsultation.claimRequired'));
+                return;
+            }
+            if (action === "cancel" || action === "cancelClaim") {
+                try { await this.$confirm(this.$t(action === 'cancel' ? 'achievementConsultation.cancelConfirm' : 'achievementConsultation.cancelClaimConfirm'), this.$t(action === 'cancel' ? 'achievementConsultation.cancel' : 'achievementConsultation.cancelClaim'), { type: 'warning', draggable: true }); }
                 catch { return; }
                 if (request !== this.requestId || this.saving) return;
             }
@@ -80,12 +111,21 @@ export default {
             try {
                 if (action === "reply") await replyConsultation(id, this.advice);
                 else if (action === "rate") await rateConsultation(id, { rating: this.rating, review: this.review });
+                else if (action === "claim") await claimConsultation(id);
+                else if (action === "cancelClaim") await cancelConsultationClaim(id);
                 else await cancelConsultation(id);
                 if (request !== this.requestId) return;
-                this.$message.success(this.$t(action === 'reply' ? 'achievementConsultation.adviceSaved' : action === 'rate' ? 'achievementConsultation.ratingSaved' : 'achievementConsultation.cancelled'));
+                if (action === "cancelClaim") this.advice = "";
+                const messages = { reply: 'achievementConsultation.adviceSaved', rate: 'achievementConsultation.ratingSaved',
+                    claim: 'achievementConsultation.claimSaved', cancelClaim: 'achievementConsultation.claimCancelled', cancel: 'achievementConsultation.cancelled' };
+                this.$message.success(this.$t(messages[action]));
                 this.$emit("changed");
                 await this.load();
-            } catch (error) { if (request === this.requestId) this.$message.error(error?.response?.data?.msg || error.message); }
+            } catch (error) {
+                if (request !== this.requestId) return;
+                this.$message.error(error?.response?.data?.msg || error.message);
+                if ([404, 409].includes(error?.response?.status)) await this.load();
+            }
             finally { this.saving = false; }
         },
     },
@@ -127,7 +167,22 @@ export default {
                     <el-button type="primary" :disabled="!rating" :loading="saving" @click="submit('rate')">{{ $t('achievementConsultation.submitRating') }}</el-button>
                 </el-form>
             </PvxSurface>
-            <PvxSurface v-if="record.can_reply" class="m-consultation-advice" padding="medium" radius="medium">
+            <el-alert v-if="canClaim || (record.can_cancel_claim && claimActive)" class="m-consultation-claim"
+                :type="claimExpired ? 'warning' : 'info'" :closable="false">
+                <template #title>
+                    <span class="m-consultation-claim-row">
+                        <template v-if="record.can_cancel_claim && claimActive">
+                            <span class="m-consultation-countdown" :title="$t('achievementConsultation.claimUntil', { time: date(record.claim_expires_at) })">{{ claimCountdown }}</span>
+                            <el-button size="small" :loading="saving" @click="submit('cancelClaim')">{{ $t('achievementConsultation.cancelClaim') }}</el-button>
+                        </template>
+                        <template v-else>
+                            <span>{{ $t(claimExpired ? 'achievementConsultation.claimExpired' : 'achievementConsultation.claimHint') }}</span>
+                            <el-button size="small" type="primary" :loading="saving" @click="submit('claim')">{{ $t('achievementConsultation.claim') }}</el-button>
+                        </template>
+                    </span>
+                </template>
+            </el-alert>
+            <PvxSurface v-if="canReply" class="m-consultation-advice" padding="medium" radius="medium">
                 <h3>{{ $t('achievementConsultation.advice') }}</h3>
                 <Editor v-model="advice" :init="editorInit" :disabled="saving" tinymce-script-src="https://cdn.jx3box.com/static/tinymce/tinymce.min.js"
                     @init="editorReady = true" />
@@ -222,6 +277,17 @@ export default {
     time { margin-left: auto; color: #86918e; font-size: 13px; }
 }
 .m-consultation-expert { padding: 3px 8px; border-radius: 5px; background: #edf5f1; color: #47777d; font-size: 13px; }
+.m-consultation-claim {
+    margin-top: 16px;
+    :deep(.el-alert__content) { width: 100%; min-width: 0; }
+    :deep(.el-alert__title) { display: block; }
+}
+.m-consultation-claim-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    > span { min-width: 0; overflow-wrap: anywhere; }
+    > .el-button { flex: none; margin: 0; }
+}
+.m-consultation-countdown { font-variant-numeric: tabular-nums; }
 .m-consultation-richtext { min-height: 0; margin: 14px 0 0; overflow-wrap: anywhere; overflow-x: auto; font-size: 14px; line-height: 1.8;
     :deep(p:first-child) { margin-top: 0; } :deep(p:last-child) { margin-bottom: 0; }
     :deep(img) { max-width: 100%; height: auto; } :deep(table) { border-collapse: collapse; }

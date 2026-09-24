@@ -93,9 +93,9 @@ async function run() {
     isExpert = true;
     const expert = instance(workspace);
     await expert.initialize();
-    assert.deepStrictEqual(expert.tabs.map((tab) => tab.name), ["player", "public", "directed", "answered"]);
+    assert.deepStrictEqual(expert.tabs.map((tab) => tab.name), ["player", "public", "claimed", "directed", "answered"]);
     assert.strictEqual(calls.at(-1).scope, "player", "the same default tab has the same data scope for all users");
-    for (const scope of ["public", "directed", "answered"]) {
+    for (const scope of ["public", "claimed", "directed", "answered"]) {
         expert.scope = scope;
         expert.changeScope();
         assert.strictEqual(calls.at(-1).scope, scope);

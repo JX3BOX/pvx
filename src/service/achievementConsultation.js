@@ -11,6 +11,8 @@ export const getConsultationExperts = () => data($cms().get(`${base}/experts`));
 export const getConsultations = (params) => data($cms().get(base, { params }));
 export const createConsultation = (payload) => data($cms().post(base, payload));
 export const getConsultation = (id) => data($cms().get(`${base}/${id}`));
+export const claimConsultation = (id) => data($cms().post(`${base}/${id}/claim`));
+export const cancelConsultationClaim = (id) => data($cms().post(`${base}/${id}/cancel-claim`));
 export const replyConsultation = (id, advice_html) => data($cms().post(`${base}/${id}/reply`, { advice_html }));
 export const cancelConsultation = (id) => data($cms().post(`${base}/${id}/cancel`));
 export const rateConsultation = (id, payload) => data($cms().post(`${base}/${id}/rating`, payload));

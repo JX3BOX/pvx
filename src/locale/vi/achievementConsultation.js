@@ -1,4 +1,17 @@
 export default {
+    claimedQueue: "Tôi đã nhận",
+    claim: "Nhận tư vấn",
+    cancelClaim: "Hủy nhận",
+    claimHint: "Hãy nhận tư vấn trước khi viết lời khuyên. Gửi trong vòng 4 giờ, nếu không tư vấn sẽ trở lại danh sách công khai.",
+    claimRemaining: "Thời gian trả lời còn lại: {hours} giờ {minutes} phút {seconds} giây. Quyền nhận tự hết hạn khi hết giờ.",
+    claimUntil: "Hãy gửi lời khuyên trước {time}. Quyền nhận sẽ hết hạn vào thời điểm đó.",
+    claimExpired: "Quyền nhận đã hết hạn. Bản nháp vẫn được giữ trên trang này. Hãy nhận lại tư vấn để tiếp tục.",
+    claimRequired: "Hãy nhận tư vấn và gửi câu trả lời trước khi quyền nhận hết hạn.",
+    cancelClaimConfirm: "Hủy nhận tư vấn? Tư vấn sẽ được mở lại và bản nháp trên trang này sẽ bị xóa.",
+    claimSaved: "Đã nhận tư vấn. Vui lòng trả lời trong vòng 4 giờ.",
+    claimCancelled: "Đã hủy nhận",
+    claimDeadline: "Hạn trả lời",
+
     directEntry: "Chưa biết chọn gì? Nhờ chuyên gia lên kế hoạch",
 
     expertPublicQueue: "Tư vấn công khai",

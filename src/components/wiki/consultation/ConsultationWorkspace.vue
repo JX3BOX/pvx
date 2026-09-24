@@ -21,13 +21,14 @@ export default {
         loginUrl() { return __Links.account.login + "?redirect=" + encodeURIComponent(location.href); },
         showStatusFilter() { return this.scope === "player" || this.scope === "directed"; },
         requestStatus() {
-            if (this.scope === "public") return "pending";
+            if (this.scope === "public" || this.scope === "claimed") return "pending";
             return this.scope === "answered" ? "answered" : this.status || undefined;
         },
         tabs() {
             const tabs = [{ name: "player", label: "achievementConsultation.publicQueue" }];
             if (this.isExpert) tabs.push(
                 { name: "public", label: "achievementConsultation.expertPublicQueue" },
+                { name: "claimed", label: "achievementConsultation.claimedQueue" },
                 { name: "directed", label: "achievementConsultation.directedQueue" },
                 { name: "answered", label: "achievementConsultation.answeredQueue" },
             );
@@ -143,6 +144,7 @@ export default {
                         <template #default="{ row }"><div class="m-consultation-player"><img :src="showAvatar(row.user?.user_avatar)" alt="" loading="lazy" /><span>{{ row.user?.display_name || row.user_id }}</span></div></template>
                     </el-table-column>
                     <el-table-column :label="$t('achievementConsultation.createdAt')" width="180"><template #default="{ row }"><time class="m-consultation-queue-date">{{ date(row.created_at) }}</time></template></el-table-column>
+                    <el-table-column v-if="scope === 'claimed'" :label="$t('achievementConsultation.claimDeadline')" width="180"><template #default="{ row }"><time class="m-consultation-queue-date">{{ date(row.claim_expires_at) }}</time></template></el-table-column>
                     <el-table-column :label="$t('achievementConsultation.status')" width="115"><template #default="{ row }"><span class="m-consultation-status" :class="row.status">{{ $t(`achievementConsultation.${row.status}`) }}</span></template></el-table-column>
                     <el-table-column min-width="220" align="right"><template #default="{ row }"><router-link class="m-consultation-open" :to="{ name: 'consultation-detail', params: { id: row.id } }">{{ $t('achievementConsultation.detail') }}<el-icon><ArrowRight /></el-icon></router-link></template></el-table-column>
                     <template #empty>

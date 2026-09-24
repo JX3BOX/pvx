@@ -29,16 +29,27 @@ async function run() {
     let failLevel = false;
     let record = null;
     let failReply = false;
+    let replyCalls = 0;
+    let claimConflict = false;
     const api = {
         getConsultations: async () => ({ list: record ? [record] : [], total: record ? 1 : 0, pending_id: record?.status === "pending" ? record.id : null }),
         getConsultationExperts: async () => [{ user_id: 7 }, { user_id: 42 }],
         createConsultation: async (payload) => { writes.push(payload); record = { id: 1, ...payload, status: "pending" }; },
-        getConsultation: async () => ({ ...record, plan: { schema: [1, 3] }, completion: { ids: [1, 2] } }),
-        replyConsultation: async (id, html) => { if (failReply) throw new Error("offline"); Object.assign(record, { advice_html: html, status: "answered" }); },
+        getConsultation: async () => ({ ...record, server_now: new Date().toISOString(),
+            can_reply: record.status === "pending" && (record.target_expert_id != null || Boolean(record.claim_expires_at)),
+            can_claim: record.status === "pending" && !record.target_expert_id && !record.claim_expires_at,
+            can_cancel_claim: record.status === "pending" && Boolean(record.claim_expires_at), plan: { schema: [1, 3] }, completion: { ids: [1, 2] } }),
+        replyConsultation: async (id, html) => { replyCalls++; if (failReply) throw new Error("offline"); Object.assign(record, { advice_html: html, status: "answered" }); },
+        claimConsultation: async () => {
+            if (claimConflict) throw { response: { status: 409, data: { msg: "Already claimed" } } };
+            record.claim_expires_at = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+        },
+        cancelConsultationClaim: async () => { record.claim_expires_at = null; },
         rateConsultation: async (id, payload) => Object.assign(record, payload),
         cancelConsultation: async () => { record.status = "cancelled"; },
     };
     const player = load("src/components/wiki/consultation/PlanConsultations.vue", {
+        "@jx3box/jx3box-common/js/utils": { showAvatar: (value) => value },
         "@jx3box/jx3box-common/js/user": { getInfo: () => ({ uid: "7" }), getLevel: (experience) => experience,
             getAsset: async () => { if (failLevel) throw new Error("offline"); return { experience: accountLevel }; } },
         "@/service/achievementConsultation": api, "./ConsultationDetail.vue": {}, "@element-plus/icons-vue": {},
@@ -87,7 +98,37 @@ async function run() {
     assert.deepStrictEqual(expert.completedIds, [1, 2]);
     expert.tab = "progress";
     assert.deepStrictEqual(expert.progressSnapshot.completedIds, [1, 2]);
+    assert.strictEqual(expert.canReply, false, "public consultation cannot open the editor before claiming");
+    assert.strictEqual(expert.canClaim, true);
+    await expert.submit("reply");
+    assert.strictEqual(replyCalls, 0, "cannot bypass the editor gate by calling submit");
+    await expert.submit("claim");
+    assert.strictEqual(expert.canReply, true);
+    assert.strictEqual(expert.canClaim, false);
+    expert.advice = "<p>Draft</p>";
+    expert.$confirm = async () => { throw "cancel"; };
+    await expert.submit("cancelClaim");
+    assert.strictEqual(expert.canReply, true, "dismissing release keeps the claim and draft");
+    assert.strictEqual(expert.advice, "<p>Draft</p>");
+    expert.$confirm = async () => {};
+    await expert.submit("cancelClaim");
+    assert.strictEqual(expert.canReply, false);
+    assert.strictEqual(expert.advice, "");
+    await expert.submit("claim");
     expert.advice = "<p><strong>Start here</strong></p>";
+    expert.serverOffset = 10 * 60 * 1000;
+    expert.now = new Date(expert.record.claim_expires_at).getTime() - expert.serverOffset;
+    assert.strictEqual(expert.canReply, false, "editor closes at the exact server deadline with clock offset");
+    assert.strictEqual(expert.claimExpired, true);
+    assert.strictEqual(expert.canClaim, true);
+    assert.strictEqual(expert.advice, "<p><strong>Start here</strong></p>", "expiry preserves the local draft");
+    expert.record.claim_expires_at = new Date(Date.now() - 1000).toISOString();
+    await expert.submit("reply");
+    assert.strictEqual(replyCalls, 0, "expired reply is blocked before making a request");
+    record.claim_expires_at = null;
+    await expert.submit("claim");
+    assert.strictEqual(expert.canReply, true);
+    assert.strictEqual(expert.advice, "<p><strong>Start here</strong></p>", "reclaim keeps the draft");
     failReply = true;
     await expert.submit("reply");
     assert.strictEqual(expert.advice, "<p><strong>Start here</strong></p>", "failed submission retains draft");
@@ -113,6 +154,7 @@ async function run() {
     await vm.submit();
     assert.strictEqual(writes[1].target_expert_id, 42);
     await owner.load();
+    assert.strictEqual(owner.canReply, true, "directed requests do not require claiming");
     owner.$confirm = async () => { throw "cancel"; };
     await owner.submit("cancel");
     assert.strictEqual(record.status, "pending");
@@ -150,6 +192,13 @@ async function run() {
     assert.strictEqual(owner.withoutPlan, false, "a deleted saved plan is still distinguished from a direct consultation");
     assert.strictEqual(owner.tab, "progress", "missing plan data also defaults to progress when a plan ID remains");
     api.getConsultation = getDetail;
+    record = { id: 1, plan_id: null, target_expert_id: null, status: "pending" };
+    await expert.load();
+    claimConflict = true;
+    await expert.submit("claim");
+    assert.strictEqual(expert.canReply, false, "claim conflict never opens the editor");
+    assert.strictEqual(expert.saving, false);
+    claimConflict = false;
     record = null;
     accountLevel = 1;
     direct.dialog = false;
