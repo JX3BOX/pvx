@@ -892,22 +892,11 @@ export default {
             await this.loadVisibleRecords();
         },
         async selectListCategory(categoryId) {
+            // 连续浏览分类时保留当前位置，仅翻页时主动回到列表顶部。
             await this.setListFilter('categoryId', categoryId);
-            await this.scrollToBrowserTop({ keepVisibleList: true });
         },
-        async scrollToBrowserTop({ keepVisibleList = false } = {}) {
+        async scrollToBrowserTop() {
             await this.$nextTick();
-            if (keepVisibleList) {
-                // Wait for the shorter-column observer and its sticky layout to settle.
-                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-                const list = this.$refs.achievementList?.$el;
-                const browser = this.$refs.achievementBrowser;
-                if (list && browser) {
-                    const rect = list.getBoundingClientRect();
-                    const top = parseFloat(window.getComputedStyle(browser).scrollMarginTop) || 0;
-                    if (rect.top >= top - 1 && rect.bottom <= window.innerHeight) return;
-                }
-            }
             this.$refs.achievementBrowser?.scrollIntoView({
                 behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
                 block: "start",

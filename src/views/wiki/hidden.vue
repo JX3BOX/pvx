@@ -1,5 +1,6 @@
 <script>
 import { ArrowLeft, Reading } from "@element-plus/icons-vue";
+import User from "@jx3box/jx3box-common/js/user";
 import AchievementProgressPage from "@/components/wiki/progress/AchievementProgressPage.vue";
 import AchievementHiddenNotice from "@/components/wiki/progress/AchievementHiddenNotice.vue";
 import { __Root } from "@/utils/config";
@@ -7,6 +8,16 @@ import { __Root } from "@/utils/config";
 export default {
     name: "WikiAchievementHidden",
     components: { AchievementProgressPage, AchievementHiddenNotice, ArrowLeft, Reading },
+    async beforeRouteEnter() {
+        try {
+            if (User.isLogin() && await User.isVIP()) return true;
+        } catch (error) {
+            console.error("Failed to verify hidden achievement access:", error);
+        }
+        // 入口点击和直接访问共用校验，在挂载隐藏成就内容之前完成分流。
+        window.location.replace(`${__Root}community/496`);
+        return false;
+    },
     computed: {
         guideUrl() {
             return `${__Root}community/496`;
