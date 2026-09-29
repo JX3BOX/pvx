@@ -284,6 +284,7 @@ assert.strictEqual(progressPage.data.call({ hidden: false }).filters.completable
     "普通成就页不启用隐藏成就标签筛选");
 assert.strictEqual(progressPage.computed.includedAchievementIds.call({
     hidden: true,
+    isVip: true,
     filters: { completableOnly: false },
     completableHiddenIds: ["8"],
 }), null, "未勾选时不限制可完成标签集合");
@@ -292,6 +293,15 @@ assert.deepStrictEqual(progressPage.computed.includedAchievementIds.call({
     filters: { completableOnly: true },
     completableHiddenIds: ["8"],
 }), ["8"], "勾选时使用可完成标签命中集合");
+
+for (const isVip of [false, true]) {
+    assert.deepStrictEqual(progressPage.computed.includedAchievementIds.call({
+        hidden: true, isVip, filters: { completableOnly: false }, completableHiddenIds: ["8"],
+    }), isVip ? null : ["8"], "仅会员可取消可完成范围限制");
+}
+const nonVipFilters = { completableOnly: true };
+progressPage.methods.setListFilter.call({ isVip: false, filters: nonVipFilters }, "completableOnly", false);
+assert.strictEqual(nonVipFilters.completableOnly, true, "非会员不能通过筛选事件取消限制");
 
 const pagedSearch = Array.from({ length: 47 }, (_, index) => ({ id: String(index + 1) }));
 assert.deepStrictEqual(progressPage.computed.visibleAchievementIds.call({ hidden: true, searchMode: true,
@@ -979,8 +989,8 @@ async function runPageBehaviorTests() {
         filters: { ...resetContext.filters, completableOnly: false },
     };
     await progressPage.methods.resetListFilters.call(unavailableResetContext);
-    assert.strictEqual(unavailableResetContext.filters.completableOnly, false,
-        "标签接口失败后重置必须保持取消勾选，继续回退显示全部");
+    assert.strictEqual(unavailableResetContext.filters.completableOnly, true,
+        "标签接口失败后重置仍只看可完成，不得回退显示全部");
 
     const initializationCalls = [];
     let releaseCompletableIds;

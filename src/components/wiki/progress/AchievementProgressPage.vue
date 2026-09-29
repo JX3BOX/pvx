@@ -93,6 +93,7 @@ export default {
     data() {
         return {
             isLogin: User.isLogin(),
+            isVip: false,
             pageLoading: true,
             pageError: false,
             roleLoading: false,
@@ -254,7 +255,7 @@ export default {
             });
         },
         includedAchievementIds() {
-            if (!this.hidden || !this.filters.completableOnly) return null;
+            if (!this.hidden || (this.isVip && !this.filters.completableOnly)) return null;
             return this.completableHiddenIds;
         },
         filteredAchievementIds() {
@@ -347,6 +348,7 @@ export default {
         },
     },
     mounted() {
+        this.loadMembership();
         this.resetProgressView();
         this.initializePage();
     },
@@ -358,6 +360,15 @@ export default {
         this.enrichmentEpoch += 1;
     },
     methods: {
+        async loadMembership() {
+            if (!this.hidden || !this.isLogin) return;
+            try {
+                this.isVip = await User.isVIP();
+            } catch (error) {
+                this.isVip = false;
+                console.warn("Failed to verify hidden achievement membership:", error);
+            }
+        },
         cancelDimensionSortRequest() {
             this.dimensionSortRequestId += 1;
             this.dimensionSortLoading = false;
@@ -494,7 +505,6 @@ export default {
                 console.warn("Failed to load completable hidden achievements:", error);
                 this.completableHiddenIds = [];
                 this.completableFilterAvailable = false;
-                this.filters = { ...this.filters, completableOnly: false };
             } finally {
                 if (pageRequestId === this.pageRequestId && client === this.currentClient) {
                     this.completableFilterLoading = false;
@@ -729,6 +739,7 @@ export default {
             this.categorySort = sort;
         },
         async setListFilter(key, value) {
+            if (key === "completableOnly" && !this.isVip) return;
             if (this.isGuest && key === "completion" && value !== "all") return this.requireLogin();
             this.cancelDimensionSortRequest();
             this.filters = {
@@ -885,7 +896,7 @@ export default {
             this.filters = {
                 ...createDefaultFilters(this.hidden),
                 tier: this.hidden ? "hidden" : "normal",
-                completableOnly: this.hidden && this.completableFilterAvailable,
+                completableOnly: this.hidden,
             };
             this.searchRecords = null;
             this.page = 1;
@@ -1031,7 +1042,7 @@ export default {
                             :tier="filters.tier"
                             :completion="filters.completion"
                             :show-completion="true"
-                            :show-completable-only="hidden"
+                            :show-completable-only="hidden && isVip"
                             :completable-only="filters.completableOnly"
                             :completable-disabled="completableFilterLoading || !completableFilterAvailable"
                             :map-id="filters.mapId"
