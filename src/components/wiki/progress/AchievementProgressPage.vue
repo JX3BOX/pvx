@@ -709,7 +709,7 @@ export default {
                     metadata: this.metadata,
                     completedIds: this.completedIds,
                     client,
-                    includeHidden: this.hidden,
+                    includeHidden: false,
                 });
                 if (
                     requestId !== this.recordRequestId ||

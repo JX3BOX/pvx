@@ -983,6 +983,19 @@ async function runPageBehaviorTests() {
     };
     await progressPage.methods.resetListFilters.call(resetContext);
     assert.strictEqual(resetContext.filters.completableOnly, true, "隐藏页重置后仍默认只看可完成");
+    assert.strictEqual(resetContext.filters.tier, "hidden");
+    const normalResetContext = {
+        ...resetContext,
+        hidden: false,
+        filters: { ...resetContext.filters, tier: "wujia", completableOnly: true },
+    };
+    await progressPage.methods.resetListFilters.call(normalResetContext);
+    assert.deepStrictEqual(normalResetContext.filters, {
+        categoryId: "all", tier: "normal", completion: "all", completableOnly: false,
+        mapId: "", sort: "default", keyword: "",
+    }, "普通页重置恢复常规档位及全部默认筛选");
+    assert.strictEqual(normalResetContext.page, 1);
+    assert.strictEqual(normalResetContext.searchRecords, null);
     const unavailableResetContext = {
         ...resetContext,
         completableFilterAvailable: false,
