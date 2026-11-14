@@ -115,6 +115,7 @@ import { iconLink } from "@jx3box/jx3box-common/js/utils.js";
 import { __imgPath } from "@/utils/config";
 import { pick } from "lodash";
 import { nanoid } from "nanoid";
+import { getExpectedYield } from "./expectedYield";
 
 import Item from "@jx3box/jx3box-editor/src/Item.vue";
 import PriceItem from "@/components/manufacture/PriceItem.vue";
@@ -164,7 +165,7 @@ export default {
                 ...pick(recipe, ["item_id", "item"]),
                 count,
                 yield_count_unit: recipe.CreateItemMin1,
-                yield_count: recipe.CreateItemMin1 * count,
+                yield_count: parent ? recipe.CreateItemMin1 * count : getExpectedYield(recipe, count),
                 price_unit: price_unit || 0,
                 price_unit_origin: price_unit || 0,
                 cost_vigor: recipe.CostVigor || recipe.CostStamina,

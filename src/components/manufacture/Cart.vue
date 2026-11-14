@@ -128,13 +128,14 @@
                             </div>
                             <!-- 底部 -->
                             <div class="u-item-num" v-if="!item.fold">
-                                <span>制作产量：</span>
+                                <span>{{ item.is_material ? "制作产量" : "预计产量" }}：</span>
                                 <el-input-number
                                     :disabled="item.is_material"
                                     v-model="item.yield_count"
                                     size="small"
-                                    :step="1"
+                                    :step="item.is_material ? 1 : 0.5"
                                     :min="1"
+                                    :value-on-clear="item.yield_count"
                                     step-strictly
                                 ></el-input-number>
                             </div>
@@ -145,7 +146,8 @@
                                     size="small"
                                     :step="1"
                                     :min="1"
-                                    @change="onChangeItemCount(item)"
+                                    :value-on-clear="item.count"
+                                    @change="(count, previousCount) => onChangeItemCount(item, count, previousCount)"
                                     step-strictly
                                 ></el-input-number>
                             </div>
@@ -239,6 +241,7 @@ import PriceDetail from "@/components/manufacture/PriceDetail.vue";
 import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import User from "@jx3box/jx3box-common/js/user";
 import CartMaterialsVue from "./CartMaterials.vue";
+import { getExpectedYield } from "./expectedYield";
 
 export default {
     name: "cart",
@@ -414,11 +417,13 @@ export default {
                 this.cartList = this.cartList.filter((i) => i.parent !== item.id);
             }
         },
-        onChangeItemCount(item) {
-            // 如果没有材料手搓，不需要更新
-            const min_yield = item.yield_count_unit * item.count;
-            if (!item.is_material && item.yield_count < min_yield) {
-                item.yield_count = min_yield;
+        onChangeItemCount(item, count, previousCount) {
+            if (!item.is_material) {
+                const previousExpectedYield = getExpectedYield(item.recipe, previousCount);
+                item.yield_count =
+                    item.yield_count === previousExpectedYield
+                        ? getExpectedYield(item.recipe, count)
+                        : Math.max(item.yield_count, item.yield_count_unit * count);
             }
             if (!item.materials.some((i) => i.make)) return;
             const material = this.cartList.find((i) => i.parent === item.id);
