@@ -30,17 +30,37 @@
 import menus from "@/assets/data/menus.json";
 import Nav from "@/components/Nav_v5.vue";
 import PvxBacktop from "@/components/PvxBacktop.vue";
+
+const homeRareOrder = [
+    "exterior", "adventure", "pet", "horse", "furniture", "partner",
+    "reputation", "questsection", "book", "keju", "treasure", "seniority",
+];
+
 export default {
     name: "Index",
     components: { Nav, PvxBacktop },
 
     data() {
         return {
-            menus,
             navStatusClass: "is-regular",
         };
     },
-    computed: {},
+    computed: {
+        menus() {
+            return menus.map((menu) => {
+                if (menu.key !== "rare") return menu;
+                const submenusByKey = new Map(menu.submenus.map((item) => [item.key, item]));
+                const submenus = [];
+                for (const key of homeRareOrder) {
+                    if (submenusByKey.has(key)) {
+                        submenus.push(submenusByKey.get(key));
+                        submenusByKey.delete(key);
+                    }
+                }
+                return { ...menu, submenus: [...submenus, ...submenusByKey.values()] };
+            });
+        },
+    },
     methods: {
         getNavIcon(item) {
             const slug = item.menuKey || item.key;

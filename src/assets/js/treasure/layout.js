@@ -1,9 +1,9 @@
 import axios from "axios";
-import treasurePerfect from "@jx3box/jx3box-common/data/treasure_perfect.json";
+import treasurePerfect from "@jx3box/jx3box-data/data/serendipity/treasure_perfect.json";
 
 const ONLINE_TREASURE_PERFECT_URL =
     process.env.VUE_APP_ADVENTURE_TREASURE_LAYOUT_URL ||
-    "https://cdn.jsdelivr.net/npm/@jx3box/jx3box-common/data/treasure_perfect.json";
+    "https://data.jx3box.com/data/serendipity/treasure_perfect.json";
 
 const STYLE_LENGTH_KEYS = new Set(["top", "right", "bottom", "left", "width", "height", "fontSize", "lineHeight"]);
 
