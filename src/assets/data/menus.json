@@ -57,8 +57,7 @@
                 "icon": "el-icon-files",
                 "key": "exterior",
                 "menuKey": "exterior",
-                "status": true,
-                "disabled": true
+                "status": true
             },
             {
                 "path": "/pet",

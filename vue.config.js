@@ -32,6 +32,12 @@ const pages = {
         template: "public/index.html",
         filename: "adventure/index.html",
     },
+    exterior: {
+        title: "外观大全",
+        entry: "src/pages/exterior/index.js",
+        template: "public/index.html",
+        filename: "exterior/index.html",
+    },
     pet: {
         title: "宠物大全",
         entry: "src/pages/pet/index.js",
@@ -134,6 +140,26 @@ module.exports = {
         historyApiFallback: {
             disableDotRule: true,
             rewrites: buildHistoryApiFallbackRewrites(pages),
+        },
+        setupMiddlewares(middlewares) {
+            middlewares.unshift({
+                name: "exterior-entry-redirect",
+                middleware(request, response, next) {
+                    if (request.method !== "GET" && request.method !== "HEAD") return next();
+                    const location = request.url.replace(/^\/pvx(?=\/exterior(?:\/house)?\/?(?:\?|$))/, "");
+                    if (location === request.url) return next();
+                    response.writeHead(302, { Location: location, "Cache-Control": "no-store" });
+                    response.end();
+                },
+            });
+            if (process.env.NODE_ENV === "development" && process.env.PVX_EXTERIOR_MOCK === "1") {
+                const exteriorPreviewMiddleware = require("./scripts/dev-exterior-mock");
+                middlewares.unshift({
+                    name: "exterior-local-preview",
+                    middleware: exteriorPreviewMiddleware(process.env.VUE_APP_PROXY_PREFIX || "/__proxy"),
+                });
+            }
+            return middlewares;
         },
         allowedHosts: "all",
         port: process.env.DEV_PORT || 12028,
