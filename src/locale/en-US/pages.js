@@ -1317,7 +1317,7 @@ export default {
                 sections: {
                     overview: { title: "Market Snapshot", description: "Compare recent gold rates across marketplaces" },
                     gold: { title: "Gold Trends", description: "View historical gold rates for the selected server" },
-                    goods: { title: "Item Prices", description: "Browse current prices for frequently traded items" },
+                    goods: { title: "All Item Prices", description: "Browse current prices for frequently traded items" },
                     follow: { title: "My Watchlist", description: "Review prices from your followed lists" },
                 },
                 chart: {

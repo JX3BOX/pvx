@@ -1,13 +1,7 @@
 <template>
     <div class="p-price-goods m-goods-market" v-loading="loading">
         <PvxSurface class="m-pvx-price__section" padding="medium">
-            <PvxSectionHeader
-                class="m-pvx-price__section-header"
-                title="热门趋势"
-                description="本页物品近7日趋势预览；尚未按热度排名"
-            >
-                <template #icon><TrendCharts /></template>
-            </PvxSectionHeader>
+            <h2 class="m-market-section-title">近7日趋势</h2>
             <div class="m-market-highlights">
                 <div v-for="item in highlights" :key="item.item_id" class="m-market-highlight">
                     <div class="m-market-highlight__name">
@@ -28,17 +22,52 @@
             <p v-if="!highlights.length && !loading" class="u-market-muted">本页暂无物品</p>
         </PvxSurface>
         <PvxSurface class="m-pvx-price__section" padding="medium">
-            <PvxSectionHeader
-                class="m-pvx-price__section-header"
-                :title="$t('pages.pvg.price.ui.sections.goods.title')"
-                description="每行一个物品，左右滚动查看全部服务器报价；均价统计已返回且有报价的服务器"
-            >
-                <template #icon><Goods /></template>
-            </PvxSectionHeader>
-            <p class="u-market-muted" aria-live="polite">
-                共 {{ comparisonServers.length }} 个服务器 · 已加载 {{ completedServers }} /
-                {{ comparisonServers.length }} · 各服报价区域可左右滚动；趋势为近7个完整自然日有报价服务器的算术均值
-            </p>
+            <div class="m-market-toolbar">
+                <h2 class="m-market-section-title">
+                    {{ $t("pages.pvg.price.ui.sections.goods.title") }}
+                    <el-tooltip placement="top">
+                        <template #content>
+                            共 {{ comparisonServers.length }} 个服务器 · 已加载 {{ completedServers }} /
+                            {{ comparisonServers.length }}<br />
+                            均价统计所有有报价的服务器，左右滚动可查看已选服务器的报价<br />
+                            趋势为近7个完整自然日有报价服务器的算术均值
+                        </template>
+                        <button type="button" class="m-market-section-info" aria-label="物价说明">
+                            <el-icon><InfoFilled /></el-icon>
+                        </button>
+                    </el-tooltip>
+                </h2>
+                <draggable
+                    v-if="serverOptions.length"
+                    :model-value="serverOptions"
+                    item-key="name"
+                    class="m-market-server-options"
+                    role="group"
+                    aria-label="选择和排序报价服务器"
+                    handle=".u-market-server-handle"
+                    ghost-class="is-dragging"
+                    @update:model-value="saveServerOptions"
+                >
+                    <template #item="{ element, index }">
+                        <div class="m-market-server-option" :class="{ 'is-selected': element.visible }">
+                            <button
+                                type="button"
+                                class="u-market-server-handle"
+                                :aria-label="`调整${element.name}顺序，使用左右方向键`"
+                                title="拖拽排序，也可使用左右方向键"
+                                @keydown.left.prevent="moveServer(index, -1)"
+                                @keydown.right.prevent="moveServer(index, 1)"
+                            >
+                                <el-icon><Rank /></el-icon>
+                            </button>
+                            <label>
+                                <input type="checkbox" :checked="element.visible" @change="toggleServer(element.name)" />
+                                {{ element.name }}
+                            </label>
+                        </div>
+                    </template>
+                </draggable>
+            </div>
             <p v-if="keywords.trim()" class="u-market-muted">全库名称搜索 · 仅展示已确认可交易物品</p>
             <el-alert
                 v-if="missingDetails"
@@ -56,6 +85,7 @@
                 :data="filteredGroups"
                 :server="server"
                 :servers="comparisonServers"
+                :visible-servers="visibleServers"
                 :quotes="quotes"
                 :failed-servers="failedServers"
                 :pending-servers="pendingServers"
@@ -86,6 +116,7 @@
     </div>
 </template>
 <script>
+import draggable from "vuedraggable";
 import { markRaw } from "vue";
 import { createPriceTrendLoader } from "@/utils/price-trend";
 import PriceTrend from "./PriceTrend.vue";
@@ -101,9 +132,10 @@ import serverOrigin from "@jx3box/jx3box-data/data/server/server_origin.json";
 import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import systemGoodList from "./systemGoodList.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
-import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { Goods, TrendCharts } from "@element-plus/icons-vue";
+import { Goods, InfoFilled, Rank } from "@element-plus/icons-vue";
+const SERVER_OPTIONS_KEY = "pvx-price-server-options";
+
 export default {
     name: "PriceGoods",
     components: {
@@ -111,15 +143,17 @@ export default {
         systemGoodList,
         GamePrice,
         PvxEmptyState,
-        PvxSectionHeader,
         PvxSurface,
         Goods,
-        TrendCharts,
+        InfoFilled,
+        Rank,
+        draggable,
     },
     props: { keywords: { type: String, default: "" }, server: { type: String, default: "" } },
     data() {
         return {
             trendLoader: markRaw(createPriceTrendLoader(getDailyPriceTrend)),
+            serverPreferences: {},
             groups: [],
             page: 1,
             searchItemCount: 0,
@@ -150,6 +184,15 @@ export default {
             const list = this.client === "std" ? serverCn : serverOrigin;
             return [...new Set([this.server, ...list])];
         },
+        serverOptions() {
+            const saved = this.serverPreferences[this.client] || [];
+            const current = new Set(this.comparisonServers);
+            const options = saved.filter(({ name }) => current.delete(name));
+            return [...options, ...Array.from(current, (name) => ({ name, visible: true }))];
+        },
+        visibleServers() {
+            return this.serverOptions.filter(({ visible }) => visible).map(({ name }) => name);
+        },
         highlights() {
             return this.groups
                 .flatMap((group) => group.items || [])
@@ -167,6 +210,28 @@ export default {
     },
     methods: {
         iconLink,
+        saveServerOptions(options) {
+            this.serverPreferences[this.client] = options;
+            try {
+                localStorage.setItem(SERVER_OPTIONS_KEY, JSON.stringify(this.serverPreferences));
+            } catch {
+                // The controls also work when browser storage is unavailable.
+            }
+        },
+        toggleServer(name) {
+            this.saveServerOptions(
+                this.serverOptions.map((option) =>
+                    option.name === name ? { ...option, visible: !option.visible } : option
+                )
+            );
+        },
+        moveServer(index, offset) {
+            const target = index + offset;
+            const options = [...this.serverOptions];
+            if (target < 0 || target >= options.length) return;
+            [options[index], options[target]] = [options[target], options[index]];
+            this.saveServerOptions(options);
+        },
         changePage(page) {
             if (page === this.page) return;
             this.page = page;
@@ -307,6 +372,18 @@ export default {
         },
     },
     created() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(SERVER_OPTIONS_KEY));
+            for (const [client, options] of Object.entries(saved || {})) {
+                if (Array.isArray(options)) {
+                    this.serverPreferences[client] = options.filter(
+                        (option) => typeof option?.name === "string" && typeof option.visible === "boolean"
+                    );
+                }
+            }
+        } catch {
+            // Start with all servers selected when browser storage cannot be read.
+        }
         this.pageCache = new Map();
         this.membershipCache = new Map();
         this.searchTimer = null;
@@ -340,7 +417,7 @@ export default {
             this.searchTimer = setTimeout(() => this.resetSearch(), 350);
         },
         server(value) {
-            // 已在请求全部区服，切换当前服只调整显示顺序。
+            // 已在请求全部区服，只有切换到未请求的服才需要重新加载。
             if (!this.requestedServers.includes(value)) this.loadPrices();
         },
         client() {

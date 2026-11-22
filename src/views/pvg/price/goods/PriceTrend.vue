@@ -31,11 +31,20 @@
                 >
                     <svg viewBox="0 0 160 56" preserveAspectRatio="none" role="img" :aria-label="summary">
                         <desc>{{ summary }}</desc>
+                        <defs>
+                            <linearGradient :id="gradientId" gradientUnits="userSpaceOnUse" x2="0" y2="54">
+                                <stop stop-color="currentColor" stop-opacity=".38" />
+                                <stop offset="100%" stop-color="currentColor" stop-opacity=".04" />
+                            </linearGradient>
+                        </defs>
+                        <path :d="geometry.area" :fill="'url(#' + gradientId + ')'" />
                         <path
                             :d="geometry.path"
                             fill="none"
                             stroke="currentColor"
                             stroke-width="2"
+                            stroke-linejoin="round"
+                            stroke-linecap="round"
                             vector-effect="non-scaling-stroke"
                         />
                         <line
@@ -46,7 +55,7 @@
                             :y1="dot.y"
                             :y2="dot.y + 0.01"
                             stroke="currentColor"
-                            stroke-width="4"
+                            :stroke-width="dot.index === hoverIndex ? 6 : 3"
                             stroke-linecap="round"
                             vector-effect="non-scaling-stroke"
                         />
@@ -58,6 +67,7 @@
                             y2="52"
                             stroke="currentColor"
                             stroke-width="1"
+                            stroke-opacity=".55"
                             stroke-dasharray="3 3"
                             vector-effect="non-scaling-stroke"
                         />
@@ -77,6 +87,8 @@
 <script>
 import { aggregateDailyTrend, trendGeometry } from "@/utils/price-trend";
 import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
+let nextGradientId = 0;
+
 export default {
     name: "PriceTrend",
     components: { GamePrice },
@@ -88,7 +100,7 @@ export default {
         scopeLabel: { type: String, default: "跨服参考均价" },
     },
     data() {
-        return { state: "idle", rows: [], hoverIndex: null };
+        return { state: "idle", rows: [], hoverIndex: null, gradientId: `market-trend-${++nextGradientId}` };
     },
     computed: {
         activePoint() {

@@ -588,6 +588,97 @@
 
 // 跨服物品行情列表（仅桌面物品标签）
 .p-pvx-price .m-goods-market {
+    .m-market-section-title {
+        display: flex;
+        align-items: center;
+        gap: @pvx-space-2;
+        margin: 0 0 @pvx-space-3;
+        color: @pvx-text-primary;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+    .m-market-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: @pvx-space-2 @pvx-space-4;
+        margin-bottom: @pvx-space-3;
+
+        .m-market-section-title { margin: 0; }
+    }
+    .m-market-server-options {
+        display: flex;
+        flex: 1 1 540px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: @pvx-space-2;
+        min-width: 0;
+    }
+    .m-market-server-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px 3px 4px;
+        border: 1px solid @pvx-border-light;
+        border-radius: @pvx-radius-small;
+        background: @pvx-surface;
+        color: @pvx-text-secondary;
+        font-size: 12px;
+        white-space: nowrap;
+
+        &.is-selected {
+            background: @pvx-surface-muted;
+            color: @pvx-text-primary;
+        }
+        &.is-dragging { opacity: .45; }
+
+        label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+        input { margin: 0; accent-color: @pvx-primary; }
+    }
+    .u-market-server-handle {
+        display: inline-grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: @pvx-text-secondary;
+        cursor: grab;
+
+        &:hover { background: @pvx-primary-soft; color: @pvx-primary; }
+        &:active { cursor: grabbing; }
+    }
+    @media (max-width: 760px) {
+        .m-market-server-options { justify-content: flex-start; }
+    }
+    .m-market-section-info {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: @pvx-text-muted;
+        font-size: 14px;
+        cursor: help;
+
+        &:hover,
+        &:focus-visible {
+            color: @pvx-text-primary;
+        }
+    }
     .m-market-pagination {
         display: flex;
         flex-wrap: wrap;
@@ -629,7 +720,7 @@
     }
     .m-market-row {
         display: grid;
-        grid-template-columns: clamp(220px, 22vw, 320px) minmax(360px, 2fr) minmax(120px, .65fr) 36px;
+        grid-template-columns: clamp(220px, 22vw, 320px) minmax(360px, 2fr) clamp(120px, 26vw, 400px) 36px;
         align-items: center;
         gap: @pvx-space-4;
         padding: @pvx-space-4 @pvx-space-3;
@@ -658,7 +749,28 @@
         gap: @pvx-space-3;
         overflow-x: auto;
         padding-bottom: @pvx-space-2;
-        scrollbar-width: thin;
+        --market-scroll-track: transparent;
+        --market-scroll-thumb: transparent;
+
+        &:hover,
+        &:focus-visible {
+            --market-scroll-track: @pvx-border-light;
+            --market-scroll-thumb: @pvx-text-muted;
+        }
+        &::-webkit-scrollbar { height: 6px; }
+        &::-webkit-scrollbar-track {
+            background: var(--market-scroll-track);
+            border-radius: 999px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: var(--market-scroll-thumb);
+            border-radius: 999px;
+        }
+        &:hover::-webkit-scrollbar-thumb:hover { background: @pvx-text-secondary; }
+        @supports not selector(::-webkit-scrollbar) {
+            scrollbar-width: thin;
+            scrollbar-color: var(--market-scroll-thumb) var(--market-scroll-track);
+        }
         &:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
     }
     .m-market-server {
@@ -714,8 +826,9 @@
         min-height: 66px;
         color: @pvx-text-secondary;
         font-size: 12px;
-        svg { display: block; width: 100%; height: 56px; color: @pvx-text-primary; }
+        svg { display: block; width: 100%; height: 56px; color: #f6c453; }
     }
+    .m-market-row > .m-market-trend { max-width: 400px; }
     .u-market-trend-caption { color: @pvx-text-muted; }
     .m-market-trend-plot {
         width: 100%;

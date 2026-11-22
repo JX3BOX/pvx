@@ -1312,7 +1312,7 @@ export default {
                 sections: {
                     overview: { title: "Tổng quan thị trường", description: "So sánh giá vàng gần đây giữa các kênh" },
                     gold: { title: "Xu hướng giá vàng", description: "Xem biến động giá vàng của máy chủ đã chọn" },
-                    goods: { title: "Giá vật phẩm", description: "Xem giá hiện tại của các vật phẩm phổ biến" },
+                    goods: { title: "Tất cả giá vật phẩm", description: "Xem giá hiện tại của các vật phẩm phổ biến" },
                     follow: { title: "Danh sách theo dõi", description: "Xem nhanh giá trong các danh sách đã theo dõi" },
                 },
                 chart: {

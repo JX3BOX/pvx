@@ -1301,7 +1301,7 @@ export default {
                 sections: {
                     overview: { title: "走勢速覽", description: "比較各交易渠道近期金價" },
                     gold: { title: "金價走勢", description: "查看所選伺服器的歷史金價變化" },
-                    goods: { title: "物價總覽", description: "瀏覽常用物品目前市場價格" },
+                    goods: { title: "全部物價", description: "瀏覽常用物品目前市場價格" },
                     follow: { title: "我的關注", description: "集中查看已關注清單中的物品" },
                 },
                 chart: {

@@ -1,8 +1,10 @@
 <template>
     <div class="m-market-list">
         <div class="m-market-row m-market-row--header" aria-hidden="true">
-            <span>物品 / 有报价服务器均价</span><span>各服近期报价 · 左右滚动查看全部</span><span>近期综合趋势</span
-            ><span></span>
+            <span>物品</span>
+            <span>各服近期报价</span>
+            <span>近期综合趋势</span>
+            <span></span>
         </div>
         <section v-for="group in displayGroups" :key="group.id" class="m-market-group">
             <h3 v-if="group.label" class="m-market-group__title">{{ group.label }}</h3>
@@ -27,10 +29,10 @@
                     class="m-market-servers"
                     tabindex="0"
                     role="region"
-                    :aria-label="`${item.label}全部服务器报价，可左右滚动`"
+                    :aria-label="`${item.label}所选服务器报价，可左右滚动`"
                 >
                     <ServerQuote
-                        v-for="name in servers"
+                        v-for="name in visibleServers"
                         :key="name"
                         :name="name"
                         :quote="quotes[name]?.[item.item_id]"
@@ -43,6 +45,7 @@
                                 : 'ready'
                         "
                     />
+                    <span v-if="!visibleServers.length" class="u-market-muted">未选择服务器</span>
                 </div>
                 <PriceTrend :item-id="item.item_id" :label="item.label" :servers="servers" />
                 <a
@@ -70,6 +73,7 @@ export default {
         data: { type: Array, default: () => [] },
         server: { type: String, default: "" },
         servers: { type: Array, default: () => [] },
+        visibleServers: { type: Array, default: () => [] },
         quotes: { type: Object, default: () => ({}) },
         failedServers: { type: Array, default: () => [] },
         pendingServers: { type: Array, default: () => [] },

@@ -1460,7 +1460,7 @@ export default {
                 sections: {
                     overview: { title: "走势速览", description: "对比各交易渠道近期金价" },
                     gold: { title: "金价走势", description: "查看所选区服的历史金价变化" },
-                    goods: { title: "物价总览", description: "浏览常用物品当前市场价格" },
+                    goods: { title: "全部物价", description: "浏览常用物品当前市场价格" },
                     follow: { title: "我的关注", description: "集中查看已关注清单中的物品" },
                 },
                 chart: {

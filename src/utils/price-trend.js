@@ -106,22 +106,33 @@ export function aggregateDailyTrend(rows, servers, now = Date.now()) {
 
 export function trendGeometry(points) {
     const values = points.filter((point) => point.price != null).map((point) => point.price);
-    if (!values.length) return { path: "", dots: [] };
-    const min = Math.min(...values),
-        max = Math.max(...values);
-    let pen = false;
+    if (!values.length) return { path: "", area: "", dots: [] };
+    const min = Math.min(...values);
+    const max = Math.max(...values);
     const dots = [];
-    const segments = points.map((point, index) => {
+    const segments = [];
+    let segment = [];
+    points.forEach((point, index) => {
         if (point.price == null) {
-            pen = false;
-            return "";
+            segment = [];
+            return;
         }
+        if (!segment.length) segments.push(segment);
+
         const x = 5 + (index * 150) / Math.max(1, points.length - 1);
         const y = max === min ? 28 : 48 - ((point.price - min) / (max - min)) * 40;
-        dots.push({ x, y });
-        const command = `${pen ? "L" : "M"}${x.toFixed(2)},${y.toFixed(2)}`;
-        pen = true;
-        return command;
+        const dot = { x, y, index };
+        dots.push(dot);
+        segment.push(dot);
     });
-    return { path: segments.join(" "), dots };
+    const line = (segment) =>
+        segment.map(({ x, y }, index) => `${index ? "L" : "M"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+    return {
+        path: segments.map(line).join(" "),
+        area: segments
+            .filter((segment) => segment.length > 1)
+            .map((segment) => `${line(segment)} V54 H${segment[0].x.toFixed(2)} Z`)
+            .join(" "),
+        dots,
+    };
 }
