@@ -1,220 +1,354 @@
 <template>
-    <div class="p-price-goods" v-loading="loading">
+    <div class="p-price-goods m-goods-market" v-loading="loading">
+        <PvxSurface class="m-pvx-price__section" padding="medium">
+            <PvxSectionHeader
+                class="m-pvx-price__section-header"
+                title="热门趋势"
+                description="本页物品近7日趋势预览；尚未按热度排名"
+            >
+                <template #icon><TrendCharts /></template>
+            </PvxSectionHeader>
+            <div class="m-market-highlights">
+                <div v-for="item in highlights" :key="item.item_id" class="m-market-highlight">
+                    <div class="m-market-highlight__name">
+                        <img v-if="item.icon" :src="iconLink(item.icon)" alt="" /><el-icon v-else><Goods /></el-icon
+                        >{{ item.label }}
+                    </div>
+                    <small>{{ server }} · 最新报价</small>
+                    <GamePrice v-if="priceMap[item.item_id] != null" :price="priceMap[item.item_id]" />
+                    <span v-else class="u-market-muted">暂无报价</span>
+                    <PriceTrend
+                        :key="`${client}:${item.item_id}`"
+                        :item-id="item.item_id"
+                        :label="item.label"
+                        :servers="comparisonServers"
+                    />
+                </div>
+            </div>
+            <p v-if="!highlights.length && !loading" class="u-market-muted">本页暂无物品</p>
+        </PvxSurface>
         <PvxSurface class="m-pvx-price__section" padding="medium">
             <PvxSectionHeader
                 class="m-pvx-price__section-header"
                 :title="$t('pages.pvg.price.ui.sections.goods.title')"
-                :description="$t('pages.pvg.price.ui.sections.goods.description')"
+                description="每行一个物品，左右滚动查看全部服务器报价；均价统计已返回且有报价的服务器"
             >
                 <template #icon><Goods /></template>
             </PvxSectionHeader>
+            <p class="u-market-muted" aria-live="polite">
+                共 {{ comparisonServers.length }} 个服务器 · 已加载 {{ completedServers }} /
+                {{ comparisonServers.length }} · 各服报价区域可左右滚动；趋势为近7个完整自然日有报价服务器的算术均值
+            </p>
+            <p v-if="keywords.trim()" class="u-market-muted">全库名称搜索 · 仅展示已确认可交易物品</p>
+            <el-alert
+                v-if="missingDetails"
+                :title="`${missingDetails} 件物品信息暂未补齐，显示物品 ID；仍可查询报价`"
+                type="info"
+                :closable="false"
+            />
+            <el-alert v-if="listError" :title="listError" type="error" :closable="false" show-icon>
+                <el-button @click="loadGroups">重新加载</el-button>
+            </el-alert>
+            <el-alert v-if="error" :title="error" type="warning" :closable="false" show-icon />
             <systemGoodList
-                v-if="systemGoodsDataFilter.length"
-                :data="systemGoodsDataFilter"
-                :priceMap="priceMap"
+                v-if="filteredGroups.length"
+                :key="client"
+                :data="filteredGroups"
                 :server="server"
+                :servers="comparisonServers"
+                :quotes="quotes"
+                :failed-servers="failedServers"
+                :pending-servers="pendingServers"
             />
             <PvxEmptyState
-                v-else-if="!loading"
+                v-else-if="!loading && !listError"
                 illustrated
                 :title="$t('pages.pvg.price.ui.empty.goodsTitle')"
                 :description="$t('pages.pvg.price.ui.empty.goodsDescription')"
             />
+            <div v-if="total && filteredGroups.length" class="m-market-pagination">
+                <el-pagination
+                    :current-page="page"
+                    :page-size="pageSize"
+                    :total="total"
+                    :pager-count="5"
+                    :disabled="loading"
+                    layout="prev, pager, next"
+                    background
+                    @current-change="changePage"
+                />
+                <span v-if="keywords.trim()" class="u-market-muted"
+                    >名称匹配 {{ total }} 件 · 本页可交易 {{ searchItemCount }} 件</span
+                >
+                <span v-else class="u-market-muted">共 {{ total }} 件 · 每页 {{ pageSize }} 件</span>
+            </div>
         </PvxSurface>
-        <myGoodsDialog
-            v-if="showMyGoods"
-            @close="showMyGoods = false"
-            :myFollowData="myFollowData"
-            @setMyFollowList="setMyFollowList"
-        ></myGoodsDialog>
     </div>
 </template>
 <script>
+import { markRaw } from "vue";
+import { createPriceTrendLoader } from "@/utils/price-trend";
+import PriceTrend from "./PriceTrend.vue";
 import {
-    getSystemGoodsData,
+    getTradableGoodsPage,
     getServerPriceData,
-    getMyFollowList,
-    setMyFollowList,
-    getMyGoodsDetail,
-} from "@/service/pvg/price.js"; // 系统关注物品类型
+    getDailyPriceTrend,
+    searchTradableGoodsBatch,
+} from "@/service/pvg/price.js";
+import { iconLink } from "@jx3box/jx3box-common/js/utils";
+import serverCn from "@jx3box/jx3box-data/data/server/server_cn.json";
+import serverOrigin from "@jx3box/jx3box-data/data/server/server_origin.json";
+import GamePrice from "@jx3box/jx3box-ui/src/wiki/GamePrice.vue";
 import systemGoodList from "./systemGoodList.vue";
-import myGoodsDialog from "./myGoodsDialog.vue";
-import User from "@jx3box/jx3box-common/js/user";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { Goods } from "@element-plus/icons-vue";
-
+import { Goods, TrendCharts } from "@element-plus/icons-vue";
 export default {
-    props: {
-        keywords: { type: String, default: "" },
-        server: { type: String, default: "" },
-    },
     name: "PriceGoods",
     components: {
+        PriceTrend,
         systemGoodList,
-        myGoodsDialog,
+        GamePrice,
         PvxEmptyState,
         PvxSectionHeader,
         PvxSurface,
         Goods,
+        TrendCharts,
     },
+    props: { keywords: { type: String, default: "" }, server: { type: String, default: "" } },
     data() {
         return {
-            systemGoodsData: [], // 系统关注物品
-            priceMap: {}, // 物品id和价格的映射
-            myFollowData: [], // 我的关注清单id
-            myFollowPlan: [], // 我的关注清单
-            showMyGoods: false,
+            trendLoader: markRaw(createPriceTrendLoader(getDailyPriceTrend)),
+            groups: [],
+            page: 1,
+            searchItemCount: 0,
+            pageSize: 20,
+            total: 0,
+            missingDetails: 0,
+            listError: "",
+            quotes: {},
+            failedServers: [],
+            pendingServers: [],
+            completedServers: 0,
             loading: false,
+            error: "",
+            requestVersion: 0,
+            groupVersion: 0,
+            requestedServers: [],
         };
+    },
+    provide() {
+        return { priceTrendLoader: this.trendLoader };
     },
     computed: {
         client() {
             return this.$store.state.client;
         },
-        myFollowPlanFilter() {
-            let data = JSON.parse(JSON.stringify(this.myFollowPlan));
-            if (this.keywords) {
-                data.forEach((item) => {
-                    item.relation.forEach((item2) => {
-                        item2.data = item2.data.filter((item3) => {
-                            return item3.Name && item3.Name.indexOf(this.keywords) > -1;
-                        });
-                    });
-                });
-            }
-            data = data.filter((item) => {
-                return item.relation.some((item2) => {
-                    return item2.data.length > 0;
-                });
-            });
-
-            return data;
+        comparisonServers() {
+            if (!this.server) return [];
+            const list = this.client === "std" ? serverCn : serverOrigin;
+            return [...new Set([this.server, ...list])];
         },
-        systemGoodsDataFilter() {
-            let data = JSON.parse(JSON.stringify(this.systemGoodsData));
-            if (this.keywords) {
-                data.forEach((item) => {
-                    item.items = item.items.filter((item2) => {
-                        return item2.label && item2.label.indexOf(this.keywords) > -1;
-                    });
-                });
-            }
-            data = data.filter((item) => {
-                return item.items.length > 0;
-            });
-            return data;
+        highlights() {
+            return this.groups
+                .flatMap((group) => group.items || [])
+                .filter((item, index, items) => items.findIndex((other) => other.item_id === item.item_id) === index)
+                .slice(0, 3);
+        },
+        priceMap() {
+            return Object.fromEntries(
+                Object.entries(this.quotes[this.server] || {}).map(([id, quote]) => [id, quote.price])
+            );
+        },
+        filteredGroups() {
+            return this.groups.filter((group) => group.items?.length);
         },
     },
     methods: {
-        getSystemGoodsData() {
-            getSystemGoodsData({ client: this.client }).then((res) => {
-                this.systemGoodsData = res.data.data;
-                this.getServerPriceData();
-            });
+        iconLink,
+        changePage(page) {
+            if (page === this.page) return;
+            this.page = page;
+            this.loadGroups();
         },
-        getServerPriceData() {
-            if (!this.server || !this.systemGoodsData.length) return;
-            const flatList = [];
-            this.systemGoodsData.forEach((group) => {
-                group.items.forEach((item) => {
-                    flatList.push(item.item_id);
-                });
-            });
-            this.loading = true;
-            getServerPriceData({
-                item_ids: flatList,
-                server: this.server,
-                aggregate_type: "hourly",
-            })
-                .then((res) => {
-                    const data = res.data;
-                    this.priceMap = {};
-                    data.forEach((item) => {
-                        this.priceMap[item.item_id] = item.price;
-                    });
-                })
-                .finally(() => {
-                    this.loading = false;
-                });
+        resetSearch() {
+            this.page = 1;
+            this.total = 0;
+            this.loadGroups();
         },
-        getMyFollowList() {
+        async loadSearchBatch(version, signal) {
+            const key = `${this.client}:search:${this.keywords.trim()}:${this.page}`;
+            const cached = this.pageCache.get(key);
+            const result =
+                cached && Date.now() - cached.time < 60000
+                    ? cached.result
+                    : await searchTradableGoodsBatch({
+                          keyword: this.keywords.trim(),
+                          client: this.client,
+                          index: this.page,
+                          signal,
+                          membershipCache: this.membershipCache,
+                      });
+            if (version !== this.groupVersion) return;
+            this.pageCache.delete(key);
+            this.pageCache.set(key, { result, time: cached && result === cached.result ? cached.time : Date.now() });
+            if (this.pageCache.size > 5) this.pageCache.delete(this.pageCache.keys().next().value);
+            this.total = result.total;
+            this.searchItemCount = result.items.length;
+            this.groups = [{ id: "search", items: result.items }];
+            this.loadPrices();
+        },
+        async loadGroups() {
+            const version = ++this.groupVersion;
+            ++this.requestVersion;
+            this.listAbort?.abort();
+            this.quoteAbort?.abort();
+            const controller = new AbortController();
+            this.listAbort = controller;
+            this.groups = [];
+            this.requestedServers = [];
+            this.quotes = {};
+            this.failedServers = [];
+            this.pendingServers = [];
+            this.completedServers = 0;
+            this.missingDetails = 0;
+            this.listError = "";
+            this.error = "";
             this.loading = true;
-            getMyFollowList().then((res) => {
-                if (res.data.data) {
-                    this.myFollowData = res.data.data
-                        .split(",")
-                        .map((item) => +item)
-                        .filter((item) => !!item);
-                } else {
-                    this.myFollowData = [];
+            try {
+                if (this.keywords.trim()) {
+                    await this.loadSearchBatch(version, controller.signal);
+                    return;
                 }
-                const allPromises = [];
-                this.myFollowData.forEach((id) => {
-                    const p = this.getPlan(id);
-                    allPromises.push(p);
-                });
-                Promise.allSettled(allPromises).then((res) => {
-                    this.loading = false;
-                    this.myFollowPlan = (res || [])
-                        .filter((item) => item.status === "fulfilled")
-                        .map((item) => item.value);
-                    this.getMyFollowGoodsPrice();
-                });
-            });
-        },
-        getPlan(id) {
-            return new Promise((resolve, reject) => {
-                getMyGoodsDetail(id, this.client)
-                    .then((res) => {
-                        resolve(res.data.data);
-                    })
-                    .catch((err) => {
-                        reject(err);
+                const key = `${this.client}:${this.page}:${this.pageSize}`;
+                const cached = this.pageCache.get(key);
+                const result =
+                    cached && Date.now() - cached.time < 60000
+                        ? cached.result
+                        : await getTradableGoodsPage({
+                              index: this.page,
+                              pageSize: this.pageSize,
+                              client: this.client,
+                              signal: controller.signal,
+                          });
+                if (version !== this.groupVersion) return;
+                if (!result.missingDetails) {
+                    this.pageCache.delete(key);
+                    this.pageCache.set(key, {
+                        result,
+                        time: cached && result === cached.result ? cached.time : Date.now(),
                     });
-            });
+                    if (this.pageCache.size > 5) this.pageCache.delete(this.pageCache.keys().next().value);
+                }
+                this.total = Number(result.page.total) || 0;
+                this.missingDetails = result.missingDetails;
+                this.groups = [{ id: "tradable", items: result.items }];
+                this.loadPrices();
+            } catch (error) {
+                if (version === this.groupVersion) this.listError = "物品列表加载失败，请重新加载";
+            } finally {
+                if (version === this.groupVersion) this.loading = false;
+            }
         },
-        getMyFollowGoodsPrice() {
-            const ids = [];
-            const idsMap = {};
-            this.myFollowPlan.forEach((plan) => {
-                plan.relation.forEach((item) => {
-                    item.data.forEach((good) => {
-                        const id = good.id;
-                        if (this.priceMap[id] == undefined && idsMap[id] == undefined) {
-                            ids.push(id);
-                            idsMap[id] = true;
+        async loadPrices() {
+            const version = ++this.requestVersion;
+            this.quoteAbort?.abort();
+            const controller = new AbortController();
+            this.quoteAbort = controller;
+            this.quotes = {};
+            this.failedServers = [];
+            this.pendingServers = [];
+            this.completedServers = 0;
+            const ids = [...new Set(this.groups.flatMap((group) => (group.items || []).map((item) => item.item_id)))];
+            if (!ids.length || !this.comparisonServers.length) return;
+            const servers = [...this.comparisonServers];
+            this.requestedServers = servers;
+            this.error = "";
+            this.completedServers = 0;
+            this.pendingServers = [...servers];
+            let cursor = 0;
+            const worker = async () => {
+                while (cursor < servers.length && version === this.requestVersion) {
+                    const server = servers[cursor++];
+                    try {
+                        const result = await getServerPriceData(
+                            { item_ids: ids, server, aggregate_type: "hourly" },
+                            { signal: controller.signal }
+                        );
+                        if (version !== this.requestVersion) return;
+                        if (!Array.isArray(result.data)) throw new Error("Invalid quote response");
+                        this.quotes[server] = Object.fromEntries(
+                            result.data
+                                .filter(
+                                    (item) =>
+                                        item.price != null &&
+                                        Number.isFinite(Number(item.price)) &&
+                                        Number(item.price) >= 0
+                                )
+                                .map((item) => [item.item_id, { ...item, price: Number(item.price) }])
+                        );
+                    } catch (error) {
+                        if (version !== this.requestVersion) return;
+                        this.failedServers.push(server);
+                    } finally {
+                        if (version === this.requestVersion) {
+                            this.pendingServers = this.pendingServers.filter((name) => name !== server);
+                            this.completedServers++;
                         }
-                    });
-                });
-            });
+                    }
+                }
+            };
+            await Promise.all(Array.from({ length: Math.min(4, servers.length) }, worker));
+            if (version !== this.requestVersion) return;
+            this.error = this.failedServers.length
+                ? `${this.failedServers.join("、")}报价加载失败，其余服务器仍可查看`
+                : "";
         },
-        openAddDialog() {
-            this.showMyGoods = true;
-        },
-        setMyFollowList(val) {
-            // 此处接口不支持不传，传空后前端过滤id为0的数据
-            setMyFollowList({ val }).then((res) => {
-                this.showMyGoods = false;
-                this.$message.success(this.$t("pages.pvg.price.ui.messages.followSaved"));
-                this.getMyFollowList();
-            });
-        },
-        updatePrice() {
-            this.getServerPriceData();
-            this.getMyFollowGoodsPrice();
-        },
+    },
+    created() {
+        this.pageCache = new Map();
+        this.membershipCache = new Map();
+        this.searchTimer = null;
+        this.listAbort = null;
+        this.quoteAbort = null;
     },
     mounted() {
-        this.getSystemGoodsData();
-        if (User.isLogin()) {
-            this.getMyFollowList();
-        }
+        this.loadGroups();
+    },
+    beforeUnmount() {
+        ++this.groupVersion;
+        ++this.requestVersion;
+        this.listAbort?.abort();
+        this.quoteAbort?.abort();
+        clearTimeout(this.searchTimer);
+        this.membershipCache.clear();
+        this.pageCache.clear();
+        this.trendLoader.clear();
     },
     watch: {
-        server() {
-            this.updatePrice();
+        keywords() {
+            clearTimeout(this.searchTimer);
+            ++this.groupVersion;
+            ++this.requestVersion;
+            this.listAbort?.abort();
+            this.quoteAbort?.abort();
+            this.groups = [];
+            this.loading = true;
+            this.searchItemCount = 0;
+            this.page = 1;
+            this.searchTimer = setTimeout(() => this.resetSearch(), 350);
+        },
+        server(value) {
+            // 已在请求全部区服，切换当前服只调整显示顺序。
+            if (!this.requestedServers.includes(value)) this.loadPrices();
+        },
+        client() {
+            clearTimeout(this.searchTimer);
+            this.trendLoader.clear();
+            this.page = 1;
+            this.total = 0;
+            this.loadGroups();
         },
     },
 };
