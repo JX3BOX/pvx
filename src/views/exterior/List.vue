@@ -52,6 +52,10 @@
                             aria-haspopup="dialog"
                             @click="openStarDrawer(drawer)"
                         >
+                            <template #icon>
+                                <Star v-if="drawer === 'favorites'" aria-hidden="true" />
+                                <Trophy v-else aria-hidden="true" />
+                            </template>
                             {{ $t(`exterior.star.${drawer}`) }}
                         </el-button>
                     </div>
@@ -96,17 +100,29 @@
             :model-value="activeDrawer === drawer"
             :title="$t(`exterior.star.${drawer}`)"
             header-class="m-exterior-drawer-header"
-            size="min(100%, 540px)"
+            body-class="m-exterior-drawer-body"
+            size="min(100%, 460px)"
             append-to-body
             @update:model-value="closeStarDrawer(drawer, $event)"
         >
+            <template #header="{ titleId }">
+                <div class="flex min-w-0 items-center gap-2.5">
+                    <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <Star v-if="drawer === 'favorites'" class="size-4" aria-hidden="true" />
+                        <Trophy v-else class="size-4" aria-hidden="true" />
+                    </span>
+                    <h2 :id="titleId" class="m-0 text-base font-semibold text-slate-800">
+                        {{ $t(`exterior.star.${drawer}`) }}
+                    </h2>
+                </div>
+            </template>
             <ExteriorStarList :view="drawer" :visible="activeDrawer === drawer" />
         </el-drawer>
     </div>
 </template>
 
 <script>
-import { ArrowDown } from "@element-plus/icons-vue";
+import { ArrowDown, Star, Trophy } from "@element-plus/icons-vue";
 import responsivePagination from "@/mixins/responsive-pagination";
 import PvxSearch from "@/components/PvxSearch.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
@@ -121,6 +137,8 @@ export default {
     mixins: [responsivePagination],
     components: {
         ArrowDown,
+        Star,
+        Trophy,
         PvxSearch,
         PvxSurface,
         PvxSectionHeader,
@@ -292,8 +310,29 @@ export default {
 
 .el-drawer__header.m-exterior-drawer-header {
     margin-bottom: 0;
-    padding-bottom: var(--el-drawer-padding-primary);
+    padding: @pvx-space-2 clamp(@pvx-space-2, 4vw, @pvx-space-4);
     border-bottom: 1px solid @pvx-border;
+    background: @pvx-surface;
+
+    .el-drawer__close-btn {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: @pvx-radius-small;
+        color: @pvx-text-secondary;
+
+        &:hover,
+        &:focus-visible {
+            color: @pvx-primary-hover;
+            background: @pvx-primary-soft;
+        }
+    }
+}
+
+.el-drawer__body.m-exterior-drawer-body {
+    padding: clamp(@pvx-space-2, 4vw, @pvx-space-4);
+    background: @pvx-surface-muted;
 }
 
 .m-exterior-subcategories:extend(.p-pvx-furniture-list .m-child-category all) {

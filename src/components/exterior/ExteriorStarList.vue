@@ -13,32 +13,32 @@
         <component
             :is="isFavorites ? 'ul' : 'ol'"
             v-else-if="entries.length"
-            class="m-0 list-none divide-y divide-slate-200 p-0"
+            class="m-0 list-none divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white p-0"
         >
             <li
                 v-for="(entry, index) in entries"
                 :key="entry.exterior_id"
-                class="grid items-center gap-2 py-3 text-sm"
-                :class="isFavorites ? 'grid-cols-[minmax(0,1fr)_auto]' : 'grid-cols-[1.75rem_minmax(0,1fr)_auto]'"
+                class="grid items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-slate-50 focus-within:bg-slate-50 sm:gap-3 sm:px-4"
+                :class="isFavorites ? 'grid-cols-[minmax(0,1fr)_auto]' : 'grid-cols-[1.5rem_minmax(0,1fr)_auto]'"
             >
                 <span
                     v-if="!isFavorites"
-                    class="grid size-7 place-items-center rounded-full font-bold tabular-nums"
-                    :class="rankColors[index] || 'bg-slate-100 text-slate-600'"
+                    class="grid size-6 place-items-center rounded-full text-xs leading-none font-semibold tabular-nums"
+                    :class="rankColors[index] || 'bg-slate-100 text-slate-500'"
                 >
                     {{ index + 1 }}
                 </span>
                 <router-link
                     v-if="entry.exterior"
                     :to="{ name: 'exterior-list', query: { id: entry.exterior.key, view } }"
-                    class="flex min-w-0 items-center gap-2 font-semibold hover:text-indigo-600"
+                    class="flex min-w-0 items-center gap-2.5 rounded-lg font-medium text-slate-700 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-500"
                 >
                     <img
                         :src="iconLink(entry.exterior.icon_id, $store.state.client)"
                         alt=""
-                        class="size-9 shrink-0 rounded-lg"
+                        class="size-8 shrink-0 rounded-lg bg-slate-100"
                     />
-                    <span class="min-w-0 break-words">{{ entry.exterior.name }}</span>
+                    <span class="min-w-0 leading-5 wrap-anywhere">{{ entry.exterior.name }}</span>
                 </router-link>
                 <div v-else class="min-w-0">
                     <p class="m-0 break-all font-semibold text-slate-700">{{ entry.exterior_id }}</p>
@@ -47,6 +47,7 @@
                 <el-button
                     v-if="isFavorites"
                     plain
+                    size="small"
                     :aria-label="$t('exterior.star.removeNamed', { name: entry.exterior?.name || entry.exterior_id })"
                     :loading="removing.has(entry.exterior_id)"
                     @click="remove(entry.exterior_id)"
@@ -55,10 +56,10 @@
                 </el-button>
                 <span
                     v-else
-                    class="inline-flex items-center gap-1 whitespace-nowrap tabular-nums text-slate-600"
+                    class="inline-flex min-w-11 items-center justify-center gap-1 rounded-full bg-slate-100 px-2 py-1 whitespace-nowrap text-xs font-medium tabular-nums text-slate-600"
                     :title="$t('exterior.star.count', { count: entry.count })"
                 >
-                    <StarFilled class="size-4 text-indigo-500" aria-hidden="true" />
+                    <StarFilled class="size-3 text-indigo-500" aria-hidden="true" />
                     <span aria-hidden="true">{{ entry.count }}</span>
                     <span class="sr-only">{{ $t("exterior.star.count", { count: entry.count }) }}</span>
                 </span>
@@ -90,7 +91,7 @@ export default {
     },
     data() {
         return {
-            rankColors: ["bg-amber-100 text-amber-800", "bg-slate-200 text-slate-700", "bg-orange-100 text-orange-800"],
+            rankColors: ["bg-rose-100 text-rose-700", "bg-amber-100 text-amber-800", "bg-indigo-100 text-indigo-700"],
             entries: [],
             removing: new Set(),
             requiresLogin: false,
