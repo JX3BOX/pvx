@@ -34,6 +34,7 @@
                     class="flex min-w-0 items-center gap-2.5 rounded-lg font-medium text-slate-700 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-500"
                 >
                     <img
+                        v-if="Number(entry.exterior.icon_id) > 0"
                         :src="iconLink(entry.exterior.icon_id, $store.state.client)"
                         alt=""
                         class="size-8 shrink-0 rounded-lg bg-slate-100"

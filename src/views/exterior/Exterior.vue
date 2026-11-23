@@ -11,7 +11,7 @@
         <div class="m-main p-exterior">
             <PvxPageShell
                 class="m-exterior-shell"
-                :class="{ 'm-exterior-shell--list': !detailId && $route.name === 'exterior-list' }"
+                :class="detailId ? 'm-exterior-shell--detail' : 'm-exterior-shell--list'"
             >
                 <router-view v-slot="{ Component }">
                     <keep-alive include="ExteriorList">
@@ -65,31 +65,26 @@ export default {
     });
 }
 
-.p-exterior .m-exterior-filters .pvx-search-wrapper .search-group .search-item.type-list .type-item {
-    &:hover, &.is-active {
-        &, .el-radio-button__inner {
-            background-color: @pvx-primary;
-            color: @pvx-text-inverse;
-        }
-    }
-}
-
-
 .c-pvx-exterior-main .m-main.p-exterior {
     padding: 0;
     background: #f6f8fa;
 }
 
 .p-exterior .m-exterior-shell > div {
-    max-width: none;
-}
-.p-exterior .m-exterior-shell--list > div {
-    padding: 30px;
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 26px 30px 44px;
+
     @media (max-width: @ipad) {
-        padding: 20px;
+        padding: 20px 18px 36px;
     }
+
     @media (max-width: @phone) {
-        padding: 16px;
+        padding: 14px 12px 28px;
     }
+}
+
+.p-exterior .m-exterior-shell--detail > div {
+    max-width: 1380px;
 }
 </style>

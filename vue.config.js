@@ -204,6 +204,37 @@ module.exports = {
             },
         });
 
+        // 3D 外观渲染核心已预打包为现代 ESM，保留 import.meta.url 与原生运行时资产路径。
+        const exteriorPkgRe = /node_modules[\\/]@jx3box[\\/]jx3box-exterior/;
+        config.module.rule("js").exclude.add(exteriorPkgRe);
+        config.module
+            .rule("exterior-assets")
+            .test(/\.(filamat|wasm)$/)
+            .include.add(exteriorPkgRe)
+            .end()
+            .type("asset/resource")
+            .set("generator", {
+                filename: "exterior-runtime/[name].[contenthash:8][ext]",
+            });
+        config.module
+            .rule("exterior-runtime-mjs")
+            .test(/dist[\\/]browser[\\/]runtime[\\/].*\.mjs$/)
+            .include.add(exteriorPkgRe)
+            .end()
+            .type("asset/resource")
+            .set("generator", {
+                filename: "exterior-runtime/[name].[contenthash:8][ext]",
+            });
+        config.module
+            .rule("exterior-workers")
+            .test(/dist[\\/]browser[\\/].*-worker\.js$/)
+            .include.add(exteriorPkgRe)
+            .end()
+            .type("asset/resource")
+            .set("generator", {
+                filename: "exterior-runtime/[name].[contenthash:8][ext]",
+            });
+
         // 💝 quick svg ~
         config.module
             .rule("svg")

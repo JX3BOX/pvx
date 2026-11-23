@@ -6,19 +6,28 @@ on:
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: read
         strategy:
             matrix:
                 node-version: [v22.14.0]
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
             - name: Use Node.js ${{ matrix.node-version }}
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
 
             - name: Install && Build
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.JX3BOX_PACKAGES_READ_TOKEN || secrets.ACCESS_TOKEN || github.token }}
               run: |
-                  npm install
+                  echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "$HOME/.npmrc"
+                  EXTERIOR_VER=$(node -p "require('./package.json').dependencies['@jx3box/jx3box-exterior']")
+                  npm pkg delete dependencies.@jx3box/jx3box-exterior
+                  npm install --no-audit --no-fund
+                  npm install --no-save --@jx3box:registry=https://npm.pkg.github.com "@jx3box/jx3box-exterior@${EXTERIOR_VER}"
                   npm run build:dev
                   mv dist pvx
 
