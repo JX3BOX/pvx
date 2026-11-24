@@ -9,10 +9,7 @@
         :without-bread="true"
     >
         <div class="m-main p-exterior">
-            <PvxPageShell
-                class="m-exterior-shell"
-                :class="detailId ? 'm-exterior-shell--detail' : 'm-exterior-shell--list'"
-            >
+            <PvxPageShell class="m-exterior-shell" :class="shellModifierClass">
                 <router-view v-slot="{ Component }">
                     <keep-alive include="ExteriorList">
                         <ExteriorSingle v-if="detailId" :detail-id="detailId" />
@@ -47,6 +44,10 @@ export default {
         detailId() {
             const { name, query } = this.$route;
             return name === "exterior-list" && typeof query.id === "string" ? query.id : "";
+        },
+        shellModifierClass() {
+            if (this.$route.name === "exterior-studio") return "m-exterior-shell--studio";
+            return this.detailId ? "m-exterior-shell--detail" : "m-exterior-shell--list";
         },
     },
 };
@@ -86,5 +87,14 @@ export default {
 
 .p-exterior .m-exterior-shell--detail > div {
     max-width: 1380px;
+}
+
+.p-exterior .m-exterior-shell--studio > div {
+    max-width: 1720px;
+    padding: 14px 20px 24px;
+
+    @media (max-width: @phone) {
+        padding: 10px 10px 18px;
+    }
 }
 </style>

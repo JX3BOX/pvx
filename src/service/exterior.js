@@ -1,5 +1,5 @@
-// 外观大全接口封装：目录与图谱读取自 Node，模型/收藏/仓库/晒图读取自 CMS，默认体型读取自用户绑定角色。
-import { $cms, $node } from "@jx3box/jx3box-common/js/api";
+// 外观大全接口封装：目录与图谱读取自 Node，模型/收藏/仓库/晒图读取自 CMS，默认体型读取自用户绑定角色，捏脸/体型库读取自 NEXT。
+import { $cms, $next, $node } from "@jx3box/jx3box-common/js/api";
 import User from "@jx3box/jx3box-common/js/user";
 import { getUserRoles } from "@/service/team";
 import { normalizeBodyType, resolveExteriorAssetUrl } from "@/components/exterior/meta";
@@ -290,93 +290,151 @@ export function getDefaultUserBodyType() {
     return cachedDefaultRolePromise;
 }
 
-const exteriorUserPath = "/api/cms/pvx/exterior/user";
+const exteriorFavoritesPath = "/api/cms/pvx/exterior/favorites";
+const exteriorWarehousePath = "/api/cms/pvx/exterior/warehouse";
+const FACE_ASSETS_CDN_BASE = "https://cdn.jx3box.com/exterior/face-assets/v1";
 
-async function exteriorUserRequest(method, path, payload) {
+async function cmsRequest(method, url, payload, params) {
     const { data } = await $cms({ mute: true }).request({
         method,
-        url: `${exteriorUserPath}/${path}`,
+        url,
         data: payload,
-        params: method === "get" ? { _no_cache: 1 } : undefined,
+        params: method === "get" ? { ...(params || {}), _no_cache: 1 } : params,
     });
     if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
     return data.data;
 }
 
-async function getExteriorUserList(path) {
-    const list = await exteriorUserRequest("get", path);
-    if (!Array.isArray(list)) throw new Error("Unexpected exterior user list response");
-    return list;
+export async function getExteriorStars(params = {}) {
+    const list = await cmsRequest("get", exteriorFavoritesPath, undefined, params);
+    return Array.isArray(list) ? list : [];
 }
 
-export function getExteriorStars() {
-    return getExteriorUserList("star");
+export async function getExteriorStarRanking({ limit = 20, domain = "" } = {}) {
+    const params = { limit };
+    if (domain) params.domain = domain;
+    const list = await cmsRequest("get", `${exteriorFavoritesPath}/top`, undefined, params);
+    return Array.isArray(list) ? list : [];
 }
 
-// 旧发型编号与新版编号并不相同，只有核实过的外观才建立对应关系。
-const legacyExteriorRankKeys = new Map([["3_521", "hair_557"]]);
-
-async function resolveRankedExterior({ exterior_id, exterior }) {
-    if (exterior) return exterior;
-    // 旧礼盒与新版 bundle 都用同一个游戏物品编号。
-    const bundleId = /^1_(\d+)$/.exec(exterior_id)?.[1];
-    const key = bundleId ? `bundle_${bundleId}` : legacyExteriorRankKeys.get(exterior_id);
-    if (!key) return null;
-
-    try {
-        return await getExteriorsDetail(key);
-    } catch (error) {
-        if (error.code === 1000) return null;
-        throw error;
-    }
-}
-
-export async function getExteriorStarRanking() {
-    // 榜单默认返回 10 条。已有外观资料的条目直接复用接口结果。
-    const entries = await getExteriorUserList("star-top");
-    const resolved = await Promise.all(
-        entries.map(async (entry) => ({ ...entry, exterior: await resolveRankedExterior(entry) }))
-    );
-    return resolved.filter(({ exterior }) => exterior);
+export function getExteriorFavoriteCount(key) {
+    return cmsRequest("get", `${exteriorFavoritesPath}/count/${encodeURIComponent(key)}`);
 }
 
 export async function isExteriorStarred(key) {
-    const entries = await getExteriorStars();
-    return entries.some(({ exterior_id }) => exterior_id === key);
+    const res = await getExteriorFavoriteCount(key);
+    return Boolean(res?.starred);
 }
 
-export function addExteriorStar(key) {
-    return exteriorUserRequest("post", `star/${encodeURIComponent(key)}`, {});
+export function addExteriorStar(key, payload = {}) {
+    return cmsRequest("post", `${exteriorFavoritesPath}/${encodeURIComponent(key)}`, payload);
+}
+
+export function updateExteriorStar(key, payload) {
+    return cmsRequest("put", `${exteriorFavoritesPath}/${encodeURIComponent(key)}`, payload);
 }
 
 export function removeExteriorStar(key) {
-    return exteriorUserRequest("delete", `star/${encodeURIComponent(key)}`);
+    return cmsRequest("delete", `${exteriorFavoritesPath}/${encodeURIComponent(key)}`);
 }
 
-export function getWarehouseEntries() {
-    return getExteriorUserList("store");
+export function getWarehouseSummary() {
+    return cmsRequest("get", `${exteriorWarehousePath}/summary`);
 }
 
-export function getWarehouseGroups() {
-    return getExteriorUserList("group");
+export async function getWarehouseItems(params = {}) {
+    const list = await cmsRequest("get", `${exteriorWarehousePath}/items`, undefined, params);
+    return Array.isArray(list) ? list : [];
 }
 
-export function createWarehouseGroup(name) {
-    return exteriorUserRequest("post", "group", { name });
+export function createWarehouseItem(payload) {
+    return cmsRequest("post", `${exteriorWarehousePath}/items`, payload);
 }
 
-export function addWarehouseEntry(payload) {
-    return exteriorUserRequest("post", "store", payload);
+export function updateWarehouseItem(id, payload) {
+    return cmsRequest("put", `${exteriorWarehousePath}/items/${encodeURIComponent(id)}`, payload);
 }
 
-export function updateWarehouseEntry(id, payload) {
-    return exteriorUserRequest("put", `store/${id}`, { ...payload, store_id: id });
+export function deleteWarehouseItem(id) {
+    return cmsRequest("delete", `${exteriorWarehousePath}/items/${encodeURIComponent(id)}`);
 }
 
-export function checkOutWarehouseEntry(id, payload) {
-    return exteriorUserRequest("put", `store/${id}/out`, payload);
+export function sellWarehouseItem(id, payload) {
+    return cmsRequest("post", `${exteriorWarehousePath}/items/${encodeURIComponent(id)}/sell`, payload);
 }
 
-export function deleteWarehouseEntry(id) {
-    return exteriorUserRequest("delete", `store/${id}`);
+export function getWarehouseSales(params = {}) {
+    return cmsRequest("get", `${exteriorWarehousePath}/sales`, undefined, params);
+}
+
+export function undoWarehouseSale(id) {
+    return cmsRequest("delete", `${exteriorWarehousePath}/sales/${encodeURIComponent(id)}`);
+}
+
+export async function getWarehouseGroups() {
+    const list = await cmsRequest("get", `${exteriorWarehousePath}/groups`);
+    return Array.isArray(list) ? list : [];
+}
+
+export function createWarehouseGroup(payload) {
+    const body = typeof payload === "string" ? { name: payload } : payload;
+    return cmsRequest("post", `${exteriorWarehousePath}/groups`, body);
+}
+
+export function updateWarehouseGroup(id, payload) {
+    return cmsRequest("put", `${exteriorWarehousePath}/groups/${encodeURIComponent(id)}`, payload);
+}
+
+export function deleteWarehouseGroup(id) {
+    return cmsRequest("delete", `${exteriorWarehousePath}/groups/${encodeURIComponent(id)}`);
+}
+
+export function getCharacterBaseModel(role, signal) {
+    return getExteriorModel("character_base", role, signal);
+}
+
+export function getMetaBaseModelUrl(role) {
+    const validRole = [1, 2, 5, 6].includes(Number(role)) ? Number(role) : 2;
+    return `${FACE_ASSETS_CDN_BASE}/meta-base-${validRole}/model.gltf`;
+}
+
+export function getFaceDecalManifestUrl(role) {
+    const validRole = [1, 2, 5, 6].includes(Number(role)) ? Number(role) : 2;
+    return `${FACE_ASSETS_CDN_BASE}/role-${validRole}.json`;
+}
+
+export async function searchMallFaces(params = {}, signal) {
+    const { data } = await $next({ mute: true }).get("/api/face", { params, signal });
+    if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
+    return data.data || { list: [], page: {} };
+}
+
+export async function searchMallBodies(params = {}, signal) {
+    const { data } = await $next({ mute: true }).get("/api/pvxbody", { params, signal });
+    if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
+    return data.data || { list: [], page: {} };
+}
+
+export async function fetchMallAttachment(type, postId, signal) {
+    const { data } = await $next({ mute: true }).get(`/api/charge_attachment/${type}/${postId}`, { signal });
+    if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
+    const list = data.data?.list || [];
+    const item = list[0];
+    if (!item) throw new Error("未找到可用的数据附件");
+    if (item.data) {
+        return {
+            record: item,
+            data: typeof item.data === "string" ? JSON.parse(item.data) : item.data,
+        };
+    }
+    const fileUrl = item.url || item.file;
+    if (fileUrl) {
+        const res = await fetch(resolveExteriorAssetUrl(fileUrl), { signal });
+        if (!res.ok) throw new Error(`下载附件失败: HTTP ${res.status}`);
+        return {
+            record: item,
+            bytes: new Uint8Array(await res.arrayBuffer()),
+        };
+    }
+    throw new Error("该作品未包含可直接应用的数据文件");
 }

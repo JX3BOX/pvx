@@ -1,319 +1,1662 @@
+<!-- 新版双模式外观仓库：支持囤货理财与自用穿搭分账、分币种资产总览、多件批次入库、分批出售盈亏及角色绑定分组管理。 -->
 <template>
-    <PvxSurface padding="medium" class="grid gap-5">
-        <PvxSectionHeader :title="$t('exterior.warehouse.title')" level="h1">
-            <template #action>
-                <PvxActionButton variant="light" @click="$router.push({ name: 'exterior-list' })">
-                    {{ $t("exterior.back") }}
-                </PvxActionButton>
-            </template>
-        </PvxSectionHeader>
+    <div class="m-ext-house-page">
+        <PvxSurface padding="medium" class="m-house-header">
+            <div class="m-house-header__left">
+                <router-link :to="{ name: 'exterior-list' }" class="u-back-link">
+                    <el-icon><ArrowLeft /></el-icon>
+                    <span>{{ $t("exterior.back") }}</span>
+                </router-link>
+                <div class="m-house-title">
+                    <h1>{{ $t("exterior.warehouse.title") }}</h1>
+                    <p>{{ $t("exterior.warehouse.subtitle") }}</p>
+                </div>
+            </div>
 
-        <PvxEmptyState v-if="!loggedIn" :title="$t('exterior.warehouse.loginRequired')">
-            <template #action>
-                <PvxActionButton @click="login">{{ $t("exterior.warehouse.login") }}</PvxActionButton>
-            </template>
-        </PvxEmptyState>
+            <div class="m-house-header__actions">
+                <div class="m-currency-switch" role="group" aria-label="统计币种切换">
+                    <button
+                        type="button"
+                        class="u-curr-btn"
+                        :class="{ 'is-active': activeCurrency === 'cny' }"
+                        @click="activeCurrency = 'cny'"
+                    >
+                        人民币 ¥
+                    </button>
+                    <button
+                        type="button"
+                        class="u-curr-btn"
+                        :class="{ 'is-active': activeCurrency === 'gold' }"
+                        @click="activeCurrency = 'gold'"
+                    >
+                        金砖
+                    </button>
+                </div>
+
+                <template v-if="loggedIn">
+                    <el-button round @click="openGroupDrawer">
+                        <el-icon class="el-icon--left"><FolderOpened /></el-icon>
+                        {{ $t("exterior.warehouse.manageGroups") }}
+                    </el-button>
+                    <el-button type="primary" round @click="openAddDialog()">
+                        <el-icon class="el-icon--left"><Plus /></el-icon>
+                        记一笔入库
+                    </el-button>
+                </template>
+            </div>
+        </PvxSurface>
+
+        <PvxSurface v-if="!loggedIn" padding="large" class="m-house-login-gate">
+            <PvxEmptyState :title="$t('exterior.warehouse.loginRequired')" illustrated>
+                <template #action>
+                    <el-button type="primary" round size="large" @click="login">
+                        {{ $t("exterior.warehouse.login") }}
+                    </el-button>
+                </template>
+            </PvxEmptyState>
+        </PvxSurface>
 
         <template v-else>
-            <div class="flex flex-wrap gap-2">
-                <el-select
-                    v-model="groupFilter"
-                    :placeholder="$t('exterior.warehouse.allGroups')"
-                    :aria-label="$t('exterior.warehouse.group')"
-                    class="!w-48"
-                >
-                    <el-option value="" :label="$t('exterior.warehouse.allGroups')" />
-                    <el-option v-for="group in groups" :key="group.id" :value="group.id" :label="group.name" />
-                </el-select>
-                <el-button :disabled="!groupsReady || saving" @click="openGroup">{{
-                    $t("exterior.warehouse.createGroup")
-                }}</el-button>
-            </div>
-            <p v-if="notice" class="m-0 text-sm text-red-700" role="alert">
-                {{ notice }}
-                <el-button text type="primary" :disabled="loading || saving" @click="load">{{
-                    $t("exterior.retry")
-                }}</el-button>
-            </p>
+            <!-- 资产总览四格 KPI 卡片 -->
+            <section class="m-house-kpis" aria-label="仓库资产总览">
+                <PvxSurface padding="medium" class="m-kpi-card">
+                    <div class="u-kpi-label">囤货在仓成本（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-value is-num">{{ formatMoney(currencySummary.invest.holding_cost, activeCurrency) }}</div>
+                    <div class="u-kpi-sub">
+                        在仓 {{ currencySummary.invest.holding_lots }} 笔 · {{ currencySummary.invest.holding_quantity }} 件
+                    </div>
+                </PvxSurface>
 
-            <div v-loading="loading" class="min-h-24">
-                <el-table v-if="entries.length" :data="filteredEntries">
-                    <el-table-column :label="$t('pages.index.ui.menus.exterior')" min-width="190">
-                        <template #default="{ row }">
-                            <router-link
-                                v-if="isExteriorKey(row.exterior_id)"
-                                :to="{ name: 'exterior-list', query: { id: row.exterior_id } }"
-                                class="text-indigo-700"
+                <PvxSurface padding="medium" class="m-kpi-card">
+                    <div class="u-kpi-label">自用穿搭投入（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-value is-num">{{ formatMoney(currencySummary.self_use.total_cost, activeCurrency) }}</div>
+                    <div class="u-kpi-sub">
+                        自用 {{ currencySummary.self_use.lots }} 笔 · {{ currencySummary.self_use.quantity }} 件
+                    </div>
+                </PvxSurface>
+
+                <PvxSurface padding="medium" class="m-kpi-card">
+                    <div class="u-kpi-label">累计已实现净盈亏（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-value is-num" :class="profitTone(currencySummary.invest.realized_profit)">
+                        {{ formatSignedMoney(currencySummary.invest.realized_profit, activeCurrency) }}
+                    </div>
+                    <div class="u-kpi-sub">
+                        收益率 {{ formatRate(currencySummary.invest.profit_rate) }} · 手续费
+                        {{ formatMoney(currencySummary.invest.total_fee, activeCurrency) }}
+                    </div>
+                </PvxSurface>
+
+                <PvxSurface padding="medium" class="m-kpi-card">
+                    <div class="u-kpi-label">仓库总存量（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-value is-num">
+                        {{ currencySummary.invest.holding_quantity + currencySummary.self_use.quantity }}
+                        <span class="u-kpi-unit">件</span>
+                    </div>
+                    <div class="u-kpi-sub">
+                        已出库 {{ currencySummary.invest.sold_quantity }} 件（{{ currencySummary.invest.sold_count }} 笔流水）
+                    </div>
+                </PvxSurface>
+            </section>
+
+            <PvxSurface padding="medium" class="m-house-main">
+                <div class="m-house-tabs">
+                    <button
+                        type="button"
+                        class="u-tab-btn"
+                        :class="{ 'is-active': activeTab === 'holding' }"
+                        @click="switchTab('holding')"
+                    >
+                        {{ $t("exterior.warehouse.holdingTab") }}
+                    </button>
+                    <button
+                        type="button"
+                        class="u-tab-btn"
+                        :class="{ 'is-active': activeTab === 'sales' }"
+                        @click="switchTab('sales')"
+                    >
+                        {{ $t("exterior.warehouse.salesTab") }}
+                    </button>
+                </div>
+
+                <!-- 在仓持仓页签 -->
+                <template v-if="activeTab === 'holding'">
+                    <div class="m-group-bar">
+                        <button
+                            type="button"
+                            class="u-group-chip"
+                            :class="{ 'is-active': filterGroup === 'all' }"
+                            @click="setGroupFilter('all')"
+                        >
+                            {{ $t("exterior.warehouse.allGroups") }}
+                        </button>
+                        <button
+                            type="button"
+                            class="u-group-chip"
+                            :class="{ 'is-active': filterGroup === '0' }"
+                            @click="setGroupFilter('0')"
+                        >
+                            {{ $t("exterior.warehouse.ungrouped") }}
+                        </button>
+                        <button
+                            v-for="grp in groups"
+                            :key="grp.id"
+                            type="button"
+                            class="u-group-chip"
+                            :class="{ 'is-active': filterGroup === String(grp.id) }"
+                            @click="setGroupFilter(String(grp.id))"
+                        >
+                            <span>{{ grp.name }}</span>
+                            <span v-if="grp.role" class="u-role-pill">
+                                {{ roleBadgeText(grp.role) }}
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="m-filter-row">
+                        <el-select v-model="filterPurpose" class="u-filter-select" @change="loadItems">
+                            <el-option label="全部用途" value="" />
+                            <el-option :label="$t('exterior.warehouse.invest')" value="invest" />
+                            <el-option :label="$t('exterior.warehouse.selfUse')" value="self_use" />
+                        </el-select>
+
+                        <el-select v-model="filterStatus" class="u-filter-select" @change="loadItems">
+                            <el-option label="在仓中" value="holding" />
+                            <el-option label="已售罄" value="sold_out" />
+                            <el-option label="全部批次" value="all" />
+                        </el-select>
+
+                        <el-input
+                            v-model="filterKeyword"
+                            clearable
+                            placeholder="检索外观名称、key 或备注…"
+                            class="u-filter-keyword"
+                            @input="debouncedLoadItems"
+                            @clear="loadItems"
+                        >
+                            <template #prefix>
+                                <el-icon><Search /></el-icon>
+                            </template>
+                        </el-input>
+                    </div>
+
+                    <div v-loading="itemsLoading" class="m-item-list-wrap">
+                        <PvxEmptyState
+                            v-if="!itemsLoading && !items.length"
+                            :title="$t('exterior.warehouse.empty')"
+                            illustrated
+                        >
+                            <template #action>
+                                <el-button type="primary" round @click="openAddDialog()">记一笔入库</el-button>
+                            </template>
+                        </PvxEmptyState>
+
+                        <div v-else class="m-holding-list">
+                            <article
+                                v-for="row in items"
+                                :key="row.id"
+                                class="m-holding-card"
+                                :class="{ 'is-soldout': row.remaining === 0, 'is-pinned': row.pinned }"
                             >
-                                {{ row.exterior?.name || row.exterior_id }}
-                            </router-link>
-                            <span v-else>{{ row.exterior?.name || row.exterior_id }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="count" :label="$t('exterior.warehouse.count')" width="76" />
-                    <el-table-column prop="in_price" :label="$t('exterior.warehouse.inPrice')" min-width="100" />
-                    <el-table-column prop="out_price" :label="$t('exterior.warehouse.outPrice')" min-width="100" />
-                    <el-table-column :label="$t('exterior.warehouse.group')" min-width="100">
-                        <template #default="{ row }">{{ groupNames.get(row.group_id) || "—" }}</template>
-                    </el-table-column>
-                    <el-table-column prop="remark" :label="$t('exterior.warehouse.remark')" min-width="120" />
-                    <el-table-column :label="$t('exterior.warehouse.actions')" width="200">
-                        <template #default="{ row }">
-                            <el-button
-                                text
-                                type="primary"
-                                :disabled="saving || row.id == null"
-                                @click="openEntry('edit', row)"
-                                >{{ $t("exterior.warehouse.edit") }}</el-button
-                            >
-                            <el-button
-                                v-if="!row.out_date && row.out_price == null"
-                                text
-                                type="primary"
-                                :disabled="saving || row.id == null"
-                                @click="openEntry('out', row)"
-                                >{{ $t("exterior.warehouse.checkout") }}</el-button
-                            >
-                            <el-button text type="danger" :disabled="saving || row.id == null" @click="remove(row)">{{
-                                $t("exterior.warehouse.remove")
-                            }}</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <PvxEmptyState v-else-if="!loading && !notice" :title="$t('exterior.warehouse.empty')" />
-            </div>
+                                <router-link
+                                    v-if="row.exterior"
+                                    :to="{ name: 'exterior-list', query: { id: row.exterior.key } }"
+                                    class="u-cover-link"
+                                >
+                                    <img v-if="itemCover(row)" :src="itemCover(row)" alt="" class="u-cover-img" />
+                                    <span v-else class="u-cover-fallback">暂无图</span>
+                                </router-link>
+                                <div v-else class="u-cover-link">
+                                    <span class="u-cover-fallback">已下线</span>
+                                </div>
+
+                                <div class="m-holding-info">
+                                    <div class="m-holding-title-row">
+                                        <router-link
+                                            v-if="row.exterior"
+                                            :to="{ name: 'exterior-list', query: { id: row.exterior.key } }"
+                                            class="u-item-name"
+                                        >
+                                            {{ row.exterior.name }}
+                                        </router-link>
+                                        <span v-else class="u-item-name">{{ row.exterior_key }}</span>
+
+                                        <span class="u-tag" :class="row.purpose === 'invest' ? 'is-amber' : 'is-indigo'">
+                                            {{ row.purpose === "invest" ? "囤货" : "自用" }}
+                                        </span>
+                                        <span v-if="row.pinned" class="u-tag is-pin">置顶</span>
+                                        <span v-if="row.group" class="u-tag is-slate">
+                                            {{ row.group.name }}
+                                            <template v-if="row.group.role"> · {{ row.group.role.name }}</template>
+                                        </span>
+                                    </div>
+
+                                    <div class="m-holding-metrics">
+                                        <span>
+                                            余 <strong>{{ row.remaining }}</strong> / {{ row.quantity }} 件
+                                        </span>
+                                        <span>
+                                            买入单价 <strong>{{ formatMoney(row.in_price, row.currency) }}</strong>
+                                        </span>
+                                        <span>
+                                            在仓成本 <strong>{{ formatMoney(row.holding_cost, row.currency) }}</strong>
+                                        </span>
+                                        <span v-if="row.sold_quantity > 0" :class="profitTone(row.realized_profit)">
+                                            已售 {{ row.sold_quantity }} 件 · 净盈亏
+                                            <strong>{{ formatSignedMoney(row.realized_profit, row.currency) }}</strong>
+                                        </span>
+                                        <span class="u-date-text">入库 {{ formatDate(row.in_date) }}</span>
+                                    </div>
+
+                                    <p v-if="row.remark" class="m-holding-remark">{{ row.remark }}</p>
+                                </div>
+
+                                <div class="m-holding-actions">
+                                    <el-button
+                                        v-if="row.remaining > 0"
+                                        type="primary"
+                                        size="small"
+                                        plain
+                                        round
+                                        @click="openSellDialog(row)"
+                                    >
+                                        出售
+                                    </el-button>
+                                    <el-button
+                                        v-if="row.exterior"
+                                        size="small"
+                                        plain
+                                        round
+                                        @click="tryOnItem(row)"
+                                    >
+                                        试穿
+                                    </el-button>
+                                    <el-button size="small" plain round @click="toggleItemPin(row)">
+                                        {{ row.pinned ? "取消置顶" : "置顶" }}
+                                    </el-button>
+                                    <el-button size="small" plain round @click="openEditDialog(row)">编辑</el-button>
+                                    <el-button size="small" type="danger" plain round @click="removeItem(row)">删除</el-button>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- 出售流水台账页签 -->
+                <template v-else>
+                    <div class="m-filter-row">
+                        <el-select v-model="saleChannel" class="u-filter-select" @change="loadSales(1)">
+                            <el-option label="全部交易渠道" value="" />
+                            <el-option label="万宝楼" value="wbl" />
+                            <el-option label="私下交易" value="private" />
+                            <el-option label="其他渠道" value="other" />
+                        </el-select>
+                    </div>
+
+                    <div v-loading="salesLoading" class="m-sales-wrap">
+                        <PvxEmptyState
+                            v-if="!salesLoading && !sales.length"
+                            title="暂无出售流水记录"
+                            illustrated
+                        />
+
+                        <el-table v-else :data="sales" class="w-full" stripe>
+                            <el-table-column label="外观" min-width="220">
+                                <template #default="{ row }">
+                                    <div class="flex items-center gap-2.5">
+                                        <img
+                                            v-if="itemCover(row)"
+                                            :src="itemCover(row)"
+                                            alt=""
+                                            class="size-10 shrink-0 rounded-lg border border-slate-100 object-cover object-top"
+                                        />
+                                        <div class="min-w-0">
+                                            <router-link
+                                                v-if="row.exterior"
+                                                :to="{ name: 'exterior-list', query: { id: row.exterior.key } }"
+                                                class="font-medium text-slate-800 hover:text-indigo-600"
+                                            >
+                                                {{ row.exterior.name }}
+                                            </router-link>
+                                            <span v-else class="text-slate-600">{{ row.exterior_key }}</span>
+                                            <p v-if="row.remark" class="m-0 truncate text-xs text-slate-400">
+                                                {{ row.remark }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="quantity" label="数量" width="76" align="center" />
+                            <el-table-column label="买入单价" width="110" align="right">
+                                <template #default="{ row }">{{ formatMoney(row.in_price, row.currency) }}</template>
+                            </el-table-column>
+                            <el-table-column label="卖出单价" width="110" align="right">
+                                <template #default="{ row }">{{ formatMoney(row.out_price, row.currency) }}</template>
+                            </el-table-column>
+                            <el-table-column label="手续费" width="100" align="right">
+                                <template #default="{ row }">{{ formatMoney(row.fee, row.currency) }}</template>
+                            </el-table-column>
+                            <el-table-column label="净盈亏" width="128" align="right">
+                                <template #default="{ row }">
+                                    <span class="font-semibold tabular-nums" :class="profitTone(row.profit)">
+                                        {{ formatSignedMoney(row.profit, row.currency) }}
+                                    </span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="渠道" width="96" align="center">
+                                <template #default="{ row }">
+                                    <span class="u-tag is-slate">{{ channelLabel(row.channel) }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="售出时间" width="118" align="center">
+                                <template #default="{ row }">{{ formatDate(row.out_date) }}</template>
+                            </el-table-column>
+                            <el-table-column label="操作" width="110" align="right">
+                                <template #default="{ row }">
+                                    <el-button size="small" type="warning" plain round @click="undoSale(row)">
+                                        撤回
+                                    </el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+
+                        <div v-if="salesTotal > salesPer" class="mt-4 flex justify-end">
+                            <el-pagination
+                                layout="prev, pager, next"
+                                :total="salesTotal"
+                                :page-size="salesPer"
+                                :current-page="salesPage"
+                                @current-change="loadSales"
+                            />
+                        </div>
+                    </div>
+                </template>
+            </PvxSurface>
         </template>
 
+        <!-- 入库 / 编辑持仓弹窗 -->
         <el-dialog
-            v-model="dialogOpen"
-            :title="$t(`exterior.warehouse.${dialogTitle}`)"
-            width="min(460px, calc(100vw - 32px))"
-            :close-on-click-modal="!saving"
-            :close-on-press-escape="!saving"
-            :show-close="!saving"
-            @closed="clearAddQuery"
+            v-model="itemDialogVisible"
+            :title="editingItemId ? '编辑仓库持仓' : '记一笔外观入库'"
+            width="min(560px, 94vw)"
+            append-to-body
         >
-            <el-form label-position="top" @submit.prevent="save">
-                <el-form-item v-if="mode === 'group'" :label="$t('exterior.warehouse.group')">
-                    <el-input v-model.trim="form.name" />
+            <el-form label-width="88px" class="m-dialog-form">
+                <el-form-item v-if="!editingItemId" label="选择外观" required>
+                    <div class="w-full space-y-2">
+                        <el-input
+                            v-model="pickSearch"
+                            clearable
+                            placeholder="搜索外观名称或俗称（如：粉白菜、狐金）…"
+                            @input="debouncedSearchExteriors"
+                        >
+                            <template #prefix>
+                                <el-icon><Search /></el-icon>
+                            </template>
+                        </el-input>
+
+                        <div v-if="itemForm.selectedExterior" class="m-picked-chip">
+                            <img
+                                v-if="pickExteriorCover(itemForm.selectedExterior.images, preferredRole)"
+                                :src="pickExteriorCover(itemForm.selectedExterior.images, preferredRole)"
+                                alt=""
+                            />
+                            <div class="min-w-0 flex-1">
+                                <div class="truncate font-semibold text-slate-800">
+                                    {{ itemForm.selectedExterior.name }}
+                                </div>
+                                <div class="text-xs text-slate-400">
+                                    {{ domainLabel(itemForm.selectedExterior.domain) }} · {{ itemForm.selectedExterior.key }}
+                                </div>
+                            </div>
+                            <el-button link type="primary" @click="itemForm.selectedExterior = null; itemForm.exterior_key = ''">
+                                重选
+                            </el-button>
+                        </div>
+
+                        <div v-else v-loading="pickLoading" class="m-pick-results">
+                            <div v-if="!pickCandidates.length && !pickLoading" class="p-3 text-center text-xs text-slate-400">
+                                输入外观名称或俗称以检索关联外观
+                            </div>
+                            <button
+                                v-for="cand in pickCandidates"
+                                :key="cand.key"
+                                type="button"
+                                class="u-pick-row"
+                                @click="selectExteriorCandidate(cand)"
+                            >
+                                <img
+                                    v-if="pickExteriorCover(cand.images, preferredRole)"
+                                    :src="pickExteriorCover(cand.images, preferredRole)"
+                                    alt=""
+                                />
+                                <div class="min-w-0 flex-1 text-left">
+                                    <div class="truncate font-medium text-slate-800">{{ cand.name }}</div>
+                                    <div class="text-xs text-slate-400">{{ domainLabel(cand.domain) }} · {{ cand.key }}</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </el-form-item>
-                <template v-else>
-                    <p class="mt-0">{{ entryName }}</p>
-                    <el-form-item v-if="mode !== 'out'" :label="$t('exterior.warehouse.inPrice')">
-                        <el-input-number v-model="form.in_price" :min="0" :step="0.01" :precision="2" />
+
+                <el-form-item label="仓库用途">
+                    <el-radio-group v-model="itemForm.purpose">
+                        <el-radio-button value="invest">囤货理财</el-radio-button>
+                        <el-radio-button value="self_use">自用穿搭</el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+
+                <el-form-item label="计价币种">
+                    <el-radio-group v-model="itemForm.currency">
+                        <el-radio-button value="cny">人民币 (¥)</el-radio-button>
+                        <el-radio-button value="gold">金砖</el-radio-button>
+                    </el-radio-group>
+                </el-form-item>
+
+                <el-form-item label="所属分组">
+                    <el-select v-model="itemForm.group_id" clearable placeholder="未分组" class="w-full">
+                        <el-option v-for="grp in groups" :key="grp.id" :label="grp.name" :value="grp.id" />
+                    </el-select>
+                </el-form-item>
+
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <el-form-item label="数量">
+                        <el-input-number v-model="itemForm.quantity" :min="minEditableQty" :max="999" class="!w-full" />
                     </el-form-item>
-                    <el-form-item v-else :label="$t('exterior.warehouse.outPrice')">
-                        <el-input-number v-model="form.out_price" :min="0" :step="0.01" :precision="2" />
-                    </el-form-item>
-                    <el-form-item v-if="mode !== 'edit'" :label="$t('exterior.warehouse.count')">
+                    <el-form-item label="买入单价">
                         <el-input-number
-                            v-model="form.count"
-                            :min="1"
-                            :max="mode === 'out' ? Math.min(entry.count, 32) : 32"
-                            :precision="0"
+                            v-model="itemForm.in_price"
+                            :min="0"
+                            :max="99999999"
+                            :precision="2"
+                            :step="10"
+                            class="!w-full"
                         />
                     </el-form-item>
-                    <template v-if="mode !== 'out'">
-                        <el-form-item :label="$t('exterior.warehouse.group')">
-                            <el-select v-model="form.group_id" :disabled="!groupsReady" :clearable="mode === 'add'">
-                                <el-option
-                                    v-for="group in groups"
-                                    :key="group.id"
-                                    :value="group.id"
-                                    :label="group.name"
-                                />
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item :label="$t('exterior.warehouse.remark')">
-                            <el-input v-model="form.remark" type="textarea" />
-                        </el-form-item>
-                    </template>
-                </template>
-                <p v-if="formError" class="text-sm text-red-700" role="alert">{{ formError }}</p>
-                <div class="flex justify-end">
-                    <el-button native-type="submit" type="primary" :loading="saving" :disabled="!canSave">
-                        {{ $t("exterior.warehouse.save") }}
-                    </el-button>
+                </div>
+
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <el-form-item label="入库日期">
+                        <el-date-picker
+                            v-model="itemForm.in_date"
+                            type="date"
+                            value-format="YYYY-MM-DD"
+                            class="!w-full"
+                        />
+                    </el-form-item>
+                    <el-form-item label="置顶展示">
+                        <el-switch v-model="itemForm.pinned" />
+                    </el-form-item>
+                </div>
+
+                <el-form-item label="批次备注">
+                    <el-input v-model="itemForm.remark" maxlength="200" placeholder="可记录区服、购入途径或穿搭说明" />
+                </el-form-item>
+
+                <div class="m-cost-preview">
+                    本批次总投入：<strong>{{ formatMoney((itemForm.quantity || 1) * (itemForm.in_price || 0), itemForm.currency) }}</strong>
                 </div>
             </el-form>
+
+            <template #footer>
+                <el-button round @click="itemDialogVisible = false">取消</el-button>
+                <el-button type="primary" round :loading="itemSaving" @click="submitItemForm">
+                    {{ $t("exterior.warehouse.save") }}
+                </el-button>
+            </template>
         </el-dialog>
-    </PvxSurface>
+
+        <!-- 分批出售弹窗 -->
+        <el-dialog v-model="sellDialogVisible" title="记录出售出库" width="min(500px, 94vw)" append-to-body>
+            <template v-if="sellingItem">
+                <div class="m-sell-header">
+                    <img v-if="itemCover(sellingItem)" :src="itemCover(sellingItem)" alt="" />
+                    <div class="min-w-0 flex-1">
+                        <div class="truncate text-base font-bold text-slate-800">
+                            {{ sellingItem.exterior?.name || sellingItem.exterior_key }}
+                        </div>
+                        <div class="mt-0.5 text-xs text-slate-500">
+                            当前余 {{ sellingItem.remaining }} 件 · 买入单价
+                            {{ formatMoney(sellingItem.in_price, sellingItem.currency) }}
+                        </div>
+                    </div>
+                </div>
+
+                <el-form label-width="96px" class="mt-4">
+                    <el-form-item label="出售数量">
+                        <el-input-number v-model="sellForm.quantity" :min="1" :max="sellingItem.remaining" class="!w-full" />
+                    </el-form-item>
+                    <el-form-item label="卖出单价">
+                        <el-input-number
+                            v-model="sellForm.out_price"
+                            :min="0"
+                            :max="99999999"
+                            :precision="2"
+                            :step="10"
+                            class="!w-full"
+                        />
+                    </el-form-item>
+                    <el-form-item label="交易渠道">
+                        <el-radio-group v-model="sellForm.channel" @change="onSellChannelChange">
+                            <el-radio-button value="wbl">万宝楼</el-radio-button>
+                            <el-radio-button value="private">私下交易</el-radio-button>
+                            <el-radio-button value="other">其他</el-radio-button>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="手续费">
+                        <div class="w-full space-y-2">
+                            <div class="flex items-center gap-2">
+                                <el-input-number
+                                    v-model="sellForm.fee"
+                                    :min="0"
+                                    :max="99999999"
+                                    :precision="2"
+                                    :disabled="sellForm.autoWblFee"
+                                    class="!flex-1"
+                                />
+                                <el-checkbox v-model="sellForm.autoWblFee" border size="small">万宝楼 5%</el-checkbox>
+                            </div>
+                        </div>
+                    </el-form-item>
+                    <el-form-item label="售出日期">
+                        <el-date-picker
+                            v-model="sellForm.out_date"
+                            type="date"
+                            value-format="YYYY-MM-DD"
+                            class="!w-full"
+                        />
+                    </el-form-item>
+                    <el-form-item label="流水备注">
+                        <el-input v-model="sellForm.remark" maxlength="200" placeholder="选填：买家、平台订单或复盘说明" />
+                    </el-form-item>
+                </el-form>
+
+                <div class="m-profit-preview">
+                    <div>
+                        <span>买入成本：</span>
+                        <strong>{{ formatMoney(sellPreview.cost, sellingItem.currency) }}</strong>
+                    </div>
+                    <div>
+                        <span>成交总额：</span>
+                        <strong>{{ formatMoney(sellPreview.revenue, sellingItem.currency) }}</strong>
+                    </div>
+                    <div>
+                        <span>预计净盈亏：</span>
+                        <strong :class="profitTone(sellPreview.profit)">
+                            {{ formatSignedMoney(sellPreview.profit, sellingItem.currency) }}
+                            <template v-if="sellPreview.cost > 0">（{{ formatRate(sellPreview.rate) }}）</template>
+                        </strong>
+                    </div>
+                </div>
+            </template>
+
+            <template #footer>
+                <el-button round @click="sellDialogVisible = false">取消</el-button>
+                <el-button type="primary" round :loading="sellSaving" @click="submitSellForm">确认记录出售</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 分组与绑定角色管理抽屉 -->
+        <el-drawer
+            v-model="groupDrawerVisible"
+            title="管理仓库分组（支持绑定游戏角色）"
+            size="min(100%, 460px)"
+            append-to-body
+        >
+            <div class="space-y-4">
+                <PvxSurface padding="small" class="space-y-3 border border-slate-200">
+                    <div class="text-sm font-semibold text-slate-800">
+                        {{ groupForm.id ? "编辑分组" : "新建分组" }}
+                    </div>
+                    <el-input v-model="groupForm.name" maxlength="64" placeholder="分组名称（例如：主号自用、成女囤货仓）" />
+                    <el-select v-model="groupForm.role_id" clearable placeholder="绑定游戏角色（可选）" class="w-full">
+                        <el-option
+                            v-for="r in userRoles"
+                            :key="r.ID"
+                            :label="`${r.name}（${r.server || '未知区服'} · ${bodyLabel(r.body_type)}）`"
+                            :value="Number(r.ID)"
+                        />
+                    </el-select>
+                    <el-input v-model="groupForm.remark" maxlength="200" placeholder="分组备注（可选）" />
+                    <div class="flex justify-end gap-2">
+                        <el-button v-if="groupForm.id" size="small" round @click="resetGroupForm">取消编辑</el-button>
+                        <el-button type="primary" size="small" round :loading="groupSaving" @click="saveGroupForm">
+                            {{ groupForm.id ? "保存修改" : "添加分组" }}
+                        </el-button>
+                    </div>
+                </PvxSurface>
+
+                <div class="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+                    <div v-if="!groups.length" class="p-6 text-center text-sm text-slate-400">
+                        还没有自定义分组，可以在上方创建一个
+                    </div>
+                    <div v-for="grp in groups" :key="grp.id" class="flex items-center justify-between gap-3 px-4 py-3">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="font-semibold text-slate-800">{{ grp.name }}</span>
+                                <span v-if="grp.role" class="u-role-pill">{{ roleBadgeText(grp.role) }}</span>
+                            </div>
+                            <p v-if="grp.remark" class="m-0 mt-0.5 truncate text-xs text-slate-400">{{ grp.remark }}</p>
+                        </div>
+                        <div class="flex shrink-0 items-center gap-1">
+                            <el-button size="small" plain round @click="editGroup(grp)">编辑</el-button>
+                            <el-button size="small" type="danger" plain round @click="removeGroup(grp)">删除</el-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </el-drawer>
+    </div>
 </template>
 
 <script>
+import { ArrowLeft, FolderOpened, Plus, Search } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import User from "@jx3box/jx3box-common/js/user";
-import PvxActionButton from "@/components/design/PvxActionButton.vue";
-import PvxSurface from "@/components/design/PvxSurface.vue";
-import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import PvxSurface from "@/components/design/PvxSurface.vue";
+import { BODY_LABEL_MAP, DOMAIN_META, normalizeBodyType, pickExteriorCover } from "@/components/exterior/meta";
+import { getUserRoles } from "@/service/team";
 import {
-    addWarehouseEntry,
-    checkOutWarehouseEntry,
     createWarehouseGroup,
-    deleteWarehouseEntry,
-    getWarehouseEntries,
+    createWarehouseItem,
+    deleteWarehouseGroup,
+    deleteWarehouseItem,
+    getExteriorsDetail,
+    getExteriorsList,
     getWarehouseGroups,
-    updateWarehouseEntry,
+    getWarehouseItems,
+    getWarehouseSales,
+    getWarehouseSummary,
+    sellWarehouseItem,
+    undoWarehouseSale,
+    updateWarehouseGroup,
+    updateWarehouseItem,
 } from "@/service/exterior";
+
+const roundMoney = (val) => Math.round((Number(val || 0) + Number.EPSILON) * 100) / 100;
+const todayIso = () => new Date().toISOString().slice(0, 10);
+
+const EMPTY_SUMMARY = () => ({
+    cny: {
+        invest: { holding_lots: 0, holding_quantity: 0, holding_cost: 0, sold_count: 0, sold_quantity: 0, realized_revenue: 0, realized_cost: 0, total_fee: 0, realized_profit: 0, profit_rate: 0 },
+        self_use: { lots: 0, quantity: 0, total_cost: 0 },
+    },
+    gold: {
+        invest: { holding_lots: 0, holding_quantity: 0, holding_cost: 0, sold_count: 0, sold_quantity: 0, realized_revenue: 0, realized_cost: 0, total_fee: 0, realized_profit: 0, profit_rate: 0 },
+        self_use: { lots: 0, quantity: 0, total_cost: 0 },
+    },
+});
 
 export default {
     name: "ExteriorHouse",
-    components: { PvxActionButton, PvxSurface, PvxSectionHeader, PvxEmptyState },
+    components: {
+        ArrowLeft,
+        FolderOpened,
+        Plus,
+        PvxEmptyState,
+        PvxSurface,
+        Search,
+    },
     data() {
         return {
             loggedIn: User.isLogin(),
-            entries: [],
-            account: User.getInfo()?.uid,
-            serverGroups: [],
-            groupFilter: "",
-            groupsReady: false,
-            loading: false,
-            saving: false,
-            notice: "",
-            dialogOpen: false,
-            formError: "",
-            mode: "add",
-            entry: null,
-            form: {},
+            activeCurrency: "cny",
+            activeTab: "holding",
+            summary: EMPTY_SUMMARY(),
+            groups: [],
+            userRoles: [],
+            items: [],
+            itemsLoading: false,
+            filterGroup: "all",
+            filterPurpose: "",
+            filterStatus: "holding",
+            filterKeyword: "",
+            keywordTimer: null,
+            sales: [],
+            salesLoading: false,
+            saleChannel: "",
+            salesPage: 1,
+            salesPer: 20,
+            salesTotal: 0,
+
+            itemDialogVisible: false,
+            editingItemId: null,
+            editingSoldQty: 0,
+            itemSaving: false,
+            pickSearch: "",
+            pickLoading: false,
+            pickCandidates: [],
+            pickTimer: null,
+            itemForm: {
+                exterior_key: "",
+                selectedExterior: null,
+                group_id: null,
+                purpose: "invest",
+                currency: "cny",
+                quantity: 1,
+                in_price: 0,
+                in_date: todayIso(),
+                pinned: false,
+                remark: "",
+            },
+
+            sellDialogVisible: false,
+            sellingItem: null,
+            sellSaving: false,
+            sellForm: {
+                quantity: 1,
+                out_price: 0,
+                fee: 0,
+                autoWblFee: true,
+                channel: "wbl",
+                out_date: todayIso(),
+                remark: "",
+            },
+
+            groupDrawerVisible: false,
+            groupSaving: false,
+            groupForm: {
+                id: null,
+                name: "",
+                role_id: null,
+                remark: "",
+            },
         };
     },
     computed: {
-        pendingGroups() {
-            return this.$store.state.pendingWarehouseGroups[this.account] || [];
+        preferredRole() {
+            return this.$store.state.preferredRole || 2;
         },
-        groups() {
-            return [...this.serverGroups, ...this.pendingGroups];
+        currencyLabel() {
+            return this.activeCurrency === "cny" ? "人民币" : "金砖";
         },
-        groupNames() {
-            return new Map(this.groups.map(({ id, name }) => [id, name]));
+        currencySummary() {
+            return this.summary[this.activeCurrency] || EMPTY_SUMMARY()[this.activeCurrency];
         },
-        filteredEntries() {
-            return this.groupFilter === ""
-                ? this.entries
-                : this.entries.filter((entry) => entry.group_id === this.groupFilter);
+        minEditableQty() {
+            return Math.max(1, this.editingSoldQty || 0);
         },
-        dialogTitle() {
-            return { add: "add", edit: "edit", out: "checkout", group: "createGroup" }[this.mode];
+        sellPreview() {
+            if (!this.sellingItem) return { cost: 0, revenue: 0, fee: 0, profit: 0, rate: 0 };
+            const qty = Number(this.sellForm.quantity) || 1;
+            const cost = roundMoney(qty * Number(this.sellingItem.in_price));
+            const revenue = roundMoney(qty * (Number(this.sellForm.out_price) || 0));
+            const fee = this.sellForm.autoWblFee
+                ? roundMoney(revenue * 0.05)
+                : roundMoney(Number(this.sellForm.fee) || 0);
+            const profit = roundMoney(revenue - cost - fee);
+            const rate = cost > 0 ? roundMoney((profit / cost) * 100) : 0;
+            return { cost, revenue, fee, profit, rate };
         },
-        entryName() {
-            return this.entry?.exterior?.name || this.entry?.exterior_id;
+    },
+    watch: {
+        activeCurrency() {
+            if (!this.loggedIn) return;
+            if (this.activeTab === "sales") this.loadSales(1);
+            else this.loadItems();
         },
-        canSave() {
-            if (this.mode === "group") return Boolean(this.form.name);
-            if (this.mode === "edit") return Number.isFinite(this.form.in_price);
-            const price = this.mode === "out" ? this.form.out_price : this.form.in_price;
-            return Number.isFinite(price) && Number.isInteger(this.form.count) && this.form.count > 0;
+        "sellForm.autoWblFee"(enabled) {
+            if (enabled) this.syncAutoFee();
+        },
+        "sellForm.quantity"() {
+            if (this.sellForm.autoWblFee) this.syncAutoFee();
+        },
+        "sellForm.out_price"() {
+            if (this.sellForm.autoWblFee) this.syncAutoFee();
+        },
+        "$route.query.add"(key) {
+            if (key && this.loggedIn) this.handleAddQueryKey(String(key));
         },
     },
     created() {
-        if (!this.loggedIn) return;
-        this.load();
-        const key = this.$route.query.add;
-        if (typeof key === "string" && this.isExteriorKey(key)) this.openEntry("add", { exterior_id: key });
+        this.$store.dispatch("initPreferredRole");
+        if (this.loggedIn) {
+            this.loadAll();
+            if (this.$route.query.add) {
+                this.handleAddQueryKey(String(this.$route.query.add));
+            }
+        }
+    },
+    beforeUnmount() {
+        clearTimeout(this.keywordTimer);
+        clearTimeout(this.pickTimer);
     },
     methods: {
+        pickExteriorCover,
         login() {
             User.toLogin();
         },
-        isExteriorKey(key) {
-            return /^[a-z_]+_[a-z0-9]+$/.test(key);
+        domainLabel(domain) {
+            return DOMAIN_META[domain]?.label || domain || "";
         },
-        errorMessage(error) {
-            return error.response?.data?.msg || error.message || this.$t("exterior.requestError");
+        bodyLabel(raw) {
+            const role = normalizeBodyType(raw);
+            return BODY_LABEL_MAP[role] || String(raw || "");
         },
-        async load() {
-            this.loading = true;
-            this.notice = "";
-            const [entries, groups] = await Promise.allSettled([getWarehouseEntries(), getWarehouseGroups()]);
-            if (entries.status === "fulfilled") {
-                this.entries = entries.value.map((entry) => ({ ...entry, id: entry.store_id ?? entry.id }));
-            } else {
-                this.notice = this.errorMessage(entries.reason);
-            }
-            if (groups.status === "fulfilled") {
-                this.serverGroups = groups.value.map((group) => ({ ...group, id: group.group_id ?? group.id }));
-                const confirmed = new Set(this.serverGroups.map(({ id }) => id));
-                this.setPendingGroups(this.pendingGroups.filter(({ id }) => !confirmed.has(id)));
-                this.groupsReady = true;
-            } else if (!this.notice) {
-                this.notice = this.errorMessage(groups.reason);
-            }
-            this.loading = false;
+        roleBadgeText(role) {
+            if (!role) return "";
+            const body = this.bodyLabel(role.body_type);
+            return body ? `${role.name}·${body}` : role.name;
         },
-        setPendingGroups(groups) {
-            this.$store.commit("setPendingWarehouseGroups", { account: this.account, groups });
+        itemCover(row) {
+            const groupRole = row.group?.role ? normalizeBodyType(row.group.role.body_type) : null;
+            return pickExteriorCover(row.exterior?.images, groupRole || this.preferredRole);
         },
-        openGroup() {
-            this.mode = "group";
-            this.form = { name: "" };
-            this.formError = "";
-            this.dialogOpen = true;
+        formatMoney(val, currency = "cny") {
+            const num = roundMoney(val);
+            const text = num.toLocaleString("zh-CN", { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+            return currency === "gold" ? `${text} 砖` : `¥${text}`;
         },
-        openEntry(mode, entry) {
-            this.mode = mode;
-            this.entry = entry;
-            this.form = {
-                in_price: Number(entry.in_price ?? 0),
-                out_price: 0,
-                count: 1,
-                group_id: entry.group_id ?? undefined,
-                remark: entry.remark || "",
-            };
-            this.formError = "";
-            this.dialogOpen = true;
+        formatSignedMoney(val, currency = "cny") {
+            const num = roundMoney(val);
+            const prefix = num > 0 ? "+" : num < 0 ? "-" : "";
+            const absText = Math.abs(num).toLocaleString("zh-CN", {
+                minimumFractionDigits: num % 1 === 0 ? 0 : 2,
+                maximumFractionDigits: 2,
+            });
+            return currency === "gold" ? `${prefix}${absText} 砖` : `${prefix}¥${absText}`;
         },
-        clearAddQuery() {
-            if (this.$route.name === "exterior-house" && this.$route.query.add)
-                this.$router.replace({ name: "exterior-house" });
+        formatRate(val) {
+            const num = roundMoney(val);
+            const prefix = num > 0 ? "+" : "";
+            return `${prefix}${num.toFixed(1)}%`;
         },
-        async save() {
-            if (!this.canSave || this.saving) return;
-            this.saving = true;
-            this.formError = "";
-            const { in_price, out_price, count, group_id, remark, name } = this.form;
+        profitTone(val) {
+            const num = Number(val) || 0;
+            if (num > 0) return "is-profit";
+            if (num < 0) return "is-loss";
+            return "";
+        },
+        channelLabel(ch) {
+            return { wbl: "万宝楼", private: "私下", other: "其他" }[ch] || ch;
+        },
+        formatDate(raw) {
+            if (!raw) return "-";
+            return String(raw).slice(0, 10);
+        },
+        errMsg(err, fallback = "操作失败，请稍后重试") {
+            return err?.response?.data?.msg || err?.message || fallback;
+        },
+        async loadAll() {
+            await Promise.all([this.loadSummary(), this.loadGroups(), this.loadItems(), this.loadUserRoles()]);
+        },
+        async loadSummary() {
             try {
-                if (this.mode === "group") {
-                    const { id, name: savedName } = await createWarehouseGroup(name);
-                    // 分组列表可能暂时读不到已成功写入的记录。
-                    this.setPendingGroups([...this.pendingGroups, { id, name: savedName }]);
-                } else if (this.mode === "add")
-                    await addWarehouseEntry({ exterior_id: this.entry.exterior_id, in_price, count, group_id, remark });
-                else if (this.mode === "edit")
-                    await updateWarehouseEntry(this.entry.id, { in_price, group_id, remark });
-                else await checkOutWarehouseEntry(this.entry.id, { out_price, count });
-
-                this.dialogOpen = false;
-                ElMessage.success(this.$t("exterior.warehouse.saved"));
-                await this.load();
-            } catch (error) {
-                this.formError = this.errorMessage(error);
-            } finally {
-                this.saving = false;
+                const data = await getWarehouseSummary();
+                if (data) this.summary = data;
+            } catch (err) {
+                ElMessage.error(this.errMsg(err, "加载资产总览失败"));
             }
         },
-        async remove(entry) {
+        async loadGroups() {
             try {
-                await ElMessageBox.confirm(
-                    this.$t("exterior.warehouse.confirmRemove"),
-                    this.$t("exterior.warehouse.remove"),
-                    { type: "warning" }
-                );
+                this.groups = await getWarehouseGroups();
+            } catch (err) {
+                ElMessage.error(this.errMsg(err, "加载分组失败"));
+            }
+        },
+        async loadUserRoles() {
+            try {
+                const res = await getUserRoles();
+                this.userRoles = res?.data?.data?.list || [];
             } catch {
+                this.userRoles = [];
+            }
+        },
+        async loadItems() {
+            this.itemsLoading = true;
+            try {
+                const params = {
+                    status: this.filterStatus,
+                    currency: this.activeCurrency,
+                };
+                if (this.filterGroup !== "all") params.group_id = Number(this.filterGroup);
+                if (this.filterPurpose) params.purpose = this.filterPurpose;
+                if (this.filterKeyword.trim()) params.keyword = this.filterKeyword.trim();
+                this.items = await getWarehouseItems(params);
+            } catch (err) {
+                ElMessage.error(this.errMsg(err, "加载仓库列表失败"));
+            } finally {
+                this.itemsLoading = false;
+            }
+        },
+        debouncedLoadItems() {
+            clearTimeout(this.keywordTimer);
+            this.keywordTimer = setTimeout(() => this.loadItems(), 260);
+        },
+        setGroupFilter(val) {
+            this.filterGroup = val;
+            this.loadItems();
+        },
+        switchTab(tab) {
+            this.activeTab = tab;
+            if (tab === "sales") this.loadSales(1);
+            else this.loadItems();
+        },
+        async loadSales(page = 1) {
+            this.salesPage = page;
+            this.salesLoading = true;
+            try {
+                const params = { page, per: this.salesPer, currency: this.activeCurrency };
+                if (this.saleChannel) params.channel = this.saleChannel;
+                const res = await getWarehouseSales(params);
+                this.sales = res?.list || [];
+                this.salesTotal = Number(res?.total) || 0;
+            } catch (err) {
+                ElMessage.error(this.errMsg(err, "加载出售流水失败"));
+            } finally {
+                this.salesLoading = false;
+            }
+        },
+        async handleAddQueryKey(key) {
+            try {
+                const ext = await getExteriorsDetail(key);
+                this.openAddDialog(ext);
+            } catch {
+                this.openAddDialog();
+            }
+        },
+        openAddDialog(presetExterior = null) {
+            this.editingItemId = null;
+            this.editingSoldQty = 0;
+            this.pickSearch = "";
+            this.pickCandidates = [];
+            this.itemForm = {
+                exterior_key: presetExterior?.key || "",
+                selectedExterior: presetExterior || null,
+                group_id: this.filterGroup !== "all" && this.filterGroup !== "0" ? Number(this.filterGroup) : null,
+                purpose: "invest",
+                currency: this.activeCurrency,
+                quantity: 1,
+                in_price: 0,
+                in_date: todayIso(),
+                pinned: false,
+                remark: "",
+            };
+            this.itemDialogVisible = true;
+        },
+        openEditDialog(row) {
+            this.editingItemId = row.id;
+            this.editingSoldQty = Number(row.quantity) - Number(row.remaining);
+            this.itemForm = {
+                exterior_key: row.exterior_key,
+                selectedExterior: row.exterior || null,
+                group_id: row.group_id || null,
+                purpose: row.purpose || "invest",
+                currency: row.currency || "cny",
+                quantity: Number(row.quantity),
+                in_price: Number(row.in_price),
+                in_date: this.formatDate(row.in_date),
+                pinned: Boolean(row.pinned),
+                remark: row.remark || "",
+            };
+            this.itemDialogVisible = true;
+        },
+        debouncedSearchExteriors() {
+            clearTimeout(this.pickTimer);
+            const kw = this.pickSearch.trim();
+            if (!kw) {
+                this.pickCandidates = [];
                 return;
             }
-            if (this.saving) return;
-            this.saving = true;
-            this.notice = "";
+            this.pickTimer = setTimeout(async () => {
+                this.pickLoading = true;
+                try {
+                    const res = await getExteriorsList({ keyword: kw, limit: 15, include_total: false });
+                    this.pickCandidates = res?.list || [];
+                } catch {
+                    this.pickCandidates = [];
+                } finally {
+                    this.pickLoading = false;
+                }
+            }, 220);
+        },
+        selectExteriorCandidate(cand) {
+            this.itemForm.exterior_key = cand.key;
+            this.itemForm.selectedExterior = cand;
+        },
+        async submitItemForm() {
+            if (!this.editingItemId && !this.itemForm.exterior_key) {
+                ElMessage.warning("请先检索并选择一件外观");
+                return;
+            }
+            this.itemSaving = true;
             try {
-                await deleteWarehouseEntry(entry.id);
-                await this.load();
-            } catch (error) {
-                this.notice = this.errorMessage(error);
+                const payload = {
+                    group_id: this.itemForm.group_id || null,
+                    purpose: this.itemForm.purpose,
+                    currency: this.itemForm.currency,
+                    quantity: this.itemForm.quantity,
+                    in_price: this.itemForm.in_price,
+                    in_date: this.itemForm.in_date || todayIso(),
+                    pinned: this.itemForm.pinned,
+                    remark: this.itemForm.remark || "",
+                };
+                if (this.editingItemId) {
+                    await updateWarehouseItem(this.editingItemId, payload);
+                    ElMessage.success("持仓信息已更新");
+                } else {
+                    await createWarehouseItem({ ...payload, exterior_key: this.itemForm.exterior_key });
+                    ElMessage.success("外观已入库");
+                }
+                this.itemDialogVisible = false;
+                await Promise.all([this.loadSummary(), this.loadItems()]);
+            } catch (err) {
+                ElMessage.error(this.errMsg(err));
             } finally {
-                this.saving = false;
+                this.itemSaving = false;
+            }
+        },
+        async toggleItemPin(row) {
+            try {
+                await updateWarehouseItem(row.id, { pinned: !row.pinned });
+                await this.loadItems();
+            } catch (err) {
+                ElMessage.error(this.errMsg(err));
+            }
+        },
+        async removeItem(row) {
+            try {
+                await ElMessageBox.confirm(this.$t("exterior.warehouse.confirmRemove"), "确认删除", {
+                    type: "warning",
+                    confirmButtonText: "删除",
+                    cancelButtonText: "取消",
+                });
+                await deleteWarehouseItem(row.id);
+                ElMessage.success("已移除该条仓库记录");
+                await Promise.all([this.loadSummary(), this.loadItems()]);
+            } catch (err) {
+                if (err !== "cancel") ElMessage.error(this.errMsg(err));
+            }
+        },
+        openSellDialog(row) {
+            this.sellingItem = row;
+            this.sellForm = {
+                quantity: 1,
+                out_price: Number(row.in_price) || 0,
+                fee: 0,
+                autoWblFee: true,
+                channel: "wbl",
+                out_date: todayIso(),
+                remark: "",
+            };
+            this.syncAutoFee();
+            this.sellDialogVisible = true;
+        },
+        onSellChannelChange(ch) {
+            this.sellForm.autoWblFee = ch === "wbl";
+            if (this.sellForm.autoWblFee) this.syncAutoFee();
+            else this.sellForm.fee = 0;
+        },
+        syncAutoFee() {
+            const total = (Number(this.sellForm.quantity) || 1) * (Number(this.sellForm.out_price) || 0);
+            this.sellForm.fee = roundMoney(total * 0.05);
+        },
+        async submitSellForm() {
+            if (!this.sellingItem) return;
+            this.sellSaving = true;
+            try {
+                await sellWarehouseItem(this.sellingItem.id, {
+                    quantity: this.sellForm.quantity,
+                    out_price: this.sellForm.out_price,
+                    fee: this.sellForm.autoWblFee ? this.sellPreview.fee : this.sellForm.fee,
+                    channel: this.sellForm.channel,
+                    out_date: this.sellForm.out_date || todayIso(),
+                    remark: this.sellForm.remark || "",
+                });
+                ElMessage.success("出售记录已入账");
+                this.sellDialogVisible = false;
+                await Promise.all([this.loadSummary(), this.loadItems()]);
+            } catch (err) {
+                ElMessage.error(this.errMsg(err));
+            } finally {
+                this.sellSaving = false;
+            }
+        },
+        async undoSale(sale) {
+            try {
+                await ElMessageBox.confirm(this.$t("exterior.warehouse.confirmUndoSale"), "撤回出售", {
+                    type: "warning",
+                    confirmButtonText: "确定撤回",
+                    cancelButtonText: "取消",
+                });
+                await undoWarehouseSale(sale.id);
+                ElMessage.success("已撤回出售并恢复库存");
+                await Promise.all([this.loadSummary(), this.loadSales(this.salesPage), this.loadItems()]);
+            } catch (err) {
+                if (err !== "cancel") ElMessage.error(this.errMsg(err));
+            }
+        },
+        tryOnItem(row) {
+            const role = row.group?.role ? normalizeBodyType(row.group.role.body_type) : this.preferredRole;
+            this.$router.push({
+                name: "exterior-studio",
+                query: { role: String(role || 2), wear: row.exterior_key },
+            });
+        },
+        openGroupDrawer() {
+            this.resetGroupForm();
+            this.groupDrawerVisible = true;
+        },
+        editGroup(grp) {
+            this.groupForm = {
+                id: grp.id,
+                name: grp.name,
+                role_id: grp.role_id ? Number(grp.role_id) : null,
+                remark: grp.remark || "",
+            };
+        },
+        resetGroupForm() {
+            this.groupForm = { id: null, name: "", role_id: null, remark: "" };
+        },
+        async saveGroupForm() {
+            const name = this.groupForm.name.trim();
+            if (!name) {
+                ElMessage.warning("请输入分组名称");
+                return;
+            }
+            this.groupSaving = true;
+            try {
+                const payload = {
+                    name,
+                    role_id: this.groupForm.role_id || null,
+                    remark: this.groupForm.remark || "",
+                };
+                if (this.groupForm.id) {
+                    await updateWarehouseGroup(this.groupForm.id, payload);
+                    ElMessage.success("分组已更新");
+                } else {
+                    await createWarehouseGroup(payload);
+                    ElMessage.success("分组已创建");
+                }
+                this.resetGroupForm();
+                await Promise.all([this.loadGroups(), this.loadItems()]);
+            } catch (err) {
+                ElMessage.error(this.errMsg(err));
+            } finally {
+                this.groupSaving = false;
+            }
+        },
+        async removeGroup(grp) {
+            try {
+                await ElMessageBox.confirm(`确定删除分组「${grp.name}」？组内物品将移入未分组。`, "删除分组", {
+                    type: "warning",
+                    confirmButtonText: "删除",
+                    cancelButtonText: "取消",
+                });
+                await deleteWarehouseGroup(grp.id);
+                if (this.filterGroup === String(grp.id)) this.filterGroup = "all";
+                await Promise.all([this.loadGroups(), this.loadItems()]);
+            } catch (err) {
+                if (err !== "cancel") ElMessage.error(this.errMsg(err));
             }
         },
     },
 };
 </script>
+
+<style lang="less" scoped>
+@import (reference) "~@/assets/css/design-system/_tokens.less";
+
+.m-ext-house-page {
+    display: grid;
+    gap: 18px;
+}
+
+.m-house-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.m-house-header__left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.u-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid @pvx-border;
+    border-radius: @pvx-radius-pill;
+    background: #fff;
+    color: @pvx-text-regular;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.16s;
+
+    &:hover {
+        border-color: @pvx-border-focus;
+        color: @pvx-primary-hover;
+    }
+}
+
+.m-house-title {
+    h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: @pvx-text-primary;
+    }
+
+    p {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: @pvx-text-secondary;
+    }
+}
+
+.m-house-header__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.m-currency-switch {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: @pvx-radius-pill;
+    background: #f1f5f9;
+}
+
+.u-curr-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: @pvx-radius-pill;
+    background: transparent;
+    color: @pvx-text-secondary;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.16s;
+
+    &.is-active {
+        background: #ffffff;
+        color: @pvx-primary-hover;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+}
+
+.m-house-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+
+    @media (max-width: 980px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: @phone) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.m-kpi-card {
+    display: grid;
+    gap: 6px;
+
+    .u-kpi-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: @pvx-text-secondary;
+    }
+
+    .u-kpi-value {
+        font-size: 26px;
+        font-weight: 750;
+        line-height: 1.15;
+        color: @pvx-text-primary;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .u-kpi-unit {
+        font-size: 14px;
+        font-weight: 600;
+        color: @pvx-text-secondary;
+    }
+
+    .u-kpi-sub {
+        font-size: 12px;
+        color: @pvx-text-secondary;
+    }
+}
+
+.is-profit {
+    color: #059669 !important;
+}
+
+.is-loss {
+    color: #dc2626 !important;
+}
+
+.m-house-main {
+    display: grid;
+    gap: 16px;
+}
+
+.m-house-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid @pvx-border;
+    padding-bottom: 12px;
+}
+
+.u-tab-btn {
+    padding: 7px 16px;
+    border: none;
+    border-radius: @pvx-radius-pill;
+    background: transparent;
+    color: @pvx-text-regular;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.is-active {
+        background: @pvx-primary-soft;
+        color: @pvx-primary-hover;
+    }
+}
+
+.m-group-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.u-group-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px;
+    border: 1px solid @pvx-border;
+    border-radius: @pvx-radius-pill;
+    background: #ffffff;
+    color: @pvx-text-regular;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.16s;
+
+    &.is-active {
+        border-color: @pvx-primary;
+        background: @pvx-primary-soft;
+        color: @pvx-primary-hover;
+        font-weight: 600;
+    }
+}
+
+.u-role-pill {
+    padding: 1px 7px;
+    border-radius: @pvx-radius-pill;
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.m-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.u-filter-select {
+    width: 148px;
+}
+
+.u-filter-keyword {
+    width: min(320px, 100%);
+}
+
+.m-holding-list {
+    display: grid;
+    gap: 10px;
+}
+
+.m-holding-card {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid @pvx-border;
+    border-radius: 14px;
+    background: #ffffff;
+    transition: border-color 0.16s;
+
+    &:hover {
+        border-color: #cbd5e1;
+    }
+
+    &.is-pinned {
+        border-color: #f59e0b;
+        background: linear-gradient(90deg, rgba(255, 251, 235, 0.55) 0%, #ffffff 35%);
+    }
+
+    &.is-soldout {
+        opacity: 0.78;
+    }
+
+    @media (max-width: 760px) {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+}
+
+.u-cover-link {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 92px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+
+    .u-cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+    }
+
+    .u-cover-fallback {
+        font-size: 11px;
+        color: #94a3b8;
+    }
+}
+
+.m-holding-info {
+    min-width: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.m-holding-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+
+    .u-item-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: @pvx-text-primary;
+
+        &:hover {
+            color: @pvx-primary-hover;
+        }
+    }
+}
+
+.u-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: @pvx-radius-pill;
+    font-size: 11px;
+    font-weight: 600;
+
+    &.is-amber {
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    &.is-indigo {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    &.is-pin {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    &.is-slate {
+        background: #f1f5f9;
+        color: #475569;
+    }
+}
+
+.m-holding-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    font-size: 13px;
+    color: @pvx-text-secondary;
+
+    strong {
+        color: @pvx-text-primary;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .u-date-text {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+}
+
+.m-holding-remark {
+    margin: 0;
+    font-size: 12px;
+    color: @pvx-text-secondary;
+}
+
+.m-holding-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+
+    @media (max-width: 760px) {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+.m-picked-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    background: #eef2ff;
+
+    img {
+        width: 40px;
+        height: 48px;
+        border-radius: 8px;
+        object-fit: cover;
+        object-position: top center;
+    }
+}
+
+.m-pick-results {
+    max-height: 210px;
+    overflow-y: auto;
+    border: 1px solid @pvx-border;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.u-pick-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+        background: #f8fafc;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    img {
+        width: 36px;
+        height: 44px;
+        border-radius: 6px;
+        object-fit: cover;
+        object-position: top center;
+    }
+}
+
+.m-cost-preview {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 13px;
+    color: @pvx-text-secondary;
+    text-align: right;
+
+    strong {
+        color: @pvx-primary-hover;
+        font-size: 15px;
+    }
+}
+
+.m-sell-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #f8fafc;
+
+    img {
+        width: 52px;
+        height: 64px;
+        border-radius: 8px;
+        object-fit: cover;
+        object-position: top center;
+    }
+}
+
+.m-profit-preview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    font-size: 13px;
+    color: @pvx-text-secondary;
+}
+</style>

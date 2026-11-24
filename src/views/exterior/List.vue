@@ -116,6 +116,17 @@
                             </template>
                             {{ $t("exterior.warehouse.title") }}
                         </el-button>
+                        <el-button
+                            type="primary"
+                            class="!m-0 u-studio-cta"
+                            round
+                            @click="$router.push({ name: 'exterior-studio', query: { role: selectedRole } })"
+                        >
+                            <template #icon>
+                                <MagicStick aria-hidden="true" />
+                            </template>
+                            {{ $t("exterior.studio.title") }}
+                        </el-button>
                     </div>
                 </div>
             </div>
@@ -193,7 +204,7 @@
 </template>
 
 <script>
-import { Box, Search, Star, Trophy } from "@element-plus/icons-vue";
+import { Box, MagicStick, Search, Star, Trophy } from "@element-plus/icons-vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import ExteriorCard from "@/components/exterior/ExteriorCard.vue";
@@ -213,6 +224,7 @@ export default {
     name: "ExteriorList",
     components: {
         Box,
+        MagicStick,
         Search,
         Star,
         Trophy,
@@ -672,6 +684,18 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
+
+    .u-studio-cta {
+        border: none;
+        background: linear-gradient(135deg, #5b5cf5 0%, #8b5cf6 100%);
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(91, 92, 245, 0.28);
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(91, 92, 245, 0.36);
+        }
+    }
 }
 
 .m-ext-gallery-body {

@@ -129,7 +129,7 @@
                     </div>
                 </header>
 
-                <!-- 操作按钮组（收藏 / 加入仓库 / 分享） -->
+                <!-- 操作按钮组（收藏 / 加入仓库 / 带入试衣间 / 分享） -->
                 <div class="m-ext-actions">
                     <el-button
                         v-if="!item.local_preview"
@@ -143,7 +143,18 @@
                             <StarFilled v-if="starred" />
                             <Star v-else />
                         </el-icon>
-                        {{ $t(starLabel) }}
+                        <span>{{ $t(starLabel) }}</span>
+                        <span v-if="favoriteCount > 0" class="u-star-count">{{ favoriteCount }}</span>
+                    </el-button>
+
+                    <el-button
+                        v-if="!item.local_preview && canPreviewModel"
+                        type="primary"
+                        round
+                        @click="enterFittingRoom"
+                    >
+                        <el-icon class="el-icon--left"><View /></el-icon>
+                        {{ $t("exterior.studio.enterDetail") }}
                     </el-button>
 
                     <el-button v-if="!item.local_preview" plain round @click="addToWarehouse">
@@ -305,7 +316,12 @@ import {
     resolveExteriorAssetUrl,
     resolveExteriorModelPlan,
 } from "./meta";
-import { addExteriorStar, isExteriorStarred, prefetchExteriorModel, removeExteriorStar } from "@/service/exterior";
+import {
+    addExteriorStar,
+    getExteriorFavoriteCount,
+    prefetchExteriorModel,
+    removeExteriorStar,
+} from "@/service/exterior";
 
 export default {
     name: "ExteriorDetail",
@@ -332,7 +348,8 @@ export default {
             selectedMediaId: "",
             graphNodes: [],
             graphEdges: [],
-            starred: null,
+            starred: false,
+            favoriteCount: 0,
             starBusy: false,
             starStatusError: false,
             prefetchTimer: null,
@@ -554,9 +571,11 @@ export default {
     },
     created() {
         this.$store.dispatch("initPreferredRole");
-        if (!this.item.local_preview && User.isLogin()) {
+        if (!this.item.local_preview) {
             this.loadStarStatus();
-            this.scheduleModelPrefetch(520);
+            if (User.isLogin()) {
+                this.scheduleModelPrefetch(520);
+            }
         }
     },
     beforeUnmount() {
@@ -625,6 +644,15 @@ export default {
                 query: { add: this.item.key },
             });
         },
+        enterFittingRoom() {
+            this.$router.push({
+                name: "exterior-studio",
+                query: {
+                    role: String(this.activeCoverRole || this.preferredRole || 2),
+                    wear: this.item.key,
+                },
+            });
+        },
         async copyShareLink() {
             try {
                 await navigator.clipboard.writeText(window.location.href);
@@ -637,10 +665,12 @@ export default {
             this.starBusy = true;
             this.starStatusError = false;
             try {
-                this.starred = await isExteriorStarred(this.item.key);
+                const res = await getExteriorFavoriteCount(this.item.key);
+                this.starred = Boolean(res?.starred);
+                this.favoriteCount = Number(res?.count) || 0;
             } catch (error) {
                 this.starStatusError = true;
-                this.showStarError(error);
+                if (User.isLogin()) this.showStarError(error);
             } finally {
                 this.starBusy = false;
             }
@@ -651,16 +681,16 @@ export default {
                 User.toLogin();
                 return;
             }
-            if (this.starred === null) {
-                await this.loadStarStatus();
-                return;
-            }
             const nextStarred = !this.starred;
             this.starBusy = true;
             try {
-                const action = nextStarred ? addExteriorStar : removeExteriorStar;
-                await action(this.item.key);
+                const res = await (nextStarred ? addExteriorStar(this.item.key, {}) : removeExteriorStar(this.item.key));
                 this.starred = nextStarred;
+                if (res && typeof res.count === "number") {
+                    this.favoriteCount = res.count;
+                } else {
+                    this.favoriteCount = Math.max(0, this.favoriteCount + (nextStarred ? 1 : -1));
+                }
                 ElMessage.success(nextStarred ? "已加入我的收藏" : "已取消收藏");
             } catch (error) {
                 this.showStarError(error);
@@ -942,6 +972,16 @@ export default {
 
     .el-button {
         margin-left: 0;
+    }
+
+    .u-star-count {
+        margin-left: 5px;
+        padding: 1px 6px;
+        border-radius: @pvx-radius-pill;
+        background: rgba(99, 102, 241, 0.12);
+        font-size: 11px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
     }
 }
 
