@@ -356,11 +356,13 @@ import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import {
+    UC_AUTH_URL,
     createExteriorShowcase,
     deleteExteriorShowcase,
     getExteriorShowcase,
     getExteriorShowcasePost,
     getMyExteriorShowcase,
+    getUserVerifyStatus,
     updateExteriorShowcase,
     uploadShowcaseImage,
 } from "@/service/exterior";
@@ -546,11 +548,33 @@ export default {
                 if (!controller.signal.aborted) this.loading = false;
             }
         },
-        openPublishDrawer() {
+        async ensureVerifiedForShowcase() {
             if (!User.isLogin()) {
                 User.toLogin();
-                return;
+                return false;
             }
+            const status = await getUserVerifyStatus().catch(() => ({ verified: true }));
+            if (status?.verified) return true;
+            this.promptVerifyAuth();
+            return false;
+        },
+        promptVerifyAuth() {
+            ElMessageBox.confirm(
+                "根据站点安全规范，发布或编辑外观返图需先完成账号认证（手机验证或绑定微信公众号）。",
+                "需要完成账号认证",
+                {
+                    type: "warning",
+                    confirmButtonText: "前往认证",
+                    cancelButtonText: "取消",
+                }
+            )
+                .then(() => {
+                    window.open(UC_AUTH_URL, "_blank", "noopener");
+                })
+                .catch(() => {});
+        },
+        async openPublishDrawer() {
+            if (!(await this.ensureVerifiedForShowcase())) return;
             this.editingPostId = null;
             this.form = {
                 pics: [],
@@ -561,10 +585,7 @@ export default {
             this.publishVisible = true;
         },
         async openEditDrawer(post) {
-            if (!User.isLogin()) {
-                User.toLogin();
-                return;
-            }
+            if (!(await this.ensureVerifiedForShowcase())) return;
             let full = this.activeFullPost && Number(this.activeFullPost.ID) === Number(post.ID) ? this.activeFullPost : null;
             if (!full && (!post.post_meta?.pics?.length || !post.post_excerpt)) {
                 try {
@@ -610,11 +631,16 @@ export default {
                 }
                 await this.load(1);
             } catch (error) {
+                const code = error?.code || error?.response?.data?.code;
                 const msg =
                     error?.data?.msg ||
                     error?.response?.data?.msg ||
                     error?.message ||
                     this.$t("exterior.requestError");
+                if (code === 40301 || msg.includes("账号认证")) {
+                    this.promptVerifyAuth();
+                    return;
+                }
                 ElMessage.error(msg);
             } finally {
                 this.deletingId = null;
@@ -715,11 +741,16 @@ export default {
                 };
                 await this.load(1);
             } catch (error) {
+                const code = error?.code || error?.response?.data?.code;
                 const msg =
                     error?.data?.msg ||
                     error?.response?.data?.msg ||
                     error?.message ||
                     this.$t("exterior.requestError");
+                if (code === 40301 || msg.includes("账号认证")) {
+                    this.promptVerifyAuth();
+                    return;
+                }
                 ElMessage.error(msg);
             } finally {
                 this.submitting = false;

@@ -12,6 +12,18 @@
             </div>
         </div>
 
+        <div v-else-if="verifyRequired" class="m-ext-3d__gate">
+            <div class="m-ext-3d__gate-card">
+                <span class="u-gate-badge">账号认证门槛</span>
+                <h3>完成账号认证后开启 3D 实时试穿</h3>
+                <p>为保障模型资源服务稳定，需先完成手机号验证或绑定微信公众号后使用实时 3D 预览</p>
+                <div class="u-error-actions">
+                    <el-button round @click="$emit('back-to-image')">切回高清图集</el-button>
+                    <el-button type="primary" round @click="goVerifyAuth">前往账号认证</el-button>
+                </div>
+            </div>
+        </div>
+
         <template v-else>
             <div class="m-ext-3d__viewport" :class="`is-bg-${stageBg}`">
                 <template v-if="useWorker">
@@ -167,7 +179,7 @@
 <script>
 import { defineAsyncComponent } from "vue";
 import User from "@jx3box/jx3box-common/js/user";
-import { getExteriorModel } from "@/service/exterior";
+import { UC_AUTH_URL, getExteriorModel, getUserVerifyStatus } from "@/service/exterior";
 import { BODY_LABEL_MAP, CHARACTER_BOUND_DOMAINS, resolveExteriorModelPlan } from "./meta";
 
 const ExteriorViewerAsync = defineAsyncComponent(async () => {
@@ -245,6 +257,8 @@ export default {
             bodyLabels: BODY_LABEL_MAP,
             stageBackgrounds: STAGE_BACKGROUNDS,
             loggedIn: User.isLogin(),
+            verifyChecked: false,
+            verifyRequired: false,
             useWorker: SUPPORTS_OFFSCREEN_WORKER,
             ...state,
             cameraView: "front",
@@ -356,8 +370,8 @@ export default {
             );
             this.visibilityObserver.observe(this.$refs.stageRef);
         }
-        if (this.useWorker && this.loggedIn) {
-            this.loadWorkerModel();
+        if (this.loggedIn) {
+            this.ensureVerifiedAndLoad();
         }
     },
     beforeUnmount() {
@@ -371,6 +385,21 @@ export default {
     methods: {
         login() {
             User.toLogin();
+        },
+        goVerifyAuth() {
+            window.open(UC_AUTH_URL, "_blank", "noopener");
+        },
+        async ensureVerifiedAndLoad() {
+            const status = await getUserVerifyStatus();
+            this.verifyChecked = true;
+            if (!status?.verified) {
+                this.verifyRequired = true;
+                return;
+            }
+            this.verifyRequired = false;
+            if (this.useWorker) {
+                this.loadWorkerModel();
+            }
         },
         async resolveCompositeModel(signal) {
             const plan = this.modelPlan;
@@ -455,6 +484,7 @@ export default {
             }
         },
         async loadWorkerModel({ recreate = false } = {}) {
+            if (this.verifyRequired) return;
             const seq = ++this.loadSeq;
             this.loadAbort?.abort();
             const controller = (this.loadAbort = new AbortController());
@@ -534,11 +564,24 @@ export default {
                 }
             } catch (error) {
                 if (seq !== this.loadSeq || controller.signal.aborted) return;
+                const code = error?.code || error?.response?.data?.code;
                 const msg =
                     error?.data?.msg ||
                     error?.response?.data?.msg ||
                     error?.message ||
                     (typeof error === "string" ? error : "加载失败");
+                if (code === 40301 || msg.includes("账号认证")) {
+                    this.verifyChecked = true;
+                    this.verifyRequired = true;
+                    this.loading = false;
+                    await this.disposeWorkerPreview();
+                    return;
+                }
+                if (code === 42901) {
+                    this.errorMessage = msg;
+                    this.loading = false;
+                    return;
+                }
                 // 若 Worker 内部异常中断，清理句柄以确保下次切换或重试能够重建全新渲染上下文。
                 if (
                     error?.name === "AbortError" ||
@@ -569,6 +612,9 @@ export default {
         },
         errorTitle(message) {
             const text = String(message || "");
+            if (text.includes("过于频繁") || text.includes("429")) {
+                return "请求过于频繁，请稍后再试";
+            }
             if (text.includes("尚无对应模型") || text.includes("404") || text.includes("暂无")) {
                 return "该外观暂未收录 3D 模型";
             }
@@ -577,6 +623,9 @@ export default {
         },
         errorDetail(message) {
             const text = String(message || "");
+            if (text.includes("过于频繁") || text.includes("429")) {
+                return text || "已达到当前账号每分钟预览上限，令牌桶正在恢复中，请稍候点击重试。";
+            }
             if (text.includes("尚无对应模型") || text.includes("404") || text.includes("暂无")) {
                 return "这件外观的模型仍在陆续制作入库中，可以先浏览高清图集。";
             }

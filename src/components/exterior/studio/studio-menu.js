@@ -1,11 +1,18 @@
 // 自由试衣间商城风格左侧导航配置与舞台背景定义。
 export const STUDIO_MENU = [
     {
-        id: "bundle",
-        label: "礼盒",
-        desc: "一键成套穿戴礼盒全部可穿部件",
-        icon: "Present",
-        domain: "bundle",
+        id: "favorites",
+        label: "收藏",
+        desc: "我收藏的可试穿外观",
+        icon: "Star",
+        source: "favorites",
+    },
+    {
+        id: "history",
+        label: "穿过",
+        desc: "已试穿缓存的外观记录",
+        icon: "Clock",
+        source: "history",
     },
     {
         id: "outfit",
@@ -17,7 +24,7 @@ export const STUDIO_MENU = [
             { id: "outfit", label: "成衣", domain: "outfit" },
             { id: "cloak", label: "披风", domain: "pendant", slot: "BackCloak", category: "8_10_6_3" },
             { id: "hat", label: "帽子", domain: "part", slot: "hat" },
-            { id: "chest", label: "上衣", domain: "part", slot: "chest" },
+            { id: "chest", label: "上衣", domain: "part", slot: "chest", exclude_full_outfit: 1 },
             { id: "bangle", label: "护腕", domain: "part", slot: "bangle" },
             { id: "waist", label: "腰带", domain: "part", slot: "waist" },
             { id: "pants", label: "下装", domain: "part", slot: "pants" },
@@ -59,13 +66,25 @@ export const STUDIO_MENU = [
     },
     {
         id: "motion",
-        label: "特效站姿",
-        desc: "定制角色待机动作与周身特效",
+        label: "体态",
+        desc: "定制角色站姿与面部表情",
         icon: "Camera",
         defaultSub: "posture",
         subs: [
             { id: "posture", label: "站姿", domain: "posture" },
-            { id: "effect", label: "特效", domain: "effect" },
+            { id: "expression", label: "表情", domain: "expression" },
+        ],
+    },
+    {
+        id: "effect",
+        label: "特效",
+        desc: "试穿足迹与环身特效",
+        icon: "Sunny",
+        defaultSub: "all",
+        subs: [
+            { id: "all", label: "全部", domain: "effect" },
+            { id: "footprint", label: "足迹", domain: "effect", slot: "Footprint" },
+            { id: "circle", label: "环身", domain: "effect", slot: "CircleBody" },
         ],
     },
     {

@@ -159,7 +159,6 @@ export default {
             controls: [],
             bodyValues: {},
             openGroups: ["头部与肩颈", "胸背与腰腹", "手臂与手腕", "腿足与身高", "其他部位"],
-            pendingChanges: {},
             flushing: false,
         };
     },
@@ -196,6 +195,7 @@ export default {
         },
     },
     created() {
+        this._pendingChanges = {};
         this.loadLibrary(1);
         if (this.ready) this.refreshControls();
     },
@@ -216,6 +216,7 @@ export default {
             this.libLoading = true;
             try {
                 const params = {
+                    client: "std",
                     body_type: this.role,
                     code_mode: 0,
                     pageIndex: page,
@@ -279,7 +280,7 @@ export default {
             }
             this.applyingId = item.id;
             try {
-                const att = await fetchMallAttachment("body", item.id);
+                const att = await fetchMallAttachment("pvxbody", item.id);
                 const profile = att.data
                     ? characterProfileFromData(att.data)
                     : parseCharacterProfile(att.bytes);
@@ -322,16 +323,16 @@ export default {
         onSliderChange(id, value) {
             const intVal = Math.round(Number(value) || 0);
             this.bodyValues = { ...this.bodyValues, [id]: intVal };
-            this.pendingChanges[id] = intVal;
+            this._pendingChanges[id] = intVal;
             this.flushSliderChanges();
         },
         async flushSliderChanges() {
             if (this.flushing || !this.preview || !this.ready) return;
             this.flushing = true;
             try {
-                while (Object.keys(this.pendingChanges).length > 0) {
-                    const batch = { ...this.pendingChanges };
-                    this.pendingChanges = {};
+                while (Object.keys(this._pendingChanges).length > 0) {
+                    const batch = JSON.parse(JSON.stringify(this._pendingChanges));
+                    this._pendingChanges = {};
                     await this.preview.updateBodyParameters(batch);
                 }
             } catch (err) {

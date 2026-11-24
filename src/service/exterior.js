@@ -31,8 +31,44 @@ export function getExteriorsDetail(id, signal) {
     return getCatalog(encodeURIComponent(id), undefined, signal);
 }
 
+const MAX_GRAPH_CACHE = 128;
+const graphCache = new Map();
+const graphInflight = new Map();
+
 export function getExteriorGraph(id, signal) {
     return getCatalog(`${encodeURIComponent(id)}/graph`, undefined, signal);
+}
+
+export async function getExteriorGraphCached(id, signal) {
+    const key = String(id || "").trim();
+    if (!key) return null;
+    const cached = graphCache.get(key);
+    if (cached) {
+        graphCache.delete(key);
+        graphCache.set(key, cached);
+        return cached;
+    }
+
+    let pending = graphInflight.get(key);
+    if (!pending) {
+        pending = getExteriorGraph(key)
+            .then((graph) => {
+                if (graph) {
+                    if (graphCache.size >= MAX_GRAPH_CACHE) {
+                        const oldest = graphCache.keys().next().value;
+                        if (oldest) graphCache.delete(oldest);
+                    }
+                    graphCache.set(key, graph);
+                }
+                return graph || null;
+            })
+            .finally(() => {
+                graphInflight.delete(key);
+            });
+        graphInflight.set(key, pending);
+    }
+
+    return raceSignal(pending, signal);
 }
 
 function escapeHtml(text) {
@@ -229,7 +265,7 @@ export async function getExteriorModel(key, role, signal) {
         pending = $cms({ mute: true })
             .get(`/api/cms/pvx/exterior/${encodeURIComponent(key)}/model${roleSuffix}`)
             .then(({ data }) => {
-                if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
+                if (data.code) throw Object.assign(new Error(data.msg), { code: data.code, retryAfter: data.data?.retry_after || 0 });
                 const payload = data.data || {};
                 const normalized = {
                     modelUrl: resolveExteriorAssetUrl(payload.modelUrl),
@@ -243,6 +279,17 @@ export async function getExteriorModel(key, role, signal) {
                 modelCache.set(cacheKey, normalized);
                 return normalized;
             })
+            .catch((err) => {
+                const body = err?.response?.data;
+                if (body && (body.code || body.msg)) {
+                    throw Object.assign(new Error(body.msg || err.message), {
+                        code: body.code || err?.response?.status || err.code,
+                        retryAfter: body.data?.retry_after || 0,
+                        status: err?.response?.status,
+                    });
+                }
+                throw err;
+            })
             .finally(() => {
                 modelInflight.delete(cacheKey);
             });
@@ -253,7 +300,7 @@ export async function getExteriorModel(key, role, signal) {
 }
 
 export function prefetchExteriorModel(key, role) {
-    if (!key || !User.isLogin()) return Promise.resolve(null);
+    if (!key || !User.isLogin() || cachedVerifyResult?.verified === false) return Promise.resolve(null);
     return getExteriorModel(key, role)
         .then((resolved) => {
             if (resolved?.modelUrl) warmExteriorCatalogUrl(resolved.modelUrl);
@@ -293,13 +340,146 @@ export function getDefaultUserBodyType() {
 const exteriorFavoritesPath = "/api/cms/pvx/exterior/favorites";
 const exteriorWarehousePath = "/api/cms/pvx/exterior/warehouse";
 const FACE_ASSETS_CDN_BASE = "https://cdn.jx3box.com/exterior/face-assets/v1";
+export const WEAPON_STANCES_CDN_BASE = "https://cdn.jx3box.com/exterior/weapon-stances/v1";
+export const FACE_EXPRESSIONS_CDN_BASE = "https://cdn.jx3box.com/exterior/face-expressions/v1";
+export const PET_BEHAVIORS_CDN_BASE = "https://cdn.jx3box.com/exterior/pet-behaviors/v1";
+export const UC_AUTH_URL = "/dashboard/auth";
+
+let cachedVerifyResult = null;
+let verifyStatusPromise = null;
+
+export async function getUserVerifyStatus(force = false) {
+    if (!User.isLogin()) {
+        cachedVerifyResult = { loggedIn: false, verified: false, privileged: false, info: null };
+        return cachedVerifyResult;
+    }
+    if (!force && cachedVerifyResult) return cachedVerifyResult;
+    if (!force && verifyStatusPromise) return verifyStatusPromise;
+
+    verifyStatusPromise = $cms({ mute: true })
+        .get("/api/cms/user/my/info")
+        .then(({ data }) => {
+            if (data?.code) {
+                throw Object.assign(new Error(data.msg || "用户信息获取失败"), { code: data.code });
+            }
+            const info = data?.data || {};
+            const userGroup = Number(info.user_group || 0);
+            const verified =
+                !Number(info.deleted) &&
+                !Number(info.user_status) &&
+                (userGroup >= 16 || Boolean(info.wechat_mp_openid));
+            cachedVerifyResult = {
+                loggedIn: true,
+                verified,
+                privileged: userGroup >= 64,
+                userGroup,
+                wechatBound: Boolean(info.wechat_mp_openid),
+                info,
+            };
+            return cachedVerifyResult;
+        })
+        .catch((err) => {
+            verifyStatusPromise = null;
+            if (err?.response?.status === 401) {
+                cachedVerifyResult = { loggedIn: false, verified: false, privileged: false, info: null };
+                return cachedVerifyResult;
+            }
+            // 网络短暂抖动不误锁，交由后端最终鉴权拦截
+            return { loggedIn: true, verified: true, privileged: false, fallback: true, info: null };
+        })
+        .finally(() => {
+            verifyStatusPromise = null;
+        });
+
+    return verifyStatusPromise;
+}
+
+let cachedFaceExpressionsManifestPromise = null;
+
+export function getFaceExpressionsManifest() {
+    if (!cachedFaceExpressionsManifestPromise) {
+        cachedFaceExpressionsManifestPromise = fetch(`${FACE_EXPRESSIONS_CDN_BASE}/manifest.json`, {
+            mode: "cors",
+            credentials: "omit",
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(`面部表情清单加载失败: HTTP ${res.status}`);
+                return res.json();
+            })
+            .catch((err) => {
+                cachedFaceExpressionsManifestPromise = null;
+                throw err;
+            });
+    }
+    return cachedFaceExpressionsManifestPromise;
+}
+
+export function getFaceExpressionUrl(role, key) {
+    const validRole = [1, 2, 5, 6].includes(Number(role)) ? Number(role) : 2;
+    const clean = String(key || "").trim();
+    if (!clean) return null;
+    return `${FACE_EXPRESSIONS_CDN_BASE}/role-${validRole}/${encodeURIComponent(clean)}.json`;
+}
+
+let cachedPetBehaviorsManifestPromise = null;
+
+export function getPetBehaviorsManifest() {
+    if (!cachedPetBehaviorsManifestPromise) {
+        cachedPetBehaviorsManifestPromise = fetch(`${PET_BEHAVIORS_CDN_BASE}/manifest.json`, {
+            mode: "cors",
+            credentials: "omit",
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(`挂宠行为清单加载失败: HTTP ${res.status}`);
+                return res.json();
+            })
+            .catch((err) => {
+                cachedPetBehaviorsManifestPromise = null;
+                throw err;
+            });
+    }
+    return cachedPetBehaviorsManifestPromise;
+}
+
+export function resolvePetBehaviorClipUrl(clipRelPath) {
+    if (!clipRelPath) return null;
+    if (/^https?:\/\//i.test(clipRelPath)) return clipRelPath;
+    return `${PET_BEHAVIORS_CDN_BASE}/${String(clipRelPath).replace(/^\/+/, "")}`;
+}
+
+let cachedWeaponStancesManifestPromise = null;
+
+export function getWeaponStancesManifest() {
+    if (!cachedWeaponStancesManifestPromise) {
+        cachedWeaponStancesManifestPromise = fetch(`${WEAPON_STANCES_CDN_BASE}/manifest.json`, {
+            mode: "cors",
+            credentials: "omit",
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(`武器姿态清单加载失败: HTTP ${res.status}`);
+                return res.json();
+            })
+            .catch((err) => {
+                cachedWeaponStancesManifestPromise = null;
+                throw err;
+            });
+    }
+    return cachedWeaponStancesManifestPromise;
+}
+
+export function getWeaponStanceClipUrl(role, aniId) {
+    const validRole = [1, 2, 5, 6].includes(Number(role)) ? Number(role) : 2;
+    const id = Number(aniId);
+    if (!Number.isInteger(id) || id <= 0) return null;
+    return `${WEAPON_STANCES_CDN_BASE}/clips/role-${validRole}/${id}.json`;
+}
 
 async function cmsRequest(method, url, payload, params) {
     const { data } = await $cms({ mute: true }).request({
         method,
         url,
         data: payload,
-        params: method === "get" ? { ...(params || {}), _no_cache: 1 } : params,
+        params,
     });
     if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
     return data.data;

@@ -42,7 +42,7 @@
             </div>
 
             <div v-else-if="!loading && !items.length" class="m-catalog-empty">
-                <p>该分类下暂无当前体型可用的 3D 模型外观</p>
+                <p>{{ emptyText }}</p>
                 <el-button v-if="keywordInput" size="small" round @click="resetSearch">清空关键词</el-button>
             </div>
 
@@ -57,6 +57,8 @@
                         'is-busy': busyKey === item.key,
                     }"
                     @click="$emit('select', item)"
+                    @mouseenter="onCardEnter(item, $event)"
+                    @mouseleave="onCardLeave"
                 >
                     <div class="u-card-media">
                         <img
@@ -66,17 +68,27 @@
                             loading="lazy"
                             class="u-card-img"
                         />
+                        <div v-else-if="item.domain === 'expression'" class="u-card-expr">
+                            <span class="u-expr-badge">表情</span>
+                            <strong class="u-expr-label">{{ item.name }}</strong>
+                        </div>
                         <div v-else class="u-card-placeholder">暂无图</div>
 
                         <span v-if="wornKeys.has(item.key)" class="u-worn-badge">
                             <el-icon><Check /></el-icon>
-                            穿戴中
+                            {{ item.domain === "expression" ? "使用中" : "穿戴中" }}
                         </span>
-                        <span v-else-if="item.domain" class="u-type-badge">
+                        <span v-else-if="item.domain && item.domain !== 'expression'" class="u-type-badge">
                             {{ domainLabel(item.domain, item.slot) }}
                         </span>
 
-                        <div v-if="busyKey === item.key" class="u-card-loading">装配中…</div>
+                        <span v-if="!wornKeys.has(item.key) && cachedKeys.has(item.key)" class="u-cached-badge">
+                            已缓存
+                        </span>
+
+                        <div v-if="busyKey === item.key" class="u-card-loading">
+                            {{ busyPercent > 0 ? `装配中 ${busyPercent}%` : "装配中…" }}
+                        </div>
                     </div>
                     <div class="u-card-name" :title="item.name || item.key">
                         {{ item.name || item.key }}
@@ -90,27 +102,49 @@
             </div>
             <div v-else-if="items.length" class="m-catalog-more is-end">已展示全部 {{ items.length }} 件可用外观</div>
         </div>
+
+        <StudioItemHoverPopover
+            :item="hoveredItem"
+            :anchor-rect="hoverRect"
+            :role="role"
+            :worn-keys="wornKeys"
+            :busy-key="busyKey"
+            @wear-item="$emit('wear-related', $event)"
+            @mouse-enter="onPopoverEnter"
+            @mouse-leave="onPopoverLeave"
+        />
     </div>
 </template>
 
 <script>
 import { Check, Search } from "@element-plus/icons-vue";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
+import User from "@jx3box/jx3box-common/js/user";
 import { DOMAIN_META, SLOT_LABELS, pickExteriorCover } from "@/components/exterior/meta";
-import { getExteriorsList } from "@/service/exterior";
+import {
+    getExteriorStars,
+    getExteriorsList,
+    getFaceExpressionUrl,
+    getFaceExpressionsManifest,
+} from "@/service/exterior";
+import StudioItemHoverPopover from "@/components/exterior/studio/StudioItemHoverPopover.vue";
 
 const PAGE_LIMIT = 30;
+const SKIPPED_FAVORITE_DOMAINS = new Set(["family", "face", "realistic_face", "body"]);
 
 export default {
     name: "StudioCatalogGrid",
-    components: { Check, Search },
+    components: { Check, Search, StudioItemHoverPopover },
     props: {
         menuItem: { type: Object, required: true },
         role: { type: Number, required: true },
         wornKeys: { type: Object, required: true },
+        cachedKeys: { type: Object, required: true },
+        historyItems: { type: Array, default: () => [] },
         busyKey: { type: String, default: "" },
+        busyPercent: { type: Number, default: 0 },
     },
-    emits: ["select"],
+    emits: ["select", "wear-related"],
     data() {
         return {
             activeSubId: this.menuItem.defaultSub || "",
@@ -122,6 +156,8 @@ export default {
             errorMessage: "",
             requestSeq: 0,
             abortController: null,
+            hoveredItem: null,
+            hoverRect: null,
         };
     },
     computed: {
@@ -131,6 +167,7 @@ export default {
                 domain: sub.domain,
                 slot: sub.slot || undefined,
                 category: sub.category || undefined,
+                exclude_full_outfit: sub.exclude_full_outfit || undefined,
                 role: this.role,
                 has_model: 1,
                 keyword: this.keywordInput.trim() || undefined,
@@ -139,24 +176,93 @@ export default {
                 sort: "desc",
             };
         },
+        emptyText() {
+            if (this.menuItem.source === "favorites") {
+                return User.isLogin()
+                    ? "暂无符合当前体型的已收藏可试穿外观"
+                    : "登录后可在此快速试穿已收藏的外观";
+            }
+            if (this.menuItem.source === "history") {
+                return "当前体型暂无穿过记录，点击任意分类外观试穿即可记录";
+            }
+            return "该分类下暂无当前体型可用的 3D 模型外观";
+        },
     },
     watch: {
         menuItem(nextItem) {
+            this.clearHoverPopover();
+            clearTimeout(this.searchTimer);
+            this.keywordInput = "";
             this.activeSubId = nextItem.defaultSub || "";
             this.reload();
         },
         role() {
+            this.clearHoverPopover();
             this.reload();
+        },
+        historyItems() {
+            if (this.menuItem.source === "history") {
+                this.reload();
+            }
         },
     },
     created() {
+        this._hoverOpenTimer = null;
+        this._hoverCloseTimer = null;
         this.reload();
     },
     beforeUnmount() {
         clearTimeout(this.searchTimer);
+        this.clearHoverPopover();
         this.abortController?.abort();
     },
     methods: {
+        clearHoverPopover() {
+            clearTimeout(this._hoverOpenTimer);
+            clearTimeout(this._hoverCloseTimer);
+            this._hoverOpenTimer = null;
+            this._hoverCloseTimer = null;
+            this.hoveredItem = null;
+            this.hoverRect = null;
+        },
+        onCardEnter(item, event) {
+            clearTimeout(this._hoverOpenTimer);
+            clearTimeout(this._hoverCloseTimer);
+            if (!item || item.domain === "expression") return;
+            const target = event?.currentTarget;
+            if (!target) return;
+            this._hoverOpenTimer = setTimeout(() => {
+                if (!target.isConnected) return;
+                const rect = target.getBoundingClientRect();
+                this.hoveredItem = item;
+                this.hoverRect = {
+                    top: rect.top,
+                    left: rect.left,
+                    right: rect.right,
+                    bottom: rect.bottom,
+                    width: rect.width,
+                    height: rect.height,
+                };
+            }, 220);
+        },
+        onCardLeave() {
+            clearTimeout(this._hoverOpenTimer);
+            clearTimeout(this._hoverCloseTimer);
+            this._hoverCloseTimer = setTimeout(() => {
+                this.hoveredItem = null;
+                this.hoverRect = null;
+            }, 180);
+        },
+        onPopoverEnter() {
+            clearTimeout(this._hoverCloseTimer);
+        },
+        onPopoverLeave() {
+            clearTimeout(this._hoverCloseTimer);
+            this._hoverCloseTimer = setTimeout(() => {
+                this.hoveredItem = null;
+                this.hoverRect = null;
+            }, 160);
+        },
         domainLabel(domain, slot) {
             if (slot && SLOT_LABELS[slot]) return SLOT_LABELS[slot];
             return DOMAIN_META[domain]?.label || domain;
@@ -171,6 +277,7 @@ export default {
         },
         selectSub(subId) {
             if (this.activeSubId === subId) return;
+            this.clearHoverPopover();
             this.activeSubId = subId;
             this.reload();
         },
@@ -183,6 +290,7 @@ export default {
             this.reload();
         },
         reload() {
+            this.clearHoverPopover();
             this.items = [];
             this.nextCursor = null;
             if (this.$refs.scrollBoxRef) this.$refs.scrollBoxRef.scrollTop = 0;
@@ -193,11 +301,25 @@ export default {
             this.fetchPage(this.nextCursor, true);
         },
         onScroll(e) {
+            this.clearHoverPopover();
             const el = e.target;
             if (!el || this.loading || this.nextCursor === null) return;
             if (el.scrollHeight - el.scrollTop - el.clientHeight < 180) {
                 this.loadNextPage();
             }
+        },
+        filterLocalItems(rawList) {
+            const kw = this.keywordInput.trim().toLowerCase();
+            return rawList.filter((ext) => {
+                if (!ext?.key) return false;
+                const domain = ext.domain || String(ext.key).split("_")[0];
+                if (SKIPPED_FAVORITE_DOMAINS.has(domain)) return false;
+                if (domain !== "bundle" && ext.has_model === false) return false;
+                if (Array.isArray(ext.roles) && ext.roles.length && !ext.roles.includes(this.role)) return false;
+                if (!kw) return true;
+                const hay = `${ext.name || ""} ${ext.game_name || ""} ${ext.alias || ""} ${ext.pinyin || ""}`.toLowerCase();
+                return hay.includes(kw);
+            });
         },
         async fetchPage(cursor, append) {
             const seq = ++this.requestSeq;
@@ -207,6 +329,44 @@ export default {
             this.loading = true;
             this.errorMessage = "";
             try {
+                if (this.menuItem.source === "history") {
+                    this.items = this.filterLocalItems(this.historyItems);
+                    this.nextCursor = null;
+                    return;
+                }
+                if (this.menuItem.source === "favorites") {
+                    if (!User.isLogin()) {
+                        this.items = [];
+                        this.nextCursor = null;
+                        return;
+                    }
+                    const rows = await getExteriorStars();
+                    if (seq !== this.requestSeq) return;
+                    const unwrapped = rows.map((row) => row?.exterior || row).filter(Boolean);
+                    this.items = this.filterLocalItems(unwrapped);
+                    this.nextCursor = null;
+                    return;
+                }
+                if (this.activeQuery.domain === "expression") {
+                    const manifest = await getFaceExpressionsManifest();
+                    if (seq !== this.requestSeq) return;
+                    const kw = this.keywordInput.trim().toLowerCase();
+                    const list = (manifest?.expressions || [])
+                        .filter((expr) => Array.isArray(expr.roles) && expr.roles.includes(this.role))
+                        .filter((expr) => !kw || String(expr.name || expr.key).toLowerCase().includes(kw))
+                        .map((expr) => ({
+                            key: `expr:${expr.key}`,
+                            exprKey: expr.key,
+                            name: expr.name,
+                            domain: "expression",
+                            roles: expr.roles,
+                            url: getFaceExpressionUrl(this.role, expr.key),
+                            has_model: true,
+                        }));
+                    this.items = list;
+                    this.nextCursor = null;
+                    return;
+                }
                 const params = { ...this.activeQuery };
                 if (cursor) params.cursor = cursor;
                 const data = await getExteriorsList(params, controller.signal);
@@ -361,6 +521,35 @@ export default {
     color: #94a3b8;
 }
 
+.u-card-expr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    background: linear-gradient(155deg, #eef2ff 0%, #f8fafc 100%);
+    color: @pvx-text-primary;
+    text-align: center;
+
+    .u-expr-badge {
+        padding: 2px 8px;
+        border-radius: @pvx-radius-pill;
+        background: rgba(99, 102, 241, 0.12);
+        color: #4f46e5;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .u-expr-label {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+}
+
 .u-worn-badge,
 .u-type-badge {
     position: absolute;
@@ -383,6 +572,19 @@ export default {
 .u-type-badge {
     background: rgba(15, 23, 42, 0.56);
     color: #f8fafc;
+    backdrop-filter: blur(4px);
+}
+
+.u-cached-badge {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    padding: 2px 6px;
+    border-radius: @pvx-radius-pill;
+    background: rgba(16, 185, 129, 0.86);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
     backdrop-filter: blur(4px);
 }
 

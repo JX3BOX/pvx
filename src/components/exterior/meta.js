@@ -4,9 +4,9 @@ import { extractTextContent } from "@jx3box/jx3box-common/js/utils";
 
 const CDN_BASE = (__cdn || "https://cdn.jx3box.com/").replace(/\/+$/, "");
 
-// 列表顶栏仅展示真实外观分类，过滤写意脸型、写实脸型、体型和散件。
-export const VISIBLE_LIST_DOMAINS = ["outfit", "bundle", "hair", "pendant", "weapon", "effect", "posture", "family"];
-export const HIDDEN_LIST_DOMAINS = new Set(["face", "realistic_face", "body", "part"]);
+// 列表顶栏仅展示真实外观分类，过滤写意脸型、写实脸型、体型、散件和系列。
+export const VISIBLE_LIST_DOMAINS = ["outfit", "bundle", "hair", "pendant", "weapon", "effect", "posture"];
+export const HIDDEN_LIST_DOMAINS = new Set(["face", "realistic_face", "body", "part", "family"]);
 
 export const BODY_TYPES = [
     { id: 1, key: "man", label: "成男" },

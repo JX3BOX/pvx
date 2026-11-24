@@ -76,7 +76,10 @@
                         <div class="u-preset-thumb">
                             <img v-if="presetCover(item)" :src="presetCover(item)" :alt="item.title" loading="lazy" />
                             <div v-else class="u-preset-placeholder">暂无预览</div>
-                            <span v-if="applyingId === item.id" class="u-preset-busy">应用中…</span>
+                            <span v-if="applyingId === item.id" class="u-preset-busy">
+                                <span class="u-busy-spin" aria-hidden="true" />
+                                <span>{{ faceProgress > 0 ? `应用中 ${faceProgress}%` : "读取中…" }}</span>
+                            </span>
                         </div>
                         <div class="u-preset-info">
                             <div class="u-preset-title" :title="item.title">{{ item.title || `捏脸 #${item.id}` }}</div>
@@ -189,6 +192,8 @@ import { characterProfileFromData, parseCharacterProfile } from "@jx3box/jx3box-
 import { BODY_LABEL_MAP, resolveExteriorAssetUrl } from "@/components/exterior/meta";
 import { fetchMallAttachment, getFaceDecalManifestUrl, searchMallFaces } from "@/service/exterior";
 
+const LIVE_META_MAKEUP_TYPES = new Set([10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22]);
+
 const META_SLOT_LABELS = {
     4: "腮红",
     7: "面纹 / 花钿 I",
@@ -237,6 +242,8 @@ export default {
         ready: { type: Boolean, default: false },
         faceStyle: { type: String, default: "stylized" },
         switchingFaceStyle: { type: Boolean, default: false },
+        applyFaceHandler: { type: Function, default: null },
+        faceProgress: { type: Number, default: 0 },
     },
     emits: ["switch-face-style", "apply-face-profile", "focus-face"],
     data() {
@@ -258,9 +265,7 @@ export default {
             faceProfileData: null,
             openAreas: ["__makeup__"],
 
-            pendingBones: {},
             flushingBones: false,
-            pendingMakeups: {},
             flushingMakeups: false,
         };
     },
@@ -284,12 +289,14 @@ export default {
             for (const [slotKey, selection] of Object.entries(tDecal)) {
                 const type = Number(slotKey);
                 if (!Number.isInteger(type) || !selection?.nShowID) continue;
-                if (type < 10 && ![4, 7, 8, 9].includes(type)) continue;
                 const opt =
                     this.decalOptions.find((d) => d.type === type && d.showId === selection.nShowID) ||
                     ((type === 8 || type === 9) &&
                         this.decalOptions.find((d) => d.type === 7 && d.showId === selection.nShowID));
                 if (!opt) continue;
+                const supportsLive =
+                    typeof opt.liveMakeup === "boolean" ? opt.liveMakeup : LIVE_META_MAKEUP_TYPES.has(type);
+                if (!supportsLive) continue;
                 const disabled = Array.isArray(opt.rgbDisabledSlots)
                     ? opt.rgbDisabledSlots.includes(type)
                     : !opt.customRGB;
@@ -330,11 +337,17 @@ export default {
         },
     },
     created() {
+        // Worker Comlink payload 与预设中止句柄挂在普通实例字段上，避免 Vue Reactive Proxy 触发 DataCloneError。
+        this._pendingBones = {};
+        this._pendingMakeups = {};
+        this._presetAbort = null;
+        this._presetSeq = 0;
         this.loadLibrary(1);
         if (this.ready) this.refreshControls();
     },
     beforeUnmount() {
         clearTimeout(this.searchTimer);
+        this._presetAbort?.abort();
     },
     methods: {
         presetCover(item) {
@@ -350,6 +363,7 @@ export default {
             this.libLoading = true;
             try {
                 const params = {
+                    client: "std",
                     body_type: this.role,
                     is_new_face: this.faceStyle === "meta" ? 1 : 0,
                     code_mode: 0,
@@ -413,27 +427,40 @@ export default {
                 ElMessage.warning(`该捏脸适用于「${BODY_LABEL_MAP[profile.roleType] || profile.roleType}」，请先切换体型`);
                 return false;
             }
-            this.$emit("apply-face-profile", {
+            const payload = {
                 profile,
                 textureDefinitionUrl: getFaceDecalManifestUrl(this.role),
                 label,
-            });
+            };
+            if (this.applyFaceHandler) {
+                return Boolean(await this.applyFaceHandler(payload));
+            }
+            this.$emit("apply-face-profile", payload);
             return true;
         },
         async applyLibraryItem(item) {
+            const seq = ++this._presetSeq;
+            this._presetAbort?.abort();
+            const controller = new AbortController();
+            this._presetAbort = controller;
             this.applyingId = item.id;
             try {
-                const att = await fetchMallAttachment("face", item.id);
+                const att = await fetchMallAttachment("face", item.id, controller.signal);
+                if (seq !== this._presetSeq) return;
                 const profile = att.data
                     ? characterProfileFromData(att.data)
                     : parseCharacterProfile(att.bytes);
-                if (await this.handleFaceProfile(profile, item.title || `捏脸 #${item.id}`)) {
+                const applied = await this.handleFaceProfile(profile, item.title || `捏脸 #${item.id}`);
+                if (seq === this._presetSeq && applied) {
                     this.activePresetId = item.id;
                 }
             } catch (err) {
+                if (err?.name === "AbortError" || seq !== this._presetSeq) return;
                 ElMessage.error(err?.message || "捏脸数据加载失败");
             } finally {
-                this.applyingId = null;
+                if (seq === this._presetSeq) {
+                    this.applyingId = null;
+                }
             }
         },
         async onFileSelected(e) {
@@ -462,16 +489,16 @@ export default {
         onBoneSliderChange(key, value) {
             const intVal = Math.round(Number(value) || 0);
             this.boneValues = { ...this.boneValues, [key]: intVal };
-            this.pendingBones[key] = intVal;
+            this._pendingBones[key] = intVal;
             this.flushBoneChanges();
         },
         async flushBoneChanges() {
             if (this.flushingBones || !this.preview || !this.ready) return;
             this.flushingBones = true;
             try {
-                while (Object.keys(this.pendingBones).length > 0) {
-                    const batch = { ...this.pendingBones };
-                    this.pendingBones = {};
+                while (Object.keys(this._pendingBones).length > 0) {
+                    const batch = JSON.parse(JSON.stringify(this._pendingBones));
+                    this._pendingBones = {};
                     await this.preview.updateFaceBones(batch);
                 }
             } catch (err) {
@@ -489,7 +516,10 @@ export default {
             this.queueMakeupPatch(slotKey, { bUse: true, [field]: Number(val) });
         },
         queueMakeupPatch(slotKey, patch) {
-            this.pendingMakeups[slotKey] = { ...(this.pendingMakeups[slotKey] || {}), ...patch };
+            this._pendingMakeups[slotKey] = {
+                ...(this._pendingMakeups[slotKey] || {}),
+                ...patch,
+            };
             if (this.faceProfileData?.tDecal?.[slotKey]) {
                 this.faceProfileData = {
                     ...this.faceProfileData,
@@ -505,9 +535,9 @@ export default {
             if (this.flushingMakeups || !this.preview || !this.ready) return;
             this.flushingMakeups = true;
             try {
-                while (Object.keys(this.pendingMakeups).length > 0) {
-                    const batch = { ...this.pendingMakeups };
-                    this.pendingMakeups = {};
+                while (Object.keys(this._pendingMakeups).length > 0) {
+                    const batch = JSON.parse(JSON.stringify(this._pendingMakeups));
+                    this._pendingMakeups = {};
                     await this.preview.updateFaceMakeup(batch);
                 }
             } catch (err) {
@@ -689,12 +719,31 @@ export default {
     .u-preset-busy {
         position: absolute;
         inset: 0;
-        display: grid;
-        place-items: center;
-        background: rgba(15, 23, 42, 0.48);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: rgba(15, 23, 42, 0.56);
+        backdrop-filter: blur(2px);
         color: #fff;
         font-size: 12px;
         font-weight: 600;
+    }
+
+    .u-busy-spin {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.28);
+        border-top-color: #a5b4fc;
+        border-radius: 50%;
+        animation: face-preset-spin 0.8s linear infinite;
+    }
+}
+
+@keyframes face-preset-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 
