@@ -21,7 +21,7 @@ jobs:
 
             - name: Install && Build
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.JX3BOX_PACKAGES_READ_TOKEN || secrets.ACCESS_TOKEN || github.token }}
+                  NODE_AUTH_TOKEN: ${{ secrets.JX3BOX_PACKAGES_READ_TOKEN || github.token }}
               run: |
                   echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "$HOME/.npmrc"
                   EXTERIOR_VER=$(node -p "require('./package.json').dependencies['@jx3box/jx3box-exterior']")
