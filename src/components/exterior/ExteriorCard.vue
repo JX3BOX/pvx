@@ -2,9 +2,7 @@
 <template>
     <router-link :to="{ name: 'exterior-list', query: { id: item.key } }" class="m-ext-card group">
         <div class="m-ext-card__stage">
-            <span v-if="showDomainBadge && domainBadge" class="m-ext-card__domain" :style="domainBadgeStyle">
-                {{ domainBadge }}
-            </span>
+            <ExteriorDomainBadge v-if="showDomainBadge" :item="item" />
             <span v-if="statusBadge" class="m-ext-card__status" :class="`is-${statusBadge.tone}`">
                 {{ statusBadge.label }}
             </span>
@@ -59,10 +57,12 @@
 
 <script>
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
-import { DOMAIN_META, SLOT_LABELS, pickExteriorCover } from "./meta";
+import ExteriorDomainBadge from "./ExteriorDomainBadge.vue";
+import { pickExteriorCover } from "./meta";
 
 export default {
     name: "ExteriorCard",
+    components: { ExteriorDomainBadge },
     props: {
         item: { type: Object, required: true },
         role: { type: Number, default: 2 },
@@ -77,22 +77,6 @@ export default {
         },
         coverUrl() {
             return pickExteriorCover(this.item.images, this.role);
-        },
-        domainMeta() {
-            return DOMAIN_META[this.item.domain] || null;
-        },
-        domainBadge() {
-            if (this.item.domain === "pendant" && this.item.slot && SLOT_LABELS[this.item.slot]) {
-                return SLOT_LABELS[this.item.slot];
-            }
-            return this.domainMeta?.label || "";
-        },
-        domainBadgeStyle() {
-            if (!this.domainMeta) return {};
-            return {
-                color: this.domainMeta.color,
-                backgroundColor: "rgba(255, 255, 255, 0.88)",
-            };
         },
         statusBadge() {
             const tags = this.item.game_tags || this.item.tags || [];
@@ -125,17 +109,17 @@ export default {
     min-width: 0;
     overflow: hidden;
     border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 18px;
+    border-radius: @pvx-radius-card;
     background: @pvx-surface;
     color: @pvx-text-primary;
     text-decoration: none;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    box-shadow: @pvx-shadow-xs;
     transition: transform 0.22s @pvx-ease-standard, box-shadow 0.22s @pvx-ease-standard, border-color 0.22s;
 
     &:hover,
     &:focus-visible {
         border-color: @pvx-border-focus;
-        box-shadow: 0 14px 28px rgba(79, 70, 229, 0.12);
+        box-shadow: @pvx-shadow-hover;
         transform: translateY(-3px);
 
         .m-ext-card__img {
@@ -158,10 +142,10 @@ export default {
     border-bottom: 1px solid rgba(226, 232, 240, 0.75);
 }
 
-.m-ext-card__domain,
 .m-ext-card__status {
     position: absolute;
     top: 10px;
+    right: 10px;
     z-index: 2;
     padding: 3px 9px;
     border-radius: @pvx-radius-pill;
@@ -170,14 +154,6 @@ export default {
     line-height: 1.3;
     backdrop-filter: blur(6px);
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-}
-
-.m-ext-card__domain {
-    left: 10px;
-}
-
-.m-ext-card__status {
-    right: 10px;
 
     &.is-rose {
         color: #be123c;
@@ -277,6 +253,17 @@ export default {
     flex-direction: column;
     gap: 4px;
     padding: 12px 14px 13px;
+
+    @media (max-width: @phone) {
+        padding: 8px;
+        .m-ext-card__name {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+    }
     background: @pvx-surface;
 }
 

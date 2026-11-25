@@ -47,7 +47,7 @@
                 @search="searchEvent($event)"
             />
 
-            <PvxSurface v-if="childCategory.length" class="m-child-category" padding="small">
+            <PvxSurface v-if="childCategory.length" class="m-child-category" padding="small" @wheel="scrollHorizontally">
                 <button type="button" class="u-item" :class="{ 'is-active': !childActive }" @click="setIndex('')">
                     {{ $t("pages.furniture.ui.all") }}
                 </button>
@@ -143,6 +143,7 @@ import furnitureSet from "@/components/furniture/furniture_set.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import PvxPageShell from "@/components/design/PvxPageShell.vue";
 import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import { scrollHorizontally } from "@/utils/horizontal-wheel";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 
 import { __imgPath, __dataPath } from "@/utils/config";
@@ -405,6 +406,7 @@ export default {
         },
     },
     methods: {
+        scrollHorizontally,
         appendPage() {
             this.append = true;
             this.page += 1;

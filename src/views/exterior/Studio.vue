@@ -14,10 +14,10 @@
         <div ref="stageContainerRef" class="m-studio-shell">
             <!-- 左侧分类栏 -->
             <aside v-show="!immersiveMode && !sidebarCollapsed" class="m-studio-nav" aria-label="试衣间外观分类">
-                <router-link :to="{ name: 'exterior-list' }" class="u-nav-back" title="返回外观大全">
+                <button type="button" class="u-nav-back" @click="goBack">
                     <el-icon><ArrowLeft /></el-icon>
-                    <span>外观大全</span>
-                </router-link>
+                    <span>返回</span>
+                </button>
 
                 <nav class="m-nav-list">
                     <button
@@ -575,6 +575,7 @@ export default {
                 { value: "fight", label: "战斗" },
             ],
             explicitRole: initRole,
+            preserveCatalogRole: this.$router.options.history.state.preserveCatalogRole === true,
             faceStyle: this.$route.query.face === "meta" ? "meta" : "stylized",
             activeView: "front",
             locomotion: "idle",
@@ -709,7 +710,7 @@ export default {
     created() {
         this._faceSeq = 0;
         this._actionSeq = 0;
-        if (this.explicitRole) {
+        if (this.explicitRole && !this.preserveCatalogRole) {
             this.$store.commit("setPreferredRole", { role: this.explicitRole, persist: true });
         }
     },
@@ -742,6 +743,15 @@ export default {
         this.disposePreview();
     },
     methods: {
+        goBack() {
+            const { back } = this.$router.options.history.state;
+            const previousRoute = typeof back === "string" ? this.$router.resolve(back) : null;
+            if (previousRoute?.matched.length && previousRoute.name !== "exterior-studio") {
+                this.$router.back();
+                return;
+            }
+            this.$router.replace({ name: "exterior-list" });
+        },
         login() {
             User.toLogin();
         },
@@ -1233,7 +1243,9 @@ export default {
         async selectRole(nextRole) {
             if (nextRole === this.activeRole || this.stageLoading) return;
             this.explicitRole = nextRole;
-            this.$store.commit("setPreferredRole", { role: nextRole, persist: true });
+            if (!this.preserveCatalogRole) {
+                this.$store.commit("setPreferredRole", { role: nextRole, persist: true });
+            }
             await this.loadBaseStage();
         },
         async onSwitchFaceStyle(nextStyle) {
@@ -2077,18 +2089,32 @@ export default {
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 
-    @media (max-width: 1024px) {
-        flex-direction: column;
+    @media (max-width: @ipad-y) {
+        display: grid;
+        grid-template-columns: clamp(240px, 32%, 320px) minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    @media (max-width: @phone) {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto auto;
         height: auto;
+        min-height: 0;
     }
 }
 
 .m-ext-studio.is-fullscreen .m-studio-shell {
     height: 100vh;
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 0;
     border: none;
     border-radius: 0;
     box-shadow: none;
+
+    @media (max-width: @phone) {
+        overflow-y: auto;
+        align-content: start;
+    }
 }
 
 .m-studio-nav {
@@ -2101,8 +2127,9 @@ export default {
     color: #cbd5e1;
     gap: 10px;
 
-    @media (max-width: 1024px) {
-        width: 100%;
+    @media (max-width: @ipad-y) {
+        grid-column: 1 / -1;
+        width: auto;
         flex-direction: row;
         overflow-x: auto;
         padding: 8px 10px;
@@ -2115,12 +2142,14 @@ export default {
     justify-content: center;
     gap: 4px;
     padding: 7px 6px;
+    border: none;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.08);
     color: #e2e8f0;
     font-size: 12px;
     font-weight: 600;
     flex-shrink: 0;
+    cursor: pointer;
 
     &:hover {
         background: rgba(255, 255, 255, 0.16);
@@ -2133,7 +2162,7 @@ export default {
     flex-direction: column;
     gap: 4px;
 
-    @media (max-width: 1024px) {
+    @media (max-width: @ipad-y) {
         flex-direction: row;
     }
 }
@@ -2199,7 +2228,7 @@ export default {
 }
 
 .m-studio-drawer {
-    width: 360px;
+    width: clamp(280px, 26vw, 400px);
     flex-shrink: 0;
     border-right: 1px solid @pvx-border;
     background: #ffffff;
@@ -2210,9 +2239,15 @@ export default {
         width: 430px;
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: @ipad-y) {
         width: 100%;
-        height: 400px;
+        height: auto;
+        min-width: 0;
+    }
+
+    @media (max-width: @phone) {
+        grid-row: 3;
+        height: clamp(360px, 60vh, 560px);
         border-right: none;
         border-bottom: 1px solid @pvx-border;
     }
@@ -2224,6 +2259,15 @@ export default {
     min-width: 0;
     min-height: 520px;
     overflow: hidden;
+
+    @media (max-width: @ipad-y) {
+        min-height: 0;
+    }
+    @media (max-width: @phone) {
+        grid-row: 2;
+        height: clamp(400px, 64vh, 580px);
+        height: clamp(400px, 64svh, 580px);
+    }
 
     &.is-bg-pavilion {
         background: url("~@/assets/img/exterior/stage-3d-bg.webp") center 68% / cover no-repeat,
@@ -2277,6 +2321,18 @@ export default {
     align-items: flex-start;
     gap: 8px;
     pointer-events: none;
+
+    @media (max-width: @phone) {
+        left: 8px;
+        right: 8px;
+        .m-topbar-row {
+            width: 100%;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            > * { flex-shrink: 0; }
+        }
+    }
 
     > * {
         pointer-events: auto;

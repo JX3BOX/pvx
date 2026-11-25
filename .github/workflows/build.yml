@@ -23,11 +23,8 @@ jobs:
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.JX3BOX_PACKAGES_READ_TOKEN || github.token }}
               run: |
-                  echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> "$HOME/.npmrc"
-                  EXTERIOR_VER=$(node -p "require('./package.json').dependencies['@jx3box/jx3box-exterior']")
-                  npm pkg delete dependencies.@jx3box/jx3box-exterior
-                  npm install --no-audit --no-fund
-                  npm install --no-save --@jx3box:registry=https://npm.pkg.github.com "@jx3box/jx3box-exterior@${EXTERIOR_VER}"
+                  echo '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}' >> "$HOME/.npmrc"
+                  npm ci --no-audit --no-fund
                   npm run build
 
             - name: Github Pages

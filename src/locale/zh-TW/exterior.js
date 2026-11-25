@@ -1,6 +1,8 @@
 export default {
     star: {
         favorites: "我的收藏",
+        podium: "收藏金榜",
+        moreRanking: "查看更多",
         ranking: "收藏榜",
         loginRequired: "登入後查看我的收藏",
         login: "登入",
@@ -82,6 +84,8 @@ export default {
     details: "外觀資料",
     idLabel: "外觀編號",
     acquisition: "取得方式",
+    filter: "篩選",
+    bodyTypeHint: "選擇外觀封面使用的體型，點擊「確定」後生效。",
     bodyType: "展示體型",
     imageUnavailable: "暫無展示圖",
     gallery: "高清圖集",

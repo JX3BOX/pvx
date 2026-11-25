@@ -1,6 +1,8 @@
 export default {
     star: {
         favorites: "My favorites",
+        podium: "Most favorited",
+        moreRanking: "View more",
         ranking: "Favorites ranking",
         loginRequired: "Sign in to view your favorites",
         login: "Sign in",
@@ -82,6 +84,8 @@ export default {
     details: "Details",
     idLabel: "ID",
     acquisition: "Acquisition",
+    filter: "Filters",
+    bodyTypeHint: "Choose a body type for appearance covers, then confirm to apply it.",
     bodyType: "Body Type",
     imageUnavailable: "Preview unavailable",
     gallery: "HD Gallery",

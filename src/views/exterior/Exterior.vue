@@ -47,6 +47,7 @@ export default {
         },
         shellModifierClass() {
             if (this.$route.name === "exterior-studio") return "m-exterior-shell--studio";
+            if (this.$route.name === "exterior-house") return "m-exterior-shell--house";
             return this.detailId ? "m-exterior-shell--detail" : "m-exterior-shell--list";
         },
     },
@@ -71,7 +72,8 @@ export default {
     background: #f6f8fa;
 }
 
-.p-exterior .m-exterior-shell > div {
+.p-exterior .m-exterior-shell--list > div,
+.p-exterior .m-exterior-shell--studio > div {
     max-width: 1480px;
     margin: 0 auto;
     padding: 26px 30px 44px;
@@ -85,8 +87,15 @@ export default {
     }
 }
 
+@media (min-width: @smallpc) {
+    .p-exterior .m-exterior-shell--list > div {
+        max-width: 1920px;
+    }
+}
+
+.p-exterior .m-exterior-shell--house > div,
 .p-exterior .m-exterior-shell--detail > div {
-    max-width: 1380px;
+    max-width: none;
 }
 
 .p-exterior .m-exterior-shell--studio > div {
@@ -101,5 +110,32 @@ export default {
     @media (max-width: @phone) {
         padding: 8px 8px 14px;
     }
+}
+
+.el-drawer__header.m-exterior-drawer-header {
+    margin-bottom: 0;
+    padding: @pvx-space-2 clamp(@pvx-space-2, 4vw, @pvx-space-4);
+    border-bottom: 1px solid @pvx-border;
+    background: @pvx-surface;
+
+    .el-drawer__close-btn {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        place-items: center;
+        border-radius: @pvx-radius-small;
+        color: @pvx-text-secondary;
+
+        &:hover,
+        &:focus-visible {
+            color: @pvx-primary-hover;
+            background: @pvx-primary-soft;
+        }
+    }
+}
+
+.el-drawer__body.m-exterior-drawer-body {
+    padding: clamp(@pvx-space-2, 4vw, @pvx-space-4);
+    background: @pvx-surface-muted;
 }
 </style>

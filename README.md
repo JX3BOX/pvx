@@ -1,5 +1,9 @@
 # Index
 
+## 安装依赖
+
+`npm install` 会从 GitHub Packages 下载私有依赖 `@jx3box/jx3box-exterior`。首次安装前，在个人 `~/.npmrc` 中配置 `//npm.pkg.github.com/:_authToken`，使用具备 `read:packages` 权限且有权访问此包的 GitHub 令牌。同一作用域下的公开依赖仍使用默认 npm 源。
+
 ## 业务
 
 #### 综合

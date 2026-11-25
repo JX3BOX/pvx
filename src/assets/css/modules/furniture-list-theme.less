@@ -245,11 +245,16 @@
 
     .m-child-category {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
         gap: @pvx-space-2;
 
         .u-item {
             .pvx-focus-ring();
+            flex: none;
+            white-space: nowrap;
             min-width: 76px;
             min-height: 34px;
             padding: 0 @pvx-space-3;

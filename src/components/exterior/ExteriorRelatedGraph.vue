@@ -7,35 +7,32 @@
         padding="medium"
         class="m-ext-related-panel"
     >
-        <div class="m-ext-related__head">
-            <div class="m-ext-related__titles">
-                <h2>{{ $t("exterior.relatedTitle") }}</h2>
-                <span class="u-subtitle">
-                    {{ $t("exterior.relatedDesc") }}
-                    <template v-if="mode === 'cards' && visibleCardCount">（共 {{ visibleCardCount }} 件）</template>
-                    <template v-else-if="nodes.length">（共 {{ nodes.length }} 件）</template>
-                </span>
-            </div>
-
-            <div v-if="nodes.length > 1" class="m-view-switch" role="group" aria-label="视图切换">
-                <button
-                    type="button"
-                    class="u-switch-btn"
-                    :class="{ 'is-active': mode === 'cards' }"
-                    @click="mode = 'cards'"
-                >
-                    {{ $t("exterior.relatedCardsView") }}
-                </button>
-                <button
-                    type="button"
-                    class="u-switch-btn"
-                    :class="{ 'is-active': mode === 'graph' }"
-                    @click="mode = 'graph'"
-                >
-                    {{ $t("exterior.relatedGraphView") }}
-                </button>
-            </div>
-        </div>
+        <PvxSectionHeader
+            :title="$t('exterior.relatedTitle')"
+            :description="$t('exterior.relatedDesc') + (relatedCount ? '（' + relatedCount + ' 件）' : '')"
+        >
+            <template #icon><Connection /></template>
+            <template v-if="nodes.length > 1" #action>
+                <div class="m-view-switch" role="group" aria-label="视图切换">
+                    <button
+                        type="button"
+                        class="u-switch-btn"
+                        :class="{ 'is-active': mode === 'cards' }"
+                        @click="mode = 'cards'"
+                    >
+                        {{ $t("exterior.relatedCardsView") }}
+                    </button>
+                    <button
+                        type="button"
+                        class="u-switch-btn"
+                        :class="{ 'is-active': mode === 'graph' }"
+                        @click="mode = 'graph'"
+                    >
+                        {{ $t("exterior.relatedGraphView") }}
+                    </button>
+                </div>
+            </template>
+        </PvxSectionHeader>
 
         <div v-if="mode === 'cards'" class="m-ext-related__groups">
             <div v-for="group in primaryGroups" :key="group.domain" class="m-rel-group">
@@ -173,6 +170,8 @@ import { GraphChart } from "echarts/charts";
 import { TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
+import { Connection } from "@element-plus/icons-vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { getExteriorGraph } from "@/service/exterior";
 import {
@@ -201,7 +200,7 @@ function truncate(text, max = 9) {
 
 export default {
     name: "ExteriorRelatedGraph",
-    components: { PvxSurface },
+    components: { Connection, PvxSectionHeader, PvxSurface },
     props: {
         exteriorKey: { type: String, required: true },
         fallbackRelations: { type: Array, default: () => [] },
@@ -223,6 +222,9 @@ export default {
         };
     },
     computed: {
+        relatedCount() {
+            return this.mode === "cards" && this.visibleCardCount ? this.visibleCardCount : this.nodes.length;
+        },
         client() {
             return this.$store.state.client;
         },
@@ -725,39 +727,6 @@ export default {
 <style lang="less" scoped>
 @import (reference) "~@/assets/css/design-system/_tokens.less";
 
-.m-ext-related-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.m-ext-related__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.m-ext-related__titles {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 10px;
-
-    h2 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 700;
-        color: @pvx-text-primary;
-    }
-
-    .u-subtitle {
-        font-size: 13px;
-        color: @pvx-text-secondary;
-    }
-}
-
 .m-view-switch {
     display: inline-flex;
     padding: 3px;
@@ -826,7 +795,7 @@ export default {
     gap: 12px;
 
     @media (max-width: @phone) {
-        grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(min(156px, 100%), 1fr));
         gap: 8px;
     }
 }
@@ -1059,5 +1028,18 @@ export default {
         border-radius: 2px;
         display: inline-block;
     }
+}
+@media (max-width: @phone) {
+    .m-graph-canvas-wrap {
+        display: flex;
+        flex-direction: column;
+    }
+    .m-domain-legend, .m-graph-tools, .m-edge-legend {
+        position: static;
+        max-width: 100%;
+        padding: 6px 8px;
+    }
+    .m-domain-legend, .m-graph-tools { order: -1; }
+    .m-graph-canvas { height: clamp(280px, 55vh, 400px); }
 }
 </style>

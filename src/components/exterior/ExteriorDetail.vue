@@ -1,46 +1,105 @@
 <!-- 外观详情主组件：整合高清图集与 3D 实时试穿舞台、元信息卡片、全图画廊、关联图谱、玩家返图与评论区。 -->
 <template>
     <div class="m-ext-detail">
+        <PvxSurface tag="header" padding="medium" class="m-ext-header">
+            <div class="m-ext-title-block">
+                <img v-if="itemIconUrl" :src="itemIconUrl" :alt="item.name" class="u-title-icon" />
+                <div class="m-title-texts">
+                    <div class="m-title-badges">
+                        <span v-if="domainInfo" class="u-domain-tag" :style="domainTagStyle">
+                            {{ domainInfo.label }}
+                            <template v-if="slotLabel"> · {{ slotLabel }}</template>
+                        </span>
+                        <span
+                            v-for="badge in playerTags"
+                            :key="badge.key"
+                            class="u-player-tag"
+                            :class="`is-${badge.tone}`"
+                        >
+                            {{ badge.label }}
+                        </span>
+                    </div>
+                    <h1 class="u-ext-name">{{ item.name || item.game_name || item.key }}</h1>
+                    <p v-if="item.game_name && item.game_name !== item.name" class="u-game-origin">
+                        游戏原名：{{ item.game_name }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- 操作按钮组（收藏 / 加入仓库 / 带入试衣间 / 分享） -->
+            <div class="m-ext-actions">
+                <el-button
+                    v-if="!item.local_preview"
+                    :type="starred ? 'primary' : 'default'"
+                    :plain="!starred"
+                    :loading="starBusy"
+                    @click="toggleStar"
+                >
+                    <template #icon>
+                        <StarFilled v-if="starred" />
+                        <Star v-else />
+                    </template>
+                    <span>{{ $t(starLabel) }}</span>
+                    <span v-if="favoriteCount > 0" class="u-star-count">{{ favoriteCount }}</span>
+                </el-button>
+
+                <el-button
+                    v-if="!item.local_preview && canPreviewModel"
+                    type="primary"
+                    @click="enterFittingRoom"
+                >
+                    <el-icon class="el-icon--left"><View /></el-icon>
+                    {{ $t("exterior.studio.enterDetail") }}
+                </el-button>
+
+                <el-button v-if="!item.local_preview" plain @click="addToWarehouse">
+                    <el-icon class="el-icon--left"><Box /></el-icon>
+                    {{ $t("exterior.warehouse.add") }}
+                </el-button>
+
+                <el-button plain @click="copyShareLink">
+                    <el-icon class="el-icon--left"><Share /></el-icon>
+                    {{ $t("exterior.copyLink") }}
+                </el-button>
+            </div>
+        </PvxSurface>
+
         <!-- 主舞台 + 核心资料区 -->
         <PvxSurface padding="medium" class="m-ext-hero">
-            <!-- 左侧：视觉展示舞台（高清图集 / 3D 试穿无缝切换） -->
-            <section class="m-ext-stage-col">
-                <div class="m-ext-stage-bar">
-                    <div class="m-mode-switch" role="tablist" :aria-label="$t('exterior.preview')">
-                        <button
-                            type="button"
-                            role="tab"
-                            class="u-mode-btn"
-                            :class="{ 'is-active': previewMode === 'image' }"
-                            :aria-selected="previewMode === 'image'"
-                            @click="previewMode = 'image'"
-                        >
-                            <el-icon><Picture /></el-icon>
-                            <span>{{ $t("exterior.staticPreview") }}</span>
-                        </button>
-                        <button
-                            v-if="canPreviewModel"
-                            type="button"
-                            role="tab"
-                            class="u-mode-btn"
-                            :class="{ 'is-active': previewMode === 'model' }"
-                            :aria-selected="previewMode === 'model'"
-                            @click="previewMode = 'model'"
-                        >
-                            <el-icon><View /></el-icon>
-                            <span>{{ $t("exterior.modelPreview") }}</span>
-                        </button>
-                    </div>
-
-                    <span v-if="previewMode === 'image' && activeMedia" class="u-stage-caption">
-                        {{ activeMedia.label }}
-                        <template v-if="allMediaUrls.length > 1"> · 点击查看大图</template>
-                    </span>
-                    <span v-else-if="previewMode === 'model'" class="u-stage-caption">
-                        左键旋转（支持俯仰）· 右键平移 · 滚轮缩放 · 双击复位
-                    </span>
+            <div class="m-ext-stage-bar">
+                <div class="m-mode-switch" role="tablist" :aria-label="$t('exterior.preview')">
+                    <button
+                        type="button"
+                        role="tab"
+                        class="u-mode-btn"
+                        :class="{ 'is-active': previewMode === 'image' }"
+                        :aria-selected="previewMode === 'image'"
+                        @click="previewMode = 'image'"
+                    >
+                        <el-icon><Picture /></el-icon>
+                        <span>{{ $t("exterior.staticPreview") }}</span>
+                    </button>
+                    <button
+                        v-if="canPreviewModel"
+                        type="button"
+                        role="tab"
+                        class="u-mode-btn"
+                        :class="{ 'is-active': previewMode === 'model' }"
+                        :aria-selected="previewMode === 'model'"
+                        @click="previewMode = 'model'"
+                    >
+                        <el-icon><View /></el-icon>
+                        <span>{{ $t("exterior.modelPreview") }}</span>
+                    </button>
                 </div>
 
+                <span v-if="previewMode === 'model'" class="u-stage-caption">
+                    左键旋转（支持俯仰）· 右键平移 · 滚轮缩放 · 双击复位
+                </span>
+            </div>
+
+            <!-- 左侧：视觉展示舞台（高清图集 / 3D 试穿无缝切换） -->
+            <section class="m-ext-stage-col">
                 <div class="m-ext-stage-frame" :class="{ 'is-3d': previewMode === 'model' }">
                     <template v-if="previewMode === 'model'">
                         <slot name="preview-3d" :item="item" :body-type="activeCoverRole">
@@ -103,71 +162,8 @@
                 </div>
             </section>
 
-            <!-- 右侧：名称、图标、价格、交易与标签资料 -->
+            <!-- 外观资料 -->
             <section class="m-ext-info-col">
-                <header class="m-ext-title-block">
-                    <img v-if="itemIconUrl" :src="itemIconUrl" :alt="item.name" class="u-title-icon" />
-                    <div class="m-title-texts">
-                        <div class="m-title-badges">
-                            <span v-if="domainInfo" class="u-domain-tag" :style="domainTagStyle">
-                                {{ domainInfo.label }}
-                                <template v-if="slotLabel"> · {{ slotLabel }}</template>
-                            </span>
-                            <span
-                                v-for="badge in playerTags"
-                                :key="badge.key"
-                                class="u-player-tag"
-                                :class="`is-${badge.tone}`"
-                            >
-                                {{ badge.label }}
-                            </span>
-                        </div>
-                        <h1 class="u-ext-name">{{ item.name || item.game_name || item.key }}</h1>
-                        <p v-if="item.game_name && item.game_name !== item.name" class="u-game-origin">
-                            游戏原名：{{ item.game_name }}
-                        </p>
-                    </div>
-                </header>
-
-                <!-- 操作按钮组（收藏 / 加入仓库 / 带入试衣间 / 分享） -->
-                <div class="m-ext-actions">
-                    <el-button
-                        v-if="!item.local_preview"
-                        :type="starred ? 'primary' : 'default'"
-                        :plain="!starred"
-                        round
-                        :loading="starBusy"
-                        @click="toggleStar"
-                    >
-                        <el-icon class="el-icon--left">
-                            <StarFilled v-if="starred" />
-                            <Star v-else />
-                        </el-icon>
-                        <span>{{ $t(starLabel) }}</span>
-                        <span v-if="favoriteCount > 0" class="u-star-count">{{ favoriteCount }}</span>
-                    </el-button>
-
-                    <el-button
-                        v-if="!item.local_preview && canPreviewModel"
-                        type="primary"
-                        round
-                        @click="enterFittingRoom"
-                    >
-                        <el-icon class="el-icon--left"><View /></el-icon>
-                        {{ $t("exterior.studio.enterDetail") }}
-                    </el-button>
-
-                    <el-button v-if="!item.local_preview" plain round @click="addToWarehouse">
-                        <el-icon class="el-icon--left"><Box /></el-icon>
-                        {{ $t("exterior.warehouse.add") }}
-                    </el-button>
-
-                    <el-button plain round @click="copyShareLink">
-                        <el-icon class="el-icon--left"><Share /></el-icon>
-                        {{ $t("exterior.copyLink") }}
-                    </el-button>
-                </div>
-
                 <!-- 核心状态三格卡片 -->
                 <div class="m-ext-facts">
                     <div class="u-fact-card">
@@ -195,25 +191,6 @@
                         <span class="u-fact-val" :class="item.tradable_item ? 'is-good' : 'is-muted'">
                             {{ item.tradable_item ? $t("exterior.tradableYes") : $t("exterior.tradableNo") }}
                         </span>
-                    </div>
-                </div>
-
-                <!-- 快速切体型预览（与左侧舞台同步） -->
-                <div v-if="bodyCovers.length > 1" class="m-ext-section-box">
-                    <div class="u-box-label">已收录体型预览</div>
-                    <div class="m-quick-roles">
-                        <button
-                            v-for="cover in bodyCovers"
-                            :key="cover.id"
-                            type="button"
-                            class="u-quick-role"
-                            :class="{
-                                'is-active': previewMode === 'image' && activeMedia && activeMedia.id === cover.id,
-                            }"
-                            @click="selectQuickBody(cover)"
-                        >
-                            {{ cover.label }}
-                        </button>
                     </div>
                 </div>
 
@@ -264,6 +241,7 @@
 
         <!-- 关联外观与图谱（默认卡片，可切交互图谱） -->
         <ExteriorRelatedGraph
+            class="m-ext-section"
             :exterior-key="item.key"
             :fallback-relations="item.relations || []"
             :current-item="item"
@@ -273,6 +251,7 @@
         <!-- 玩家晒外观 / 返图区（礼盒与 1:1 散件自动聚合至主成衣返图墙） -->
         <slot name="showcase" :exterior-id="showcaseTarget.publishKey" :item="item">
             <ExteriorShowcase
+                class="m-ext-section"
                 :item="item"
                 :exterior-id="showcaseTarget.publishKey"
                 :query-keys="showcaseTarget.queryKeys"
@@ -282,22 +261,25 @@
         </slot>
 
         <!-- 底部评论区 -->
-        <PvxSurface v-if="!item.local_preview && commentTargetId" tag="section" padding="medium" class="m-ext-comments">
-            <div class="m-ext-comments__head">
-                <h2>{{ $t("exterior.comments") }}</h2>
-                <span class="u-subtitle">{{ $t("exterior.commentsDesc") }}</span>
-            </div>
+        <PvxSurface v-if="!item.local_preview && commentTargetId" tag="section" padding="medium" class="m-ext-section">
+            <PvxSectionHeader
+                :title="$t('exterior.comments')"
+                :description="$t('exterior.commentsDesc')"
+            >
+                <template #icon><ChatDotRound /></template>
+            </PvxSectionHeader>
             <Comment :key="commentTargetId" :id="commentTargetId" category="exterior" order="desc" />
         </PvxSurface>
     </div>
 </template>
 
 <script>
-import { Box, Picture, Share, Star, StarFilled, View } from "@element-plus/icons-vue";
+import { Box, ChatDotRound, Picture, Share, Star, StarFilled, View } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import User from "@jx3box/jx3box-common/js/user";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import ExteriorModelPreview from "./ExteriorModelPreview.vue";
 import ExteriorRelatedGraph from "./ExteriorRelatedGraph.vue";
@@ -327,6 +309,8 @@ export default {
     name: "ExteriorDetail",
     components: {
         Box,
+        ChatDotRound,
+        PvxSectionHeader,
         Comment,
         ExteriorModelPreview,
         ExteriorRelatedGraph,
@@ -345,6 +329,7 @@ export default {
         return {
             bodyLabels: BODY_LABEL_MAP,
             previewMode: "image",
+            previewRole: null,
             selectedMediaId: "",
             graphNodes: [],
             graphEdges: [],
@@ -361,7 +346,7 @@ export default {
             return this.$store.state.client;
         },
         preferredRole() {
-            return this.$store.state.preferredRole || 2;
+            return this.previewRole || this.$store.state.preferredRole || 2;
         },
         itemIconUrl() {
             return Number(this.item.icon_id) > 0 ? iconLink(this.item.icon_id, this.client) : "";
@@ -618,12 +603,8 @@ export default {
         selectStageMedia(media) {
             this.selectedMediaId = media.id;
             if (media.role) {
-                this.$store.commit("setPreferredRole", { role: media.role, persist: true });
+                this.previewRole = media.role;
             }
-        },
-        selectQuickBody(cover) {
-            this.previewMode = "image";
-            this.selectStageMedia(cover);
         },
         onGraphLoaded({ nodes = [], edges = [] } = {}) {
             this.graphNodes = nodes;
@@ -635,7 +616,7 @@ export default {
         },
         onModelRoleChange(role) {
             if (role) {
-                this.$store.commit("setPreferredRole", { role, persist: true });
+                this.previewRole = role;
             }
         },
         addToWarehouse() {
@@ -651,6 +632,7 @@ export default {
                     role: String(this.activeCoverRole || this.preferredRole || 2),
                     wear: this.item.key,
                 },
+                state: { preserveCatalogRole: true },
             });
         },
         async copyShareLink() {
@@ -715,23 +697,49 @@ export default {
     gap: 20px;
 
     @media (max-width: @phone) {
-        gap: 14px;
+        gap: @pvx-space-4;
+    }
+}
+
+.m-ext-header,
+.m-ext-hero {
+    padding: @pvx-space-5;
+    border-color: fade(@pvx-border, 80%);
+    box-shadow: @pvx-shadow-xs;
+
+    @media (max-width: @phone) {
+        padding: @pvx-space-4;
+    }
+}
+
+.m-ext-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: @pvx-space-4;
+
+    @media (max-width: @ipad-y) {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 
 .m-ext-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.92fr);
-    gap: 28px;
+    grid-template-columns: minmax(0, 1fr) clamp(290px, 28%, 420px);
+    grid-template-areas: "toolbar ." "preview info";
     align-items: start;
+    gap: @pvx-space-3 @pvx-space-5;
 
-    @media (max-width: 980px) {
+    @media (max-width: @ipad-y) {
         grid-template-columns: minmax(0, 1fr);
-        gap: 20px;
+        grid-template-areas: "toolbar" "preview" "info";
     }
 }
 
 .m-ext-stage-col {
+    grid-area: preview;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -739,6 +747,7 @@ export default {
 }
 
 .m-ext-stage-bar {
+    grid-area: toolbar;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -788,6 +797,14 @@ export default {
     position: relative;
     width: 100%;
     height: clamp(360px, 56vh, 520px);
+
+    @media (min-width: @smallpc) {
+        height: clamp(520px, 56vh, 680px);
+    }
+    @media (max-width: @phone) {
+        height: clamp(280px, 55vh, 420px);
+        height: clamp(280px, 55svh, 420px);
+    }
     border-radius: 18px;
     border: 1px solid @pvx-border;
     overflow: hidden;
@@ -865,16 +882,18 @@ export default {
 }
 
 .m-ext-info-col {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    grid-area: info;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: @pvx-space-3;
     min-width: 0;
 }
 
 .m-ext-title-block {
     display: flex;
-    align-items: flex-start;
-    gap: 14px;
+    align-items: center;
+    min-width: 0;
+    gap: @pvx-space-3;
 
     .u-title-icon {
         width: 52px;
@@ -948,9 +967,9 @@ export default {
 
 .u-ext-name {
     margin: 0;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 750;
-    line-height: 1.28;
+    line-height: 1.3;
     color: @pvx-text-primary;
     word-break: break-word;
 
@@ -971,7 +990,38 @@ export default {
     gap: 8px;
 
     .el-button {
+        min-height: 40px;
+        max-width: 100%;
+        height: auto;
         margin-left: 0;
+        border-radius: @pvx-radius-control;
+        white-space: normal;
+
+        &.is-plain {
+            --el-button-text-color: @pvx-primary;
+            --el-button-border-color: @pvx-border-focus;
+            --el-button-bg-color: @pvx-primary-soft;
+            --el-button-hover-text-color: @pvx-text-inverse;
+            --el-button-hover-border-color: @pvx-primary;
+            --el-button-hover-bg-color: @pvx-primary;
+        }
+    }
+
+    @media (max-width: @phone) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-content: start;
+        gap: 6px;
+
+        .el-button {
+            min-width: 0;
+            min-height: 36px;
+            height: 36px;
+            padding: 0 8px;
+            border-radius: @pvx-radius-small;
+            font-size: 13px;
+            line-height: 16px;
+        }
     }
 
     .u-star-count {
@@ -987,17 +1037,19 @@ export default {
 
 .m-ext-facts {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
 
-    @media (max-width: @phone) {
-        grid-template-columns: minmax(0, 1fr);
+    @media (min-width: (@phone + 1px)) and (max-width: @ipad-y) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .u-fact-card {
         display: flex;
-        flex-direction: column;
-        gap: 4px;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 4px 12px;
         padding: 12px 14px;
         border-radius: 14px;
         border: 1px solid @pvx-border-light;
@@ -1050,36 +1102,6 @@ export default {
         font-size: 12px;
         font-weight: 600;
         color: @pvx-text-secondary;
-    }
-}
-
-.m-quick-roles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-
-    .u-quick-role {
-        padding: 5px 14px;
-        border-radius: @pvx-radius-pill;
-        border: 1px solid @pvx-border;
-        background: @pvx-surface;
-        color: @pvx-text-primary;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.16s;
-
-        &:hover {
-            border-color: @pvx-border-focus;
-            color: @pvx-primary;
-        }
-
-        &.is-active {
-            border-color: @pvx-primary;
-            background: @pvx-primary;
-            color: @pvx-text-inverse;
-            font-weight: 600;
-        }
     }
 }
 
@@ -1187,28 +1209,59 @@ export default {
     }
 }
 
-.m-ext-comments {
+.m-ext-section {
     display: flex;
     flex-direction: column;
-    gap: 18px;
-}
+    min-width: 0;
+    gap: @pvx-space-5;
+    padding: @pvx-space-5;
+    border-color: fade(@pvx-border, 80%);
+    box-shadow: @pvx-shadow-xs;
 
-.m-ext-comments__head {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 10px;
+    :deep(.c-pvx-section-header) {
+        align-items: center;
+        flex-wrap: wrap;
+    }
 
-    h2 {
+    :deep(.c-pvx-section-header__main) {
+        align-items: center;
+        gap: @pvx-space-3;
+    }
+
+    :deep(.c-pvx-section-header__icon) {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: @pvx-primary-soft;
+        color: @pvx-primary;
+
+        svg {
+            display: block;
+            width: 22px;
+            height: 22px;
+        }
+    }
+
+    :deep(.c-pvx-section-header__title) {
         margin: 0;
         font-size: 18px;
         font-weight: 700;
-        color: @pvx-text-primary;
+        line-height: 24px;
     }
 
-    .u-subtitle {
-        font-size: 13px;
-        color: @pvx-text-secondary;
+    :deep(.c-pvx-section-header__description) {
+        margin: 2px 0 0;
+        line-height: 18px;
+    }
+
+    @media (max-width: @phone) {
+        padding: @pvx-space-4;
+        gap: @pvx-space-4;
+
+        :deep(.c-pvx-section-header__icon) {
+            width: 40px;
+            height: 40px;
+        }
     }
 }
 </style>

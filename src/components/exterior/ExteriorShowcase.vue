@@ -1,17 +1,18 @@
 <!-- 玩家晒图返图区：通过 CMS post_type=show + meta_1 读写返图，内置轻量页内发布抽屉与详情/评论抽屉，无需跳转重量级发布页。 -->
 <template>
     <PvxSurface v-loading="loading" tag="section" padding="medium" class="m-ext-showcase">
-        <div class="m-ext-showcase__head">
-            <div class="m-ext-showcase__titles">
-                <h2>{{ $t("exterior.showcase") }}</h2>
-                <span v-if="total > 0" class="u-showcase-count">{{ total }} 组</span>
-                <span class="u-subtitle">{{ $t("exterior.showcaseDesc") }}</span>
-            </div>
-            <el-button type="primary" plain round size="small" @click="openPublishDrawer">
-                <el-icon class="el-icon--left"><Camera /></el-icon>
-                {{ $t("exterior.publishShowcase") }}
-            </el-button>
-        </div>
+        <PvxSectionHeader
+            :title="$t('exterior.showcase')"
+            :description="$t('exterior.showcaseDesc') + (total ? '（' + total + ' 组）' : '')"
+        >
+            <template #icon><Camera /></template>
+            <template #action>
+                <el-button type="primary" plain round size="small" @click="openPublishDrawer">
+                    <el-icon class="el-icon--left"><Camera /></el-icon>
+                    {{ $t("exterior.publishShowcase") }}
+                </el-button>
+            </template>
+        </PvxSectionHeader>
 
         <PvxEmptyState v-if="error" :title="$t('exterior.loadError')" :description="error">
             <template #action>
@@ -96,6 +97,7 @@
                     :current-page="page"
                     :page-size="per"
                     :total="total"
+                    :pager-count="responsivePagerCount"
                     layout="prev, pager, next"
                     background
                     small
@@ -115,6 +117,8 @@
         <!-- 轻量页内发布返图抽屉 -->
         <el-drawer
             v-model="publishVisible"
+            header-class="m-exterior-drawer-header"
+            body-class="m-ext-publish-content"
             size="min(100%, 540px)"
             append-to-body
             destroy-on-close
@@ -353,6 +357,8 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import User from "@jx3box/jx3box-common/js/user";
 import { showAvatar } from "@jx3box/jx3box-common/js/utils";
 import Comment from "@jx3box/jx3box-ui/src/single/Comment.vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import {
@@ -399,8 +405,9 @@ function extractTextFromHtml(html) {
 }
 
 export default {
+    mixins: [responsivePagination],
     name: "ExteriorShowcase",
-    components: { Camera, Comment, Delete, Edit, Picture, Plus, PvxSurface, PvxEmptyState },
+    components: { PvxSectionHeader, Camera, Comment, Delete, Edit, Picture, Plus, PvxSurface, PvxEmptyState },
     props: {
         exteriorId: { type: String, required: true },
         item: { type: Object, default: null },
@@ -784,51 +791,9 @@ export default {
 <style lang="less" scoped>
 @import (reference) "~@/assets/css/design-system/_tokens.less";
 
-.m-ext-showcase {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.m-ext-showcase__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.m-ext-showcase__titles {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 10px;
-
-    h2 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 700;
-        color: @pvx-text-primary;
-    }
-
-    .u-showcase-count {
-        padding: 1px 8px;
-        border-radius: @pvx-radius-pill;
-        background: @pvx-primary-soft;
-        color: @pvx-primary-hover;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .u-subtitle {
-        font-size: 13px;
-        color: @pvx-text-secondary;
-    }
-}
-
 .m-ext-showcase__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
     gap: 16px;
 }
 
@@ -1092,10 +1057,14 @@ export default {
     }
 }
 
+:global(.el-drawer__body.m-ext-publish-content) {
+    padding: @pvx-space-2 clamp(@pvx-space-2, 4vw, @pvx-space-4);
+}
+
 .m-publish-body {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: @pvx-space-2;
 }
 
 .u-canonical-note {
@@ -1282,7 +1251,9 @@ export default {
 .m-drawer-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: @pvx-space-1;
+
+    .el-button { margin: 0; }
 }
 
 .m-detail-body {

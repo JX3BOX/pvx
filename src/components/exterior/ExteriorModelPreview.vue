@@ -660,16 +660,12 @@ export default {
     flex-direction: column;
     width: 100%;
     height: 100%;
-    min-height: 460px;
+    min-height: 0;
     background: #1b2430;
     overflow: hidden;
 
     &.is-fullscreen {
         min-height: 100vh;
-    }
-
-    @media (max-width: @phone) {
-        min-height: 360px;
     }
 }
 
@@ -721,7 +717,7 @@ export default {
 .m-ext-3d__viewport {
     position: relative;
     flex: 1;
-    min-height: 410px;
+    min-height: 0;
     transition: background 0.25s ease;
 
     &.is-bg-pavilion {
@@ -736,10 +732,6 @@ export default {
 
     &.is-bg-dark {
         background: radial-gradient(circle at 50% 34%, #273449 0%, #141c2b 65%, #0f1623 100%);
-    }
-
-    @media (max-width: @phone) {
-        min-height: 310px;
     }
 
     :deep(.jx3-exterior) {
@@ -836,6 +828,7 @@ export default {
 }
 
 .m-ext-3d__bar {
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: space-between;

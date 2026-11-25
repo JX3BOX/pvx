@@ -1,6 +1,6 @@
 <template>
-    <div v-loading="loading" class="min-h-48 space-y-3">
-        <div v-if="!requiresLogin && !loadError && rawEntries.length" class="flex flex-wrap gap-1.5">
+    <div v-loading="loading" class="space-y-3" :class="preview ? 'min-h-24' : 'min-h-48'">
+        <div v-if="!preview && !requiresLogin && !loadError && rawEntries.length" class="flex flex-wrap gap-1.5">
             <button
                 v-for="tab in domainTabs"
                 :key="tab.value"
@@ -27,6 +27,35 @@
                 <el-button @click="loadEntries">{{ $t("exterior.retry") }}</el-button>
             </template>
         </PvxEmptyState>
+        <ol
+            v-else-if="preview && entries.length"
+            class="m-ext-podium"
+        >
+            <li v-for="(entry, index) in entries" :key="entryKey(entry)" class="min-w-0">
+                <component
+                    :is="entry.exterior ? 'router-link' : 'div'"
+                    :to="entry.exterior ? { name: 'exterior-list', query: { id: entry.exterior.key } } : undefined"
+                    class="m-ext-podium__card"
+                >
+                    <div class="m-ext-podium__art">
+                        <ExteriorDomainBadge v-if="entry.exterior" :item="entry.exterior" />
+                        <img v-if="entryThumb(entry)" :src="entryThumb(entry)" alt="" />
+                        <Trophy v-else aria-hidden="true" />
+                    </div>
+                    <div class="m-ext-podium__caption">
+                        <span class="m-ext-podium__rank"><Trophy aria-hidden="true" />{{ index + 1 }}</span>
+                        <strong :title="entry.exterior?.name">
+                            <span
+                                v-for="(part, partIndex) in podiumNameParts(entry.exterior?.name || $t('exterior.star.unavailable'))"
+                                :key="partIndex"
+                                class="m-ext-podium__name-part"
+                            >{{ part.prefix }}<span class="m-ext-podium__name-ending">{{ part.ending }}</span></span>
+                        </strong>
+                        <span class="m-ext-podium__count">{{ $t("exterior.star.count", { count: entry.count }) }}</span>
+                    </div>
+                </component>
+            </li>
+        </ol>
         <component
             :is="isFavorites ? 'ul' : 'ol'"
             v-else-if="entries.length"
@@ -47,7 +76,8 @@
                 </span>
                 <router-link
                     v-if="entry.exterior"
-                    :to="{ name: 'exterior-list', query: { id: entry.exterior.key, view } }"
+                    :to="{ name: 'exterior-list', query: { id: entry.exterior.key, view: $route.query.id ? $route.query.view : view } }"
+                    @click.left.exact="$emit('select')"
                     class="flex min-w-0 items-center gap-2.5 rounded-lg font-medium text-slate-700 hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-500"
                 >
                     <img
@@ -75,24 +105,28 @@
                     <p class="m-0 break-all font-semibold text-slate-700">{{ entryKey(entry) }}</p>
                     <p class="m-0 text-xs text-slate-500">{{ $t("exterior.star.unavailable") }}</p>
                 </div>
-                <div v-if="isFavorites" class="flex shrink-0 items-center gap-1">
+                <div v-if="isFavorites" class="flex shrink-0 items-center">
                     <el-button
+                        circle
                         plain
-                        size="small"
                         :type="entry.pinned ? 'warning' : 'default'"
+                        :title="$t(entry.pinned ? 'exterior.star.unpin' : 'exterior.star.pin')"
+                        :aria-label="$t(entry.pinned ? 'exterior.star.unpin' : 'exterior.star.pin')"
                         :loading="pinning.has(entryKey(entry))"
                         @click="togglePin(entry)"
                     >
-                        {{ entry.pinned ? $t("exterior.star.unpin") : $t("exterior.star.pin") }}
+                        <template #icon><Top aria-hidden="true" /></template>
                     </el-button>
                     <el-button
+                        circle
                         plain
-                        size="small"
+                        type="primary"
+                        :title="$t('exterior.star.removeNamed', { name: entry.exterior?.name || entryKey(entry) })"
                         :aria-label="$t('exterior.star.removeNamed', { name: entry.exterior?.name || entryKey(entry) })"
                         :loading="removing.has(entryKey(entry))"
                         @click="remove(entryKey(entry))"
                     >
-                        {{ $t("exterior.star.remove") }}
+                        <template #icon><StarFilled aria-hidden="true" /></template>
                     </el-button>
                 </div>
                 <span
@@ -116,11 +150,12 @@
 
 <script>
 import { ElMessage } from "element-plus";
-import { StarFilled } from "@element-plus/icons-vue";
+import { StarFilled, Top, Trophy } from "@element-plus/icons-vue";
 import User from "@jx3box/jx3box-common/js/user";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import PvxActionButton from "@/components/design/PvxActionButton.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import ExteriorDomainBadge from "./ExteriorDomainBadge.vue";
 import { DOMAIN_META, pickExteriorCover } from "@/components/exterior/meta";
 import {
     getExteriorStars,
@@ -128,6 +163,8 @@ import {
     removeExteriorStar,
     updateExteriorStar,
 } from "@/service/exterior";
+
+const PREVIEW_LIMIT = 3;
 
 const FILTER_DOMAINS = [
     { value: "", label: "全部" },
@@ -140,9 +177,11 @@ const FILTER_DOMAINS = [
 
 export default {
     name: "ExteriorStarList",
-    components: { PvxActionButton, PvxEmptyState, StarFilled },
+    components: { ExteriorDomainBadge, PvxActionButton, PvxEmptyState, StarFilled, Top, Trophy },
+    emits: ["ranking-loaded", "select"],
     props: {
         view: { type: String, required: true },
+        preview: Boolean,
         visible: { type: Boolean, default: false },
     },
     data() {
@@ -184,6 +223,15 @@ export default {
     },
     methods: {
         iconLink,
+        podiumNameParts(name) {
+            return name.split("·").map((segment, index) => {
+                const letters = Array.from(segment);
+                return {
+                    prefix: (index ? "·" : "") + letters.slice(0, -2).join(""),
+                    ending: letters.slice(-2).join(""),
+                };
+            });
+        },
         entryKey(entry) {
             return entry.exterior_key || entry.exterior_id || entry.exterior?.key || "";
         },
@@ -206,17 +254,24 @@ export default {
             const { code, msg } = error.response?.data || error.data || { code: error.code, msg: error.message };
             return msg ? (code ? `[${code}] ${msg}` : msg) : this.$t("exterior.requestError");
         },
+        updatePreview(entries) {
+            this.requestId++;
+            this.rawEntries = entries.slice(0, PREVIEW_LIMIT);
+            this.loading = false;
+            this.loadError = "";
+        },
         async loadEntries() {
             const requestId = ++this.requestId;
-            this.rawEntries = [];
+            if (!this.preview) this.rawEntries = [];
             this.loadError = "";
             this.requiresLogin = this.isFavorites && !User.isLogin();
             this.loading = !this.requiresLogin;
             if (this.requiresLogin) return;
             try {
-                const entries = await (this.isFavorites ? getExteriorStars() : getExteriorStarRanking({ limit: 30 }));
+                const entries = await (this.isFavorites ? getExteriorStars() : getExteriorStarRanking({ limit: this.preview ? PREVIEW_LIMIT : 30 }));
                 if (requestId !== this.requestId) return;
                 this.rawEntries = entries;
+                if (!this.isFavorites && !this.preview) this.$emit("ranking-loaded", entries);
             } catch (error) {
                 if (requestId === this.requestId) this.loadError = this.errorMessage(error);
             } finally {
@@ -260,3 +315,147 @@ export default {
     },
 };
 </script>
+
+<style scoped lang="less">
+@import (reference) "~@/assets/css/design-system/_tokens.less";
+
+.m-ext-podium {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: @pvx-space-3;
+    min-width: 0;
+    margin: 0;
+    padding: var(--podium-inset);
+    list-style: none;
+
+    @media (max-width: @ipad-y) {
+        grid-auto-columns: min(100%, 420px);
+        overflow-x: auto;
+        padding-bottom: @pvx-space-1;
+        scroll-snap-type: x proximity;
+
+        li { scroll-snap-align: start; }
+    }
+}
+
+.m-ext-podium__card {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    box-sizing: border-box;
+    height: var(--podium-card-height);
+    overflow: hidden;
+    border: 1px solid @pvx-border;
+    border-radius: @pvx-radius-card;
+    background: @pvx-surface-muted;
+    box-shadow: @pvx-shadow-xs;
+    text-decoration: none;
+    transition: transform 0.22s @pvx-ease-standard, box-shadow 0.22s @pvx-ease-standard, border-color 0.22s;
+
+    &:any-link:hover,
+    &:focus-visible {
+        border-color: @pvx-border-focus;
+        box-shadow: @pvx-shadow-hover;
+
+        .m-ext-podium__caption strong {
+            color: @pvx-primary-hover;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            transform: translateY(-3px);
+
+            .m-ext-podium__art img {
+                transform: scale(1.04);
+            }
+        }
+    }
+}
+
+.m-ext-podium__art {
+    position: relative;
+    display: grid;
+    min-height: 0;
+    overflow: hidden;
+    place-items: center;
+    background: url("~@/assets/img/exterior/card-bg.webp") center / cover;
+
+    img {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        object-fit: contain;
+        transition: transform 0.3s @pvx-ease-standard;
+    }
+
+    svg { width: 42px; color: @pvx-text-muted; }
+}
+
+.m-ext-podium__caption {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: @pvx-space-1;
+    padding: 10px 14px;
+
+    strong {
+        display: -webkit-box;
+        width: 100%;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        text-wrap: balance;
+        overflow-wrap: anywhere;
+        color: @pvx-text-primary;
+        font-size: clamp(16px, 1.25vw, 20px);
+        line-height: 1.4;
+        transition: color 0.18s;
+    }
+}
+
+.m-ext-podium__name-part {
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: top;
+}
+
+.m-ext-podium__name-ending {
+    white-space: nowrap;
+}
+
+@media (max-width: @ipad-y) {
+    .m-ext-podium__card {
+        grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+    }
+
+    .m-ext-podium__caption {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: 26px auto 20px;
+        align-content: center;
+        align-items: center;
+        justify-items: start;
+        padding-inline: 10px;
+        font-size: 16px;
+
+        strong { font-size: inherit; }
+    }
+}
+
+.m-ext-podium__rank {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: @pvx-radius-pill;
+    background: #fef3c7;
+    color: #92400e;
+    font-weight: 700;
+
+    svg { width: 16px; }
+}
+
+.m-ext-podium li:nth-child(2) .m-ext-podium__rank { background: #e2e8f0; color: #475569; }
+.m-ext-podium li:nth-child(3) .m-ext-podium__rank { background: #ffedd5; color: #9a3412; }
+.m-ext-podium__count { color: @pvx-text-secondary; font-size: 13px; }
+</style>

@@ -1,6 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-export default createRouter({
+let catalogScrollPosition;
+
+function isCatalogList(route) {
+    return route.name === "exterior-list" && !route.query.id;
+}
+
+const router = createRouter({
     history: createWebHistory("/exterior/"),
     routes: [
         {
@@ -23,6 +29,19 @@ export default createRouter({
         },
     ],
     scrollBehavior(to, from, savedPosition) {
-        return savedPosition || (to.name !== from.name || to.query.id !== from.query.id ? { top: 0 } : undefined);
+        if (savedPosition) return savedPosition;
+        if (isCatalogList(to) && from.name === "exterior-list" && from.query.id && catalogScrollPosition) {
+            return catalogScrollPosition;
+        }
+        if (to.name !== from.name || to.query.id !== from.query.id) return { top: 0 };
     },
 });
+
+router.beforeResolve((to, from) => {
+    if (isCatalogList(from) && !isCatalogList(to)) {
+        catalogScrollPosition =
+            to.name === "exterior-list" ? { left: window.scrollX, top: window.scrollY } : undefined;
+    }
+});
+
+export default router;

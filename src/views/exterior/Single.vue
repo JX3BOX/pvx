@@ -1,12 +1,12 @@
 <!-- 外观详情路由页：顶部返回导航条与详情主体，按 key 切换外观并自动同步浏览器标题。 -->
 <template>
     <div class="m-ext-single-page">
-        <nav class="m-ext-single-nav">
-            <PvxActionButton variant="light" @click="backToList">
-                <ArrowLeft class="size-4" />{{ $t("exterior.back") }}
-            </PvxActionButton>
-            <span v-if="detail" class="u-nav-crumb">{{ detail.name }}</span>
-        </nav>
+        <ExteriorBackNav
+            show-favorites
+            :to="{ name: 'exterior-list', query: { view: $route.query.view } }"
+            @open-favorites="favoritesVisible = true"
+        />
+        <ExteriorStarDrawer v-model="favoritesVisible" view="favorites" @select="favoritesVisible = false" />
 
         <PvxSurface v-if="detailLoading || detailError" v-loading="detailLoading" padding="medium" class="min-h-64">
             <PvxEmptyState v-if="detailError" :title="$t('exterior.loadError')" :description="detailError" illustrated>
@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import { ArrowLeft } from "@element-plus/icons-vue";
-import PvxActionButton from "@/components/design/PvxActionButton.vue";
+import ExteriorStarDrawer from "@/components/exterior/ExteriorStarDrawer.vue";
+import ExteriorBackNav from "@/components/exterior/ExteriorBackNav.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import ExteriorDetail from "@/components/exterior/ExteriorDetail.vue";
@@ -30,10 +30,11 @@ import { getExteriorsDetail } from "@/service/exterior";
 
 export default {
     name: "ExteriorSingle",
-    components: { ArrowLeft, PvxActionButton, PvxSurface, PvxEmptyState, ExteriorDetail },
+    components: { ExteriorStarDrawer, ExteriorBackNav, PvxSurface, PvxEmptyState, ExteriorDetail },
     props: { detailId: { type: String, required: true } },
     data() {
         return {
+            favoritesVisible: false,
             detail: null,
             detailError: "",
             detailLoading: true,
@@ -49,9 +50,6 @@ export default {
         this.controller?.abort();
     },
     methods: {
-        backToList() {
-            this.$router.push({ name: "exterior-list", query: { view: this.$route.query.view } });
-        },
         async loadDetail(id) {
             const request = ++this.detailRequest;
             this.controller?.abort();
@@ -86,26 +84,10 @@ export default {
 .m-ext-single-page {
     display: grid;
     min-width: 0;
-    gap: 16px;
-}
+    gap: @pvx-space-5;
 
-.m-ext-single-nav {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    border-radius: 16px;
-    background: @pvx-surface;
-    border: 1px solid @pvx-border;
-    box-shadow: @pvx-shadow-xs;
-
-    .u-nav-crumb {
-        font-size: 14px;
-        font-weight: 600;
-        color: @pvx-text-secondary;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    @media (max-width: @phone) {
+        gap: 14px;
     }
 }
 </style>

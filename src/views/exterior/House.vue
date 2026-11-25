@@ -1,16 +1,11 @@
 <!-- 新版双模式外观仓库：支持囤货理财与自用穿搭分账、分币种资产总览、多件批次入库、分批出售盈亏及角色绑定分组管理。 -->
 <template>
     <div class="m-ext-house-page">
-        <PvxSurface padding="medium" class="m-house-header">
-            <div class="m-house-header__left">
-                <router-link :to="{ name: 'exterior-list' }" class="u-back-link">
-                    <el-icon><ArrowLeft /></el-icon>
-                    <span>{{ $t("exterior.back") }}</span>
-                </router-link>
-                <div class="m-house-title">
-                    <h1>{{ $t("exterior.warehouse.title") }}</h1>
-                    <p>{{ $t("exterior.warehouse.subtitle") }}</p>
-                </div>
+        <ExteriorBackNav :to="{ name: 'exterior-list' }" />
+        <PvxSurface tag="header" padding="medium" class="m-house-header">
+            <div class="m-house-title">
+                <h1>{{ $t("exterior.warehouse.title") }}</h1>
+                <p>{{ $t("exterior.warehouse.subtitle") }}</p>
             </div>
 
             <div class="m-house-header__actions">
@@ -361,6 +356,8 @@
 
                         <div v-if="salesTotal > salesPer" class="mt-4 flex justify-end">
                             <el-pagination
+                                :size="isPaginationPhoneViewport ? 'small' : 'default'"
+                                :pager-count="responsivePagerCount"
                                 layout="prev, pager, next"
                                 :total="salesTotal"
                                 :page-size="salesPer"
@@ -376,14 +373,17 @@
         <!-- 入库 / 编辑持仓弹窗 -->
         <el-dialog
             v-model="itemDialogVisible"
+            class="m-house-dialog m-house-entry-dialog"
             :title="editingItemId ? '编辑仓库持仓' : '记一笔外观入库'"
-            width="min(560px, 94vw)"
+            width="min(600px, 94vw)"
+            top="5vh"
             append-to-body
         >
-            <el-form label-width="88px" class="m-dialog-form">
+            <el-form label-position="top" class="m-entry-form">
                 <el-form-item v-if="!editingItemId" label="选择外观" required>
                     <div class="w-full space-y-2">
                         <el-input
+                            v-if="!itemForm.selectedExterior"
                             v-model="pickSearch"
                             clearable
                             placeholder="搜索外观名称或俗称（如：粉白菜、狐金）…"
@@ -395,17 +395,20 @@
                         </el-input>
 
                         <div v-if="itemForm.selectedExterior" class="m-picked-chip">
-                            <img
-                                v-if="pickExteriorCover(itemForm.selectedExterior.images, preferredRole)"
-                                :src="pickExteriorCover(itemForm.selectedExterior.images, preferredRole)"
-                                alt=""
-                            />
+                            <div class="u-preview-cover">
+                                <img
+                                    v-if="pickExteriorCover(itemForm.selectedExterior.images, preferredRole)"
+                                    :src="pickExteriorCover(itemForm.selectedExterior.images, preferredRole)"
+                                    alt=""
+                                />
+                            </div>
                             <div class="min-w-0 flex-1">
-                                <div class="truncate font-semibold text-slate-800">
+                                <div class="u-preview-name">
                                     {{ itemForm.selectedExterior.name }}
                                 </div>
-                                <div class="text-xs text-slate-400">
-                                    {{ domainLabel(itemForm.selectedExterior.domain) }} · {{ itemForm.selectedExterior.key }}
+                                <div class="u-preview-meta">
+                                    <span class="u-preview-domain">{{ domainLabel(itemForm.selectedExterior.domain) }}</span>
+                                    <span>{{ itemForm.selectedExterior.key }}</span>
                                 </div>
                             </div>
                             <el-button link type="primary" @click="itemForm.selectedExterior = null; itemForm.exterior_key = ''">
@@ -438,19 +441,21 @@
                     </div>
                 </el-form-item>
 
-                <el-form-item label="仓库用途">
-                    <el-radio-group v-model="itemForm.purpose">
-                        <el-radio-button value="invest">囤货理财</el-radio-button>
-                        <el-radio-button value="self_use">自用穿搭</el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
+                <div class="m-entry-fields">
+                    <el-form-item label="仓库用途">
+                        <el-radio-group v-model="itemForm.purpose">
+                            <el-radio-button value="invest">囤货理财</el-radio-button>
+                            <el-radio-button value="self_use">自用穿搭</el-radio-button>
+                        </el-radio-group>
+                    </el-form-item>
 
-                <el-form-item label="计价币种">
-                    <el-radio-group v-model="itemForm.currency">
-                        <el-radio-button value="cny">人民币 (¥)</el-radio-button>
-                        <el-radio-button value="gold">金砖</el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
+                    <el-form-item label="计价币种">
+                        <el-radio-group v-model="itemForm.currency">
+                            <el-radio-button value="cny">人民币 (¥)</el-radio-button>
+                            <el-radio-button value="gold">金砖</el-radio-button>
+                        </el-radio-group>
+                    </el-form-item>
+                </div>
 
                 <el-form-item label="所属分组">
                     <el-select v-model="itemForm.group_id" clearable placeholder="未分组" class="w-full">
@@ -458,7 +463,7 @@
                     </el-select>
                 </el-form-item>
 
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div class="m-entry-fields">
                     <el-form-item label="数量">
                         <el-input-number v-model="itemForm.quantity" :min="minEditableQty" :max="999" class="!w-full" />
                     </el-form-item>
@@ -474,7 +479,7 @@
                     </el-form-item>
                 </div>
 
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div class="m-entry-fields">
                     <el-form-item label="入库日期">
                         <el-date-picker
                             v-model="itemForm.in_date"
@@ -493,20 +498,23 @@
                 </el-form-item>
 
                 <div class="m-cost-preview">
-                    本批次总投入：<strong>{{ formatMoney((itemForm.quantity || 1) * (itemForm.in_price || 0), itemForm.currency) }}</strong>
+                    <span>本批次总投入</span>
+                    <strong>{{ formatMoney((itemForm.quantity || 1) * (itemForm.in_price || 0), itemForm.currency) }}</strong>
                 </div>
             </el-form>
 
             <template #footer>
-                <el-button round @click="itemDialogVisible = false">取消</el-button>
-                <el-button type="primary" round :loading="itemSaving" @click="submitItemForm">
-                    {{ $t("exterior.warehouse.save") }}
-                </el-button>
+                <div class="m-entry-actions">
+                    <el-button @click="itemDialogVisible = false">取消</el-button>
+                    <el-button type="primary" :loading="itemSaving" @click="submitItemForm">
+                        {{ $t("exterior.warehouse.save") }}
+                    </el-button>
+                </div>
             </template>
         </el-dialog>
 
         <!-- 分批出售弹窗 -->
-        <el-dialog v-model="sellDialogVisible" title="记录出售出库" width="min(500px, 94vw)" append-to-body>
+        <el-dialog class="m-house-dialog" v-model="sellDialogVisible" title="记录出售出库" width="min(500px, 94vw)" append-to-body>
             <template v-if="sellingItem">
                 <div class="m-sell-header">
                     <img v-if="itemCover(sellingItem)" :src="itemCover(sellingItem)" alt="" />
@@ -598,17 +606,27 @@
         <!-- 分组与绑定角色管理抽屉 -->
         <el-drawer
             v-model="groupDrawerVisible"
-            title="管理仓库分组（支持绑定游戏角色）"
+            title="管理仓库分组"
+            header-class="m-exterior-drawer-header"
+            body-class="m-exterior-drawer-body"
             size="min(100%, 460px)"
             append-to-body
         >
-            <div class="space-y-4">
-                <PvxSurface padding="small" class="space-y-3 border border-slate-200">
+            <template #header="{ titleId }">
+                <div class="flex min-w-0 items-center gap-2.5">
+                    <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <FolderOpened class="size-4" aria-hidden="true" />
+                    </span>
+                    <h2 :id="titleId" class="m-0 text-base font-semibold text-slate-800">管理仓库分组</h2>
+                </div>
+            </template>
+            <div class="grid gap-3">
+                <PvxSurface padding="small" radius="medium" class="m-house-group-form grid gap-2.5">
                     <div class="text-sm font-semibold text-slate-800">
                         {{ groupForm.id ? "编辑分组" : "新建分组" }}
                     </div>
-                    <el-input v-model="groupForm.name" maxlength="64" placeholder="分组名称（例如：主号自用、成女囤货仓）" />
-                    <el-select v-model="groupForm.role_id" clearable placeholder="绑定游戏角色（可选）" class="w-full">
+                    <el-input aria-label="分组名称" v-model="groupForm.name" maxlength="64" placeholder="分组名称（例如：主号自用、成女囤货仓）" />
+                    <el-select aria-label="绑定游戏角色（可选）" v-model="groupForm.role_id" clearable placeholder="绑定游戏角色（可选）" class="w-full">
                         <el-option
                             v-for="r in userRoles"
                             :key="r.ID"
@@ -616,7 +634,7 @@
                             :value="Number(r.ID)"
                         />
                     </el-select>
-                    <el-input v-model="groupForm.remark" maxlength="200" placeholder="分组备注（可选）" />
+                    <el-input aria-label="分组备注（可选）" v-model="groupForm.remark" maxlength="200" placeholder="分组备注（可选）" />
                     <div class="flex justify-end gap-2">
                         <el-button v-if="groupForm.id" size="small" round @click="resetGroupForm">取消编辑</el-button>
                         <el-button type="primary" size="small" round :loading="groupSaving" @click="saveGroupForm">
@@ -625,21 +643,19 @@
                     </div>
                 </PvxSurface>
 
-                <div class="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
-                    <div v-if="!groups.length" class="p-6 text-center text-sm text-slate-400">
-                        还没有自定义分组，可以在上方创建一个
-                    </div>
-                    <div v-for="grp in groups" :key="grp.id" class="flex items-center justify-between gap-3 px-4 py-3">
+                <PvxEmptyState v-if="!groups.length" title="还没有自定义分组，可以在上方创建一个" illustrated />
+                <div v-else class="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
+                    <div v-for="grp in groups" :key="grp.id" class="flex items-center justify-between gap-2 px-3 py-2.5 text-sm sm:gap-3 sm:px-4">
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-center gap-1.5">
-                                <span class="font-semibold text-slate-800">{{ grp.name }}</span>
+                                <span class="break-all font-semibold text-slate-800">{{ grp.name }}</span>
                                 <span v-if="grp.role" class="u-role-pill">{{ roleBadgeText(grp.role) }}</span>
                             </div>
-                            <p v-if="grp.remark" class="m-0 mt-0.5 truncate text-xs text-slate-400">{{ grp.remark }}</p>
+                            <p v-if="grp.remark" :title="grp.remark" class="m-0 mt-0.5 truncate text-xs text-slate-500">{{ grp.remark }}</p>
                         </div>
                         <div class="flex shrink-0 items-center gap-1">
-                            <el-button size="small" plain round @click="editGroup(grp)">编辑</el-button>
-                            <el-button size="small" type="danger" plain round @click="removeGroup(grp)">删除</el-button>
+                            <el-button size="small" plain @click="editGroup(grp)">编辑</el-button>
+                            <el-button size="small" type="danger" plain @click="removeGroup(grp)">删除</el-button>
                         </div>
                     </div>
                 </div>
@@ -649,10 +665,12 @@
 </template>
 
 <script>
-import { ArrowLeft, FolderOpened, Plus, Search } from "@element-plus/icons-vue";
+import ExteriorBackNav from "@/components/exterior/ExteriorBackNav.vue";
+import { FolderOpened, Plus, Search } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import User from "@jx3box/jx3box-common/js/user";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
+import responsivePagination from "@/mixins/responsive-pagination";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { BODY_LABEL_MAP, DOMAIN_META, normalizeBodyType, pickExteriorCover } from "@/components/exterior/meta";
 import { getUserRoles } from "@/service/team";
@@ -688,9 +706,10 @@ const EMPTY_SUMMARY = () => ({
 });
 
 export default {
+    mixins: [responsivePagination],
     name: "ExteriorHouse",
     components: {
-        ArrowLeft,
+        ExteriorBackNav,
         FolderOpened,
         Plus,
         PvxEmptyState,
@@ -1200,7 +1219,12 @@ export default {
 
 .m-ext-house-page {
     display: grid;
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: @pvx-space-5;
+
+    @media (max-width: @phone) {
+        gap: 14px;
+    }
 }
 
 .m-house-header {
@@ -1211,43 +1235,22 @@ export default {
     gap: 14px;
 }
 
-.m-house-header__left {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-}
-
-.u-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border: 1px solid @pvx-border;
-    border-radius: @pvx-radius-pill;
-    background: #fff;
-    color: @pvx-text-regular;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.16s;
-
-    &:hover {
-        border-color: @pvx-border-focus;
-        color: @pvx-primary-hover;
-    }
-}
-
 .m-house-title {
     h1 {
         margin: 0;
-        font-size: 20px;
-        font-weight: 700;
+        font-size: 32px;
+        font-weight: 750;
+        line-height: 1.3;
+
+        @media (max-width: @phone) {
+            font-size: 22px;
+        }
         color: @pvx-text-primary;
     }
 
     p {
-        margin: 2px 0 0;
-        font-size: 12px;
+        margin: 4px 0 0;
+        font-size: 13px;
         color: @pvx-text-secondary;
     }
 }
@@ -1256,7 +1259,13 @@ export default {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: @pvx-space-1;
+
+    .el-button {
+        min-height: 40px;
+        margin: 0;
+        border-radius: @pvx-radius-control;
+    }
 }
 
 .m-currency-switch {
@@ -1278,9 +1287,9 @@ export default {
     transition: all 0.16s;
 
     &.is-active {
-        background: #ffffff;
-        color: @pvx-primary-hover;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        background: @pvx-primary;
+        color: @pvx-text-inverse;
+        box-shadow: @pvx-shadow-xs;
     }
 }
 
@@ -1349,6 +1358,7 @@ export default {
 }
 
 .u-tab-btn {
+    min-height: 38px;
     padding: 7px 16px;
     border: none;
     border-radius: @pvx-radius-pill;
@@ -1359,8 +1369,8 @@ export default {
     cursor: pointer;
 
     &.is-active {
-        background: @pvx-primary-soft;
-        color: @pvx-primary-hover;
+        background: @pvx-primary;
+        color: @pvx-text-inverse;
     }
 }
 
@@ -1414,6 +1424,22 @@ export default {
 
 .u-filter-keyword {
     width: min(320px, 100%);
+}
+
+@media (max-width: @phone) {
+    .m-filter-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .u-filter-select, .u-filter-keyword { width: 100%; }
+    .u-filter-keyword { grid-column: 1 / -1; }
+
+    .m-group-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+    .u-group-chip { flex: none; }
 }
 
 .m-holding-list {
@@ -1563,21 +1589,128 @@ export default {
     }
 }
 
+.m-house-group-form {
+    --el-border-radius-base: @pvx-radius-small;
+    --el-component-size: 36px;
+}
+
+.m-entry-form,
+.m-entry-fields {
+    display: grid;
+    gap: @pvx-space-2 @pvx-space-3;
+}
+
+.m-entry-form {
+    --el-border-radius-base: @pvx-radius-small;
+    --el-component-size: 38px;
+
+    :deep(.el-form-item) {
+        min-width: 0;
+        margin-bottom: 0;
+    }
+
+    :deep(.el-form-item__label) {
+        margin-bottom: 4px;
+        line-height: 20px;
+        color: @pvx-text-regular;
+        font-weight: 600;
+    }
+
+    :deep(.el-radio-group) {
+        display: inline-flex;
+        gap: @pvx-space-1;
+        padding: 3px;
+        border-radius: @pvx-radius-pill;
+        background: @pvx-surface-muted;
+    }
+
+    :deep(.el-radio-button .el-radio-button__inner) {
+        border: 0;
+        border-radius: @pvx-radius-pill;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    :deep(.el-radio-button.is-active .el-radio-button__inner) {
+        background: @pvx-primary;
+        color: @pvx-text-inverse;
+    }
+}
+
+.m-entry-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    @media (max-width: 540px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 .m-picked-chip {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border: 1px solid #c7d2fe;
-    border-radius: 12px;
-    background: #eef2ff;
+    gap: @pvx-space-2;
+    padding: @pvx-space-1 @pvx-space-2;
+    border: 1px solid @pvx-border;
+    border-radius: @pvx-radius-control;
+    background: @pvx-surface-muted;
 
-    img {
-        width: 40px;
-        height: 48px;
-        border-radius: 8px;
-        object-fit: cover;
-        object-position: top center;
+    .u-preview-cover {
+        flex: none;
+        width: 52px;
+        height: 64px;
+        overflow: hidden;
+        border-radius: @pvx-radius-small;
+        background: url("~@/assets/img/exterior/stage-bg.webp") center / cover;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+    }
+
+    .u-preview-name {
+        color: @pvx-text-primary;
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .u-preview-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+        margin-top: 6px;
+        color: @pvx-text-secondary;
+        font-size: 12px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .u-preview-domain {
+        padding: 2px 8px;
+        border-radius: @pvx-radius-pill;
+        background: @pvx-primary-soft;
+        color: @pvx-primary-hover;
+    }
+}
+
+.m-entry-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: @pvx-space-1;
+    padding-top: @pvx-space-2;
+    border-top: 1px solid @pvx-border-light;
+
+    .el-button {
+        min-width: 80px;
+        min-height: 40px;
+        margin: 0;
+        border-radius: @pvx-radius-control;
+        font-weight: 600;
     }
 }
 
@@ -1617,17 +1750,53 @@ export default {
     }
 }
 
+:global(.m-house-dialog) {
+    --el-dialog-border-radius: @pvx-radius-panel;
+    --el-dialog-padding-primary: clamp(16px, 4vw, 24px);
+}
+
+:global(.el-dialog.m-house-entry-dialog) {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    max-height: 90dvh;
+    box-sizing: border-box;
+}
+
+:global(.m-house-entry-dialog > .el-dialog__header) {
+    padding-bottom: @pvx-space-2;
+}
+
+:global(.m-house-entry-dialog > .el-dialog__body) {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+:global(.m-house-entry-dialog > .el-dialog__footer) {
+    padding-top: @pvx-space-2;
+}
+
+.m-entry-form .m-cost-preview {
+    padding-block: @pvx-space-1;
+}
+
 .m-cost-preview {
-    padding: 10px 14px;
-    border-radius: 10px;
-    background: #f8fafc;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: @pvx-space-2;
+    padding: 12px 16px;
+    border: 1px solid @pvx-border;
+    border-radius: 14px;
+    background: @pvx-surface-muted;
     font-size: 13px;
     color: @pvx-text-secondary;
     text-align: right;
 
     strong {
         color: @pvx-primary-hover;
-        font-size: 15px;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
     }
 }
 

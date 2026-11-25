@@ -1,6 +1,8 @@
 export default {
     star: {
         favorites: "Yêu thích của tôi",
+        podium: "Top được yêu thích nhất",
+        moreRanking: "Xem thêm",
         ranking: "Bảng xếp hạng yêu thích",
         loginRequired: "Đăng nhập để xem ngoại trang yêu thích",
         login: "Đăng nhập",
@@ -82,6 +84,8 @@ export default {
     details: "Chi tiết ngoại trang",
     idLabel: "ID ngoại trang",
     acquisition: "Cách nhận",
+    filter: "Bộ lọc",
+    bodyTypeHint: "Chọn thể hình cho ảnh bìa ngoại trang, rồi nhấn xác nhận để áp dụng.",
     bodyType: "Thể hình",
     imageUnavailable: "Chưa có ảnh xem trước",
     gallery: "Thư viện HD",

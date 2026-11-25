@@ -1,7 +1,7 @@
-<!-- 外观大全列表页：精简真实外观分类、按用户角色自动匹配默认封面体型、支持一键切体型与俗称检索。 -->
+<!-- 外观大全列表页：精简真实外观分类、按用户角色自动匹配默认封面体型、支持切换体型与俗称检索。 -->
 <template>
     <div class="m-ext-list-page">
-        <PvxSurface padding="medium" class="m-ext-toolbar">
+        <PvxSurface padding="none" radius="medium" class="m-ext-toolbar">
             <div class="m-ext-toolbar__top">
                 <div class="m-ext-domains" role="tablist" :aria-label="$t('exterior.category')">
                     <button
@@ -17,6 +17,56 @@
                         {{ tab.name }}
                     </button>
                 </div>
+
+                <el-popover
+                    v-model:visible="filterOpen"
+                    trigger="click"
+                    placement="bottom"
+                    width="min(480px, calc(100vw - 32px))"
+                    popper-class="m-ext-filter-popover"
+                    @before-enter="beginFilterEdit"
+                >
+                    <template #reference>
+                        <button
+                            type="button"
+                            class="u-ext-filter"
+                            :class="{ 'is-open': filterOpen, 'has-filter': selectedRole !== defaultRole }"
+                            :aria-label="$t('exterior.filter')"
+                            :title="$t('exterior.filter')"
+                            :aria-expanded="filterOpen"
+                        >
+                            <img svg-inline src="@/assets/img/common/filter.svg" alt="" aria-hidden="true" />
+                        </button>
+                    </template>
+                    <fieldset class="m-ext-filter-group">
+                        <legend>
+                            <span>{{ $t("exterior.bodyType") }}</span>
+                            <el-tooltip
+                                :content="bodyTypeHint"
+                                :trigger="['hover', 'focus']"
+                                placement="top"
+                            >
+                                <button
+                                    type="button"
+                                    class="u-role-hint"
+                                    :aria-label="bodyTypeHint"
+                                    @click="$event.currentTarget.focus()"
+                                >
+                                    <el-icon aria-hidden="true"><InfoFilled /></el-icon>
+                                </button>
+                            </el-tooltip>
+                        </legend>
+                        <el-radio-group v-model="draftRole" :aria-label="$t('exterior.bodyType')">
+                            <el-radio-button v-for="body in bodyTypes" :key="body.id" :value="body.id">
+                                {{ body.label }}
+                            </el-radio-button>
+                        </el-radio-group>
+                    </fieldset>
+                    <div class="m-ext-filter-actions">
+                        <el-button type="primary" @click="applyFilterEdit">{{ $t("pages.pet.ui.search.close") }}</el-button>
+                        <el-button @click="resetFilterEdit">{{ $t("pages.pet.ui.search.reset") }}</el-button>
+                    </div>
+                </el-popover>
 
                 <div class="m-ext-search-box">
                     <el-input
@@ -34,81 +84,63 @@
                     </el-input>
                 </div>
             </div>
-
-            <div
-                v-if="subcategories.length > 1"
-                class="m-ext-subcats"
-                role="group"
-                :aria-label="$t('exterior.subcategory')"
-            >
-                <button
-                    type="button"
-                    class="u-subcat-pill"
-                    :class="{ 'is-active': !category }"
-                    :aria-pressed="!category"
-                    @click="selectCategory('')"
-                >
-                    {{ $t("exterior.allTypes") }}
-                </button>
-                <button
-                    v-for="option in subcategories"
-                    :key="option.key"
-                    type="button"
-                    class="u-subcat-pill"
-                    :class="{ 'is-active': category === option.key }"
-                    :aria-pressed="category === option.key"
-                    @click="selectCategory(option.key)"
-                >
-                    {{ option.name }}
-                </button>
-            </div>
         </PvxSurface>
 
-        <PvxSurface padding="medium" class="m-ext-gallery-panel">
-            <div class="m-ext-gallery-head">
-                <div class="m-ext-gallery-title">
-                    <h2>{{ resultTitle }}</h2>
-                    <span v-if="total != null" class="u-count-pill">
-                        {{ $t("exterior.resultCount", { count: total.toLocaleString("zh-CN") }) }}
-                    </span>
-                </div>
+        <PvxSurface
+            v-if="subcategories.length > 1"
+            class="m-ext-subcats"
+            @wheel="scrollHorizontally"
+            padding="small"
+            role="group"
+            :aria-label="$t('exterior.subcategory')"
+        >
+            <button
+                type="button"
+                class="u-subcat-pill"
+                :class="{ 'is-active': !category }"
+                :aria-pressed="!category"
+                @click="category = ''"
+            >
+                {{ $t("exterior.allTypes") }}
+            </button>
+            <button
+                v-for="option in subcategories"
+                :key="option.key"
+                type="button"
+                class="u-subcat-pill"
+                :class="{ 'is-active': category === option.key }"
+                :aria-pressed="category === option.key"
+                @click="category = option.key"
+            >
+                {{ option.name }}
+            </button>
+        </PvxSurface>
 
-                <div class="m-ext-gallery-actions">
-                    <div class="m-body-switcher" role="group" :aria-label="$t('exterior.bodyType')">
-                        <span class="u-switcher-label">{{ $t("exterior.bodyType") }}</span>
-                        <div class="m-body-pills">
-                            <button
-                                v-for="body in bodyTypes"
-                                :key="body.id"
-                                type="button"
-                                class="u-body-pill"
-                                :class="{ 'is-active': selectedRole === body.id }"
-                                :aria-pressed="selectedRole === body.id"
-                                @click="selectRole(body.id)"
-                            >
-                                {{ body.label }}
-                            </button>
-                        </div>
-                        <el-tooltip v-if="characterRoleHint" :content="characterRoleHint" placement="top">
-                            <span class="u-role-sync-dot" aria-hidden="true" />
-                        </el-tooltip>
-                    </div>
-
-                    <div class="m-action-buttons">
+        <PvxSurface padding="medium" class="m-ext-ranking-panel">
+            <PvxSectionHeader :title="$t('exterior.star.podium')">
+                <template #action>
+                    <button
+                        type="button"
+                        class="u-ext-view-more u-ext-view-more--heading"
+                        :aria-label="$t('exterior.star.moreRanking')"
+                        :title="$t('exterior.star.moreRanking')"
+                        aria-haspopup="dialog"
+                        @click="openStarDrawer('ranking')"
+                    >
+                        <MoreFilled aria-hidden="true" />
+                    </button>
+                    <div class="m-ext-action-buttons">
                         <el-button
-                            v-for="drawer in starDrawers"
-                            :key="drawer"
                             class="!m-0"
                             plain
                             round
                             aria-haspopup="dialog"
-                            @click="openStarDrawer(drawer)"
+                            @click="openStarDrawer('favorites')"
                         >
                             <template #icon>
-                                <Star v-if="drawer === 'favorites'" aria-hidden="true" />
-                                <Trophy v-else aria-hidden="true" />
+                                <Star aria-hidden="true" />
                             </template>
-                            {{ $t(`exterior.star.${drawer}`) }}
+                            {{ $t("exterior.star.favorites") }}
                         </el-button>
                         <el-button class="!m-0" plain round @click="$router.push({ name: 'exterior-house' })">
                             <template #icon>
@@ -118,9 +150,9 @@
                         </el-button>
                         <el-button
                             type="primary"
-                            class="!m-0 u-studio-cta"
+                            class="!m-0"
                             round
-                            @click="$router.push({ name: 'exterior-studio', query: { role: selectedRole } })"
+                            @click="enterFittingRoom"
                         >
                             <template #icon>
                                 <MagicStick aria-hidden="true" />
@@ -128,8 +160,31 @@
                             {{ $t("exterior.studio.title") }}
                         </el-button>
                     </div>
-                </div>
+                </template>
+            </PvxSectionHeader>
+            <div class="m-ext-ranking-row-preview">
+                <ExteriorStarList ref="podium" view="ranking" preview :visible="rankingPreviewVisible" />
+                <button
+                    type="button"
+                    class="u-ext-view-more u-ext-view-more--row"
+                    :aria-label="$t('exterior.star.moreRanking')"
+                    :title="$t('exterior.star.moreRanking')"
+                    aria-haspopup="dialog"
+                    @click="openStarDrawer('ranking')"
+                >
+                    <MoreFilled aria-hidden="true" />
+                </button>
             </div>
+        </PvxSurface>
+
+        <PvxSurface padding="medium" class="m-ext-gallery-panel">
+            <PvxSectionHeader :title="resultTitle">
+                <template v-if="total != null" #action>
+                    <span class="u-count-pill">
+                        {{ $t("exterior.resultCount", { count: total.toLocaleString("zh-CN") }) }}
+                    </span>
+                </template>
+            </PvxSectionHeader>
 
             <div v-loading="loading" class="m-ext-gallery-body">
                 <PvxEmptyState v-if="listError" :title="$t('exterior.loadError')" :description="listError" illustrated>
@@ -176,38 +231,25 @@
             </div>
         </PvxSurface>
 
-        <el-drawer
+        <ExteriorStarDrawer
             v-for="drawer in starDrawers"
             :key="drawer"
+            :view="drawer"
             :model-value="activeDrawer === drawer"
-            :title="$t(`exterior.star.${drawer}`)"
-            header-class="m-exterior-drawer-header"
-            body-class="m-exterior-drawer-body"
-            size="min(100%, 460px)"
-            append-to-body
             @update:model-value="closeStarDrawer(drawer, $event)"
-        >
-            <template #header="{ titleId }">
-                <div class="flex min-w-0 items-center gap-2.5">
-                    <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
-                        <Star v-if="drawer === 'favorites'" class="size-4" aria-hidden="true" />
-                        <Trophy v-else class="size-4" aria-hidden="true" />
-                    </span>
-                    <h2 :id="titleId" class="m-0 text-base font-semibold text-slate-800">
-                        {{ $t(`exterior.star.${drawer}`) }}
-                    </h2>
-                </div>
-            </template>
-            <ExteriorStarList :view="drawer" :visible="activeDrawer === drawer" />
-        </el-drawer>
+            @ranking-loaded="$refs.podium.updatePreview($event)"
+        />
     </div>
 </template>
 
 <script>
-import { Box, MagicStick, Search, Star, Trophy } from "@element-plus/icons-vue";
+import { MoreFilled, Box, InfoFilled, MagicStick, Search, Star } from "@element-plus/icons-vue";
+import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
+import { scrollHorizontally } from "@/utils/horizontal-wheel";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import ExteriorCard from "@/components/exterior/ExteriorCard.vue";
+import ExteriorStarDrawer from "@/components/exterior/ExteriorStarDrawer.vue";
 import ExteriorStarList from "@/components/exterior/ExteriorStarList.vue";
 import {
     BODY_LABEL_MAP,
@@ -223,11 +265,14 @@ const PAGE_SIZE = 30;
 export default {
     name: "ExteriorList",
     components: {
+        MoreFilled,
         Box,
+        InfoFilled,
+        PvxSectionHeader,
         MagicStick,
         Search,
         Star,
-        Trophy,
+        ExteriorStarDrawer,
         PvxSurface,
         PvxEmptyState,
         ExteriorCard,
@@ -236,6 +281,9 @@ export default {
     data() {
         return {
             pageSize: PAGE_SIZE,
+            rankingPreviewVisible: true,
+            filterOpen: false,
+            draftRole: null,
             bodyTypes: BODY_TYPES,
             starDrawers: ["favorites", "ranking"],
             categories: [],
@@ -257,12 +305,15 @@ export default {
         };
     },
     computed: {
+        defaultRole() {
+            return this.$store.state.characterRole?.role || 2;
+        },
         selectedRole() {
             return this.$store.state.preferredRole || 2;
         },
-        characterRoleHint() {
+        bodyTypeHint() {
             const { roleSource, characterRole } = this.$store.state;
-            if (roleSource !== "character" || !characterRole?.role) return "";
+            if (roleSource !== "character" || !characterRole?.role) return this.$t("exterior.bodyTypeHint");
             const bodyLabel = BODY_LABEL_MAP[characterRole.role] || "";
             return characterRole.name
                 ? `已按你的默认角色「${characterRole.name}」自动展示${bodyLabel}封面`
@@ -325,6 +376,9 @@ export default {
         },
     },
     watch: {
+        selectedRole(role, previousRole) {
+            if (this.filterOpen && this.draftRole === previousRole) this.draftRole = role;
+        },
         filters() {
             this.page = 1;
             this.cursors = [0];
@@ -341,6 +395,13 @@ export default {
         this.$store.dispatch("initPreferredRole");
         this.loadCatalog();
     },
+    activated() {
+        this.rankingPreviewVisible = true;
+    },
+    deactivated() {
+        // 保留榜单高度，让路由返回时能恢复列表的滚动位置。
+        if (this.$route.name !== "exterior-studio") this.rankingPreviewVisible = false;
+    },
     beforeUnmount() {
         clearTimeout(this.searchTimer);
         this.listRequest++;
@@ -348,16 +409,30 @@ export default {
         this.countRequest?.abort();
     },
     methods: {
-        selectRole(role) {
-            this.$store.commit("setPreferredRole", { role, persist: true });
+        scrollHorizontally,
+        enterFittingRoom() {
+            this.$router.push({
+                name: "exterior-studio",
+                query: { role: this.selectedRole },
+                state: { preserveCatalogRole: true },
+            });
+        },
+        beginFilterEdit() {
+            this.draftRole = this.selectedRole;
+        },
+        resetFilterEdit() {
+            this.draftRole = this.defaultRole;
+        },
+        applyFilterEdit() {
+            if (this.draftRole !== this.selectedRole) {
+                this.$store.commit("setPreferredRole", { role: this.draftRole, persist: true });
+            }
+            this.filterOpen = false;
         },
         selectDomain(domain) {
             if (this.domain === domain) return;
             this.domain = domain;
             this.category = "";
-        },
-        selectCategory(category) {
-            this.category = category;
         },
         onSearchInput() {
             clearTimeout(this.searchTimer);
@@ -466,235 +541,340 @@ export default {
 
 <style lang="less">
 @import (reference) "~@/assets/css/design-system/_tokens.less";
+@import (reference) "~@/assets/css/design-system/_mixins.less";
 
 .m-ext-list-page {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     min-width: 0;
-    gap: 18px;
+    gap: @pvx-space-4;
 }
 
 .m-ext-toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    min-width: 0;
+    padding: @pvx-space-3 @pvx-space-4;
+    border-color: @pvx-border;
+    box-shadow: @pvx-shadow-sm;
 }
 
 .m-ext-toolbar__top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+    gap: @pvx-space-2;
 }
 
 .m-ext-domains {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
     min-width: 0;
+    gap: @pvx-space-2;
+    overflow-x: auto;
+    scrollbar-width: thin;
 
     .u-domain-tab {
-        padding: 7px 15px;
-        border: 1px solid transparent;
+        flex: none;
+        min-width: 72px;
+        height: 40px;
+        padding: 0 @pvx-space-3;
+        border: 0;
         border-radius: @pvx-radius-pill;
         background: @pvx-surface-muted;
-        color: @pvx-text-regular;
+        color: @pvx-text-secondary;
         font-size: 14px;
-        font-weight: 500;
-        line-height: 1.3;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.18s @pvx-ease-standard;
 
-        &:hover {
-            color: @pvx-primary-hover;
-            background: @pvx-primary-soft;
-        }
-
-        &.is-active {
-            color: @pvx-text-inverse;
-            background: @pvx-primary;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(91, 92, 245, 0.25);
-        }
-    }
-}
-
-.m-ext-search-box {
-    flex: 0 1 320px;
-    width: 320px;
-    min-width: 220px;
-
-    @media (max-width: @ipad) {
-        flex: 1 1 100%;
-        width: 100%;
-    }
-
-    .u-search-input {
-        width: 100%;
-
-        .el-input__wrapper {
-            border-radius: @pvx-radius-pill;
-            padding-inline: 14px;
-            background: @pvx-surface-muted;
-            box-shadow: 0 0 0 1px @pvx-border inset;
-
-            &.is-focus {
-                background: @pvx-surface;
-                box-shadow: 0 0 0 1.5px @pvx-primary inset, @pvx-shadow-focus;
-            }
+        &:hover, &.is-active {
+            color: white;
+            background: #6b52ff;
         }
     }
 }
 
 .m-ext-subcats {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-top: 12px;
-    border-top: 1px solid @pvx-border-light;
+    flex-wrap: nowrap;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    gap: @pvx-space-2;
 
     .u-subcat-pill {
-        padding: 5px 12px;
-        border: 1px solid @pvx-border;
+        .pvx-focus-ring();
+        flex: none;
+        white-space: nowrap;
+        min-width: 76px;
+        min-height: 34px;
+        padding: 0 @pvx-space-3;
+        border: 1px solid transparent;
         border-radius: @pvx-radius-pill;
-        background: @pvx-surface;
         color: @pvx-text-secondary;
+        background: @pvx-surface-muted;
+        font: inherit;
         font-size: 13px;
-        line-height: 1.3;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.16s;
 
         &:hover {
-            border-color: @pvx-border-focus;
-            color: @pvx-primary-hover;
+            color: @pvx-primary;
+            background: @pvx-primary-soft;
         }
 
         &.is-active {
-            border-color: @pvx-primary;
-            color: @pvx-primary-hover;
-            background: @pvx-primary-soft;
-            font-weight: 600;
+            color: @pvx-text-inverse;
+            background: @pvx-primary;
+        }
+    }
+}
+
+.u-ext-filter {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid @pvx-border;
+    border-radius: 12px;
+    background: @pvx-surface;
+    color: @pvx-text-muted;
+    cursor: pointer;
+
+    padding: 0;
+
+    svg {
+        width: 38px;
+        height: 38px;
+        path { fill: currentColor; }
+    }
+
+    &:hover, &:focus-visible, &.is-open, &.has-filter {
+        color: @pvx-primary;
+        border-color: @pvx-border-focus;
+    }
+
+    &.is-open, &.has-filter { background: @pvx-primary-soft; }
+    &.has-filter::after {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: @pvx-primary;
+        content: "";
+    }
+}
+
+.m-ext-search-box {
+    flex: 1 0 200px;
+    min-width: 0;
+
+    .el-input__wrapper {
+        min-height: 40px;
+        padding: 0 14px;
+        border-radius: 12px;
+        background: @pvx-surface-muted;
+        box-shadow: 0 0 0 1px @pvx-border-light inset;
+
+        &.is-focus { box-shadow: 0 0 0 1px @pvx-border-focus inset; }
+    }
+}
+
+@media (max-width: @ipad-y) {
+    .m-ext-toolbar__top { flex-wrap: wrap; }
+    .m-ext-domains { flex-basis: 100%; }
+    .m-ext-search-box { flex: 1; }
+}
+
+.el-popover.el-popper.m-ext-filter-popover {
+    padding: @pvx-space-5;
+    border-radius: @pvx-radius-control;
+    box-shadow: @pvx-shadow-hover;
+}
+
+.m-ext-filter-group {
+    min-width: 0;
+    margin: 0 0 @pvx-space-4;
+    padding: 0;
+    border: 0;
+
+    legend {
+        display: flex;
+        align-items: center;
+        gap: @pvx-space-1;
+        margin-bottom: @pvx-space-2;
+        color: @pvx-text-primary;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .el-radio-group { gap: @pvx-space-2; }
+    .el-radio-button .el-radio-button__inner {
+        min-width: 88px;
+        height: 36px;
+        padding: 0 @pvx-space-3;
+        border: 1px solid transparent;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-text-secondary;
+        background: @pvx-surface-muted;
+        box-shadow: none;
+        line-height: 34px;
+    }
+    .el-radio-button:hover .el-radio-button__inner,
+    .el-radio-button.is-active .el-radio-button__inner {
+        color: white;
+        background: @pvx-primary;
+        border-color: @pvx-primary;
+    }
+    .u-role-hint {
+        display: inline-grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: @pvx-radius-pill;
+        color: @pvx-text-secondary;
+        background: transparent;
+        font-size: 14px;
+        cursor: help;
+
+        &:hover,
+        &:focus-visible {
+            color: @pvx-primary;
+        }
+    }
+}
+
+.m-ext-filter-actions, .m-ext-action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.m-ext-filter-actions {
+    padding-top: @pvx-space-2;
+    border-top: 1px solid @pvx-border-light;
+
+    .el-button {
+        min-width: 72px;
+        height: 34px;
+        margin: 0;
+        border-radius: @pvx-radius-small;
+    }
+}
+
+.m-ext-ranking-panel {
+    display: grid;
+    min-width: 0;
+    gap: @pvx-space-5;
+
+    .m-ext-ranking-row-preview {
+        --podium-card-height: clamp(156px, 13vw, 204px);
+        --podium-inset: 4px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: @pvx-space-2;
+        min-width: 0;
+    }
+
+    .u-ext-view-more {
+        .pvx-focus-ring();
+        display: grid;
+        box-sizing: border-box;
+        padding: 0;
+        place-items: center;
+        border: 1px solid @pvx-border;
+        border-radius: @pvx-radius-card;
+        background: @pvx-surface;
+        color: @pvx-text-secondary;
+        cursor: pointer;
+
+        svg { width: 16px; }
+        &:hover, &:focus-visible {
+            border-color: @pvx-border-focus;
+            color: @pvx-primary;
+        }
+
+        @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+            transition: transform 0.22s @pvx-ease-standard;
+
+            &:hover {
+                transform: translateY(-3px);
+            }
+        }
+    }
+
+    .u-ext-view-more--row {
+        width: (@pvx-radius-card * 2);
+        height: var(--podium-card-height);
+        align-self: start;
+        margin-top: var(--podium-inset);
+    }
+
+    .u-ext-view-more--heading {
+        display: none;
+    }
+
+    .c-pvx-section-header { flex-wrap: wrap; }
+    .c-pvx-section-header__action { max-width: 100%; }
+
+    @media (max-width: @phone) {
+        gap: @pvx-space-3;
+
+        .c-pvx-section-header { row-gap: @pvx-space-1; }
+        .c-pvx-section-header__action { display: contents; }
+        .m-ext-ranking-row-preview { grid-template-columns: minmax(0, 1fr); }
+        .u-ext-view-more--row { display: none; }
+        .u-ext-view-more--heading {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            flex: none;
+            border-radius: @pvx-radius-control;
+        }
+
+        .m-ext-action-buttons {
+            flex-basis: 100%;
+            justify-content: flex-start;
+            gap: 6px;
+
+            .el-button {
+                flex: 1 0 auto;
+                height: 34px;
+                padding: 0 6px;
+                font-size: 13px;
+                white-space: nowrap;
+            }
+
+            .el-icon + span { margin-left: 4px; }
         }
     }
 }
 
 .m-ext-gallery-panel {
     display: flex;
-    flex-direction: column;
-    gap: 18px;
-    min-height: 360px;
-}
-
-.m-ext-gallery-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 14px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid @pvx-border-light;
-}
-
-.m-ext-gallery-title {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
     min-width: 0;
+    min-height: 360px;
+    flex-direction: column;
+    gap: @pvx-space-3;
 
-    h2 {
-        margin: 0;
-        font-size: 19px;
-        font-weight: 700;
-        color: @pvx-text-primary;
-    }
-
+    .c-pvx-section-header { flex-wrap: wrap; }
+    .c-pvx-section-header__action { max-width: 100%; }
     .u-count-pill {
-        font-size: 13px;
-        color: @pvx-text-secondary;
-    }
-}
-
-.m-ext-gallery-actions {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-.m-body-switcher {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 6px 4px 12px;
-    border-radius: @pvx-radius-pill;
-    background: @pvx-surface-muted;
-    border: 1px solid @pvx-border;
-
-    .u-switcher-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: @pvx-text-secondary;
-        white-space: nowrap;
-    }
-
-    .m-body-pills {
         display: inline-flex;
+        min-height: 30px;
         align-items: center;
-        gap: 2px;
-    }
-
-    .u-body-pill {
-        padding: 4px 11px;
-        border: none;
+        padding: 0 @pvx-space-2;
+        border: 1px solid @pvx-border;
         border-radius: @pvx-radius-pill;
-        background: transparent;
-        color: @pvx-text-regular;
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 1.3;
-        cursor: pointer;
-        transition: all 0.16s;
-
-        &:hover {
-            color: @pvx-primary-hover;
-        }
-
-        &.is-active {
-            background: @pvx-primary;
-            color: @pvx-text-inverse;
-            font-weight: 600;
-            box-shadow: 0 2px 6px rgba(91, 92, 245, 0.25);
-        }
-    }
-
-    .u-role-sync-dot {
-        width: 7px;
-        height: 7px;
-        margin-right: 4px;
-        border-radius: 50%;
-        background: #10b981;
-        flex-shrink: 0;
-    }
-}
-
-.m-action-buttons {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-
-    .u-studio-cta {
-        border: none;
-        background: linear-gradient(135deg, #5b5cf5 0%, #8b5cf6 100%);
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(91, 92, 245, 0.28);
-
-        &:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(91, 92, 245, 0.36);
-        }
+        background: @pvx-surface-muted;
+        color: @pvx-text-secondary;
+        font-size: 12px;
+        font-weight: 700;
     }
 }
 
@@ -705,7 +885,7 @@ export default {
 .m-ext-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 18px;
+    gap: @pvx-space-3;
 
     @media (max-width: @ipad) {
         grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
@@ -746,30 +926,4 @@ export default {
     }
 }
 
-.el-drawer__header.m-exterior-drawer-header {
-    margin-bottom: 0;
-    padding: @pvx-space-2 clamp(@pvx-space-2, 4vw, @pvx-space-4);
-    border-bottom: 1px solid @pvx-border;
-    background: @pvx-surface;
-
-    .el-drawer__close-btn {
-        display: grid;
-        width: 32px;
-        height: 32px;
-        place-items: center;
-        border-radius: @pvx-radius-small;
-        color: @pvx-text-secondary;
-
-        &:hover,
-        &:focus-visible {
-            color: @pvx-primary-hover;
-            background: @pvx-primary-soft;
-        }
-    }
-}
-
-.el-drawer__body.m-exterior-drawer-body {
-    padding: clamp(@pvx-space-2, 4vw, @pvx-space-4);
-    background: @pvx-surface-muted;
-}
 </style>
