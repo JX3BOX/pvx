@@ -968,7 +968,14 @@ export default {
                     if (seq !== this.stageSeq || !this.$refs.canvasRef) return;
                 }
 
-                const baseUrl = await this.resolveBaseModelUrl();
+                const rawWear =
+                    !this.preview && !this.initialWearApplied && this.$route.query.wear
+                        ? String(this.$route.query.wear)
+                        : "";
+                const [baseUrl, initialPlan] = await Promise.all([
+                    this.resolveBaseModelUrl(),
+                    rawWear ? this.resolveInitialWearPlan(rawWear) : Promise.resolve(null),
+                ]);
                 if (seq !== this.stageSeq) return;
                 this.stageProgressPercent = Math.max(this.stageProgressPercent, 14);
 
@@ -982,6 +989,8 @@ export default {
                     );
                 };
 
+                let directWearApplied = false;
+                const directMeshItems = initialPlan?.meshItems || [];
                 if (this.preview) {
                     await this.preview.load(baseUrl, {
                         view: this.activeView,
@@ -989,25 +998,55 @@ export default {
                         onProgress,
                     });
                 } else {
+                    const createOptions = (useDirectWear) => {
+                        const opts = {
+                            modelUrl: useDirectWear ? directMeshItems[0].modelUrl : baseUrl,
+                            quality: this.quality,
+                            view: this.activeView,
+                            playing: this.playing,
+                            transparent: true,
+                            background: null,
+                            onProgress,
+                            onError: (err) => {
+                                if (seq === this.stageSeq) {
+                                    this.preview = null;
+                                    this.stageReady = false;
+                                    this.stageError = err?.message || "3D 渲染发生错误";
+                                    this.stageLoading = false;
+                                }
+                            },
+                        };
+                        if (useDirectWear) {
+                            opts.baseUrl = baseUrl;
+                            if (directMeshItems.length > 1) {
+                                opts.attachments = directMeshItems.slice(1).map((entry) => entry.modelUrl);
+                            }
+                        }
+                        return opts;
+                    };
                     // 每次重建挂载全新的 OffscreenCanvas 所有权，避免切换画质二次转移报错。
                     this.needsFreshCanvas = true;
-                    this.preview = await createWorkerPreview(this.$refs.canvasRef, {
-                        modelUrl: baseUrl,
-                        quality: this.quality,
-                        view: this.activeView,
-                        playing: this.playing,
-                        transparent: true,
-                        background: null,
-                        onProgress,
-                        onError: (err) => {
-                            if (seq === this.stageSeq) {
-                                this.preview = null;
-                                this.stageReady = false;
-                                this.stageError = err?.message || "3D 渲染发生错误";
-                                this.stageLoading = false;
+                    if (directMeshItems.length) {
+                        try {
+                            this.preview = await createWorkerPreview(this.$refs.canvasRef, createOptions(true));
+                            directWearApplied = true;
+                        } catch (wearErr) {
+                            if (
+                                seq !== this.stageSeq ||
+                                wearErr?.code === 40301 ||
+                                String(wearErr?.message || "").includes("账号认证")
+                            ) {
+                                throw wearErr;
                             }
-                        },
-                    });
+                            // 初始指定外观加载失败时回退到基础模型，避免首屏阻塞。
+                            this.canvasKey += 1;
+                            await this.$nextTick();
+                            if (seq !== this.stageSeq || !this.$refs.canvasRef) return;
+                            this.preview = await createWorkerPreview(this.$refs.canvasRef, createOptions(false));
+                        }
+                    } else {
+                        this.preview = await createWorkerPreview(this.$refs.canvasRef, createOptions(false));
+                    }
                 }
                 if (seq !== this.stageSeq) return;
 
@@ -1021,11 +1060,13 @@ export default {
                     await this.executeApplyFaceProfile(req);
                 }
 
-                // 若 URL 携带初始 wear 参数且尚未解析，优先解析入身；否则重新装配现有搭配。
-                const rawWear = !this.initialWearApplied && this.$route.query.wear ? String(this.$route.query.wear) : "";
+                // 若 URL 携带初始 wear 参数且尚未解析，优先直载入身；否则重新装配现有搭配。
+                const pendingRawWear = !this.initialWearApplied && this.$route.query.wear ? String(this.$route.query.wear) : "";
                 this.initialWearApplied = true;
-                if (rawWear) {
-                    await this.equipKeysFromQuery(rawWear);
+                if (directWearApplied && initialPlan) {
+                    await this.finalizeDirectInitialWear(initialPlan);
+                } else if (pendingRawWear) {
+                    await this.equipKeysFromQuery(pendingRawWear);
                 } else if (
                     this.equippedItems.length ||
                     this.equippedPosture ||
@@ -1243,6 +1284,267 @@ export default {
                 this.busyKey = "";
             }
         },
+        extractBundleTargetSpecs(bundleKey, detail, graph) {
+            const edges = [];
+            const seen = new Set();
+            for (const edge of [...(detail?.relations || []), ...(graph?.edges || [])]) {
+                if (!edge?.from_key || !edge?.to_key) continue;
+                const sig = `${edge.from_key}|${edge.to_key}|${edge.kind || ""}`;
+                if (seen.has(sig)) continue;
+                seen.add(sig);
+                edges.push(edge);
+            }
+            const directKeys = [];
+            const directSet = new Set();
+            for (const edge of edges) {
+                if (!["contains", "package_link", "wrapped_outfit"].includes(edge.kind)) continue;
+                let other = "";
+                if (edge.from_key === bundleKey) other = edge.to_key;
+                else if (edge.to_key === bundleKey) other = edge.from_key;
+                if (!other || other === bundleKey || directSet.has(other)) continue;
+                const domain = String(other).split("_")[0];
+                if (domain !== "bundle" && EQUIPABLE_DOMAINS.has(domain)) {
+                    directSet.add(other);
+                    directKeys.push(other);
+                }
+            }
+            const hasDirectOutfit = directKeys.some((k) => k.startsWith("outfit_"));
+            const specs = [];
+            const pushedKeys = new Set();
+            const pushSpec = (key, fallbackKey = "") => {
+                if (!key || pushedKeys.has(key)) return;
+                pushedKeys.add(key);
+                specs.push({ key, fallbackKey });
+            };
+            // 礼盒常通过 package_link -> part <- contains -- outfit 关联成衣；无直连成衣时优先还原完整成衣模型，失败再回退散件。
+            for (const key of directKeys) {
+                if (!hasDirectOutfit && key.startsWith("part_")) {
+                    const parentOutfit = edges.find(
+                        (e) =>
+                            e.kind === "contains" &&
+                            e.to_key === key &&
+                            String(e.from_key).startsWith("outfit_")
+                    )?.from_key;
+                    if (parentOutfit) {
+                        pushSpec(parentOutfit, key);
+                        continue;
+                    }
+                }
+                pushSpec(key);
+            }
+            const priority = { outfit: 0, hair: 1, part: 2, pendant: 3, weapon: 4, posture: 5, effect: 6 };
+            specs.sort((a, b) => (priority[a.key.split("_")[0]] ?? 9) - (priority[b.key.split("_")[0]] ?? 9));
+            return specs;
+        },
+        async resolveInitialWearPlan(rawWear) {
+            const keys = rawWear
+                .split(",")
+                .map((s) => s.trim())
+                .filter((s) => /^(bundle|outfit|part|hair|pendant|weapon|effect|posture)_\d+$/.test(s));
+            if (!keys.length) return null;
+            const role = this.activeRole;
+            const isAuthError = (err) =>
+                err?.code === 40301 || String(err?.message || "").includes("账号认证");
+            const hasExplicitHair = keys.some((k) => k.startsWith("hair_"));
+            const meshDomains = new Set(["outfit", "part", "hair", "pendant", "weapon"]);
+
+            // 并行拉取商品详情、模型地址与套装配套关系，将初始直载收敛至最少网络往返。
+            const rawResults = await Promise.all(
+                keys.map(async (key) => {
+                    const domain = key.split("_")[0];
+                    const detailPromise = getExteriorsDetail(key).catch((err) => {
+                        if (isAuthError(err)) throw err;
+                        return null;
+                    });
+                    const modelPromise = meshDomains.has(domain)
+                        ? getExteriorModel(key, role).catch((err) => {
+                              if (isAuthError(err)) throw err;
+                              return null;
+                          })
+                        : Promise.resolve(null);
+                    const graphPromise =
+                        domain === "bundle" || (domain === "outfit" && !hasExplicitHair)
+                            ? getExteriorGraphCached(key).catch(() => null)
+                            : Promise.resolve(null);
+                    const [detail, model, graph] = await Promise.all([detailPromise, modelPromise, graphPromise]);
+                    return { key, domain, detail, model, graph };
+                })
+            );
+
+            const atomicEntries = [];
+            for (const res of rawResults) {
+                if (!res.detail && res.domain !== "bundle") continue;
+                const domain = res.detail?.domain || res.domain;
+                if (domain === "bundle") {
+                    const targetSpecs = this.extractBundleTargetSpecs(res.key, res.detail, res.graph);
+                    const children = await Promise.all(
+                        targetSpecs.map(async ({ key: childKey, fallbackKey }) => {
+                            const resolveOne = async (targetKey) => {
+                                const targetDomain = targetKey.split("_")[0];
+                                const [childDetail, childModel] = await Promise.all([
+                                    getExteriorsDetail(targetKey).catch((err) => {
+                                        if (isAuthError(err)) throw err;
+                                        return null;
+                                    }),
+                                    meshDomains.has(targetDomain)
+                                        ? getExteriorModel(targetKey, role).catch((err) => {
+                                              if (isAuthError(err)) throw err;
+                                              return null;
+                                          })
+                                        : Promise.resolve(null),
+                                ]);
+                                if (!childDetail) return null;
+                                if (meshDomains.has(targetDomain) && !childModel?.modelUrl) return null;
+                                return {
+                                    item: childDetail,
+                                    domain: childDetail.domain || targetDomain,
+                                    modelUrl: childModel?.modelUrl || "",
+                                    skipAutoHair: true,
+                                    graph: null,
+                                };
+                            };
+                            return (await resolveOne(childKey)) || (fallbackKey ? await resolveOne(fallbackKey) : null);
+                        })
+                    );
+                    for (const child of children) {
+                        if (child) atomicEntries.push(child);
+                    }
+                } else {
+                    atomicEntries.push({
+                        item: res.detail,
+                        domain,
+                        modelUrl: res.model?.modelUrl || "",
+                        skipAutoHair: false,
+                        graph: res.graph,
+                    });
+                }
+            }
+
+            let meshItems = [];
+            const postItems = [];
+            for (const entry of atomicEntries) {
+                if (entry.domain === "posture" || entry.domain === "effect") {
+                    postItems.push(entry.item);
+                    continue;
+                }
+                if (!meshDomains.has(entry.domain) || !entry.modelUrl) continue;
+                meshItems = meshItems.filter(
+                    (prev) =>
+                        prev.item.key !== entry.item.key &&
+                        !(entry.domain === "outfit" && prev.domain === "outfit") &&
+                        !(entry.domain === "hair" && prev.domain === "hair") &&
+                        !(entry.domain === "weapon" && prev.domain === "weapon")
+                );
+                meshItems.push(entry);
+            }
+
+            const outfitEntry = meshItems.find((e) => e.domain === "outfit" && !e.skipAutoHair);
+            const alreadyHasHair = meshItems.some((e) => e.domain === "hair");
+            if (outfitEntry && !alreadyHasHair) {
+                const graph =
+                    outfitEntry.graph || (await getExteriorGraphCached(outfitEntry.item.key).catch(() => null));
+                if (graph) {
+                    const { pairedHairs } = extractStudioGraphRelations(graph, outfitEntry.item.key);
+                    for (const hair of pairedHairs) {
+                        try {
+                            const { modelUrl } = await getExteriorModel(hair.key, role);
+                            if (modelUrl) {
+                                const images = hair.covers
+                                    ? { cover: hair.covers }
+                                    : hair.cover
+                                      ? { cover: { all: hair.cover } }
+                                      : null;
+                                meshItems.push({
+                                    item: { ...hair, images },
+                                    domain: "hair",
+                                    modelUrl,
+                                    skipAutoHair: true,
+                                    graph: null,
+                                });
+                                break;
+                            }
+                        } catch (err) {
+                            if (isAuthError(err)) throw err;
+                        }
+                    }
+                }
+            }
+
+            return { meshItems, postItems };
+        },
+        async finalizeDirectInitialWear(plan) {
+            if (!this.preview || !plan) return;
+            const registrations = await Promise.all(
+                plan.meshItems.map(async (entry) => {
+                    try {
+                        const reg = await this.preview.registerProduct(entry.modelUrl);
+                        return { entry, reg };
+                    } catch {
+                        return null;
+                    }
+                })
+            );
+            const equipped = [];
+            const seenSlots = new Set();
+            let hasSlotCollision = false;
+            for (const pair of registrations) {
+                if (!pair) continue;
+                const { entry, reg } = pair;
+                const item = entry.item;
+                const rawImages =
+                    item.images ||
+                    (item.covers ? { cover: item.covers } : item.cover ? { cover: { all: item.cover } } : null);
+                const cover = pickExteriorCover(rawImages, this.activeRole);
+                const name = item.name || item.game_name || item.key;
+                for (const p of reg.parts || []) {
+                    if (seenSlots.has(p.slot)) hasSlotCollision = true;
+                    seenSlots.add(p.slot);
+                }
+                equipped.push({
+                    key: item.key,
+                    name,
+                    domain: entry.domain,
+                    cover,
+                    rawImages,
+                    modelUrl: entry.modelUrl,
+                    parts: reg.parts,
+                });
+                this.recordCachedAndHistory({ ...item, images: rawImages });
+            }
+
+            if (hasSlotCollision) {
+                await this.syncPartsToViewer(undefined, equipped);
+            } else {
+                const { keptItems } = this.computeResolvedPartNames(equipped);
+                this.equippedItems = keptItems;
+            }
+
+            const hasPosture = plan.postItems.some((it) => (it.domain || String(it.key).split("_")[0]) === "posture");
+            if (this.hasWeaponEquipped && !hasPosture) {
+                await this.applyWeaponStance(this.weaponStance);
+            }
+            if (
+                this.equippedItems.some(
+                    (e) => (e.parts || []).some((p) => p.petMount) || String(e.key || "").startsWith("pendant_")
+                )
+            ) {
+                this.activePetMode = "wear";
+                if (!this.petBehaviorsManifest) {
+                    getPetBehaviorsManifest()
+                        .then((manifest) => {
+                            this.petBehaviorsManifest = manifest;
+                        })
+                        .catch(() => {});
+                }
+            }
+            for (const postItem of plan.postItems) {
+                try {
+                    await this.equipAtomicItem(postItem);
+                } catch {
+                    // ignore invalid post item
+                }
+            }
+        },
         async equipKeysFromQuery(rawWear) {
             const keys = rawWear
                 .split(",")
@@ -1261,28 +1563,35 @@ export default {
             if (!this.preview || !item?.key) return;
             const domain = item.domain || String(item.key).split("_")[0];
             if (domain === "bundle") {
-                const detail = item.relations ? item : await getExteriorsDetail(item.key);
-                let relations = detail?.relations || [];
-                if (!relations.length) {
-                    const g = await getExteriorGraphCached(item.key).catch(() => null);
-                    relations = g?.edges || [];
-                }
-                const targetKeys = [];
-                for (const edge of relations) {
-                    if (edge.from_key === item.key && ["contains", "package_link"].includes(edge.kind)) {
-                        const childDomain = String(edge.to_key).split("_")[0];
-                        if (childDomain !== "bundle" && EQUIPABLE_DOMAINS.has(childDomain)) {
-                            targetKeys.push(edge.to_key);
+                const [detail, graph] = await Promise.all([
+                    item.relations ? Promise.resolve(item) : getExteriorsDetail(item.key).catch(() => item),
+                    getExteriorGraphCached(item.key).catch(() => null),
+                ]);
+                const targetSpecs = this.extractBundleTargetSpecs(item.key, detail, graph);
+                if (!targetSpecs.length) throw new Error("该礼盒暂无可拆解的 3D 穿戴部件");
+                const children = await Promise.all(
+                    targetSpecs.map(async ({ key, fallbackKey }) => ({
+                        primary: await getExteriorsDetail(key).catch(() => null),
+                        fallback: fallbackKey ? await getExteriorsDetail(fallbackKey).catch(() => null) : null,
+                    }))
+                );
+                let equippedCount = 0;
+                for (const { primary, fallback } of children) {
+                    if (primary) {
+                        try {
+                            await this.equipAtomicItem(primary, { ...options, skipAutoHair: true });
+                            equippedCount++;
+                            continue;
+                        } catch (err) {
+                            if (!fallback) throw err;
                         }
                     }
+                    if (fallback) {
+                        await this.equipAtomicItem(fallback, { ...options, skipAutoHair: true });
+                        equippedCount++;
+                    }
                 }
-                if (!targetKeys.length) throw new Error("该礼盒暂无可拆解的 3D 穿戴部件");
-                const children = await Promise.all(
-                    [...new Set(targetKeys)].map((k) => getExteriorsDetail(k).catch(() => null))
-                );
-                for (const child of children.filter(Boolean)) {
-                    await this.equipAtomicItem(child, { ...options, skipAutoHair: true });
-                }
+                if (!equippedCount) throw new Error("该礼盒暂无适用当前体型的 3D 穿戴部件");
                 ElMessage.success(`已整套穿戴「${item.name || item.key}」`);
                 return;
             }
@@ -1820,8 +2129,7 @@ export default {
     gap: 3px;
     padding: 3px;
     border-radius: @pvx-radius-pill;
-    background: rgba(15, 23, 42, 0.68);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.78);
 }
 
 .u-pill-btn {
@@ -1860,9 +2168,8 @@ export default {
 .m-topbar-row > .u-pill-btn {
     height: 32px;
     padding: 0 12px;
-    background: rgba(15, 23, 42, 0.68);
+    background: rgba(15, 23, 42, 0.78);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
-    backdrop-filter: blur(8px);
 
     &:hover:not(:disabled) {
         background: rgba(30, 41, 59, 0.85);
@@ -1898,10 +2205,9 @@ export default {
         min-height: 32px;
         box-sizing: border-box;
         padding: 0 11px;
-        background: rgba(15, 23, 42, 0.68);
+        background: rgba(15, 23, 42, 0.78);
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
         border-radius: @pvx-radius-pill;
-        backdrop-filter: blur(8px);
     }
 
     :deep(.el-select__selected-item),
@@ -1917,8 +2223,7 @@ export default {
     z-index: 4;
     display: grid;
     place-items: center;
-    background: rgba(15, 23, 42, 0.36);
-    backdrop-filter: blur(4px);
+    background: rgba(15, 23, 42, 0.44);
 
     &.is-error {
         background: rgba(15, 23, 42, 0.68);
@@ -1966,8 +2271,7 @@ export default {
     min-width: 220px;
     padding: 8px 14px;
     border-radius: 14px;
-    background: rgba(15, 23, 42, 0.82);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.86);
     color: #f8fafc;
     font-size: 12px;
     font-weight: 500;
@@ -2077,9 +2381,8 @@ export default {
     padding: 7px 14px;
     border: none;
     border-radius: @pvx-radius-pill;
-    background: rgba(15, 23, 42, 0.56);
+    background: rgba(15, 23, 42, 0.72);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
-    backdrop-filter: blur(8px);
     color: #f8fafc;
     font-size: 12px;
     font-weight: 600;
@@ -2110,8 +2413,7 @@ export default {
     gap: 6px;
     padding: 6px 10px;
     border-radius: 14px;
-    background: rgba(15, 23, 42, 0.72);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.82);
     color: #f8fafc;
 
     &__label {
@@ -2159,8 +2461,7 @@ export default {
     width: 100%;
     padding: 10px 12px;
     border-radius: 14px;
-    background: rgba(15, 23, 42, 0.72);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.82);
     color: #f8fafc;
 }
 

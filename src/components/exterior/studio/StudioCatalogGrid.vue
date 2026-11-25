@@ -570,9 +570,8 @@ export default {
 }
 
 .u-type-badge {
-    background: rgba(15, 23, 42, 0.56);
+    background: rgba(15, 23, 42, 0.72);
     color: #f8fafc;
-    backdrop-filter: blur(4px);
 }
 
 .u-cached-badge {
@@ -581,11 +580,10 @@ export default {
     bottom: 6px;
     padding: 2px 6px;
     border-radius: @pvx-radius-pill;
-    background: rgba(16, 185, 129, 0.86);
+    background: rgba(16, 185, 129, 0.92);
     color: #ffffff;
     font-size: 10px;
     font-weight: 700;
-    backdrop-filter: blur(4px);
 }
 
 .u-card-loading {
