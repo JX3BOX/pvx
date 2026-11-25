@@ -90,11 +90,16 @@ export default {
 }
 
 .p-exterior .m-exterior-shell--studio > div {
-    max-width: 1720px;
-    padding: 14px 20px 24px;
+    max-width: none;
+    width: 100%;
+    padding: 8px 14px 12px 42px;
+
+    @media (max-width: @ipad) {
+        padding: 8px 12px 12px;
+    }
 
     @media (max-width: @phone) {
-        padding: 10px 10px 18px;
+        padding: 8px 8px 14px;
     }
 }
 </style>

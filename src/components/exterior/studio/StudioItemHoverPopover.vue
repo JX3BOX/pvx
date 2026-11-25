@@ -1,6 +1,6 @@
 <!-- 试衣间商品悬停图谱浮卡：右侧浮层展示当前外观的配套发型与同款配色，支持一键换穿或新窗查看详情。 -->
 <template>
-    <Teleport to="body">
+    <Teleport :to="teleportTarget">
         <div
             v-if="visible && !loading && hasAnyGroup"
             ref="popoverRef"
@@ -243,6 +243,7 @@ export default {
         role: { type: Number, required: true },
         wornKeys: { type: Object, required: true },
         busyKey: { type: String, default: "" },
+        teleportTarget: { type: [String, Object], default: "body" },
     },
     emits: ["wear-item", "mouse-enter", "mouse-leave"],
     data() {

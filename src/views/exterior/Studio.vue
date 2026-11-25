@@ -1,9 +1,19 @@
 <!-- 自由试衣间：仿剑网三商城的三栏交互结构（左侧多级分类导航、中间商品/体型/捏脸抽屉、右侧 65%+ 全高 3D 试穿舞台），支持礼盒一键穿戴、多槽位自动替换与遮挡、写意/写实双体系捏脸、体型参数微调、高清 PNG 拍照与分享链接。 -->
 <template>
-    <div class="m-ext-studio" :class="{ 'is-fullscreen': isFullscreen }">
+    <div
+        ref="studioRootRef"
+        class="m-ext-studio"
+        :class="{
+            'is-fullscreen': isFullscreen,
+            'is-viewport-fullscreen': isViewportFullscreen,
+            'is-immersive': immersiveMode,
+            'is-sidebar-collapsed': sidebarCollapsed,
+            'is-drawer-collapsed': drawerCollapsed,
+        }"
+    >
         <div ref="stageContainerRef" class="m-studio-shell">
             <!-- 左侧分类栏 -->
-            <aside class="m-studio-nav" aria-label="试衣间外观分类">
+            <aside v-show="!immersiveMode && !sidebarCollapsed" class="m-studio-nav" aria-label="试衣间外观分类">
                 <router-link :to="{ name: 'exterior-list' }" class="u-nav-back" title="返回外观大全">
                     <el-icon><ArrowLeft /></el-icon>
                     <span>外观大全</span>
@@ -16,16 +26,31 @@
                         type="button"
                         class="u-nav-btn"
                         :class="{ 'is-active': activeMenuId === item.id }"
+                        :title="activeMenuId === item.id ? (drawerCollapsed ? '展开外观列表' : '再次点击收起外观列表') : item.label"
                         @click="selectMenu(item.id)"
                     >
                         <el-icon class="u-nav-icon"><component :is="item.icon" /></el-icon>
                         <span>{{ item.label }}</span>
                     </button>
                 </nav>
+
+                <button
+                    type="button"
+                    class="u-nav-collapse-btn"
+                    title="收起左侧两个栏目"
+                    @click="toggleSidebarCollapsed(true)"
+                >
+                    <el-icon><DArrowLeft /></el-icon>
+                    <span>收起侧栏</span>
+                </button>
             </aside>
 
             <!-- 中间商品格 / 体型 / 捏脸编辑抽屉 -->
-            <section class="m-studio-drawer" aria-label="外观挑选与定制区">
+            <section
+                v-show="!immersiveMode && !sidebarCollapsed && !drawerCollapsed"
+                class="m-studio-drawer"
+                aria-label="外观挑选与定制区"
+            >
                 <StudioBodyEditor
                     v-if="activeMenu.editor === 'body'"
                     ref="bodyEditorRef"
@@ -56,6 +81,7 @@
                     :history-items="historyItems"
                     :busy-key="busyKey"
                     :busy-percent="actionProgressPercent"
+                    :teleport-target="popoverTeleportTarget"
                     @select="onToggleCatalogItem"
                     @wear-related="onWearRelatedItem"
                 />
@@ -63,6 +89,23 @@
 
             <!-- 右侧 3D 实时试穿舞台（占 65%+ 宽度） -->
             <main class="m-studio-stage" :class="`is-bg-${skybox}`" aria-label="3D 试衣舞台">
+                <button
+                    v-if="!immersiveMode"
+                    type="button"
+                    class="m-stage-panel-tab"
+                    :class="{ 'is-collapsed': sidebarCollapsed || drawerCollapsed, 'is-both-collapsed': sidebarCollapsed }"
+                    :title="panelTabTitle"
+                    :aria-label="panelTabTitle"
+                    @click="onPanelTabClick"
+                >
+                    <el-icon>
+                        <DArrowRight v-if="sidebarCollapsed" />
+                        <ArrowRight v-else-if="drawerCollapsed" />
+                        <ArrowLeft v-else />
+                    </el-icon>
+                    <span v-if="sidebarCollapsed" class="u-panel-tab-label">展开外观栏</span>
+                </button>
+
                 <!-- 登录门禁 -->
                 <div v-if="!loggedIn" class="m-stage-gate">
                     <div class="m-gate-card">
@@ -199,7 +242,13 @@
                                 <span>{{ faceExpressionLoop ? "重播表情 · 循环" : "重播表情" }}</span>
                             </button>
 
-                            <el-select v-model="skybox" size="small" class="u-stage-select" @change="onSkyboxChange">
+                            <el-select
+                                v-model="skybox"
+                                size="small"
+                                class="u-stage-select"
+                                :teleported="false"
+                                @change="onSkyboxChange"
+                            >
                                 <el-option
                                     v-for="bg in skyboxes"
                                     :key="bg.value"
@@ -208,7 +257,13 @@
                                 />
                             </el-select>
 
-                            <el-select v-model="quality" size="small" class="u-stage-select" @change="onQualityChange">
+                            <el-select
+                                v-model="quality"
+                                size="small"
+                                class="u-stage-select"
+                                :teleported="false"
+                                @change="onQualityChange"
+                            >
                                 <el-option label="画质：自动" value="auto" />
                                 <el-option label="画质：高清" value="high" />
                                 <el-option label="画质：均衡" value="medium" />
@@ -242,8 +297,29 @@
                                 {{ $t("exterior.studio.clearAll") }}
                             </el-button>
 
-                            <button type="button" class="u-pill-btn" @click="toggleFullscreen">
-                                {{ isFullscreen ? "退出全屏" : "全屏" }}
+                            <button
+                                type="button"
+                                class="u-pill-btn u-layout-btn"
+                                :class="{ 'is-active': sidebarCollapsed }"
+                                :title="sidebarCollapsed ? '展开左侧分类与外观列表' : '收起左侧两个栏目，放大 3D 舞台'"
+                                @click="toggleSidebarCollapsed()"
+                            >
+                                <el-icon>
+                                    <DArrowRight v-if="sidebarCollapsed" />
+                                    <DArrowLeft v-else />
+                                </el-icon>
+                                <span>{{ sidebarCollapsed ? "展开左侧栏" : "收起左侧栏" }}</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="u-pill-btn u-layout-btn"
+                                :class="{ 'is-active': isFullscreen }"
+                                :title="isFullscreen ? '退出全屏模式 (Esc)' : '全屏显示试衣间'"
+                                @click="toggleFullscreen"
+                            >
+                                <el-icon><FullScreen /></el-icon>
+                                <span>{{ isFullscreen ? "退出全屏" : "全屏" }}</span>
                             </button>
 
                             <button type="button" class="u-pill-btn" @click="toggleImmersive(true)">
@@ -348,11 +424,15 @@
 <script>
 import {
     ArrowLeft,
+    ArrowRight,
     Brush,
     Camera,
     Clock,
     Close,
+    DArrowLeft,
+    DArrowRight,
     Delete,
+    FullScreen,
     MagicStick,
     RefreshRight,
     Scissor,
@@ -443,11 +523,15 @@ export default {
     name: "ExteriorStudio",
     components: {
         ArrowLeft,
+        ArrowRight,
         Brush,
         Camera,
         Clock,
         Close,
+        DArrowLeft,
+        DArrowRight,
         Delete,
+        FullScreen,
         MagicStick,
         RefreshRight,
         Scissor,
@@ -502,7 +586,10 @@ export default {
                 "pavilion",
                 STUDIO_SKYBOXES.map((s) => s.value)
             ),
-            isFullscreen: false,
+            isNativeFullscreen: false,
+            isViewportFullscreen: false,
+            sidebarCollapsed: false,
+            drawerCollapsed: false,
             canvasKey: 0,
             needsFreshCanvas: false,
 
@@ -534,6 +621,16 @@ export default {
         };
     },
     computed: {
+        isFullscreen() {
+            return this.isNativeFullscreen || this.isViewportFullscreen;
+        },
+        popoverTeleportTarget() {
+            return this.isNativeFullscreen && this.$refs.studioRootRef ? this.$refs.studioRootRef : "body";
+        },
+        panelTabTitle() {
+            if (this.sidebarCollapsed) return "展开左侧分类与外观列表";
+            return this.drawerCollapsed ? "展开外观列表栏" : "收起外观列表栏";
+        },
         activeRole() {
             return this.explicitRole || this.$store.state.preferredRole || 2;
         },
@@ -673,25 +770,64 @@ export default {
             this.immersiveMode = Boolean(active);
         },
         onStageKeydown(event) {
-            if (event.key === "Escape" && this.immersiveMode) {
+            if (event.key !== "Escape") return;
+            if (this.immersiveMode) {
                 this.immersiveMode = false;
+                return;
+            }
+            if (this.isViewportFullscreen) {
+                this.isViewportFullscreen = false;
             }
         },
         selectMenu(id) {
+            if (this.activeMenuId === id) {
+                this.drawerCollapsed = !this.drawerCollapsed;
+                return;
+            }
             this.activeMenuId = id;
+            this.drawerCollapsed = false;
+        },
+        toggleSidebarCollapsed(force) {
+            const next = typeof force === "boolean" ? force : !this.sidebarCollapsed;
+            this.sidebarCollapsed = next;
+            if (!next) this.drawerCollapsed = false;
+        },
+        onPanelTabClick() {
+            if (this.sidebarCollapsed) {
+                this.sidebarCollapsed = false;
+                this.drawerCollapsed = false;
+            } else {
+                this.drawerCollapsed = !this.drawerCollapsed;
+            }
         },
         onFullscreenChange() {
-            this.isFullscreen = document.fullscreenElement === this.$refs.stageContainerRef;
+            this.isNativeFullscreen = document.fullscreenElement === this.$refs.studioRootRef;
+            if (this.isNativeFullscreen) this.isViewportFullscreen = false;
         },
         async toggleFullscreen() {
-            const el = this.$refs.stageContainerRef;
+            const el = this.$refs.studioRootRef;
             if (!el) return;
-            try {
-                if (document.fullscreenElement === el) await document.exitFullscreen();
-                else if (el.requestFullscreen) await el.requestFullscreen();
-            } catch {
-                // ignore
+            if (this.isNativeFullscreen) {
+                try {
+                    await document.exitFullscreen();
+                } catch {
+                    this.isNativeFullscreen = false;
+                }
+                return;
             }
+            if (this.isViewportFullscreen) {
+                this.isViewportFullscreen = false;
+                return;
+            }
+            if (typeof el.requestFullscreen === "function") {
+                try {
+                    await el.requestFullscreen();
+                    return;
+                } catch {
+                    // 原生全屏被浏览器拦截时无缝回退到整窗铺满模式。
+                }
+            }
+            this.isViewportFullscreen = true;
         },
         onSkyboxChange(val) {
             try {
@@ -1914,14 +2050,29 @@ export default {
 
 .m-ext-studio {
     width: 100%;
+
+    &.is-viewport-fullscreen {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        width: 100vw;
+        height: 100vh;
+        background: #0f172a;
+    }
+
+    &.is-fullscreen {
+        width: 100vw;
+        height: 100vh;
+        background: #0f172a;
+    }
 }
 
 .m-studio-shell {
     display: flex;
-    height: calc(100vh - 138px);
-    min-height: 640px;
+    height: calc(100vh - 96px);
+    min-height: 620px;
     border: 1px solid @pvx-border;
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
@@ -1934,7 +2085,10 @@ export default {
 
 .m-ext-studio.is-fullscreen .m-studio-shell {
     height: 100vh;
+    min-height: 100vh;
+    border: none;
     border-radius: 0;
+    box-shadow: none;
 }
 
 .m-studio-nav {
@@ -2017,6 +2171,33 @@ export default {
     }
 }
 
+.u-nav-collapse-btn {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.16s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+    }
+
+    @media (max-width: 1024px) {
+        display: none;
+    }
+}
+
 .m-studio-drawer {
     width: 360px;
     flex-shrink: 0;
@@ -2024,6 +2205,10 @@ export default {
     background: #ffffff;
     min-height: 0;
     overflow: hidden;
+
+    @media (min-width: 1920px) {
+        width: 430px;
+    }
 
     @media (max-width: 1024px) {
         width: 100%;
@@ -2180,8 +2365,56 @@ export default {
     }
 }
 
-.m-topbar-row > .u-expr-replay-btn {
+.m-topbar-row > .u-expr-replay-btn,
+.m-topbar-row > .u-layout-btn {
     gap: 5px;
+}
+
+.m-stage-panel-tab {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 24px;
+    padding: 12px 5px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    background: rgba(15, 23, 42, 0.72);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 4px 0 14px rgba(15, 23, 42, 0.18);
+    transition: background 0.16s, color 0.16s, padding 0.16s;
+
+    &:hover {
+        background: rgba(30, 41, 59, 0.92);
+        color: #ffffff;
+        padding-right: 7px;
+    }
+
+    &.is-both-collapsed {
+        padding: 12px 7px;
+        background: rgba(15, 23, 42, 0.82);
+
+        .u-panel-tab-label {
+            writing-mode: vertical-rl;
+            letter-spacing: 2px;
+            font-size: 11.5px;
+            line-height: 1.1;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        display: none;
+    }
 }
 
 .m-topbar-row > .u-skill-teaser-btn {

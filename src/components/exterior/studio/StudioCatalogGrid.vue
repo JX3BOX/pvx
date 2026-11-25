@@ -21,7 +21,11 @@
                 </template>
             </el-input>
 
-            <div v-if="menuItem.subs?.length" class="m-sub-pills">
+            <div
+                v-if="menuItem.subs?.length"
+                class="m-sub-pills"
+                :class="{ 'is-compact': menuItem.subs.length > 10 }"
+            >
                 <button
                     v-for="sub in menuItem.subs"
                     :key="sub.id"
@@ -109,6 +113,7 @@
             :role="role"
             :worn-keys="wornKeys"
             :busy-key="busyKey"
+            :teleport-target="teleportTarget"
             @wear-item="$emit('wear-related', $event)"
             @mouse-enter="onPopoverEnter"
             @mouse-leave="onPopoverLeave"
@@ -143,6 +148,7 @@ export default {
         historyItems: { type: Array, default: () => [] },
         busyKey: { type: String, default: "" },
         busyPercent: { type: Number, default: 0 },
+        teleportTarget: { type: [String, Object], default: "body" },
     },
     emits: ["select", "wear-related"],
     data() {
@@ -167,6 +173,7 @@ export default {
                 domain: sub.domain,
                 slot: sub.slot || undefined,
                 category: sub.category || undefined,
+                school: sub.school || undefined,
                 exclude_full_outfit: sub.exclude_full_outfit || undefined,
                 role: this.role,
                 has_model: 1,
@@ -429,6 +436,18 @@ export default {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+
+    &.is-compact {
+        gap: 5px;
+        max-height: 112px;
+        overflow-y: auto;
+        padding-right: 2px;
+
+        .u-sub-pill {
+            padding: 3px 8px;
+            font-size: 11.5px;
+        }
+    }
 }
 
 .u-sub-pill {
@@ -466,6 +485,11 @@ export default {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+
+    @media (min-width: 1920px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 9px;
+    }
 }
 
 .u-studio-card {
