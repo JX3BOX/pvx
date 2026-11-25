@@ -9,14 +9,14 @@
             </div>
 
             <div class="m-house-header__actions">
-                <div class="m-currency-switch" role="group" aria-label="统计币种切换">
+                <div class="m-currency-switch" role="group" :aria-label="$t('exteriorHouse.currencySwitcher')">
                     <button
                         type="button"
                         class="u-curr-btn"
                         :class="{ 'is-active': activeCurrency === 'cny' }"
                         @click="activeCurrency = 'cny'"
                     >
-                        人民币 ¥
+                        {{ $t('exterior.warehouse.cny') }}
                     </button>
                     <button
                         type="button"
@@ -24,7 +24,7 @@
                         :class="{ 'is-active': activeCurrency === 'gold' }"
                         @click="activeCurrency = 'gold'"
                     >
-                        金砖
+                        {{ $t('exterior.warehouse.gold') }}
                     </button>
                 </div>
 
@@ -35,7 +35,7 @@
                     </el-button>
                     <el-button type="primary" round @click="openAddDialog()">
                         <el-icon class="el-icon--left"><Plus /></el-icon>
-                        记一笔入库
+                        {{ $t('exteriorHouse.addStock') }}
                     </el-button>
                 </template>
             </div>
@@ -53,42 +53,41 @@
 
         <template v-else>
             <!-- 资产总览四格 KPI 卡片 -->
-            <section class="m-house-kpis" aria-label="仓库资产总览">
+            <section class="m-house-kpis" :aria-label="$t('exteriorHouse.overview')">
                 <PvxSurface padding="medium" class="m-kpi-card">
-                    <div class="u-kpi-label">囤货在仓成本（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-label">{{ $t('exteriorHouse.holdingCostTitle', { currency: currencyLabel }) }}</div>
                     <div class="u-kpi-value is-num">{{ formatMoney(currencySummary.invest.holding_cost, activeCurrency) }}</div>
                     <div class="u-kpi-sub">
-                        在仓 {{ currencySummary.invest.holding_lots }} 笔 · {{ currencySummary.invest.holding_quantity }} 件
+                        {{ $t('exteriorHouse.holdingSummary', { lots: currencySummary.invest.holding_lots, quantity: currencySummary.invest.holding_quantity }) }}
                     </div>
                 </PvxSurface>
 
                 <PvxSurface padding="medium" class="m-kpi-card">
-                    <div class="u-kpi-label">自用穿搭投入（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-label">{{ $t('exteriorHouse.selfUseTitle', { currency: currencyLabel }) }}</div>
                     <div class="u-kpi-value is-num">{{ formatMoney(currencySummary.self_use.total_cost, activeCurrency) }}</div>
                     <div class="u-kpi-sub">
-                        自用 {{ currencySummary.self_use.lots }} 笔 · {{ currencySummary.self_use.quantity }} 件
+                        {{ $t('exteriorHouse.selfUseSummary', { lots: currencySummary.self_use.lots, quantity: currencySummary.self_use.quantity }) }}
                     </div>
                 </PvxSurface>
 
                 <PvxSurface padding="medium" class="m-kpi-card">
-                    <div class="u-kpi-label">累计已实现净盈亏（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-label">{{ $t('exteriorHouse.netProfitTitle', { currency: currencyLabel }) }}</div>
                     <div class="u-kpi-value is-num" :class="profitTone(currencySummary.invest.realized_profit)">
                         {{ formatSignedMoney(currencySummary.invest.realized_profit, activeCurrency) }}
                     </div>
                     <div class="u-kpi-sub">
-                        收益率 {{ formatRate(currencySummary.invest.profit_rate) }} · 手续费
-                        {{ formatMoney(currencySummary.invest.total_fee, activeCurrency) }}
+                        {{ $t('exteriorHouse.returnSummary', { rate: formatRate(currencySummary.invest.profit_rate), fee: formatMoney(currencySummary.invest.total_fee, activeCurrency) }) }}
                     </div>
                 </PvxSurface>
 
                 <PvxSurface padding="medium" class="m-kpi-card">
-                    <div class="u-kpi-label">仓库总存量（{{ currencyLabel }}）</div>
+                    <div class="u-kpi-label">{{ $t('exteriorHouse.totalStockTitle', { currency: currencyLabel }) }}</div>
                     <div class="u-kpi-value is-num">
-                        {{ currencySummary.invest.holding_quantity + currencySummary.self_use.quantity }}
-                        <span class="u-kpi-unit">件</span>
+                        {{ totalStock.toLocaleString($i18n.locale) }}
+                        <span class="u-kpi-unit">{{ $t('exteriorHouse.unit', totalStock) }}</span>
                     </div>
                     <div class="u-kpi-sub">
-                        已出库 {{ currencySummary.invest.sold_quantity }} 件（{{ currencySummary.invest.sold_count }} 笔流水）
+                        {{ $t('exteriorHouse.soldSummary', { quantity: currencySummary.invest.sold_quantity, sales: currencySummary.invest.sold_count }) }}
                     </div>
                 </PvxSurface>
             </section>
@@ -149,21 +148,21 @@
 
                     <div class="m-filter-row">
                         <el-select v-model="filterPurpose" class="u-filter-select" @change="loadItems">
-                            <el-option label="全部用途" value="" />
+                            <el-option :label="$t('exteriorHouse.allPurposes')" value="" />
                             <el-option :label="$t('exterior.warehouse.invest')" value="invest" />
                             <el-option :label="$t('exterior.warehouse.selfUse')" value="self_use" />
                         </el-select>
 
                         <el-select v-model="filterStatus" class="u-filter-select" @change="loadItems">
-                            <el-option label="在仓中" value="holding" />
-                            <el-option label="已售罄" value="sold_out" />
-                            <el-option label="全部批次" value="all" />
+                            <el-option :label="$t('exteriorHouse.inStock')" value="holding" />
+                            <el-option :label="$t('exteriorHouse.soldOut')" value="sold_out" />
+                            <el-option :label="$t('exteriorHouse.allLots')" value="all" />
                         </el-select>
 
                         <el-input
                             v-model="filterKeyword"
                             clearable
-                            placeholder="检索外观名称、key 或备注…"
+                            :placeholder="$t('exteriorHouse.filterHint')"
                             class="u-filter-keyword"
                             @input="debouncedLoadItems"
                             @clear="loadItems"
@@ -181,7 +180,7 @@
                             illustrated
                         >
                             <template #action>
-                                <el-button type="primary" round @click="openAddDialog()">记一笔入库</el-button>
+                                <el-button type="primary" round @click="openAddDialog()">{{ $t('exteriorHouse.addStock') }}</el-button>
                             </template>
                         </PvxEmptyState>
 
@@ -198,10 +197,10 @@
                                     class="u-cover-link"
                                 >
                                     <img v-if="itemCover(row)" :src="itemCover(row)" alt="" class="u-cover-img" />
-                                    <span v-else class="u-cover-fallback">暂无图</span>
+                                    <span v-else class="u-cover-fallback">{{ $t('exterior.imageUnavailable') }}</span>
                                 </router-link>
                                 <div v-else class="u-cover-link">
-                                    <span class="u-cover-fallback">已下线</span>
+                                    <span class="u-cover-fallback">{{ $t('exteriorHouse.unlisted') }}</span>
                                 </div>
 
                                 <div class="m-holding-info">
@@ -216,9 +215,9 @@
                                         <span v-else class="u-item-name">{{ row.exterior_key }}</span>
 
                                         <span class="u-tag" :class="row.purpose === 'invest' ? 'is-amber' : 'is-indigo'">
-                                            {{ row.purpose === "invest" ? "囤货" : "自用" }}
+                                            {{ row.purpose === "invest" ? $t('exteriorHouse.investTag') : $t('exteriorHouse.selfUseTag') }}
                                         </span>
-                                        <span v-if="row.pinned" class="u-tag is-pin">置顶</span>
+                                        <span v-if="row.pinned" class="u-tag is-pin">{{ $t('exterior.star.pin') }}</span>
                                         <span v-if="row.group" class="u-tag is-slate">
                                             {{ row.group.name }}
                                             <template v-if="row.group.role"> · {{ row.group.role.name }}</template>
@@ -226,20 +225,21 @@
                                     </div>
 
                                     <div class="m-holding-metrics">
+                                        <i18n-t keypath="exteriorHouse.remaining" tag="span">
+                                            <template #remaining><strong>{{ row.remaining }}</strong></template>
+                                            <template #quantity>{{ row.quantity }}</template>
+                                        </i18n-t>
                                         <span>
-                                            余 <strong>{{ row.remaining }}</strong> / {{ row.quantity }} 件
+                                            {{ $t('exterior.warehouse.inPrice') }} <strong>{{ formatMoney(row.in_price, row.currency) }}</strong>
                                         </span>
                                         <span>
-                                            买入单价 <strong>{{ formatMoney(row.in_price, row.currency) }}</strong>
+                                            {{ $t('exteriorHouse.holdingCost') }} <strong>{{ formatMoney(row.holding_cost, row.currency) }}</strong>
                                         </span>
-                                        <span>
-                                            在仓成本 <strong>{{ formatMoney(row.holding_cost, row.currency) }}</strong>
-                                        </span>
-                                        <span v-if="row.sold_quantity > 0" :class="profitTone(row.realized_profit)">
-                                            已售 {{ row.sold_quantity }} 件 · 净盈亏
-                                            <strong>{{ formatSignedMoney(row.realized_profit, row.currency) }}</strong>
-                                        </span>
-                                        <span class="u-date-text">入库 {{ formatDate(row.in_date) }}</span>
+                                        <i18n-t v-if="row.sold_quantity > 0" keypath="exteriorHouse.soldProfit" tag="span" :class="profitTone(row.realized_profit)">
+                                            <template #quantity>{{ row.sold_quantity }}</template>
+                                            <template #profit><strong>{{ formatSignedMoney(row.realized_profit, row.currency) }}</strong></template>
+                                        </i18n-t>
+                                        <span class="u-date-text">{{ $t('exteriorHouse.stockedOn', { date: formatDate(row.in_date) }) }}</span>
                                     </div>
 
                                     <p v-if="row.remark" class="m-holding-remark">{{ row.remark }}</p>
@@ -254,7 +254,7 @@
                                         round
                                         @click="openSellDialog(row)"
                                     >
-                                        出售
+                                        {{ $t('exteriorHouse.sell') }}
                                     </el-button>
                                     <el-button
                                         v-if="row.exterior"
@@ -263,13 +263,13 @@
                                         round
                                         @click="tryOnItem(row)"
                                     >
-                                        试穿
+                                        {{ $t('exteriorHouse.tryOn') }}
                                     </el-button>
                                     <el-button size="small" plain round @click="toggleItemPin(row)">
-                                        {{ row.pinned ? "取消置顶" : "置顶" }}
+                                        {{ row.pinned ? $t('exterior.star.unpin') : $t('exterior.star.pin') }}
                                     </el-button>
-                                    <el-button size="small" plain round @click="openEditDialog(row)">编辑</el-button>
-                                    <el-button size="small" type="danger" plain round @click="removeItem(row)">删除</el-button>
+                                    <el-button size="small" plain round @click="openEditDialog(row)">{{ $t('exterior.warehouse.edit') }}</el-button>
+                                    <el-button size="small" type="danger" plain round @click="removeItem(row)">{{ $t('exteriorHouse.delete') }}</el-button>
                                 </div>
                             </article>
                         </div>
@@ -280,22 +280,22 @@
                 <template v-else>
                     <div class="m-filter-row">
                         <el-select v-model="saleChannel" class="u-filter-select" @change="loadSales(1)">
-                            <el-option label="全部交易渠道" value="" />
-                            <el-option label="万宝楼" value="wbl" />
-                            <el-option label="私下交易" value="private" />
-                            <el-option label="其他渠道" value="other" />
+                            <el-option :label="$t('exteriorHouse.allChannels')" value="" />
+                            <el-option :label="$t('exteriorHouse.wbl')" value="wbl" />
+                            <el-option :label="$t('exteriorHouse.private')" value="private" />
+                            <el-option :label="$t('exteriorHouse.otherChannel')" value="other" />
                         </el-select>
                     </div>
 
                     <div v-loading="salesLoading" class="m-sales-wrap">
                         <PvxEmptyState
                             v-if="!salesLoading && !sales.length"
-                            title="暂无出售流水记录"
+                            :title="$t('exteriorHouse.emptySales')"
                             illustrated
                         />
 
                         <el-table v-else :data="sales" class="w-full" stripe>
-                            <el-table-column label="外观" min-width="220">
+                            <el-table-column :label="$t('exteriorHouse.appearance')" min-width="220">
                                 <template #default="{ row }">
                                     <div class="flex items-center gap-2.5">
                                         <img
@@ -320,35 +320,35 @@
                                     </div>
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="quantity" label="数量" width="76" align="center" />
-                            <el-table-column label="买入单价" width="110" align="right">
+                            <el-table-column prop="quantity" :label="$t('exterior.warehouse.count')" width="76" align="center" />
+                            <el-table-column :label="$t('exterior.warehouse.inPrice')" width="110" align="right">
                                 <template #default="{ row }">{{ formatMoney(row.in_price, row.currency) }}</template>
                             </el-table-column>
-                            <el-table-column label="卖出单价" width="110" align="right">
+                            <el-table-column :label="$t('exterior.warehouse.outPrice')" width="110" align="right">
                                 <template #default="{ row }">{{ formatMoney(row.out_price, row.currency) }}</template>
                             </el-table-column>
-                            <el-table-column label="手续费" width="100" align="right">
+                            <el-table-column :label="$t('exteriorHouse.fee')" width="100" align="right">
                                 <template #default="{ row }">{{ formatMoney(row.fee, row.currency) }}</template>
                             </el-table-column>
-                            <el-table-column label="净盈亏" width="128" align="right">
+                            <el-table-column :label="$t('exteriorHouse.netProfit')" width="128" align="right">
                                 <template #default="{ row }">
                                     <span class="font-semibold tabular-nums" :class="profitTone(row.profit)">
                                         {{ formatSignedMoney(row.profit, row.currency) }}
                                     </span>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="渠道" width="96" align="center">
+                            <el-table-column :label="$t('exteriorHouse.channel')" width="96" align="center">
                                 <template #default="{ row }">
                                     <span class="u-tag is-slate">{{ channelLabel(row.channel) }}</span>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="售出时间" width="118" align="center">
+                            <el-table-column :label="$t('exteriorHouse.soldAt')" width="118" align="center">
                                 <template #default="{ row }">{{ formatDate(row.out_date) }}</template>
                             </el-table-column>
-                            <el-table-column label="操作" width="110" align="right">
+                            <el-table-column :label="$t('exterior.warehouse.actions')" width="110" align="right">
                                 <template #default="{ row }">
                                     <el-button size="small" type="warning" plain round @click="undoSale(row)">
-                                        撤回
+                                        {{ $t('exteriorHouse.undo') }}
                                     </el-button>
                                 </template>
                             </el-table-column>
@@ -374,19 +374,19 @@
         <el-dialog
             v-model="itemDialogVisible"
             class="m-house-dialog m-house-entry-dialog"
-            :title="editingItemId ? '编辑仓库持仓' : '记一笔外观入库'"
+            :title="editingItemId ? $t('exteriorHouse.editStock') : $t('exteriorHouse.newStock')"
             width="min(600px, 94vw)"
             top="5vh"
             append-to-body
         >
             <el-form label-position="top" class="m-entry-form">
-                <el-form-item v-if="!editingItemId" label="选择外观" required>
+                <el-form-item v-if="!editingItemId" :label="$t('exteriorHouse.pick')" required>
                     <div class="w-full space-y-2">
                         <el-input
                             v-if="!itemForm.selectedExterior"
                             v-model="pickSearch"
                             clearable
-                            placeholder="搜索外观名称或俗称（如：粉白菜、狐金）…"
+                            :placeholder="$t('exteriorHouse.pickHint')"
                             @input="debouncedSearchExteriors"
                         >
                             <template #prefix>
@@ -412,13 +412,13 @@
                                 </div>
                             </div>
                             <el-button link type="primary" @click="itemForm.selectedExterior = null; itemForm.exterior_key = ''">
-                                重选
+                                {{ $t('exteriorHouse.chooseAgain') }}
                             </el-button>
                         </div>
 
                         <div v-else v-loading="pickLoading" class="m-pick-results">
                             <div v-if="!pickCandidates.length && !pickLoading" class="p-3 text-center text-xs text-slate-400">
-                                输入外观名称或俗称以检索关联外观
+                                {{ $t('exteriorHouse.pickPrompt') }}
                             </div>
                             <button
                                 v-for="cand in pickCandidates"
@@ -442,32 +442,32 @@
                 </el-form-item>
 
                 <div class="m-entry-fields">
-                    <el-form-item label="仓库用途">
+                    <el-form-item :label="$t('exteriorHouse.purpose')">
                         <el-radio-group v-model="itemForm.purpose">
-                            <el-radio-button value="invest">囤货理财</el-radio-button>
-                            <el-radio-button value="self_use">自用穿搭</el-radio-button>
+                            <el-radio-button value="invest">{{ $t('exterior.warehouse.invest') }}</el-radio-button>
+                            <el-radio-button value="self_use">{{ $t('exterior.warehouse.selfUse') }}</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
 
-                    <el-form-item label="计价币种">
+                    <el-form-item :label="$t('exteriorHouse.currency')">
                         <el-radio-group v-model="itemForm.currency">
-                            <el-radio-button value="cny">人民币 (¥)</el-radio-button>
-                            <el-radio-button value="gold">金砖</el-radio-button>
+                            <el-radio-button value="cny">{{ $t('exterior.warehouse.cny') }}</el-radio-button>
+                            <el-radio-button value="gold">{{ $t('exterior.warehouse.gold') }}</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
                 </div>
 
-                <el-form-item label="所属分组">
-                    <el-select v-model="itemForm.group_id" clearable placeholder="未分组" class="w-full">
+                <el-form-item :label="$t('exterior.warehouse.group')">
+                    <el-select v-model="itemForm.group_id" clearable :placeholder="$t('exterior.warehouse.ungrouped')" class="w-full">
                         <el-option v-for="grp in groups" :key="grp.id" :label="grp.name" :value="grp.id" />
                     </el-select>
                 </el-form-item>
 
                 <div class="m-entry-fields">
-                    <el-form-item label="数量">
+                    <el-form-item :label="$t('exterior.warehouse.count')">
                         <el-input-number v-model="itemForm.quantity" :min="minEditableQty" :max="999" class="!w-full" />
                     </el-form-item>
-                    <el-form-item label="买入单价">
+                    <el-form-item :label="$t('exterior.warehouse.inPrice')">
                         <el-input-number
                             v-model="itemForm.in_price"
                             :min="0"
@@ -480,32 +480,33 @@
                 </div>
 
                 <div class="m-entry-fields">
-                    <el-form-item label="入库日期">
+                    <el-form-item :label="$t('exteriorHouse.stockDate')">
                         <el-date-picker
                             v-model="itemForm.in_date"
                             type="date"
+                            :format="$t('exteriorHouse.dateFormat')"
                             value-format="YYYY-MM-DD"
                             class="!w-full"
                         />
                     </el-form-item>
-                    <el-form-item label="置顶展示">
+                    <el-form-item :label="$t('exteriorHouse.pinDisplay')">
                         <el-switch v-model="itemForm.pinned" />
                     </el-form-item>
                 </div>
 
-                <el-form-item label="批次备注">
-                    <el-input v-model="itemForm.remark" maxlength="200" placeholder="可记录区服、购入途径或穿搭说明" />
+                <el-form-item :label="$t('exteriorHouse.lotNote')">
+                    <el-input v-model="itemForm.remark" maxlength="200" :placeholder="$t('exteriorHouse.lotHint')" />
                 </el-form-item>
 
                 <div class="m-cost-preview">
-                    <span>本批次总投入</span>
+                    <span>{{ $t('exteriorHouse.lotCost') }}</span>
                     <strong>{{ formatMoney((itemForm.quantity || 1) * (itemForm.in_price || 0), itemForm.currency) }}</strong>
                 </div>
             </el-form>
 
             <template #footer>
                 <div class="m-entry-actions">
-                    <el-button @click="itemDialogVisible = false">取消</el-button>
+                    <el-button @click="itemDialogVisible = false">{{ $t('exteriorHouse.cancel') }}</el-button>
                     <el-button type="primary" :loading="itemSaving" @click="submitItemForm">
                         {{ $t("exterior.warehouse.save") }}
                     </el-button>
@@ -514,7 +515,7 @@
         </el-dialog>
 
         <!-- 分批出售弹窗 -->
-        <el-dialog class="m-house-dialog" v-model="sellDialogVisible" title="记录出售出库" width="min(500px, 94vw)" append-to-body>
+        <el-dialog class="m-house-dialog" v-model="sellDialogVisible" :title="$t('exterior.warehouse.checkout')" width="min(500px, 94vw)" append-to-body>
             <template v-if="sellingItem">
                 <div class="m-sell-header">
                     <img v-if="itemCover(sellingItem)" :src="itemCover(sellingItem)" alt="" />
@@ -523,17 +524,16 @@
                             {{ sellingItem.exterior?.name || sellingItem.exterior_key }}
                         </div>
                         <div class="mt-0.5 text-xs text-slate-500">
-                            当前余 {{ sellingItem.remaining }} 件 · 买入单价
-                            {{ formatMoney(sellingItem.in_price, sellingItem.currency) }}
+                            {{ $t('exteriorHouse.saleHeader', { remaining: sellingItem.remaining, price: formatMoney(sellingItem.in_price, sellingItem.currency) }) }}
                         </div>
                     </div>
                 </div>
 
                 <el-form label-width="96px" class="mt-4">
-                    <el-form-item label="出售数量">
+                    <el-form-item :label="$t('exteriorHouse.sellQuantity')">
                         <el-input-number v-model="sellForm.quantity" :min="1" :max="sellingItem.remaining" class="!w-full" />
                     </el-form-item>
-                    <el-form-item label="卖出单价">
+                    <el-form-item :label="$t('exterior.warehouse.outPrice')">
                         <el-input-number
                             v-model="sellForm.out_price"
                             :min="0"
@@ -543,14 +543,14 @@
                             class="!w-full"
                         />
                     </el-form-item>
-                    <el-form-item label="交易渠道">
+                    <el-form-item :label="$t('exteriorHouse.salesChannel')">
                         <el-radio-group v-model="sellForm.channel" @change="onSellChannelChange">
-                            <el-radio-button value="wbl">万宝楼</el-radio-button>
-                            <el-radio-button value="private">私下交易</el-radio-button>
-                            <el-radio-button value="other">其他</el-radio-button>
+                            <el-radio-button value="wbl">{{ $t('exteriorHouse.wbl') }}</el-radio-button>
+                            <el-radio-button value="private">{{ $t('exteriorHouse.private') }}</el-radio-button>
+                            <el-radio-button value="other">{{ $t('exteriorHouse.other') }}</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item label="手续费">
+                    <el-form-item :label="$t('exteriorHouse.fee')">
                         <div class="w-full space-y-2">
                             <div class="flex items-center gap-2">
                                 <el-input-number
@@ -561,52 +561,53 @@
                                     :disabled="sellForm.autoWblFee"
                                     class="!flex-1"
                                 />
-                                <el-checkbox v-model="sellForm.autoWblFee" border size="small">万宝楼 5%</el-checkbox>
+                                <el-checkbox v-model="sellForm.autoWblFee" border size="small">{{ $t('exteriorHouse.marketFee') }}</el-checkbox>
                             </div>
                         </div>
                     </el-form-item>
-                    <el-form-item label="售出日期">
+                    <el-form-item :label="$t('exteriorHouse.saleDate')">
                         <el-date-picker
                             v-model="sellForm.out_date"
                             type="date"
+                            :format="$t('exteriorHouse.dateFormat')"
                             value-format="YYYY-MM-DD"
                             class="!w-full"
                         />
                     </el-form-item>
-                    <el-form-item label="流水备注">
-                        <el-input v-model="sellForm.remark" maxlength="200" placeholder="选填：买家、平台订单或复盘说明" />
+                    <el-form-item :label="$t('exteriorHouse.saleNote')">
+                        <el-input v-model="sellForm.remark" maxlength="200" :placeholder="$t('exteriorHouse.saleHint')" />
                     </el-form-item>
                 </el-form>
 
                 <div class="m-profit-preview">
                     <div>
-                        <span>买入成本：</span>
+                        <span>{{ $t('exteriorHouse.purchaseCost') }}</span>
                         <strong>{{ formatMoney(sellPreview.cost, sellingItem.currency) }}</strong>
                     </div>
                     <div>
-                        <span>成交总额：</span>
+                        <span>{{ $t('exteriorHouse.revenue') }}</span>
                         <strong>{{ formatMoney(sellPreview.revenue, sellingItem.currency) }}</strong>
                     </div>
                     <div>
-                        <span>预计净盈亏：</span>
+                        <span>{{ $t('exteriorHouse.estimatedProfit') }}</span>
                         <strong :class="profitTone(sellPreview.profit)">
                             {{ formatSignedMoney(sellPreview.profit, sellingItem.currency) }}
-                            <template v-if="sellPreview.cost > 0">（{{ formatRate(sellPreview.rate) }}）</template>
+                            <template v-if="sellPreview.cost > 0">({{ formatRate(sellPreview.rate) }})</template>
                         </strong>
                     </div>
                 </div>
             </template>
 
             <template #footer>
-                <el-button round @click="sellDialogVisible = false">取消</el-button>
-                <el-button type="primary" round :loading="sellSaving" @click="submitSellForm">确认记录出售</el-button>
+                <el-button round @click="sellDialogVisible = false">{{ $t('exteriorHouse.cancel') }}</el-button>
+                <el-button type="primary" round :loading="sellSaving" @click="submitSellForm">{{ $t('exteriorHouse.confirmSale') }}</el-button>
             </template>
         </el-dialog>
 
         <!-- 分组与绑定角色管理抽屉 -->
         <el-drawer
             v-model="groupDrawerVisible"
-            title="管理仓库分组"
+            :title="$t('exterior.warehouse.manageGroups')"
             header-class="m-exterior-drawer-header"
             body-class="m-exterior-drawer-body"
             size="min(100%, 460px)"
@@ -617,33 +618,33 @@
                     <span class="grid size-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
                         <FolderOpened class="size-4" aria-hidden="true" />
                     </span>
-                    <h2 :id="titleId" class="m-0 text-base font-semibold text-slate-800">管理仓库分组</h2>
+                    <h2 :id="titleId" class="m-0 text-base font-semibold text-slate-800">{{ $t('exterior.warehouse.manageGroups') }}</h2>
                 </div>
             </template>
             <div class="grid gap-3">
                 <PvxSurface padding="small" radius="medium" class="m-house-group-form grid gap-2.5">
                     <div class="text-sm font-semibold text-slate-800">
-                        {{ groupForm.id ? "编辑分组" : "新建分组" }}
+                        {{ groupForm.id ? $t('exteriorHouse.editGroup') : $t('exterior.warehouse.createGroup') }}
                     </div>
-                    <el-input aria-label="分组名称" v-model="groupForm.name" maxlength="64" placeholder="分组名称（例如：主号自用、成女囤货仓）" />
-                    <el-select aria-label="绑定游戏角色（可选）" v-model="groupForm.role_id" clearable placeholder="绑定游戏角色（可选）" class="w-full">
+                    <el-input :aria-label="$t('exteriorHouse.groupName')" v-model="groupForm.name" maxlength="64" :placeholder="$t('exteriorHouse.groupNameHint')" />
+                    <el-select :aria-label="$t('exteriorHouse.linkRole')" v-model="groupForm.role_id" clearable :placeholder="$t('exteriorHouse.linkRole')" class="w-full">
                         <el-option
                             v-for="r in userRoles"
                             :key="r.ID"
-                            :label="`${r.name}（${r.server || '未知区服'} · ${bodyLabel(r.body_type)}）`"
+                            :label="$t('exteriorHouse.roleOption', { name: r.name, server: r.server || $t('exteriorHouse.unknownServer'), body: bodyLabel(r.body_type) })"
                             :value="Number(r.ID)"
                         />
                     </el-select>
-                    <el-input aria-label="分组备注（可选）" v-model="groupForm.remark" maxlength="200" placeholder="分组备注（可选）" />
+                    <el-input :aria-label="$t('exteriorHouse.groupNote')" v-model="groupForm.remark" maxlength="200" :placeholder="$t('exteriorHouse.groupNote')" />
                     <div class="flex justify-end gap-2">
-                        <el-button v-if="groupForm.id" size="small" round @click="resetGroupForm">取消编辑</el-button>
+                        <el-button v-if="groupForm.id" size="small" round @click="resetGroupForm">{{ $t('exteriorHouse.cancelEdit') }}</el-button>
                         <el-button type="primary" size="small" round :loading="groupSaving" @click="saveGroupForm">
-                            {{ groupForm.id ? "保存修改" : "添加分组" }}
+                            {{ groupForm.id ? $t('exteriorHouse.saveChanges') : $t('exteriorHouse.addGroup') }}
                         </el-button>
                     </div>
                 </PvxSurface>
 
-                <PvxEmptyState v-if="!groups.length" title="还没有自定义分组，可以在上方创建一个" illustrated />
+                <PvxEmptyState v-if="!groups.length" :title="$t('exteriorHouse.emptyGroups')" illustrated />
                 <div v-else class="divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
                     <div v-for="grp in groups" :key="grp.id" class="flex items-center justify-between gap-2 px-3 py-2.5 text-sm sm:gap-3 sm:px-4">
                         <div class="min-w-0 flex-1">
@@ -654,8 +655,8 @@
                             <p v-if="grp.remark" :title="grp.remark" class="m-0 mt-0.5 truncate text-xs text-slate-500">{{ grp.remark }}</p>
                         </div>
                         <div class="flex shrink-0 items-center gap-1">
-                            <el-button size="small" plain @click="editGroup(grp)">编辑</el-button>
-                            <el-button size="small" type="danger" plain @click="removeGroup(grp)">删除</el-button>
+                            <el-button size="small" plain @click="editGroup(grp)">{{ $t('exterior.warehouse.edit') }}</el-button>
+                            <el-button size="small" type="danger" plain @click="removeGroup(grp)">{{ $t('exteriorHouse.delete') }}</el-button>
                         </div>
                     </div>
                 </div>
@@ -672,7 +673,7 @@ import User from "@jx3box/jx3box-common/js/user";
 import PvxEmptyState from "@/components/design/PvxEmptyState.vue";
 import responsivePagination from "@/mixins/responsive-pagination";
 import PvxSurface from "@/components/design/PvxSurface.vue";
-import { BODY_LABEL_MAP, DOMAIN_META, normalizeBodyType, pickExteriorCover } from "@/components/exterior/meta";
+import { BODY_LABEL_MAP, DOMAIN_META, localizedExteriorLabel, normalizeBodyType, pickExteriorCover } from "@/components/exterior/meta";
 import { getUserRoles } from "@/service/team";
 import {
     createWarehouseGroup,
@@ -787,10 +788,13 @@ export default {
             return this.$store.state.preferredRole || 2;
         },
         currencyLabel() {
-            return this.activeCurrency === "cny" ? "人民币" : "金砖";
+            return this.activeCurrency === "cny" ? this.$t("exteriorHouse.cnyName") : this.$t("exterior.warehouse.gold");
         },
         currencySummary() {
             return this.summary[this.activeCurrency] || EMPTY_SUMMARY()[this.activeCurrency];
+        },
+        totalStock() {
+            return this.currencySummary.invest.holding_quantity + this.currencySummary.self_use.quantity;
         },
         minEditableQty() {
             return Math.max(1, this.editingSoldQty || 0);
@@ -846,11 +850,11 @@ export default {
             User.toLogin();
         },
         domainLabel(domain) {
-            return DOMAIN_META[domain]?.label || domain || "";
+            return localizedExteriorLabel(this.$t, DOMAIN_META[domain]?.label || domain || "");
         },
         bodyLabel(raw) {
             const role = normalizeBodyType(raw);
-            return BODY_LABEL_MAP[role] || String(raw || "");
+            return localizedExteriorLabel(this.$t, BODY_LABEL_MAP[role] || String(raw || ""));
         },
         roleBadgeText(role) {
             if (!role) return "";
@@ -861,24 +865,26 @@ export default {
             const groupRole = row.group?.role ? normalizeBodyType(row.group.role.body_type) : null;
             return pickExteriorCover(row.exterior?.images, groupRole || this.preferredRole);
         },
-        formatMoney(val, currency = "cny") {
+        formatMoney(val, currency = "cny", signed = false) {
             const num = roundMoney(val);
-            const text = num.toLocaleString("zh-CN", { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
-            return currency === "gold" ? `${text} 砖` : `¥${text}`;
+            const options = {
+                minimumFractionDigits: Number.isInteger(num) ? 0 : 2,
+                maximumFractionDigits: 2,
+                signDisplay: signed ? "exceptZero" : "auto",
+            };
+            if (currency === "gold") {
+                const amount = num.toLocaleString(this.$i18n.locale, options);
+                return this.$t("exteriorHouse.goldAmount", { amount }, Math.abs(num) === 1 ? 1 : 2);
+            }
+            return num.toLocaleString(this.$i18n.locale, { ...options, style: "currency", currency: "CNY" });
         },
         formatSignedMoney(val, currency = "cny") {
-            const num = roundMoney(val);
-            const prefix = num > 0 ? "+" : num < 0 ? "-" : "";
-            const absText = Math.abs(num).toLocaleString("zh-CN", {
-                minimumFractionDigits: num % 1 === 0 ? 0 : 2,
-                maximumFractionDigits: 2,
-            });
-            return currency === "gold" ? `${prefix}${absText} 砖` : `${prefix}¥${absText}`;
+            return this.formatMoney(val, currency, true);
         },
         formatRate(val) {
-            const num = roundMoney(val);
-            const prefix = num > 0 ? "+" : "";
-            return `${prefix}${num.toFixed(1)}%`;
+            return (roundMoney(val) / 100).toLocaleString(this.$i18n.locale, {
+                style: "percent", signDisplay: "exceptZero", minimumFractionDigits: 1, maximumFractionDigits: 1,
+            });
         },
         profitTone(val) {
             const num = Number(val) || 0;
@@ -887,13 +893,14 @@ export default {
             return "";
         },
         channelLabel(ch) {
-            return { wbl: "万宝楼", private: "私下", other: "其他" }[ch] || ch;
+            const keys = { wbl: "exteriorHouse.wbl", private: "exteriorHouse.private", other: "exteriorHouse.other" };
+            return keys[ch] ? this.$t(keys[ch]) : ch;
         },
         formatDate(raw) {
             if (!raw) return "-";
-            return String(raw).slice(0, 10);
+            return new Date(String(raw).slice(0, 10) + "T00:00:00Z").toLocaleDateString(this.$i18n.locale, { timeZone: "UTC" });
         },
-        errMsg(err, fallback = "操作失败，请稍后重试") {
+        errMsg(err, fallback = this.$t("exterior.requestError")) {
             return err?.response?.data?.msg || err?.message || fallback;
         },
         async loadAll() {
@@ -904,14 +911,14 @@ export default {
                 const data = await getWarehouseSummary();
                 if (data) this.summary = data;
             } catch (err) {
-                ElMessage.error(this.errMsg(err, "加载资产总览失败"));
+                ElMessage.error(this.errMsg(err, this.$t("exteriorHouse.loadSummaryError")));
             }
         },
         async loadGroups() {
             try {
                 this.groups = await getWarehouseGroups();
             } catch (err) {
-                ElMessage.error(this.errMsg(err, "加载分组失败"));
+                ElMessage.error(this.errMsg(err, this.$t("exteriorHouse.loadGroupsError")));
             }
         },
         async loadUserRoles() {
@@ -934,7 +941,7 @@ export default {
                 if (this.filterKeyword.trim()) params.keyword = this.filterKeyword.trim();
                 this.items = await getWarehouseItems(params);
             } catch (err) {
-                ElMessage.error(this.errMsg(err, "加载仓库列表失败"));
+                ElMessage.error(this.errMsg(err, this.$t("exteriorHouse.loadStockError")));
             } finally {
                 this.itemsLoading = false;
             }
@@ -962,7 +969,7 @@ export default {
                 this.sales = res?.list || [];
                 this.salesTotal = Number(res?.total) || 0;
             } catch (err) {
-                ElMessage.error(this.errMsg(err, "加载出售流水失败"));
+                ElMessage.error(this.errMsg(err, this.$t("exteriorHouse.loadSalesError")));
             } finally {
                 this.salesLoading = false;
             }
@@ -1005,7 +1012,7 @@ export default {
                 currency: row.currency || "cny",
                 quantity: Number(row.quantity),
                 in_price: Number(row.in_price),
-                in_date: this.formatDate(row.in_date),
+                in_date: String(row.in_date || "").slice(0, 10),
                 pinned: Boolean(row.pinned),
                 remark: row.remark || "",
             };
@@ -1036,7 +1043,7 @@ export default {
         },
         async submitItemForm() {
             if (!this.editingItemId && !this.itemForm.exterior_key) {
-                ElMessage.warning("请先检索并选择一件外观");
+                ElMessage.warning(this.$t("exteriorHouse.pickFirst"));
                 return;
             }
             this.itemSaving = true;
@@ -1053,10 +1060,10 @@ export default {
                 };
                 if (this.editingItemId) {
                     await updateWarehouseItem(this.editingItemId, payload);
-                    ElMessage.success("持仓信息已更新");
+                    ElMessage.success(this.$t("exteriorHouse.stockUpdated"));
                 } else {
                     await createWarehouseItem({ ...payload, exterior_key: this.itemForm.exterior_key });
-                    ElMessage.success("外观已入库");
+                    ElMessage.success(this.$t("exteriorHouse.stockAdded"));
                 }
                 this.itemDialogVisible = false;
                 await Promise.all([this.loadSummary(), this.loadItems()]);
@@ -1076,13 +1083,13 @@ export default {
         },
         async removeItem(row) {
             try {
-                await ElMessageBox.confirm(this.$t("exterior.warehouse.confirmRemove"), "确认删除", {
+                await ElMessageBox.confirm(this.$t("exterior.warehouse.confirmRemove"), this.$t("exteriorHouse.confirmDelete"), {
                     type: "warning",
-                    confirmButtonText: "删除",
-                    cancelButtonText: "取消",
+                    confirmButtonText: this.$t("exteriorHouse.delete"),
+                    cancelButtonText: this.$t("exteriorHouse.cancel"),
                 });
                 await deleteWarehouseItem(row.id);
-                ElMessage.success("已移除该条仓库记录");
+                ElMessage.success(this.$t("exteriorHouse.stockRemoved"));
                 await Promise.all([this.loadSummary(), this.loadItems()]);
             } catch (err) {
                 if (err !== "cancel") ElMessage.error(this.errMsg(err));
@@ -1123,7 +1130,7 @@ export default {
                     out_date: this.sellForm.out_date || todayIso(),
                     remark: this.sellForm.remark || "",
                 });
-                ElMessage.success("出售记录已入账");
+                ElMessage.success(this.$t("exteriorHouse.saleSaved"));
                 this.sellDialogVisible = false;
                 await Promise.all([this.loadSummary(), this.loadItems()]);
             } catch (err) {
@@ -1134,13 +1141,13 @@ export default {
         },
         async undoSale(sale) {
             try {
-                await ElMessageBox.confirm(this.$t("exterior.warehouse.confirmUndoSale"), "撤回出售", {
+                await ElMessageBox.confirm(this.$t("exterior.warehouse.confirmUndoSale"), this.$t("exteriorHouse.undoSale"), {
                     type: "warning",
-                    confirmButtonText: "确定撤回",
-                    cancelButtonText: "取消",
+                    confirmButtonText: this.$t("exteriorHouse.confirmUndo"),
+                    cancelButtonText: this.$t("exteriorHouse.cancel"),
                 });
                 await undoWarehouseSale(sale.id);
-                ElMessage.success("已撤回出售并恢复库存");
+                ElMessage.success(this.$t("exteriorHouse.saleUndone"));
                 await Promise.all([this.loadSummary(), this.loadSales(this.salesPage), this.loadItems()]);
             } catch (err) {
                 if (err !== "cancel") ElMessage.error(this.errMsg(err));
@@ -1171,7 +1178,7 @@ export default {
         async saveGroupForm() {
             const name = this.groupForm.name.trim();
             if (!name) {
-                ElMessage.warning("请输入分组名称");
+                ElMessage.warning(this.$t("exteriorHouse.enterName"));
                 return;
             }
             this.groupSaving = true;
@@ -1183,10 +1190,10 @@ export default {
                 };
                 if (this.groupForm.id) {
                     await updateWarehouseGroup(this.groupForm.id, payload);
-                    ElMessage.success("分组已更新");
+                    ElMessage.success(this.$t("exteriorHouse.groupUpdated"));
                 } else {
                     await createWarehouseGroup(payload);
-                    ElMessage.success("分组已创建");
+                    ElMessage.success(this.$t("exteriorHouse.groupCreated"));
                 }
                 this.resetGroupForm();
                 await Promise.all([this.loadGroups(), this.loadItems()]);
@@ -1198,10 +1205,10 @@ export default {
         },
         async removeGroup(grp) {
             try {
-                await ElMessageBox.confirm(`确定删除分组「${grp.name}」？组内物品将移入未分组。`, "删除分组", {
+                await ElMessageBox.confirm(this.$t('exteriorHouse.confirmRemoveGroup', { name: grp.name }), this.$t("exteriorHouse.removeGroup"), {
                     type: "warning",
-                    confirmButtonText: "删除",
-                    cancelButtonText: "取消",
+                    confirmButtonText: this.$t("exteriorHouse.delete"),
+                    cancelButtonText: this.$t("exteriorHouse.cancel"),
                 });
                 await deleteWarehouseGroup(grp.id);
                 if (this.filterGroup === String(grp.id)) this.filterGroup = "all";

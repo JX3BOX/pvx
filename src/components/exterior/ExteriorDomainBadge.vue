@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { DOMAIN_META, SLOT_LABELS } from "./meta";
+import { DOMAIN_META, SLOT_LABELS, localizedExteriorLabel } from "./meta";
 
 export default {
     name: "ExteriorDomainBadge",
@@ -16,9 +16,9 @@ export default {
         },
         label() {
             if (this.item.domain === "pendant" && SLOT_LABELS[this.item.slot]) {
-                return SLOT_LABELS[this.item.slot];
+                return localizedExteriorLabel(this.$t, SLOT_LABELS[this.item.slot]);
             }
-            return this.domainMeta?.label || "";
+            return localizedExteriorLabel(this.$t, this.domainMeta?.label) || "";
         },
     },
 };

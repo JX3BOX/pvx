@@ -3,9 +3,9 @@
     <div ref="stageRef" class="m-ext-3d" :class="{ 'is-fullscreen': isFullscreen }">
         <div v-if="!loggedIn" class="m-ext-3d__gate">
             <div class="m-ext-3d__gate-card">
-                <span class="u-gate-badge">3D 实时试穿</span>
-                <h3>登录后即可 360° 试穿外观</h3>
-                <p>支持自由俯仰旋转、右键平移视角、切换四体型与古风实景背景，自动适配画质</p>
+                <span class="u-gate-badge">{{ $t('exteriorPreview.modelBadge') }}</span>
+                <h3>{{ $t('exteriorPreview.loginTitle') }}</h3>
+                <p>{{ $t('exteriorPreview.loginDesc') }}</p>
                 <el-button type="primary" round size="large" @click="login">
                     {{ $t("exterior.modelLogin") }}
                 </el-button>
@@ -14,18 +14,149 @@
 
         <div v-else-if="verifyRequired" class="m-ext-3d__gate">
             <div class="m-ext-3d__gate-card">
-                <span class="u-gate-badge">账号认证门槛</span>
-                <h3>完成账号认证后开启 3D 实时试穿</h3>
-                <p>为保障模型资源服务稳定，需先完成手机号验证或绑定微信公众号后使用实时 3D 预览</p>
+                <span class="u-gate-badge">{{ $t('exteriorPreview.verifyBadge') }}</span>
+                <h3>{{ $t('exteriorPreview.verifyTitle') }}</h3>
+                <p>{{ $t('exteriorPreview.verifyDesc') }}</p>
                 <div class="u-error-actions">
-                    <el-button round @click="$emit('back-to-image')">切回高清图集</el-button>
-                    <el-button type="primary" round @click="goVerifyAuth">前往账号认证</el-button>
+                    <el-button round @click="$emit('back-to-image')">{{ $t('exteriorPreview.backGallery') }}</el-button>
+                    <el-button type="primary" round @click="goVerifyAuth">{{ $t('exteriorPreview.verifyAction') }}</el-button>
                 </div>
             </div>
         </div>
 
         <template v-else>
-            <div class="m-ext-3d__viewport" :class="`is-bg-${stageBg}`">
+            <header class="m-ext-3d__bar">
+                <div class="m-ext-3d__group" role="group" :aria-label="$t('exterior.bodyType')">
+                    <template v-if="isStandaloneOptional">
+                        <button
+                            type="button"
+                            class="u-ctrl-pill"
+                            :class="{ 'is-active': !wearOnBody }"
+                            :aria-pressed="!wearOnBody"
+                            @click="setStandalone"
+                        >
+                            {{ $t('exteriorPreview.solo') }}
+                        </button>
+                    </template>
+                    <button
+                        v-for="roleId in availableRoles"
+                        :key="roleId"
+                        type="button"
+                        class="u-ctrl-pill"
+                        :class="{ 'is-active': wearOnBody && activeRole === roleId }"
+                        :aria-pressed="wearOnBody && activeRole === roleId"
+                        @click="selectRole(roleId)"
+                    >
+                        {{ localizedExteriorLabel($t, bodyLabels[roleId]) }}
+                    </button>
+                </div>
+
+                <div class="m-ext-3d__group" role="group" :aria-label="$t('exteriorPreview.viewSwitch')">
+                    <button
+                        v-for="opt in activeViewOptions"
+                        :key="opt.value"
+                        type="button"
+                        class="u-ctrl-pill"
+                        :class="{ 'is-active': effectiveView === opt.value }"
+                        :aria-pressed="effectiveView === opt.value"
+                        @click="selectCameraView(opt.value)"
+                    >
+                        {{ opt.label }}
+                    </button>
+                </div>
+
+                <div class="m-ext-3d__actions">
+                    <button type="button" class="u-ctrl-pill u-ctrl-playback" @click="playing = !playing">
+                        {{ playing ? $t('exteriorStudio.pause') : $t('exteriorStudio.play') }}
+                    </button>
+                    <el-popover
+                        v-model:visible="stageMoreOpen"
+                        trigger="click"
+                        placement="bottom-end"
+                        width="min(320px, calc(100vw - 32px))"
+                        :show-arrow="false"
+                        :append-to="popoverTarget"
+                        popper-class="m-ext-3d-settings-popper"
+                        @after-enter="focusStageMore"
+                    >
+                        <template #reference>
+                            <span class="m-ext-3d__more-anchor">
+                                <el-tooltip
+                                    :content="$t('exteriorStudio.moreSettings')"
+                                    :disabled="stageMoreOpen"
+                                    :trigger-keys="[]"
+                                    :append-to="popoverTarget"
+                                >
+                                    <button
+                                        ref="stageMoreButtonRef"
+                                        type="button"
+                                        class="u-ctrl-pill u-ctrl-icon"
+                                        :class="{ 'is-active': stageMoreOpen }"
+                                        :aria-label="$t('exteriorStudio.moreSettings')"
+                                        :aria-expanded="stageMoreOpen"
+                                        @keydown.esc="closeStageMore"
+                                    >
+                                        <el-icon aria-hidden="true"><MoreFilled /></el-icon>
+                                    </button>
+                                </el-tooltip>
+                            </span>
+                        </template>
+                        <div class="m-ext-3d__settings" @keydown.esc.capture="closeStageMore">
+                            <div class="m-ext-3d__setting">
+                                <label for="exterior-preview-scene">{{ $t('exteriorPreview.background') }}</label>
+                                <el-select
+                                    id="exterior-preview-scene"
+                                    ref="stageBgSelectRef"
+                                    v-model="stageBg"
+                                    size="small"
+                                    :aria-label="$t('exteriorPreview.background')"
+                                    :teleported="false"
+                                    @change="onStageBgChange"
+                                >
+                                    <el-option
+                                        v-for="bg in stageBackgrounds"
+                                        :key="bg.value"
+                                        :label="$t(bg.label)"
+                                        :value="bg.value"
+                                    />
+                                </el-select>
+                            </div>
+                            <div class="m-ext-3d__setting">
+                                <label for="exterior-preview-quality">{{ $t('exteriorPreview.quality') }}</label>
+                                <el-select
+                                    id="exterior-preview-quality"
+                                    v-model="quality"
+                                    size="small"
+                                    :aria-label="$t('exteriorPreview.quality')"
+                                    :teleported="false"
+                                    @change="onQualityChange"
+                                >
+                                    <el-option :label="$t('exteriorPreview.qualityAuto')" value="auto" />
+                                    <el-option :label="$t('exteriorPreview.qualityHigh')" value="high" />
+                                    <el-option :label="$t('exteriorPreview.qualityMedium')" value="medium" />
+                                    <el-option :label="$t('exteriorPreview.qualityLow')" value="low" />
+                                </el-select>
+                            </div>
+                        </div>
+                    </el-popover>
+                </div>
+            </header>
+
+            <div
+                class="m-ext-3d__viewport"
+                :class="[`is-bg-${stageBg}`, { 'is-model-ready': frameReady && !loading && !errorMessage }]"
+            >
+                <el-tooltip :content="fullscreenLabel" :trigger-keys="[]" :append-to="popoverTarget">
+                    <button
+                        type="button"
+                        class="u-ctrl-pill u-ctrl-icon u-ctrl-fullscreen"
+                        :class="{ 'is-active': isFullscreen }"
+                        :aria-label="fullscreenLabel"
+                        @click="toggleFullscreen"
+                    >
+                        <el-icon aria-hidden="true"><FullScreen /></el-icon>
+                    </button>
+                </el-tooltip>
                 <template v-if="useWorker">
                     <canvas
                         :key="canvasKey"
@@ -45,7 +176,7 @@
                             <p>{{ errorDetail(errorMessage) }}</p>
                             <div class="u-error-actions">
                                 <el-button size="small" round @click="$emit('back-to-image')">
-                                    切回高清图集
+                                    {{ $t('exteriorPreview.backGallery') }}
                                 </el-button>
                                 <el-button size="small" type="primary" round @click="retry">
                                     {{ $t("exterior.retry") }}
@@ -88,7 +219,7 @@
                                 <p>{{ errorDetail(error) }}</p>
                                 <div class="u-error-actions">
                                     <el-button size="small" round @click="$emit('back-to-image')">
-                                        切回高清图集
+                                        {{ $t('exteriorPreview.backGallery') }}
                                     </el-button>
                                     <el-button size="small" type="primary" round @click="retry">
                                         {{ $t("exterior.retry") }}
@@ -98,89 +229,19 @@
                         </div>
                     </template>
                 </ExteriorViewerAsync>
-            </div>
-
-            <div class="m-ext-3d__bar">
-                <div class="m-ext-3d__group">
-                    <template v-if="isStandaloneOptional">
-                        <button
-                            type="button"
-                            class="u-ctrl-pill"
-                            :class="{ 'is-active': !wearOnBody }"
-                            @click="setStandalone"
-                        >
-                            单品悬浮
-                        </button>
-                    </template>
-                    <button
-                        v-for="roleId in availableRoles"
-                        :key="roleId"
-                        type="button"
-                        class="u-ctrl-pill"
-                        :class="{ 'is-active': wearOnBody && activeRole === roleId }"
-                        @click="selectRole(roleId)"
-                    >
-                        {{ bodyLabels[roleId] }}
-                    </button>
-                </div>
-
-                <div class="m-ext-3d__group">
-                    <button
-                        v-for="opt in activeViewOptions"
-                        :key="opt.value"
-                        type="button"
-                        class="u-ctrl-pill"
-                        :class="{ 'is-active': effectiveView === opt.value }"
-                        @click="selectCameraView(opt.value)"
-                    >
-                        {{ opt.label }}
-                    </button>
-                </div>
-
-                <div class="m-ext-3d__group">
-                    <button type="button" class="u-ctrl-pill" @click="playing = !playing">
-                        {{ playing ? "暂停动画" : "播放动画" }}
-                    </button>
-                    <el-select
-                        v-model="stageBg"
-                        size="small"
-                        class="u-bg-select"
-                        aria-label="场景背景"
-                        @change="onStageBgChange"
-                    >
-                        <el-option
-                            v-for="bg in stageBackgrounds"
-                            :key="bg.value"
-                            :label="bg.label"
-                            :value="bg.value"
-                        />
-                    </el-select>
-                    <el-select
-                        v-model="quality"
-                        size="small"
-                        class="u-quality-select"
-                        aria-label="画质档位"
-                        @change="onQualityChange"
-                    >
-                        <el-option label="画质：自动" value="auto" />
-                        <el-option label="画质：高清" value="high" />
-                        <el-option label="画质：均衡" value="medium" />
-                        <el-option label="画质：省流" value="low" />
-                    </el-select>
-                    <button type="button" class="u-ctrl-pill" @click="toggleFullscreen">
-                        {{ isFullscreen ? "退出全屏" : "全屏" }}
-                    </button>
-                </div>
+                <ExteriorStageHint overlay>{{ $t("exterior.cameraHelp") }}</ExteriorStageHint>
             </div>
         </template>
     </div>
 </template>
 
 <script>
+import { FullScreen, MoreFilled } from "@element-plus/icons-vue";
 import { defineAsyncComponent } from "vue";
 import User from "@jx3box/jx3box-common/js/user";
 import { UC_AUTH_URL, getExteriorModel, getUserVerifyStatus } from "@/service/exterior";
-import { BODY_LABEL_MAP, CHARACTER_BOUND_DOMAINS, resolveExteriorModelPlan } from "./meta";
+import ExteriorStageHint from "./ExteriorStageHint.vue";
+import { localizedExteriorLabel, BODY_LABEL_MAP, CHARACTER_BOUND_DOMAINS, resolveExteriorModelPlan } from "./meta";
 
 const ExteriorViewerAsync = defineAsyncComponent(async () => {
     await import("@jx3box/jx3box-exterior/vue/style.css");
@@ -205,16 +266,16 @@ const SUPPORTS_OFFSCREEN_WORKER =
 const ALL_ROLES = [1, 2, 5, 6];
 const STANDALONE_DOMAINS = new Set(["pendant", "weapon", "effect"]);
 const STAGE_BACKGROUNDS = [
-    { value: "pavilion", label: "场景：云台雅室" },
-    { value: "mist", label: "场景：柔雾画境" },
-    { value: "dark", label: "场景：深色暗棚" },
+    { value: "pavilion", label: "exteriorPreview.pavilion" },
+    { value: "mist", label: "exteriorPreview.mist" },
+    { value: "dark", label: "exteriorPreview.dark" },
 ];
 
 const PHASE_LABELS = {
-    catalog: "正在读取模型目录",
-    parts: "正在加载服饰部件",
-    finalizing: "正在装配角色效果",
-    ready: "装配完成",
+    catalog: "exteriorPreview.catalog",
+    parts: "exteriorPreview.parts",
+    finalizing: "exteriorPreview.finalizing",
+    ready: "exteriorPreview.ready",
 };
 
 function computeSelectionState(item, targetDomain, initialRole, storeRole) {
@@ -237,7 +298,7 @@ function computeSelectionState(item, targetDomain, initialRole, storeRole) {
 
 export default {
     name: "ExteriorModelPreview",
-    components: { ExteriorViewerAsync },
+    components: { ExteriorStageHint, ExteriorViewerAsync, FullScreen, MoreFilled },
     props: {
         item: { type: Object, required: true },
         initialRole: { type: Number, default: null },
@@ -267,11 +328,13 @@ export default {
             stageBg: this.$store.state.preferredStageBg || "pavilion",
             progress: null,
             loading: false,
+            frameReady: false,
             errorMessage: "",
             viewerVersion: 0,
             canvasKey: 0,
             needsFreshCanvas: false,
             isFullscreen: false,
+            stageMoreOpen: false,
             isStageVisible: true,
             workerPreview: null,
             workerAbort: null,
@@ -281,6 +344,12 @@ export default {
         };
     },
     computed: {
+        popoverTarget() {
+            return this.isFullscreen ? this.$refs.stageRef : "body";
+        },
+        fullscreenLabel() {
+            return this.$t(this.isFullscreen ? "exteriorPreview.exitFullscreen" : "exteriorPreview.fullscreen");
+        },
         modelPlan() {
             return resolveExteriorModelPlan(this.item, this.graphNodes, this.graphEdges);
         },
@@ -297,14 +366,14 @@ export default {
         activeViewOptions() {
             if (!this.wearOnBody) {
                 return [
-                    { value: "front", label: "正面" },
-                    { value: "back", label: "背面" },
+                    { value: "front", label: this.$t('exteriorPreview.front') },
+                    { value: "back", label: this.$t('exteriorPreview.back') },
                 ];
             }
             return [
-                { value: "front", label: "正面" },
-                { value: "back", label: "背面" },
-                { value: "face", label: "近景" },
+                { value: "front", label: this.$t('exteriorPreview.front') },
+                { value: "back", label: this.$t('exteriorPreview.back') },
+                { value: "face", label: this.$t('exteriorPreview.face') },
             ];
         },
         effectiveView() {
@@ -312,8 +381,8 @@ export default {
             return this.cameraView;
         },
         progressText() {
-            if (!this.progress) return "正在后台启动 3D 试衣间…";
-            const label = PHASE_LABELS[this.progress.phase] || "正在加载外观资源";
+            if (!this.progress) return this.$t('exteriorPreview.starting');
+            const label = this.$t(PHASE_LABELS[this.progress.phase] || "exteriorPreview.loadingAssets");
             if (this.progress.total) {
                 const pct = Math.min(100, Math.round((this.progress.completed / this.progress.total) * 100));
                 return `${label} (${pct}%)`;
@@ -375,6 +444,7 @@ export default {
         }
     },
     beforeUnmount() {
+        this.loadSeq++;
         document.removeEventListener("fullscreenchange", this.onFullscreenChange);
         document.removeEventListener("visibilitychange", this.syncContinuousRendering);
         this.visibilityObserver?.disconnect();
@@ -383,6 +453,7 @@ export default {
         this.disposeWorkerPreview();
     },
     methods: {
+        localizedExteriorLabel,
         login() {
             User.toLogin();
         },
@@ -403,7 +474,7 @@ export default {
         },
         async resolveCompositeModel(signal) {
             const plan = this.modelPlan;
-            if (!plan.targetKey) throw new Error("该外观尚无对应模型");
+            if (!plan.targetKey) throw new Error("MODEL_NOT_FOUND");
             const role = this.wearOnBody ? this.activeRole : null;
             // 并发发出两条轻量原子 /model 请求：主外观 + 配套/默认狐金发型（发型弱依赖，缺档不阻断主模型加载）。
             const primaryPromise = getExteriorModel(plan.targetKey, role, signal);
@@ -412,7 +483,7 @@ export default {
                     ? getExteriorModel(plan.hairKey, role, signal).catch(() => null)
                     : Promise.resolve(null);
             const [primary, hair] = await Promise.all([primaryPromise, hairPromise]);
-            if (!primary?.modelUrl) throw new Error("该外观尚无对应模型");
+            if (!primary?.modelUrl) throw new Error("MODEL_NOT_FOUND");
             const attachments = [];
             if (hair?.modelUrl && hair.modelUrl !== primary.modelUrl) {
                 attachments.push(hair.modelUrl);
@@ -489,6 +560,7 @@ export default {
             this.loadAbort?.abort();
             const controller = (this.loadAbort = new AbortController());
             this.loading = true;
+            this.frameReady = false;
             this.progress = null;
             this.errorMessage = "";
 
@@ -523,7 +595,7 @@ export default {
                     await this.$nextTick();
                     if (seq !== this.loadSeq || controller.signal.aborted) return;
                     const canvas = this.$refs.workerCanvas;
-                    if (!canvas) throw new Error("3D 画布尚未就绪");
+                    if (!canvas) throw new Error("CANVAS_NOT_READY");
                     const { createWorkerPreview } = await loadWorkerModule();
                     if (seq !== this.loadSeq || controller.signal.aborted) return;
                     // 使用独立的 workerAbort 控制 Worker 生命周期，避免下次切换体型中断请求时误杀正在复用的渲染 Worker。
@@ -546,7 +618,7 @@ export default {
                         onError: (err) => {
                             if (this.workerPreview !== preview) return;
                             this.workerPreview = null;
-                            this.errorMessage = err?.message || String(err || "3D 渲染异常");
+                            this.errorMessage = err?.message || String(err || "RENDER_ERROR");
                             this.loading = false;
                         },
                     });
@@ -557,11 +629,10 @@ export default {
                     this.workerPreview = preview;
                 }
 
-                if (seq === this.loadSeq && !controller.signal.aborted) {
-                    this.loading = false;
-                    this.progress = null;
-                    this.syncContinuousRendering();
-                }
+                if (seq !== this.loadSeq || controller.signal.aborted) return;
+                this.syncContinuousRendering();
+                this.onReady();
+                this.loading = false;
             } catch (error) {
                 if (seq !== this.loadSeq || controller.signal.aborted) return;
                 const code = error?.code || error?.response?.data?.code;
@@ -569,7 +640,7 @@ export default {
                     error?.data?.msg ||
                     error?.response?.data?.msg ||
                     error?.message ||
-                    (typeof error === "string" ? error : "加载失败");
+                    (typeof error === "string" ? error : "MODEL_LOAD_FAILED");
                 if (code === 40301 || msg.includes("账号认证")) {
                     this.verifyChecked = true;
                     this.verifyRequired = true;
@@ -578,7 +649,7 @@ export default {
                     return;
                 }
                 if (code === 42901) {
-                    this.errorMessage = msg;
+                    this.errorMessage = "429";
                     this.loading = false;
                     return;
                 }
@@ -587,6 +658,7 @@ export default {
                     error?.name === "AbortError" ||
                     msg.includes("Worker") ||
                     msg.includes("WebGL") ||
+                    msg === "CANVAS_NOT_READY" ||
                     msg.includes("画布") ||
                     msg.includes("预览已关闭")
                 ) {
@@ -599,39 +671,47 @@ export default {
         },
         onLoading(active) {
             this.loading = active;
-            if (active) this.progress = null;
+            if (active) {
+                this.frameReady = false;
+                this.progress = null;
+            }
         },
         onProgress(value) {
             this.progress = value;
         },
         onReady() {
             this.progress = null;
+            this.frameReady = true;
         },
         onError(cause) {
+            this.frameReady = false;
             console.warn("ExteriorViewer error:", cause);
         },
-        errorTitle(message) {
+        modelErrorKind(message) {
             const text = String(message || "");
-            if (text.includes("过于频繁") || text.includes("429")) {
-                return "请求过于频繁，请稍后再试";
-            }
-            if (text.includes("尚无对应模型") || text.includes("404") || text.includes("暂无")) {
-                return "该外观暂未收录 3D 模型";
-            }
-            if (text.includes("WebGL")) return "当前设备浏览器暂不支持 WebGL2 3D 预览";
-            return "3D 试穿加载失败";
+            if (text.includes("过于频繁") || text.includes("429")) return "rate";
+            if (/MODEL_NOT_FOUND|尚无对应模型|404|暂无/.test(text)) return "missing";
+            if (text.includes("WebGL")) return "webgl";
+            return "failed";
+        },
+        errorTitle(message) {
+            return this.$t(`exteriorPreview.${this.modelErrorKind(message)}Title`);
         },
         errorDetail(message) {
-            const text = String(message || "");
-            if (text.includes("过于频繁") || text.includes("429")) {
-                return text || "已达到当前账号每分钟预览上限，令牌桶正在恢复中，请稍候点击重试。";
-            }
-            if (text.includes("尚无对应模型") || text.includes("404") || text.includes("暂无")) {
-                return "这件外观的模型仍在陆续制作入库中，可以先浏览高清图集。";
-            }
-            return text || "网络波动或浏览器显存不足，可尝试切换为“省流”画质或稍后重试。";
+            return this.$t(`exteriorPreview.${this.modelErrorKind(message)}Detail`);
+        },
+        focusStageMore() {
+            if (this.stageMoreOpen) this.$refs.stageBgSelectRef?.focus();
+        },
+        closeStageMore(event) {
+            if (!this.stageMoreOpen || event.target.matches('[role="combobox"][aria-expanded="true"]')) return;
+            event.preventDefault();
+            event.stopPropagation();
+            this.stageMoreOpen = false;
+            this.$refs.stageMoreButtonRef?.focus({ preventScroll: true });
         },
         onFullscreenChange() {
+            this.stageMoreOpen = false;
             this.isFullscreen = document.fullscreenElement === this.$refs.stageRef;
         },
         async toggleFullscreen() {
@@ -666,6 +746,51 @@ export default {
 
     &.is-fullscreen {
         min-height: 100vh;
+    }
+
+    @media (max-width: @phone) {
+        &:not(.is-fullscreen) {
+            height: auto;
+            gap: @pvx-space-1;
+            overflow: visible;
+            background: transparent;
+
+            .m-ext-3d__viewport,
+            .m-ext-3d__gate {
+                flex: none;
+                height: var(--exterior-stage-height);
+                overflow: hidden;
+                border: 1px solid @pvx-border;
+                border-radius: 18px;
+            }
+
+            .m-ext-3d__bar {
+                position: static;
+
+                .m-ext-3d__group {
+                    gap: inherit;
+                    padding: 0;
+                    background: transparent;
+                }
+
+                .u-ctrl-pill {
+                    height: 32px;
+                    border: 1px solid @pvx-border-focus;
+                    border-radius: @pvx-radius-small;
+                    background: @pvx-primary-soft;
+                    color: @pvx-primary;
+                    box-shadow: none;
+
+                    &:hover,
+                    &:focus-visible,
+                    &.is-active {
+                        border-color: @pvx-primary;
+                        background: @pvx-primary;
+                        color: @pvx-text-inverse;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -738,6 +863,22 @@ export default {
         height: 100%;
         min-height: inherit;
         background: transparent !important;
+    }
+
+    .m-ext-3d__canvas,
+    :deep(.jx3-exterior canvas) {
+        opacity: 0;
+    }
+
+    &.is-model-ready {
+        .m-ext-3d__canvas,
+        :deep(.jx3-exterior canvas) {
+            opacity: 1;
+
+            @media (prefers-reduced-motion: no-preference) {
+                transition: opacity 120ms ease-out;
+            }
+        }
     }
 }
 
@@ -828,66 +969,142 @@ export default {
 }
 
 .m-ext-3d__bar {
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px 14px;
-    background: rgba(15, 23, 42, 0.92);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.m-ext-3d__group {
+    position: absolute;
+    inset: 12px 50px auto 12px;
+    z-index: 5;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 6px;
+    pointer-events: none;
+
+    > * {
+        pointer-events: auto;
+    }
+
+    @media (max-width: @phone) {
+        inset: 8px 44px auto 8px;
+        gap: 4px;
+    }
+}
+
+.m-ext-3d__group {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 100%;
+    gap: 3px;
+    padding: 3px;
+    border-radius: @pvx-radius-pill;
+    background: rgba(15, 23, 42, 0.78);
 }
 
 .u-ctrl-pill {
-    padding: 5px 11px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 26px;
+    padding: 0 11px;
+    border: 0;
     border-radius: @pvx-radius-pill;
-    background: rgba(255, 255, 255, 0.08);
+    background: transparent;
     color: #e2e8f0;
     font-size: 12px;
-    font-weight: 500;
-    line-height: 1.3;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
     cursor: pointer;
-    transition: all 0.16s;
+    transition: background-color 0.14s, color 0.14s;
 
-    &:hover {
-        background: rgba(255, 255, 255, 0.16);
+    &:hover,
+    &:focus-visible {
+        background: rgba(255, 255, 255, 0.14);
         color: #ffffff;
     }
 
     &.is-active {
-        border-color: #818cf8;
         background: @pvx-primary;
         color: #ffffff;
     }
 }
 
-.u-bg-select,
-.u-quality-select {
-    width: 112px;
+.m-ext-3d__actions {
+    display: flex;
+    align-items: center;
+    gap: inherit;
+}
 
-    :deep(.el-select__wrapper) {
-        background: rgba(255, 255, 255, 0.1);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
-        border-radius: @pvx-radius-pill;
-    }
+.u-ctrl-fullscreen {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
 
-    :deep(.el-select__selected-item),
-    :deep(.el-select__caret) {
-        color: #e2e8f0;
-        font-size: 12px;
+    @media (max-width: @phone) {
+        top: 8px;
+        right: 8px;
     }
 }
 
-.u-bg-select {
-    width: 128px;
+.m-ext-3d__more-anchor {
+    display: inline-flex;
+}
+
+.u-ctrl-playback,
+.u-ctrl-icon {
+    height: 32px;
+    background: rgba(15, 23, 42, 0.78);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(30, 41, 59, 0.85);
+    }
+}
+
+.u-ctrl-icon {
+    width: 32px;
+    padding: 0;
+    font-size: 16px;
+
+    &.is-active {
+        background: @pvx-primary;
+    }
+}
+
+@media (max-width: @phone) {
+    .m-ext-3d__group .u-ctrl-pill {
+        padding-inline: 8px;
+    }
+}
+
+:global(.el-popper.m-ext-3d-settings-popper) {
+    padding: 12px;
+    border-radius: @pvx-radius-control;
+    box-shadow: @pvx-shadow-hover;
+}
+
+.m-ext-3d__settings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: @pvx-space-1;
+
+    :deep(.el-select__wrapper) {
+        min-height: 32px;
+        border-radius: @pvx-radius-pill;
+    }
+}
+
+.m-ext-3d__setting {
+    display: grid;
+    gap: @pvx-space-1;
+    min-width: 0;
+
+    label {
+        color: @pvx-text-secondary;
+        font-size: 12px;
+        font-weight: 600;
+    }
 }
 </style>

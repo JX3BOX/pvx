@@ -9,11 +9,11 @@
     >
         <PvxSectionHeader
             :title="$t('exterior.relatedTitle')"
-            :description="$t('exterior.relatedDesc') + (relatedCount ? '（' + relatedCount + ' 件）' : '')"
+            :description="$t('exterior.relatedDesc') + (relatedCount ? $t('exteriorPreview.itemCount', { count: relatedCount }) : '')"
         >
             <template #icon><Connection /></template>
             <template v-if="nodes.length > 1" #action>
-                <div class="m-view-switch" role="group" aria-label="视图切换">
+                <div class="m-view-switch" role="group" :aria-label="$t('exteriorPreview.viewSwitch')">
                     <button
                         type="button"
                         class="u-switch-btn"
@@ -65,8 +65,8 @@
                         <div class="u-rel-info">
                             <span class="u-rel-name">{{ node.name || node.game_name || node.key }}</span>
                             <span class="u-rel-meta">
-                                <span v-if="node.key === exteriorKey" class="u-current-pill">当前查看</span>
-                                <span v-else-if="node.slot && slotLabels[node.slot]">{{ slotLabels[node.slot] }}</span>
+                                <span v-if="node.key === exteriorKey" class="u-current-pill">{{ $t('exteriorPreview.current') }}</span>
+                                <span v-else-if="node.slot && slotLabels[node.slot]">{{ localizedExteriorLabel($t, slotLabels[node.slot]) }}</span>
                                 <span v-else>{{ group.label }}</span>
                             </span>
                         </div>
@@ -76,8 +76,8 @@
 
             <div v-if="partItems.length" class="m-rel-parts-wrap">
                 <button type="button" class="u-parts-toggle" @click="showParts = !showParts">
-                    <span>套装内含散件（{{ partItems.length }} 件）</span>
-                    <span class="u-toggle-action">{{ showParts ? "收起" : "展开查看" }}</span>
+                    <span>{{ $t('exteriorPreview.setParts', { count: partItems.length }) }}</span>
+                    <span class="u-toggle-action">{{ showParts ? $t('exteriorPreview.collapse') : $t('exteriorPreview.expand') }}</span>
                 </button>
                 <div v-if="showParts" class="m-rel-cards m-rel-cards--compact">
                     <router-link
@@ -95,13 +95,13 @@
                                 loading="lazy"
                                 class="u-rel-img"
                             />
-                            <span v-else class="u-rel-empty">散件</span>
+                            <span v-else class="u-rel-empty">{{ $t('exterior.domains.part') }}</span>
                         </div>
                         <div class="u-rel-info">
                             <span class="u-rel-name">{{ node.name || node.game_name || node.key }}</span>
                             <span class="u-rel-meta">
-                                <span v-if="node.key === exteriorKey" class="u-current-pill">当前查看</span>
-                                <span v-else>{{ slotLabels[node.slot] || "散件" }}</span>
+                                <span v-if="node.key === exteriorKey" class="u-current-pill">{{ $t('exteriorPreview.current') }}</span>
+                                <span v-else>{{ slotLabels[node.slot] ? localizedExteriorLabel($t, slotLabels[node.slot]) : $t('exterior.domains.part') }}</span>
                             </span>
                         </div>
                     </router-link>
@@ -131,7 +131,7 @@
                         class="u-legend-reset"
                         @click="hiddenDomains = []"
                     >
-                        全部显示
+                        {{ $t('exteriorPreview.showAll') }}
                     </button>
                 </div>
                 <div class="m-graph-tools">
@@ -141,7 +141,7 @@
                         :class="{ 'is-active': layoutMode === 'layered' }"
                         @click="layoutMode = 'layered'"
                     >
-                        层次
+                        {{ $t('exteriorPreview.layered') }}
                     </button>
                     <button
                         type="button"
@@ -149,9 +149,9 @@
                         :class="{ 'is-active': layoutMode === 'force' }"
                         @click="layoutMode = 'force'"
                     >
-                        力导向
+                        {{ $t('exteriorPreview.force') }}
                     </button>
-                    <button type="button" class="u-tool-btn" @click="renderChart">复位</button>
+                    <button type="button" class="u-tool-btn" @click="renderChart">{{ $t('exteriorPreview.reset') }}</button>
                 </div>
                 <div class="m-edge-legend">
                     <span v-for="item in usedEdgeKinds" :key="item.kind" class="u-edge-item">
@@ -175,6 +175,7 @@ import PvxSectionHeader from "@/components/design/PvxSectionHeader.vue";
 import PvxSurface from "@/components/design/PvxSurface.vue";
 import { getExteriorGraph } from "@/service/exterior";
 import {
+    localizedExteriorLabel,
     DOMAIN_META,
     EDGE_COLORS,
     RELATION_LABELS,
@@ -194,7 +195,7 @@ function escapeHtml(text) {
 }
 
 function truncate(text, max = 9) {
-    const str = String(text || "未命名");
+    const str = String(text);
     return str.length > max ? `${str.slice(0, max - 1)}…` : str;
 }
 
@@ -296,7 +297,7 @@ export default {
                     const meta = DOMAIN_META[domain] || { label: domain, color: "#64748b", tier: 9 };
                     groups.set(domain, {
                         domain,
-                        label: meta.label,
+                        label: localizedExteriorLabel(this.$t, meta.label),
                         color: meta.color,
                         tier: meta.tier,
                         items: [],
@@ -344,7 +345,7 @@ export default {
                     const meta = DOMAIN_META[domain] || { label: domain, color: "#64748b", tier: 9 };
                     return {
                         domain,
-                        label: meta.label,
+                        label: localizedExteriorLabel(this.$t, meta.label),
                         color: meta.color,
                         tier: meta.tier,
                         count,
@@ -364,7 +365,7 @@ export default {
         usedEdgeKinds() {
             return [...new Set(this.visibleGraphEdges.map((edge) => edge.kind))].map((kind) => ({
                 kind,
-                label: RELATION_LABELS[kind] || kind,
+                label: localizedExteriorLabel(this.$t, RELATION_LABELS[kind] || kind),
                 color: EDGE_COLORS[kind] || "#94a3b8",
             }));
         },
@@ -383,6 +384,9 @@ export default {
                 this.disposeChart();
             }
         },
+        "$i18n.locale"() {
+            if (this.mode === "graph") this.$nextTick(() => this.renderChart());
+        },
         layoutMode() {
             if (this.mode === "graph") this.$nextTick(() => this.renderChart());
         },
@@ -398,6 +402,7 @@ export default {
         this.disposeChart();
     },
     methods: {
+        localizedExteriorLabel,
         nodeThumb(node) {
             if (node.covers && typeof node.covers === "object") {
                 const picked = pickExteriorCover({ cover: node.covers }, this.preferredRole);
@@ -547,6 +552,7 @@ export default {
                 const isCurrent = node.key === this.exteriorKey;
                 const meta = DOMAIN_META[node.domain] || { color: "#64748b" };
                 const coord = positions?.get(node.key);
+                const name = node.name || this.$t("exteriorPreview.unnamed");
                 const symbolSize = isCurrent
                     ? compact
                         ? 38
@@ -560,7 +566,7 @@ export default {
                     : 34;
                 return {
                     id: node.key,
-                    name: node.name || "未命名",
+                    name,
                     ...(coord ? { x: coord.x, y: coord.y } : {}),
                     symbolSize,
                     itemStyle: {
@@ -574,7 +580,7 @@ export default {
                         show: true,
                         position: "bottom",
                         distance: 6,
-                        formatter: () => (isCurrent ? `★ ${truncate(node.name, 11)}` : truncate(node.name, 9)),
+                        formatter: () => (isCurrent ? `★ ${truncate(name, 11)}` : truncate(name, 9)),
                         color: isCurrent ? "#4338ca" : "#334155",
                         fontWeight: isCurrent ? 700 : 500,
                         fontSize: isCurrent ? 12 : 11,
@@ -589,7 +595,7 @@ export default {
             const showEdgeLabels = edges.length <= 24;
             const seriesLinks = edges.map((edge) => {
                 const color = EDGE_COLORS[edge.kind] || "#94a3b8";
-                const labelText = RELATION_LABELS[edge.kind] || edge.kind;
+                const labelText = localizedExteriorLabel(this.$t, RELATION_LABELS[edge.kind] || edge.kind);
                 let curveness = 0.1;
                 if (positions) {
                     const p1 = positions.get(edge.from_key);
@@ -657,16 +663,16 @@ export default {
                                     }
                                     <div style="min-width:0;">
                                         <div style="font-weight:600;font-size:13px;color:#0f172a;word-break:break-word;">${escapeHtml(
-                                            node.name
+                                            node.name || this.$t("exteriorPreview.unnamed")
                                         )}</div>
                                         <span style="display:inline-block;margin-top:4px;padding:1px 7px;border-radius:999px;background:${
                                             meta.bg
                                         };color:${meta.color};font-size:11px;font-weight:600;">${escapeHtml(
-                                meta.label
+                                localizedExteriorLabel(this.$t, meta.label)
                             )}</span>
                                         <div style="margin-top:5px;font-size:11px;color:${
                                             isCurrent ? "#4f46e5" : "#64748b"
-                                        };">${isCurrent ? "当前正在查看" : "点击前往查看 →"}</div>
+                                        };">${isCurrent ? this.$t('exteriorPreview.current') : this.$t('exteriorPreview.viewNode')}</div>
                                     </div>
                                 </div>
                             `;

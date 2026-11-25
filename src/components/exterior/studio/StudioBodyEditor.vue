@@ -8,7 +8,7 @@
                 :class="{ 'is-active': subTab === 'library' }"
                 @click="subTab = 'library'"
             >
-                魔盒体型库
+                {{ $t('exteriorStudio.bodyLibrary') }}
             </button>
             <button
                 type="button"
@@ -16,7 +16,7 @@
                 :class="{ 'is-active': subTab === 'tune' }"
                 @click="subTab = 'tune'"
             >
-                精细微调
+                {{ $t('exteriorStudio.fineTune') }}
             </button>
         </div>
 
@@ -26,7 +26,7 @@
                 <el-input
                     v-model="searchInput"
                     clearable
-                    placeholder="搜索体型作品名称或作者…"
+                    :placeholder="$t('exteriorStudio.searchBodies')"
                     @input="onSearchInput"
                     @clear="loadLibrary(1)"
                     @keyup.enter="loadLibrary(1)"
@@ -39,7 +39,7 @@
 
             <div v-loading="libLoading" class="m-editor-scroll">
                 <div v-if="!libLoading && !libItems.length" class="m-editor-empty">
-                    暂无匹配的{{ bodyLabel }}体型作品
+                    {{ $t('exteriorStudio.noBodies', { body: bodyLabel }) }}
                 </div>
 
                 <div v-else class="m-preset-grid">
@@ -53,25 +53,25 @@
                     >
                         <div class="u-preset-thumb">
                             <img v-if="presetCover(item)" :src="presetCover(item)" :alt="item.title" loading="lazy" />
-                            <div v-else class="u-preset-placeholder">暂无预览</div>
-                            <span v-if="applyingId === item.id" class="u-preset-busy">应用中…</span>
+                            <div v-else class="u-preset-placeholder">{{ $t('exteriorStudio.noPreview') }}</div>
+                            <span v-if="applyingId === item.id" class="u-preset-busy">{{ $t('exteriorStudio.applying') }}</span>
                         </div>
                         <div class="u-preset-info">
-                            <div class="u-preset-title" :title="item.title">{{ item.title || `体型 #${item.id}` }}</div>
-                            <div class="u-preset-author">{{ item.author_name || "匿名作者" }}</div>
+                            <div class="u-preset-title" :title="item.title">{{ item.title || $t('exteriorStudio.bodyNumber', { id: item.id }) }}</div>
+                            <div class="u-preset-author">{{ item.author_name || $t('exteriorStudio.anonymous') }}</div>
                         </div>
                     </button>
                 </div>
 
                 <div v-if="libTotal > libPageSize" class="m-preset-pager">
-                    <el-button size="small" :disabled="libPage <= 1" @click="loadLibrary(libPage - 1)">上一页</el-button>
+                    <el-button size="small" :disabled="libPage <= 1" @click="loadLibrary(libPage - 1)">{{ $t('exterior.previousPage') }}</el-button>
                     <span>{{ libPage }} / {{ Math.ceil(libTotal / libPageSize) }}</span>
                     <el-button
                         size="small"
                         :disabled="libPage * libPageSize >= libTotal"
                         @click="loadLibrary(libPage + 1)"
                     >
-                        下一页
+                        {{ $t('exterior.nextPage') }}
                     </el-button>
                 </div>
             </div>
@@ -82,26 +82,26 @@
             <div class="m-tune-toolbar">
                 <label class="u-file-btn">
                     <el-icon><Upload /></el-icon>
-                    <span>导入 .dat</span>
+                    <span>{{ $t('exteriorStudio.importDat') }}</span>
                     <input type="file" accept=".dat,.ini,.txt" hidden @change="onFileSelected" />
                 </label>
                 <el-button size="small" plain round :disabled="!ready" @click="resetBody">
                     <el-icon class="el-icon--left"><RefreshLeft /></el-icon>
-                    恢复默认
+                    {{ $t('exteriorStudio.restoreDefault') }}
                 </el-button>
             </div>
 
             <div class="m-editor-scroll">
                 <div v-if="!ready || !controls.length" class="m-editor-empty">
-                    模型加载完成后即可使用全部体型微调参数
+                    {{ $t('exteriorStudio.waitBodyControls') }}
                 </div>
 
                 <el-collapse v-else v-model="openGroups" class="m-tune-collapse">
-                    <el-collapse-item v-for="grp in groupedControls" :key="grp.name" :title="grp.name" :name="grp.name">
+                    <el-collapse-item v-for="grp in groupedControls" :key="grp.name" :title="$t(grp.name)" :name="grp.name">
                         <div class="m-slider-list">
                             <div v-for="ctrl in grp.items" :key="ctrl.id" class="m-slider-row">
                                 <div class="m-slider-label">
-                                    <span>{{ ctrl.label || ctrl.name }}</span>
+                                    <span>{{ bodyControlLabel(ctrl) }}</span>
                                     <span class="u-slider-val">{{ bodyValues[ctrl.id] ?? 0 }}</span>
                                 </div>
                                 <el-slider
@@ -123,16 +123,17 @@
 
 <script>
 import { RefreshLeft, Search, Upload } from "@element-plus/icons-vue";
+import { translateFacedat } from "@jx3box/jx3box-facedat/src/locale";
 import { ElMessage } from "element-plus";
 import { characterProfileFromData, parseCharacterProfile } from "@jx3box/jx3box-exterior";
-import { BODY_LABEL_MAP, resolveExteriorAssetUrl } from "@/components/exterior/meta";
+import { localizedExteriorLabel, BODY_LABEL_MAP, resolveExteriorAssetUrl } from "@/components/exterior/meta";
 import { fetchMallAttachment, searchMallBodies } from "@/service/exterior";
 
 const BODY_GROUPS = [
-    { name: "头部与肩颈", test: /(头|颈|脖|肩)/ },
-    { name: "胸背与腰腹", test: /(胸|腹|腰|背|躯|胯|臀)/ },
-    { name: "手臂与手腕", test: /(臂|手|腕|肘|指)/ },
-    { name: "腿足与身高", test: /(腿|膝|踝|足|脚|高|全)/ },
+    { name: "exteriorStudio.headShoulders", test: /(头|颈|脖|肩)/ },
+    { name: "exteriorStudio.torso", test: /(胸|腹|腰|背|躯|胯|臀)/ },
+    { name: "exteriorStudio.arms", test: /(臂|手|腕|肘|指)/ },
+    { name: "exteriorStudio.legs", test: /(腿|膝|踝|足|脚|高|全)/ },
 ];
 
 export default {
@@ -158,26 +159,26 @@ export default {
 
             controls: [],
             bodyValues: {},
-            openGroups: ["头部与肩颈", "胸背与腰腹", "手臂与手腕", "腿足与身高", "其他部位"],
+            openGroups: ["exteriorStudio.headShoulders", "exteriorStudio.torso", "exteriorStudio.arms", "exteriorStudio.legs", "exteriorStudio.otherParts"],
             flushing: false,
         };
     },
     computed: {
         bodyLabel() {
-            return BODY_LABEL_MAP[this.role] || "";
+            return localizedExteriorLabel(this.$t, BODY_LABEL_MAP[this.role]);
         },
         groupedControls() {
             const buckets = new Map([
-                ["头部与肩颈", []],
-                ["胸背与腰腹", []],
-                ["手臂与手腕", []],
-                ["腿足与身高", []],
-                ["其他部位", []],
+                ["exteriorStudio.headShoulders", []],
+                ["exteriorStudio.torso", []],
+                ["exteriorStudio.arms", []],
+                ["exteriorStudio.legs", []],
+                ["exteriorStudio.otherParts", []],
             ]);
             for (const ctrl of this.controls) {
                 const label = `${ctrl.label || ""}${ctrl.name || ""}`;
                 const matched = BODY_GROUPS.find((g) => g.test.test(label));
-                buckets.get(matched ? matched.name : "其他部位").push(ctrl);
+                buckets.get(matched ? matched.name : "exteriorStudio.otherParts").push(ctrl);
             }
             return [...buckets.entries()]
                 .filter(([, items]) => items.length > 0)
@@ -203,6 +204,10 @@ export default {
         clearTimeout(this.searchTimer);
     },
     methods: {
+        bodyControlLabel(ctrl) {
+            if (ctrl.name === "MuscleMass") return this.$t("exteriorStudio.muscleMass");
+            return translateFacedat(this.$i18n.locale, `facedat.body.fields.${ctrl.name}`, {}, ctrl.label || ctrl.name);
+        },
         presetCover(item) {
             const raw = (Array.isArray(item.images) && item.images[0]) || item.cover || item.banner || "";
             return resolveExteriorAssetUrl(raw);
@@ -258,15 +263,15 @@ export default {
         },
         async applyProfileObject(profile) {
             if (!this.preview || !this.ready) {
-                ElMessage.warning("请等待角色模型加载完成");
+                ElMessage.warning(this.$t('exteriorStudio.waitModel'));
                 return false;
             }
             if (profile.kind !== "body") {
-                ElMessage.error("该文件不是体型数据");
+                ElMessage.error(this.$t('exteriorStudio.notBody'));
                 return false;
             }
             if (profile.roleType !== this.role) {
-                ElMessage.warning(`该体型适用于「${BODY_LABEL_MAP[profile.roleType] || profile.roleType}」，请先切换体型`);
+                ElMessage.warning(this.$t('exteriorStudio.bodyRequiresBody', { body: localizedExteriorLabel(this.$t, BODY_LABEL_MAP[profile.roleType] || profile.roleType) }));
                 return false;
             }
             await this.preview.applyProfile(profile);
@@ -275,7 +280,7 @@ export default {
         },
         async applyLibraryItem(item) {
             if (!this.ready) {
-                ElMessage.warning("请等待角色模型加载完成");
+                ElMessage.warning(this.$t('exteriorStudio.waitModel'));
                 return;
             }
             this.applyingId = item.id;
@@ -286,10 +291,10 @@ export default {
                     : parseCharacterProfile(att.bytes);
                 if (await this.applyProfileObject(profile)) {
                     this.activePresetId = item.id;
-                    ElMessage.success(`已应用体型「${item.title || `#${item.id}`}」`);
+                    ElMessage.success(this.$t('exteriorStudio.bodyApplied', { name: item.title || `#${item.id}` }));
                 }
             } catch (err) {
-                ElMessage.error(err?.message || "体型数据读取或应用失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.loadBodyFailed'));
             } finally {
                 this.applyingId = null;
             }
@@ -303,10 +308,10 @@ export default {
                 const profile = parseCharacterProfile(buf);
                 if (await this.applyProfileObject(profile)) {
                     this.activePresetId = null;
-                    ElMessage.success(`已导入并应用「${file.name}」`);
+                    ElMessage.success(this.$t('exteriorStudio.imported', { name: file.name }));
                 }
             } catch (err) {
-                ElMessage.error(err?.message || "无法解析体型 .dat 文件");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.parseBodyFailed'));
             }
         },
         async resetBody() {
@@ -315,9 +320,9 @@ export default {
                 await this.preview.resetBodyProfile();
                 this.activePresetId = null;
                 await this.refreshControls();
-                ElMessage.success("已恢复官方默认体型");
+                ElMessage.success(this.$t('exteriorStudio.bodyReset'));
             } catch (err) {
-                ElMessage.error(err?.message || "重置体型失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.resetBodyFailed'));
             }
         },
         onSliderChange(id, value) {
@@ -336,7 +341,7 @@ export default {
                     await this.preview.updateBodyParameters(batch);
                 }
             } catch (err) {
-                ElMessage.error(err?.message || "体型调节失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.adjustBodyFailed'));
             } finally {
                 this.flushing = false;
             }

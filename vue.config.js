@@ -208,6 +208,13 @@ module.exports = {
         const exteriorPkgRe = /node_modules[\\/]@jx3box[\\/]jx3box-exterior/;
         config.module.rule("js").exclude.add(exteriorPkgRe);
         config.module
+            .rule("exterior-camera")
+            .test(/dist[\\/]browser[\\/](?:index|preview-worker)\.js$/)
+            .include.add(exteriorPkgRe)
+            .end()
+            .use("exterior-camera")
+            .loader(path.resolve(__dirname, "scripts/exterior-camera-loader.js"));
+        config.module
             .rule("exterior-assets")
             .test(/\.(filamat|wasm)$/)
             .include.add(exteriorPkgRe)

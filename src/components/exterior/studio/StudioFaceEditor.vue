@@ -10,7 +10,7 @@
                 :disabled="switchingFaceStyle"
                 @click="$emit('switch-face-style', 'stylized')"
             >
-                写意捏脸
+                {{ $t('exteriorStudio.stylizedFace') }}
             </button>
             <button
                 type="button"
@@ -19,7 +19,7 @@
                 :disabled="switchingFaceStyle"
                 @click="$emit('switch-face-style', 'meta')"
             >
-                写实捏脸
+                {{ $t('exteriorStudio.realisticFace') }}
             </button>
         </div>
 
@@ -30,7 +30,7 @@
                 :class="{ 'is-active': subTab === 'library' }"
                 @click="subTab = 'library'"
             >
-                魔盒捏脸库
+                {{ $t('exteriorStudio.faceLibrary') }}
             </button>
             <button
                 type="button"
@@ -38,7 +38,7 @@
                 :class="{ 'is-active': subTab === 'tune' }"
                 @click="subTab = 'tune'"
             >
-                骨骼与妆容
+                {{ $t('exteriorStudio.bonesMakeup') }}
             </button>
         </div>
 
@@ -48,7 +48,7 @@
                 <el-input
                     v-model="searchInput"
                     clearable
-                    placeholder="搜索捏脸作品名称…"
+                    :placeholder="$t('exteriorStudio.searchFaces')"
                     @input="onSearchInput"
                     @clear="loadLibrary(1)"
                     @keyup.enter="loadLibrary(1)"
@@ -61,7 +61,7 @@
 
             <div v-loading="libLoading" class="m-editor-scroll">
                 <div v-if="!libLoading && !libItems.length" class="m-editor-empty">
-                    暂无匹配的{{ bodyLabel }}{{ faceStyle === "meta" ? "写实" : "写意" }}捏脸作品
+                    {{ $t('exteriorStudio.noFaces', { body: bodyLabel, style: faceStyle === 'meta' ? $t('exteriorStudio.realistic') : $t('exteriorStudio.stylized') }) }}
                 </div>
 
                 <div v-else class="m-preset-grid">
@@ -75,28 +75,28 @@
                     >
                         <div class="u-preset-thumb">
                             <img v-if="presetCover(item)" :src="presetCover(item)" :alt="item.title" loading="lazy" />
-                            <div v-else class="u-preset-placeholder">暂无预览</div>
+                            <div v-else class="u-preset-placeholder">{{ $t('exteriorStudio.noPreview') }}</div>
                             <span v-if="applyingId === item.id" class="u-preset-busy">
                                 <span class="u-busy-spin" aria-hidden="true" />
-                                <span>{{ faceProgress > 0 ? `应用中 ${faceProgress}%` : "读取中…" }}</span>
+                                <span>{{ faceProgress > 0 ? $t('exteriorStudio.applyingPct', { percent: faceProgress }) : $t('exteriorStudio.reading') }}</span>
                             </span>
                         </div>
                         <div class="u-preset-info">
-                            <div class="u-preset-title" :title="item.title">{{ item.title || `捏脸 #${item.id}` }}</div>
-                            <div class="u-preset-author">{{ item.author_name || "匿名作者" }}</div>
+                            <div class="u-preset-title" :title="item.title">{{ item.title || $t('exteriorStudio.faceNumber', { id: item.id }) }}</div>
+                            <div class="u-preset-author">{{ item.author_name || $t('exteriorStudio.anonymous') }}</div>
                         </div>
                     </button>
                 </div>
 
                 <div v-if="libTotal > libPageSize" class="m-preset-pager">
-                    <el-button size="small" :disabled="libPage <= 1" @click="loadLibrary(libPage - 1)">上一页</el-button>
+                    <el-button size="small" :disabled="libPage <= 1" @click="loadLibrary(libPage - 1)">{{ $t('exterior.previousPage') }}</el-button>
                     <span>{{ libPage }} / {{ Math.ceil(libTotal / libPageSize) }}</span>
                     <el-button
                         size="small"
                         :disabled="libPage * libPageSize >= libTotal"
                         @click="loadLibrary(libPage + 1)"
                     >
-                        下一页
+                        {{ $t('exterior.nextPage') }}
                     </el-button>
                 </div>
             </div>
@@ -107,28 +107,28 @@
             <div class="m-tune-toolbar">
                 <label class="u-file-btn">
                     <el-icon><Upload /></el-icon>
-                    <span>导入 .dat</span>
+                    <span>{{ $t('exteriorStudio.importDat') }}</span>
                     <input type="file" accept=".dat,.ini,.txt" hidden @change="onFileSelected" />
                 </label>
                 <div class="flex items-center gap-1.5">
-                    <el-button size="small" plain round @click="$emit('focus-face')">面部特写</el-button>
+                    <el-button size="small" plain round @click="$emit('focus-face')">{{ $t('exteriorStudio.faceCloseup') }}</el-button>
                     <el-button size="small" plain round :disabled="!ready" @click="resetFace">
                         <el-icon class="el-icon--left"><RefreshLeft /></el-icon>
-                        重置
+                        {{ $t('exteriorStudio.reset') }}
                     </el-button>
                 </div>
             </div>
 
             <div class="m-editor-scroll">
                 <div v-if="!ready || (!boneAreas.length && !activeMakeups.length)" class="m-editor-empty">
-                    模型加载完成后即可微调面部骨骼与妆容参数
+                    {{ $t('exteriorStudio.waitFaceControls') }}
                 </div>
 
                 <el-collapse v-else v-model="openAreas" class="m-tune-collapse">
                     <!-- 写实妆容实时调节 -->
                     <el-collapse-item
                         v-if="faceStyle === 'meta' && activeMakeups.length"
-                        title="妆容调色与浓淡"
+                        :title="$t('exteriorStudio.makeupColor')"
                         name="__makeup__"
                     >
                         <div class="m-makeup-list">
@@ -144,7 +144,7 @@
                                 </div>
                                 <div v-for="slider in slot.sliders" :key="slider.key" class="m-slider-row">
                                     <div class="m-slider-label">
-                                        <span>{{ slider.label }}</span>
+                                        <span>{{ controlLabel(slider.label) }}</span>
                                         <span class="u-slider-val">{{ Number(slider.value).toFixed(2) }}</span>
                                     </div>
                                     <el-slider
@@ -161,11 +161,11 @@
                     </el-collapse-item>
 
                     <!-- 骨骼调节按部位分组 -->
-                    <el-collapse-item v-for="area in boneAreas" :key="area.name" :title="area.name" :name="area.name">
+                    <el-collapse-item v-for="area in boneAreas" :key="area.name" :title="area.name ? controlLabel(area.name) : $t('exteriorStudio.faceBones')" :name="area.name">
                         <div class="m-slider-list">
                             <div v-for="ctrl in area.items" :key="ctrl.key" class="m-slider-row">
                                 <div class="m-slider-label">
-                                    <span>{{ ctrl.group ? `${ctrl.group} · ` : "" }}{{ ctrl.label }}</span>
+                                    <span>{{ ctrl.group ? `${controlLabel(ctrl.group)} · ` : "" }}{{ controlLabel(ctrl.label) }}</span>
                                     <span class="u-slider-val">{{ boneValues[ctrl.key] ?? 0 }}</span>
                                 </div>
                                 <el-slider
@@ -187,31 +187,32 @@
 
 <script>
 import { RefreshLeft, Search, Upload } from "@element-plus/icons-vue";
+import { faceControlLabel } from "./studio-labels";
 import { ElMessage } from "element-plus";
 import { characterProfileFromData, parseCharacterProfile } from "@jx3box/jx3box-exterior";
-import { BODY_LABEL_MAP, resolveExteriorAssetUrl } from "@/components/exterior/meta";
+import { localizedExteriorLabel, BODY_LABEL_MAP, resolveExteriorAssetUrl } from "@/components/exterior/meta";
 import { fetchMallAttachment, getFaceDecalManifestUrl, searchMallFaces } from "@/service/exterior";
 
 const LIVE_META_MAKEUP_TYPES = new Set([10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22]);
 
 const META_SLOT_LABELS = {
-    4: "腮红",
-    7: "面纹 / 花钿 I",
-    8: "面纹 / 花钿 II",
-    9: "面纹 / 花钿 III",
-    10: "唇釉底色",
-    11: "唇彩细闪",
-    12: "唇彩叠涂",
-    13: "唇部高光",
-    14: "唇型立体",
-    15: "眼影底色",
-    16: "眼影加深",
-    17: "眼影高光",
-    18: "眼影晕染",
-    19: "眼影细闪 I",
-    20: "眼影细闪 II",
-    21: "眼影细闪 III",
-    22: "眼影细闪 IV",
+    4: "exteriorStudio.blush",
+    7: "exteriorStudio.markOne",
+    8: "exteriorStudio.markTwo",
+    9: "exteriorStudio.markThree",
+    10: "exteriorStudio.lipBase",
+    11: "exteriorStudio.lipShimmer",
+    12: "exteriorStudio.lipLayers",
+    13: "exteriorStudio.lipHighlight",
+    14: "exteriorStudio.lipShape",
+    15: "exteriorStudio.eyeBase",
+    16: "exteriorStudio.eyeDepth",
+    17: "exteriorStudio.eyeHighlight",
+    18: "exteriorStudio.eyeBlend",
+    19: "exteriorStudio.eyeShimmerOne",
+    20: "exteriorStudio.eyeShimmerTwo",
+    21: "exteriorStudio.eyeShimmerThree",
+    22: "exteriorStudio.eyeShimmerFour",
 };
 
 function rgbToHex(r255, g255, b255) {
@@ -271,12 +272,12 @@ export default {
     },
     computed: {
         bodyLabel() {
-            return BODY_LABEL_MAP[this.role] || "";
+            return localizedExteriorLabel(this.$t, BODY_LABEL_MAP[this.role]);
         },
         boneAreas() {
             const map = new Map();
             for (const c of this.boneControls) {
-                const area = c.area || "面部骨骼";
+                const area = c.area || "";
                 if (!map.has(area)) map.set(area, []);
                 map.get(area).push(c);
             }
@@ -309,7 +310,7 @@ export default {
                 list.push({
                     slotKey: String(slotKey),
                     type,
-                    label: opt.name || META_SLOT_LABELS[type] || `妆容 ${type}`,
+                    label: opt.name || (META_SLOT_LABELS[type] && this.$t(META_SLOT_LABELS[type])) || this.$t('exteriorStudio.makeupNumber', { type }),
                     customRGB,
                     hex: rgbToHex(
                         (selection.fColorR ?? 1) * 100,
@@ -350,6 +351,9 @@ export default {
         this._presetAbort?.abort();
     },
     methods: {
+        controlLabel(label) {
+            return faceControlLabel(this.$i18n.locale, label);
+        },
         presetCover(item) {
             const raw = (Array.isArray(item.images) && item.images[0]) || item.cover || item.banner || "";
             return resolveExteriorAssetUrl(raw);
@@ -416,15 +420,15 @@ export default {
         },
         async handleFaceProfile(profile, label) {
             if (profile.kind === "body") {
-                ElMessage.warning("这是体型文件，请前往左侧「体型」分类中导入");
+                ElMessage.warning(this.$t('exteriorStudio.importInBody'));
                 return false;
             }
             if (!["stylized-face", "realistic-face"].includes(profile.kind)) {
-                ElMessage.error("不支持的捏脸数据格式");
+                ElMessage.error(this.$t('exteriorStudio.badFaceFormat'));
                 return false;
             }
             if (profile.roleType !== this.role) {
-                ElMessage.warning(`该捏脸适用于「${BODY_LABEL_MAP[profile.roleType] || profile.roleType}」，请先切换体型`);
+                ElMessage.warning(this.$t('exteriorStudio.faceRequiresBody', { body: localizedExteriorLabel(this.$t, BODY_LABEL_MAP[profile.roleType] || profile.roleType) }));
                 return false;
             }
             const payload = {
@@ -450,13 +454,13 @@ export default {
                 const profile = att.data
                     ? characterProfileFromData(att.data)
                     : parseCharacterProfile(att.bytes);
-                const applied = await this.handleFaceProfile(profile, item.title || `捏脸 #${item.id}`);
+                const applied = await this.handleFaceProfile(profile, item.title || this.$t('exteriorStudio.faceNumber', { id: item.id }));
                 if (seq === this._presetSeq && applied) {
                     this.activePresetId = item.id;
                 }
             } catch (err) {
                 if (err?.name === "AbortError" || seq !== this._presetSeq) return;
-                ElMessage.error(err?.message || "捏脸数据加载失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.loadFaceFailed'));
             } finally {
                 if (seq === this._presetSeq) {
                     this.applyingId = null;
@@ -472,7 +476,7 @@ export default {
                 const profile = parseCharacterProfile(buf);
                 await this.handleFaceProfile(profile, file.name);
             } catch (err) {
-                ElMessage.error(err?.message || "无法解析捏脸 .dat 文件");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.parseFaceFailed'));
             }
         },
         async resetFace() {
@@ -481,9 +485,9 @@ export default {
                 await this.preview.resetFaceProfile();
                 this.activePresetId = null;
                 await this.refreshControls();
-                ElMessage.success("已恢复默认脸型与妆容");
+                ElMessage.success(this.$t('exteriorStudio.faceReset'));
             } catch (err) {
-                ElMessage.error(err?.message || "重置脸型失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.resetFaceFailed'));
             }
         },
         onBoneSliderChange(key, value) {
@@ -502,7 +506,7 @@ export default {
                     await this.preview.updateFaceBones(batch);
                 }
             } catch (err) {
-                ElMessage.error(err?.message || "调节脸部骨骼失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.bonesFailed'));
             } finally {
                 this.flushingBones = false;
             }
@@ -541,7 +545,7 @@ export default {
                     await this.preview.updateFaceMakeup(batch);
                 }
             } catch (err) {
-                ElMessage.error(err?.message || "调节妆容失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.makeupFailed'));
             } finally {
                 this.flushingMakeups = false;
             }

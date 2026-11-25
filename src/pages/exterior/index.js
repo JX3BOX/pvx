@@ -66,9 +66,10 @@ const __elementLocaleMap = {
     "zh-TW": zhTw,
     vi,
 };
-const __elementLocale = __elementLocaleMap[__i18nLocale] || zhCn;
 app.use(ElementPlus, {
-    locale: __elementLocale,
+    get locale() {
+        return __elementLocaleMap[__i18n.global.locale.value] || zhCn;
+    },
 });
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

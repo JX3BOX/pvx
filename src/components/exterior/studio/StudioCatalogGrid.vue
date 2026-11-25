@@ -3,15 +3,31 @@
     <div class="m-studio-catalog">
         <div class="m-studio-catalog__head">
             <div class="m-catalog-title-row">
-                <h3>{{ menuItem.label }}</h3>
-                <span v-if="menuItem.desc" class="u-catalog-desc">{{ menuItem.desc }}</span>
+                <h3>{{ $t(menuItem.labelKey) }}</h3>
+                <el-tooltip
+                    v-if="menuItem.descKey"
+                    :content="$t(menuItem.descKey)"
+                    :trigger="['hover', 'focus']"
+                    :append-to="teleportTarget"
+                    placement="top"
+                >
+                    <button
+                        type="button"
+                        class="u-catalog-hint"
+                        :aria-label="$t(menuItem.descKey)"
+                        @click="$event.currentTarget.focus()"
+                    >
+                        <el-icon aria-hidden="true"><InfoFilled /></el-icon>
+                    </button>
+                </el-tooltip>
             </div>
 
             <el-input
                 v-model="keywordInput"
+                class="u-catalog-search"
                 clearable
                 size="default"
-                :placeholder="`搜索${menuItem.label}名称、俗称或拼音…`"
+                :placeholder="$t('exteriorStudio.searchItems', { category: $t(menuItem.labelKey) })"
                 @input="onKeywordInput"
                 @clear="reload"
                 @keyup.enter="reload"
@@ -23,8 +39,11 @@
 
             <div
                 v-if="menuItem.subs?.length"
+                ref="subPillsRef"
                 class="m-sub-pills"
-                :class="{ 'is-compact': menuItem.subs.length > 10 }"
+                role="group"
+                :aria-label="$t('exteriorStudio.subcategories')"
+                @wheel="scrollHorizontally"
             >
                 <button
                     v-for="sub in menuItem.subs"
@@ -32,9 +51,10 @@
                     type="button"
                     class="u-sub-pill"
                     :class="{ 'is-active': activeSubId === sub.id }"
+                    :aria-pressed="activeSubId === sub.id"
                     @click="selectSub(sub.id)"
                 >
-                    {{ sub.label }}
+                    {{ sub.labelKey ? $t(sub.labelKey) : localizedExteriorLabel($t, sub.label) }}
                 </button>
             </div>
         </div>
@@ -42,12 +62,12 @@
         <div ref="scrollBoxRef" class="m-studio-catalog__scroll" @scroll.passive="onScroll">
             <div v-if="errorMessage && !items.length" class="m-catalog-empty">
                 <p>{{ errorMessage }}</p>
-                <el-button size="small" type="primary" round @click="reload">重试</el-button>
+                <el-button size="small" type="primary" round @click="reload">{{ $t('exterior.retry') }}</el-button>
             </div>
 
             <div v-else-if="!loading && !items.length" class="m-catalog-empty">
                 <p>{{ emptyText }}</p>
-                <el-button v-if="keywordInput" size="small" round @click="resetSearch">清空关键词</el-button>
+                <el-button v-if="keywordInput" size="small" round @click="resetSearch">{{ $t('exteriorStudio.clearKeyword') }}</el-button>
             </div>
 
             <div v-else class="m-catalog-grid">
@@ -73,38 +93,38 @@
                             class="u-card-img"
                         />
                         <div v-else-if="item.domain === 'expression'" class="u-card-expr">
-                            <span class="u-expr-badge">表情</span>
-                            <strong class="u-expr-label">{{ item.name }}</strong>
+                            <span class="u-expr-badge">{{ $t('exteriorStudio.expression') }}</span>
+                            <strong class="u-expr-label">{{ itemLabel(item) }}</strong>
                         </div>
-                        <div v-else class="u-card-placeholder">暂无图</div>
+                        <div v-else class="u-card-placeholder">{{ $t('exteriorStudio.noImage') }}</div>
 
                         <span v-if="wornKeys.has(item.key)" class="u-worn-badge">
                             <el-icon><Check /></el-icon>
-                            {{ item.domain === "expression" ? "使用中" : "穿戴中" }}
+                            {{ item.domain === "expression" ? $t('exteriorStudio.inUse') : $t('exteriorStudio.wearing') }}
                         </span>
                         <span v-else-if="item.domain && item.domain !== 'expression'" class="u-type-badge">
                             {{ domainLabel(item.domain, item.slot) }}
                         </span>
 
                         <span v-if="!wornKeys.has(item.key) && cachedKeys.has(item.key)" class="u-cached-badge">
-                            已缓存
+                            {{ $t('exteriorStudio.cached') }}
                         </span>
 
                         <div v-if="busyKey === item.key" class="u-card-loading">
-                            {{ busyPercent > 0 ? `装配中 ${busyPercent}%` : "装配中…" }}
+                            {{ busyPercent > 0 ? $t('exteriorStudio.equippingPct', { percent: busyPercent }) : $t('exteriorStudio.equipping') }}
                         </div>
                     </div>
-                    <div class="u-card-name" :title="item.name || item.key">
-                        {{ item.name || item.key }}
+                    <div class="u-card-name" :title="itemLabel(item)">
+                        {{ itemLabel(item) }}
                     </div>
                 </button>
             </div>
 
-            <div v-if="loading" class="m-catalog-more">正在加载外观…</div>
+            <div v-if="loading" class="m-catalog-more">{{ $t('exteriorStudio.loadingItems') }}</div>
             <div v-else-if="nextCursor !== null" class="m-catalog-more">
-                <el-button size="small" round @click="loadNextPage">加载更多外观</el-button>
+                <el-button size="small" round @click="loadNextPage">{{ $t('exteriorStudio.moreItems') }}</el-button>
             </div>
-            <div v-else-if="items.length" class="m-catalog-more is-end">已展示全部 {{ items.length }} 件可用外观</div>
+            <div v-else-if="items.length" class="m-catalog-more is-end">{{ $t('exteriorStudio.allShown', { count: items.length }) }}</div>
         </div>
 
         <StudioItemHoverPopover
@@ -122,10 +142,11 @@
 </template>
 
 <script>
-import { Check, Search } from "@element-plus/icons-vue";
+import { expressionLabel } from "./studio-labels";
+import { Check, InfoFilled, Search } from "@element-plus/icons-vue";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
 import User from "@jx3box/jx3box-common/js/user";
-import { DOMAIN_META, SLOT_LABELS, pickExteriorCover } from "@/components/exterior/meta";
+import { localizedExteriorLabel, DOMAIN_META, SLOT_LABELS, pickExteriorCover } from "@/components/exterior/meta";
 import {
     getExteriorStars,
     getExteriorsList,
@@ -133,13 +154,14 @@ import {
     getFaceExpressionsManifest,
 } from "@/service/exterior";
 import StudioItemHoverPopover from "@/components/exterior/studio/StudioItemHoverPopover.vue";
+import { scrollHorizontally } from "@/utils/horizontal-wheel";
 
 const PAGE_LIMIT = 30;
 const SKIPPED_FAVORITE_DOMAINS = new Set(["family", "face", "realistic_face", "body"]);
 
 export default {
     name: "StudioCatalogGrid",
-    components: { Check, Search, StudioItemHoverPopover },
+    components: { Check, InfoFilled, Search, StudioItemHoverPopover },
     props: {
         menuItem: { type: Object, required: true },
         role: { type: Number, required: true },
@@ -186,13 +208,13 @@ export default {
         emptyText() {
             if (this.menuItem.source === "favorites") {
                 return User.isLogin()
-                    ? "暂无符合当前体型的已收藏可试穿外观"
-                    : "登录后可在此快速试穿已收藏的外观";
+                    ? this.$t('exteriorStudio.noFavorites')
+                    : this.$t('exteriorStudio.signInFavorites');
             }
             if (this.menuItem.source === "history") {
-                return "当前体型暂无穿过记录，点击任意分类外观试穿即可记录";
+                return this.$t('exteriorStudio.noHistory');
             }
-            return "该分类下暂无当前体型可用的 3D 模型外观";
+            return this.$t('exteriorStudio.noModels');
         },
     },
     watch: {
@@ -201,6 +223,7 @@ export default {
             clearTimeout(this.searchTimer);
             this.keywordInput = "";
             this.activeSubId = nextItem.defaultSub || "";
+            if (this.$refs.subPillsRef) this.$refs.subPillsRef.scrollLeft = 0;
             this.reload();
         },
         role() {
@@ -224,6 +247,13 @@ export default {
         this.abortController?.abort();
     },
     methods: {
+        scrollHorizontally,
+        localizedExteriorLabel,
+        itemLabel(item) {
+            return item.domain === "expression"
+                ? expressionLabel(this.$t, item.exprKey, item.name)
+                : item.name || item.key;
+        },
         clearHoverPopover() {
             clearTimeout(this._hoverOpenTimer);
             clearTimeout(this._hoverCloseTimer);
@@ -271,8 +301,8 @@ export default {
             }, 160);
         },
         domainLabel(domain, slot) {
-            if (slot && SLOT_LABELS[slot]) return SLOT_LABELS[slot];
-            return DOMAIN_META[domain]?.label || domain;
+            if (slot && SLOT_LABELS[slot]) return localizedExteriorLabel(this.$t, SLOT_LABELS[slot]);
+            return localizedExteriorLabel(this.$t, DOMAIN_META[domain]?.label || domain);
         },
         cardThumb(item) {
             const cover = pickExteriorCover(item?.images, this.role);
@@ -360,7 +390,8 @@ export default {
                     const kw = this.keywordInput.trim().toLowerCase();
                     const list = (manifest?.expressions || [])
                         .filter((expr) => Array.isArray(expr.roles) && expr.roles.includes(this.role))
-                        .filter((expr) => !kw || String(expr.name || expr.key).toLowerCase().includes(kw))
+                        .filter((expr) => !kw || [expr.name, expressionLabel(this.$t, expr.key, expr.name)]
+                            .some((name) => String(name || expr.key).toLowerCase().includes(kw)))
                         .map((expr) => ({
                             key: `expr:${expr.key}`,
                             exprKey: expr.key,
@@ -383,7 +414,7 @@ export default {
                 this.nextCursor = data?.nextCursor ?? null;
             } catch (err) {
                 if (err?.name === "AbortError" || seq !== this.requestSeq) return;
-                this.errorMessage = err?.message || "外观列表加载失败";
+                this.errorMessage = err?.message || this.$t('exteriorStudio.catalogFailed');
             } finally {
                 if (seq === this.requestSeq) this.loading = false;
             }
@@ -404,53 +435,76 @@ export default {
 
 .m-studio-catalog__head {
     display: grid;
-    gap: 10px;
-    padding: 14px 14px 12px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: @pvx-space-1;
+    padding: 12px;
     border-bottom: 1px solid @pvx-border-light;
     flex-shrink: 0;
 }
 
 .m-catalog-title-row {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
 
     h3 {
+        flex-shrink: 0;
         margin: 0;
         font-size: 16px;
         font-weight: 700;
         color: @pvx-text-primary;
     }
 
-    .u-catalog-desc {
-        font-size: 11px;
+    .u-catalog-hint {
+        display: inline-grid;
+        flex: 0 0 auto;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        padding: 0;
+        border: 0;
+        border-radius: @pvx-radius-pill;
         color: @pvx-text-secondary;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        background: transparent;
+        font-size: 14px;
+        cursor: help;
+
+        &:focus-visible {
+            color: @pvx-primary;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            &:hover {
+                color: @pvx-primary;
+            }
+        }
+    }
+}
+
+.u-catalog-search :deep(.el-input__wrapper) {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: @pvx-surface-muted;
+    box-shadow: 0 0 0 1px @pvx-border-light inset;
+
+    &.is-focus {
+        box-shadow: 0 0 0 1px @pvx-border-focus inset;
     }
 }
 
 .m-sub-pills {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-
-    &.is-compact {
-        gap: 5px;
-        max-height: 112px;
-        overflow-y: auto;
-        padding-right: 2px;
-
-        .u-sub-pill {
-            padding: 3px 8px;
-            font-size: 11.5px;
-        }
-    }
+    flex-wrap: nowrap;
+    gap: @pvx-space-1;
+    overflow-x: auto;
+    padding: 2px;
+    scrollbar-width: thin;
 }
 
 .u-sub-pill {
+    flex: none;
     padding: 4px 10px;
     border: 1px solid @pvx-border;
     border-radius: @pvx-radius-pill;
@@ -458,6 +512,7 @@ export default {
     color: @pvx-text-secondary;
     font-size: 12px;
     font-weight: 500;
+    white-space: nowrap;
     cursor: pointer;
     transition: all 0.14s;
 
@@ -478,7 +533,7 @@ export default {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 12px 14px 18px;
+    padding: 12px 12px 16px;
 }
 
 .m-catalog-grid {

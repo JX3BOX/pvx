@@ -7,7 +7,7 @@
             class="m-studio-hover-popover"
             :style="popoverStyle"
             role="dialog"
-            aria-label="外观同款与配套推荐"
+            :aria-label="$t('exteriorStudio.related')"
             @mouseenter="$emit('mouse-enter')"
             @mouseleave="$emit('mouse-leave')"
         >
@@ -21,16 +21,16 @@
                     target="_blank"
                     class="u-detail-link"
                 >
-                    <span>查看详情</span>
+                    <span>{{ $t('exteriorStudio.details') }}</span>
                     <el-icon><TopRight /></el-icon>
                 </router-link>
             </div>
 
-            <div v-if="loading" class="m-popover-status">正在查询搭配图谱…</div>
+            <div v-if="loading" class="m-popover-status">{{ $t('exteriorStudio.loadingRelated') }}</div>
 
             <template v-else-if="hasAnyGroup">
                 <div v-if="pairedHairs.length" class="m-popover-group">
-                    <div class="m-group-label">配套发型</div>
+                    <div class="m-group-label">{{ $t('exteriorStudio.matchingHair') }}</div>
                     <div class="m-chip-grid">
                         <button
                             v-for="node in pairedHairs"
@@ -38,19 +38,19 @@
                             type="button"
                             class="u-rel-chip"
                             :class="{ 'is-worn': wornKeys.has(node.key), 'is-busy': busyKey === node.key }"
-                            :title="wornKeys.has(node.key) ? '正在穿戴（点击卸下）' : `点击试穿 ${node.name}`"
+                            :title="wornKeys.has(node.key) ? $t('exteriorStudio.clickRemove') : $t('exteriorStudio.clickWear', { name: node.name })"
                             @click="onPickNode(node)"
                         >
                             <img v-if="nodeThumb(node)" :src="nodeThumb(node)" :alt="node.name" class="u-chip-thumb" />
                             <span v-else class="u-chip-dot" />
                             <span class="u-chip-name">{{ node.name }}</span>
-                            <span v-if="wornKeys.has(node.key)" class="u-chip-state">已穿</span>
+                            <span v-if="wornKeys.has(node.key)" class="u-chip-state">{{ $t('exteriorStudio.worn') }}</span>
                         </button>
                     </div>
                 </div>
 
                 <div v-if="colorVariants.length" class="m-popover-group">
-                    <div class="m-group-label">同款配色</div>
+                    <div class="m-group-label">{{ $t('exteriorStudio.colors') }}</div>
                     <div class="m-chip-grid">
                         <button
                             v-for="node in colorVariants"
@@ -58,19 +58,19 @@
                             type="button"
                             class="u-rel-chip"
                             :class="{ 'is-worn': wornKeys.has(node.key), 'is-busy': busyKey === node.key }"
-                            :title="wornKeys.has(node.key) ? '正在穿戴' : `一键切换 ${node.name}`"
+                            :title="wornKeys.has(node.key) ? $t('exteriorStudio.isWorn') : $t('exteriorStudio.switchNamed', { name: node.name })"
                             @click="onPickNode(node)"
                         >
                             <img v-if="nodeThumb(node)" :src="nodeThumb(node)" :alt="node.name" class="u-chip-thumb" />
                             <span v-else class="u-chip-dot" />
                             <span class="u-chip-name">{{ node.name }}</span>
-                            <span v-if="wornKeys.has(node.key)" class="u-chip-state">已穿</span>
+                            <span v-if="wornKeys.has(node.key)" class="u-chip-state">{{ $t('exteriorStudio.worn') }}</span>
                         </button>
                     </div>
                 </div>
             </template>
 
-            <div v-else class="m-popover-status">暂无同款配色或配套发型</div>
+            <div v-else class="m-popover-status">{{ $t('exteriorStudio.noRelated') }}</div>
         </div>
     </Teleport>
 </template>
@@ -78,7 +78,7 @@
 <script>
 import { TopRight } from "@element-plus/icons-vue";
 import { iconLink } from "@jx3box/jx3box-common/js/utils";
-import { DOMAIN_META, SLOT_LABELS, pickExteriorCover } from "@/components/exterior/meta";
+import { localizedExteriorLabel, DOMAIN_META, SLOT_LABELS, pickExteriorCover } from "@/components/exterior/meta";
 import { getExteriorGraphCached } from "@/service/exterior";
 
 const SUPPORTED_DOMAINS = new Set(["outfit", "hair", "part", "pendant", "weapon"]);
@@ -263,8 +263,8 @@ export default {
         },
         domainLabel() {
             if (!this.item) return "";
-            if (this.item.slot && SLOT_LABELS[this.item.slot]) return SLOT_LABELS[this.item.slot];
-            return DOMAIN_META[this.item.domain]?.label || "";
+            if (this.item.slot && SLOT_LABELS[this.item.slot]) return localizedExteriorLabel(this.$t, SLOT_LABELS[this.item.slot]);
+            return localizedExteriorLabel(this.$t, DOMAIN_META[this.item.domain]?.label || "");
         },
         relations() {
             if (!this.item?.key || !this.graph) return { pairedHairs: [], colorVariants: [] };

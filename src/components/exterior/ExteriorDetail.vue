@@ -7,7 +7,7 @@
                 <div class="m-title-texts">
                     <div class="m-title-badges">
                         <span v-if="domainInfo" class="u-domain-tag" :style="domainTagStyle">
-                            {{ domainInfo.label }}
+                            {{ $t(`exterior.domains.${item.domain}`) }}
                             <template v-if="slotLabel"> · {{ slotLabel }}</template>
                         </span>
                         <span
@@ -21,7 +21,7 @@
                     </div>
                     <h1 class="u-ext-name">{{ item.name || item.game_name || item.key }}</h1>
                     <p v-if="item.game_name && item.game_name !== item.name" class="u-game-origin">
-                        游戏原名：{{ item.game_name }}
+                        {{ $t("exterior.originalName", { name: item.game_name }) }}
                     </p>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                         class="u-mode-btn"
                         :class="{ 'is-active': previewMode === 'image' }"
                         :aria-selected="previewMode === 'image'"
-                        @click="previewMode = 'image'"
+                        @click="setPreviewMode('image')"
                     >
                         <el-icon><Picture /></el-icon>
                         <span>{{ $t("exterior.staticPreview") }}</span>
@@ -86,16 +86,12 @@
                         class="u-mode-btn"
                         :class="{ 'is-active': previewMode === 'model' }"
                         :aria-selected="previewMode === 'model'"
-                        @click="previewMode = 'model'"
+                        @click="setPreviewMode('model')"
                     >
                         <el-icon><View /></el-icon>
                         <span>{{ $t("exterior.modelPreview") }}</span>
                     </button>
                 </div>
-
-                <span v-if="previewMode === 'model'" class="u-stage-caption">
-                    左键旋转（支持俯仰）· 右键平移 · 滚轮缩放 · 双击复位
-                </span>
             </div>
 
             <!-- 左侧：视觉展示舞台（高清图集 / 3D 试穿无缝切换） -->
@@ -109,56 +105,57 @@
                                 :initial-role="activeCoverRole"
                                 :graph-nodes="graphNodes"
                                 :graph-edges="graphEdges"
-                                @back-to-image="previewMode = 'image'"
+                                @back-to-image="setPreviewMode('image')"
                                 @role-change="onModelRoleChange"
                             />
                         </slot>
                     </template>
 
                     <template v-else>
-                        <el-image
-                            v-if="activeMedia"
-                            :key="activeMedia.url"
-                            :src="activeMedia.url"
-                            :alt="item.name"
-                            :preview-src-list="allMediaUrls"
-                            :initial-index="activeMediaIndex"
-                            fit="contain"
-                            preview-teleported
-                            class="m-ext-stage-img"
+                        <div
+                            v-if="stageMediaList.length > 1"
+                            class="m-ext-stage-pills"
+                            role="group"
+                            :aria-label="$t('exterior.preview')"
                         >
-                            <template #error>
-                                <div class="m-ext-stage-fallback">
-                                    <img v-if="itemIconUrl" :src="itemIconUrl" alt="" class="u-fallback-icon" />
-                                    <span>{{ $t("exterior.imageUnavailable") }}</span>
-                                </div>
-                            </template>
-                        </el-image>
-                        <div v-else class="m-ext-stage-fallback">
-                            <img v-if="itemIconUrl" :src="itemIconUrl" alt="" class="u-fallback-icon" />
-                            <span>{{ $t("exterior.imageUnavailable") }}</span>
+                            <button
+                                v-for="media in stageMediaList"
+                                :key="media.id"
+                                type="button"
+                                class="u-media-pill"
+                                :class="{ 'is-active': activeMedia?.id === media.id }"
+                                :aria-pressed="activeMedia?.id === media.id"
+                                @click="selectStageMedia(media)"
+                            >
+                                {{ media.label }}
+                            </button>
+                        </div>
+                        <div class="m-ext-gallery-viewport">
+                            <el-image
+                                v-if="activeMedia"
+                                :key="activeMedia.url"
+                                :src="activeMedia.url"
+                                :alt="item.name"
+                                :preview-src-list="allMediaUrls"
+                                :initial-index="activeMediaIndex"
+                                fit="contain"
+                                preview-teleported
+                                class="m-ext-stage-img"
+                            >
+                                <template #error>
+                                    <div class="m-ext-stage-fallback">
+                                        <img v-if="itemIconUrl" :src="itemIconUrl" alt="" class="u-fallback-icon" />
+                                        <span>{{ $t("exterior.imageUnavailable") }}</span>
+                                    </div>
+                                </template>
+                            </el-image>
+                            <div v-else class="m-ext-stage-fallback">
+                                <img v-if="itemIconUrl" :src="itemIconUrl" alt="" class="u-fallback-icon" />
+                                <span>{{ $t("exterior.imageUnavailable") }}</span>
+                            </div>
+                            <ExteriorStageHint v-if="activeMedia" overlay>{{ $t("exterior.galleryHelp") }}</ExteriorStageHint>
                         </div>
                     </template>
-                </div>
-
-                <!-- 舞台底部视图切换条（各体型封面 + 合照 + 近景） -->
-                <div
-                    v-if="previewMode === 'image' && stageMediaList.length > 1"
-                    class="m-ext-stage-pills"
-                    role="group"
-                    :aria-label="$t('exterior.preview')"
-                >
-                    <button
-                        v-for="media in stageMediaList"
-                        :key="media.id"
-                        type="button"
-                        class="u-media-pill"
-                        :class="{ 'is-active': activeMedia?.id === media.id }"
-                        :aria-pressed="activeMedia?.id === media.id"
-                        @click="selectStageMedia(media)"
-                    >
-                        {{ media.label }}
-                    </button>
                 </div>
             </section>
 
@@ -196,7 +193,7 @@
 
                 <!-- 所属系列与关联礼盒（帮助玩家一眼看懂非商城直购外观的出处） -->
                 <div v-if="quickParentLinks.length" class="m-ext-section-box">
-                    <div class="u-box-label">所属系列与礼盒</div>
+                    <div class="u-box-label">{{ $t("exterior.seriesBundles") }}</div>
                     <div class="m-quick-links">
                         <router-link
                             v-for="link in quickParentLinks"
@@ -222,19 +219,22 @@
 
                 <!-- 游戏说明 -->
                 <div v-if="description" class="m-ext-section-box m-ext-desc-box">
-                    <div class="u-box-label">外观介绍</div>
+                    <div class="u-box-label">{{ $t("exterior.description") }}</div>
                     <p class="u-desc-text">{{ description }}</p>
                 </div>
 
-                <!-- 各体型名称差异 -->
-                <div v-if="variantList.length" class="m-ext-section-box">
+                <div v-if="variantGroups?.length" class="m-ext-section-box">
                     <div class="u-box-label">{{ $t("exterior.variants") }}</div>
-                    <div class="m-variant-grid">
-                        <div v-for="variant in variantList" :key="variant.role_type" class="u-variant-item">
-                            <span class="u-variant-role">{{ bodyLabels[variant.role_type] || variant.role_type }}</span>
-                            <span class="u-variant-name">{{ variant.name || item.game_name }}</span>
+                    <dl class="m-variant-list">
+                        <div v-for="group in variantGroups" :key="group.name" class="u-variant-item">
+                            <dt class="u-variant-name">{{ group.name }}</dt>
+                            <dd class="u-variant-roles">
+                                <span v-for="role in group.roles" :key="role" class="u-variant-role">
+                                    {{ bodyLabels[role] || role }}
+                                </span>
+                            </dd>
                         </div>
-                    </div>
+                    </dl>
                 </div>
             </section>
         </PvxSurface>
@@ -284,8 +284,8 @@ import PvxSurface from "@/components/design/PvxSurface.vue";
 import ExteriorModelPreview from "./ExteriorModelPreview.vue";
 import ExteriorRelatedGraph from "./ExteriorRelatedGraph.vue";
 import ExteriorShowcase from "./ExteriorShowcase.vue";
+import ExteriorStageHint from "./ExteriorStageHint.vue";
 import {
-    BODY_LABEL_MAP,
     BODY_TYPES,
     CHARACTER_BOUND_DOMAINS,
     DOMAIN_META,
@@ -293,6 +293,7 @@ import {
     SLOT_LABELS,
     formatExteriorPrice,
     getPlayerTags,
+    localizedExteriorLabel,
     parseExteriorDescription,
     resolveCanonicalShowcaseTarget,
     resolveExteriorAssetUrl,
@@ -315,6 +316,7 @@ export default {
         ExteriorModelPreview,
         ExteriorRelatedGraph,
         ExteriorShowcase,
+        ExteriorStageHint,
         Picture,
         PvxSurface,
         Share,
@@ -327,8 +329,7 @@ export default {
     },
     data() {
         return {
-            bodyLabels: BODY_LABEL_MAP,
-            previewMode: "image",
+            previewMode: this.$router.options.history.state.exteriorModelPreviewKey === this.item.key ? "model" : "image",
             previewRole: null,
             selectedMediaId: "",
             graphNodes: [],
@@ -351,6 +352,9 @@ export default {
         itemIconUrl() {
             return Number(this.item.icon_id) > 0 ? iconLink(this.item.icon_id, this.client) : "";
         },
+        bodyLabels() {
+            return Object.fromEntries(BODY_TYPES.map(({ id, key }) => [id, this.$t(`exterior.bodyTypes.${key}`)]));
+        },
         domainInfo() {
             return DOMAIN_META[this.item.domain] || null;
         },
@@ -362,10 +366,12 @@ export default {
             };
         },
         slotLabel() {
-            return this.item.slot && SLOT_LABELS[this.item.slot] ? SLOT_LABELS[this.item.slot] : "";
+            return localizedExteriorLabel(this.$t, SLOT_LABELS[this.item.slot]) || "";
         },
         playerTags() {
-            return getPlayerTags(this.item);
+            return getPlayerTags(this.item).map((tag) =>
+                tag.key.startsWith("game:") ? { ...tag, label: localizedExteriorLabel(this.$t, tag.label) } : tag
+            );
         },
         canPreviewModel() {
             return (
@@ -377,14 +383,14 @@ export default {
         bodyCovers() {
             const coverMap = this.item.images?.cover || {};
             const ordered = [];
-            for (const { id, label } of BODY_TYPES) {
+            for (const { id } of BODY_TYPES) {
                 const raw = coverMap[String(id)];
                 if (raw) {
                     ordered.push({
                         id: `cover:${id}`,
                         kind: "cover",
                         role: id,
-                        label,
+                        label: this.bodyLabels[id],
                         url: resolveExteriorAssetUrl(raw),
                     });
                 }
@@ -394,7 +400,7 @@ export default {
                     id: "cover:all",
                     kind: "cover",
                     role: null,
-                    label: this.item.domain === "weapon" ? "武器总览" : "外观展示",
+                    label: this.$t(this.item.domain === "weapon" ? "exterior.weaponOverview" : "exterior.preview"),
                     url: resolveExteriorAssetUrl(coverMap.all),
                 });
             }
@@ -407,16 +413,15 @@ export default {
             const buildLabel = (kind, role, idx, total) => {
                 const suffix = total > 1 ? ` ${idx + 1}` : "";
                 if (domain === "weapon") {
-                    if (kind === "detail") return total > 1 ? `阶段 ${idx + 1}` : "武器细节";
-                    return `武器特写${suffix}`;
+                    if (kind === "detail") return total > 1 ? this.$t("exterior.weaponStage", { stage: idx + 1 }) : this.$t("exterior.weaponDetail");
+                    return this.$t("exterior.weaponCloseup") + suffix;
                 }
-                if (domain === "pendant" || domain === "effect") {
-                    if (kind === "detail") return `细节展示${suffix}`;
-                    return `近景特写${suffix}`;
+                const body = this.bodyLabels[role];
+                if (body && domain !== "pendant" && domain !== "effect") {
+                    return this.$t(kind === "portrait" ? "exterior.rolePortrait" : "exterior.roleDetail", { role: body }) + suffix;
                 }
-                const roleText = BODY_LABEL_MAP[role] || (kind === "portrait" ? "近景" : "全家福");
-                const baseLabel = kind === "portrait" ? "特写" : "细节";
-                return `${roleText}${baseLabel}${suffix}`;
+                const detailKey = domain === "pendant" || domain === "effect" ? "exterior.detailPhoto" : "exterior.groupDetail";
+                return this.$t(kind === "portrait" ? "exterior.galleryPortrait" : detailKey) + suffix;
             };
             const pushGroup = (slots, kind) => {
                 for (const [role, value] of Object.entries(slots || {})) {
@@ -428,7 +433,7 @@ export default {
                         list.push({
                             id: `${kind}:${role}:${idx}`,
                             kind,
-                            role: BODY_LABEL_MAP[role] ? Number(role) : null,
+                            role: this.bodyLabels[role] ? Number(role) : null,
                             label: buildLabel(kind, role, idx, urls.length),
                             url,
                         });
@@ -478,7 +483,8 @@ export default {
             return resolveCanonicalShowcaseTarget(this.item, this.graphNodes, this.graphEdges);
         },
         formattedPrices() {
-            return [...new Set((this.item.prices || []).map(formatExteriorPrice).filter(Boolean))];
+            const prices = (this.item.prices || []).map((price) => formatExteriorPrice(price, this.$t, this.$i18n.locale));
+            return [...new Set(prices.filter(Boolean))];
         },
         obtainableText() {
             if (this.item.obtainable === true) return this.$t("exterior.obtainableYes");
@@ -495,14 +501,17 @@ export default {
         description() {
             return parseExteriorDescription(this.item.description);
         },
-        variantList() {
-            const rows = this.item.variants || [];
-            if (!rows.length) return [];
-            const distinctNames = new Set(rows.map((r) => (r.name || "").trim()).filter(Boolean));
-            if (distinctNames.size <= 1 && distinctNames.has((this.item.game_name || "").trim())) {
-                return [];
+        variantGroups() {
+            const gameName = (this.item.game_name || "").trim();
+            const groups = new Map();
+            for (const row of this.item.variants || []) {
+                const name = (row.name || "").trim() || gameName;
+                if (!name) continue;
+                if (!groups.has(name)) groups.set(name, new Set());
+                groups.get(name).add(row.role_type);
             }
-            return rows;
+            if (groups.size < 2) return [];
+            return Array.from(groups, ([name, roles]) => ({ name, roles: [...roles] }));
         },
         starLabel() {
             if (this.starred === null && this.starBusy) return "exterior.star.loading";
@@ -546,12 +555,12 @@ export default {
                 links.push({
                     key,
                     name: node?.name || node?.game_name || key,
-                    domainLabel: meta.label,
+                    domainLabel: localizedExteriorLabel(this.$t, meta.label),
                     tier: meta.tier,
                     badgeStyle: { color: meta.color, backgroundColor: meta.bg },
                 });
             }
-            return links.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name, "zh-CN")).slice(0, 6);
+            return links.sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name, this.$i18n.locale)).slice(0, 6);
         },
     },
     created() {
@@ -568,6 +577,13 @@ export default {
         this.prefetchTimer = null;
     },
     methods: {
+        setPreviewMode(mode) {
+            if (this.previewMode === mode) return;
+            this.previewMode = mode;
+            this.$router.options.history.replace(this.$route.fullPath, {
+                exteriorModelPreviewKey: mode === "model" ? this.item.key : null,
+            });
+        },
         scheduleModelPrefetch(delay = 360) {
             clearTimeout(this.prefetchTimer);
             if (this.item.local_preview || !this.canPreviewModel || !User.isLogin()) return;
@@ -673,7 +689,7 @@ export default {
                 } else {
                     this.favoriteCount = Math.max(0, this.favoriteCount + (nextStarred ? 1 : -1));
                 }
-                ElMessage.success(nextStarred ? "已加入我的收藏" : "已取消收藏");
+                ElMessage.success(this.$t(nextStarred ? "exterior.star.added" : "exterior.star.removed"));
             } catch (error) {
                 this.showStarError(error);
             } finally {
@@ -736,6 +752,10 @@ export default {
         grid-template-columns: minmax(0, 1fr);
         grid-template-areas: "toolbar" "preview" "info";
     }
+
+    @media (max-width: @phone) {
+        row-gap: @pvx-space-1;
+    }
 }
 
 .m-ext-stage-col {
@@ -788,33 +808,49 @@ export default {
     }
 }
 
-.u-stage-caption {
-    font-size: 12px;
-    color: @pvx-text-secondary;
-}
-
 .m-ext-stage-frame {
     position: relative;
     width: 100%;
-    height: clamp(360px, 56vh, 520px);
+    --exterior-stage-height: clamp(360px, 56vh, 520px);
 
     @media (min-width: @smallpc) {
-        height: clamp(520px, 56vh, 680px);
+        --exterior-stage-height: clamp(520px, 56vh, 680px);
     }
+
     @media (max-width: @phone) {
-        height: clamp(280px, 55vh, 420px);
-        height: clamp(280px, 55svh, 420px);
+        --exterior-stage-height: clamp(280px, 55vh, 420px);
+
+        @supports (height: 1svh) {
+            --exterior-stage-height: clamp(280px, 55svh, 420px);
+        }
     }
-    border-radius: 18px;
-    border: 1px solid @pvx-border;
+}
+
+.m-ext-gallery-viewport,
+.m-ext-stage-frame.is-3d {
+    position: relative;
+    height: var(--exterior-stage-height);
     overflow: hidden;
+    border: 1px solid @pvx-border;
+    border-radius: 18px;
+}
+
+.m-ext-stage-frame.is-3d {
+    background: #1b2430;
+
+    @media (max-width: @phone) {
+        height: auto;
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+}
+
+.m-ext-gallery-viewport {
     background: url("~@/assets/img/exterior/stage-bg.webp") center / cover no-repeat,
         linear-gradient(180deg, #eaedf6 0%, #dce2f0 100%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-
-    &.is-3d {
-        background: #1b2430;
-    }
 }
 
 .m-ext-stage-img {
@@ -850,33 +886,77 @@ export default {
 }
 
 .m-ext-stage-pills {
-    display: flex;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 3;
+    display: inline-flex;
     align-items: center;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    max-width: calc(100% - 24px);
+    gap: 3px;
+    padding: 3px;
+    border-radius: @pvx-radius-pill;
+    background: rgba(15, 23, 42, 0.78);
 
     .u-media-pill {
-        padding: 5px 13px;
-        border: 1px solid @pvx-border;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 26px;
+        padding: 0 11px;
+        border: 0;
         border-radius: @pvx-radius-pill;
-        background: @pvx-surface;
-        color: @pvx-text-regular;
-        font-size: 13px;
-        font-weight: 500;
+        background: transparent;
+        color: #e2e8f0;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
         cursor: pointer;
-        transition: all 0.16s;
+        transition: background-color 0.14s, color 0.14s;
 
-        &:hover {
-            border-color: @pvx-border-focus;
-            color: @pvx-primary-hover;
+        &:hover,
+        &:focus-visible {
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
         }
 
         &.is-active {
-            border-color: @pvx-primary;
+            background: @pvx-primary;
+            color: #fff;
+        }
+    }
+
+    @media (max-width: @phone) {
+        position: static;
+        display: flex;
+        width: max-content;
+        max-width: 100%;
+        flex-wrap: nowrap;
+        gap: 6px;
+        margin-bottom: @pvx-space-1;
+        padding: 2px 0;
+        overflow-x: auto;
+        background: transparent;
+        scrollbar-width: thin;
+
+        .u-media-pill {
+            flex: none;
+            min-height: 32px;
+            padding-inline: 8px;
+            border: 1px solid @pvx-border-focus;
+            border-radius: @pvx-radius-small;
             background: @pvx-primary-soft;
-            color: @pvx-primary-hover;
-            font-weight: 600;
+            color: @pvx-primary;
+            white-space: nowrap;
+
+            &:hover,
+            &:focus-visible,
+            &.is-active {
+                border-color: @pvx-primary;
+                background: @pvx-primary;
+                color: @pvx-text-inverse;
+            }
         }
     }
 }
@@ -887,6 +967,10 @@ export default {
     grid-template-columns: minmax(0, 1fr);
     gap: @pvx-space-3;
     min-width: 0;
+
+    @media (max-width: @phone) {
+        margin-top: @pvx-space-1;
+    }
 }
 
 .m-ext-title-block {
@@ -1173,39 +1257,38 @@ export default {
     }
 }
 
-.m-variant-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+.m-variant-list {
+    margin: 0;
 
-    @media (max-width: @phone) {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .u-variant-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 10px;
-        border-radius: 10px;
-        background: @pvx-surface;
-        border: 1px solid @pvx-border-light;
-        font-size: 13px;
-    }
-
-    .u-variant-role {
-        padding: 1px 7px;
-        border-radius: @pvx-radius-pill;
-        background: @pvx-primary-soft;
-        color: @pvx-primary-hover;
-        font-size: 11px;
-        font-weight: 600;
-        flex-shrink: 0;
+    .u-variant-item + .u-variant-item {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid @pvx-border;
     }
 
     .u-variant-name {
         color: @pvx-text-primary;
-        word-break: break-word;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.5;
+        text-wrap: balance;
+        overflow-wrap: anywhere;
+    }
+
+    .u-variant-roles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 5px 0 0;
+    }
+
+    .u-variant-role {
+        padding: 1px 8px;
+        border-radius: @pvx-radius-pill;
+        background: @pvx-primary-soft;
+        color: @pvx-primary-hover;
+        font-size: 12px;
+        line-height: 20px;
     }
 }
 

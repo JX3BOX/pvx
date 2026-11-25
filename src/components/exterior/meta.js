@@ -1,12 +1,51 @@
 // 外观大全前台展示配置：分类白名单、体型映射、玩家友好标签与图片资源地址解析。
-import { __cdn } from "@jx3box/jx3box-common/data/jx3box.json";
+import jx3box from "@jx3box/jx3box-common/data/jx3box.json";
 import { extractTextContent } from "@jx3box/jx3box-common/js/utils";
+import exteriorZh from "@/locale/zh-CN/exterior";
 
-const CDN_BASE = (__cdn || "https://cdn.jx3box.com/").replace(/\/+$/, "");
+// 分类接口和模型配置以中文标签标识选项，只在展示时转换。
+const labelKeys = new Map();
+for (const group of ["domains", "bodyTypes", "labels", "schools"]) {
+    for (const [key, label] of Object.entries(exteriorZh[group])) {
+        labelKeys.set(label, `exterior.${group}.${key}`);
+    }
+}
+labelKeys.set(exteriorZh.tradableYes, "exterior.tradableYes");
+
+export function localizedExteriorLabel(t, label) {
+    const key = labelKeys.get(label);
+    return key ? t(key) : label;
+}
+
+const CDN_BASE = (jx3box.__cdn || "https://cdn.jx3box.com/").replace(/\/+$/, "");
 
 // 列表顶栏仅展示真实外观分类，过滤写意脸型、写实脸型、体型、散件和系列。
 export const VISIBLE_LIST_DOMAINS = ["outfit", "bundle", "hair", "pendant", "weapon", "effect", "posture"];
 export const HIDDEN_LIST_DOMAINS = new Set(["face", "realistic_face", "body", "part", "family"]);
+
+export const WEAPON_SCHOOLS = [
+    { school: 3, name: "少林" },
+    { school: 4, name: "万花" },
+    { school: 1, name: "天策" },
+    { school: 2, name: "纯阳" },
+    { school: 5, name: "七秀" },
+    { school: 7, name: "藏剑" },
+    { school: 8, name: "五毒" },
+    { school: 9, name: "唐门" },
+    { school: 10, name: "明教" },
+    { school: 11, name: "丐帮" },
+    { school: 12, name: "苍云" },
+    { school: 13, name: "长歌" },
+    { school: 14, name: "霸刀" },
+    { school: 15, name: "蓬莱" },
+    { school: 16, name: "凌雪" },
+    { school: 17, name: "衍天" },
+    { school: 18, name: "药宗" },
+    { school: 19, name: "刀宗" },
+    { school: 20, name: "万灵" },
+    { school: 21, name: "段氏" },
+    { school: 22, name: "无相楼" },
+].map((option) => ({ ...option, key: `school_${option.school}` }));
 
 export const BODY_TYPES = [
     { id: 1, key: "man", label: "成男" },
@@ -417,13 +456,13 @@ export function pickExteriorCover(images, preferredRole = 2) {
     return resolveExteriorAssetUrl(candidate);
 }
 
-export function formatExteriorPrice(price) {
+export function formatExteriorPrice(price, t, locale) {
     if (!price) return "";
     const amount = Number(price.amount);
-    const formattedAmount = Number.isFinite(amount) ? amount.toLocaleString("zh-CN") : String(price.amount ?? "");
+    const formattedAmount = Number.isFinite(amount) ? amount.toLocaleString(locale) : String(price.amount ?? "");
     const currency = CURRENCY_LABELS[price.currency] || price.currency || "";
-    const duration = price.duration_days ? `（${price.duration_days}天）` : "";
-    return `${formattedAmount} ${currency}${duration}`.trim();
+    const value = t("exterior.priceAmount", { amount: formattedAmount, currency: localizedExteriorLabel(t, currency) }).trim();
+    return price.duration_days ? t("exterior.priceDuration", { price: value, days: price.duration_days }) : value;
 }
 
 export function parseExteriorDescription(text) {

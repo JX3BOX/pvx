@@ -80,9 +80,9 @@ export default {
         },
         statusBadge() {
             const tags = this.item.game_tags || this.item.tags || [];
-            if (tags.includes("out_of_print")) return { label: "绝版", tone: "rose" };
-            if (tags.includes("limited")) return { label: "限定", tone: "amber" };
-            if (this.item.tradable_item) return { label: "可交易", tone: "emerald" };
+            if (tags.includes("out_of_print")) return { label: this.$t("exterior.labels.discontinued"), tone: "rose" };
+            if (tags.includes("limited")) return { label: this.$t("exterior.labels.limited"), tone: "amber" };
+            if (this.item.tradable_item) return { label: this.$t("exterior.tradableYes"), tone: "emerald" };
             return null;
         },
         primaryAlias() {

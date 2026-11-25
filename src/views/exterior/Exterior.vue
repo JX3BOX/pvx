@@ -8,8 +8,8 @@
         :without-left="true"
         :without-bread="true"
     >
-        <div class="m-main p-exterior">
-            <PvxPageShell class="m-exterior-shell" :class="shellModifierClass">
+        <div class="m-main p-exterior" :class="{ 'is-studio': isStudio }">
+            <PvxPageShell class="m-exterior-shell" :class="shellModifierClass" :full-height="!isStudio">
                 <router-view v-slot="{ Component }">
                     <keep-alive include="ExteriorList">
                         <ExteriorSingle v-if="detailId" :detail-id="detailId" />
@@ -41,12 +41,15 @@ export default {
         return { navStatusClass: "is-regular" };
     },
     computed: {
+        isStudio() {
+            return this.$route.name === "exterior-studio";
+        },
         detailId() {
             const { name, query } = this.$route;
             return name === "exterior-list" && typeof query.id === "string" ? query.id : "";
         },
         shellModifierClass() {
-            if (this.$route.name === "exterior-studio") return "m-exterior-shell--studio";
+            if (this.isStudio) return "m-exterior-shell--studio";
             if (this.$route.name === "exterior-house") return "m-exterior-shell--house";
             return this.detailId ? "m-exterior-shell--detail" : "m-exterior-shell--list";
         },
@@ -70,12 +73,14 @@ export default {
 .c-pvx-exterior-main .m-main.p-exterior {
     padding: 0;
     background: #f6f8fa;
+
+    &.is-studio {
+        min-height: 0;
+    }
 }
 
-.p-exterior .m-exterior-shell--list > div,
-.p-exterior .m-exterior-shell--studio > div {
-    max-width: 1480px;
-    margin: 0 auto;
+.p-exterior .m-exterior-shell--list > div {
+    max-width: none;
     padding: 26px 30px 44px;
 
     @media (max-width: @ipad) {
@@ -87,12 +92,6 @@ export default {
     }
 }
 
-@media (min-width: @smallpc) {
-    .p-exterior .m-exterior-shell--list > div {
-        max-width: 1920px;
-    }
-}
-
 .p-exterior .m-exterior-shell--house > div,
 .p-exterior .m-exterior-shell--detail > div {
     max-width: none;
@@ -101,14 +100,14 @@ export default {
 .p-exterior .m-exterior-shell--studio > div {
     max-width: none;
     width: 100%;
-    padding: 8px 14px 12px 42px;
+    padding: 16px;
 
     @media (max-width: @ipad) {
-        padding: 8px 12px 12px;
+        padding: @pvx-space-2;
     }
 
     @media (max-width: @phone) {
-        padding: 8px 8px 14px;
+        padding: @pvx-space-1;
     }
 }
 

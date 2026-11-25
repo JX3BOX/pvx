@@ -13,10 +13,10 @@
     >
         <div ref="stageContainerRef" class="m-studio-shell">
             <!-- 左侧分类栏 -->
-            <aside v-show="!immersiveMode && !sidebarCollapsed" class="m-studio-nav" aria-label="试衣间外观分类">
+            <aside v-show="!immersiveMode && !sidebarCollapsed" class="m-studio-nav" :aria-label="$t('exteriorStudio.nav')">
                 <button type="button" class="u-nav-back" @click="goBack">
                     <el-icon><ArrowLeft /></el-icon>
-                    <span>返回</span>
+                    <span>{{ $t('exteriorStudio.back') }}</span>
                 </button>
 
                 <nav class="m-nav-list">
@@ -26,22 +26,22 @@
                         type="button"
                         class="u-nav-btn"
                         :class="{ 'is-active': activeMenuId === item.id }"
-                        :title="activeMenuId === item.id ? (drawerCollapsed ? '展开外观列表' : '再次点击收起外观列表') : item.label"
+                        :title="activeMenuId === item.id ? (drawerCollapsed ? $t('exteriorStudio.expandList') : $t('exteriorStudio.clickCollapse')) : $t(item.labelKey)"
                         @click="selectMenu(item.id)"
                     >
                         <el-icon class="u-nav-icon"><component :is="item.icon" /></el-icon>
-                        <span>{{ item.label }}</span>
+                        <span>{{ navItemLabel(item) }}</span>
                     </button>
                 </nav>
 
                 <button
                     type="button"
                     class="u-nav-collapse-btn"
-                    title="收起左侧两个栏目"
+                    :title="$t('exteriorStudio.collapseBoth')"
                     @click="toggleSidebarCollapsed(true)"
                 >
                     <el-icon><DArrowLeft /></el-icon>
-                    <span>收起侧栏</span>
+                    <span>{{ $t('exteriorStudio.collapseSide') }}</span>
                 </button>
             </aside>
 
@@ -49,7 +49,7 @@
             <section
                 v-show="!immersiveMode && !sidebarCollapsed && !drawerCollapsed"
                 class="m-studio-drawer"
-                aria-label="外观挑选与定制区"
+                :aria-label="$t('exteriorStudio.customize')"
             >
                 <StudioBodyEditor
                     v-if="activeMenu.editor === 'body'"
@@ -88,7 +88,7 @@
             </section>
 
             <!-- 右侧 3D 实时试穿舞台（占 65%+ 宽度） -->
-            <main class="m-studio-stage" :class="`is-bg-${skybox}`" aria-label="3D 试衣舞台">
+            <main class="m-studio-stage" :class="`is-bg-${skybox}`" :aria-label="$t('exteriorStudio.stage')">
                 <button
                     v-if="!immersiveMode"
                     type="button"
@@ -103,15 +103,15 @@
                         <ArrowRight v-else-if="drawerCollapsed" />
                         <ArrowLeft v-else />
                     </el-icon>
-                    <span v-if="sidebarCollapsed" class="u-panel-tab-label">展开外观栏</span>
+                    <span v-if="sidebarCollapsed" class="u-panel-tab-label">{{ $t('exteriorStudio.expandSide') }}</span>
                 </button>
 
                 <!-- 登录门禁 -->
                 <div v-if="!loggedIn" class="m-stage-gate">
                     <div class="m-gate-card">
-                        <span class="u-gate-pill">自由试衣间</span>
-                        <h2>登录后解锁全套 3D 自由穿搭</h2>
-                        <p>任意混搭全库外观、实时捏脸改体型，一键导出高清 PNG 试穿图</p>
+                        <span class="u-gate-pill">{{ $t('exteriorStudio.room') }}</span>
+                        <h2>{{ $t('exteriorStudio.loginTitle') }}</h2>
+                        <p>{{ $t('exteriorStudio.loginDesc') }}</p>
                         <el-button type="primary" round size="large" @click="login">
                             {{ $t("exterior.modelLogin") }}
                         </el-button>
@@ -121,15 +121,15 @@
                 <!-- 账号认证门禁 -->
                 <div v-else-if="verifyRequired" class="m-stage-gate">
                     <div class="m-gate-card">
-                        <span class="u-gate-pill">账号认证门槛</span>
-                        <h2>完成账号认证后开启自由试衣间</h2>
-                        <p>为保障模型与服务资源安全，请先完成手机号验证或绑定微信公众号后使用试衣间</p>
+                        <span class="u-gate-pill">{{ $t('exteriorStudio.verification') }}</span>
+                        <h2>{{ $t('exteriorStudio.verifyTitle') }}</h2>
+                        <p>{{ $t('exteriorStudio.verifyDesc') }}</p>
                         <div class="m-gate-actions">
                             <el-button type="primary" round size="large" @click="goVerifyAuth">
-                                前往账号认证
+                                {{ $t('exteriorStudio.verify') }}
                             </el-button>
                             <el-button round size="large" @click="recheckVerifyStatus">
-                                已认证？重新检测
+                                {{ $t('exteriorStudio.recheck') }}
                             </el-button>
                         </div>
                     </div>
@@ -140,7 +140,8 @@
                         ref="canvasRef"
                         :key="canvasKey"
                         class="m-stage-canvas"
-                        aria-label="自由试衣间 3D 画布"
+                        :class="{ 'is-ready': stageReady && !stageLoading && !stageError }"
+                        :aria-label="$t('exteriorStudio.canvas')"
                     />
 
                     <button
@@ -149,182 +150,241 @@
                         class="m-immersive-exit"
                         @click="toggleImmersive(false)"
                     >
-                        退出沉浸 (Esc)
+                        {{ $t('exteriorStudio.exitImmersive') }}
                     </button>
 
                     <!-- 顶部悬浮控制条 -->
                     <header v-show="!immersiveMode" class="m-stage-topbar">
-                        <div class="m-topbar-row is-primary">
-                            <div class="m-role-pills" role="group" aria-label="体型切换">
-                                <button
-                                    v-for="b in bodyTypes"
-                                    :key="b.id"
-                                    type="button"
-                                    class="u-pill-btn"
-                                    :class="{ 'is-active': activeRole === b.id }"
-                                    :disabled="stageLoading"
-                                    @click="selectRole(b.id)"
-                                >
-                                    {{ b.label }}
-                                </button>
-                            </div>
-
-                            <div class="m-view-pills" role="group" aria-label="视角预设">
-                                <button
-                                    v-for="v in viewPresets"
-                                    :key="v.value"
-                                    type="button"
-                                    class="u-pill-btn"
-                                    :class="{ 'is-active': activeView === v.value }"
-                                    @click="selectCameraView(v.value)"
-                                >
-                                    {{ v.label }}
-                                </button>
-                            </div>
-
-                            <div class="m-locomotion-pills" role="group" aria-label="移动姿态">
-                                <button
-                                    v-for="loc in locomotionModes"
-                                    :key="loc.value"
-                                    type="button"
-                                    class="u-pill-btn"
-                                    :class="{ 'is-active': locomotion === loc.value }"
-                                    :disabled="stageLoading"
-                                    @click="selectLocomotion(loc.value)"
-                                >
-                                    {{ loc.label }}
-                                </button>
-                            </div>
-
+                        <div class="m-role-pills" role="group" :aria-label="$t('exteriorStudio.switchBody')">
                             <button
+                                v-for="b in bodyTypes"
+                                :key="b.id"
                                 type="button"
-                                class="u-pill-btn u-skill-teaser-btn"
-                                title="门派技能动作演出筹备中，敬请期待"
-                                @click="onSkillActionTeaser"
+                                class="u-pill-btn"
+                                :class="{ 'is-active': activeRole === b.id }"
+                                :disabled="stageLoading"
+                                @click="selectRole(b.id)"
                             >
-                                <el-icon><MagicStick /></el-icon>
-                                <span>技能动作</span>
+                                {{ $t('exterior.bodyTypes.' + b.key) }}
                             </button>
-
-                            <div v-if="hasWeaponEquipped" class="m-weapon-pills" role="group" aria-label="武器姿态">
-                                <button
-                                    v-for="st in weaponStances"
-                                    :key="st.value"
-                                    type="button"
-                                    class="u-pill-btn"
-                                    :class="{ 'is-active': weaponStance === st.value }"
-                                    @click="selectWeaponStance(st.value)"
-                                >
-                                    {{ st.label }}
-                                </button>
-                            </div>
                         </div>
 
-                        <div class="m-topbar-row is-secondary">
-                            <button type="button" class="u-pill-btn" @click="togglePlaying">
-                                {{ playing ? "暂停动作" : "播放动作" }}
-                            </button>
-
+                        <div class="m-view-pills" role="group" :aria-label="$t('exteriorStudio.camera')">
                             <button
-                                v-if="equippedExpression"
+                                v-for="v in viewPresets"
+                                :key="v.value"
                                 type="button"
-                                class="u-pill-btn u-expr-replay-btn"
-                                :class="{ 'is-active': faceExpressionLoop }"
-                                :title="
-                                    faceExpressionLoop
-                                        ? '当前循环播放，单击重播，双击切回单次播放'
-                                        : '单击重播表情，双击切换循环播放'
-                                "
-                                @click="replayFaceExpression"
-                                @dblclick.prevent="toggleFaceExpressionLoop"
+                                class="u-pill-btn"
+                                :class="{ 'is-active': activeView === v.value }"
+                                @click="selectCameraView(v.value)"
                             >
-                                <el-icon><RefreshRight /></el-icon>
-                                <span>{{ faceExpressionLoop ? "重播表情 · 循环" : "重播表情" }}</span>
+                                {{ $t(v.labelKey) }}
                             </button>
+                        </div>
 
-                            <el-select
-                                v-model="skybox"
-                                size="small"
-                                class="u-stage-select"
-                                :teleported="false"
-                                @change="onSkyboxChange"
-                            >
-                                <el-option
-                                    v-for="bg in skyboxes"
-                                    :key="bg.value"
-                                    :label="bg.label"
-                                    :value="bg.value"
-                                />
-                            </el-select>
-
-                            <el-select
-                                v-model="quality"
-                                size="small"
-                                class="u-stage-select"
-                                :teleported="false"
-                                @change="onQualityChange"
-                            >
-                                <el-option label="画质：自动" value="auto" />
-                                <el-option label="画质：高清" value="high" />
-                                <el-option label="画质：均衡" value="medium" />
-                                <el-option label="画质：省流" value="low" />
-                            </el-select>
-
-                            <el-button
-                                type="primary"
-                                size="small"
-                                round
-                                :loading="capturing"
-                                :disabled="!stageReady"
-                                @click="captureSnapshot"
-                            >
-                                <el-icon class="el-icon--left"><Camera /></el-icon>
-                                {{ $t("exterior.studio.capture") }}
-                            </el-button>
-
-                            <el-button size="small" round @click="copyShareUrl">
-                                <el-icon class="el-icon--left"><Share /></el-icon>
-                                {{ $t("exterior.studio.shareWear") }}
-                            </el-button>
-
-                            <el-button
-                                v-if="wornCapsules.length"
-                                size="small"
-                                round
-                                @click="clearAllEquipped"
-                            >
-                                <el-icon class="el-icon--left"><Delete /></el-icon>
-                                {{ $t("exterior.studio.clearAll") }}
-                            </el-button>
-
-                            <button
-                                type="button"
-                                class="u-pill-btn u-layout-btn"
-                                :class="{ 'is-active': sidebarCollapsed }"
-                                :title="sidebarCollapsed ? '展开左侧分类与外观列表' : '收起左侧两个栏目，放大 3D 舞台'"
-                                @click="toggleSidebarCollapsed()"
-                            >
-                                <el-icon>
-                                    <DArrowRight v-if="sidebarCollapsed" />
-                                    <DArrowLeft v-else />
-                                </el-icon>
-                                <span>{{ sidebarCollapsed ? "展开左侧栏" : "收起左侧栏" }}</span>
+                        <div class="m-stage-playback" role="group" :aria-label="$t('exteriorStudio.playback')">
+                            <button type="button" class="u-pill-btn u-stage-play-toggle" @click="togglePlaying">
+                                {{ playing ? $t('exteriorStudio.pause') : $t('exteriorStudio.play') }}
                             </button>
-
-                            <button
-                                type="button"
-                                class="u-pill-btn u-layout-btn"
-                                :class="{ 'is-active': isFullscreen }"
-                                :title="isFullscreen ? '退出全屏模式 (Esc)' : '全屏显示试衣间'"
-                                @click="toggleFullscreen"
+                            <el-dropdown
+                                trigger="hover"
+                                placement="bottom-start"
+                                :append-to="popoverTeleportTarget"
+                                :disabled="stageLoading"
+                                :show-arrow="false"
+                                @command="selectLocomotion"
                             >
-                                <el-icon><FullScreen /></el-icon>
-                                <span>{{ isFullscreen ? "退出全屏" : "全屏" }}</span>
-                            </button>
+                                <button
+                                    type="button"
+                                    class="u-pill-btn u-stage-locomotion"
+                                    :aria-label="$t('exteriorStudio.movementNamed', { name: locomotionLabel })"
+                                    :disabled="stageLoading"
+                                >
+                                    <el-icon aria-hidden="true"><ArrowDown /></el-icon>
+                                </button>
+                                <template #dropdown>
+                                    <el-dropdown-menu class="m-stage-locomotion-menu" :aria-label="$t('exteriorStudio.movement')">
+                                        <el-dropdown-item
+                                            v-for="loc in locomotionModes"
+                                            :key="loc.value"
+                                            :command="loc.value"
+                                            :aria-current="locomotion === loc.value ? 'true' : undefined"
+                                        >
+                                            {{ $t(loc.labelKey) }}
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
 
-                            <button type="button" class="u-pill-btn" @click="toggleImmersive(true)">
-                                沉浸模式
-                            </button>
+                        <div class="m-topbar-actions">
+                            <el-popover
+                                v-model:visible="stageMoreOpen"
+                                trigger="click"
+                                placement="bottom-end"
+                                width="min(320px, calc(100vw - 32px))"
+                                :append-to="popoverTeleportTarget"
+                                :show-arrow="false"
+                                popper-class="m-studio-more-popper"
+                                @after-enter="focusStageMore"
+                            >
+                                <template #reference>
+                                    <span class="m-stage-tooltip-anchor">
+                                        <el-tooltip
+                                            :content="$t('exteriorStudio.moreSettings')"
+                                            :disabled="stageMoreOpen"
+                                            :trigger-keys="[]"
+                                            :append-to="popoverTeleportTarget"
+                                        >
+                                            <button
+                                                ref="stageMoreButtonRef"
+                                                type="button"
+                                                class="u-pill-btn u-stage-tool"
+                                                :aria-label="$t('exteriorStudio.moreSettings')"
+                                                :aria-expanded="stageMoreOpen"
+                                            >
+                                                <el-icon aria-hidden="true"><MoreFilled /></el-icon>
+                                            </button>
+                                        </el-tooltip>
+                                    </span>
+                                </template>
+
+                                <div class="m-stage-more">
+                                    <section class="m-stage-more__group">
+                                        <h3>{{ $t('exteriorStudio.actions') }}</h3>
+                                        <div class="m-stage-more__actions">
+                                            <button
+                                                ref="stageMoreFirstControlRef"
+                                                type="button"
+                                                class="u-pill-btn u-skill-teaser-btn"
+                                                :title="$t('exteriorStudio.skillsComing')"
+                                                @click="onSkillActionTeaser"
+                                            >
+                                                <el-icon><MagicStick /></el-icon>
+                                                <span>{{ $t('exteriorStudio.skillAction') }}</span>
+                                            </button>
+
+                                            <button
+                                                v-if="equippedExpression"
+                                                type="button"
+                                                class="u-pill-btn u-expr-replay-btn"
+                                                :class="{ 'is-active': faceExpressionLoop }"
+                                                :title="
+                                                    faceExpressionLoop
+                                                        ? $t('exteriorStudio.loopHint')
+                                                        : $t('exteriorStudio.replayHint')
+                                                "
+                                                @click="replayFaceExpression"
+                                                @dblclick.prevent="toggleFaceExpressionLoop"
+                                            >
+                                                <el-icon><RefreshRight /></el-icon>
+                                                <span>{{ faceExpressionLoop ? $t('exteriorStudio.replayLoop') : $t('exteriorStudio.replay') }}</span>
+                                            </button>
+                                        </div>
+                                        <div v-if="hasWeaponEquipped" class="m-weapon-pills" role="group" :aria-label="$t('exteriorStudio.weaponPose')">
+                                            <button
+                                                v-for="st in weaponStances"
+                                                :key="st.value"
+                                                type="button"
+                                                class="u-pill-btn"
+                                                :class="{ 'is-active': weaponStance === st.value }"
+                                                @click="selectWeaponStance(st.value)"
+                                            >
+                                                {{ $t(st.labelKey) }}
+                                            </button>
+                                        </div>
+                                    </section>
+
+                                    <section class="m-stage-more__group">
+                                        <div class="m-stage-more__settings">
+                                            <div class="m-stage-more__setting">
+                                                <label for="studio-stage-scene">{{ $t('exteriorStudio.scene') }}</label>
+                                                <el-select
+                                                    id="studio-stage-scene"
+                                                    v-model="skybox"
+                                                    size="small"
+                                                    class="u-stage-select"
+                                                    :aria-label="$t('exteriorStudio.scene')"
+                                                    :teleported="false"
+                                                    @change="onSkyboxChange"
+                                                >
+                                                    <el-option
+                                                        v-for="bg in skyboxes"
+                                                        :key="bg.value"
+                                                        :label="$t(bg.labelKey)"
+                                                        :value="bg.value"
+                                                    />
+                                                </el-select>
+                                            </div>
+
+                                            <div class="m-stage-more__setting">
+                                                <label for="studio-stage-quality">{{ $t('exteriorStudio.quality') }}</label>
+                                                <el-select
+                                                    id="studio-stage-quality"
+                                                    v-model="quality"
+                                                    size="small"
+                                                    class="u-stage-select"
+                                                    :aria-label="$t('exteriorStudio.quality')"
+                                                    :teleported="false"
+                                                    @change="onQualityChange"
+                                                >
+                                                    <el-option :label="$t('exteriorStudio.auto')" value="auto" />
+                                                    <el-option :label="$t('exteriorStudio.high')" value="high" />
+                                                    <el-option :label="$t('exteriorStudio.medium')" value="medium" />
+                                                    <el-option :label="$t('exteriorStudio.low')" value="low" />
+                                                </el-select>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section class="m-stage-more__group">
+                                        <h3>{{ $t('exteriorStudio.look') }}</h3>
+                                        <div class="m-stage-more__actions">
+                                            <el-button size="small" round @click="copyShareUrl">
+                                                <el-icon class="el-icon--left"><Share /></el-icon>
+                                                {{ $t("exterior.studio.shareWear") }}
+                                            </el-button>
+
+                                            <el-button
+                                                v-if="wornCapsules.length"
+                                                size="small"
+                                                round
+                                                @click="clearAllEquipped"
+                                            >
+                                                <el-icon class="el-icon--left"><Delete /></el-icon>
+                                                {{ $t("exterior.studio.clearAll") }}
+                                            </el-button>
+                                        </div>
+                                    </section>
+                                </div>
+                            </el-popover>
+                        </div>
+                        <div class="m-topbar-display" role="group" :aria-label="$t('exteriorStudio.display')">
+                            <el-tooltip :content="$t('exteriorStudio.immersive')" :trigger-keys="[]" :append-to="popoverTeleportTarget">
+                                <button
+                                    type="button"
+                                    class="u-pill-btn u-stage-tool"
+                                    :aria-label="$t('exteriorStudio.immersive')"
+                                    @click="toggleImmersive(true)"
+                                >
+                                    <el-icon aria-hidden="true"><View /></el-icon>
+                                </button>
+                            </el-tooltip>
+                            <el-tooltip
+                                :content="isFullscreen ? $t('exteriorStudio.exitFull') : $t('exteriorStudio.full')"
+                                :trigger-keys="[]"
+                                :append-to="popoverTeleportTarget"
+                            >
+                                <button
+                                    type="button"
+                                    class="u-pill-btn u-stage-tool"
+                                    :class="{ 'is-active': isFullscreen }"
+                                    :aria-label="isFullscreen ? $t('exteriorStudio.exitFull') : $t('exteriorStudio.full')"
+                                    @click="toggleFullscreen"
+                                >
+                                    <el-icon aria-hidden="true"><FullScreen /></el-icon>
+                                </button>
+                            </el-tooltip>
                         </div>
                     </header>
 
@@ -359,62 +419,94 @@
 
                     <div v-if="stageError" class="m-stage-overlay is-error">
                         <div class="m-stage-error">
-                            <h4>试衣间渲染异常</h4>
+                            <h4>{{ $t('exteriorStudio.stageError') }}</h4>
                             <p>{{ stageError }}</p>
-                            <el-button type="primary" round size="small" @click="reloadStage">重新加载</el-button>
+                            <el-button type="primary" round size="small" @click="reloadStage">{{ $t('exteriorStudio.reload') }}</el-button>
                         </div>
                     </div>
 
-                    <!-- 左下角挂宠行为栏与当前穿戴浮动胶囊 -->
-                    <div v-if="!immersiveMode && (petBehaviorModes.length > 1 || wornCapsules.length)" class="m-stage-docks">
-                        <div v-if="petBehaviorModes.length > 1" class="m-pet-dock" aria-label="挂宠行为切换">
-                            <span class="m-pet-dock__label">挂宠姿态</span>
-                            <div class="m-pet-dock__pills">
-                                <button
-                                    v-for="modeObj in petBehaviorModes"
-                                    :key="modeObj.mode"
-                                    type="button"
-                                    class="u-pet-mode-btn"
-                                    :class="{ 'is-active': activePetMode === modeObj.mode }"
-                                    :disabled="Boolean(busyKey)"
-                                    @click="selectPetBehaviorMode(modeObj)"
+                    <div v-if="!immersiveMode && wornCapsules.length" class="m-worn-dock">
+                        <button
+                            type="button"
+                            class="m-worn-dock__toggle"
+                            :aria-expanded="wornDockOpen"
+                            aria-controls="studio-worn-list"
+                            @click="wornDockOpen = !wornDockOpen"
+                        >
+                            {{ $t('exteriorStudio.wornCount', { count: wornCapsules.length }) }}
+                            <el-icon :class="{ 'is-expanded': wornDockOpen }" aria-hidden="true"><ArrowDown /></el-icon>
+                        </button>
+                        <ul
+                            v-show="wornDockOpen"
+                            id="studio-worn-list"
+                            class="m-worn-dock__list"
+                            :aria-label="$t('exteriorStudio.wornList')"
+                        >
+                            <li v-for="entry in wornCapsules" :key="entry.key" class="u-worn-capsule">
+                                <img v-if="entry.cover" :src="entry.cover" alt="" class="u-cap-thumb" />
+                                <router-link
+                                    v-if="entry.linkable !== false"
+                                    :to="{ name: 'exterior-list', query: { id: entry.key } }"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="u-cap-name"
+                                    :title="$t('exteriorStudio.detailsNamed', { name: entry.name })"
                                 >
-                                    {{ modeObj.label }}
+                                    {{ entry.name }}
+                                </router-link>
+                                <span v-else class="u-cap-name" :title="entry.name">{{ entry.name }}</span>
+                                <span class="u-cap-tag">{{ entry.badge }}</span>
+                                <button
+                                    type="button"
+                                    class="u-cap-remove"
+                                    :aria-label="$t('exteriorStudio.removeNamed', { name: entry.name })"
+                                    @click="unequipByKey(entry.key)"
+                                >
+                                    <el-icon><Close /></el-icon>
                                 </button>
-                            </div>
-                        </div>
+                            </li>
+                        </ul>
+                    </div>
 
-                        <div v-if="wornCapsules.length" class="m-worn-dock" aria-label="当前穿戴清单">
-                            <div class="m-worn-dock__title">当前穿戴（{{ wornCapsules.length }}）</div>
-                            <div class="m-worn-pills">
-                                <div v-for="entry in wornCapsules" :key="entry.key" class="u-worn-capsule">
-                                    <img v-if="entry.cover" :src="entry.cover" alt="" class="u-cap-thumb" />
-                                    <router-link
-                                        v-if="entry.linkable !== false"
-                                        :to="{ name: 'exterior-list', query: { id: entry.key } }"
-                                        target="_blank"
-                                        class="u-cap-name"
-                                        :title="`查看「${entry.name}」详情`"
-                                    >
-                                        {{ entry.name }}
-                                    </router-link>
-                                    <span v-else class="u-cap-name">{{ entry.name }}</span>
-                                    <span class="u-cap-tag">{{ entry.badge }}</span>
+                    <div v-show="!immersiveMode" class="m-stage-footer">
+                        <div class="m-stage-footer__left">
+                            <div v-if="petBehaviorModes.length > 1" class="m-pet-dock" :aria-label="$t('exteriorStudio.switchPet')">
+                                <span class="m-pet-dock__label">{{ $t('exteriorStudio.petPose') }}</span>
+                                <div class="m-pet-dock__pills">
                                     <button
+                                        v-for="modeObj in petBehaviorModes"
+                                        :key="modeObj.mode"
                                         type="button"
-                                        class="u-cap-remove"
-                                        :aria-label="`卸下 ${entry.name}`"
-                                        @click="unequipByKey(entry.key)"
+                                        class="u-pet-mode-btn"
+                                        :class="{ 'is-active': activePetMode === modeObj.mode }"
+                                        :disabled="Boolean(busyKey)"
+                                        @click="selectPetBehaviorMode(modeObj)"
                                     >
-                                        <el-icon><Close /></el-icon>
+                                        {{ petPoseLabel($t, modeObj.label) }}
                                     </button>
                                 </div>
                             </div>
+                            <ExteriorStageHint>{{ $t('exteriorStudio.stageHint') }}</ExteriorStageHint>
                         </div>
+                        <el-tooltip
+                            :content="$t('exterior.studio.capture')"
+                            placement="top"
+                            :trigger-keys="[]"
+                            :append-to="popoverTeleportTarget"
+                        >
+                            <el-button
+                                type="primary"
+                                circle
+                                class="u-stage-capture"
+                                :aria-label="$t('exterior.studio.capture')"
+                                :loading="capturing"
+                                :disabled="!stageReady"
+                                @click="captureSnapshot"
+                            >
+                                <template #icon><Camera aria-hidden="true" /></template>
+                            </el-button>
+                        </el-tooltip>
                     </div>
-
-                    <!-- 底部操作提示 -->
-                    <div v-show="!immersiveMode" class="m-stage-hint">左键旋转 · 右键平移 · 滚轮缩放</div>
                 </template>
             </main>
         </div>
@@ -423,6 +515,7 @@
 
 <script>
 import {
+    ArrowDown,
     ArrowLeft,
     ArrowRight,
     Brush,
@@ -434,6 +527,7 @@ import {
     Delete,
     FullScreen,
     MagicStick,
+    MoreFilled,
     RefreshRight,
     Scissor,
     Share,
@@ -446,12 +540,14 @@ import {
 import { ElMessage } from "element-plus";
 import User from "@jx3box/jx3box-common/js/user";
 import { createWorkerPreview } from "@jx3box/jx3box-exterior/worker";
+import ExteriorStageHint from "@/components/exterior/ExteriorStageHint.vue";
 import StudioBodyEditor from "@/components/exterior/studio/StudioBodyEditor.vue";
 import StudioCatalogGrid from "@/components/exterior/studio/StudioCatalogGrid.vue";
 import StudioFaceEditor from "@/components/exterior/studio/StudioFaceEditor.vue";
 import { extractStudioGraphRelations } from "@/components/exterior/studio/StudioItemHoverPopover.vue";
+import { expressionLabel, petPoseLabel } from "@/components/exterior/studio/studio-labels";
 import { STUDIO_MENU, STUDIO_SKYBOXES } from "@/components/exterior/studio/studio-menu";
-import { BODY_LABEL_MAP, BODY_TYPES, DOMAIN_META, pickExteriorCover } from "@/components/exterior/meta";
+import { localizedExteriorLabel, BODY_LABEL_MAP, BODY_TYPES, DOMAIN_META, pickExteriorCover } from "@/components/exterior/meta";
 import {
     UC_AUTH_URL,
     getCharacterBaseModel,
@@ -522,6 +618,7 @@ function calcProgressPercent(p, base = 8) {
 export default {
     name: "ExteriorStudio",
     components: {
+        ArrowDown,
         ArrowLeft,
         ArrowRight,
         Brush,
@@ -531,8 +628,10 @@ export default {
         DArrowLeft,
         DArrowRight,
         Delete,
+        ExteriorStageHint,
         FullScreen,
         MagicStick,
+        MoreFilled,
         RefreshRight,
         Scissor,
         Share,
@@ -555,24 +654,26 @@ export default {
             verifyChecked: false,
             verifyRequired: false,
             immersiveMode: false,
+            stageMoreOpen: false,
+            wornDockOpen: !window.matchMedia("(max-width: 720px)").matches,
             menuItems: STUDIO_MENU,
             activeMenuId: "outfit",
             bodyTypes: BODY_TYPES,
             skyboxes: STUDIO_SKYBOXES,
             viewPresets: [
-                { value: "front", label: "正面" },
-                { value: "back", label: "背面" },
-                { value: "face", label: "面部" },
+                { value: "front", labelKey: "exteriorStudio.front" },
+                { value: "back", labelKey: "exteriorStudio.backView" },
+                { value: "face", labelKey: "exteriorStudio.faceView" },
             ],
             locomotionModes: [
-                { value: "idle", label: "站立" },
-                { value: "walk", label: "行走" },
-                { value: "run", label: "奔跑" },
+                { value: "idle", labelKey: "exteriorStudio.idle" },
+                { value: "walk", labelKey: "exteriorStudio.walk" },
+                { value: "run", labelKey: "exteriorStudio.run" },
             ],
             weaponStances: [
-                { value: "sheathed", label: "收剑" },
-                { value: "unsheathed", label: "持武" },
-                { value: "fight", label: "战斗" },
+                { value: "sheathed", labelKey: "exteriorStudio.sheathed" },
+                { value: "unsheathed", labelKey: "exteriorStudio.unsheathed" },
+                { value: "fight", labelKey: "exteriorStudio.fight" },
             ],
             explicitRole: initRole,
             preserveCatalogRole: this.$router.options.history.state.preserveCatalogRole === true,
@@ -599,7 +700,7 @@ export default {
             stageLoading: false,
             stageReady: false,
             stageError: "",
-            stageProgressText: "正在初始化试衣间引擎…",
+            stageProgressText: this.$t('exteriorStudio.initStage'),
             stageProgressPercent: 0,
             actionProgressText: "",
             actionProgressPercent: 0,
@@ -622,6 +723,9 @@ export default {
         };
     },
     computed: {
+        locomotionLabel() {
+            return this.$t('exteriorStudio.' + this.locomotion);
+        },
         isFullscreen() {
             return this.isNativeFullscreen || this.isViewportFullscreen;
         },
@@ -629,8 +733,8 @@ export default {
             return this.isNativeFullscreen && this.$refs.studioRootRef ? this.$refs.studioRootRef : "body";
         },
         panelTabTitle() {
-            if (this.sidebarCollapsed) return "展开左侧分类与外观列表";
-            return this.drawerCollapsed ? "展开外观列表栏" : "收起外观列表栏";
+            if (this.sidebarCollapsed) return this.$t('exteriorStudio.expandNavList');
+            return this.drawerCollapsed ? this.$t('exteriorStudio.expandListPanel') : this.$t('exteriorStudio.collapseListPanel');
         },
         activeRole() {
             return this.explicitRole || this.$store.state.preferredRole || 2;
@@ -648,14 +752,14 @@ export default {
                 key: entry.key,
                 name: entry.name,
                 cover: entry.cover,
-                badge: DOMAIN_META[entry.domain]?.label || entry.domain,
+                badge: localizedExteriorLabel(this.$t, DOMAIN_META[entry.domain]?.label || entry.domain),
             }));
             if (this.equippedPosture) {
                 list.push({
                     key: this.equippedPosture.key,
                     name: this.equippedPosture.name,
                     cover: this.equippedPosture.cover,
-                    badge: "站姿",
+                    badge: this.$t('exterior.domains.posture'),
                 });
             }
             if (this.equippedEffect) {
@@ -663,15 +767,15 @@ export default {
                     key: this.equippedEffect.key,
                     name: this.equippedEffect.name,
                     cover: this.equippedEffect.cover,
-                    badge: "特效",
+                    badge: this.$t('exterior.domains.effect'),
                 });
             }
             if (this.equippedExpression) {
                 list.push({
                     key: this.equippedExpression.key,
-                    name: this.equippedExpression.name,
+                    name: expressionLabel(this.$t, this.equippedExpression.exprKey, this.equippedExpression.name),
                     cover: "",
-                    badge: "表情",
+                    badge: this.$t('exteriorStudio.expression'),
                     linkable: false,
                 });
             }
@@ -743,6 +847,11 @@ export default {
         this.disposePreview();
     },
     methods: {
+        petPoseLabel,
+        navItemLabel(item) {
+            const key = `exteriorStudio.navLabels.${item.id}`;
+            return this.$te(key) ? this.$t(key) : this.$t(item.labelKey);
+        },
         goBack() {
             const { back } = this.$router.options.history.state;
             const previousRoute = typeof back === "string" ? this.$router.resolve(back) : null;
@@ -765,7 +874,7 @@ export default {
             if (status?.verified) {
                 this.loadBaseStage();
             } else {
-                ElMessage.warning("尚未检测到账号认证状态，请完成认证后再试");
+                ElMessage.warning(this.$t('exteriorStudio.unverified'));
             }
         },
         async ensureVerifiedAndStart() {
@@ -777,10 +886,22 @@ export default {
             }
         },
         toggleImmersive(active) {
+            this.stageMoreOpen = false;
             this.immersiveMode = Boolean(active);
+        },
+        focusStageMore() {
+            if (this.stageMoreOpen) this.$refs.stageMoreFirstControlRef?.focus({ preventScroll: true });
+        },
+        closeStageMore() {
+            this.stageMoreOpen = false;
+            this.$refs.stageMoreButtonRef?.focus({ preventScroll: true });
         },
         onStageKeydown(event) {
             if (event.key !== "Escape") return;
+            if (this.stageMoreOpen) {
+                this.closeStageMore();
+                return;
+            }
             if (this.immersiveMode) {
                 this.immersiveMode = false;
                 return;
@@ -815,6 +936,7 @@ export default {
             if (this.isNativeFullscreen) this.isViewportFullscreen = false;
         },
         async toggleFullscreen() {
+            this.stageMoreOpen = false;
             const el = this.$refs.studioRootRef;
             if (!el) return;
             if (this.isNativeFullscreen) {
@@ -919,8 +1041,8 @@ export default {
                     : getWeaponStanceClipUrl(this.activeRole, aniId);
 
             this.actionProgressText = locomotionActive
-                ? `正在切换武器${this.locomotion === "run" ? "奔跑" : "行走"}姿态…`
-                : `正在切换武器姿态（${sheathed ? "收剑" : validStance === "fight" ? "战斗" : "持武"}）…`;
+                ? this.$t('exteriorStudio.switchWeaponMove', { name: this.locomotionLabel })
+                : this.$t('exteriorStudio.switchWeapon', { name: this.$t('exteriorStudio.' + validStance) });
             this.actionProgressPercent = clipUrl ? 40 : 80;
             try {
                 await this.preview.loadAnimation(clipUrl);
@@ -932,7 +1054,7 @@ export default {
                 }
             } catch (err) {
                 if (err?.name !== "AbortError") {
-                    ElMessage.error(err?.message || "切换武器姿态失败");
+                    ElMessage.error(err?.message || this.$t('exteriorStudio.weaponFailed'));
                 }
             } finally {
                 if (actionSeq === this._actionSeq) {
@@ -995,7 +1117,7 @@ export default {
             }
 
             const clipUrl = getWeaponStanceClipUrl(this.activeRole, aniId);
-            this.actionProgressText = `正在切换至${validMode === "run" ? "奔跑" : "行走"}姿态…`;
+            this.actionProgressText = this.$t('exteriorStudio.moveNamed', { name: this.$t('exteriorStudio.' + validMode) });
             this.actionProgressPercent = 40;
             try {
                 await this.preview.loadAnimation(clipUrl);
@@ -1005,7 +1127,7 @@ export default {
                 }
             } catch (err) {
                 if (err?.name !== "AbortError") {
-                    ElMessage.error(err?.message || "切换移动姿态失败");
+                    ElMessage.error(err?.message || this.$t('exteriorStudio.moveFailed'));
                 }
             } finally {
                 if (actionSeq === this._actionSeq) {
@@ -1018,7 +1140,7 @@ export default {
             void this.applyLocomotion(mode);
         },
         onSkillActionTeaser() {
-            ElMessage.info("技能动作释放功能正在筹备中，敬请期待～");
+            ElMessage.info(this.$t('exteriorStudio.skillsNotice'));
         },
         async replayFaceExpression() {
             if (!this.preview || !this.equippedExpression) return;
@@ -1038,8 +1160,8 @@ export default {
             await this.preview.setFaceExpressionLoop(this.faceExpressionLoop);
             ElMessage.success(
                 this.faceExpressionLoop
-                    ? "表情已切换为循环播放（再次双击切回单次）"
-                    : "表情已切回单次播放"
+                    ? this.$t('exteriorStudio.loopEnabled')
+                    : this.$t('exteriorStudio.loopDisabled')
             );
         },
         recordCachedAndHistory(item) {
@@ -1087,7 +1209,7 @@ export default {
                 return getMetaBaseModelUrl(this.activeRole);
             }
             const res = await getCharacterBaseModel(this.activeRole);
-            if (!res?.modelUrl) throw new Error("未找到对应体型的角色基础模型");
+            if (!res?.modelUrl) throw new Error(this.$t('exteriorStudio.missingBase'));
             return res.modelUrl;
         },
         async loadBaseStage() {
@@ -1099,8 +1221,8 @@ export default {
             this.stageProgressPercent = 6;
             this.stageProgressText =
                 this.faceStyle === "meta"
-                    ? `正在准备${BODY_LABEL_MAP[this.activeRole] || ""}写实人物模型…`
-                    : `正在准备${BODY_LABEL_MAP[this.activeRole] || ""}试衣间人物模型…`;
+                    ? this.$t('exteriorStudio.prepReal', { body: localizedExteriorLabel(this.$t, BODY_LABEL_MAP[this.activeRole]) })
+                    : this.$t('exteriorStudio.prepBody', { body: localizedExteriorLabel(this.$t, BODY_LABEL_MAP[this.activeRole]) });
 
             try {
                 if (!this.preview && this.needsFreshCanvas) {
@@ -1127,8 +1249,8 @@ export default {
 
                 const onProgress = (p) => {
                     if (seq !== this.stageSeq) return;
-                    if (p?.phase === "parts") this.stageProgressText = "正在加载模型与材质…";
-                    else if (p?.phase === "finalizing") this.stageProgressText = "正在装配人物效果…";
+                    if (p?.phase === "parts") this.stageProgressText = this.$t('exteriorStudio.loadTextures');
+                    else if (p?.phase === "finalizing") this.stageProgressText = this.$t('exteriorStudio.applyEffects');
                     this.stageProgressPercent = Math.max(
                         this.stageProgressPercent,
                         calcProgressPercent(p, 14)
@@ -1157,7 +1279,7 @@ export default {
                                 if (seq === this.stageSeq) {
                                     this.preview = null;
                                     this.stageReady = false;
-                                    this.stageError = err?.message || "3D 渲染发生错误";
+                                    this.stageError = err?.message || this.$t('exteriorStudio.renderFailed');
                                     this.stageLoading = false;
                                 }
                             },
@@ -1232,7 +1354,7 @@ export default {
                     this.disposePreview();
                     return;
                 }
-                this.stageError = err?.message || "试衣间模型初始化失败";
+                this.stageError = err?.message || this.$t('exteriorStudio.initFailed');
             } finally {
                 if (seq === this.stageSeq) {
                     this.stageLoading = false;
@@ -1267,7 +1389,7 @@ export default {
             if (!this.preview) return false;
             const seq = ++this._faceSeq;
             const actionSeq = ++this._actionSeq;
-            this.actionProgressText = `正在应用「${req.label || "脸型"}」…`;
+            this.actionProgressText = this.$t('exteriorStudio.applyingNamed', { name: req.label || this.$t('exteriorStudio.facePreset') });
             this.actionProgressPercent = 12;
             try {
                 const res = await this.preview.applyProfile(req.profile, {
@@ -1284,14 +1406,14 @@ export default {
                 await this.$refs.faceEditorRef?.refreshControls?.();
                 const unapplied = res?.unappliedFaceParts?.length || 0;
                 if (unapplied > 0) {
-                    ElMessage.info(`已应用「${req.label || "脸型"}」（${unapplied} 项专属面饰暂无模型，其余妆容已完整还原）`);
+                    ElMessage.info(this.$t('exteriorStudio.partialFace', { name: req.label || this.$t('exteriorStudio.facePreset'), count: unapplied }));
                 } else {
-                    ElMessage.success(`已应用「${req.label || "脸型"}」`);
+                    ElMessage.success(this.$t('exteriorStudio.appliedNamed', { name: req.label || this.$t('exteriorStudio.facePreset') }));
                 }
                 return true;
             } catch (err) {
                 if (err?.name === "AbortError" || seq !== this._faceSeq) return false;
-                ElMessage.error(err?.message || "脸型应用失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.applyFaceFailed'));
                 return false;
             } finally {
                 if (actionSeq === this._actionSeq) {
@@ -1427,7 +1549,7 @@ export default {
             try {
                 await this.equipSingleOrBundle(item);
             } catch (err) {
-                ElMessage.error(err?.message || `无法穿戴「${item.name || item.key}」`);
+                ElMessage.error(err?.message || this.$t('exteriorStudio.wearFailed', { name: item.name || item.key }));
             } finally {
                 this.busyKey = "";
             }
@@ -1716,7 +1838,7 @@ export default {
                     getExteriorGraphCached(item.key).catch(() => null),
                 ]);
                 const targetSpecs = this.extractBundleTargetSpecs(item.key, detail, graph);
-                if (!targetSpecs.length) throw new Error("该礼盒暂无可拆解的 3D 穿戴部件");
+                if (!targetSpecs.length) throw new Error(this.$t('exteriorStudio.emptyBundle'));
                 const children = await Promise.all(
                     targetSpecs.map(async ({ key, fallbackKey }) => ({
                         primary: await getExteriorsDetail(key).catch(() => null),
@@ -1739,8 +1861,8 @@ export default {
                         equippedCount++;
                     }
                 }
-                if (!equippedCount) throw new Error("该礼盒暂无适用当前体型的 3D 穿戴部件");
-                ElMessage.success(`已整套穿戴「${item.name || item.key}」`);
+                if (!equippedCount) throw new Error(this.$t('exteriorStudio.incompatibleBundle'));
+                ElMessage.success(this.$t('exteriorStudio.bundleWorn', { name: item.name || item.key }));
                 return;
             }
             await this.equipAtomicItem(item, options);
@@ -1784,7 +1906,9 @@ export default {
             const name = item.name || item.game_name || item.key;
 
             const actionSeq = ++this._actionSeq;
-            this.actionProgressText = `正在装配「${name}」…`;
+            this.actionProgressText = this.$t('exteriorStudio.equipNamed', {
+                name: domain === 'expression' ? expressionLabel(this.$t, item.exprKey, name) : name,
+            });
             this.actionProgressPercent = 12;
 
             try {
@@ -1839,7 +1963,7 @@ export default {
                         });
                         if (!anyVisible) {
                             ElMessage.warning(
-                                `「${name}」会被当前成衣「${activeOutfit.name}」完全遮挡，请先卸下或更换套装`
+                                this.$t('exteriorStudio.occluded', { name, outfit: activeOutfit.name })
                             );
                             return;
                         }
@@ -1935,7 +2059,7 @@ export default {
             } catch (err) {
                 this.activePetMode = prevMode;
                 if (err?.name !== "AbortError") {
-                    ElMessage.error(err?.message || "切换挂宠行为失败");
+                    ElMessage.error(err?.message || this.$t('exteriorStudio.petFailed'));
                 }
             }
         },
@@ -2028,9 +2152,9 @@ export default {
                 link.click();
                 link.remove();
                 setTimeout(() => URL.revokeObjectURL(url), 5000);
-                ElMessage.success("高清试穿照片已生成下载");
+                ElMessage.success(this.$t('exteriorStudio.photoSaved'));
             } catch (err) {
-                ElMessage.error(err?.message || "高清拍照失败");
+                ElMessage.error(err?.message || this.$t('exteriorStudio.photoFailed'));
             } finally {
                 this.capturing = false;
             }
@@ -2048,7 +2172,7 @@ export default {
             const href = url.toString();
             try {
                 await navigator.clipboard.writeText(href);
-                ElMessage.success("当前试穿搭配链接已复制");
+                ElMessage.success(this.$t('exteriorStudio.linkCopied'));
             } catch {
                 ElMessage.info(href);
             }
@@ -2122,16 +2246,20 @@ export default {
     flex-direction: column;
     width: 102px;
     flex-shrink: 0;
+    min-height: 0;
     padding: 12px 8px;
+    overflow-y: auto;
+    scrollbar-width: thin;
     background: #0f172a;
     color: #cbd5e1;
-    gap: 10px;
+    gap: @pvx-space-1;
 
     @media (max-width: @ipad-y) {
         grid-column: 1 / -1;
         width: auto;
         flex-direction: row;
         overflow-x: auto;
+        overflow-y: hidden;
         padding: 8px 10px;
     }
 }
@@ -2160,6 +2288,7 @@ export default {
 .m-nav-list {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
     gap: 4px;
 
     @media (max-width: @ipad-y) {
@@ -2173,7 +2302,7 @@ export default {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 10px 6px;
+    padding: 8px 6px;
     border: none;
     border-radius: 12px;
     background: transparent;
@@ -2302,8 +2431,17 @@ export default {
     width: 100%;
     height: 100%;
     display: block;
+    opacity: 0;
     touch-action: none;
     cursor: grab;
+
+    &.is-ready {
+        opacity: 1;
+
+        @media (prefers-reduced-motion: no-preference) {
+            transition: opacity 160ms ease-out;
+        }
+    }
 
     &:active {
         cursor: grabbing;
@@ -2317,34 +2455,32 @@ export default {
     right: 12px;
     z-index: 3;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
     pointer-events: none;
 
     @media (max-width: @phone) {
+        top: 8px;
         left: 8px;
         right: 8px;
-        .m-topbar-row {
-            width: 100%;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            scrollbar-width: thin;
-            > * { flex-shrink: 0; }
-        }
+        gap: 4px;
     }
 
     > * {
+        flex-shrink: 0;
         pointer-events: auto;
     }
 }
 
-.m-topbar-row {
+.m-topbar-actions,
+.m-topbar-display,
+.m-stage-more__actions {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 6px;
     max-width: 100%;
+    gap: 6px;
 
     :deep(.el-button) {
         height: 32px;
@@ -2359,9 +2495,24 @@ export default {
     }
 }
 
+.m-topbar-display {
+    margin-inline-start: auto;
+}
+
+.m-stage-playback {
+    display: inline-flex;
+    align-items: center;
+    border-radius: @pvx-radius-pill;
+    background: rgba(15, 23, 42, 0.78);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
+}
+
+.m-stage-tooltip-anchor {
+    display: inline-flex;
+}
+
 .m-role-pills,
 .m-view-pills,
-.m-locomotion-pills,
 .m-weapon-pills {
     display: inline-flex;
     align-items: center;
@@ -2406,9 +2557,11 @@ export default {
     }
 }
 
-.m-topbar-row > .u-pill-btn {
+.u-stage-tool {
+    width: 32px;
     height: 32px;
-    padding: 0 12px;
+    padding: 0;
+    font-size: 16px;
     background: rgba(15, 23, 42, 0.78);
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
 
@@ -2416,14 +2569,68 @@ export default {
         background: rgba(30, 41, 59, 0.85);
     }
 
-    &.is-active {
+    &.is-active,
+    &[aria-expanded="true"] {
         background: @pvx-primary;
     }
 }
 
-.m-topbar-row > .u-expr-replay-btn,
-.m-topbar-row > .u-layout-btn {
+.u-stage-play-toggle {
+    height: 32px;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+}
+
+.u-stage-locomotion {
+    display: grid;
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    place-items: center;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    box-shadow: inset 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.m-stage-locomotion-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 6px;
+
+    :deep(.el-dropdown-menu__item) {
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: @pvx-radius-pill;
+        background: @pvx-surface-muted;
+        font-size: 12px;
+        white-space: nowrap;
+
+        &[aria-current="true"],
+        &:hover,
+        &:focus {
+            background: @pvx-primary-soft;
+            color: @pvx-primary-hover;
+        }
+
+        &[aria-current="true"] {
+            font-weight: 600;
+        }
+    }
+}
+
+.u-expr-replay-btn,
+.u-skill-teaser-btn {
     gap: 5px;
+}
+
+@media (max-width: @phone) {
+    .m-role-pills .u-pill-btn,
+    .m-view-pills .u-pill-btn {
+        padding-inline: 8px;
+    }
 }
 
 .m-stage-panel-tab {
@@ -2473,36 +2680,78 @@ export default {
     }
 }
 
-.m-topbar-row > .u-skill-teaser-btn {
-    gap: 5px;
-    color: #e0e7ff;
-    background: linear-gradient(135deg, rgba(67, 56, 202, 0.44), rgba(15, 23, 42, 0.72));
-    box-shadow: 0 0 0 1px rgba(165, 180, 252, 0.34) inset;
+:global(.el-popper.m-studio-more-popper) {
+    padding: 12px;
+    border-radius: @pvx-radius-control;
+    box-shadow: @pvx-shadow-hover;
+}
 
-    &:hover:not(:disabled) {
-        background: linear-gradient(135deg, rgba(79, 70, 229, 0.64), rgba(30, 41, 59, 0.88));
-        box-shadow: 0 0 0 1px rgba(199, 210, 254, 0.56) inset;
-        color: #fff;
+.m-stage-more {
+    display: grid;
+    gap: @pvx-space-2;
+
+    .u-pill-btn {
+        min-height: 32px;
+        background: @pvx-surface-muted;
+        color: @pvx-text-regular;
+
+        &:hover:not(:disabled),
+        &.is-active {
+            color: @pvx-primary-hover;
+            background: @pvx-primary-soft;
+        }
+    }
+
+    .m-weapon-pills {
+        justify-self: start;
+        height: auto;
+        background: @pvx-surface-muted;
     }
 }
 
-.u-stage-select {
-    width: 124px;
+.m-stage-more__group {
+    display: grid;
+    gap: @pvx-space-1;
+    min-width: 0;
 
-    :deep(.el-select__wrapper) {
-        height: 32px;
-        min-height: 32px;
-        box-sizing: border-box;
-        padding: 0 11px;
-        background: rgba(15, 23, 42, 0.78);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16) inset;
-        border-radius: @pvx-radius-pill;
+    & + & {
+        padding-top: @pvx-space-2;
+        border-top: 1px solid @pvx-border-light;
     }
 
-    :deep(.el-select__selected-item),
-    :deep(.el-select__caret) {
-        color: #f1f5f9;
+    h3 {
+        margin: 0;
+        color: @pvx-text-secondary;
         font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+.m-stage-more__settings {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    gap: @pvx-space-1;
+
+    .m-stage-more__setting {
+        display: grid;
+        gap: @pvx-space-1;
+        min-width: 0;
+
+        label {
+            color: @pvx-text-secondary;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    }
+
+    .u-stage-select {
+        min-width: 0;
+    }
+
+    :deep(.el-select__wrapper) {
+        min-height: 32px;
+        border-radius: @pvx-radius-pill;
     }
 }
 
@@ -2683,19 +2932,46 @@ export default {
     }
 }
 
-.m-stage-docks {
+.m-stage-footer {
     position: absolute;
     left: 14px;
+    right: 14px;
     bottom: 14px;
     z-index: 3;
     display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: @pvx-space-1;
+    pointer-events: none;
+}
+
+.m-stage-footer__left {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
-    max-width: min(64%, 560px);
+    gap: @pvx-space-1;
+    min-width: 0;
+    max-width: 560px;
+}
+
+.el-button.u-stage-capture {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    font-size: 24px;
+    box-shadow: @pvx-shadow-hover;
+    pointer-events: auto;
+
+    @media (max-width: @phone) {
+        width: 48px;
+        height: 48px;
+    }
 }
 
 .m-pet-dock {
+    max-width: 100%;
+    pointer-events: auto;
     display: inline-flex;
     align-items: center;
     flex-wrap: wrap;
@@ -2747,36 +3023,85 @@ export default {
 }
 
 .m-worn-dock {
-    width: 100%;
-    padding: 10px 12px;
+    --worn-dock-top: clamp(80px, 12%, 100px);
+    position: absolute;
+    top: var(--worn-dock-top);
+    right: 14px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    max-width: calc(100% - 28px);
+    max-height: calc(100% - var(--worn-dock-top) - 76px);
+    overflow: hidden;
     border-radius: 14px;
     background: rgba(15, 23, 42, 0.82);
     color: #f8fafc;
-}
 
-.m-worn-dock__title {
-    margin-bottom: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #cbd5e1;
-}
+    @media (max-width: @phone) {
+        --worn-dock-top: 106px;
+        right: 8px;
+        max-width: 65%;
+    }
 
-.m-worn-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    &__toggle {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 34px;
+        padding: 6px 10px;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        &:focus-visible {
+            outline: 2px solid #a5b4fc;
+            outline-offset: -3px;
+        }
+
+        .is-expanded {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        box-sizing: border-box;
+        width: 210px;
+        max-width: 100%;
+        min-height: 0;
+        margin: 0;
+        padding: 0 8px 8px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        list-style: none;
+    }
 }
 
 .u-worn-capsule {
-    display: inline-flex;
+    display: flex;
+    flex: none;
     align-items: center;
     gap: 5px;
     padding: 3px 6px 3px 4px;
     border-radius: @pvx-radius-pill;
     background: rgba(255, 255, 255, 0.14);
-    font-size: 12px;
+    line-height: 1.25;
 
     .u-cap-thumb {
+        display: block;
+        flex: none;
         width: 20px;
         height: 20px;
         border-radius: 50%;
@@ -2785,12 +3110,13 @@ export default {
     }
 
     .u-cap-name {
-        max-width: 110px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
         color: #f8fafc;
+        font-size: 10px;
         font-weight: 600;
+        white-space: normal;
+        overflow-wrap: anywhere;
 
         &:hover {
             color: #a5b4fc;
@@ -2798,14 +3124,19 @@ export default {
     }
 
     .u-cap-tag {
-        padding: 1px 5px;
+        flex: none;
+        max-width: 35%;
+        padding: 2px 4px;
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.14);
-        font-size: 10px;
+        font-size: 9px;
         color: #cbd5e1;
+        text-align: center;
+        overflow-wrap: anywhere;
     }
 
     .u-cap-remove {
+        flex: none;
         display: inline-grid;
         place-items: center;
         width: 16px;
@@ -2816,6 +3147,7 @@ export default {
         background: rgba(255, 255, 255, 0.2);
         color: #ffffff;
         font-size: 10px;
+        line-height: 1;
         cursor: pointer;
 
         &:hover {
@@ -2824,16 +3156,4 @@ export default {
     }
 }
 
-.m-stage-hint {
-    position: absolute;
-    right: 14px;
-    bottom: 14px;
-    z-index: 2;
-    padding: 5px 10px;
-    border-radius: @pvx-radius-pill;
-    background: rgba(15, 23, 42, 0.52);
-    color: #e2e8f0;
-    font-size: 11px;
-    pointer-events: none;
-}
 </style>

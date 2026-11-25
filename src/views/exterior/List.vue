@@ -58,7 +58,7 @@
                         </legend>
                         <el-radio-group v-model="draftRole" :aria-label="$t('exterior.bodyType')">
                             <el-radio-button v-for="body in bodyTypes" :key="body.id" :value="body.id">
-                                {{ body.label }}
+                                {{ $t(`exterior.bodyTypes.${body.key}`) }}
                             </el-radio-button>
                         </el-radio-group>
                     </fieldset>
@@ -181,7 +181,7 @@
             <PvxSectionHeader :title="resultTitle">
                 <template v-if="total != null" #action>
                     <span class="u-count-pill">
-                        {{ $t("exterior.resultCount", { count: total.toLocaleString("zh-CN") }) }}
+                        {{ $t("exterior.resultCount", { count: total.toLocaleString($i18n.locale) }) }}
                     </span>
                 </template>
             </PvxSectionHeader>
@@ -205,17 +205,16 @@
 
                 <PvxEmptyState v-else-if="!loading" :title="$t('exterior.empty')" illustrated>
                     <template v-if="keyword || domain" #action>
-                        <el-button @click="resetFilters">查看全部外观</el-button>
+                        <el-button @click="resetFilters">{{ $t("exterior.viewAll") }}</el-button>
                     </template>
                 </PvxEmptyState>
 
                 <div v-if="items.length && (page > 1 || nextCursor !== null)" class="m-ext-footer">
-                    <nav class="m-ext-cursor-pager" aria-label="外观列表分页">
-                        <el-button v-if="page > 2" round :disabled="loading" @click="goFirstPage"> 首页 </el-button>
-                        <el-button round :disabled="page <= 1 || loading" @click="goPrevPage"> 上一页 </el-button>
+                    <nav class="m-ext-cursor-pager" :aria-label="$t('exterior.pagination')">
+                        <el-button v-if="page > 2" round :disabled="loading" @click="goFirstPage">{{ $t("exterior.firstPage") }}</el-button>
+                        <el-button round :disabled="page <= 1 || loading" @click="goPrevPage">{{ $t("exterior.previousPage") }}</el-button>
                         <span class="u-pager-status">
-                            第 <strong>{{ page }}</strong>
-                            <template v-if="pageCount"> / {{ pageCount }}</template> 页
+                            {{ $t("exterior.pageNumber", { page: pageCount ? `${page} / ${pageCount}` : page }) }}
                         </span>
                         <el-button
                             type="primary"
@@ -224,7 +223,7 @@
                             :disabled="nextCursor === null || loading"
                             @click="goNextPage"
                         >
-                            下一页
+                            {{ $t("exterior.nextPage") }}
                         </el-button>
                     </nav>
                 </div>
@@ -257,6 +256,8 @@ import {
     DOMAIN_META,
     HIDDEN_LIST_DOMAINS,
     VISIBLE_LIST_DOMAINS,
+    WEAPON_SCHOOLS,
+    localizedExteriorLabel,
 } from "@/components/exterior/meta";
 import { getExteriorCategories, getExteriorCount, getExteriorsList } from "@/service/exterior";
 
@@ -314,10 +315,10 @@ export default {
         bodyTypeHint() {
             const { roleSource, characterRole } = this.$store.state;
             if (roleSource !== "character" || !characterRole?.role) return this.$t("exterior.bodyTypeHint");
-            const bodyLabel = BODY_LABEL_MAP[characterRole.role] || "";
+            const bodyLabel = localizedExteriorLabel(this.$t, BODY_LABEL_MAP[characterRole.role]) || "";
             return characterRole.name
-                ? `已按你的默认角色「${characterRole.name}」自动展示${bodyLabel}封面`
-                : `已按你的默认角色体型自动展示${bodyLabel}封面`;
+                ? this.$t("exterior.namedBodyHint", { name: characterRole.name, body: bodyLabel })
+                : this.$t("exterior.defaultBodyHint", { body: bodyLabel });
         },
         activeDrawer() {
             const { name, query } = this.$route;
@@ -338,7 +339,7 @@ export default {
             return Array.from(byDomain, ([domain, categories]) => ({
                 domain,
                 categories,
-                name: DOMAIN_META[domain]?.label || (categories.length === 1 ? categories[0].name : domain),
+                name: localizedExteriorLabel(this.$t, DOMAIN_META[domain]?.label) || (categories.length === 1 ? categories[0].name : domain),
             })).sort((a, b) => orderIndex(a.domain) - orderIndex(b.domain));
         },
         domainTabs() {
@@ -346,7 +347,7 @@ export default {
                 ? this.categoryGroups
                 : VISIBLE_LIST_DOMAINS.map((domain) => ({
                       domain,
-                      name: DOMAIN_META[domain]?.label || domain,
+                      name: localizedExteriorLabel(this.$t, DOMAIN_META[domain]?.label) || domain,
                   }));
             return [{ domain: "", name: this.$t("exterior.allTypes") }, ...groups];
         },
@@ -354,23 +355,30 @@ export default {
             return this.categoryGroups.find((group) => group.domain === this.domain);
         },
         subcategories() {
-            return this.selectedGroup?.categories || [];
+            const options = this.domain === "weapon" ? WEAPON_SCHOOLS : this.selectedGroup?.categories || [];
+            return options.map((option) => ({ ...option, name: localizedExteriorLabel(this.$t, option.name) }));
+        },
+        selectedSubcategory() {
+            return this.subcategories.find(({ key }) => key === this.category);
         },
         resultTitle() {
-            if (this.keyword) return `“${this.keyword}”的搜索结果`;
-            const selected = this.subcategories.find(({ key }) => key === this.category);
-            return selected?.name || this.selectedGroup?.name || this.$t("pages.index.ui.menus.exterior");
+            if (this.keyword) return this.$t("exterior.searchResults", { keyword: this.keyword });
+            return this.selectedSubcategory?.name || this.selectedGroup?.name || this.$t("pages.index.ui.menus.exterior");
         },
         pageCount() {
             if (typeof this.total !== "number" || this.total < 0) return null;
             return Math.max(1, Math.ceil(this.total / this.pageSize));
         },
         filters() {
-            const category = this.category || (this.subcategories.length === 1 ? this.subcategories[0].key : undefined);
+            const category =
+                this.domain === "weapon"
+                    ? undefined
+                    : this.category || (this.subcategories.length === 1 ? this.subcategories[0].key : undefined);
             return {
                 limit: this.pageSize,
                 domain: category ? undefined : this.domain || undefined,
                 category,
+                school: this.selectedSubcategory?.school,
                 keyword: this.keyword || undefined,
             };
         },
@@ -473,9 +481,9 @@ export default {
         async loadTotal() {
             this.countRequest?.abort();
             const request = (this.countRequest = new AbortController());
-            const { domain, category, keyword } = this.filters;
+            const { domain, category, school, keyword } = this.filters;
             try {
-                const { total } = await getExteriorCount({ domain, category, keyword }, request.signal);
+                const { total } = await getExteriorCount({ domain, category, school, keyword }, request.signal);
                 if (!request.signal.aborted) this.total = total;
             } catch (error) {
                 if (!request.signal.aborted) console.warn("Failed to load exterior count", error.message);

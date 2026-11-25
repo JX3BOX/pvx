@@ -4,6 +4,8 @@ import User from "@jx3box/jx3box-common/js/user";
 import { getUserRoles } from "@/service/team";
 import { normalizeBodyType, resolveExteriorAssetUrl } from "@/components/exterior/meta";
 
+import { tGlobal as t } from "@jx3box/jx3box-ui/i18n";
+
 export const exteriorBodyTypes = { 1: "man", 2: "woman", 5: "boy", 6: "girl" };
 
 const catalogPath = "/api/node/v2/exterior";
@@ -138,7 +140,7 @@ export async function uploadShowcaseImage(file) {
     if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
     const list = Array.isArray(data.data) ? data.data : [data.data?.url || data.data].filter(Boolean);
     const url = list[0];
-    if (!url) throw new Error("图片上传失败，未返回有效地址");
+    if (!url) throw new Error(t("exterior.service.uploadFailed"));
     return url;
 }
 
@@ -153,8 +155,8 @@ function buildShowcasePayload({
     client = "std",
 }) {
     const cleanPics = pics.map((item) => String(item || "").trim()).filter(Boolean);
-    if (!cleanPics.length) throw new Error("请至少上传一张外观截图");
-    const cleanTitle = String(title || "").trim() || `${exteriorName || "外观"} · 玩家返图`;
+    if (!cleanPics.length) throw new Error(t("exterior.service.imageRequired"));
+    const cleanTitle = String(title || "").trim() || t("exterior.service.defaultTitle", { name: exteriorName || t("exterior.service.appearance") });
     const cleanExcerpt = String(content || "").trim();
     const htmlBlocks = [];
     if (cleanExcerpt) {
@@ -360,7 +362,7 @@ export async function getUserVerifyStatus(force = false) {
         .get("/api/cms/user/my/info")
         .then(({ data }) => {
             if (data?.code) {
-                throw Object.assign(new Error(data.msg || "用户信息获取失败"), { code: data.code });
+                throw Object.assign(new Error(data.msg || t("exterior.service.userInfoFailed")), { code: data.code });
             }
             const info = data?.data || {};
             const userGroup = Number(info.user_group || 0);
@@ -403,7 +405,7 @@ export function getFaceExpressionsManifest() {
             credentials: "omit",
         })
             .then((res) => {
-                if (!res.ok) throw new Error(`面部表情清单加载失败: HTTP ${res.status}`);
+                if (!res.ok) throw new Error(t("exterior.service.expressionManifest", { status: res.status }));
                 return res.json();
             })
             .catch((err) => {
@@ -430,7 +432,7 @@ export function getPetBehaviorsManifest() {
             credentials: "omit",
         })
             .then((res) => {
-                if (!res.ok) throw new Error(`挂宠行为清单加载失败: HTTP ${res.status}`);
+                if (!res.ok) throw new Error(t("exterior.service.petManifest", { status: res.status }));
                 return res.json();
             })
             .catch((err) => {
@@ -456,7 +458,7 @@ export function getWeaponStancesManifest() {
             credentials: "omit",
         })
             .then((res) => {
-                if (!res.ok) throw new Error(`武器姿态清单加载失败: HTTP ${res.status}`);
+                if (!res.ok) throw new Error(t("exterior.service.stanceManifest", { status: res.status }));
                 return res.json();
             })
             .catch((err) => {
@@ -600,7 +602,7 @@ export async function fetchMallAttachment(type, postId, signal) {
     if (data.code) throw Object.assign(new Error(data.msg), { code: data.code });
     const list = data.data?.list || [];
     const item = list[0];
-    if (!item) throw new Error("未找到可用的数据附件");
+    if (!item) throw new Error(t("exterior.service.missingAttachment"));
     if (item.data) {
         return {
             record: item,
@@ -610,11 +612,11 @@ export async function fetchMallAttachment(type, postId, signal) {
     const fileUrl = item.url || item.file;
     if (fileUrl) {
         const res = await fetch(resolveExteriorAssetUrl(fileUrl), { signal });
-        if (!res.ok) throw new Error(`下载附件失败: HTTP ${res.status}`);
+        if (!res.ok) throw new Error(t("exterior.service.downloadFailed", { status: res.status }));
         return {
             record: item,
             bytes: new Uint8Array(await res.arrayBuffer()),
         };
     }
-    throw new Error("该作品未包含可直接应用的数据文件");
+    throw new Error(t("exterior.service.missingFile"));
 }

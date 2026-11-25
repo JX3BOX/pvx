@@ -3,17 +3,17 @@
         <div v-if="!preview && !requiresLogin && !loadError && rawEntries.length" class="flex flex-wrap gap-1.5">
             <button
                 v-for="tab in domainTabs"
-                :key="tab.value"
+                :key="tab"
                 type="button"
                 class="rounded-full border px-2.5 py-1 text-xs font-medium transition-colors"
                 :class="
-                    activeDomain === tab.value
+                    activeDomain === tab
                         ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                 "
-                @click="activeDomain = tab.value"
+                @click="activeDomain = tab"
             >
-                {{ tab.label }}
+                {{ $t(tab ? `exterior.domains.${tab}` : "exterior.allTypes") }}
             </button>
         </div>
 
@@ -92,7 +92,7 @@
                                 v-if="isFavorites && entry.pinned"
                                 class="inline-flex shrink-0 items-center rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700"
                             >
-                                置顶
+                                {{ $t("exterior.star.pin") }}
                             </span>
                             <span>{{ entry.exterior.name }}</span>
                         </span>
@@ -166,15 +166,6 @@ import {
 
 const PREVIEW_LIMIT = 3;
 
-const FILTER_DOMAINS = [
-    { value: "", label: "全部" },
-    { value: "bundle", label: "礼盒" },
-    { value: "outfit", label: "成衣" },
-    { value: "hair", label: "发型" },
-    { value: "pendant", label: "挂件" },
-    { value: "weapon", label: "武器" },
-];
-
 export default {
     name: "ExteriorStarList",
     components: { ExteriorDomainBadge, PvxActionButton, PvxEmptyState, StarFilled, Top, Trophy },
@@ -187,7 +178,7 @@ export default {
     data() {
         return {
             rankColors: ["bg-rose-100 text-rose-700", "bg-amber-100 text-amber-800", "bg-indigo-100 text-indigo-700"],
-            domainTabs: FILTER_DOMAINS,
+            domainTabs: ["", "bundle", "outfit", "hair", "pendant", "weapon"],
             activeDomain: "",
             rawEntries: [],
             removing: new Set(),
@@ -245,7 +236,7 @@ export default {
         },
         domainLabel(entry) {
             const domain = entry.exterior?.domain;
-            return domain ? DOMAIN_META[domain]?.label || domain : "";
+            return DOMAIN_META[domain] ? this.$t(`exterior.domains.${domain}`) : domain || "";
         },
         login() {
             User.toLogin();

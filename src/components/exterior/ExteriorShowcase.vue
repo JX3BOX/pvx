@@ -3,7 +3,7 @@
     <PvxSurface v-loading="loading" tag="section" padding="medium" class="m-ext-showcase">
         <PvxSectionHeader
             :title="$t('exterior.showcase')"
-            :description="$t('exterior.showcaseDesc') + (total ? '（' + total + ' 组）' : '')"
+            :description="$t('exterior.showcaseDesc') + (total ? $t('exteriorPreview.postCount', { count: total }) : '')"
         >
             <template #icon><Camera /></template>
             <template #action>
@@ -14,7 +14,7 @@
             </template>
         </PvxSectionHeader>
 
-        <PvxEmptyState v-if="error" :title="$t('exterior.loadError')" :description="error">
+        <PvxEmptyState v-if="error" :title="$t('exterior.loadError')" :description="requestErrorMessage(error)">
             <template #action>
                 <el-button @click="load(page)">{{ $t("exterior.retry") }}</el-button>
             </template>
@@ -36,14 +36,14 @@
                         <img
                             v-if="cardCover(post)"
                             :src="cardCover(post)"
-                            :alt="post.post_title || '玩家返图'"
+                            :alt="post.post_title || $t('exteriorPreview.post')"
                             loading="lazy"
                             class="u-show-img"
                         />
                         <div v-else class="u-show-fallback">{{ $t("exterior.imageUnavailable") }}</div>
                         <div class="m-show-card__badges">
-                            <span v-if="isPendingReview(post)" class="u-show-pending-badge">审核中 · 仅自己可见</span>
-                            <span v-if="post.post_subtype" class="u-show-body-badge">{{ post.post_subtype }}</span>
+                            <span v-if="isPendingReview(post)" class="u-show-pending-badge">{{ $t('exteriorPreview.pendingPrivate') }}</span>
+                            <span v-if="post.post_subtype" class="u-show-body-badge">{{ localizedExteriorLabel($t, post.post_subtype) }}</span>
                         </div>
                         <span v-if="postPicCount(post) > 1" class="u-show-pic-badge">
                             <el-icon><Picture /></el-icon>
@@ -53,7 +53,7 @@
 
                     <div class="m-show-card__body">
                         <h3 class="u-show-title" :title="post.post_title">
-                            {{ post.post_title || "玩家返图" }}
+                            {{ post.post_title || $t('exteriorPreview.post') }}
                         </h3>
                         <p v-if="post.post_excerpt" class="u-show-excerpt">
                             {{ post.post_excerpt }}
@@ -67,7 +67,7 @@
                                     loading="lazy"
                                     class="u-author-avatar"
                                 />
-                                <span class="u-author-name">{{ post.author_info?.display_name || "匿名侠士" }}</span>
+                                <span class="u-author-name">{{ post.author_info?.display_name || $t('exteriorPreview.anonymous') }}</span>
                             </div>
                             <span v-if="formatDate(post.post_date)" class="u-show-date">
                                 {{ formatDate(post.post_date) }}
@@ -76,7 +76,7 @@
                         <div v-if="isOwnPost(post)" class="m-show-card__owner-bar" @click.stop>
                             <button type="button" class="u-owner-btn" @click="openEditDrawer(post)">
                                 <el-icon><Edit /></el-icon>
-                                <span>编辑</span>
+                                <span>{{ $t('exteriorPreview.edit') }}</span>
                             </button>
                             <button
                                 type="button"
@@ -85,7 +85,7 @@
                                 @click="confirmDeletePost(post)"
                             >
                                 <el-icon><Delete /></el-icon>
-                                <span>{{ deletingId === post.ID ? "删除中…" : "删除" }}</span>
+                                <span>{{ deletingId === post.ID ? $t('exteriorPreview.deleting') : $t('exteriorPreview.delete') }}</span>
                             </button>
                         </div>
                     </div>
@@ -126,23 +126,23 @@
         >
             <template #header>
                 <div class="m-drawer-head">
-                    <h3>{{ editingPostId ? "编辑外观返图" : "发布外观返图" }}</h3>
+                    <h3>{{ editingPostId ? $t('exteriorPreview.editPost') : $t('exteriorPreview.publishPost') }}</h3>
                     <span class="u-drawer-target">{{ targetName }}</span>
                 </div>
             </template>
 
             <div class="m-publish-body">
                 <p v-if="isCanonicalRedirect" class="u-canonical-note">
-                    同套礼盒与成衣共享返图墙，本次返图将自动归属至「{{ targetName }}」
+                    {{ $t('exteriorPreview.sharedWall', { name: targetName }) }}
                 </p>
                 <p class="u-review-note">
-                    返图提交或修改后将进入运营审核；审核期间仅你自己可见，审核通过后即刻向全部玩家公开展示。
+                    {{ $t('exteriorPreview.reviewNote') }}
                 </p>
 
                 <div class="m-form-section">
                     <div class="u-section-head">
-                        <span class="u-label">上传游戏截图 <em>*</em></span>
-                        <span class="u-hint">{{ form.pics.length }} / {{ maxPics }} 张 · 单张不超过 10MB</span>
+                        <span class="u-label">{{ $t('exteriorPreview.uploadScreens') }} <em>*</em></span>
+                        <span class="u-hint">{{ $t('exteriorPreview.imageLimit', { count: form.pics.length, max: maxPics }) }}</span>
                     </div>
 
                     <div
@@ -154,21 +154,21 @@
                     >
                         <div v-for="(pic, idx) in form.pics" :key="pic" class="m-upload-tile">
                             <img :src="pic" alt="" class="u-tile-img" />
-                            <span v-if="idx === 0" class="u-cover-tag">封面</span>
+                            <span v-if="idx === 0" class="u-cover-tag">{{ $t('exteriorPreview.cover') }}</span>
                             <div class="m-tile-actions">
                                 <button
                                     v-if="idx > 0"
                                     type="button"
                                     class="u-tile-btn"
-                                    title="设为封面"
+                                    :title="$t('exteriorPreview.setCover')"
                                     @click="setAsCover(idx)"
                                 >
-                                    封面
+                                    {{ $t('exteriorPreview.cover') }}
                                 </button>
                                 <button
                                     type="button"
                                     class="u-tile-btn is-danger"
-                                    title="删除"
+                                    :title="$t('exteriorPreview.delete')"
                                     @click="removePic(idx)"
                                 >
                                     <el-icon><Delete /></el-icon>
@@ -191,15 +191,15 @@
                                 @change="onFileSelect"
                             />
                             <el-icon class="u-plus-icon"><Plus /></el-icon>
-                            <span>{{ uploadingCount > 0 ? `上传中(${uploadingCount})…` : "选择本地图片" }}</span>
+                            <span>{{ uploadingCount > 0 ? $t('exteriorPreview.uploading', { count: uploadingCount }) : $t('exteriorPreview.chooseImages') }}</span>
                         </label>
                     </div>
                 </div>
 
                 <div class="m-form-section">
                     <div class="u-section-head">
-                        <span class="u-label">展示体型</span>
-                        <span class="u-hint">可选，便于同体型侠士参考</span>
+                        <span class="u-label">{{ $t('exteriorPreview.shownBody') }}</span>
+                        <span class="u-hint">{{ $t('exteriorPreview.bodyHint') }}</span>
                     </div>
                     <div class="m-role-pills">
                         <button
@@ -210,28 +210,28 @@
                             :class="{ 'is-active': form.roleType === body.id }"
                             @click="toggleFormRole(body.id)"
                         >
-                            {{ body.label }}
+                            {{ localizedExteriorLabel($t, body.label) }}
                         </button>
                     </div>
                 </div>
 
                 <div class="m-form-section">
                     <div class="u-section-head">
-                        <span class="u-label">返图标题</span>
-                        <span class="u-hint">选填，留空将自动使用外观名</span>
+                        <span class="u-label">{{ $t('exteriorPreview.postTitle') }}</span>
+                        <span class="u-hint">{{ $t('exteriorPreview.titleHint') }}</span>
                     </div>
                     <el-input
                         v-model="form.title"
                         maxlength="60"
                         clearable
-                        :placeholder="`${targetName} · 玩家返图`"
+                        :placeholder="$t('exterior.service.defaultTitle', { name: targetName })"
                     />
                 </div>
 
                 <div class="m-form-section">
                     <div class="u-section-head">
-                        <span class="u-label">搭配心得</span>
-                        <span class="u-hint">选填</span>
+                        <span class="u-label">{{ $t('exteriorPreview.notes') }}</span>
+                        <span class="u-hint">{{ $t('exteriorPreview.optional') }}</span>
                     </div>
                     <el-input
                         v-model="form.content"
@@ -239,14 +239,14 @@
                         :rows="4"
                         maxlength="500"
                         show-word-limit
-                        placeholder="聊聊染色思路、搭配头发、拍照地图或上身感受…"
+                        :placeholder="$t('exteriorPreview.notesHint')"
                     />
                 </div>
             </div>
 
             <template #footer>
                 <div class="m-drawer-footer">
-                    <el-button round @click="publishVisible = false">取消</el-button>
+                    <el-button round @click="publishVisible = false">{{ $t('exteriorPreview.cancel') }}</el-button>
                     <el-button
                         type="primary"
                         round
@@ -254,7 +254,7 @@
                         :disabled="uploadingCount > 0 || !form.pics.length"
                         @click="submitShowcase"
                     >
-                        {{ editingPostId ? "保存并提交审核" : "提交审核" }}
+                        {{ editingPostId ? $t('exteriorPreview.saveReview') : $t('exteriorPreview.submitReview') }}
                     </el-button>
                 </div>
             </template>
@@ -270,15 +270,15 @@
         >
             <template #header>
                 <div class="m-drawer-head">
-                    <h3>{{ activePost?.post_title || "玩家返图" }}</h3>
-                    <span v-if="activePost && isPendingReview(activePost)" class="u-drawer-pending">审核中</span>
-                    <span v-if="activePost?.post_subtype" class="u-drawer-target">{{ activePost.post_subtype }}</span>
+                    <h3>{{ activePost?.post_title || $t('exteriorPreview.post') }}</h3>
+                    <span v-if="activePost && isPendingReview(activePost)" class="u-drawer-pending">{{ $t('exteriorPreview.pending') }}</span>
+                    <span v-if="activePost?.post_subtype" class="u-drawer-target">{{ localizedExteriorLabel($t, activePost.post_subtype) }}</span>
                 </div>
             </template>
 
             <div v-if="activePost" v-loading="detailLoading" class="m-detail-body">
                 <div v-if="isPendingReview(activePost)" class="u-review-note">
-                    当前返图正在等待运营审核，仅你本人可见，通过后将自动对所有玩家展示。
+                    {{ $t('exteriorPreview.pendingNote') }}
                 </div>
 
                 <div class="m-detail-author">
@@ -289,7 +289,7 @@
                         class="u-detail-avatar"
                     />
                     <div class="m-detail-author-info">
-                        <span class="u-detail-name">{{ activePost.author_info?.display_name || "匿名侠士" }}</span>
+                        <span class="u-detail-name">{{ activePost.author_info?.display_name || $t('exteriorPreview.anonymous') }}</span>
                         <span v-if="formatDate(activePost.post_date, true)" class="u-detail-time">
                             {{ formatDate(activePost.post_date, true) }}
                         </span>
@@ -297,7 +297,7 @@
                     <div v-if="isOwnPost(activePost)" class="m-detail-owner-actions">
                         <el-button size="small" plain round @click="openEditDrawer(activePost)">
                             <el-icon class="el-icon--left"><Edit /></el-icon>
-                            编辑
+                            {{ $t('exteriorPreview.edit') }}
                         </el-button>
                         <el-button
                             size="small"
@@ -308,7 +308,7 @@
                             @click="confirmDeletePost(activePost)"
                         >
                             <el-icon class="el-icon--left"><Delete /></el-icon>
-                            删除
+                            {{ $t('exteriorPreview.delete') }}
                         </el-button>
                     </div>
                 </div>
@@ -318,7 +318,7 @@
                         <el-image
                             :key="activeDetailPics[activeDetailIndex]"
                             :src="activeDetailPics[activeDetailIndex]"
-                            :alt="activePost.post_title || '玩家返图'"
+                            :alt="activePost.post_title || $t('exteriorPreview.post')"
                             :preview-src-list="activeDetailPics"
                             :initial-index="activeDetailIndex"
                             fit="contain"
@@ -333,6 +333,7 @@
                             type="button"
                             class="u-detail-thumb"
                             :class="{ 'is-active': idx === activeDetailIndex }"
+                            :aria-label="$t('exteriorPreview.viewPhoto', { number: idx + 1 })"
                             @click="activeDetailIndex = idx"
                         >
                             <img :src="pic" alt="" />
@@ -343,7 +344,7 @@
                 <p v-if="activeDetailText" class="m-detail-caption">{{ activeDetailText }}</p>
 
                 <div class="m-detail-comments">
-                    <h4 class="u-comments-title">玩家评论</h4>
+                    <h4 class="u-comments-title">{{ $t('exteriorPreview.comments') }}</h4>
                     <Comment :key="activePost.ID" :id="String(activePost.ID)" category="post" order="desc" />
                 </div>
             </div>
@@ -372,7 +373,7 @@ import {
     updateExteriorShowcase,
     uploadShowcaseImage,
 } from "@/service/exterior";
-import { BODY_LABEL_MAP, BODY_TYPES, normalizeBodyType } from "./meta";
+import { localizedExteriorLabel, BODY_LABEL_MAP, BODY_TYPES, normalizeBodyType } from "./meta";
 
 const MAX_PICS = 9;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -486,6 +487,11 @@ export default {
         this.detailAbort?.abort();
     },
     methods: {
+        localizedExteriorLabel,
+        requestErrorMessage(error, fallbackKey = "exterior.requestError") {
+            return error?.data?.msg || error?.response?.data?.msg || error?.message ||
+                (typeof error === "string" ? error : this.$t(fallbackKey));
+        },
         showAvatar,
         isPendingReview(post) {
             return String(post?.visible ?? "0") === "1";
@@ -504,13 +510,12 @@ export default {
             if (!raw) return "";
             const date = new Date(raw);
             if (Number.isNaN(date.getTime())) return "";
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, "0");
-            const d = String(date.getDate()).padStart(2, "0");
-            if (!withTime) return `${y}-${m}-${d}`;
-            const hh = String(date.getHours()).padStart(2, "0");
-            const mm = String(date.getMinutes()).padStart(2, "0");
-            return `${y}-${m}-${d} ${hh}:${mm}`;
+            return date.toLocaleString(this.$i18n.locale, {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
+            });
         },
         async load(targetPage = 1) {
             this.listAbort?.abort();
@@ -546,11 +551,7 @@ export default {
                 if (controller.signal.aborted || error?.name === "CanceledError" || error?.name === "AbortError") {
                     return;
                 }
-                this.error =
-                    error?.data?.msg ||
-                    error?.response?.data?.msg ||
-                    error?.message ||
-                    this.$t("exterior.requestError");
+                this.error = error;
             } finally {
                 if (!controller.signal.aborted) this.loading = false;
             }
@@ -567,12 +568,12 @@ export default {
         },
         promptVerifyAuth() {
             ElMessageBox.confirm(
-                "根据站点安全规范，发布或编辑外观返图需先完成账号认证（手机验证或绑定微信公众号）。",
-                "需要完成账号认证",
+                this.$t('exteriorPreview.verifyPost'),
+                this.$t('exteriorPreview.verifyRequired'),
                 {
                     type: "warning",
-                    confirmButtonText: "前往认证",
-                    cancelButtonText: "取消",
+                    confirmButtonText: this.$t('exteriorPreview.verify'),
+                    cancelButtonText: this.$t('exteriorPreview.cancel'),
                 }
             )
                 .then(() => {
@@ -619,10 +620,10 @@ export default {
         async confirmDeletePost(post) {
             if (!post?.ID || this.deletingId === post.ID) return;
             try {
-                await ElMessageBox.confirm("删除后这条返图将不再展示，且无法恢复，确定要删除吗？", "删除返图", {
+                await ElMessageBox.confirm(this.$t('exteriorPreview.deletePrompt'), this.$t('exteriorPreview.deletePost'), {
                     type: "warning",
-                    confirmButtonText: "确认删除",
-                    cancelButtonText: "取消",
+                    confirmButtonText: this.$t('exteriorPreview.confirmDelete'),
+                    cancelButtonText: this.$t('exteriorPreview.cancel'),
                 });
             } catch {
                 return;
@@ -630,7 +631,7 @@ export default {
             this.deletingId = post.ID;
             try {
                 await deleteExteriorShowcase(post.ID);
-                ElMessage.success("返图已删除");
+                ElMessage.success(this.$t('exteriorPreview.deleted'));
                 if (this.activePost && Number(this.activePost.ID) === Number(post.ID)) {
                     this.detailVisible = false;
                     this.activePost = null;
@@ -639,11 +640,7 @@ export default {
                 await this.load(1);
             } catch (error) {
                 const code = error?.code || error?.response?.data?.code;
-                const msg =
-                    error?.data?.msg ||
-                    error?.response?.data?.msg ||
-                    error?.message ||
-                    this.$t("exterior.requestError");
+                const msg = this.requestErrorMessage(error);
                 if (code === 40301 || msg.includes("账号认证")) {
                     this.promptVerifyAuth();
                     return;
@@ -669,17 +666,17 @@ export default {
         async uploadFiles(files) {
             const remaining = this.maxPics - this.form.pics.length;
             if (remaining <= 0) {
-                ElMessage.warning(`最多上传 ${this.maxPics} 张截图`);
+                ElMessage.warning(this.$t('exteriorPreview.maxImages', { max: this.maxPics }));
                 return;
             }
             const valid = [];
             for (const file of files) {
                 if (!file.type.startsWith("image/")) {
-                    ElMessage.warning(`「${file.name}」不是图片文件，已跳过`);
+                    ElMessage.warning(this.$t('exteriorPreview.notImage', { name: file.name }));
                     continue;
                 }
                 if (file.size > MAX_FILE_BYTES) {
-                    ElMessage.warning(`「${file.name}」超过 10MB，已跳过`);
+                    ElMessage.warning(this.$t('exteriorPreview.tooLarge', { name: file.name }));
                     continue;
                 }
                 valid.push(file);
@@ -695,12 +692,8 @@ export default {
                         this.form.pics.push(url);
                     }
                 } catch (error) {
-                    const msg =
-                        error?.data?.msg ||
-                        error?.response?.data?.msg ||
-                        error?.message ||
-                        (typeof error === "string" ? error : "上传失败");
-                    ElMessage.error(`「${file.name}」上传失败：${msg}`);
+                    const msg = this.requestErrorMessage(error, "exteriorPreview.uploadFail");
+                    ElMessage.error(this.$t('exteriorPreview.uploadError', { name: file.name, message: msg }));
                 } finally {
                     this.uploadingCount = Math.max(0, this.uploadingCount - 1);
                 }
@@ -716,7 +709,7 @@ export default {
         async submitShowcase() {
             if (this.submitting || this.uploadingCount > 0) return;
             if (!this.form.pics.length) {
-                ElMessage.warning("请至少上传一张游戏截图");
+                ElMessage.warning(this.$t('exteriorPreview.needImage'));
                 return;
             }
             this.submitting = true;
@@ -733,10 +726,10 @@ export default {
                 };
                 if (this.editingPostId) {
                     await updateExteriorShowcase(this.editingPostId, payload);
-                    ElMessage.success("返图已更新，重新进入审核（审核期间仅自己可见）");
+                    ElMessage.success(this.$t('exteriorPreview.updated'));
                 } else {
                     await createExteriorShowcase(payload);
-                    ElMessage.success("返图已提交审核，审核期间仅自己可见");
+                    ElMessage.success(this.$t('exteriorPreview.submitted'));
                 }
                 this.publishVisible = false;
                 this.editingPostId = null;
@@ -749,11 +742,7 @@ export default {
                 await this.load(1);
             } catch (error) {
                 const code = error?.code || error?.response?.data?.code;
-                const msg =
-                    error?.data?.msg ||
-                    error?.response?.data?.msg ||
-                    error?.message ||
-                    this.$t("exterior.requestError");
+                const msg = this.requestErrorMessage(error);
                 if (code === 40301 || msg.includes("账号认证")) {
                     this.promptVerifyAuth();
                     return;
