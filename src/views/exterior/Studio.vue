@@ -1001,6 +1001,8 @@ export default {
                         onProgress,
                         onError: (err) => {
                             if (seq === this.stageSeq) {
+                                this.preview = null;
+                                this.stageReady = false;
                                 this.stageError = err?.message || "3D 渲染发生错误";
                                 this.stageLoading = false;
                             }
